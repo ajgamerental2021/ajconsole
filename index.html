@@ -64,6 +64,11 @@ nav{position:sticky;top:0;z-index:300;background:#fff;border-bottom:2px solid va
 .sort-select{background:#fff;border:1.5px solid var(--border);color:var(--text2);padding:5px 28px 5px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;outline:none;transition:border-color .18s;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M5 7L0 0h10z' fill='%23999'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;}
 .sort-select:focus{border-color:var(--accent);}
 .console-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;}
+.console-section{margin-top:22px;}
+.console-section:first-child{margin-top:0;}
+.console-group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--r);}
+.console-group-title{font-size:16px;font-weight:700;}
+.console-group-meta{font-size:11px;color:var(--muted);font-weight:600;}
 .con-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:box-shadow .2s,transform .2s,border-color .2s;box-shadow:var(--shadow);}
 .con-card:hover{border-color:var(--border-r);transform:translateY(-3px);box-shadow:var(--shadow-h);}
 .con-img{height:145px;display:flex;align-items:center;justify-content:center;background:var(--surface);overflow:hidden;border-bottom:1px solid var(--border);}
@@ -266,8 +271,9 @@ footer{background:#0d0d0d;padding:30px 22px;text-align:center;}
       <div class="filter-row">
         <span class="filter-row-label" id="flbl-sort">เรียง</span>
         <select class="sort-select" id="sortSel" onchange="renderConsoles()">
-          <option value="price-asc">ราคา: ต่ำ → สูง</option>
+          <option value="group-brand">แยกตามแบรนด์</option>
           <option value="price-desc">ราคา: สูง → ต่ำ</option>
+          <option value="price-asc">ราคา: ต่ำ → สูง</option>
           <option value="name-asc">ชื่อ A → Z</option>
         </select>
       </div>
@@ -513,8 +519,8 @@ const T={
     dateWarnMin:'⚠️ ขั้นต่ำ 3 วัน — กรุณาเลือกวันคืนใหม่',dateWarnOrder:'⚠️ วันคืนต้องหลังวันเริ่มเช่า',
     flblType:'ประเภท',flblBrand:'แบรนด์',flblSort:'เรียง',
     filterAll:'ทั้งหมด',filterConsole:'Console',filterVR:'VR & AR',filterHandheld:'PC Handheld',filterRacing:'Racing',
-    filterPS:'PlayStation',filterNintendo:'Nintendo Switch',filterXbox:'Xbox',filterOther:'Other',
-    sortAsc:'ราคา: ต่ำ → สูง',sortDesc:'ราคา: สูง → ต่ำ',sortName:'ชื่อ A → Z',
+    filterPS:'PlayStation',filterNintendo:'Nintendo Switch',filterXbox:'Xbox',filterLogitech:'Logitech',filterMeta:'Meta Quest',filterViture:'Viture',filterXreal:'XREAL',filterLenovo:'Lenovo',filterROG:'ROG',filterSteamDeck:'Steam Deck',filterOther:'Other',
+    sortGroupBrand:'แยกตามแบรนด์',sortAsc:'ราคา: ต่ำ → สูง',sortDesc:'ราคา: สูง → ต่ำ',sortName:'ชื่อ A → Z',
     statTotal:'เครื่องทั้งหมด',statConsole:'Console',statVR:'VR & AR',statHandheld:'PC Handheld',statRacing:'Racing',
     daily:'รายวัน',weekly:'รายสัปดาห์',day:'วัน',wk:'สัปดาห์',deposit:'มัดจำ',viewGames:'🎮 รายการเกม',
     ps5BundleTitle:'🎮 BUNDLE กับ PS5',swAddonTitle:'🎮 อุปกรณ์เสริม',swSubLbl:'อุปกรณ์เพิ่มเติม (เลือกเพิ่มได้)',
@@ -557,8 +563,8 @@ const T={
     dateWarnMin:'⚠️ Minimum 3 days — please select a new return date.',dateWarnOrder:'⚠️ Return date must be after start date.',
     flblType:'Type',flblBrand:'Brand',flblSort:'Sort',
     filterAll:'All',filterConsole:'Console',filterVR:'VR & AR',filterHandheld:'PC Handheld',filterRacing:'Racing',
-    filterPS:'PlayStation',filterNintendo:'Nintendo Switch',filterXbox:'Xbox',filterOther:'Other',
-    sortAsc:'Price: Low → High',sortDesc:'Price: High → Low',sortName:'Name A → Z',
+    filterPS:'PlayStation',filterNintendo:'Nintendo Switch',filterXbox:'Xbox',filterLogitech:'Logitech',filterMeta:'Meta Quest',filterViture:'Viture',filterXreal:'XREAL',filterLenovo:'Lenovo',filterROG:'ROG',filterSteamDeck:'Steam Deck',filterOther:'Other',
+    sortGroupBrand:'Group by Brand',sortAsc:'Price: Low → High',sortDesc:'Price: High → Low',sortName:'Name A → Z',
     statTotal:'Total Consoles',statConsole:'Console',statVR:'VR & AR',statHandheld:'PC Handheld',statRacing:'Racing',
     daily:'Daily',weekly:'Weekly',day:'day',wk:'wk',deposit:'Deposit',viewGames:'🎮 Game List',
     ps5BundleTitle:'🎮 PS5 BUNDLE OPTIONS',swAddonTitle:'🎮 Switch Accessories',swSubLbl:'Additional accessories (optional)',
@@ -711,7 +717,8 @@ function updateStatic(){
   const payWrap=document.getElementById('paymentOptionWrap');
   if(payWrap) payWrap.style.display=lang==='en'?'block':'none';
   const s=document.getElementById('sortSel');
-  s.options[0].text=t('sortAsc');s.options[1].text=t('sortDesc');s.options[2].text=t('sortName');
+  s.options[0].text=t('sortGroupBrand');s.options[1].text=t('sortDesc');s.options[2].text=t('sortAsc');s.options[3].text=t('sortName');
+  if(!s.value) s.value='group-brand';
   const paySel=document.getElementById('paymentOption');
   if(paySel){
     paySel.options[0].text=t('payBank');
@@ -741,22 +748,41 @@ function renderStats(){
     return `<div class="stat-card" style="--sc:${tp.c}"><div class="stat-icon">${tp.ic}</div><div class="stat-num">${n}</div><div class="stat-lbl">${tp.lb}</div></div>`;
   }).join('');
 }
-function renderFilterTabs(){
-  const tft=[{id:'all',lb:t('filterAll')},{id:'console',lb:t('filterConsole')},{id:'vr',lb:t('filterVR')},{id:'handheld',lb:t('filterHandheld')},{id:'racing',lb:t('filterRacing')}];
-  const bft=[{id:'all',lb:t('filterAll')},{id:'playstation',lb:t('filterPS')},{id:'nintendo',lb:t('filterNintendo')},{id:'xbox',lb:t('filterXbox')},{id:'other',lb:t('filterOther')}];
-  document.getElementById('ftType').innerHTML=tft.map(f=>`<button class="ftab${f.id===activeType?' act':''}" onclick="setTypeF('${f.id}')">${f.lb}</button>`).join('');
-  document.getElementById('ftBrand').innerHTML=bft.map(f=>`<button class="ftab${f.id===activeBrand?' act':''}" onclick="setBrandF('${f.id}')">${f.lb}</button>`).join('');
+const BRAND_META={
+  playstation:{labelKey:'filterPS', icon:'🎮', order:1},
+  nintendo:{labelKey:'filterNintendo', icon:'🎮', order:2},
+  xbox:{labelKey:'filterXbox', icon:'🎮', order:3},
+  logitech:{labelKey:'filterLogitech', icon:'🏁', order:4},
+  meta:{labelKey:'filterMeta', icon:'🥽', order:5},
+  viture:{labelKey:'filterViture', icon:'🥽', order:6},
+  xreal:{labelKey:'filterXreal', icon:'🥽', order:7},
+  lenovo:{labelKey:'filterLenovo', icon:'💻', order:8},
+  rog:{labelKey:'filterROG', icon:'💻', order:9},
+  steamdeck:{labelKey:'filterSteamDeck', icon:'💻', order:10},
+  other:{labelKey:'filterOther', icon:'🕹️', order:99}
+};
+function getBrandKey(c){
+  const raw=(c.brand||'').toLowerCase();
+  const name=`${c.name||''} ${c.nameEn||''}`.toLowerCase();
+  const src=`${raw} ${name}`;
+  if(src.includes('playstation')||name.startsWith('ps')||src.includes('ps4')||src.includes('ps5')||src.includes('ps portal')||src.includes('ps vr2')||src.includes('psvr')) return 'playstation';
+  if(src.includes('nintendo')||src.includes('switch')) return 'nintendo';
+  if(src.includes('xbox')) return 'xbox';
+  if(src.includes('logitech')||src.includes('g29')) return 'logitech';
+  if(src.includes('meta')||src.includes('quest')) return 'meta';
+  if(src.includes('viture')) return 'viture';
+  if(src.includes('xreal')) return 'xreal';
+  if(src.includes('lenovo')||src.includes('legion')) return 'lenovo';
+  if(src.includes('rog')) return 'rog';
+  if(src.includes('steam deck')||src.includes('steamdeck')) return 'steamdeck';
+  if(raw && raw!=='other') return raw;
+  return 'other';
 }
-function setTypeF(f){activeType=f;renderFilterTabs();renderConsoles();}
-function setBrandF(f){activeBrand=f;renderFilterTabs();renderConsoles();}
-function renderConsoles(){
-  const sort=document.getElementById('sortSel').value;
-  let list=consoles.filter(c=>(activeType==='all'||c.type===activeType)&&(activeBrand==='all'||(c.brand||'other')===activeBrand));
-  if(sort==='price-asc') list.sort((a,b)=>a.rate-b.rate||cName(a).localeCompare(cName(b),'th'));
-  else if(sort==='price-desc') list.sort((a,b)=>b.rate-a.rate||cName(a).localeCompare(cName(b),'th'));
-  else list.sort((a,b)=>cName(a).localeCompare(cName(b),'th'));
-  if(!list.length){document.getElementById('consoleSections').innerHTML=`<p style="text-align:center;color:var(--muted);padding:36px;">${lang==='th'?'ไม่พบเครื่องในหมวดนี้':'No consoles found'}</p>`;return;}
-  document.getElementById('consoleSections').innerHTML=`<div class="console-grid">${list.map(c=>{
+function getBrandLabel(key){ return t((BRAND_META[key]||BRAND_META.other).labelKey); }
+function getBrandIcon(key){ return (BRAND_META[key]||BRAND_META.other).icon; }
+function brandOrder(key){ return (BRAND_META[key]||BRAND_META.other).order; }
+function renderConsoleCards(list){
+  return `<div class="console-grid">${list.map(c=>{
     const img=images[c.id];
     const imgH=img?`<img src="${img}" alt="${cName(c)}" loading="lazy">`:`<span class="ci-emoji">${c.icon||'🎮'}</span>`;
     const hasBtn=!NO_GAME_BTN.has(c.id);
@@ -769,12 +795,45 @@ function renderConsoles(){
       </div></div>`;
   }).join('')}</div>`;
 }
+function renderFilterTabs(){
+  const tft=[{id:'all',lb:t('filterAll')},{id:'console',lb:t('filterConsole')},{id:'vr',lb:t('filterVR')},{id:'handheld',lb:t('filterHandheld')},{id:'racing',lb:t('filterRacing')}];
+  const brandKeys=['all',...Array.from(new Set(consoles.map(getBrandKey)))].sort((a,b)=>a==='all'?-1:b==='all'?1:brandOrder(a)-brandOrder(b)||getBrandLabel(a).localeCompare(getBrandLabel(b),'th'));
+  document.getElementById('ftType').innerHTML=tft.map(f=>`<button class="ftab${f.id===activeType?' act':''}" onclick="setTypeF('${f.id}')">${f.lb}</button>`).join('');
+  document.getElementById('ftBrand').innerHTML=brandKeys.map(key=>`<button class="ftab${key===activeBrand?' act':''}" onclick="setBrandF('${key}')">${key==='all'?t('filterAll'):getBrandLabel(key)}</button>`).join('');
+}
+function setTypeF(f){activeType=f;renderFilterTabs();renderConsoles();}
+function setBrandF(f){activeBrand=f;renderFilterTabs();renderConsoles();}
+function renderConsoles(){
+  const sort=document.getElementById('sortSel').value;
+  let list=consoles.filter(c=>(activeType==='all'||c.type===activeType)&&(activeBrand==='all'||getBrandKey(c)===activeBrand));
+  if(sort==='price-asc') list.sort((a,b)=>a.rate-b.rate||cName(a).localeCompare(cName(b),'th'));
+  else if(sort==='price-desc') list.sort((a,b)=>b.rate-a.rate||cName(a).localeCompare(cName(b),'th'));
+  else if(sort==='name-asc') list.sort((a,b)=>cName(a).localeCompare(cName(b),'th'));
+  else list.sort((a,b)=>brandOrder(getBrandKey(a))-brandOrder(getBrandKey(b))||b.rate-a.rate||cName(a).localeCompare(cName(b),'th'));
+  if(!list.length){document.getElementById('consoleSections').innerHTML=`<p style="text-align:center;color:var(--muted);padding:36px;">${lang==='th'?'ไม่พบเครื่องในหมวดนี้':'No consoles found'}</p>`;return;}
+  if(sort==='group-brand'){
+    const groups=[];
+    const map=new Map();
+    list.forEach(c=>{
+      const key=getBrandKey(c);
+      if(!map.has(key)) map.set(key,[]);
+      map.get(key).push(c);
+    });
+    Array.from(map.keys()).sort((a,b)=>brandOrder(a)-brandOrder(b)||getBrandLabel(a).localeCompare(getBrandLabel(b),'th')).forEach(key=>{
+      const items=map.get(key).sort((a,b)=>b.rate-a.rate||cName(a).localeCompare(cName(b),'th'));
+      groups.push(`<section class="console-section"><div class="console-group-head"><div class="console-group-title">${getBrandIcon(key)} ${getBrandLabel(key)}</div><div class="console-group-meta">${items.length} ${lang==='th'?'รุ่น':'models'}</div></div>${renderConsoleCards(items)}</section>`);
+    });
+    document.getElementById('consoleSections').innerHTML=groups.join('');
+    return;
+  }
+  document.getElementById('consoleSections').innerHTML=renderConsoleCards(list);
+}
 function renderSteps(){
   document.getElementById('stepsGrid').innerHTML=t('steps').map(s=>`<div class="step"><div class="step-ic">${s.ic}</div><div class="step-t">${s.t}</div><div class="step-d">${s.d}</div></div>`).join('');
 }
 function renderCalcSelect(){
   const catV=document.getElementById('calcCat').value,prev=document.getElementById('calcConsole').value;
-  const list=consoles.filter(c=>!catV||c.type===catV).slice().sort((a,b)=>a.rate-b.rate||cName(a).localeCompare(cName(b),'th'));
+  const list=consoles.filter(c=>!catV||c.type===catV).slice().sort((a,b)=>b.rate-a.rate||cName(a).localeCompare(cName(b),'th'));
   document.getElementById('calcConsole').innerHTML=list.map(c=>`<option value="${c.id}"${String(c.id)===prev?' selected':''}>${cName(c)} (฿${c.rate}/${t('day')})</option>`).join('');
 }
 function onCatChange(){renderCalcSelect();onConsoleChange();}
