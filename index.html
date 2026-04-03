@@ -549,7 +549,7 @@ const T={
     lblRetT:'Returning Customer',lblRetD:'Get 10% off rental fee',
     lblNoConT:'No Rental Contract',lblNoConD:'Deposit increases (฿2,000→฿5,000 / ฿4,000→฿8,000)',
     noConNote:'⚠️ Without a contract, the deposit will be higher.',
-    lblMaps:'Google Maps Delivery Address',lblMapsNote:'* Attached to booking message',
+    lblMaps:'Google Maps Delivery Address',lblMapsNote:'* Attached to booking message',deliveryNote:'* Delivery only in Bangkok & Greater Bangkok',
     formConsoleLbl:'🎮 Select Console',formDateLbl:'📅 Rental Period',formOptLbl:'⚙️ Additional Options',
     sumTitle:'📋 Rental Summary',sumEmpty:'Select a console and dates to see summary.',
     contractLbl:'Complete Rental Agreement',contractNote:'Please fill in the form before delivery.',
@@ -705,7 +705,7 @@ function updateStatic(){
   document.getElementById('footLogoTxt').innerHTML=t('footLogo');
   document.getElementById('langBtn').textContent=lang==='th'?'🌐 EN':'🌐 TH';
   document.getElementById('heroBg').style.backgroundImage=`url('${LOGO_URI}')`;
-  const m={'h-pill':'hpill','h-h1':'hh','h-p':'hp','h-b1':'hb1','h-b2':'hb2','c-tag':'ctag','c-h':'ch','noticeBox':'notice','s-tag':'stag','s-h':'sh','s-p':'sp','cl-tag':'cltag','cl-h':'clh','cl-p':'clp','form-console-lbl':'formConsoleLbl','form-date-lbl':'formDateLbl','form-opt-lbl':'formOptLbl','sum-title':'sumTitle','sumEmpty':'sumEmpty','lbl-cat':'lblCat','lbl-console':'lblConsole','lbl-start':'lblStart','lbl-end':'lblEnd','lbl-ret-t':'lblRetT','lbl-ret-d':'lblRetD','lbl-nocon-t':'lblNoConT','lbl-nocon-d':'lblNoConD','noConNote':'noConNote','lbl-maps':'lblMaps','lbl-maps-note':'lblMapsNote','delivery-note':'Delivery only in Bangkok & Greater Bangkok','lbl-payment':'lblPayment','contractLbl':'contractLbl','contractNote':'contractNote','flbl-type':'flblType','flbl-brand':'flblBrand','flbl-sort':'flblSort'};
+  const m={'h-pill':'hpill','h-h1':'hh','h-p':'hp','h-b1':'hb1','h-b2':'hb2','c-tag':'ctag','c-h':'ch','noticeBox':'notice','s-tag':'stag','s-h':'sh','s-p':'sp','cl-tag':'cltag','cl-h':'clh','cl-p':'clp','form-console-lbl':'formConsoleLbl','form-date-lbl':'formDateLbl','form-opt-lbl':'formOptLbl','sum-title':'sumTitle','sumEmpty':'sumEmpty','lbl-cat':'lblCat','lbl-console':'lblConsole','lbl-start':'lblStart','lbl-end':'lblEnd','lbl-ret-t':'lblRetT','lbl-ret-d':'lblRetD','lbl-nocon-t':'lblNoConT','lbl-nocon-d':'lblNoConD','noConNote':'noConNote','lbl-maps':'lblMaps','lbl-maps-note':'lblMapsNote','delivery-note':'deliveryNote','lbl-payment':'lblPayment','contractLbl':'contractLbl','contractNote':'contractNote','flbl-type':'flblType','flbl-brand':'flblBrand','flbl-sort':'flblSort'};
   Object.entries(m).forEach(([id,k])=>{const el=document.getElementById(id);if(el){const v=t(k);if(v!==undefined)el.innerHTML=v;}});
   document.getElementById('contractLink').href=t('contractLink');
   const payWrap=document.getElementById('paymentOptionWrap');
