@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ร้าน AJ เช่าเครื่องเกม</title>
+<title>AJ เช่าเครื่องเกม - รายการเครื่องเช่า</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -531,7 +531,7 @@ const T={
     lblPayment:'ตัวเลือกการชำระเงิน',payBank:'Thai Bank Transfer',payWise:'Wise',payCash:'Cash',slPayment:'การชำระเงิน',slCash:'💵 จ่ายเงินสดตอนส่งมอบ',
     needDates:'⏳ กรุณาเลือกวันเริ่มเช่าและวันคืนเครื่อง',noConLabel:'(ไม่ทำสัญญา)',
     slConsole:'เครื่อง',slBundle:'Bundle',slDuration:'ระยะเวลา',slWeekly:'(เรทรายสัปดาห์)',
-    slRental:'ค่าเช่า',slAddon:'อุปกรณ์เสริม',slDeposit:'ค่ามัดจำ',
+    slRental:'ค่าเช่า',slAddon:'อุปกรณ์เสริม',slDiscount:'ส่วนลดลูกค้าเก่า',slDeposit:'ค่ามัดจำ',
     slTotal:'ยอดรวมทั้งหมด',slUpfront:'💳 โอนล่วงหน้า (ยืนยันการจอง)',slOD:'🚚 จ่ายตอนของถึง',
     steps:[
       {ic:'💬',t:'ติดต่อสอบถาม',d:'Line: @ajgame เพื่อเช็คเครื่องว่าง และเลือกเกมที่ต้องการ'},
@@ -575,7 +575,7 @@ const T={
     lblPayment:'Payment Options',payBank:'Thai Bank Transfer',payWise:'Wise',payCash:'Cash',slPayment:'Payment',slCash:'💵 Pay Cash on Delivery',
     needDates:'⏳ Please select rental start and return dates.',noConLabel:'(No Contract)',
     slConsole:'Console',slBundle:'Bundle',slDuration:'Duration',slWeekly:'(weekly rate)',
-    slRental:'Rental Cost',slAddon:'Accessories',slDeposit:'Deposit',
+    slRental:'Rental Cost',slAddon:'Accessories',slDiscount:'Returning Customer Discount',slDeposit:'Deposit',
     slTotal:'Total Amount',slUpfront:'💳 Transfer Before Delivery',slOD:'🚚 Pay on Delivery',
     steps:[
       {ic:'💬',t:'Contact Us',d:'Line: @ajgame to check availability and choose your games.'},
@@ -751,11 +751,11 @@ function renderStats(){
 const BRAND_META={
   playstation:{labelKey:'filterPS', icon:'🎮', order:1},
   nintendo:{labelKey:'filterNintendo', icon:'🎮', order:2},
-  xbox:{labelKey:'filterXbox', icon:'🎮', order:3},
-  logitech:{labelKey:'filterLogitech', icon:'🏁', order:4},
-  meta:{labelKey:'filterMeta', icon:'🥽', order:5},
-  viture:{labelKey:'filterViture', icon:'🥽', order:6},
-  xreal:{labelKey:'filterXreal', icon:'🥽', order:7},
+  logitech:{labelKey:'filterLogitech', icon:'🏁', order:3},
+  meta:{labelKey:'filterMeta', icon:'🥽', order:4},
+  viture:{labelKey:'filterViture', icon:'🥽', order:5},
+  xreal:{labelKey:'filterXreal', icon:'🥽', order:6},
+  xbox:{labelKey:'filterXbox', icon:'🎮', order:7},
   lenovo:{labelKey:'filterLenovo', icon:'💻', order:8},
   rog:{labelKey:'filterROG', icon:'💻', order:9},
   steamdeck:{labelKey:'filterSteamDeck', icon:'💻', order:10},
@@ -831,10 +831,28 @@ function renderConsoles(){
 function renderSteps(){
   document.getElementById('stepsGrid').innerHTML=t('steps').map(s=>`<div class="step"><div class="step-ic">${s.ic}</div><div class="step-t">${s.t}</div><div class="step-d">${s.d}</div></div>`).join('');
 }
+function calcConsolePriority(c){
+  const id=Number(c.id);
+  if(id===SPEC.PS5) return -100;
+  const priorities={
+    [SPEC.PS5P]:-95,
+    [SPEC.PSVR2]:-90,
+    [SPEC.PSPORTAL]:-85,
+    [SPEC.PS4]:-80
+  };
+  return priorities[id] ?? 0;
+}
+function sortCalcConsoles(a,b){
+  return brandOrder(getBrandKey(a))-brandOrder(getBrandKey(b))
+    || calcConsolePriority(a)-calcConsolePriority(b)
+    || b.rate-a.rate
+    || cName(a).localeCompare(cName(b),'th');
+}
 function renderCalcSelect(){
   const catV=document.getElementById('calcCat').value,prev=document.getElementById('calcConsole').value;
-  const list=consoles.filter(c=>!catV||c.type===catV).slice().sort((a,b)=>b.rate-a.rate||cName(a).localeCompare(cName(b),'th'));
-  document.getElementById('calcConsole').innerHTML=list.map(c=>`<option value="${c.id}"${String(c.id)===prev?' selected':''}>${cName(c)} (฿${c.rate}/${t('day')})</option>`).join('');
+  const list=consoles.filter(c=>!catV||c.type===catV).slice().sort(sortCalcConsoles);
+  const hasPrev=list.some(c=>String(c.id)===String(prev));
+  document.getElementById('calcConsole').innerHTML=list.map((c,idx)=>`<option value="${c.id}"${String(c.id)===String(prev)||(idx===0&&!hasPrev)?' selected':''}>${cName(c)} (฿${c.rate}/${t('day')})</option>`).join('');
 }
 function onCatChange(){renderCalcSelect();onConsoleChange();}
 function onConsoleChange(){renderSpecialOpts();updateContractWrap();calc();}
