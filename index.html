@@ -161,6 +161,31 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .sum-hero-meta{min-width:0;flex:1;}
 .sum-hero-section{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);border:1px solid var(--border-r);color:var(--accent);padding:4px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.4px;margin-bottom:6px;}
 .sum-hero-name{font-size:15px;font-weight:700;line-height:1.35;}
+.summary-warning{margin-top:12px;padding:10px 12px;font-size:12px;color:#666;background:#fff8f0;border:1px solid rgba(204,100,0,0.2);border-radius:10px;line-height:1.6;}
+.sum-hero-actions{margin-top:8px;}
+.sum-hero-btn{display:inline-flex;align-items:center;justify-content:center;background:var(--accent-dim);border:1px solid var(--border-r);color:var(--accent);padding:7px 11px;border-radius:8px;font-size:12px;font-weight:700;transition:background .18s;}
+.sum-hero-btn:hover{background:var(--accent-dim2);}
+.calc-guide{background:#fff;border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--r);padding:14px 16px;margin:0 0 18px;box-shadow:var(--shadow);}
+.calc-guide h3{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px;}
+.calc-guide p{font-size:12px;color:var(--text2);line-height:1.75;margin:0;}
+.sum-note{background:#fff8f0;border:1px solid rgba(204,100,0,0.2);border-radius:9px;padding:11px 12px;margin:10px 0 8px;font-size:12px;color:#8a4b00;line-height:1.7;}
+.sum-note a{color:var(--accent);font-weight:700;text-decoration:underline;}
+.sum-detail-list{margin:8px 0 10px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:9px;}
+.sum-detail-item{font-size:12px;color:var(--text2);line-height:1.6;margin-top:4px;}
+.sum-detail-item:first-child{margin-top:0;}
+
+.sum-hero-actions{margin-top:8px;}
+.sum-hero-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--accent-dim);border:1px solid var(--border-r);color:var(--accent);padding:7px 11px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;text-decoration:none;transition:background .18s;}
+.sum-hero-btn:hover{background:var(--accent-dim2);}
+.calc-guide{background:#fff;border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--r);padding:14px 16px;margin:0 0 18px;box-shadow:var(--shadow);}
+.calc-guide h3{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px;}
+.calc-guide p{font-size:12px;color:var(--text2);line-height:1.75;margin:0;}
+.sum-note{background:#fff8f0;border:1px solid rgba(204,100,0,0.2);border-radius:9px;padding:11px 12px;margin:10px 0 8px;font-size:12px;color:#8a4b00;line-height:1.7;}
+.sum-note a{color:var(--accent);font-weight:700;text-decoration:underline;}
+.sum-detail-list{margin:8px 0 10px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:9px;}
+.sum-detail-item{font-size:12px;color:var(--text2);line-height:1.6;margin-top:4px;}
+.sum-detail-item:first-child{margin-top:0;}
+
 .btn-copy{width:100%;background:var(--accent);color:#fff;border:none;padding:10px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .18s;margin-top:9px;box-shadow:0 2px 10px rgba(204,0,0,0.25);}
 .btn-copy:hover{background:var(--accent-h);}
 .btn-copy:disabled{background:var(--card2);color:var(--muted);cursor:not-allowed;box-shadow:none;}
@@ -301,6 +326,7 @@ footer{background:#0d0d0d;padding:30px 22px;text-align:center;}
     <div class="sec-tag" id="cl-tag">คำนวณ</div>
     <h2 class="sec-h" id="cl-h">คำนวณค่าเช่า</h2>
     <p class="sec-p" id="cl-p">ขั้นต่ำ 3 วัน | ราคาเรทบุคคล</p>
+    <div class="calc-guide" id="calcGuide"></div>
     <div class="calc-grid">
       <div style="display:flex;flex-direction:column;gap:13px;">
         <div class="form-box">
@@ -388,7 +414,7 @@ const _p=[84,64,110,111,115,101,64,50,48,50,54].map(n=>String.fromCharCode(n)).j
 const SPEC={PS5:11,SW1:4,SW2:12,VLP:10,VLU:16,VB:17};
 const SWITCH_IDS=new Set([4,12]);
 const VITURE_IDS=new Set([10,16,17]);
-const NO_GAME_BTN=new Set([2,6,8,10,16,17]);
+const NO_GAME_BTN=new Set([2,3,6,8,10,16,17]);
 const GAME_URL='https://ajgamerental2021.github.io/ajgame/';
 const PS5_BUNDLES=[
   {id:'vr2',th:'เช่าพร้อม PS VR2',en:'With PS VR2',rate:550,weekly:3500,deposit:3000},
@@ -405,25 +431,25 @@ const SW_SUB=[
   {id:'wheel',th:'เพิ่มจอยพวงมาลัย 2 อัน',en:'Extra 2 Steering Wheels',daily:70,weekly:350},
 ];
 const DEFAULT_CONSOLES=[
-  {id:1, name:'PS4',              nameEn:'PS4',              rate:300,weekly:1500,deposit:2000,cat:'300',type:'console', brand:'playstation',icon:'🎮'},
-  {id:2, name:'PS Portal',        nameEn:'PS Portal',        rate:300,weekly:1500,deposit:2000,cat:'300',type:'console', brand:'playstation',icon:'🎮'},
-  {id:3, name:'PS VR2',           nameEn:'PS VR2',           rate:300,weekly:1500,deposit:2000,cat:'300',type:'vr',      brand:'playstation',icon:'🥽'},
-  {id:4, name:'Nintendo Switch 1',nameEn:'Nintendo Switch 1',rate:300,weekly:1500,deposit:2000,cat:'300',type:'console', brand:'nintendo',   icon:'🎮'},
-  {id:5, name:'Xbox Series S',    nameEn:'Xbox Series S',    rate:300,weekly:1500,deposit:2000,cat:'300',type:'console', brand:'xbox',       icon:'🎮'},
-  {id:6, name:'XREAL One',        nameEn:'XREAL One',        rate:300,weekly:1500,deposit:2000,cat:'300',type:'vr',      brand:'other',      icon:'🥽'},
-  {id:7, name:'Meta Quest 3s',    nameEn:'Meta Quest 3s',    rate:300,weekly:1500,deposit:2000,cat:'300',type:'vr',      brand:'other',      icon:'🥽'},
-  {id:8, name:'Logitech G29',     nameEn:'Logitech G29',     rate:300,weekly:1500,deposit:2000,cat:'300',type:'racing',  brand:'other',      icon:'🕹️'},
-  {id:9, name:'Xbox Series X',    nameEn:'Xbox Series X',    rate:350,weekly:1800,deposit:2000,cat:'350',type:'console', brand:'xbox',       icon:'🎮'},
-  {id:10,name:'Viture Luma Pro',  nameEn:'Viture Luma Pro',  rate:350,weekly:1800,deposit:2000,cat:'350',type:'vr',      brand:'other',      icon:'🥽'},
-  {id:11,name:'PS5',              nameEn:'PS5',              rate:400,weekly:2500,deposit:2000,cat:'400',type:'console', brand:'playstation',icon:'🎮'},
-  {id:12,name:'Nintendo Switch 2',nameEn:'Nintendo Switch 2',rate:400,weekly:2500,deposit:2000,cat:'400',type:'console', brand:'nintendo',   icon:'🎮'},
-  {id:13,name:'ROG Xbox Ally X', nameEn:'ROG Xbox Ally X',       rate:400,weekly:2500,deposit:2000,cat:'400',type:'handheld',brand:'other',      icon:'💻'},
-  {id:14,name:'Meta Quest 3',     nameEn:'Meta Quest 3',     rate:400,weekly:2500,deposit:2000,cat:'400',type:'vr',      brand:'other',      icon:'🥽'},
-  {id:15,name:'Steam Deck OLED',  nameEn:'Steam Deck OLED',  rate:400,weekly:2500,deposit:2000,cat:'400',type:'handheld',brand:'other',      icon:'💻'},
-  {id:16,name:'Viture Luma Ultra',nameEn:'Viture Luma Ultra',rate:400,weekly:2500,deposit:2000,cat:'400',type:'vr',      brand:'other',      icon:'🥽'},
-  {id:17,name:'Viture Beast',     nameEn:'Viture Beast',     rate:400,weekly:2500,deposit:2000,cat:'400',type:'vr',      brand:'other',      icon:'🥽'},
-  {id:18,name:'PS5 Pro',          nameEn:'PS5 Pro',          rate:500,weekly:3000,deposit:4000,cat:'500',type:'console', brand:'playstation',icon:'🎮'},
-  {id:19,name:'Lenovo Legion GO2',nameEn:'Lenovo Legion GO2',rate:500,weekly:3000,deposit:4000,cat:'500',type:'handheld',brand:'other',      icon:'💻'},
+  {id:1, name:'PS4',              nameEn:'PS4',              rate:300,weekly:1500,deposit:2000,cat:'300',type:'console', brand:'playstation',icon:'🎮',showGameButton:true,gameUrl:GAME_URL},
+  {id:2, name:'PS Portal',        nameEn:'PS Portal',        rate:300,weekly:1500,deposit:2000,cat:'300',type:'console', brand:'playstation',icon:'🎮',showGameButton:false,gameUrl:''},
+  {id:3, name:'PS VR2',           nameEn:'PS VR2',           rate:300,weekly:1500,deposit:2000,cat:'300',type:'vr',      brand:'playstation',icon:'🥽',showGameButton:false,gameUrl:''},
+  {id:4, name:'Nintendo Switch 1',nameEn:'Nintendo Switch 1',rate:300,weekly:1500,deposit:2000,cat:'300',type:'console', brand:'nintendo',   icon:'🎮',showGameButton:true,gameUrl:GAME_URL},
+  {id:5, name:'Xbox Series S',    nameEn:'Xbox Series S',    rate:300,weekly:1500,deposit:2000,cat:'300',type:'console', brand:'xbox',       icon:'🎮',showGameButton:true,gameUrl:GAME_URL},
+  {id:6, name:'XREAL One',        nameEn:'XREAL One',        rate:300,weekly:1500,deposit:2000,cat:'300',type:'vr',      brand:'other',      icon:'🥽',showGameButton:false,gameUrl:''},
+  {id:7, name:'Meta Quest 3s',    nameEn:'Meta Quest 3s',    rate:300,weekly:1500,deposit:2000,cat:'300',type:'vr',      brand:'other',      icon:'🥽',showGameButton:true,gameUrl:GAME_URL},
+  {id:8, name:'Logitech G29',     nameEn:'Logitech G29',     rate:300,weekly:1500,deposit:2000,cat:'300',type:'racing',  brand:'other',      icon:'🕹️',showGameButton:false,gameUrl:''},
+  {id:9, name:'Xbox Series X',    nameEn:'Xbox Series X',    rate:350,weekly:1800,deposit:2000,cat:'350',type:'console', brand:'xbox',       icon:'🎮',showGameButton:true,gameUrl:GAME_URL},
+  {id:10,name:'Viture Luma Pro',  nameEn:'Viture Luma Pro',  rate:350,weekly:1800,deposit:2000,cat:'350',type:'vr',      brand:'other',      icon:'🥽',showGameButton:false,gameUrl:''},
+  {id:11,name:'PS5',              nameEn:'PS5',              rate:400,weekly:2500,deposit:2000,cat:'400',type:'console', brand:'playstation',icon:'🎮',showGameButton:true,gameUrl:GAME_URL},
+  {id:12,name:'Nintendo Switch 2',nameEn:'Nintendo Switch 2',rate:400,weekly:2500,deposit:2000,cat:'400',type:'console', brand:'nintendo',   icon:'🎮',showGameButton:true,gameUrl:GAME_URL},
+  {id:13,name:'ROG Xbox Ally X', nameEn:'ROG Xbox Ally X',       rate:400,weekly:2500,deposit:2000,cat:'400',type:'handheld',brand:'other',      icon:'💻',showGameButton:true,gameUrl:GAME_URL},
+  {id:14,name:'Meta Quest 3',     nameEn:'Meta Quest 3',     rate:400,weekly:2500,deposit:2000,cat:'400',type:'vr',      brand:'other',      icon:'🥽',showGameButton:true,gameUrl:GAME_URL},
+  {id:15,name:'Steam Deck OLED',  nameEn:'Steam Deck OLED',  rate:400,weekly:2500,deposit:2000,cat:'400',type:'handheld',brand:'other',      icon:'💻',showGameButton:true,gameUrl:GAME_URL},
+  {id:16,name:'Viture Luma Ultra',nameEn:'Viture Luma Ultra',rate:400,weekly:2500,deposit:2000,cat:'400',type:'vr',      brand:'other',      icon:'🥽',showGameButton:false,gameUrl:''},
+  {id:17,name:'Viture Beast',     nameEn:'Viture Beast',     rate:400,weekly:2500,deposit:2000,cat:'400',type:'vr',      brand:'other',      icon:'🥽',showGameButton:false,gameUrl:''},
+  {id:18,name:'PS5 Pro',          nameEn:'PS5 Pro',          rate:500,weekly:3000,deposit:4000,cat:'500',type:'console', brand:'playstation',icon:'🎮',showGameButton:true,gameUrl:GAME_URL},
+  {id:19,name:'Lenovo Legion GO2',nameEn:'Lenovo Legion GO2',rate:500,weekly:3000,deposit:4000,cat:'500',type:'handheld',brand:'other',      icon:'💻',showGameButton:true,gameUrl:GAME_URL},
 ];
 const DETAIL_PRESETS={
   fullConsoleTh:['2 จอย 🎮','สายครบ พร้อมเล่น ✅','เลือกเกมได้ 10 เกม 🔥'],
@@ -454,6 +480,18 @@ function getConsoleDetails(c){
   ensureConsoleDetails(c);
   return (lang==='th'?c.detailsTh:c.detailsEn)||[];
 }
+function canShowGameButton(c){
+  if(typeof c.showGameButton==='boolean') return c.showGameButton;
+  return !NO_GAME_BTN.has(Number(c.id));
+}
+function getGameButtonUrl(c){
+  return (c.gameUrl||'').trim() || GAME_URL;
+}
+function ensureGameButtonConfig(c){
+  if(typeof c.showGameButton!=='boolean') c.showGameButton=!NO_GAME_BTN.has(Number(c.id));
+  if(canShowGameButton(c) && !c.gameUrl) c.gameUrl=GAME_URL;
+  if(!canShowGameButton(c) && typeof c.gameUrl!=='string') c.gameUrl='';
+}
 function safeReadJSON(key,fallback){
   try{
     const raw=localStorage.getItem(key);
@@ -472,15 +510,21 @@ function cloneDefaultConsoles(){
 function sanitizeConsoles(list){
   if(!Array.isArray(list) || !list.length) return cloneDefaultConsoles();
   const valid=list.filter(c=>c && typeof c==='object' && ('id' in c) && ('name' in c || 'nameEn' in c));
-  return valid.length?valid:cloneDefaultConsoles();
+  if(!valid.length) return cloneDefaultConsoles();
+  const merged=cloneDefaultConsoles();
+  const byId=new Map(valid.map(c=>[Number(c.id),c]));
+  return merged.map(base=>{
+    const found=byId.get(Number(base.id));
+    return found?{...base,...found}:base;
+  });
 }
 function resetConsolesToDefault(saveNow=true){
   consoles=cloneDefaultConsoles();
-  consoles.forEach(ensureConsoleDetails);
+  consoles.forEach(c=>{ensureConsoleDetails(c);ensureGameButtonConfig(c);});
   if(saveNow) save();
 }
 let consoles=sanitizeConsoles(safeReadJSON('aj_consoles', cloneDefaultConsoles()));
-consoles.forEach(ensureConsoleDetails);
+consoles.forEach(c=>{ensureConsoleDetails(c);ensureGameButtonConfig(c);});
 let images=safeReadJSON('aj_images',{});
 if(!images || typeof images!=='object' || Array.isArray(images)) images={};
 let retEnabled=localStorage.getItem('aj_ret_enabled')==='true';
@@ -500,7 +544,7 @@ let lang='th',isAdmin=false,activeType='all',activeBrand='all';
 
 function save(){
   consoles=sanitizeConsoles(consoles);
-  consoles.forEach(ensureConsoleDetails);
+  consoles.forEach(c=>{ensureConsoleDetails(c);ensureGameButtonConfig(c);});
   localStorage.setItem('aj_consoles',JSON.stringify(consoles));
   try{localStorage.setItem('aj_images',JSON.stringify(images||{}));}catch(e){}
 }
@@ -529,17 +573,24 @@ const T={
     filterPS:'PlayStation',filterNintendo:'Nintendo Switch',filterXbox:'Xbox',filterLogitech:'Logitech',filterMeta:'Meta Quest',filterViture:'Viture',filterXreal:'XREAL',filterLenovo:'Lenovo',filterROG:'ROG',filterSteamDeck:'Steam Deck',filterOther:'Other',
     sortGroupBrand:'แยกตามแบรนด์',sortAsc:'ราคา: ต่ำ → สูง',sortDesc:'ราคา: สูง → ต่ำ',sortName:'ชื่อ A → Z',
     statTotal:'เครื่องทั้งหมด',statConsole:'Console',statVR:'VR & AR',statHandheld:'PC Handheld',statRacing:'Racing',
-    daily:'รายวัน',weekly:'รายสัปดาห์',day:'วัน',wk:'สัปดาห์',deposit:'มัดจำ',viewGames:'🎮 รายการเกม',
+    daily:'รายวัน',weekly:'รายสัปดาห์',day:'วัน',wk:'สัปดาห์',deposit:'มัดจำ',viewGames:'🎮 คลิกเลือก 10 เกม',
     ps5BundleTitle:'🎮 BUNDLE กับ PS5',swAddonTitle:'🎮 อุปกรณ์เสริม',swSubLbl:'อุปกรณ์เพิ่มเติม (เลือกเพิ่มได้)',
     vdockTitle:'🥽 อุปกรณ์เสริม Viture',vdockLabel:'เพิ่ม Viture Mobile Dock (+฿200/การเช่า)',
     copiedTxt:'✅ คัดลอกแล้ว!',btnCopy:'📋 Copy ข้อความจองเช่า',btnLine:'ส่งข้อความทาง Line',btnWa:'ส่งข้อความทาง WhatsApp',
     retSoon:'(เร็วๆ นี้)',
     lineHint:'แล้วส่งไปที่ Line: <b>@ajgame</b> เพื่อยืนยัน',
+    summaryWarning:'⚠️ ราคานี้เป็นราคาเช่าในนามบุคคลเท่านั้น ไม่สามารถออกใบกำกับภาษีหรือใบเสร็จรับเงินได้ | หากต้องการใบกำกับภาษี/ใบเสร็จ จะเป็นเรทบริษัท กรุณาติดต่อทาง Line: @ajgame หรือ โทร. 081-624-4715 🙏',
     lblPayment:'ตัวเลือกการชำระเงิน',payBank:'Thai Bank Transfer',payWise:'Wise',payCash:'Cash',slPayment:'การชำระเงิน',slCash:'💵 จ่ายเงินสดตอนส่งมอบ',
     needDates:'⏳ กรุณาเลือกวันเริ่มเช่าและวันคืนเครื่อง',noConLabel:'(ไม่ทำสัญญา)',
     slConsole:'เครื่อง',slBundle:'Bundle',slSection:'หมวดเครื่อง',slStart:'วันที่เริ่มเช่า',slEnd:'วันคืนเครื่อง',slDuration:'ระยะเวลา',slWeekly:'(เรทรายสัปดาห์)',
     slRental:'ค่าเช่า',slAddon:'อุปกรณ์เสริม',slDiscount:'ส่วนลดลูกค้าเก่า',slDeposit:'ค่ามัดจำ',
     slTotal:'ยอดรวมทั้งหมด',slUpfront:'💳 โอนล่วงหน้า (ยืนยันการจอง)',slOD:'🚚 จ่ายตอนของถึง',
+    calcGuideHtml:'<h3>📌 วิธีใช้งานส่วนคำนวณค่าเช่า</h3><p><strong>1) เลือกเครื่อง</strong> จากหมวดและรุ่นที่ต้องการก่อน<br><strong>2) เลือกวันเริ่มเช่า</strong> และ <strong>วันคืนเครื่อง</strong> โดยระบบคิดขั้นต่ำ 3 วัน<br><strong>3) ถ้ารุ่นนั้นมี Bundle หรืออุปกรณ์เสริม</strong> สามารถติ๊กเพิ่มได้ในหน้านี้<br><strong>4) เรื่องสัญญาการเช่า:</strong> ถ้าต้องการทำสัญญา ให้ปล่อยค่า Additional ตามปกติ แล้วลิงก์สัญญาจะขึ้นทั้งในส่วนนี้และในสรุปค่าเช่า<br><strong>5) ถ้าไม่ทำสัญญาการเช่า</strong> ให้ไปเลือกที่ Additional ตรง <strong>ไม่ต้องการทำสัญญาการเช่า</strong> ซึ่งค่ามัดจำจะเพิ่มขึ้นตามที่ระบบแจ้ง<br><strong>6) เมื่อสรุปเรียบร้อย</strong> กด <strong>Copy ข้อความจองเช่า</strong> แล้วส่งข้อความจองเช่าไปที่ <strong>Line</strong> หรือ <strong>WhatsApp</strong> ได้ทันที</p>',
+    sumContractRequired:'⚠️ ต้องทำสัญญาการเช่า หรือไปเลือกที่ Additional ว่า “ไม่ต้องการทำสัญญาการเช่า”',
+    sumContractLinkTitle:'📝 ลิงก์ทำสัญญาการเช่า',
+    sumContractSelected:'✅ เลือกทำสัญญาการเช่าแล้ว กรุณากดลิงก์ด้านล่างเพื่อกรอกสัญญาก่อนนัดส่งเครื่อง',
+    sumNoContractSelected:'⚠️ เลือกไม่ทำสัญญาการเช่าแล้ว ค่ามัดจำจะแพงขึ้นตามเงื่อนไข',
+    sumDetailsTitle:'สิ่งที่รวมในชุด',
     steps:[
       {ic:'💬',t:'ติดต่อสอบถาม',d:'Line: @ajgame เพื่อเช็คเครื่องว่าง และเลือกเกมที่ต้องการ'},
       {ic:'📝',t:'ทำสัญญาเช่า',d:'กรอกข้อมูล แนบสำเนาบัตรประชาชน และเซ็นสัญญา (สำหรับเรทบุคคล)'},
@@ -573,17 +624,24 @@ const T={
     filterPS:'PlayStation',filterNintendo:'Nintendo Switch',filterXbox:'Xbox',filterLogitech:'Logitech',filterMeta:'Meta Quest',filterViture:'Viture',filterXreal:'XREAL',filterLenovo:'Lenovo',filterROG:'ROG',filterSteamDeck:'Steam Deck',filterOther:'Other',
     sortGroupBrand:'Group by Brand',sortAsc:'Price: Low → High',sortDesc:'Price: High → Low',sortName:'Name A → Z',
     statTotal:'Total Consoles',statConsole:'Console',statVR:'VR & AR',statHandheld:'PC Handheld',statRacing:'Racing',
-    daily:'Daily',weekly:'Weekly',day:'day',wk:'wk',deposit:'Deposit',viewGames:'🎮 Game List',
+    daily:'Daily',weekly:'Weekly',day:'day',wk:'wk',deposit:'Deposit',viewGames:'🎮 Click to Choose 10 Games',
     ps5BundleTitle:'🎮 PS5 BUNDLE OPTIONS',swAddonTitle:'🎮 Switch Accessories',swSubLbl:'Additional accessories (optional)',
     vdockTitle:'🥽 Viture Accessories',vdockLabel:'Add Viture Mobile Dock (+฿200/rental)',
     copiedTxt:'✅ Copied!',btnCopy:'📋 Copy Booking Message',btnLine:'Send via Line',btnWa:'Send via WhatsApp',
     retSoon:'(Coming Soon)',
     lineHint:'Send to Line: <b>@ajgame</b> or WhatsApp to confirm',
+    summaryWarning:'⚠️ This pricing is for personal rental only. Tax invoice / receipt cannot be issued | For tax invoice / receipt, company rates apply. Please contact us via Line: @ajgame or Tel. +66 81-624-4715 🙏',
     lblPayment:'Payment Options',payBank:'Thai Bank Transfer',payWise:'Wise',payCash:'Cash',slPayment:'Payment',slCash:'💵 Pay Cash on Delivery',
     needDates:'⏳ Please select rental start and return dates.',noConLabel:'(No Contract)',
     slConsole:'Console',slBundle:'Bundle',slSection:'Section',slStart:'Start Date',slEnd:'Return Date',slDuration:'Duration',slWeekly:'(weekly rate)',
     slRental:'Rental Cost',slAddon:'Accessories',slDiscount:'Returning Customer Discount',slDeposit:'Deposit',
     slTotal:'Total Amount',slUpfront:'💳 Transfer Before Delivery',slOD:'🚚 Pay on Delivery',
+    calcGuideHtml:'<h3>📌 How to use the rental calculator</h3><p><strong>1) Select a console</strong> by category and model first<br><strong>2) Choose the rental start date</strong> and <strong>return date</strong>; the minimum rental is 3 days<br><strong>3) If that model has bundles or accessories</strong>, you can add them here<br><strong>4) About the rental contract:</strong> if you want to complete the contract, leave Additional options as normal, and the contract link will appear here and in the rental summary<br><strong>5) If you do not want a rental contract</strong>, go to Additional and select <strong>No Rental Contract</strong>; the deposit will increase based on the stated rules<br><strong>6) When everything looks good</strong>, click <strong>Copy Booking Message</strong> and then send the booking message via <strong>Line</strong> or <strong>WhatsApp</strong> right away</p>',
+    sumContractRequired:'⚠️ You must complete the rental contract, or select “No Rental Contract” in Additional.',
+    sumContractLinkTitle:'📝 Rental Contract Link',
+    sumContractSelected:'✅ Rental contract selected. Please use the link below to complete the contract before delivery.',
+    sumNoContractSelected:'⚠️ No rental contract selected. The deposit is increased under the stated rules.',
+    sumDetailsTitle:'Included in the set',
     steps:[
       {ic:'💬',t:'Contact Us',d:'Line: @ajgame to check availability and choose your games.'},
       {ic:'📝',t:'Sign Contract',d:'Fill in details, attach ID copy, and sign the rental agreement.'},
@@ -702,7 +760,7 @@ async function gistAutoSync(){
 function renderAll(){
   try{
     consoles=sanitizeConsoles(consoles);
-    consoles.forEach(ensureConsoleDetails);
+    consoles.forEach(c=>{ensureConsoleDetails(c);ensureGameButtonConfig(c);});
     updateStatic();renderStats();renderFilterTabs();renderConsoles();
     renderSteps();renderCalcSelect();onConsoleChange();onDateChange();
   }catch(err){
@@ -737,6 +795,8 @@ function updateStatic(){
   cat.options[1].text=t('filterConsole');cat.options[2].text=t('filterVR');
   cat.options[3].text=t('filterHandheld');cat.options[4].text=t('filterRacing');
   renderRetRow();
+  const calcGuide=document.getElementById('calcGuide');
+  if(calcGuide) calcGuide.innerHTML=t('calcGuideHtml');
 }
 
 function renderRetRow(){
@@ -792,13 +852,14 @@ function renderConsoleCards(list){
   return `<div class="console-grid">${list.map(c=>{
     const img=images[c.id];
     const imgH=img?`<img src="${img}" alt="${cName(c)}" loading="lazy">`:`<span class="ci-emoji">${c.icon||'🎮'}</span>`;
-    const hasBtn=!NO_GAME_BTN.has(c.id);
+    const hasBtn=canShowGameButton(c);
+    const gameUrl=getGameButtonUrl(c);
     return `<div class="con-card"><div class="con-img">${imgH}</div><div class="con-body">
       <div class="con-name">${cName(c)}</div>
       <div class="price-row"><div class="pc"><div class="pl">${t('daily')}</div><div class="pv">฿${c.rate}<small>/${t('day')}</small></div></div><div class="pc"><div class="pl">${t('weekly')}</div><div class="pv">฿${c.weekly.toLocaleString()}<small>/${t('wk')}</small></div></div></div>
       <div class="dep-line">🔒 ${t('deposit')} ฿${c.deposit.toLocaleString()}</div>
       <div class="device-details">${getConsoleDetails(c).map(line=>`<div class="device-detail">${line}</div>`).join('')}</div>
-      ${hasBtn?`<a class="btn-games" href="${GAME_URL}" target="_blank">${t('viewGames')}</a>`:''}
+      ${hasBtn?`<a class="btn-games" href="${gameUrl}" target="_blank">${t('viewGames')}</a>`:''}
       </div></div>`;
   }).join('')}</div>`;
 }
@@ -928,12 +989,12 @@ function onNoConChange(){
 }
 function calc(){
   const cid=parseInt(document.getElementById('calcConsole').value),c=consoles.find(x=>x.id===cid);
-  if(!c){document.getElementById('sumContent').innerHTML=`<p class="sum-empty">${t('sumEmpty')}</p>`;return;}
+  if(!c){document.getElementById('sumContent').innerHTML=`<p class="sum-empty">${t('sumEmpty')}</p><div class="summary-warning">${t('summaryWarning')}</div>`;return;}
   const days=getSelectedDays(),noCon=document.getElementById('noConChk').checked,maps=document.getElementById('mapsInput').value.trim();
   const isRet=retEnabled&&(document.getElementById('retChk')?.checked||false);
   const paymentOption=lang==='en'?(document.getElementById('paymentOption')?.value||'bank'):'bank';
   if(!days||days<3||days<=0){
-    document.getElementById('sumContent').innerHTML=`<p class="sum-empty">${days!==null&&days>=1&&days<3?t('dateWarnMin'):t('needDates')}</p><button class="btn-copy" disabled>${t('btnCopy')}</button>`;
+    document.getElementById('sumContent').innerHTML=`<p class="sum-empty">${days!==null&&days>=1&&days<3?t('dateWarnMin'):t('needDates')}</p><button class="btn-copy" disabled>${t('btnCopy')}</button><div class="summary-warning">${t('summaryWarning')}</div>`;
     return;
   }
   let br=c.rate,wr=c.weekly,bd=c.deposit,bid='',bn='';
@@ -958,7 +1019,15 @@ function calc(){
   const endDate=document.getElementById('endDate').value;
   const sumImg=getConsoleImageSrc(c);
   const sumImgHtml=sumImg?`<img src="${sumImg}" alt="${cName(c)}" loading="lazy">`:`<span class="sum-hero-emoji">${c.icon||getBrandIcon(getBrandKey(c))||'🎮'}</span>`;
+  const canShowGamesBtn=canShowGameButton(c);
   h+=`<div class="sum-hero"><div class="sum-hero-img">${sumImgHtml}</div><div class="sum-hero-meta"><div class="sum-hero-section">🔥 ${getSummarySectionLabel(c)}</div><div class="sum-hero-name">${cName(c)}</div></div></div>`;
+  const detailLines=getConsoleDetails(c);
+  const detailItems=[...detailLines];
+  if(canShowGamesBtn) detailItems.push(`<a class="btn-games" href="${getGameButtonUrl(c)}" target="_blank">${t('viewGames')}</a>`);
+  if(detailItems.length){
+    h+=`<div class="sum-detail-list"><div class="sum-row" style="padding-top:0;border-bottom:none;"><span class="sl" style="max-width:none;font-weight:700;color:var(--text);">${t('sumDetailsTitle')}</span></div>${detailItems.map(item=>item.startsWith('<a ')?`<div class="sum-detail-action">${item}</div>`:`<div class="sum-detail-item">• ${item}</div>`).join('')}</div>`;
+  }
+  h+=`<div class="sum-note">${t('sumContractRequired')}</div>`;
   h+=sR(t('slConsole'),cName(c),false,true);
   h+=sR(t('slSection'),getSummarySectionLabel(c),false,true);
   if(bn)h+=sR(t('slBundle'),bn,false,true);
@@ -977,10 +1046,14 @@ function calc(){
   h+= paymentOption==='cash'
     ? `<div class="sum-box green"><span class="sl" style="max-width:none;">${t('slCash')}</span><span class="sv">${fmt(onDelivery)}</span></div>`
     : `${`<div class=\"sum-box red\"><span class=\"sl\" style=\"max-width:none;\">${t('slUpfront')}</span><span class=\"sv\">${fmt(upfront)}</span></div>`}${paymentOption==='wise'?'':`<div class="sum-box green"><span class="sl" style="max-width:none;">${t('slOD')}</span><span class="sv">${fmt(onDelivery)}</span></div>`}`;
+  h+= noCon
+    ? `<div class="sum-note">${t('sumNoContractSelected')}</div>`
+    : `<div class="sum-note">${t('sumContractSelected')}<br><a href="${t('contractLink')}" target="_blank">${t('sumContractLinkTitle')}</a></div>`;
   h+=`<button class="btn-copy" onclick="copyMsg()">${t('btnCopy')}</button>`;
   h+=`<a class="btn-line" href="https://lin.ee/P2mp0RK" target="_blank"><svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>${t('btnLine')}</a>`;
   if(lang==='en')h+=`<a class="btn-wa" href="https://wa.me/66816244715" target="_blank"><svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>${t('btnWa')}</a>`;
   h+=`<p class="line-hint">${t('lineHint')}</p>`;
+  h+=`<div class="summary-warning">${t('summaryWarning')}</div>`;
   document.getElementById('sumContent').innerHTML=h;
   window._cd={c,consoleName:cName(c),sectionName:getSummarySectionLabel(c),startDate:formatDateDisplay(startDate),endDate:formatDateDisplay(endDate),days,rental,addonTotal,addonLines,disc,isRet,deposit,total,upfront,onDelivery,maps,noCon,bundleName:bn,wkA,paymentOption};
 }
@@ -994,9 +1067,16 @@ function copyMsg(){
   const bundleLine=d.bundleName?`${nl}  🎁 ${d.bundleName}`:'';
   const mapsLine=d.maps?`${nl}${nl}📍 ${lang==='th'?'ที่อยู่จัดส่ง':'Delivery Address'}: ${d.maps}`:'';
   const retLine=d.isRet?`${nl}✅ ${lang==='th'?'ลูกค้าเก่า (ลด 10%)':'Returning Customer (10% off)'}`:'';
+  const contractMsg = d.noCon
+    ? (lang==='th'
+        ? `${nl}${nl}⚠️ เลือกไม่ทำสัญญาการเช่าแล้ว ค่ามัดจำจะสูงขึ้น${nl}หากต้องการเปลี่ยน สามารถกลับไปเอาติ๊กออกที่ Additional ได้`
+        : `${nl}${nl}⚠️ No rental contract selected. The deposit is higher under the stated rules.${nl}If needed, go back to Additional and uncheck it.`)
+    : (lang==='th'
+        ? `${nl}${nl}📝 กรุณาทำสัญญาการเช่าก่อนนัดส่งเครื่อง${nl}${t('contractLink')}${nl}หากไม่ต้องการทำสัญญา ให้ไปเลือกที่ Additional ว่า “ไม่ต้องการทำสัญญาการเช่า”`
+        : `${nl}${nl}📝 Please complete the rental contract before delivery${nl}${t('contractLink')}${nl}If you do not want a contract, select “No Rental Contract” in Additional.`);
   const msg=lang==='th'
-    ?`สวัสดีครับ ขอจองเช่าเครื่องเกม 🎮${nl}${nl}📱 เครื่อง: ${d.consoleName}${bundleLine}${nl}🔥 หมวดเครื่อง: ${d.sectionName}${nl}📅 วันที่เริ่มเช่า: ${d.startDate}${nl}📅 วันคืนเครื่อง: ${d.endDate}${nl}📅 ระยะเวลา: ${d.days} วัน${retLine}${noConLine}${nl}${nl}💰 สรุปค่าใช้จ่าย:${nl}  • ค่าเช่า: ${fmt(d.rental)}${addons}${discLine}${nl}  • ค่ามัดจำ: ${fmt(d.deposit)}${nl}${nl}💵 ยอดรวมทั้งหมด: ${fmt(d.total)}${nl}💳 โอนล่วงหน้า (ยืนยันจอง): ${fmt(d.upfront)}${nl}🚚 จ่ายตอนของถึง: ${fmt(d.onDelivery)}${mapsLine}${nl}${nl}ขอบคุณครับ 🙏`
-    :`Hello! Game console rental booking 🎮${nl}${nl}📱 Console: ${d.consoleName}${bundleLine}${nl}🔥 Section: ${d.sectionName}${nl}📅 Start Date: ${d.startDate}${nl}📅 Return Date: ${d.endDate}${nl}📅 Duration: ${d.days} days${retLine}${noConLine}${nl}${nl}💰 Cost Summary:${nl}  • Rental: ${fmt(d.rental)}${addons}${discLine}${nl}  • Deposit: ${fmt(d.deposit)}${nl}${nl}💵 Total: ${fmt(d.total)}${d.paymentOption==='cash'?`${nl}💵 Pay Cash on Delivery: ${fmt(d.onDelivery)}`:d.paymentOption==='wise'?`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}`:`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}${nl}🚚 Pay on Delivery: ${fmt(d.onDelivery)}`}${mapsLine}${nl}${nl}Thank you! 🙏`;
+    ?`สวัสดีครับ ขอจองเช่าเครื่องเกม 🎮${nl}${nl}📱 เครื่อง: ${d.consoleName}${bundleLine}${nl}🔥 หมวดเครื่อง: ${d.sectionName}${nl}📅 วันที่เริ่มเช่า: ${d.startDate}${nl}📅 วันคืนเครื่อง: ${d.endDate}${nl}📅 ระยะเวลา: ${d.days} วัน${retLine}${noConLine}${nl}${nl}💰 สรุปค่าใช้จ่าย:${nl}  • ค่าเช่า: ${fmt(d.rental)}${addons}${discLine}${nl}  • ค่ามัดจำ: ${fmt(d.deposit)}${nl}${nl}💵 ยอดรวมทั้งหมด: ${fmt(d.total)}${nl}💳 โอนล่วงหน้า (ยืนยันจอง): ${fmt(d.upfront)}${nl}🚚 จ่ายตอนของถึง: ${fmt(d.onDelivery)}${mapsLine}${contractMsg}${nl}${nl}ขอบคุณครับ 🙏`
+    :`Hello! Game console rental booking 🎮${nl}${nl}📱 Console: ${d.consoleName}${bundleLine}${nl}🔥 Section: ${d.sectionName}${nl}📅 Start Date: ${d.startDate}${nl}📅 Return Date: ${d.endDate}${nl}📅 Duration: ${d.days} days${retLine}${noConLine}${nl}${nl}💰 Cost Summary:${nl}  • Rental: ${fmt(d.rental)}${addons}${discLine}${nl}  • Deposit: ${fmt(d.deposit)}${nl}${nl}💵 Total: ${fmt(d.total)}${d.paymentOption==='cash'?`${nl}💵 Pay Cash on Delivery: ${fmt(d.onDelivery)}`:d.paymentOption==='wise'?`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}`:`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}${nl}🚚 Pay on Delivery: ${fmt(d.onDelivery)}`}${mapsLine}${contractMsg}${nl}${nl}Thank you! 🙏`;
   navigator.clipboard.writeText(msg).then(()=>{
     const btn=document.querySelector('.btn-copy');if(!btn)return;
     const orig=btn.textContent;btn.textContent=t('copiedTxt');btn.style.background='#228833';
@@ -1034,6 +1114,8 @@ function renderAdminPanel(){
           <div class="fgroup"><label class="flbl">Icon</label><input id="nCicon" type="text" value="🎮" maxlength="4" style="max-width:80px;"></div>
         </div>
         <div class="fgroup"><label class="flbl">ลิงก์รูป (URL)</label><input id="nCimg" type="url" placeholder="https://..."></div>
+        <div class="chk-row" style="margin-bottom:8px;"><input type="checkbox" id="nCshowGameBtn" checked><label for="nCshowGameBtn"><strong>แสดงปุ่ม คลิกเลือก 10 เกม</strong><br><span style="font-size:11px;color:var(--muted);">เปิด/ปิดปุ่มในหน้ารายการเครื่องและสรุปค่าเช่า</span></label></div>
+        <div class="fgroup"><label class="flbl">ลิงก์ปุ่ม คลิกเลือก 10 เกม</label><input id="nCgameUrl" type="url" placeholder="https://..."></div>
         <button class="btn-aa" onclick="addConsole()">➕ เพิ่มเครื่อง</button>
       </div>
       <div class="adm-list" id="admCList"></div>
@@ -1171,6 +1253,9 @@ function renderAdmConsoles(){
           <textarea class="device-textarea" id="ec-detailsen-${c.id}">${(c.detailsEn||[]).join('\n').replace(/</g,'&lt;')}</textarea></div>
         <div class="fgroup" style="margin-bottom:10px"><label class="flbl">${getImgLabelText().url}</label>
           <input type="url" id="ec-img-${c.id}" value="${(img||'').replace(/"/g,'&quot;')}" placeholder="https://..."></div>
+        <div class="chk-row" style="margin-bottom:8px;"><input type="checkbox" id="ec-showGameBtn-${c.id}" ${canShowGameButton(c)?'checked':''}><label for="ec-showGameBtn-${c.id}"><strong>แสดงปุ่ม คลิกเลือก 10 เกม</strong><br><span style="font-size:11px;color:var(--muted);">เปิด/ปิดปุ่มในหน้ารายการเครื่องและสรุปค่าเช่า</span></label></div>
+        <div class="fgroup" style="margin-bottom:10px"><label class="flbl">ลิงก์ปุ่ม คลิกเลือก 10 เกม</label>
+          <input type="url" id="ec-gameurl-${c.id}" value="${(c.gameUrl||'').replace(/"/g,'&quot;')}" placeholder="https://..."></div>
         <div style="display:flex;gap:7px;flex-wrap:wrap;">
           <button class="btn-aa blue" onclick="saveImageUrl(${c.id})">🔗 ${getImgLabelText().save}</button>
           <button class="btn-aa green" onclick="saveEditConsole(${c.id})">💾 บันทึก</button>
@@ -1221,9 +1306,12 @@ function saveEditConsole(id){
   c.type   = type;
   c.brand  = brand;
   c.icon   = icon;
+  c.showGameButton = showGameButton;
+  c.gameUrl = showGameButton ? (gameUrl || GAME_URL) : '';
   c.detailsTh = detailsTh;
   c.detailsEn = detailsEn;
   ensureConsoleDetails(c);
+  ensureGameButtonConfig(c);
   save();
   renderAdmConsoles();
   renderAll();
@@ -1250,13 +1338,16 @@ function addConsole(){
   const rate=parseInt(document.getElementById('nCrate').value),type=document.getElementById('nCtype').value;
   const brand=document.getElementById('nCbrand').value,icon=document.getElementById('nCicon').value||'🎮';
   const imgUrl=(document.getElementById('nCimg')?.value||'').trim();
+  const showGameButton=!!document.getElementById('nCshowGameBtn')?.checked;
+  const gameUrl=(document.getElementById('nCgameUrl')?.value||'').trim();
   if(!name){alert('กรุณาใส่ชื่อเครื่อง');return;}
   const wM={300:1500,350:1800,400:2500,500:3000},dM={300:2000,350:2000,400:2000,500:4000};
-  const newConsole={id:Date.now(),name,nameEn,rate,weekly:wM[rate],deposit:dM[rate],cat:String(rate),type,brand,icon};
+  const newConsole={id:Date.now(),name,nameEn,rate,weekly:wM[rate],deposit:dM[rate],cat:String(rate),type,brand,icon,showGameButton,gameUrl:showGameButton?(gameUrl||GAME_URL):''};
   ensureConsoleDetails(newConsole);
+  ensureGameButtonConfig(newConsole);
   consoles.push(newConsole);
   save();renderAdmConsoles();renderAll();
-  document.getElementById('nCname').value='';document.getElementById('nCnameEn').value=''; const imgIn=document.getElementById('nCimg'); if(imgIn) imgIn.value='';
+  document.getElementById('nCname').value='';document.getElementById('nCnameEn').value=''; const imgIn=document.getElementById('nCimg'); if(imgIn) imgIn.value=''; const gameIn=document.getElementById('nCgameUrl'); if(gameIn) gameIn.value=''; const gameToggle=document.getElementById('nCshowGameBtn'); if(gameToggle) gameToggle.checked=true;
 }
 function delConsole(id){if(!confirm('ลบเครื่องนี้?'))return;consoles=consoles.filter(c=>c.id!==id);delete images[id];save();renderAdmConsoles();renderAll();}
 function toggleLang(){lang=lang==='th'?'en':'th';renderAll();}
