@@ -86,8 +86,55 @@ nav{position:sticky;top:0;z-index:300;background:#fff;border-bottom:2px solid va
 .device-detail{font-size:11px;color:var(--text2);line-height:1.45;}
 .device-detail strong{color:var(--text);}
 .device-textarea{min-height:78px;resize:vertical;white-space:pre-wrap;}
-.btn-games{width:100%;background:var(--accent-dim);border:1px solid var(--border-r);color:var(--accent);padding:7px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;transition:background .18s;text-align:center;display:block;}
-.btn-games:hover{background:var(--accent-dim2);}
+.btn-games{width:100%;background:linear-gradient(180deg,#ffeded 0%,#ffdede 100%);border:2px solid var(--accent);color:var(--accent);padding:12px 14px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:800;font-family:inherit;transition:transform .18s,box-shadow .18s,background .18s;text-align:center;display:block;box-shadow:0 6px 18px rgba(204,0,0,0.18);position:relative;}
+.btn-games:hover{background:#fff1f1;transform:translateY(-1px);box-shadow:0 10px 24px rgba(204,0,0,0.22);}
+.btn-games::after{content:' ⟶';font-weight:900;}
+.sum-detail-action{margin-top:10px;}
+.maps-help-btn{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--border-r);color:var(--accent);padding:7px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;transition:all .18s;margin-top:8px;}
+.maps-help-btn:hover{background:var(--accent-dim);}
+.maps-action-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.maps-open-btn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);border:1.5px solid var(--accent);color:#fff;padding:8px 11px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:inherit;transition:all .18s;box-shadow:0 6px 18px rgba(204,0,0,0.18);}
+.maps-open-btn:hover{background:var(--accent-h);border-color:var(--accent-h);transform:translateY(-1px);}
+.maps-picker-wrap{display:flex;flex-direction:column;gap:12px;}
+.maps-picker-note{font-size:12px;color:var(--text2);line-height:1.75;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+.maps-picker-alert{font-size:12px;color:#8a4b00;line-height:1.75;background:#fff8f0;border:1px solid rgba(204,100,0,0.2);border-radius:10px;padding:10px 12px;}
+.maps-picker-tools{display:grid;grid-template-columns:1.2fr 1fr;gap:12px;}
+.maps-picker-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;box-shadow:var(--shadow);}
+.maps-picker-card h4{font-size:13px;font-weight:800;margin-bottom:8px;color:var(--text);}
+.maps-picker-card p{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:10px;}
+.maps-picker-search-row{display:flex;gap:8px;flex-wrap:wrap;}
+.maps-picker-search-row input{flex:1;min-width:220px;}
+.maps-picker-steps{display:flex;flex-direction:column;gap:8px;}
+.maps-step{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--surface);}
+.maps-step-badge{width:24px;height:24px;border-radius:999px;background:var(--accent);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.maps-step-text{font-size:12px;color:var(--text2);line-height:1.7;}
+.maps-picker-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;}
+.maps-picker-status{font-size:12px;color:var(--muted);line-height:1.6;flex:1;min-width:220px;padding:8px 0;}
+.btn-soft{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:#fff;border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;transition:all .18s;text-decoration:none;}
+.btn-soft:hover{border-color:var(--accent);color:var(--accent);}
+.btn-accent{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--accent);border:1.5px solid var(--accent);color:#fff;padding:9px 12px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:800;font-family:inherit;transition:all .18s;}
+.btn-accent:hover{background:var(--accent-h);border-color:var(--accent-h);}
+@media(max-width:760px){.maps-picker-tools{grid-template-columns:1fr;}}
+@media(max-width:640px){.maps-picker-actions{flex-direction:column;align-items:stretch;}.maps-picker-status{min-width:0;padding:0;}.maps-picker-search-row{flex-direction:column;}}
+.maps-help-intro{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:12px;}
+.maps-help-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;}
+.maps-help-card{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff;box-shadow:var(--shadow);}
+.maps-help-shot{padding:14px;background:linear-gradient(180deg,#fff,#f7f7f7);border-bottom:1px solid var(--border);}
+.maps-ui{border:1px solid var(--border);border-radius:12px;background:#fff;overflow:hidden;}
+.maps-topbar{padding:8px 10px;background:#f7f7f7;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;}
+.maps-dot{width:8px;height:8px;border-radius:50%;background:#ddd;}
+.maps-search{margin:10px;border:1px solid var(--border);border-radius:999px;padding:8px 12px;font-size:12px;color:#666;background:#fff;}
+.maps-place{margin:10px;border:1px solid var(--border);border-radius:10px;padding:10px;background:#fff;}
+.maps-place-title{font-size:13px;font-weight:700;margin-bottom:4px;}
+.maps-place-sub{font-size:11px;color:#777;}
+.maps-share-row{display:flex;justify-content:space-between;gap:8px;margin-top:10px;}
+.maps-share-btn,.maps-copy-btn{flex:1;border-radius:9px;padding:8px 10px;font-size:12px;font-weight:700;text-align:center;}
+.maps-share-btn{background:#f4f4f4;border:1px solid var(--border);color:#333;}
+.maps-copy-btn{background:#ffe9e9;border:1px solid var(--border-r);color:var(--accent);}
+.maps-help-body{padding:12px;}
+.maps-help-title{font-size:13px;font-weight:800;margin-bottom:4px;}
+.maps-help-desc{font-size:12px;color:var(--text2);line-height:1.7;}
+.maps-help-tip{margin-top:12px;padding:10px 12px;background:#fff8f0;border:1px solid rgba(204,100,0,0.2);border-radius:10px;font-size:12px;color:#8a4b00;line-height:1.7;}
 .steps-bg{background:#cc0000;padding:44px 0;}
 .steps-bg .sec-tag{color:#ffffff;}
 .steps-bg .sec-h{color:#ffffff;}
@@ -372,13 +419,17 @@ footer{background:#0d0d0d;padding:30px 22px;text-align:center;}
             <select id="paymentOption" onchange="calc()">
               <option value="bank">Thai Bank Transfer</option>
               <option value="wise">Wise</option>
-              <option value="cash">Cash</option>
+              <option value="cash" selected>Cash (Thai Baht only)</option>
             </select>
           </div>
           <div class="fgroup" style="margin-top:6px;margin-bottom:0">
-            <label class="flbl" id="lbl-maps">Google Maps ที่อยู่จัดส่ง</label>
+            <label class="flbl" id="lbl-maps">Google Maps ที่อยู่จัดส่ง (เช็คค่าส่งก่อนตัดสินใจ)</label>
             <input type="url" id="mapsInput" placeholder="https://maps.google.com/..." oninput="calc()">
-            <p style="font-size:11px;color:var(--muted);margin-top:3px;" id="lbl-maps-note">* แนบในข้อความจอง</p>
+            <p style="font-size:11px;color:var(--muted);margin-top:3px;" id="lbl-maps-note" title="ยังไม่ต้องจองก็เช็คค่าส่งก่อนได้">* ใส่ลิงก์ Google Maps เพื่อให้ร้านเช็คค่าส่งเบื้องต้นได้เร็วขึ้น</p>
+            <div class="maps-action-row">
+              <button type="button" class="maps-open-btn" id="maps-open-btn" onclick="openMapsPicker()">🗺️ เปิด Google Maps</button>
+              <button type="button" class="maps-help-btn" id="maps-help-btn" onclick="openMapsHelp()">📍 วิธีคัดลอกลิงก์ Google Maps</button>
+            </div>
             <p style="font-size:11px;color:var(--accent);margin-top:4px;font-weight:700;" id="delivery-note">* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น</p>
           </div>
         </div>
@@ -401,6 +452,24 @@ footer{background:#0d0d0d;padding:30px 22px;text-align:center;}
   <div class="foot-logo" id="footLogoTxt">🎮 <em>AJ</em> เช่าเครื่องเกม</div>
   <p class="foot-p">Line: @ajgame &nbsp;|&nbsp; กรุงเทพฯ และปริมณฑล &nbsp;|&nbsp; Lalamove / Grab Express</p>
 </footer>
+<div class="overlay" id="mapsHelpOverlay" onclick="if(event.target===this)closeMapsHelp()">
+  <div class="modal" style="max-width:760px;">
+    <div class="mhdr">
+      <h3 id="mapsHelpTitle">📍 วิธีคัดลอกลิงก์ Google Maps</h3>
+      <button class="mclose" onclick="closeMapsHelp()">×</button>
+    </div>
+    <div class="mbody" id="mapsHelpBody"></div>
+  </div>
+</div>
+<div class="overlay" id="mapsPickerOverlay" onclick="if(event.target===this)closeMapsPicker()">
+  <div class="modal" style="max-width:1080px;">
+    <div class="mhdr">
+      <h3 id="mapsPickerTitle">🗺️ เปิด Google Maps</h3>
+      <button class="mclose" onclick="closeMapsPicker()">×</button>
+    </div>
+    <div class="mbody" id="mapsPickerBody"></div>
+  </div>
+</div>
 <div class="overlay" id="adminOverlay">
   <div class="modal" style="max-width:800px;">
     <div class="mhdr"><h3>⚙️ Admin Panel</h3><button class="mclose" onclick="closeAdmin()">✕</button></div>
@@ -562,7 +631,7 @@ const T={
     lblRetT:'ลูกค้าเก่า',lblRetD:'รับส่วนลด 10% ค่าเช่า',
     lblNoConT:'ไม่ต้องการทำสัญญาการเช่า',lblNoConD:'ค่ามัดจำเพิ่มขึ้น (฿2,000→฿5,000 / ฿4,000→฿8,000)',
     noConNote:'⚠️ เมื่อไม่ทำสัญญา ค่ามัดจำจะสูงขึ้นตามเรทที่กำหนด',
-    lblMaps:'Google Maps ที่อยู่จัดส่ง',lblMapsNote:'* แนบในข้อความจอง',deliveryNote:'* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น',
+    lblMaps:'Google Maps ที่อยู่จัดส่ง (เช็คค่าส่งก่อนตัดสินใจ)',lblMapsNote:'* ใส่ลิงก์ Google Maps เพื่อให้ร้านเช็คค่าส่งเบื้องต้นได้เร็วขึ้น',mapsHelpBtn:'📍 วิธีคัดลอกลิงก์ Google Maps',deliveryNote:'* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น',mapsHelpTitle:'📍 วิธีคัดลอกลิงก์ Google Maps',mapsHelpIntro:'กดตามภาพด้านล่างได้เลย ใช้ได้ทั้งมือถือและคอม โดยหลักคือเปิดสถานที่หรือบ้านของคุณใน Google Maps แล้วกดแชร์ จากนั้นคัดลอกลิงก์มาแปะในช่องนี้',mapsHelpStep1Title:'1) เปิดสถานที่ใน Google Maps',mapsHelpStep1Desc:'ค้นหาบ้าน คอนโด หรือจุดจัดส่งที่ต้องการ แล้วแตะให้ขึ้นหน้ารายละเอียดสถานที่',mapsHelpStep2Title:'2) กดปุ่ม แชร์',mapsHelpStep2Desc:'มองหาปุ่ม แชร์ / Share ในหน้าสถานที่ หรือกดเมนูเพิ่มเติมแล้วเลือกแชร์',mapsHelpStep3Title:'3) กดคัดลอกลิงก์ แล้วนำมาแปะ',mapsHelpStep3Desc:'กด คัดลอกลิงก์ / Copy link แล้วนำลิงก์ที่ได้มาแปะในช่อง Google Maps ที่อยู่จัดส่งด้านบน',mapsHelpTip:'💡 แนะนำให้ส่งลิงก์จาก Google Maps ตรง ๆ จะช่วยให้ร้านเช็กพื้นที่จัดส่งและเรียกรถได้ง่ายขึ้น',
     formConsoleLbl:'🎮 เลือกเครื่อง',formDateLbl:'📅 ช่วงเวลาเช่า',formOptLbl:'⚙️ ตัวเลือกเพิ่มเติม',
     sumTitle:'📋 สรุปค่าเช่า',sumEmpty:'เลือกเครื่องและวันที่เพื่อดูสรุปค่าเช่า',
     contractLbl:'ทำสัญญาการเช่าผ่านลิงก์',contractNote:'กรุณากรอกสัญญาก่อนนัดส่งเครื่อง',
@@ -573,19 +642,19 @@ const T={
     filterPS:'PlayStation',filterNintendo:'Nintendo Switch',filterXbox:'Xbox',filterLogitech:'Logitech',filterMeta:'Meta Quest',filterViture:'Viture',filterXreal:'XREAL',filterLenovo:'Lenovo',filterROG:'ROG',filterSteamDeck:'Steam Deck',filterOther:'Other',
     sortGroupBrand:'แยกตามแบรนด์',sortAsc:'ราคา: ต่ำ → สูง',sortDesc:'ราคา: สูง → ต่ำ',sortName:'ชื่อ A → Z',
     statTotal:'เครื่องทั้งหมด',statConsole:'Console',statVR:'VR & AR',statHandheld:'PC Handheld',statRacing:'Racing',
-    daily:'รายวัน',weekly:'รายสัปดาห์',day:'วัน',wk:'สัปดาห์',deposit:'มัดจำ',viewGames:'🎮 คลิกเลือก 10 เกม',
+    daily:'รายวัน',weekly:'รายสัปดาห์',day:'วัน',wk:'สัปดาห์',deposit:'มัดจำ',viewGames:'🎮 คลิกตรงนี้เพื่อเลือก 10 เกม',
     ps5BundleTitle:'🎮 BUNDLE กับ PS5',swAddonTitle:'🎮 อุปกรณ์เสริม',swSubLbl:'อุปกรณ์เพิ่มเติม (เลือกเพิ่มได้)',
     vdockTitle:'🥽 อุปกรณ์เสริม Viture',vdockLabel:'เพิ่ม Viture Mobile Dock (+฿200/การเช่า)',
     copiedTxt:'✅ คัดลอกแล้ว!',btnCopy:'📋 Copy ข้อความจองเช่า',btnLine:'ส่งข้อความทาง Line',btnWa:'ส่งข้อความทาง WhatsApp',
     retSoon:'(เร็วๆ นี้)',
     lineHint:'แล้วส่งไปที่ Line: <b>@ajgame</b> เพื่อยืนยัน',
-    summaryWarning:'⚠️ ราคานี้เป็นราคาเช่าในนามบุคคลเท่านั้น ไม่สามารถออกใบกำกับภาษีหรือใบเสร็จรับเงินได้ | หากต้องการใบกำกับภาษี/ใบเสร็จ จะเป็นเรทบริษัท กรุณาติดต่อทาง Line: @ajgame หรือ โทร. 081-624-4715 🙏',
-    lblPayment:'ตัวเลือกการชำระเงิน',payBank:'Thai Bank Transfer',payWise:'Wise',payCash:'Cash',slPayment:'การชำระเงิน',slCash:'💵 จ่ายเงินสดตอนส่งมอบ',
+    summaryWarning:'⚠️ ราคาเช่าทางด้านล่างนี้ 👇 เป็นราคาเช่าในนามบุคคลเท่านั้น ไม่สามารถออกใบกำกับภาษีหรือใบเสร็จรับเงินได้ | หากต้องการใบกำกับภาษี/ใบเสร็จ จะเป็นเรทบริษัท กรุณาติดต่อทาง Line: @ajgame หรือ โทร. 081-624-4715 🙏',
+    lblPayment:'ตัวเลือกการชำระเงิน',payBank:'Thai Bank Transfer',payWise:'Wise',payCash:'Cash (Thai Baht only)',slPayment:'การชำระเงิน',slCash:'💵 จ่ายเงินสดตอนส่งมอบ',
     needDates:'⏳ กรุณาเลือกวันเริ่มเช่าและวันคืนเครื่อง',noConLabel:'(ไม่ทำสัญญา)',
     slConsole:'เครื่อง',slBundle:'Bundle',slSection:'หมวดเครื่อง',slStart:'วันที่เริ่มเช่า',slEnd:'วันคืนเครื่อง',slDuration:'ระยะเวลา',slWeekly:'(เรทรายสัปดาห์)',
     slRental:'ค่าเช่า',slAddon:'อุปกรณ์เสริม',slDiscount:'ส่วนลดลูกค้าเก่า',slDeposit:'ค่ามัดจำ',
     slTotal:'ยอดรวมทั้งหมด',slUpfront:'💳 โอนล่วงหน้า (ยืนยันการจอง)',slOD:'🚚 จ่ายตอนของถึง',
-    calcGuideHtml:'<h3>📌 วิธีใช้งานส่วนคำนวณค่าเช่า</h3><p><strong>1) เลือกเครื่อง</strong> จากหมวดและรุ่นที่ต้องการก่อน<br><strong>2) เลือกวันเริ่มเช่า</strong> และ <strong>วันคืนเครื่อง</strong> โดยระบบคิดขั้นต่ำ 3 วัน<br><strong>3) ถ้ารุ่นนั้นมี Bundle หรืออุปกรณ์เสริม</strong> สามารถติ๊กเพิ่มได้ในหน้านี้<br><strong>4) เรื่องสัญญาการเช่า:</strong> ถ้าต้องการทำสัญญา ให้ปล่อยค่า Additional ตามปกติ แล้วลิงก์สัญญาจะขึ้นทั้งในส่วนนี้และในสรุปค่าเช่า<br><strong>5) ถ้าไม่ทำสัญญาการเช่า</strong> ให้ไปเลือกที่ Additional ตรง <strong>ไม่ต้องการทำสัญญาการเช่า</strong> ซึ่งค่ามัดจำจะเพิ่มขึ้นตามที่ระบบแจ้ง<br><strong>6) เมื่อสรุปเรียบร้อย</strong> กด <strong>Copy ข้อความจองเช่า</strong> แล้วส่งข้อความจองเช่าไปที่ <strong>Line</strong> หรือ <strong>WhatsApp</strong> ได้ทันที</p>',
+    calcGuideHtml:'<h3>📌 วิธีใช้งานส่วนคำนวณค่าเช่า</h3><p><strong>1) เลือกเครื่อง</strong> จากหมวดและรุ่นที่ต้องการก่อน<br><strong>2) เลือกวันเริ่มเช่า</strong> และ <strong>วันคืนเครื่อง</strong> โดยระบบคิดขั้นต่ำ 3 วัน<br><strong>3) ถ้ารุ่นนั้นมี Bundle หรืออุปกรณ์เสริม</strong> สามารถติ๊กเพิ่มได้ในหน้านี้<br><strong>4) เรื่องสัญญาการเช่า:</strong> ถ้าต้องการทำสัญญา ให้ปล่อยค่า Additional ตามปกติ แล้วลิงก์สัญญาจะขึ้นทั้งในส่วนนี้และในสรุปค่าเช่า<br><strong>5) ถ้าไม่ทำสัญญาการเช่า</strong> ให้ไปเลือกที่ Additional ตรง <strong>ไม่ต้องการทำสัญญาการเช่า</strong> ซึ่งค่ามัดจำจะเพิ่มขึ้นตามที่ระบบแจ้ง<br><strong>6) การเช็คค่าจัดส่ง</strong> ให้เปิด Google Maps เลือกสถานที่จัดส่ง แล้วกดคัดลอกลิงก์มาแปะในช่อง <strong>Google Maps ที่อยู่จัดส่ง</strong><br><strong>7) เมื่อสรุปเรียบร้อย</strong> กด <strong>Copy ข้อความจองเช่า</strong> แล้วส่งข้อความจองเช่าไปที่ <strong>Line</strong> หรือ <strong>WhatsApp</strong> ได้ทันที</p>',
     sumContractRequired:'⚠️ ต้องทำสัญญาการเช่า หรือไปเลือกที่ Additional ว่า “ไม่ต้องการทำสัญญาการเช่า”',
     sumContractLinkTitle:'📝 ลิงก์ทำสัญญาการเช่า',
     sumContractSelected:'✅ เลือกทำสัญญาการเช่าแล้ว กรุณากดลิงก์ด้านล่างเพื่อกรอกสัญญาก่อนนัดส่งเครื่อง',
@@ -613,7 +682,7 @@ const T={
     lblRetT:'Returning Customer',lblRetD:'Get 10% off rental fee',
     lblNoConT:'No Rental Contract',lblNoConD:'Deposit increases (฿2,000→฿5,000 / ฿4,000→฿8,000)',
     noConNote:'⚠️ Without a contract, the deposit will be higher.',
-    lblMaps:'Google Maps Delivery Address',lblMapsNote:'* Attached to booking message',deliveryNote:'* Delivery only in Bangkok & Greater Bangkok',
+    lblMaps:'Google Maps Delivery Address (check delivery cost before booking)',lblMapsNote:'* Paste your Google Maps link so we can estimate delivery cost faster',mapsHelpBtn:'📍 How to copy your Google Maps link',deliveryNote:'* Delivery only in Bangkok & Greater Bangkok',mapsHelpTitle:'📍 How to copy your Google Maps link',mapsHelpIntro:'Follow the visual steps below. This works on both phone and desktop: open your place in Google Maps, tap Share, then copy the link and paste it into this field.',mapsHelpStep1Title:'1) Open the place in Google Maps',mapsHelpStep1Desc:'Search for your home, condo, hotel, or delivery point and open its place details card.',mapsHelpStep2Title:'2) Tap Share',mapsHelpStep2Desc:'Look for the Share button on the place card, or open more options and choose Share.',mapsHelpStep3Title:'3) Copy link and paste it here',mapsHelpStep3Desc:'Tap Copy link, then paste that Google Maps link into the delivery address field above.',mapsHelpTip:'💡 A direct Google Maps link makes it much easier for us to check the service area and arrange delivery smoothly.',
     formConsoleLbl:'🎮 Select Console',formDateLbl:'📅 Rental Period',formOptLbl:'⚙️ Additional Options',
     sumTitle:'📋 Rental Summary',sumEmpty:'Select a console and dates to see summary.',
     contractLbl:'Complete Rental Agreement',contractNote:'Please fill in the form before delivery.',
@@ -624,19 +693,19 @@ const T={
     filterPS:'PlayStation',filterNintendo:'Nintendo Switch',filterXbox:'Xbox',filterLogitech:'Logitech',filterMeta:'Meta Quest',filterViture:'Viture',filterXreal:'XREAL',filterLenovo:'Lenovo',filterROG:'ROG',filterSteamDeck:'Steam Deck',filterOther:'Other',
     sortGroupBrand:'Group by Brand',sortAsc:'Price: Low → High',sortDesc:'Price: High → Low',sortName:'Name A → Z',
     statTotal:'Total Consoles',statConsole:'Console',statVR:'VR & AR',statHandheld:'PC Handheld',statRacing:'Racing',
-    daily:'Daily',weekly:'Weekly',day:'day',wk:'wk',deposit:'Deposit',viewGames:'🎮 Click to Choose 10 Games',
+    daily:'Daily',weekly:'Weekly',day:'day',wk:'wk',deposit:'Deposit',viewGames:'🎮 Click Here to Choose 10 Games',
     ps5BundleTitle:'🎮 PS5 BUNDLE OPTIONS',swAddonTitle:'🎮 Switch Accessories',swSubLbl:'Additional accessories (optional)',
     vdockTitle:'🥽 Viture Accessories',vdockLabel:'Add Viture Mobile Dock (+฿200/rental)',
     copiedTxt:'✅ Copied!',btnCopy:'📋 Copy Booking Message',btnLine:'Send via Line',btnWa:'Send via WhatsApp',
     retSoon:'(Coming Soon)',
     lineHint:'Send to Line: <b>@ajgame</b> or WhatsApp to confirm',
-    summaryWarning:'⚠️ This pricing is for personal rental only. Tax invoice / receipt cannot be issued | For tax invoice / receipt, company rates apply. Please contact us via Line: @ajgame or Tel. +66 81-624-4715 🙏',
-    lblPayment:'Payment Options',payBank:'Thai Bank Transfer',payWise:'Wise',payCash:'Cash',slPayment:'Payment',slCash:'💵 Pay Cash on Delivery',
+    summaryWarning:'⚠️ The rental pricing below 👇 is for personal rental only. Tax invoice / receipt cannot be issued | If you need a tax invoice / receipt, company rates apply. Please contact us via Line: @ajgame or Tel. +66 81-624-4715 🙏',
+    lblPayment:'Payment Options',payBank:'Thai Bank Transfer',payWise:'Wise',payCash:'Cash (Thai Baht only)',slPayment:'Payment',slCash:'💵 Pay Cash on Delivery',
     needDates:'⏳ Please select rental start and return dates.',noConLabel:'(No Contract)',
     slConsole:'Console',slBundle:'Bundle',slSection:'Section',slStart:'Start Date',slEnd:'Return Date',slDuration:'Duration',slWeekly:'(weekly rate)',
     slRental:'Rental Cost',slAddon:'Accessories',slDiscount:'Returning Customer Discount',slDeposit:'Deposit',
     slTotal:'Total Amount',slUpfront:'💳 Transfer Before Delivery',slOD:'🚚 Pay on Delivery',
-    calcGuideHtml:'<h3>📌 How to use the rental calculator</h3><p><strong>1) Select a console</strong> by category and model first<br><strong>2) Choose the rental start date</strong> and <strong>return date</strong>; the minimum rental is 3 days<br><strong>3) If that model has bundles or accessories</strong>, you can add them here<br><strong>4) About the rental contract:</strong> if you want to complete the contract, leave Additional options as normal, and the contract link will appear here and in the rental summary<br><strong>5) If you do not want a rental contract</strong>, go to Additional and select <strong>No Rental Contract</strong>; the deposit will increase based on the stated rules<br><strong>6) When everything looks good</strong>, click <strong>Copy Booking Message</strong> and then send the booking message via <strong>Line</strong> or <strong>WhatsApp</strong> right away</p>',
+    calcGuideHtml:'<h3>📌 How to use the rental calculator</h3><p><strong>1) Select a console</strong> by category and model first<br><strong>2) Choose the rental start date</strong> and <strong>return date</strong>; the minimum rental is 3 days<br><strong>3) If that model has bundles or accessories</strong>, you can add them here<br><strong>4) About the rental contract:</strong> if you want to complete the contract, leave Additional options as normal, and the contract link will appear here and in the rental summary<br><strong>5) If you do not want a rental contract</strong>, go to Additional and select <strong>No Rental Contract</strong>; the deposit will increase based on the stated rules<br><strong>6) In Additional Options</strong>, choose your <strong>Payment Options</strong> and paste your <strong>Google Maps delivery link</strong> so the delivery address is included correctly<br><strong>7) When everything looks good</strong>, click <strong>Copy Booking Message</strong> and then send the booking message via <strong>Line</strong> or <strong>WhatsApp</strong> right away</p>',
     sumContractRequired:'⚠️ You must complete the rental contract, or select “No Rental Contract” in Additional.',
     sumContractLinkTitle:'📝 Rental Contract Link',
     sumContractSelected:'✅ Rental contract selected. Please use the link below to complete the contract before delivery.',
@@ -734,7 +803,8 @@ async function doGhPull(){
     if(!data){ if(statusEl) statusEl.textContent = '❌ ดึงล้มเหลว ตรวจสอบ Gist ID และ Token'; ghSetBar('err','❌ ดึงล้มเหลว',true); return; }
     if(data.consoles) consoles = data.consoles;
     if(data.images)   images   = data.images;
-    save(); renderAll(); renderAdmConsoles();
+    save(); renderAll();
+syncMapUiText(); renderAdmConsoles();
     if(statusEl) statusEl.textContent = '✅ Pull สำเร็จ!';
     ghSetBar('ok','✅ ข้อมูลอัปเดตแล้ว',true);
   } catch(e){ if(statusEl) statusEl.textContent='❌ '+e.message; ghSetBar('err','❌ Error',true); }
@@ -776,7 +846,7 @@ function updateStatic(){
   document.getElementById('footLogoTxt').innerHTML=t('footLogo');
   document.getElementById('langBtn').textContent=lang==='th'?'🌐 EN':'🌐 TH';
   document.getElementById('heroBg').style.backgroundImage=`url('${LOGO_URI}')`;
-  const m={'h-pill':'hpill','h-h1':'hh','h-p':'hp','h-b1':'hb1','h-b2':'hb2','c-tag':'ctag','c-h':'ch','noticeBox':'notice','s-tag':'stag','s-h':'sh','s-p':'sp','cl-tag':'cltag','cl-h':'clh','cl-p':'clp','form-console-lbl':'formConsoleLbl','form-date-lbl':'formDateLbl','form-opt-lbl':'formOptLbl','sum-title':'sumTitle','sumEmpty':'sumEmpty','lbl-cat':'lblCat','lbl-console':'lblConsole','lbl-start':'lblStart','lbl-end':'lblEnd','lbl-ret-t':'lblRetT','lbl-ret-d':'lblRetD','lbl-nocon-t':'lblNoConT','lbl-nocon-d':'lblNoConD','noConNote':'noConNote','lbl-maps':'lblMaps','lbl-maps-note':'lblMapsNote','delivery-note':'deliveryNote','lbl-payment':'lblPayment','contractLbl':'contractLbl','contractNote':'contractNote','flbl-type':'flblType','flbl-brand':'flblBrand','flbl-sort':'flblSort'};
+  const m={'h-pill':'hpill','h-h1':'hh','h-p':'hp','h-b1':'hb1','h-b2':'hb2','c-tag':'ctag','c-h':'ch','noticeBox':'notice','s-tag':'stag','s-h':'sh','s-p':'sp','cl-tag':'cltag','cl-h':'clh','cl-p':'clp','form-console-lbl':'formConsoleLbl','form-date-lbl':'formDateLbl','form-opt-lbl':'formOptLbl','sum-title':'sumTitle','sumEmpty':'sumEmpty','lbl-cat':'lblCat','lbl-console':'lblConsole','lbl-start':'lblStart','lbl-end':'lblEnd','lbl-ret-t':'lblRetT','lbl-ret-d':'lblRetD','lbl-nocon-t':'lblNoConT','lbl-nocon-d':'lblNoConD','noConNote':'noConNote','lbl-maps':'lblMaps','lbl-maps-note':'lblMapsNote','maps-help-btn':'mapsHelpBtn','delivery-note':'deliveryNote','lbl-payment':'lblPayment','contractLbl':'contractLbl','contractNote':'contractNote','flbl-type':'flblType','flbl-brand':'flblBrand','flbl-sort':'flblSort'};
   Object.entries(m).forEach(([id,k])=>{const el=document.getElementById(id);if(el){const v=t(k);if(v!==undefined)el.innerHTML=v;}});
   document.getElementById('contractLink').href=t('contractLink');
   const payWrap=document.getElementById('paymentOptionWrap');
@@ -789,6 +859,7 @@ function updateStatic(){
     paySel.options[0].text=t('payBank');
     paySel.options[1].text=t('payWise');
     paySel.options[2].text=t('payCash');
+    if(!paySel.value || !['bank','wise','cash'].includes(paySel.value)) paySel.value='cash';
   }
   const cat=document.getElementById('calcCat');
   cat.options[0].text=lang==='th'?'-- ทั้งหมด --':'-- All Types --';
@@ -797,6 +868,7 @@ function updateStatic(){
   renderRetRow();
   const calcGuide=document.getElementById('calcGuide');
   if(calcGuide) calcGuide.innerHTML=t('calcGuideHtml');
+  renderMapsHelp();
 }
 
 function renderRetRow(){
@@ -992,7 +1064,7 @@ function calc(){
   if(!c){document.getElementById('sumContent').innerHTML=`<p class="sum-empty">${t('sumEmpty')}</p><div class="summary-warning">${t('summaryWarning')}</div>`;return;}
   const days=getSelectedDays(),noCon=document.getElementById('noConChk').checked,maps=document.getElementById('mapsInput').value.trim();
   const isRet=retEnabled&&(document.getElementById('retChk')?.checked||false);
-  const paymentOption=lang==='en'?(document.getElementById('paymentOption')?.value||'bank'):'bank';
+  const paymentOption=lang==='en'?(document.getElementById('paymentOption')?.value||'cash'):'bank';
   if(!days||days<3||days<=0){
     document.getElementById('sumContent').innerHTML=`<p class="sum-empty">${days!==null&&days>=1&&days<3?t('dateWarnMin'):t('needDates')}</p><button class="btn-copy" disabled>${t('btnCopy')}</button><div class="summary-warning">${t('summaryWarning')}</div>`;
     return;
@@ -1028,6 +1100,7 @@ function calc(){
     h+=`<div class="sum-detail-list"><div class="sum-row" style="padding-top:0;border-bottom:none;"><span class="sl" style="max-width:none;font-weight:700;color:var(--text);">${t('sumDetailsTitle')}</span></div>${detailItems.map(item=>item.startsWith('<a ')?`<div class="sum-detail-action">${item}</div>`:`<div class="sum-detail-item">• ${item}</div>`).join('')}</div>`;
   }
   h+=`<div class="sum-note">${t('sumContractRequired')}</div>`;
+  h+=`<div class="summary-warning">${t('summaryWarning')}</div>`;
   h+=sR(t('slConsole'),cName(c),false,true);
   h+=sR(t('slSection'),getSummarySectionLabel(c),false,true);
   if(bn)h+=sR(t('slBundle'),bn,false,true);
@@ -1050,10 +1123,9 @@ function calc(){
     ? `<div class="sum-note">${t('sumNoContractSelected')}</div>`
     : `<div class="sum-note">${t('sumContractSelected')}<br><a href="${t('contractLink')}" target="_blank">${t('sumContractLinkTitle')}</a></div>`;
   h+=`<button class="btn-copy" onclick="copyMsg()">${t('btnCopy')}</button>`;
-  h+=`<a class="btn-line" href="https://lin.ee/P2mp0RK" target="_blank"><svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>${t('btnLine')}</a>`;
-  if(lang==='en')h+=`<a class="btn-wa" href="https://wa.me/66816244715" target="_blank"><svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>${t('btnWa')}</a>`;
+  h+=`<a class="btn-line" href="https://lin.ee/P2mp0RK" target="_blank"><svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H16.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H16.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.26.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.467.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.767.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 7.916-4.078 9.436-7.975C23.176 14.393 24 12.458 24 10.314"/></svg>${t('btnLine')}</a>`;
+  if(lang==='en')h+=`<a class="btn-wa" href="https://wa.me/66816244715" target="_blank"><svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M16.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.66.15-.196.297-.766.966-.94 1.164-.173.199-.346.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.607.134-.133.298-.346.446-.52.149-.174.198-.298.298-.496.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.486.709.306 1.262.489 1.694.625.712.227 1.37.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 6.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 7.988 2.898a9.825 9.825 0 012.893 7.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.097.547 4.142 1.588 5.945L.057 24l7.305-1.654a11.882 11.882 0 005.683 1.448h.005c7.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>${t('btnWa')}</a>`;
   h+=`<p class="line-hint">${t('lineHint')}</p>`;
-  h+=`<div class="summary-warning">${t('summaryWarning')}</div>`;
   document.getElementById('sumContent').innerHTML=h;
   window._cd={c,consoleName:cName(c),sectionName:getSummarySectionLabel(c),startDate:formatDateDisplay(startDate),endDate:formatDateDisplay(endDate),days,rental,addonTotal,addonLines,disc,isRet,deposit,total,upfront,onDelivery,maps,noCon,bundleName:bn,wkA,paymentOption};
 }
@@ -1143,7 +1215,7 @@ function renderAdminPanel(){
         <h4>☁️ GitHub Gist Sync</h4>
         <div class="fgroup">
           <label class="flbl">Gist ID</label>
-          <input type="text" id="ghGistIdIn" placeholder="abc123def456..." autocomplete="off">
+          <input type="text" id="ghGistIdIn" placeholder="abc123def457..." autocomplete="off">
           <p class="gh-note" style="margin-top:5px;">Gist ID ปัจจุบัน: <strong id="gistIdDisplay" style="color:#0066cc;">—</strong></p>
         </div>
         <div class="fgroup">
@@ -1350,12 +1422,265 @@ function addConsole(){
   document.getElementById('nCname').value='';document.getElementById('nCnameEn').value=''; const imgIn=document.getElementById('nCimg'); if(imgIn) imgIn.value=''; const gameIn=document.getElementById('nCgameUrl'); if(gameIn) gameIn.value=''; const gameToggle=document.getElementById('nCshowGameBtn'); if(gameToggle) gameToggle.checked=true;
 }
 function delConsole(id){if(!confirm('ลบเครื่องนี้?'))return;consoles=consoles.filter(c=>c.id!==id);delete images[id];save();renderAdmConsoles();renderAll();}
-function toggleLang(){lang=lang==='th'?'en':'th';renderAll();}
+function renderMapsHelp(){
+  const body=document.getElementById('mapsHelpBody');
+  if(!body) return;
+  body.innerHTML=`<p class="maps-help-intro">${t('mapsHelpIntro')}</p>
+    <div class="maps-help-grid">
+      <div class="maps-help-card">
+        <div class="maps-help-shot">
+          <div class="maps-ui">
+            <div class="maps-topbar"><span class="maps-dot"></span><span class="maps-dot"></span><span class="maps-dot"></span></div>
+            <div class="maps-search">🔎 Google Maps</div>
+            <div class="maps-place">
+              <div class="maps-place-title">AJ Delivery Address</div>
+              <div class="maps-place-sub">Bangkok / Condo / Home / Hotel</div>
+            </div>
+          </div>
+        </div>
+        <div class="maps-help-body">
+          <div class="maps-help-title">${t('mapsHelpStep1Title')}</div>
+          <div class="maps-help-desc">${t('mapsHelpStep1Desc')}</div>
+        </div>
+      </div>
+      <div class="maps-help-card">
+        <div class="maps-help-shot">
+          <div class="maps-ui">
+            <div class="maps-topbar"><span class="maps-dot"></span><span class="maps-dot"></span><span class="maps-dot"></span></div>
+            <div class="maps-place">
+              <div class="maps-place-title">Place details</div>
+              <div class="maps-place-sub">Open the location card first</div>
+              <div class="maps-share-row">
+                <div class="maps-share-btn">↗ Share</div>
+                <div class="maps-copy-btn">🔗 Copy link</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="maps-help-body">
+          <div class="maps-help-title">${t('mapsHelpStep2Title')}</div>
+          <div class="maps-help-desc">${t('mapsHelpStep2Desc')}</div>
+        </div>
+      </div>
+      <div class="maps-help-card">
+        <div class="maps-help-shot">
+          <div class="maps-ui">
+            <div class="maps-topbar"><span class="maps-dot"></span><span class="maps-dot"></span><span class="maps-dot"></span></div>
+            <div class="maps-search">https://maps.google.com/...</div>
+            <div class="maps-place">
+              <div class="maps-place-title">Paste the link here</div>
+              <div class="maps-place-sub">Into the Google Maps delivery field</div>
+            </div>
+          </div>
+        </div>
+        <div class="maps-help-body">
+          <div class="maps-help-title">${t('mapsHelpStep3Title')}</div>
+          <div class="maps-help-desc">${t('mapsHelpStep3Desc')}</div>
+        </div>
+      </div>
+    </div>
+    <div class="maps-help-tip">${t('mapsHelpTip')}</div>`;
+  const ttl=document.getElementById('mapsHelpTitle');
+  if(ttl) ttl.textContent=t('mapsHelpTitle');
+}
+function openMapsHelp(){
+  renderMapsHelp();
+  document.getElementById('mapsHelpOverlay')?.classList.add('open');
+}
+function closeMapsHelp(){
+  document.getElementById('mapsHelpOverlay')?.classList.remove('open');
+}
+let mapsPopupWindow=null;
+function getMapsPickerText(){
+  return lang==='th'
+    ? {
+        openBtn:'🗺️ เปิด Google Maps',
+        title:'🗺️ เปิด Google Maps',
+        intro:'ใช้ส่วนนี้เพื่อเปิด Google Maps แบบใช้งานจริงในแท็บใหม่ แล้วคัดลอกลิงก์กลับมาแปะได้เร็วขึ้น',
+        alert:'⚠️ หมายเหตุ: ปุ่ม Share / ค้นหา / Current Location แบบเต็ม จะทำงานอยู่บนหน้า Google Maps จริงเท่านั้น ไม่สามารถดึงปุ่มทั้งหมดมาแสดงในหน้าเว็บนี้ได้ตรง ๆ เพราะข้อจำกัดของ Google และเบราว์เซอร์',
+        searchTitle:'ค้นหาสถานที่บน Google Maps',
+        searchDesc:'พิมพ์บ้าน คอนโด โรงแรม หรือจุดนัดรับ แล้วกดปุ่มค้นหาเพื่อเปิด Google Maps จริงทันที',
+        searchPlaceholder:'เช่น ลาดพร้าว 101 กรุงเทพ หรือชื่อคอนโด/โรงแรม',
+        searchBtn:'🔎 ค้นหาใน Google Maps',
+        currentTitle:'เปิดตำแหน่งปัจจุบัน',
+        currentDesc:'กดปุ่มนี้เพื่อใช้ตำแหน่งปัจจุบัน สร้างลิงก์ Google Maps และคัดลอกลิงก์ให้อัตโนมัติทันทีเมื่อเบราว์เซอร์รองรับ',
+        currentBtn:'📍 ใช้ตำแหน่งปัจจุบัน',
+        openHome:'🗺️ เปิดหน้า Google Maps',
+        stepsTitle:'วิธีคัดลอกลิงก์ให้ถูก',
+        step1:'กดเปิด Google Maps หรือค้นหาสถานที่ / ใช้ตำแหน่งปัจจุบัน',
+        step2:'เลือกสถานที่จัดส่งที่ถูกต้อง แล้วกดปุ่ม Share',
+        step3:'ถ้าเลือกสถานที่เองใน Google Maps ให้กด Share > Copy link แล้วนำลิงก์มาแปะในช่องด้านบน',
+        status:'ปุ่ม ใช้ตำแหน่งปัจจุบัน จะคัดลอกลิงก์ตำแหน่งให้อัตโนมัติเมื่อเบราว์เซอร์รองรับ',
+        close:'✖ ปิด',
+        copiedOk:'คัดลอกลิงก์ตำแหน่งปัจจุบันแล้ว นำไปวางได้เลย',
+        copiedInvalid:'ลิงก์ที่คัดลอกมายังไม่ใช่ลิงก์ Google Maps',
+        copiedEmpty:'ยังไม่พบลิงก์ในคลิปบอร์ด กรุณากด Share > Copy link จาก Google Maps ก่อน',
+        copiedDenied:'เบราว์เซอร์ไม่อนุญาตให้คัดลอกอัตโนมัติ กรุณาคัดลอกลิงก์เองจาก Google Maps',
+        geolocDenied:'ไม่สามารถดึงตำแหน่งปัจจุบันได้ กรุณาอนุญาต Location หรือใช้ช่องค้นหาด้านบนแทน',
+        noSearch:'กรุณาพิมพ์สถานที่ก่อนค้นหา',
+        manualPastePrompt:'หากระบบอ่านคลิปบอร์ดไม่ได้ กรุณาวางลิงก์ Google Maps ที่คัดลอกไว้ลงในช่องนี้',
+        manualPasteTitle:'วางลิงก์ Google Maps',
+        pastedManualOk:'คัดลอกลิงก์เรียบร้อยแล้ว'
+      }
+    : {
+        openBtn:'🗺️ Open Google Maps',
+        title:'🗺️ Open Google Maps',
+        intro:'Use this helper to open the real Google Maps in a new tab and bring the copied link back faster.',
+        alert:'⚠️ Note: full Share / Search / Current Location controls only work on the real Google Maps page. They cannot be embedded completely inside this page because of Google and browser restrictions.',
+        searchTitle:'Search a place on Google Maps',
+        searchDesc:'Type your home, condo, hotel, or delivery point, then open the real Google Maps instantly.',
+        searchPlaceholder:'Example: Ladprao 101 Bangkok or condo / hotel name',
+        searchBtn:'🔎 Search in Google Maps',
+        currentTitle:'Open current location',
+        currentDesc:'Use this button to create a Google Maps link from the current location and copy it automatically when the browser supports it.',
+        currentBtn:'📍 Use Current Location',
+        openHome:'🗺️ Open Google Maps Home',
+        stepsTitle:'How to copy the correct link',
+        step1:'Open the real Google Maps, or search your place / use current location.',
+        step2:'Select the correct delivery location, then tap Share.',
+        step3:'Tap Copy link, return to this page, then press Paste Link Now.',
+        status:'After you tap Copy link in Google Maps, come back here and press Paste Link Now.',
+        paste:'✅ วางลิงก์ตอนนี้',
+        close:'✖ Close',
+        copiedOk:'Current location link copied. You can paste it now.',
+        copiedInvalid:'The copied text is not a Google Maps link.',
+        copiedEmpty:'No link found in clipboard yet. Please use Share > Copy link in Google Maps first.',
+        copiedDenied:'Your browser blocked automatic copying. Please copy the link manually from Google Maps.',
+        geolocDenied:'Could not get your current location. Please allow location access or use the search box instead.',
+        noSearch:'Please type a place before searching.',
+        manualPastePrompt:'If automatic clipboard reading fails, paste the Google Maps link here.',
+        manualPasteTitle:'Paste Google Maps link',
+        pastedManualOk:'Link copied successfully.'
+      };
+}
+function syncMapUiText(){
+  const txt=getMapsPickerText();
+  const openBtn=document.getElementById('maps-open-btn');
+  const ttl=document.getElementById('mapsPickerTitle');
+  if(openBtn) openBtn.textContent=txt.openBtn;
+  if(ttl) ttl.textContent=txt.title;
+}
+function openGoogleMapsUrl(url){
+  mapsPopupWindow=window.open(url,'ajGoogleMapsPopup','width=1280,height=860,resizable=yes,scrollbars=yes');
+}
+function openFullGoogleMaps(){
+  openGoogleMapsUrl('https://www.google.com/maps');
+}
+function searchGoogleMaps(){
+  const txt=getMapsPickerText();
+  const input=document.getElementById('mapsSearchInput');
+  const status=document.getElementById('mapsPickerStatus');
+  const q=(input?.value||'').trim();
+  if(!q){
+    if(status) status.textContent=txt.noSearch;
+    return;
+  }
+  const url='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
+  openGoogleMapsUrl(url);
+  if(status) status.textContent=txt.status;
+}
+async function copyTextToClipboard(text){
+  if(navigator.clipboard && window.isSecureContext){
+    await navigator.clipboard.writeText(text);
+    return true;
+  }
+  const ta=document.createElement('textarea');
+  ta.value=text;
+  ta.setAttribute('readonly','');
+  ta.style.position='fixed';
+  ta.style.left='-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  ta.setSelectionRange(0, ta.value.length);
+  const ok=document.execCommand('copy');
+  document.body.removeChild(ta);
+  return ok;
+}
+function useCurrentLocationInMaps(){
+  const txt=getMapsPickerText();
+  const status=document.getElementById('mapsPickerStatus');
+  const input=document.getElementById('mapsInput');
+  if(!navigator.geolocation){
+    if(status) status.textContent=txt.geolocDenied;
+    return;
+  }
+  if(status) status.textContent=lang==='th' ? 'กำลังดึงตำแหน่งปัจจุบันและคัดลอกลิงก์...' : 'Getting current location and copying link...';
+  navigator.geolocation.getCurrentPosition(
+    async pos=>{
+      const {latitude,longitude}=pos.coords;
+      const link='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(latitude+','+longitude);
+      if(input){
+        input.value=link;
+        input.dispatchEvent(new Event('input',{bubbles:true}));
+        input.dispatchEvent(new Event('change',{bubbles:true}));
+      }
+      try{
+        const copied=await copyTextToClipboard(link);
+        if(status) status.textContent=copied ? txt.copiedOk : txt.copiedDenied;
+      }catch(e){
+        if(status) status.textContent=txt.copiedDenied;
+      }
+    },
+    ()=>{
+      if(status) status.textContent=txt.geolocDenied;
+    },
+    {enableHighAccuracy:true,timeout:12000,maximumAge:0}
+  );
+}
+function renderMapsPicker(){
+  const txt=getMapsPickerText();
+  const body=document.getElementById('mapsPickerBody');
+  if(!body) return;
+  body.innerHTML=`<div class="maps-picker-wrap">
+    <div class="maps-picker-note">${txt.intro}</div>
+    <div class="maps-picker-alert">${txt.alert}</div>
+    <div class="maps-picker-tools">
+      <div class="maps-picker-card">
+        <h4>${txt.searchTitle}</h4>
+        <p>${txt.searchDesc}</p>
+        <div class="maps-picker-search-row">
+          <input type="text" id="mapsSearchInput" placeholder="${txt.searchPlaceholder}" onkeydown="if(event.key==='Enter')searchGoogleMaps()">
+          <button type="button" class="btn-accent" onclick="searchGoogleMaps()">${txt.searchBtn}</button>
+        </div>
+      </div>
+      <div class="maps-picker-card">
+        <h4>${txt.currentTitle}</h4>
+        <p>${txt.currentDesc}</p>
+        <div class="maps-picker-search-row">
+          <button type="button" class="btn-soft" onclick="openFullGoogleMaps()">${txt.openHome}</button>
+          <button type="button" class="btn-accent" onclick="useCurrentLocationInMaps()">${txt.currentBtn}</button>
+        </div>
+      </div>
+    </div>
+    <div class="maps-picker-card">
+      <h4>${txt.stepsTitle}</h4>
+      <div class="maps-picker-steps">
+        <div class="maps-step"><div class="maps-step-badge">1</div><div class="maps-step-text">${txt.step1}</div></div>
+        <div class="maps-step"><div class="maps-step-badge">2</div><div class="maps-step-text">${txt.step2}</div></div>
+        <div class="maps-step"><div class="maps-step-badge">3</div><div class="maps-step-text">${txt.step3}</div></div>
+      </div>
+    </div>
+    <div class="maps-picker-actions">
+      <div class="maps-picker-status" id="mapsPickerStatus">${txt.status}</div>
+      <button type="button" class="btn-soft" onclick="closeMapsPicker()">${txt.close}</button>
+    </div>
+  </div>`;
+  syncMapUiText();
+}
+function openMapsPicker(){
+  renderMapsPicker();
+  document.getElementById('mapsPickerOverlay')?.classList.add('open');
+}
+function closeMapsPicker(){
+  document.getElementById('mapsPickerOverlay')?.classList.remove('open');
+}
+function toggleLang(){lang=lang==='th'?'en':'th';renderAll();syncMapUiText();}
 document.getElementById('adminOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeAdmin();});
 (()=>{
   const today=new Date().toISOString().split('T')[0],d3=new Date();d3.setDate(d3.getDate()+3);
   document.getElementById('startDate').min=today;document.getElementById('startDate').value=today;
   document.getElementById('endDate').min=today;document.getElementById('endDate').value=d3.toISOString().split('T')[0];
+  const pay=document.getElementById('paymentOption'); if(pay) pay.value='cash';
   if(gistGetId()){ gistAutoSync(); }
 })();
 renderAll();
