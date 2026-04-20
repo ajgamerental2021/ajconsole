@@ -4287,14 +4287,10 @@ updateFloatingCalcButton();
   };
   window.gistAutoSync = async function(){
     const id = resolveGistId();
-    const tok = resolveToken();
     if(!id) return;
-    if(!tok){
-      syncGistUi();
-      if(typeof ghSetBar === 'function') ghSetBar('ok','☁️ พบ Gist ID แต่ยังไม่มี Token ในเครื่องนี้',true);
-      return;
+    if(typeof ghSetBar === 'function'){
+      ghSetBar('sync', resolveToken() ? '⟳ กำลังโหลดข้อมูลจาก Gist...' : '⟳ กำลังโหลดข้อมูลจาก Gist (read-only)...', true);
     }
-    if(typeof ghSetBar === 'function') ghSetBar('sync','⟳ กำลังโหลดข้อมูลจาก Gist...',true);
     try{
       const data = await fetchGistData();
       if(data){
