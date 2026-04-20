@@ -401,7 +401,7 @@ footer{background:#0d0d0d;padding:30px 22px;text-align:center;}
   <div class="hero-btns">
     <button class="btn-primary" onclick="scrollToCalculator(true)" id="h-b1">💰 คำนวณค่าเช่า</button>
     <button class="btn-outline" onclick="document.getElementById('consoles').scrollIntoView({behavior:'smooth'})" id="h-b2">🎮 ดูเครื่องทั้งหมด</button>
-    <button class="btn-outline" onclick="window.location.href='game_index.html'" id="h-b3">🕹️ ดูรายชื่อเกมทั้งหมด</button>
+    <button class="btn-outline" onclick="window.location.href='game_index_shortcuts_v12.html'" id="h-b3">🕹️ ดูรายชื่อเกมทั้งหมด</button>
     <button class="btn-outline" onclick="window.location.href='https://ajgamerental2021.github.io/ajboardgame/'" id="h-b4">🎲 ดูรายชื่อบอร์ดเกมทั้งหมด</button>
   </div>
 </section>
@@ -558,7 +558,7 @@ const SPEC={PS5:11,SW1:4,SW2:12,VLP:10,VLU:16,VB:17};
 const SWITCH_IDS=new Set([4,12]);
 const VITURE_IDS=new Set([10,16,17]);
 const NO_GAME_BTN=new Set([2,3,6,8,10,16,17]);
-const GAME_PAGE_FILE='game_index.html';
+const GAME_PAGE_FILE='game_index_shortcuts_v12.html';
 const GAME_URL=GAME_PAGE_FILE;
 const PS5_BUNDLES=[
   {id:'vr2',th:'เช่าพร้อม PS VR2',en:'With PS VR2',rate:550,weekly:3500,deposit:3000},
@@ -629,7 +629,7 @@ function canShowGameButton(c){
   return !NO_GAME_BTN.has(Number(c.id));
 }
 function getGamePageBaseUrl(){
-  const raw = String(GAME_PAGE_FILE || GAME_URL || 'game_index.html').trim() || 'game_index.html';
+  const raw = String(GAME_PAGE_FILE || GAME_URL || 'game_index_shortcuts_v12.html').trim() || 'game_index_shortcuts_v12.html';
   try{ return new URL(raw, window.location.href).toString(); }catch(e){ return raw; }
 }
 function buildScopedGameUrl(platformIds, focusId){
@@ -653,7 +653,7 @@ function getSuggestedGameUrl(c){
 window.getSuggestedConsoleGameUrl = getSuggestedGameUrl;
 function getGameButtonUrl(c){
   const raw = (c && c.gameUrl ? String(c.gameUrl) : '').trim();
-  const isDefaultRaw = !raw || /^(?:https?:\/\/ajgamerental2021\.github\.io\/ajgame\/?|game_index(?:\(11\))?\.html|game_index.html)$/i.test(raw);
+  const isDefaultRaw = !raw || /^(?:https?:\/\/ajgamerental2021\.github\.io\/ajgame\/?|game_index(?:\(11\))?\.html|game_index_shortcuts_v12.html)$/i.test(raw);
   return isDefaultRaw ? getSuggestedGameUrl(c) : raw;
 }
 function ensureGameButtonConfig(c){
@@ -1864,7 +1864,7 @@ updateFloatingCalcButton();
 <script id="aj-merged-console-game-script">
 (function(){
   const STORAGE_KEY = 'aj_console_game_picker_state_v1';
-  const iframeSrc = 'game_index.html';
+  const iframeSrc = 'game_index_shortcuts_v12.html';
   let pickerReady = false;
   let adminReady = false;
   let pickerRequestId = null;
@@ -2788,7 +2788,7 @@ updateFloatingCalcButton();
       subtitleTh: sectionKey === 'highlight' ? 'ใส่ข้อความสั้น ๆ บนรูป 1:1 ได้จากหน้า Admin' : 'เพิ่มเครื่องเกมหรือเกมใหม่ พร้อมลิงก์กดดูต่อได้',
       subtitleEn: sectionKey === 'highlight' ? 'Edit this 1:1 overlay card from Admin.' : 'Add new consoles or games with direct links.',
       image: makePlaceholderData(sectionKey === 'highlight' ? 'AJ Highlight' : 'AJ Update', sectionKey === 'highlight' ? 'highlight' : 'update'),
-      url: sectionKey === 'highlight' ? '?go=calc' : 'game_index.html?platforms=ps45&focus=ps45',
+      url: sectionKey === 'highlight' ? '?go=calc' : 'game_index_shortcuts_v12.html?platforms=ps45&focus=ps45',
       emojiFallback: sectionKey === 'highlight' ? '🔥' : '✨',
       overlayTone: sectionKey === 'highlight' ? 'red' : 'purple'
     };
@@ -2825,7 +2825,7 @@ updateFloatingCalcButton();
           subtitleTh: 'ตัวอย่างลิงก์เปิดรายการเกมของ PS4 & PS5 โดยตรง',
           subtitleEn: 'Sample direct shortcut to the PS4 & PS5 game list only.',
           image: makePlaceholderData('PS5 Games', 'update'),
-          url: 'game_index.html?platforms=ps45&focus=ps45'
+          url: 'game_index_shortcuts_v12.html?platforms=ps45&focus=ps45'
         }), Object.assign(newItem('updates'), {
           id: makeId(),
           badgeTh: 'New Console',
@@ -2835,7 +2835,7 @@ updateFloatingCalcButton();
           subtitleTh: 'แก้เป็นรายการใหม่จริงจากหน้า Admin ได้เลย',
           subtitleEn: 'Replace this with a real latest addition from Admin.',
           image: makePlaceholderData('Switch 2', 'update'),
-          url: 'game_index.html?platforms=switch2&focus=switch2'
+          url: 'game_index_shortcuts_v12.html?platforms=switch2&focus=switch2'
         })]
       }
     };
@@ -3204,7 +3204,7 @@ updateFloatingCalcButton();
             <div class="fgroup" style="margin-bottom:0;"><label class="flbl">Subtitle (TH)</label><input type="text" id="ajHomeItemSubtitleTh-${sectionKey}-${escAttr(item.id)}" value="${escAttr(item.subtitleTh || '')}"></div>
             <div class="fgroup" style="margin-bottom:0;"><label class="flbl">Subtitle (EN)</label><input type="text" id="ajHomeItemSubtitleEn-${sectionKey}-${escAttr(item.id)}" value="${escAttr(item.subtitleEn || '')}"></div>
           </div>
-          <div class="fgroup" style="margin-top:10px;margin-bottom:0;"><label class="flbl">Link URL</label><input type="text" id="ajHomeUrl-${sectionKey}-${escAttr(item.id)}" value="${escAttr(item.url || '')}" placeholder="game_index.html?platforms=ps45&focus=ps45"></div>
+          <div class="fgroup" style="margin-top:10px;margin-bottom:0;"><label class="flbl">Link URL</label><input type="text" id="ajHomeUrl-${sectionKey}-${escAttr(item.id)}" value="${escAttr(item.url || '')}" placeholder="game_index_shortcuts_v12.html?platforms=ps45&focus=ps45"></div>
         </div>`).join('')}
       </div>
       <div class="aj-home-admin-foot">
@@ -3475,7 +3475,7 @@ updateFloatingCalcButton();
 (function(){
   const HOME_KEY = 'aj_home_sections_v1';
   const HOME_STATUS_KEY = 'aj_home_sections_status_v1';
-  const SHORTCUT_FILE = 'game_index.html';
+  const SHORTCUT_FILE = 'game_index_shortcuts_v12.html';
 
   function escAttr(v){
     return String(v == null ? '' : v)
