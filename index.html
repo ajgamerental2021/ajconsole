@@ -833,7 +833,7 @@ const GIST_LS  = 'aj_gist_id';
 const TOKEN_LS = 'aj_gist_token';
 const GIST_FILE = 'aj_rental_data.json';
 
-const gistGetId    = ()=> DEFAULT_GIST_ID || localStorage.getItem(GIST_LS) || '';
+const gistGetId    = ()=> (localStorage.getItem(GIST_LS) || '').trim() || DEFAULT_GIST_ID || '';
 const gistGetToken = ()=> localStorage.getItem(TOKEN_LS) || '';
 const gistSaveId   = id  => localStorage.setItem(GIST_LS,  id);
 const gistSaveToken= tok => localStorage.setItem(TOKEN_LS, tok);
@@ -3000,7 +3000,7 @@ updateFloatingCalcButton();
     </a>`;
   }
   function renderHomeSections(){
-
+    homeData = loadHomeData();
     const wrap = ensureHomeMount();
     if(!wrap) return;
     const host = document.getElementById('ajHomeSectionsInner');
@@ -3375,6 +3375,7 @@ updateFloatingCalcButton();
       const setS = (s,m) => { if(statusEl) statusEl.textContent = m; if(typeof ghSetBar === 'function') ghSetBar(s, m, true); };
       if(!tok){ setS('err','❌ ยังไม่ได้ใส่ Token'); return; }
       setS('sync', '⬆️ กำลัง Sync...');
+      homeData = loadHomeData();
       const payload = { consoles, images, homeData };
       try{
         let url, method, body;
@@ -3452,6 +3453,7 @@ updateFloatingCalcButton();
   }
 
   renderHomeSections();
+  setTimeout(() => { if(window.gistGetId && window.gistGetId()) window.gistAutoSync && window.gistAutoSync(); }, 250);
   setTimeout(() => { decorateAdminConsoleRows(); handleConsoleGameShortcut(false); }, 180);
 })();
 </script>
@@ -4055,271 +4057,7 @@ updateFloatingCalcButton();
 </script>
 
 
-<script id="aj-gist-home-sync-fix">
-(function(){
-  const DEFAULT_GIST_FALLBACK = (typeof DEFAULT_GIST_ID !== 'undefined' && DEFAULT_GIST_ID) ? String(DEFAULT_GIST_ID).trim() : '';
-  function resolvedGistId(){
-    try{
-      const localId = localStorage.getItem('aj_gist_id') || '';
-      return (localId || DEFAULT_GIST_FALLBACK || '').trim();
-    }catch(e){
-      return (DEFAULT_GIST_FALLBACK || '').trim();
-    }
-  }
-  function syncGistUiFixed(){
-    const gid = resolvedGistId();
-    const tok = (typeof gistGetToken === 'function' ? gistGetToken() : (localStorage.getItem('aj_gist_token') || '')) || '';
-    const gidEl = document.getElementById('ghGistIdIn');
-    const tokEl = document.getElementById('ghTokenIn');
-    const dispEl = document.getElementById('gistIdDisplay');
-    if(gidEl) gidEl.value = gid;
-    if(tokEl && tok && !tokEl.value) tokEl.value = tok;
-    if(dispEl) dispEl.textContent = gid || '(ยังไม่มี — Push ครั้งแรกเพื่อสร้าง)';
-    if(gid){
-      try{ if(!localStorage.getItem('aj_gist_id')) localStorage.setItem('aj_gist_id', gid); }catch(e){}
-    }
-  }
-
-  const originalRenderAdminPanel = window.renderAdminPanel;
-  if(typeof originalRenderAdminPanel === 'function'){
-    window.renderAdminPanel = function(){
-      const out = originalRenderAdminPanel.apply(this, arguments);
-      setTimeout(syncGistUiFixed, 0);
-      return out;
-    };
-  }
-
-  const originalSwTab = window.swTab;
-  if(typeof originalSwTab === 'function'){
-    window.swTab = function(btn, pid){
-      const out = originalSwTab.apply(this, arguments);
-      if(pid === 'admGH') setTimeout(syncGistUiFixed, 0);
-      return out;
-    };
-  }
-
-  window.doGhSaveCfg = function(){
-    const idInput = document.getElementById('ghGistIdIn');
-    const tokInput = document.getElementById('ghTokenIn');
-    const statusEl = document.getElementById('ghAdminStatus');
-    const id = (idInput?.value || '').trim() || resolvedGistId();
-    const tok = (tokInput?.value || '').trim();
-    if(!tok){ alert('กรุณาใส่ Token'); return; }
-    try{
-      if(id) localStorage.setItem('aj_gist_id', id);
-      localStorage.setItem('aj_gist_token', tok);
-    }catch(e){}
-    if(typeof gistSaveId === 'function' && id) gistSaveId(id);
-    if(typeof gistSaveToken === 'function') gistSaveToken(tok);
-    syncGistUiFixed();
-    if(statusEl) statusEl.textContent = '✅ บันทึกแล้ว';
-    if(typeof ghSetBar === 'function') ghSetBar('ok', '☁️ Gist พร้อมใช้งาน', true);
-  };
-
-  if(typeof window.gistPush === 'function'){
-    const _origPush = window.gistPush;
-    window.gistPush = async function(statusEl){
-      if(typeof homeData !== 'undefined' && typeof saveHomeData === 'function') saveHomeData();
-      const out = await _origPush.apply(this, arguments);
-      setTimeout(syncGistUiFixed, 0);
-      return out;
-    };
-  }
-  if(typeof window.doGhPull === 'function'){
-    const _origPull = window.doGhPull;
-    window.doGhPull = async function(){
-      const out = await _origPull.apply(this, arguments);
-      if(typeof renderHomeSections === 'function') renderHomeSections();
-      if(typeof renderHomeAdminPanelFixed === 'function' && document.getElementById('admHS')) renderHomeAdminPanelFixed();
-      setTimeout(syncGistUiFixed, 0);
-      return out;
-    };
-  }
-  if(typeof window.gistAutoSync === 'function'){
-    const _origAuto = window.gistAutoSync;
-    window.gistAutoSync = async function(){
-      const out = await _origAuto.apply(this, arguments);
-      if(typeof renderHomeSections === 'function') renderHomeSections();
-      setTimeout(syncGistUiFixed, 0);
-      return out;
-    };
-  }
-
-  document.addEventListener('DOMContentLoaded', function(){ setTimeout(syncGistUiFixed, 50); });
-  setTimeout(syncGistUiFixed, 300);
-})();
-</script>
-
-
-<script id="aj-cloudsync-final-fix">
-(function(){
-  function resolveGistId(){
-    try{
-      const localId = (localStorage.getItem('aj_gist_id') || '').trim();
-      const defId = (typeof DEFAULT_GIST_ID !== 'undefined' && DEFAULT_GIST_ID ? String(DEFAULT_GIST_ID).trim() : '');
-      return localId || defId || '';
-    }catch(e){
-      return (typeof DEFAULT_GIST_ID !== 'undefined' && DEFAULT_GIST_ID) ? String(DEFAULT_GIST_ID).trim() : '';
-    }
-  }
-  function resolveToken(){
-    try{ return (localStorage.getItem('aj_gist_token') || '').trim(); }catch(e){ return ''; }
-  }
-  window.gistGetId = function(){ return resolveGistId(); };
-  window.gistGetToken = function(){ return resolveToken(); };
-  window.gistSaveId = function(id){ try{ localStorage.setItem('aj_gist_id', (id||'').trim()); }catch(e){} };
-  window.gistSaveToken = function(tok){ try{ localStorage.setItem('aj_gist_token', (tok||'').trim()); }catch(e){} };
-
-  function syncGistUi(){
-    const gid = resolveGistId();
-    const tok = resolveToken();
-    const gidEl = document.getElementById('ghGistIdIn');
-    const tokEl = document.getElementById('ghTokenIn');
-    const dispEl = document.getElementById('gistIdDisplay');
-    if(gidEl) gidEl.value = gid;
-    if(tokEl && tok && !tokEl.value) tokEl.value = tok;
-    if(dispEl) dispEl.textContent = gid || '(ยังไม่มี — Push ครั้งแรกเพื่อสร้าง)';
-    if(gid){ try{ localStorage.setItem('aj_gist_id', gid); }catch(e){} }
-  }
-
-  function snapshotHomeAdmin(){
-    try{
-      if(typeof window.ajHomeSavePanel === 'function' && document.getElementById('admHS')){
-        window.ajHomeSavePanel();
-      }else if(typeof saveHomeData === 'function'){
-        saveHomeData();
-      }
-    }catch(e){}
-  }
-  function persistCurrentState(){
-    try{ snapshotHomeAdmin(); }catch(e){}
-    try{ if(typeof save === 'function') save(); }catch(e){}
-    try{ if(typeof saveHomeData === 'function') saveHomeData(); }catch(e){}
-  }
-  async function fetchGistData(){
-    const id = resolveGistId();
-    const tok = resolveToken();
-    if(!id) return null;
-    const headers = tok ? {Authorization:`token ${tok}`} : {};
-    const r = await fetch(`https://api.github.com/gists/${id}`, {headers});
-    if(!r.ok) throw new Error(`Gist fetch failed: ${r.status}`);
-    const j = await r.json();
-    const raw = j.files?.[GIST_FILE]?.content;
-    if(!raw) return null;
-    return JSON.parse(raw);
-  }
-  function applyRemoteData(data){
-    if(!data) return;
-    if(data.consoles) consoles = data.consoles;
-    if(data.images) images = data.images;
-    if(data.homeData) homeData = normalizeHomeData(data.homeData);
-    try{ if(typeof save === 'function') save(); }catch(e){}
-    try{ if(typeof saveHomeData === 'function') saveHomeData(); }catch(e){}
-    try{ if(typeof renderAll === 'function') renderAll(); }catch(e){}
-    try{ if(typeof renderHomeSections === 'function') renderHomeSections(); }catch(e){}
-    try{ if(typeof renderAdmConsoles === 'function') renderAdmConsoles(); }catch(e){}
-    try{ if(typeof renderHomeAdminPanel === 'function' && document.getElementById('admHS')) renderHomeAdminPanel(); }catch(e){}
-    try{ if(typeof syncMapUiText === 'function') syncMapUiText(); }catch(e){}
-  }
-
-  window.doGhSaveCfg = function(){
-    const idInput = document.getElementById('ghGistIdIn');
-    const tokInput = document.getElementById('ghTokenIn');
-    const statusEl = document.getElementById('ghAdminStatus');
-    const id = ((idInput?.value || '').trim()) || resolveGistId();
-    const tok = (tokInput?.value || '').trim();
-    if(!tok){ alert('กรุณาใส่ Token'); return; }
-    if(id) window.gistSaveId(id);
-    window.gistSaveToken(tok);
-    syncGistUi();
-    if(statusEl) statusEl.textContent = '✅ บันทึกแล้ว';
-    if(typeof ghSetBar === 'function') ghSetBar('ok','☁️ Gist พร้อมใช้งาน',true);
-  };
-
-  window.gistPush = async function(statusEl){
-    const id = resolveGistId(), tok = resolveToken();
-    const setS = (s,m) => { if(statusEl) statusEl.textContent = m; if(typeof ghSetBar === 'function') ghSetBar(s,m,true); };
-    if(!tok){ setS('err','❌ ยังไม่ได้ใส่ Token'); return; }
-    persistCurrentState();
-    setS('sync','⬆️ กำลัง Sync...');
-    const payload = { consoles, images, homeData };
-    try{
-      let url, method, body;
-      if(id){
-        url = `https://api.github.com/gists/${id}`;
-        method = 'PATCH';
-        body = JSON.stringify({ files:{ [GIST_FILE]:{ content: JSON.stringify(payload,null,2) } } });
-      }else{
-        url = 'https://api.github.com/gists';
-        method = 'POST';
-        body = JSON.stringify({ description:'AJ Rental Data', public:false, files:{ [GIST_FILE]:{ content: JSON.stringify(payload,null,2) } } });
-      }
-      const r = await fetch(url,{method, headers:{Authorization:`token ${tok}`,'Content-Type':'application/json'}, body});
-      const j = await r.json();
-      if(!r.ok){ setS('err','❌ '+(j.message||r.status)); return; }
-      const newId = j.id || id;
-      if(newId) window.gistSaveId(newId);
-      syncGistUi();
-      setS('ok', `✅ Sync สำเร็จ — Gist ID: ${newId}`);
-    }catch(e){ setS('err','❌ '+e.message); }
-  };
-  window.doGhPushAdmin = async function(){ await window.gistPush(document.getElementById('ghAdminStatus')); };
-  window.doGhPushMain = async function(){ await window.gistPush(null); };
-  window.doGhPull = async function(){
-    const statusEl = document.getElementById('ghAdminStatus');
-    if(statusEl) statusEl.textContent = '⬇️ กำลังดึงข้อมูล...';
-    if(typeof ghSetBar === 'function') ghSetBar('sync','⬇️ กำลังดึงข้อมูล...',true);
-    try{
-      const data = await fetchGistData();
-      if(!data){
-        if(statusEl) statusEl.textContent = '❌ ดึงล้มเหลว ตรวจสอบ Gist ID และ Token';
-        if(typeof ghSetBar === 'function') ghSetBar('err','❌ ดึงล้มเหลว',true);
-        return;
-      }
-      applyRemoteData(data);
-      syncGistUi();
-      if(statusEl) statusEl.textContent = '✅ Pull สำเร็จ!';
-      if(typeof ghSetBar === 'function') ghSetBar('ok','✅ ข้อมูลอัปเดตแล้ว',true);
-    }catch(e){
-      if(statusEl) statusEl.textContent='❌ '+e.message;
-      if(typeof ghSetBar === 'function') ghSetBar('err','❌ Error',true);
-    }
-  };
-  window.gistAutoSync = async function(){
-    const id = resolveGistId();
-    if(!id) return;
-    if(typeof ghSetBar === 'function') ghSetBar('sync','⟳ กำลังโหลดข้อมูลจาก Gist...',true);
-    try{
-      const data = await fetchGistData();
-      if(data){
-        applyRemoteData(data);
-        if(typeof ghSetBar === 'function') ghSetBar('ok','✅ โหลดข้อมูลล่าสุดจาก Gist แล้ว',true);
-      }else if(typeof ghSetBar === 'function'){
-        ghSetBar('ok','☁️ Gist พร้อม (ไม่มีข้อมูลใหม่)',true);
-      }
-      syncGistUi();
-    }catch(e){
-      if(typeof ghSetBar === 'function') ghSetBar('err','❌ โหลดจาก Gist ไม่สำเร็จ',true);
-    }
-  };
-
-  const origRenderAdminPanel = window.renderAdminPanel;
-  if(typeof origRenderAdminPanel === 'function'){
-    window.renderAdminPanel = function(){ const out = origRenderAdminPanel.apply(this, arguments); setTimeout(syncGistUi,0); return out; };
-  }
-  const origSwTab = window.swTab;
-  if(typeof origSwTab === 'function'){
-    window.swTab = function(btn,pid){ const out = origSwTab.apply(this, arguments); if(pid==='admGH') setTimeout(syncGistUi,0); return out; };
-  }
-
-  document.addEventListener('DOMContentLoaded', function(){
-    syncGistUi();
-    setTimeout(syncGistUi, 120);
-    setTimeout(function(){ window.gistAutoSync(); }, 250);
-  });
-  setTimeout(function(){ syncGistUi(); }, 400);
-})();
-</script>
+<!-- removed broken duplicate cloud sync override scripts -->
 
 </body>
 </html>
