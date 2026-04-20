@@ -4288,9 +4288,7 @@ updateFloatingCalcButton();
   window.gistAutoSync = async function(){
     const id = resolveGistId();
     if(!id) return;
-    if(typeof ghSetBar === 'function'){
-      ghSetBar('sync', resolveToken() ? '⟳ กำลังโหลดข้อมูลจาก Gist...' : '⟳ กำลังโหลดข้อมูลจาก Gist (read-only)...', true);
-    }
+    if(typeof ghSetBar === 'function') ghSetBar('sync','⟳ กำลังโหลดข้อมูลจาก Gist...',true);
     try{
       const data = await fetchGistData();
       if(data){
