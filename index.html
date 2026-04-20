@@ -236,6 +236,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .btn-copy{width:100%;background:var(--accent);color:#fff;border:none;padding:10px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .18s;margin-top:9px;box-shadow:0 2px 10px rgba(204,0,0,0.25);}
 .btn-copy:hover{background:var(--accent-h);}
 .btn-copy:disabled{background:var(--card2);color:var(--muted);cursor:not-allowed;box-shadow:none;}
+.flow-focus-pulse{animation:flowFocusPulse 1.2s ease;}
+@keyframes flowFocusPulse{0%{box-shadow:0 0 0 0 rgba(204,0,0,0.32);}35%{box-shadow:0 0 0 10px rgba(204,0,0,0.14);}100%{box-shadow:0 0 0 0 rgba(204,0,0,0);}}
 .btn-line{width:100%;background:#06c755;color:#fff;border:none;padding:10px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .18s;margin-top:7px;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;}
 .btn-line:hover{background:#05b04c;}
 .btn-line svg{width:20px;height:20px;flex-shrink:0;}
@@ -313,6 +315,66 @@ footer{background:#0d0d0d;padding:30px 22px;text-align:center;}
 .float-calc-btn.show{opacity:1;pointer-events:auto;transform:translateY(0);}
 @media(max-width:700px){.console-grid{grid-template-columns:repeat(2,1fr);}.steps-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:440px){.console-grid{grid-template-columns:1fr;}.steps-grid{grid-template-columns:1fr;}.stats-grid{grid-template-columns:repeat(2,1fr);}.float-calc-btn{right:12px;bottom:12px;padding:11px 14px;font-size:12px;max-width:calc(100vw - 24px);}}
+
+/* Flow step bar + progressive lock + sticky summary */
+.calc-flow-bar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0 0 18px;}
+.flow-step-btn{appearance:none;border:1px solid var(--border);background:#fff;border-radius:12px;padding:10px 10px 9px;text-align:left;cursor:pointer;box-shadow:var(--shadow);transition:transform .18s,border-color .18s,box-shadow .18s,background .18s;min-width:0;}
+.flow-step-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-h);}
+.flow-step-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.flow-step-num{width:24px;height:24px;border-radius:999px;background:var(--surface);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;}
+.flow-step-title{font-size:12px;font-weight:800;line-height:1.35;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.flow-step-sub{font-size:11px;color:var(--text2);line-height:1.5;min-height:32px;}
+.flow-step-badge{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.2px;}
+.flow-step-btn.is-done{border-color:rgba(34,136,51,0.25);background:#f0fff4;}
+.flow-step-btn.is-done .flow-step-num{background:#228833;color:#fff;border-color:#228833;}
+.flow-step-btn.is-current{border-color:var(--accent);background:#fff7f7;box-shadow:0 8px 24px rgba(204,0,0,0.14);}
+.flow-step-btn.is-current .flow-step-num{background:var(--accent);color:#fff;border-color:var(--accent);}
+.flow-step-btn.is-ready{border-color:rgba(204,0,0,0.2);background:#fff;}
+.flow-step-btn.is-ready .flow-step-num{border-color:var(--border-r);color:var(--accent);}
+.flow-step-btn.is-locked{background:#fafafa;cursor:not-allowed;opacity:.75;box-shadow:none;}
+.flow-step-btn.is-locked:hover{transform:none;box-shadow:none;}
+.flow-step-btn.is-locked .flow-step-num{background:#f2f2f2;color:var(--muted);}
+.flow-step-btn.is-skip{background:#f8f8f8;border-style:dashed;}
+.flow-step-btn.is-skip .flow-step-num{background:#efefef;color:var(--muted);}
+.flow-step-badge.done{background:#eaf8ee;color:#228833;}
+.flow-step-badge.current{background:#ffecec;color:var(--accent);}
+.flow-step-badge.ready{background:#fff3f3;color:#b54b4b;}
+.flow-step-badge.locked{background:#f1f1f1;color:#888;}
+.flow-step-badge.skip{background:#f1f1f1;color:#777;}
+.form-box.flow-locked,.sum-game-box.flow-locked{position:relative;overflow:hidden;}
+.form-box.flow-locked > *:not(.flow-lock-overlay),.sum-game-box.flow-locked > *:not(.flow-inline-note){pointer-events:none;user-select:none;opacity:.48;filter:grayscale(.08);}
+.flow-lock-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:16px;background:rgba(255,255,255,0.78);backdrop-filter:blur(2px);z-index:3;border:1px dashed var(--border-r);border-radius:inherit;color:var(--accent);font-size:13px;font-weight:800;line-height:1.6;cursor:pointer;}
+.flow-inline-note{margin-top:10px;padding:10px 12px;border-radius:10px;background:#fff4f4;border:1px dashed var(--border-r);font-size:12px;line-height:1.65;color:#9a3333;font-weight:700;}
+.btn-games.is-disabled{opacity:.5;pointer-events:none;box-shadow:none;transform:none !important;}
+.sticky-sum-bar{position:fixed;left:12px;right:12px;bottom:12px;z-index:570;display:none;align-items:center;gap:12px;padding:12px;background:rgba(255,255,255,0.96);border:1px solid var(--border);border-radius:16px;box-shadow:0 18px 40px rgba(0,0,0,0.16);backdrop-filter:blur(10px);}
+.sticky-sum-bar.show{display:flex;}
+.sticky-sum-meta{min-width:0;flex:1;}
+.sticky-sum-title{font-size:13px;font-weight:800;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sticky-sum-sub{font-size:11px;color:var(--text2);margin-top:2px;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sticky-sum-btn{flex-shrink:0;border:none;background:var(--accent);color:#fff;padding:11px 14px;border-radius:12px;font-size:12px;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 10px 22px rgba(204,0,0,0.2);}
+.sticky-sum-btn.alt{background:#222;box-shadow:0 10px 22px rgba(0,0,0,0.18);}
+.flow-fab{position:fixed;right:18px;bottom:18px;z-index:575;width:min(320px,calc(100vw - 36px));display:none;flex-direction:column;gap:10px;padding:14px 14px 12px;background:rgba(255,255,255,0.97);border:1px solid var(--border);border-radius:18px;box-shadow:0 24px 50px rgba(0,0,0,0.18);backdrop-filter:blur(12px);transition:width .18s ease,padding .18s ease,box-shadow .18s ease;overflow:hidden;}
+.flow-fab.show{display:flex;}
+.flow-fab.collapsed{width:min(228px,calc(100vw - 36px));padding:12px 12px 10px;gap:6px;box-shadow:0 18px 34px rgba(0,0,0,0.16);}
+.flow-fab-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.flow-fab-eyebrow{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);}
+.flow-fab-toggle{flex-shrink:0;border:1px solid var(--border);background:#fff;color:var(--text2);width:30px;height:30px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 8px 16px rgba(0,0,0,0.08);}
+.flow-fab-toggle:hover{border-color:var(--accent);color:var(--accent);}
+.flow-fab-title{font-size:15px;font-weight:800;line-height:1.35;color:var(--text);}
+.flow-fab-sub{font-size:12px;line-height:1.6;color:var(--text2);}
+.flow-fab-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.flow-fab-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:#f5f5f5;border:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text2);}
+.flow-fab-chip.pending{background:#fff3f3;border-color:var(--border-r);color:var(--accent);}
+.flow-fab-chip.done{background:#eef9f0;border-color:rgba(34,136,51,0.18);color:#228833;}
+.flow-fab-btn{width:100%;border:none;background:var(--accent);color:#fff;padding:12px 14px;border-radius:14px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 12px 24px rgba(204,0,0,0.18);}
+.flow-fab-btn.alt{background:#1c1c1c;box-shadow:0 12px 24px rgba(0,0,0,0.16);}
+.flow-fab.collapsed .flow-fab-sub,.flow-fab.collapsed .flow-fab-chips,.flow-fab.collapsed .flow-fab-btn{display:none;}
+.flow-fab.collapsed .flow-fab-title{font-size:13px;line-height:1.4;}
+.flow-fab.collapsed .flow-fab-eyebrow{font-size:9px;}
+@media(max-width:980px){.calc-flow-bar{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:700px){body.has-sticky-summary{padding-bottom:96px;}.sticky-sum-bar{display:flex;}.float-calc-btn{display:none !important;}.calc-flow-bar{grid-template-columns:1fr;gap:8px;}.flow-step-sub{min-height:auto;}.flow-fab{display:none !important;}}
+@media(min-width:701px){.sticky-sum-bar{display:none !important;}}
+
 </style>
 </head>
 <body>
@@ -334,6 +396,8 @@ footer{background:#0d0d0d;padding:30px 22px;text-align:center;}
   <div class="hero-btns">
     <button class="btn-primary" onclick="scrollToCalculator(true)" id="h-b1">💰 คำนวณค่าเช่า</button>
     <button class="btn-outline" onclick="document.getElementById('consoles').scrollIntoView({behavior:'smooth'})" id="h-b2">🎮 ดูเครื่องทั้งหมด</button>
+    <button class="btn-outline" onclick="window.location.href='game_index.html'" id="h-b3">🕹️ ดูรายชื่อเกมทั้งหมด</button>
+    <button class="btn-outline" onclick="window.location.href='https://ajgamerental2021.github.io/ajboardgame/'" id="h-b4">🎲 ดูรายชื่อบอร์ดเกมทั้งหมด</button>
   </div>
 </section>
 <div class="stats-bg"><div class="stats-wrap"><div class="stats-grid" id="statsGrid"></div></div></div>
@@ -627,12 +691,12 @@ const T={
     navLogo:'<em>AJ</em> เช่าเครื่องเกม',footLogo:'🎮 <em>AJ</em> เช่าเครื่องเกม',
     hpill:'🏠 บริการส่งถึงบ้าน • กทม. และปริมณฑล',hh:'เช่าเครื่องเกม <em>ส่งถึงบ้าน</em>',
     hp:'PlayStation • Xbox • Nintendo Switch • VR • Handheld PC<br>ขั้นต่ำ 3 วัน | มีเกมให้เลือก | ครบชุดพร้อมเล่น',
-    hb1:'💰 คำนวณค่าเช่า',hb2:'🎮 ดูเครื่องทั้งหมด',hbFloat:'💰 คำนวณค่าเช่า',
+    hb1:'💰 คำนวณค่าเช่า',hb2:'🎮 ดูเครื่องทั้งหมด',hb3:'🕹️ ดูรายชื่อเกมทั้งหมด',hb4:'🎲 ดูรายชื่อบอร์ดเกมทั้งหมด',hbFloat:'💰 คำนวณค่าเช่า',
     ctag:'เครื่องเกม',ch:'เครื่องเกมที่มีให้เช่า',
     notice:'<strong>⚠️ ราคานี้เป็นราคาเช่าในนามบุคคลเท่านั้น</strong> ไม่สามารถออกใบกำกับภาษีหรือใบเสร็จรับเงินได้ &nbsp;|&nbsp; หากต้องการ<strong><u>ใบกำกับภาษี/ใบเสร็จ</u></strong> จะเป็นเรทบริษัท กรุณาติดต่อทาง Line: <b>@ajgame</b> หรือ โทร. 081-624-4715 🙏',
     stag:'ขั้นตอน',sh:'ขั้นตอนการเช่า',sp:'ง่าย สะดวก ส่งถึงบ้าน',
     cltag:'คำนวณ',clh:'คำนวณค่าเช่า',clp:'ขั้นต่ำ 3 วัน | ราคาเรทบุคคล',
-    lblCat:'ประเภทเครื่อง',lblConsole:'เครื่องเกม',lblStart:'วันที่เริ่มเช่า',lblEnd:'วันคืนเครื่อง',
+    lblCat:'ประเภทเครื่อง',lblConsole:'เครื่องเกม',consolePlaceholder:'-- ยังไม่ได้เลือกเครื่องเกม --',lblStart:'วันที่เริ่มเช่า',lblEnd:'วันคืนเครื่อง',
     lblRetT:'ลูกค้าเก่า',lblRetD:'รับส่วนลด 10% ค่าเช่า',
     lblNoConT:'ไม่ต้องการทำสัญญาการเช่า',lblNoConD:'ค่ามัดจำเพิ่มขึ้น (฿2,000→฿5,000 / ฿4,000→฿8,000)',
     noConNote:'⚠️ เมื่อไม่ทำสัญญา ค่ามัดจำจะสูงขึ้นตามเรทที่กำหนด',
@@ -659,7 +723,7 @@ const T={
     slConsole:'เครื่อง',slBundle:'Bundle',slSection:'หมวดเครื่อง',slStart:'วันที่เริ่มเช่า',slEnd:'วันคืนเครื่อง',slDuration:'ระยะเวลา',slWeekly:'(เรทรายสัปดาห์)',
     slRental:'ค่าเช่า',slAddon:'อุปกรณ์เสริม',slDiscount:'ส่วนลดลูกค้าเก่า',slDeposit:'ค่ามัดจำ',slDelivery:'ค่าจัดส่ง',
     slTotal:'ยอดรวมทั้งหมด',slUpfront:'💳 โอนล่วงหน้า (ยืนยันการจอง)',slOD:'🚚 จ่ายตอนของถึง',
-    calcGuideHtml:'<h3>📌 วิธีใช้งานส่วนคำนวณค่าเช่า</h3><p><strong>1) เลือกเครื่อง</strong> จากหมวดและรุ่นที่ต้องการก่อน<br><strong>2) เลือกวันเริ่มเช่า</strong> และ <strong>วันคืนเครื่อง</strong> โดยระบบคิดขั้นต่ำ 3 วัน<br><strong>3) ถ้ารุ่นนั้นมี Bundle หรืออุปกรณ์เสริม</strong> สามารถติ๊กเพิ่มได้ในหน้านี้<br><strong>4) เรื่องสัญญาการเช่า:</strong> ถ้าต้องการทำสัญญา ให้ปล่อยค่า Additional ตามปกติ แล้วลิงก์สัญญาจะขึ้นทั้งในส่วนนี้และในสรุปค่าเช่า<br><strong>5) ถ้าไม่ทำสัญญาการเช่า</strong> ให้ไปเลือกที่ Additional ตรง <strong>ไม่ต้องการทำสัญญาการเช่า</strong> ซึ่งค่ามัดจำจะเพิ่มขึ้นตามที่ระบบแจ้ง<br><strong>6) การเช็คค่าจัดส่ง</strong> ให้เปิด Google Maps เลือกสถานที่จัดส่ง แล้วกดคัดลอกลิงก์มาแปะในช่อง <strong>Google Maps ที่อยู่จัดส่ง</strong><br><strong>7) เมื่อสรุปเรียบร้อย</strong> กด <strong>Copy ข้อความจองเช่า</strong> แล้วส่งข้อความจองเช่าไปที่ <strong>Line</strong> หรือ <strong>WhatsApp</strong> ได้ทันที</p>',
+    calcGuideHtml:'<h3>📌 วิธีใช้งานส่วนคำนวณค่าเช่า</h3><p><strong>1) เลือกเครื่อง</strong> จากหมวดและรุ่นที่ต้องการก่อน<br><strong>2) เลือกวันเริ่มเช่า</strong> และ <strong>วันคืนเครื่อง</strong> โดยระบบคิดขั้นต่ำ 3 วัน<br><strong>3) ถ้ารุ่นนั้นมี Bundle หรืออุปกรณ์เสริม</strong> สามารถติ๊กเพิ่มได้ในหน้านี้<br><strong>4) เรื่องสัญญาการเช่า:</strong> ถ้าต้องการทำสัญญา ให้ปล่อยค่า Additional ตามปกติ แล้วลิงก์สัญญาจะขึ้นทั้งในส่วนนี้และในสรุปค่าเช่า<br><strong>5) ถ้าไม่ทำสัญญาการเช่า</strong> ให้ไปเลือกที่ Additional ตรง <strong>ไม่ต้องการทำสัญญาการเช่า</strong> ซึ่งค่ามัดจำจะเพิ่มขึ้นตามที่ระบบแจ้ง<br><strong>6) การเช็คค่าจัดส่ง</strong> ให้เปิด Google Maps เลือกสถานที่จัดส่ง แล้วกดคัดลอกลิงก์มาแปะในช่อง <strong>Google Maps ที่อยู่จัดส่ง</strong><br><strong>7) เลือกเกม</strong> กด <strong>เลือก / แก้ไขรายชื่อเกม</strong> หรือ ติ๊ก <strong>แจ้งรายชื่อเกมภายหลัง</strong><br><strong>8) เมื่อสรุปเรียบร้อย</strong> กด <strong>Copy ข้อความจองเช่า</strong> แล้วส่งข้อความจองเช่าไปที่ <strong>Line</strong> หรือ <strong>WhatsApp</strong> ได้ทันที</p>',
     sumContractRequired:'⚠️ ต้องทำสัญญาการเช่า หรือไปเลือกที่ Additional ว่า “ไม่ต้องการทำสัญญาการเช่า”',
     sumContractLinkTitle:'📝 ลิงก์ทำสัญญาการเช่า',
     sumContractSelected:'✅ เลือกทำสัญญาการเช่าแล้ว กรุณากดลิงก์ด้านล่างเพื่อกรอกสัญญาก่อนนัดส่งเครื่อง',
@@ -678,12 +742,12 @@ const T={
     navLogo:'<em>AJ</em> Game Rental',footLogo:'🎮 <em>AJ</em> Game Rental',
     hpill:'🏠 Delivery Only • Bangkok & Greater Bangkok',hh:'Game Console <em>Rental</em>',
     hp:'PlayStation • Xbox • Nintendo Switch • VR • Handheld PC<br>Min. 3 days | Games included | Ready to play',
-    hb1:'💰 Calculate Rental',hb2:'🎮 Browse Consoles',hbFloat:'💰 Calculate Rental',
+    hb1:'💰 Calculate Rental',hb2:'🎮 Browse Consoles',hb3:'🕹️ Browse All Games',hb4:'🎲 Browse All Board Games',hbFloat:'💰 Calculate Rental',
     ctag:'GAME CONSOLES',ch:'Available Consoles',
     notice:'<strong>⚠️ Individual Rates Only.</strong> Tax invoices / receipts cannot be issued at these rates. &nbsp;|&nbsp; For <strong><u>tax invoice / receipt</u></strong>, corporate rates apply — please contact us via Line: <b>@ajgame</b> or Tel. 081-624-4715 🙏',
     stag:'HOW TO RENT',sh:'Rental Process',sp:'Easy, convenient, delivered to your door',
     cltag:'CALCULATOR',clh:'Calculate Rental Cost',clp:'Min. 3 days | Individual rates',
-    lblCat:'Device Type',lblConsole:'Console',lblStart:'Rental Start Date',lblEnd:'Return Date',
+    lblCat:'Device Type',lblConsole:'Console',consolePlaceholder:'-- No console selected yet --',lblStart:'Rental Start Date',lblEnd:'Return Date',
     lblRetT:'Returning Customer',lblRetD:'Get 10% off rental fee',
     lblNoConT:'No Rental Contract',lblNoConD:'Deposit increases (฿2,000→฿5,000 / ฿4,000→฿8,000)',
     noConNote:'⚠️ Without a contract, the deposit will be higher.',
@@ -710,7 +774,7 @@ const T={
     slConsole:'Console',slBundle:'Bundle',slSection:'Section',slStart:'Start Date',slEnd:'Return Date',slDuration:'Duration',slWeekly:'(weekly rate)',
     slRental:'Rental Cost',slAddon:'Accessories',slDiscount:'Returning Customer Discount',slDeposit:'Deposit',
     slTotal:'Total Amount',slUpfront:'💳 Transfer Before Delivery',slOD:'🚚 Pay on Delivery',
-    calcGuideHtml:'<h3>📌 How to use the rental calculator</h3><p><strong>1) Select a console</strong> by category and model first<br><strong>2) Choose the rental start date</strong> and <strong>return date</strong>; the minimum rental is 3 days<br><strong>3) If that model has bundles or accessories</strong>, you can add them here<br><strong>4) About the rental contract:</strong> if you want to complete the contract, leave Additional options as normal, and the contract link will appear here and in the rental summary<br><strong>5) If you do not want a rental contract</strong>, go to Additional and select <strong>No Rental Contract</strong>; the deposit will increase based on the stated rules<br><strong>6) In Additional Options</strong>, choose your <strong>Payment Options</strong> and paste your <strong>Google Maps delivery link</strong> so the delivery address is included correctly<br><strong>7) When everything looks good</strong>, click <strong>Copy Booking Message</strong> and then send the booking message via <strong>Line</strong> or <strong>WhatsApp</strong> right away</p>',
+    calcGuideHtml:'<h3>📌 How to use the rental calculator</h3><p><strong>1) Select a console</strong> by category and model first<br><strong>2) Choose the rental start date</strong> and <strong>return date</strong>; the minimum rental is 3 days<br><strong>3) If that model has bundles or accessories</strong>, you can add them here<br><strong>4) About the rental contract:</strong> if you want to complete the contract, leave Additional options as normal, and the contract link will appear here and in the rental summary<br><strong>5) If you do not want a rental contract</strong>, go to Additional and select <strong>No Rental Contract</strong>; the deposit will increase based on the stated rules<br><strong>6) In Additional Options</strong>, choose your <strong>Payment Options</strong> and paste your <strong>Google Maps delivery link</strong> so the delivery address is included correctly<br><strong>7) Choose games</strong> by clicking <strong>Choose / Edit Games</strong> or tick <strong>I will send the game list later</strong><br><strong>8) When everything looks good</strong>, click <strong>Copy Booking Message</strong> and then send the booking message via <strong>Line</strong> or <strong>WhatsApp</strong> right away</p>',
     sumContractRequired:'⚠️ You must complete the rental contract, or select “No Rental Contract” in Additional.',
     sumContractLinkTitle:'📝 Rental Contract Link',
     sumContractSelected:'✅ Rental contract selected. Please use the link below to complete the contract before delivery.',
@@ -851,7 +915,7 @@ function updateStatic(){
   document.getElementById('footLogoTxt').innerHTML=t('footLogo');
   document.getElementById('langBtn').textContent=lang==='th'?'🌐 EN':'🌐 TH';
   document.getElementById('heroBg').style.backgroundImage=`url('${LOGO_URI}')`;
-  const m={'h-pill':'hpill','h-h1':'hh','h-p':'hp','h-b1':'hb1','h-b2':'hb2','floatCalcBtn':'hbFloat','c-tag':'ctag','c-h':'ch','noticeBox':'notice','s-tag':'stag','s-h':'sh','s-p':'sp','cl-tag':'cltag','cl-h':'clh','cl-p':'clp','form-console-lbl':'formConsoleLbl','form-date-lbl':'formDateLbl','form-opt-lbl':'formOptLbl','sum-title':'sumTitle','sumEmpty':'sumEmpty','lbl-cat':'lblCat','lbl-console':'lblConsole','lbl-start':'lblStart','lbl-end':'lblEnd','lbl-ret-t':'lblRetT','lbl-ret-d':'lblRetD','lbl-nocon-t':'lblNoConT','lbl-nocon-d':'lblNoConD','noConNote':'noConNote','lbl-maps':'lblMaps','lbl-maps-note':'lblMapsNote','maps-help-btn':'mapsHelpBtn','delivery-note':'deliveryNote','lbl-payment':'lblPayment','contractLbl':'contractLbl','contractNote':'contractNote','flbl-type':'flblType','flbl-brand':'flblBrand','flbl-sort':'flblSort'};
+  const m={'h-pill':'hpill','h-h1':'hh','h-p':'hp','h-b1':'hb1','h-b2':'hb2','h-b3':'hb3','h-b4':'hb4','floatCalcBtn':'hbFloat','c-tag':'ctag','c-h':'ch','noticeBox':'notice','s-tag':'stag','s-h':'sh','s-p':'sp','cl-tag':'cltag','cl-h':'clh','cl-p':'clp','form-console-lbl':'formConsoleLbl','form-date-lbl':'formDateLbl','form-opt-lbl':'formOptLbl','sum-title':'sumTitle','sumEmpty':'sumEmpty','lbl-cat':'lblCat','lbl-console':'lblConsole','lbl-start':'lblStart','lbl-end':'lblEnd','lbl-ret-t':'lblRetT','lbl-ret-d':'lblRetD','lbl-nocon-t':'lblNoConT','lbl-nocon-d':'lblNoConD','noConNote':'noConNote','lbl-maps':'lblMaps','lbl-maps-note':'lblMapsNote','maps-help-btn':'mapsHelpBtn','delivery-note':'deliveryNote','lbl-payment':'lblPayment','contractLbl':'contractLbl','contractNote':'contractNote','flbl-type':'flblType','flbl-brand':'flblBrand','flbl-sort':'flblSort'};
   Object.entries(m).forEach(([id,k])=>{const el=document.getElementById(id);if(el){const v=t(k);if(v!==undefined)el.innerHTML=v;}});
   document.getElementById('contractLink').href=t('contractLink');
   const payWrap=document.getElementById('paymentOptionWrap');
@@ -994,13 +1058,14 @@ function sortCalcConsoles(a,b){
     || cName(a).localeCompare(cName(b),'th');
 }
 function renderCalcSelect(){
-  const catV=document.getElementById('calcCat').value,prev=document.getElementById('calcConsole').value;
+  const catV=document.getElementById('calcCat').value,sel=document.getElementById('calcConsole'),prev=sel.value;
   const list=consoles.filter(c=>!catV||c.type===catV).slice().sort(sortCalcConsoles);
   const hasPrev=list.some(c=>String(c.id)===String(prev));
-  document.getElementById('calcConsole').innerHTML=list.map((c,idx)=>`<option value="${c.id}"${String(c.id)===String(prev)||(idx===0&&!hasPrev)?' selected':''}>${cName(c)} (฿${c.rate}/${t('day')})</option>`).join('');
+  const placeholder=`<option value=""${hasPrev?'':' selected'}>${t('consolePlaceholder')}</option>`;
+  sel.innerHTML=placeholder+list.map(c=>`<option value="${c.id}"${String(c.id)===String(prev)?' selected':''}>${cName(c)} (฿${c.rate}/${t('day')})</option>`).join('');
 }
 function onCatChange(){renderCalcSelect();onConsoleChange();}
-function onConsoleChange(){renderSpecialOpts();updateContractWrap();calc();}
+function onConsoleChange(){renderSpecialOpts();updateContractWrap();calc();if(window.updateFlowUi) setTimeout(window.updateFlowUi,0);}
 function renderSpecialOpts(){
   const cid=parseInt(document.getElementById('calcConsole').value),wrap=document.getElementById('specialOptsWrap');
   if(!cid){wrap.innerHTML='';return;}
@@ -1066,12 +1131,23 @@ function onNoConChange(){
 }
 function calc(){
   const cid=parseInt(document.getElementById('calcConsole').value),c=consoles.find(x=>x.id===cid);
-  if(!c){document.getElementById('sumContent').innerHTML=`<p class="sum-empty">${t('sumEmpty')}</p><div class="summary-warning">${t('summaryWarning')}</div>`;return;}
+  const sumHost=document.getElementById('sumContent');
+  if(!c){window._cd=null;sumHost.innerHTML=`<p class="sum-empty">${t('sumEmpty')}</p>`;return;}
   const days=getSelectedDays(),noCon=document.getElementById('noConChk').checked,maps=document.getElementById('mapsInput').value.trim();
   const isRet=retEnabled&&(document.getElementById('retChk')?.checked||false);
   const paymentOption=lang==='en'?(document.getElementById('paymentOption')?.value||'cash'):'bank';
+  const startDate=document.getElementById('startDate').value;
+  const endDate=document.getElementById('endDate').value;
+  const sumImg=getConsoleImageSrc(c);
+  const sumImgHtml=sumImg?`<img src="${sumImg}" alt="${cName(c)}" loading="lazy">`:`<span class="sum-hero-emoji">${c.icon||getBrandIcon(getBrandKey(c))||'🎮'}</span>`;
+  const canShowGamesBtn=canShowGameButton(c);
+  let partial=`<div class="sum-hero"><div class="sum-hero-img">${sumImgHtml}</div><div class="sum-hero-meta"><div class="sum-hero-section">🔥 ${getSummarySectionLabel(c)}</div><div class="sum-hero-name">${cName(c)}</div></div></div>`;
   if(!days||days<3||days<=0){
-    document.getElementById('sumContent').innerHTML=`<p class="sum-empty">${days!==null&&days>=1&&days<3?t('dateWarnMin'):t('needDates')}</p><button class="btn-copy" disabled>${t('btnCopy')}</button><div class="summary-warning">${t('summaryWarning')}</div>`;
+    const hint=(days!==null&&days>=1&&days<3)?t('dateWarnMin'):(lang==='th'?'ขั้นถัดไป: เลือกวันเช่า เพื่อดูระยะเวลา ราคาเช่า และยอดรวม':'Next step: choose your rental dates to see duration, pricing, and total cost.');
+    partial+=`<div class="sum-note">${lang==='th'?'เลือกเครื่องสำเร็จแล้ว ✅':'Console selected ✅'}</div>`;
+    partial+=`<div class="summary-warning">${hint}</div>`;
+    sumHost.innerHTML=partial;
+    window._cd={c,consoleName:cName(c),sectionName:getSummarySectionLabel(c),startDate:'',endDate:'',days:0,rental:0,addonTotal:0,addonLines:[],disc:0,isRet:false,deposit:0,total:0,upfront:0,onDelivery:0,maps,noCon:false,bundleName:'',wkA:false,paymentOption,selectedGames:[],notifyGamesLater:false};
     return;
   }
   let br=c.rate,wr=c.weekly,bd=c.deposit,bid='',bn='';
@@ -1092,11 +1168,6 @@ function calc(){
   if(paymentOption==='cash'){upfront=0;onDelivery=total;}
   const paymentLabel=paymentOption==='wise'?t('payWise'):paymentOption==='cash'?t('payCash'):t('payBank');
   let h='';
-  const startDate=document.getElementById('startDate').value;
-  const endDate=document.getElementById('endDate').value;
-  const sumImg=getConsoleImageSrc(c);
-  const sumImgHtml=sumImg?`<img src="${sumImg}" alt="${cName(c)}" loading="lazy">`:`<span class="sum-hero-emoji">${c.icon||getBrandIcon(getBrandKey(c))||'🎮'}</span>`;
-  const canShowGamesBtn=canShowGameButton(c);
   h+=`<div class="sum-hero"><div class="sum-hero-img">${sumImgHtml}</div><div class="sum-hero-meta"><div class="sum-hero-section">🔥 ${getSummarySectionLabel(c)}</div><div class="sum-hero-name">${cName(c)}</div></div></div>`;
   const detailLines=getConsoleDetails(c);
   const detailItems=[...detailLines];
@@ -1128,7 +1199,7 @@ function calc(){
   h+= noCon
     ? `<div class="sum-note">${t('sumNoContractSelected')}</div>`
     : `<div class="sum-note">${t('sumContractSelected')}<br><a href="${t('contractLink')}" target="_blank">${t('sumContractLinkTitle')}</a></div>`;
-  h+=`<button class="btn-copy" onclick="copyMsg()">${t('btnCopy')}</button>`;
+  h+=`<button class="btn-copy" id="copyBookingBtn" onclick="copyMsg()">${t('btnCopy')}</button>`;
   h+=`<a class="btn-line" href="https://lin.ee/P2mp0RK" target="_blank"><svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H16.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H16.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.26.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.467.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.767.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 7.916-4.078 9.436-7.975C23.176 14.393 24 12.458 24 10.314"/></svg>${t('btnLine')}</a>`;
   if(lang==='en')h+=`<a class="btn-wa" href="https://wa.me/66816244715" target="_blank"><svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M16.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.66.15-.196.297-.766.966-.94 1.164-.173.199-.346.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.607.134-.133.298-.346.446-.52.149-.174.198-.298.298-.496.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.486.709.306 1.262.489 1.694.625.712.227 1.37.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 6.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 7.988 2.898a9.825 9.825 0 012.893 7.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.097.547 4.142 1.588 5.945L.057 24l7.305-1.654a11.882 11.882 0 005.683 1.448h.005c7.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>${t('btnWa')}</a>`;
   h+=`<p class="line-hint">${t('lineHint')}</p>`;
@@ -1720,5 +1791,795 @@ renderAll();
 handleCalculatorDeepLink();
 updateFloatingCalcButton();
 </script>
+
+<style id="aj-merged-console-game-style">
+.game-picker-overlay{position:fixed;inset:0;background:rgba(13,13,13,.78);backdrop-filter:blur(4px);z-index:1200;display:none;align-items:center;justify-content:center;padding:18px;}
+.game-picker-overlay.open{display:flex;}
+.game-picker-shell{width:min(1200px,100%);height:min(90vh,920px);background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.28);display:flex;flex-direction:column;}
+.game-picker-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border);background:#fff;}
+.game-picker-title{font-size:14px;font-weight:800;}
+.game-picker-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.game-picker-close{background:#fff;border:1px solid var(--border);color:var(--text2);width:36px;height:36px;border-radius:10px;font-size:18px;cursor:pointer;}
+.game-picker-close:hover{border-color:var(--accent);color:var(--accent);}
+.game-picker-frame{flex:1;border:0;width:100%;background:#fff;}
+.sum-game-box{margin:14px 0 10px;padding:14px;border:1px solid var(--border);border-radius:12px;background:#fffaf9;}
+.sum-game-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.sum-game-title{font-size:13px;font-weight:800;color:var(--text);}
+.sum-game-sub{font-size:11px;color:var(--muted);}
+.sum-game-list{display:flex;flex-direction:column;gap:6px;margin:10px 0 12px;}
+.sum-game-item{font-size:12px;color:var(--text2);line-height:1.55;padding:7px 9px;border:1px solid var(--border);border-radius:9px;background:#fff;}
+.sum-game-item strong{color:var(--text);}
+.sum-game-empty{font-size:12px;color:var(--muted);line-height:1.6;padding:9px 10px;border:1px dashed var(--border);border-radius:10px;background:#fff;}
+.sum-game-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.sum-game-meta{font-size:11px;color:var(--muted);}
+.game-later-wrap{margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);display:flex;flex-direction:column;gap:8px;}
+.game-later-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text2);line-height:1.5;cursor:pointer;}
+.game-later-row input{margin-top:2px;accent-color:var(--accent);}
+.game-later-note{font-size:11px;color:#8a4b00;line-height:1.6;background:#fff8f0;border:1px solid rgba(204,100,0,.18);border-radius:10px;padding:9px 10px;}
+.adm-game-panel{padding:14px 0 0;display:flex;flex-direction:column;gap:12px;}
+.adm-game-hero{padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:#fffaf9;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;}
+.adm-game-hero h4{font-size:14px;margin:0;}
+.adm-game-hero p{font-size:12px;color:var(--muted);margin:4px 0 0;max-width:780px;}
+.adm-game-embed{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff;height:72vh;min-height:620px;}
+.adm-game-embed iframe{width:100%;height:100%;border:0;background:#fff;}
+@media(max-width:700px){.game-picker-overlay{padding:0;}.game-picker-shell{width:100%;height:100vh;max-height:none;border-radius:0;}.adm-game-embed{height:76vh;min-height:520px;}}
+</style>
+<script id="aj-merged-console-game-script">
+(function(){
+  const STORAGE_KEY = 'aj_console_game_picker_state_v1';
+  const iframeSrc = 'game_index.html';
+  let pickerReady = false;
+  let adminReady = false;
+  let pickerRequestId = null;
+  let pickerConsoleId = null;
+  let pickerIframe, adminIframe, pickerOverlay;
+  let gameState = {};
+
+  function clone(v){ return JSON.parse(JSON.stringify(v)); }
+  function loadGameState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      gameState = raw ? JSON.parse(raw) : {};
+    }catch(e){ gameState = {}; }
+  }
+  function saveGameState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState)); }catch(e){}
+  }
+  function ensureState(consoleId){
+    const key = String(consoleId || '');
+    if(!gameState[key]) gameState[key] = { gameIds: [], games: [], notifyLater: false };
+    if(!Array.isArray(gameState[key].gameIds)) gameState[key].gameIds = [];
+    if(!Array.isArray(gameState[key].games)) gameState[key].games = [];
+    if(typeof gameState[key].notifyLater !== 'boolean') gameState[key].notifyLater = false;
+    return gameState[key];
+  }
+  function esc(s){ return String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  function mt(){
+    const isEn = lang === 'en';
+    return {
+      pickerTitle: isEn ? 'Choose games for this console' : 'เลือกรายชื่อเกมสำหรับเครื่องนี้',
+      pickerSub: isEn ? 'Search, filter by genre, and send all details in one booking message.' : 'ค้นหา แยกประเภทเกม และรวมไปในข้อความจองเช่าได้เลย',
+      gameTitle: isEn ? 'Selected games' : 'รายการเกมที่เลือก',
+      gameSub: isEn ? 'These games will be added to the booking message automatically.' : 'รายการนี้จะถูกแนบไปกับข้อความจองเช่าอัตโนมัติ',
+      editBtn: isEn ? '🎮 Choose / Edit Games' : '🎮 เลือก / แก้ไขรายชื่อเกม',
+      empty: isEn ? 'No games selected yet. You can still send the booking now, or tick the option below to send the game list later.' : 'ยังไม่ได้เลือกเกม คุณยังส่งข้อความจองเช่าได้เลย หรือเลือกแจ้งรายชื่อเกมภายหลังจากตัวเลือกด้านล่าง',
+      laterLabel: isEn ? 'I will send the game list later' : 'แจ้งรายชื่อเกมภายหลัง',
+      laterNotePrefix: isEn ? 'Please send the game list no later than' : 'กรุณาแจ้งรายชื่อเกมไม่เกิน',
+      laterNoDate: isEn ? 'Please send the game list by 18:00, 1 day before the rental start date.' : 'กรุณาแจ้งรายชื่อเกมภายใน 18.00 น. ก่อนถึงวันเริ่มเช่า 1 วัน',
+      adminTab: isEn ? '🎮 Games' : '🎮 เกม',
+      adminHead: isEn ? 'Game catalog admin' : 'จัดการคลังเกม',
+      adminDesc: isEn ? 'Edit platform tabs, game list, genres, how-to steps, FAQ, cover images, and trailers from the same merged page.' : 'แก้ไขแท็บแพลตฟอร์ม รายชื่อเกม ประเภทเกม วิธีใช้ FAQ รูปปก และลิงก์ตัวอย่างได้จากหน้าเดียว',
+      adminOpen: isEn ? 'Open game admin' : 'เปิดหน้าแก้ไขเกม',
+      unsupported: isEn ? 'This console does not have a linked game catalog yet.' : 'เครื่องรุ่นนี้ยังไม่ได้เชื่อมกับคลังเกม',
+      bookingGames: isEn ? '🎮 Selected games:' : '🎮 รายชื่อเกมที่ต้องการ:',
+      bookingLater: isEn ? '🎮 Game list: I will send it later' : '🎮 รายชื่อเกม: แจ้งภายหลัง',
+      bookingDeadline: isEn ? '⏰ Please send the game list no later than' : '⏰ กรุณาแจ้งรายชื่อเกมไม่เกิน',
+      close: isEn ? 'Close' : 'ปิด'
+    };
+  }
+  function parseDateLocal(str){
+    if(!str || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return null;
+    const [y,m,d] = str.split('-').map(Number);
+    return new Date(y, m-1, d, 18, 0, 0, 0);
+  }
+  function formatDeadline(startStr){
+    const d = parseDateLocal(startStr);
+    if(!d) return mt().laterNoDate;
+    d.setDate(d.getDate() - 1);
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const yy = d.getFullYear();
+    return lang === 'en'
+      ? `${mt().laterNotePrefix} 18:00 on ${dd}/${mm}/${yy}.`
+      : `${mt().laterNotePrefix} 18.00 น. ของวันที่ ${dd}/${mm}/${yy}`;
+  }
+  function mapConsoleToPlatform(c){
+    if(!c) return '';
+    const s = `${c.name || ''} ${c.nameEn || ''}`.toLowerCase();
+    if(s.includes('ps4') || s.includes('ps5')) return 'ps45';
+    if(s.includes('switch 1')) return 'switch1';
+    if(s.includes('switch 2')) return 'switch2';
+    if(s.includes('rog') || s.includes('legion')) return 'rog';
+    if(s.includes('xbox')) return 'xbox';
+    if(s.includes('meta quest')) return 'meta';
+    if(s.includes('steam deck')) return 'p_1774941944007';
+    return '';
+  }
+  function canPickGamesForConsole(c){ return !!mapConsoleToPlatform(c); }
+  window.ensureState = ensureState;
+  window.canPickGamesForConsole = canPickGamesForConsole;
+  window.mapConsoleToPlatform = mapConsoleToPlatform;
+  function createOverlays(){
+    if(document.getElementById('gamePickerOverlay')) return;
+    const picker = document.createElement('div');
+    picker.id = 'gamePickerOverlay';
+    picker.className = 'game-picker-overlay';
+    picker.innerHTML = `<div class="game-picker-shell"><div class="game-picker-head"><div><div class="game-picker-title" id="gamePickerTitle"></div><div class="game-picker-sub" id="gamePickerSub"></div></div><button class="game-picker-close" type="button" id="gamePickerClose">✕</button></div><iframe class="game-picker-frame" id="gamePickerFrame" loading="lazy"></iframe></div>`;
+    document.body.appendChild(picker);
+    pickerOverlay = picker;
+    pickerIframe = document.getElementById('gamePickerFrame');
+    document.getElementById('gamePickerClose').addEventListener('click', closeGamePicker);
+    picker.addEventListener('click', function(e){ if(e.target === picker) closeGamePicker(); });
+  }
+  function ensureAdminIframe(panel){
+    if(adminIframe) return adminIframe;
+    const wrap = panel.querySelector('.adm-game-embed');
+    if(!wrap) return null;
+    const iframe = document.createElement('iframe');
+    iframe.id = 'gameAdminFrame';
+    iframe.loading = 'lazy';
+    iframe.src = iframeSrc + '?embed=admin';
+    wrap.appendChild(iframe);
+    adminIframe = iframe;
+    return iframe;
+  }
+  function syncPickerTexts(){
+    const text = mt();
+    const titleEl = document.getElementById('gamePickerTitle');
+    const subEl = document.getElementById('gamePickerSub');
+    if(titleEl) titleEl.textContent = text.pickerTitle;
+    if(subEl) subEl.textContent = text.pickerSub;
+  }
+  function enhanceButtonsInSummary(){
+    const cid = Number(document.getElementById('calcConsole')?.value || 0);
+    document.querySelectorAll('#sumContent .btn-games').forEach(btn => {
+      btn.dataset.consoleId = String(cid || '');
+      btn.href = '#';
+      btn.removeAttribute('target');
+    });
+  }
+  function attachGameButtonHandlers(){
+    document.querySelectorAll('.btn-games[data-console-id]').forEach(btn => {
+      if(btn.dataset.ajBound === '1') return;
+      btn.dataset.ajBound = '1';
+      btn.addEventListener('click', function(e){
+        e.preventDefault();
+        const cid = Number(btn.dataset.consoleId || 0);
+        if(cid) openGamePicker(cid);
+      });
+    });
+  }
+  function injectSummaryGameBlock(){
+    const cid = Number(document.getElementById('calcConsole')?.value || 0);
+    const c = consoles.find(x => Number(x.id) === cid);
+    const host = document.getElementById('sumContent');
+    if(!host || !c) return;
+    host.querySelectorAll('.sum-game-box').forEach(el => el.remove());
+    if(!canPickGamesForConsole(c)) return;
+    const state = ensureState(cid);
+    const text = mt();
+    const block = document.createElement('div');
+    block.className = 'sum-game-box';
+    const deadline = formatDeadline(document.getElementById('startDate')?.value || '');
+    const listHtml = !state.notifyLater && state.games.length
+      ? `<div class="sum-game-list">${state.games.map((g,i)=>`<div class="sum-game-item"><strong>${i+1}.</strong> ${esc(g.name)}${g.platformName ? ` <span class="sum-game-meta">(${esc(g.platformName)})</span>` : ''}</div>`).join('')}</div>`
+      : `<div class="sum-game-empty">${text.empty}</div>`;
+    block.innerHTML = `
+      <div class="sum-game-head">
+        <div>
+          <div class="sum-game-title">${text.gameTitle}</div>
+          <div class="sum-game-sub">${text.gameSub}</div>
+        </div>
+        <div class="sum-game-actions">
+          <a class="btn-games" href="#" data-console-id="${cid}">${text.editBtn}</a>
+        </div>
+      </div>
+      ${listHtml}
+      <div class="game-later-wrap">
+        <label class="game-later-row"><input type="checkbox" class="game-later-checkbox" ${state.notifyLater ? 'checked' : ''}> <span>${text.laterLabel}</span></label>
+        ${state.notifyLater ? `<div class="game-later-note">${deadline}</div>` : ''}
+      </div>`;
+    const copyBtn = host.querySelector('.btn-copy');
+    if(copyBtn) host.insertBefore(block, copyBtn);
+    else host.appendChild(block);
+    const chk = block.querySelector('.game-later-checkbox');
+    chk?.addEventListener('change', function(){
+      const next = ensureState(cid);
+      next.notifyLater = !!chk.checked;
+      saveGameState();
+      calc();
+    });
+  }
+  function syncCardButtons(){
+    document.querySelectorAll('.con-card').forEach(card => {
+      const name = card.querySelector('.con-name')?.textContent?.trim() || '';
+      const c = consoles.find(x => cName(x) === name || x.name === name || x.nameEn === name);
+      const btn = card.querySelector('.btn-games');
+      if(btn && c){ btn.dataset.consoleId = String(c.id); btn.href = '#'; btn.removeAttribute('target'); }
+    });
+    attachGameButtonHandlers();
+  }
+  window.openGamePicker = openGamePicker;
+  function openGamePicker(consoleId){
+    const c = consoles.find(x => Number(x.id) === Number(consoleId));
+    if(!c) return;
+    const platformId = mapConsoleToPlatform(c);
+    if(!platformId){ alert(mt().unsupported); return; }
+    createOverlays();
+    syncPickerTexts();
+    pickerConsoleId = Number(consoleId);
+    pickerRequestId = 'req_' + Date.now();
+    pickerOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if(!pickerIframe.src) pickerIframe.src = iframeSrc + '?embed=picker';
+    const msg = { type:'AJ_PICKER_OPEN', requestId: pickerRequestId, platformId, lang, selectedGameIds: clone(ensureState(consoleId).gameIds) };
+    if(pickerReady){ pickerIframe.contentWindow.postMessage(msg, '*'); }
+    else{ pickerIframe.dataset.pendingMessage = JSON.stringify(msg); }
+  }
+  function closeGamePicker(){
+    if(!pickerOverlay) return;
+    pickerOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+    if(pickerReady && pickerIframe?.contentWindow){ pickerIframe.contentWindow.postMessage({type:'AJ_PICKER_CLOSE'}, '*'); }
+  }
+  function installAdminTab(){
+    const tabs = document.querySelector('.adm-tabs');
+    if(!tabs || document.getElementById('admTabGames')) return;
+    const text = mt();
+    const logoutBtn = tabs.querySelector('button[onclick*="logout"]');
+    const tab = document.createElement('button');
+    tab.id = 'admTabGames';
+    tab.className = 'adm-tab';
+    tab.textContent = text.adminTab;
+    tab.onclick = function(){ swTab(tab, 'admGM'); ensureAdminIframe(document.getElementById('admGM')); if(adminReady && adminIframe?.contentWindow) adminIframe.contentWindow.postMessage({type:'AJ_ADMIN_OPEN', lang}, '*'); };
+    tabs.insertBefore(tab, logoutBtn || null);
+    const panel = document.createElement('div');
+    panel.className = 'adm-panel';
+    panel.id = 'admGM';
+    panel.innerHTML = `<div class="adm-game-panel"><div class="adm-game-hero"><div><h4>${text.adminHead}</h4><p>${text.adminDesc}</p></div><button class="btn-outline" type="button" id="openGameAdminBtn">${text.adminOpen}</button></div><div class="adm-game-embed"></div></div>`;
+    document.getElementById('adminBody').appendChild(panel);
+    panel.querySelector('#openGameAdminBtn').addEventListener('click', function(){
+      swTab(tab, 'admGM');
+      const iframe = ensureAdminIframe(panel);
+      if(iframe && adminReady && iframe.contentWindow) iframe.contentWindow.postMessage({type:'AJ_ADMIN_OPEN', lang}, '*');
+    });
+  }
+  function renderGameStateIntoCD(){
+    const cid = Number(document.getElementById('calcConsole')?.value || 0);
+    const state = ensureState(cid);
+    if(window._cd){
+      window._cd.selectedGames = clone(state.games);
+      window._cd.notifyGamesLater = !!state.notifyLater;
+      window._cd.gameDeadline = formatDeadline(document.getElementById('startDate')?.value || '');
+    }
+  }
+  const __origRenderConsoleCards = window.renderConsoleCards;
+  if(__origRenderConsoleCards){
+    window.renderConsoleCards = function(list){
+      const html = __origRenderConsoleCards(list);
+      const wrap = document.createElement('div');
+      wrap.innerHTML = html;
+      wrap.querySelectorAll('.con-card').forEach((card, idx) => {
+        const btn = card.querySelector('.btn-games');
+        const c = list[idx];
+        if(btn && c){ btn.dataset.consoleId = String(c.id); btn.href = '#'; btn.removeAttribute('target'); }
+      });
+      return wrap.innerHTML;
+    };
+  }
+  const __origRenderConsoles = window.renderConsoles;
+  if(__origRenderConsoles){
+    window.renderConsoles = function(){ __origRenderConsoles(); syncCardButtons(); };
+  }
+  const __origCalc = window.calc;
+  if(__origCalc){
+    window.calc = function(){
+      __origCalc();
+      enhanceButtonsInSummary();
+      injectSummaryGameBlock();
+      attachGameButtonHandlers();
+      renderGameStateIntoCD();
+    };
+  }
+  const __origRenderAdminPanel = window.renderAdminPanel;
+  if(__origRenderAdminPanel){
+    window.renderAdminPanel = function(){ __origRenderAdminPanel(); installAdminTab(); };
+  }
+  const __origToggleLang = window.toggleLang;
+  if(__origToggleLang){
+    window.toggleLang = function(){
+      __origToggleLang();
+      syncPickerTexts();
+      if(pickerReady && pickerIframe?.contentWindow) pickerIframe.contentWindow.postMessage({type:'AJ_SET_LANG', lang}, '*');
+      if(adminIframe?.contentWindow) adminIframe.contentWindow.postMessage({type:'AJ_SET_LANG', lang}, '*');
+      if(document.getElementById('admTabGames')) document.getElementById('admTabGames').textContent = mt().adminTab;
+    };
+  }
+  window.copyMsg = function(){
+    const d = window._cd;
+    if(!d) return;
+    const nl='\n';
+    const cid = Number(document.getElementById('calcConsole')?.value || 0);
+    const state = ensureState(cid);
+    const addons=d.addonLines.length?nl+d.addonLines.map(a=>`  • ${a.name}: ${fmt(a.cost)}`).join(nl):'';
+    const discLine=d.isRet&&d.disc>0?`${nl}  • ${lang==='th'?'ส่วนลดลูกค้าเก่า 10%':'Returning Customer Discount 10%'}: -${fmt(d.disc)}`:'';
+    const noConLine=d.noCon?`${nl}⚠️ ${lang==='th'?'ไม่ได้ทำสัญญาการเช่า':'No Rental Contract'}`:'';
+    const bundleLine=d.bundleName?`${nl}  🎁 ${d.bundleName}`:'';
+    const mapsLine=d.maps?`${nl}${nl}📍 ${lang==='th'?'ที่อยู่จัดส่ง':'Delivery Address'}: ${d.maps}`:'';
+    const retLine=d.isRet?`${nl}✅ ${lang==='th'?'ลูกค้าเก่า (ลด 10%)':'Returning Customer (10% off)'}`:'';
+    const contractMsg = d.noCon
+      ? (lang==='th'
+          ? `${nl}${nl}⚠️ เลือกไม่ทำสัญญาการเช่าแล้ว ค่ามัดจำจะสูงขึ้น${nl}หากต้องการเปลี่ยน สามารถกลับไปเอาติ๊กออกที่ Additional ได้`
+          : `${nl}${nl}⚠️ No rental contract selected. The deposit is higher under the stated rules.${nl}If needed, go back to Additional and uncheck it.`)
+      : (lang==='th'
+          ? `${nl}${nl}📝 กรุณาทำสัญญาการเช่าก่อนนัดส่งเครื่อง${nl}${t('contractLink')}${nl}หากไม่ต้องการทำสัญญา ให้ไปเลือกที่ Additional ว่า “ไม่ต้องการทำสัญญาการเช่า”`
+          : `${nl}${nl}📝 Please complete the rental contract before delivery${nl}${t('contractLink')}${nl}If you do not want a contract, select “No Rental Contract” in Additional.`);
+    const gameLines = state.notifyLater
+      ? `${nl}${nl}${mt().bookingLater}${nl}${mt().bookingDeadline} ${d.gameDeadline || formatDeadline(document.getElementById('startDate')?.value || '')}`
+      : (state.games.length
+          ? `${nl}${nl}${mt().bookingGames}${nl}${state.games.map((g,i)=>`  ${i+1}. ${g.name}${g.platformName?` (${g.platformName})`:''}`).join(nl)}`
+          : '');
+    const msg=lang==='th'
+      ?`สวัสดีครับ/ค่ะ ขอจองเช่าเครื่องเกม 🎮${nl}${nl}📱 เครื่อง: ${d.consoleName}${bundleLine}${nl}🔥 หมวดเครื่อง: ${d.sectionName}${nl}📅 วันที่เริ่มเช่า: ${d.startDate}${nl}📅 วันคืนเครื่อง: ${d.endDate}${nl}📅 ระยะเวลา: ${d.days} วัน${retLine}${noConLine}${gameLines}${nl}${nl}💰 สรุปค่าใช้จ่าย:${nl}  • ค่าเช่า: ${fmt(d.rental)}${addons}${discLine}${nl}  • ค่ามัดจำ: ${fmt(d.deposit)}${nl}${nl}💵 ยอดรวมทั้งหมด: ${fmt(d.total)}${nl}💳 โอนล่วงหน้า (ยืนยันจอง): ${fmt(d.upfront)}${nl}🚚 จ่ายตอนของถึง: ${fmt(d.onDelivery)}${mapsLine}${contractMsg}${nl}${nl}ขอบคุณครับ/ค่ะ 🙏`
+      :`Hello! Game console rental booking 🎮${nl}${nl}📱 Console: ${d.consoleName}${bundleLine}${nl}🔥 Section: ${d.sectionName}${nl}📅 Start Date: ${d.startDate}${nl}📅 Return Date: ${d.endDate}${nl}📅 Duration: ${d.days} days${retLine}${noConLine}${gameLines}${nl}${nl}💰 Cost Summary:${nl}  • Rental: ${fmt(d.rental)}${addons}${discLine}${nl}  • Deposit: ${fmt(d.deposit)}${nl}${nl}💵 Total: ${fmt(d.total)}${d.paymentOption==='cash'?`${nl}💵 Pay Cash on Delivery: ${fmt(d.onDelivery)}`:d.paymentOption==='wise'?`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}`:`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}${nl}🚚 Pay on Delivery: ${fmt(d.onDelivery)}`}${mapsLine}${contractMsg}${nl}${nl}Thank you! 🙏`;
+    navigator.clipboard.writeText(msg).then(()=>{
+      const btn=document.querySelector('#sumContent .btn-copy');if(!btn)return;
+      const orig=btn.textContent;btn.textContent=t('copiedTxt');btn.style.background='#228833';
+      setTimeout(()=>{btn.textContent=orig;btn.style.background='';},2200);
+    }).catch(()=>{const ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);});
+  };
+
+  window.addEventListener('message', function(e){
+    const data = e.data || {};
+    if(data.type === 'AJ_GAME_READY'){
+      if(pickerIframe && e.source === pickerIframe.contentWindow){
+        pickerReady = true;
+        const pending = pickerIframe.dataset.pendingMessage;
+        if(pending){
+          pickerIframe.contentWindow.postMessage(JSON.parse(pending), '*');
+          pickerIframe.dataset.pendingMessage = '';
+        }
+      }
+      if(adminIframe && e.source === adminIframe.contentWindow){
+        adminReady = true;
+        adminIframe.contentWindow.postMessage({type:'AJ_ADMIN_OPEN', lang}, '*');
+      }
+    }
+    if(data.type === 'AJ_PICKER_SELECTED' && data.requestId === pickerRequestId && pickerConsoleId){
+      const state = ensureState(pickerConsoleId);
+      state.gameIds = Array.isArray(data.gameIds) ? data.gameIds.slice(0,10) : [];
+      state.games = Array.isArray(data.games) ? data.games : [];
+      state.notifyLater = false;
+      saveGameState();
+      closeGamePicker();
+      calc();
+    }
+  });
+
+  loadGameState();
+  createOverlays();
+  syncPickerTexts();
+  if(typeof renderAll === 'function') setTimeout(() => { syncCardButtons(); injectSummaryGameBlock(); }, 60);
+})();
+</script>
+
+
+<script>
+(function(){
+  function ft(){
+    const isEn = (typeof lang !== 'undefined' && lang === 'en');
+    return {
+      steps: isEn
+        ? [
+            {title:'Choose Console', sub:'Start by selecting the console model you want.', badgeCurrent:'Start here', badgeDone:'Done', badgeReady:'Ready', badgeLocked:'Locked'},
+            {title:'Choose Dates', sub:'Pick your rental start date and return date.', badgeCurrent:'Next step', badgeDone:'Done', badgeReady:'Ready', badgeLocked:'Select console first'},
+            {title:'Additional Options', sub:'Contract, maps link, and extra options.', badgeCurrent:'Optional', badgeDone:'Optional', badgeReady:'Optional', badgeLocked:'Complete dates first'},
+            {title:'Choose Games', sub:'Pick games now or mark that you will send them later.', badgeCurrent:'Recommended', badgeDone:'Done', badgeReady:'Available', badgeLocked:'Complete dates first', badgeSkip:'No catalog'},
+            {title:'Copy Booking', sub:'Copy one complete booking message and send it.', badgeCurrent:'Ready to copy', badgeDone:'Done', badgeReady:'Ready', badgeLocked:'Complete required steps first'}
+          ]
+        : [
+            {title:'เลือกเครื่อง', sub:'เริ่มจากเลือกรุ่นเครื่องที่ต้องการก่อน', badgeCurrent:'เริ่มตรงนี้', badgeDone:'เสร็จแล้ว', badgeReady:'พร้อม', badgeLocked:'ยังล็อกอยู่'},
+            {title:'เลือกวันเช่า', sub:'เลือกวันเริ่มเช่าและวันคืนเครื่องให้ครบ', badgeCurrent:'ขั้นถัดไป', badgeDone:'เสร็จแล้ว', badgeReady:'พร้อม', badgeLocked:'เลือกเครื่องก่อน'},
+            {title:'ตัวเลือกเพิ่มเติม', sub:'สัญญา ลิงก์แผนที่ และตัวเลือกเสริม', badgeCurrent:'ไม่บังคับ', badgeDone:'ไม่บังคับ', badgeReady:'ไม่บังคับ', badgeLocked:'เลือกวันให้ครบก่อน'},
+            {title:'เลือกเกม', sub:'เลือกเกมตอนนี้ หรือแจ้งรายชื่อเกมภายหลังก็ได้', badgeCurrent:'เลือกตอนนี้', badgeDone:'เสร็จแล้ว', badgeReady:'เลือกได้แล้ว', badgeLocked:'เลือกวันให้ครบก่อน', badgeSkip:'ยังไม่ได้เลือกเกม', badgeEmpty:'ยังไม่ได้เลือกเกม', badgeSelected:'เลือกเกมแล้ว', badgeLater:'แจ้งรายชื่อเกมภายหลัง'},
+            {title:'คัดลอกข้อความจอง', sub:'คัดลอกข้อความเดียวแล้วส่งหาแอดมินได้ทันที', badgeCurrent:'พร้อมคัดลอก', badgeDone:'เสร็จแล้ว', badgeReady:'พร้อม', badgeLocked:'ทำขั้นที่จำเป็นก่อน'}
+          ],
+      lockConsoleFirst: isEn ? 'Choose a console first to unlock this step.' : 'เลือกเครื่องก่อน ถึงจะปลดล็อกขั้นนี้ได้',
+      lockDatesFirst: isEn ? 'Choose valid rental dates first to continue.' : 'เลือกวันเช่าให้ครบและถูกต้องก่อน แล้วค่อยไปต่อ',
+      unlockGames: isEn ? 'Choose valid dates first, then you can pick games or send them later.' : 'เลือกวันเช่าให้ครบก่อน แล้วจะเลือกเกมหรือแจ้งภายหลังได้',
+      stickyPickConsole: isEn ? 'Choose Console' : 'เลือกเครื่อง',
+      stickyPickDates: isEn ? 'Choose Dates' : 'เลือกวันเช่า',
+      stickyPickGames: isEn ? 'Choose Games' : 'เลือกเกม',
+      stickyCopy: isEn ? 'Copy Booking' : 'คัดลอกข้อความจอง',
+      stickyGoSummary: isEn ? 'View Summary' : 'ดูสรุป',
+      stickyStartHint: isEn ? 'Start the booking flow here' : 'เริ่มขั้นตอนจองจากตรงนี้',
+      stickyDateHint: isEn ? 'Continue by choosing your rental dates' : 'ต่อด้วยการเลือกวันเช่า',
+      stickyGameHint: isEn ? 'Games selected will be added to the message automatically' : 'เกมที่เลือกจะถูกรวมในข้อความจองอัตโนมัติ',
+      stickyReadyHint: isEn ? 'Everything is ready in one message' : 'ตอนนี้ส่งได้เป็นข้อความเดียวแล้ว',
+      stickyNoCatalog: isEn ? 'This console has no linked game catalog' : 'เครื่องนี้ยังไม่มีคลังเกมเชื่อมไว้',
+      fabEyebrow: isEn ? 'Booking progress' : 'สถานะการจอง',
+      fabRemainingTitle: isEn ? 'Steps still pending' : 'ยังเหลือขั้นตอนต่อไปนี้',
+      fabRemainingSub: isEn ? 'Complete these steps and the booking message will be ready in one go.' : 'ทำขั้นตอนเหล่านี้ให้ครบ แล้วข้อความจองจะพร้อมส่งในรอบเดียว',
+      fabReadyTitle: isEn ? 'All required steps are complete' : 'ครบทุกขั้นตอนที่จำเป็นแล้ว',
+      fabReadySub: isEn ? 'Copy your message and send it on Line right away.' : 'Copy ข้อความส่งที่ Line ได้เลย',
+      fabPendingPrefix: isEn ? 'Pending:' : 'ค้างอยู่:',
+      fabDoneChip: isEn ? 'Ready to send' : 'พร้อมส่งแล้ว',
+      fabCopyLine: isEn ? 'Copy message and send on Line' : 'Copy ข้อความส่งที่ Line ได้เลย',
+      fabExpand: isEn ? 'Expand' : 'ขยาย',
+      fabCollapse: isEn ? 'Collapse' : 'ย่อ',
+      fabCollapsedDone: isEn ? 'Ready to copy and send' : 'พร้อมคัดลอกและส่งแล้ว',
+      fabCollapsedNone: isEn ? 'No steps pending' : 'ไม่มีขั้นตอนค้างแล้ว',
+      fabCollapsedPrefix: isEn ? 'Left:' : 'เหลือ:',
+      fabCollapsedCountSuffix: isEn ? 'steps' : 'ขั้นตอน',
+      gamesUnit: isEn ? 'games' : 'เกม',
+      daysUnit: isEn ? 'days' : 'วัน'
+    };
+  }
+  function q(sel, root){ return (root||document).querySelector(sel); }
+  function qa(sel, root){ return Array.from((root||document).querySelectorAll(sel)); }
+  function scrollToEl(el){ if(!el) return; el.scrollIntoView({behavior:'smooth', block:'center'}); }
+  function ensureFlowScaffold(){
+    const calc = q('#calculator');
+    if(!calc) return null;
+    const leftBoxes = qa('#calculator .calc-grid > div:first-child .form-box');
+    const consoleBox = leftBoxes[0];
+    const dateBox = leftBoxes[1];
+    const optBox = leftBoxes[2];
+    const sumCard = q('#calculator .sum-card');
+    if(consoleBox) consoleBox.id = consoleBox.id || 'flowConsoleBox';
+    if(dateBox) dateBox.id = dateBox.id || 'flowDateBox';
+    if(optBox) optBox.id = optBox.id || 'flowOptionBox';
+    if(sumCard) sumCard.id = sumCard.id || 'flowSummaryCard';
+    let bar = q('#calcFlowBar');
+    const guide = q('#calcGuide');
+    if(!bar && guide){
+      bar = document.createElement('div');
+      bar.id = 'calcFlowBar';
+      bar.className = 'calc-flow-bar';
+      guide.insertAdjacentElement('afterend', bar);
+    }
+    let sticky = q('#stickySummaryBar');
+    if(!sticky){
+      sticky = document.createElement('div');
+      sticky.id = 'stickySummaryBar';
+      sticky.className = 'sticky-sum-bar';
+      sticky.innerHTML = '<div class="sticky-sum-meta"><div class="sticky-sum-title" id="stickySummaryTitle"></div><div class="sticky-sum-sub" id="stickySummarySub"></div></div><button type="button" class="sticky-sum-btn" id="stickySummaryBtn"></button>';
+      document.body.appendChild(sticky);
+    }
+    let flowFab = q('#floatingStepFab');
+    if(!flowFab){
+      flowFab = document.createElement('div');
+      flowFab.id = 'floatingStepFab';
+      flowFab.className = 'flow-fab';
+      flowFab.innerHTML = '<div class="flow-fab-head"><div class="flow-fab-eyebrow" id="floatingStepFabEyebrow"></div><button type="button" class="flow-fab-toggle" id="floatingStepFabToggle"></button></div><div class="flow-fab-title" id="floatingStepFabTitle"></div><div class="flow-fab-sub" id="floatingStepFabSub"></div><div class="flow-fab-chips" id="floatingStepFabChips"></div><button type="button" class="flow-fab-btn" id="floatingStepFabBtn"></button>';
+      document.body.appendChild(flowFab);
+    }
+    return {bar, sticky, flowFab, consoleBox, dateBox, optBox, sumCard};
+  }
+  function getFlowFabCollapsed(){
+    try{ return localStorage.getItem('ajFlowFabCollapsed') === '1'; }catch(e){ return !!window.__flowFabCollapsed; }
+  }
+  function setFlowFabCollapsed(next){
+    window.__flowFabCollapsed = !!next;
+    try{ localStorage.setItem('ajFlowFabCollapsed', next ? '1' : '0'); }catch(e){}
+  }
+  function getCollapsedFabSummary(s, remaining, txt){
+    if(!remaining.length && s.copyReady) return txt.fabCollapsedDone;
+    if(!remaining.length) return txt.fabCollapsedNone;
+    const head = remaining.slice(0,2).join(', ');
+    const extra = remaining.length > 2 ? ` +${remaining.length - 2}` : '';
+    return `${txt.fabCollapsedPrefix} ${head}${extra}`;
+  }
+  function flowState(){
+    const consoleValue = String(q('#calcConsole')?.value || '').trim();
+    const cid = parseInt(consoleValue || '0', 10);
+    const consoleList = Array.isArray(window.consoles)
+      ? window.consoles
+      : (typeof consoles !== 'undefined' && Array.isArray(consoles) ? consoles : []);
+    const c = consoleList.find(x => Number(x.id) === cid) || null;
+    const consoleSelected = !!(consoleValue && consoleValue !== '0' && c);
+    const days = (typeof getSelectedDays === 'function') ? getSelectedDays() : null;
+    const datesValid = !!(consoleSelected && days && days >= 3);
+    const canGames = !!(consoleSelected && c && typeof canPickGamesForConsole === 'function' && canPickGamesForConsole(c));
+    let gs = {games:[], notifyLater:false};
+    try{ if(typeof ensureState === 'function' && cid) gs = ensureState(cid) || gs; }catch(e){}
+    const gamesCount = Array.isArray(gs.games) ? gs.games.length : 0;
+    const gamesDone = !!gs.notifyLater || gamesCount > 0;
+    const copyReady = consoleSelected && datesValid && (!canGames || gamesDone);
+    const d = window._cd || {};
+    return { cid, c, consoleSelected, days:days||0, datesValid, canGames, gamesCount, gamesDone, notifyLater:!!gs.notifyLater, copyReady, total:d.total || 0, consoleName:d.consoleName || (c && (typeof cName==='function' ? cName(c) : c.name)) || '' };
+  }
+  function stepModels(s){
+    const labels = ft().steps;
+    const gameText = labels[3];
+    const gameStatus = (!s.consoleSelected || !s.datesValid) ? 'locked' : (!s.canGames ? 'skip' : (s.gamesDone ? 'done' : 'current'));
+    const gameBadgeText = (!s.consoleSelected || !s.datesValid)
+      ? gameText.badgeLocked
+      : (!s.canGames
+          ? (gameText.badgeSkip || gameText.badgeReady)
+          : (s.notifyLater
+              ? (gameText.badgeLater || gameText.badgeDone)
+              : (s.gamesCount > 0
+                  ? (gameText.badgeSelected || gameText.badgeDone)
+                  : (gameText.badgeEmpty || gameText.badgeCurrent))));
+    return [
+      {key:'console', status:s.consoleSelected ? 'done' : 'current', text:labels[0], action:()=>scrollToEl(q('#flowConsoleBox'))},
+      {key:'dates', status:(s.consoleSelected && s.datesValid) ? 'done' : (s.consoleSelected ? 'current' : 'locked'), text:labels[1], action:()=>scrollToEl(q('#flowDateBox'))},
+      {key:'options', status:s.datesValid ? 'ready' : 'locked', text:labels[2], action:()=>scrollToEl(q('#flowOptionBox'))},
+      {key:'games', status:gameStatus, text:gameText, badgeText:gameBadgeText, action:()=>{
+        const box = q('.sum-game-box');
+        if(s.canGames && s.datesValid && typeof openGamePicker === 'function' && s.cid){ openGamePicker(s.cid); }
+        else if(box){ scrollToEl(box); }
+        else { scrollToEl(q('#flowSummaryCard')); }
+      }},
+      {key:'copy', status:s.copyReady ? 'current' : 'locked', text:labels[4], action:()=>{
+        const copyBtn = q('#copyBookingBtn');
+        if(copyBtn){
+          scrollToEl(copyBtn);
+          copyBtn.classList.add('flow-focus-pulse');
+          setTimeout(()=>copyBtn.classList.remove('flow-focus-pulse'), 1600);
+        }else{
+          scrollToEl(q('#flowSummaryCard'));
+        }
+      }}
+    ];
+  }
+  function renderFlowBar(){
+    const els = ensureFlowScaffold(); if(!els || !els.bar) return;
+    const s = flowState();
+    const models = stepModels(s);
+    els.bar.innerHTML = models.map((m, idx) => {
+      const badge = m.badgeText || (m.status === 'done' ? m.text.badgeDone : m.status === 'current' ? m.text.badgeCurrent : m.status === 'ready' ? m.text.badgeReady : m.status === 'skip' ? (m.text.badgeSkip || m.text.badgeReady) : m.text.badgeLocked);
+      return `<button type="button" class="flow-step-btn is-${m.status}" data-step-index="${idx}"><div class="flow-step-top"><span class="flow-step-num">${idx+1}</span><span class="flow-step-title">${m.text.title}</span></div><div class="flow-step-sub">${m.text.sub}</div><span class="flow-step-badge ${m.status}">${badge}</span></button>`;
+    }).join('');
+    qa('.flow-step-btn', els.bar).forEach((btn, idx) => {
+      btn.onclick = function(){ stepModels(flowState())[idx].action(); };
+      if(btn.classList.contains('is-locked')) btn.setAttribute('aria-disabled','true');
+    });
+  }
+  function setLock(box, locked, message, onClick){
+    if(!box) return;
+    box.classList.toggle('flow-locked', !!locked);
+    let overlay = q('.flow-lock-overlay', box);
+    if(locked){
+      if(!overlay){
+        overlay = document.createElement('div');
+        overlay.className = 'flow-lock-overlay';
+        box.appendChild(overlay);
+      }
+      overlay.textContent = message || '';
+      overlay.onclick = function(e){ e.preventDefault(); if(typeof onClick === 'function') onClick(); };
+    }else if(overlay){ overlay.remove(); }
+  }
+  function applyLocks(){
+    const els = ensureFlowScaffold(); if(!els) return;
+    const s = flowState(); const txt = ft();
+    setLock(els.dateBox, !s.consoleSelected, txt.lockConsoleFirst, () => scrollToEl(els.consoleBox));
+    setLock(els.optBox, !s.datesValid, txt.lockDatesFirst, () => scrollToEl(els.dateBox));
+    const gameBox = q('.sum-game-box');
+    if(gameBox){
+      gameBox.classList.toggle('flow-locked', !s.datesValid);
+      let note = q('.flow-inline-note', gameBox);
+      if(!s.datesValid){
+        if(!note){ note = document.createElement('div'); note.className = 'flow-inline-note'; gameBox.appendChild(note); }
+        note.textContent = txt.unlockGames;
+      }else if(note){ note.remove(); }
+      const btn = q('.btn-games', gameBox);
+      if(btn){ btn.classList.toggle('is-disabled', !s.datesValid); btn.setAttribute('aria-disabled', !s.datesValid ? 'true' : 'false'); }
+      const chk = q('.game-later-checkbox', gameBox);
+      if(chk) chk.disabled = !s.datesValid;
+    }
+  }
+  function renderStickyBar(){
+    const els = ensureFlowScaffold(); if(!els || !els.sticky) return;
+    const s = flowState(); const txt = ft();
+    const titleEl = q('#stickySummaryTitle');
+    const subEl = q('#stickySummarySub');
+    const btn = q('#stickySummaryBtn');
+    let title = txt.stickyStartHint;
+    let sub = txt.stickyDateHint;
+    let label = txt.stickyPickConsole;
+    let action = () => scrollToEl(els.consoleBox);
+    let alt = false;
+    if(s.consoleSelected && !s.datesValid){
+      title = s.consoleName || txt.stickyPickDates;
+      sub = txt.stickyDateHint;
+      label = txt.stickyPickDates;
+      action = () => scrollToEl(els.dateBox);
+    }else if(s.copyReady && s.canGames && !s.gamesDone){
+      title = s.consoleName || txt.stickyPickGames;
+      sub = `${s.days} ${txt.daysUnit} • ${s.gamesCount} ${txt.gamesUnit} • ${txt.stickyGameHint}`;
+      label = txt.stickyPickGames;
+      action = () => { if(typeof openGamePicker === 'function' && s.cid) openGamePicker(s.cid); else scrollToEl(q('.sum-game-box') || els.sumCard); };
+    }else if(s.copyReady){
+      title = s.consoleName || txt.stickyCopy;
+      const money = (typeof fmt === 'function' && s.total) ? ` • ${fmt(s.total)}` : '';
+      const gamePart = s.canGames ? ` • ${s.gamesCount} ${txt.gamesUnit}` : ` • ${txt.stickyNoCatalog}`;
+      sub = `${s.days} ${txt.daysUnit}${gamePart}${money}`;
+      label = txt.stickyCopy;
+      action = () => { if(typeof copyMsg === 'function') copyMsg(); else scrollToEl(els.sumCard); };
+      alt = !s.canGames;
+    }
+    titleEl.textContent = title;
+    subEl.textContent = sub;
+    btn.textContent = label;
+    btn.classList.toggle('alt', alt);
+    btn.onclick = action;
+    const calcTop = q('#calculator')?.getBoundingClientRect().top ?? 9999;
+    const shouldShow = window.innerWidth <= 700 && (window.scrollY > 260 || s.consoleSelected || s.datesValid);
+    els.sticky.classList.toggle('show', shouldShow);
+    document.body.classList.toggle('has-sticky-summary', shouldShow);
+  }
+  function renderFloatingStepFab(){
+    const els = ensureFlowScaffold(); if(!els || !els.flowFab || window.innerWidth <= 700) return;
+    const s = flowState(); const txt = ft();
+    const fab = els.flowFab;
+    const barRect = els.bar?.getBoundingClientRect ? els.bar.getBoundingClientRect() : {bottom:9999};
+    const calcRect = q('#calculator')?.getBoundingClientRect ? q('#calculator').getBoundingClientRect() : {bottom:-9999};
+    const passedFlowBar = barRect.bottom < 8;
+    const calculatorStillRelevant = calcRect.bottom > 120;
+    const shouldShow = passedFlowBar && calculatorStillRelevant;
+    const remaining = [];
+    if(!s.consoleSelected) remaining.push(ft().steps[0].title);
+    if(s.consoleSelected && !s.datesValid) remaining.push(ft().steps[1].title);
+    if(s.consoleSelected && s.datesValid && s.canGames && !s.gamesDone) remaining.push(ft().steps[3].title);
+    const eyebrow = q('#floatingStepFabEyebrow');
+    const titleEl = q('#floatingStepFabTitle');
+    const subEl = q('#floatingStepFabSub');
+    const chipsEl = q('#floatingStepFabChips');
+    const btn = q('#floatingStepFabBtn');
+    const toggleBtn = q('#floatingStepFabToggle');
+    let label = txt.stickyPickConsole;
+    let action = () => scrollToEl(els.consoleBox);
+    let title = txt.fabRemainingTitle;
+    let sub = txt.fabRemainingSub;
+    let chips = remaining.map(name => `<span class="flow-fab-chip pending">${txt.fabPendingPrefix} ${name}</span>`).join('');
+    if(!remaining.length && s.copyReady){
+      title = txt.fabReadyTitle;
+      sub = txt.fabReadySub;
+      chips = `<span class="flow-fab-chip done">${txt.fabDoneChip}</span>`;
+      label = txt.fabCopyLine;
+      action = () => {
+        const copyBtn = q('#copyBookingBtn');
+        const lineBtn = q('.btn-line', q('#sumContent'));
+        if(copyBtn){
+          scrollToEl(copyBtn);
+          copyBtn.classList.add('flow-focus-pulse');
+          setTimeout(()=>copyBtn.classList.remove('flow-focus-pulse'), 1600);
+        }else if(lineBtn){
+          scrollToEl(lineBtn);
+          lineBtn.classList.add('flow-focus-pulse');
+          setTimeout(()=>lineBtn.classList.remove('flow-focus-pulse'), 1600);
+        }else{
+          scrollToEl(q('#flowSummaryCard'));
+        }
+      };
+    }else if(!s.consoleSelected){
+      label = txt.stickyPickConsole;
+      action = () => scrollToEl(els.consoleBox);
+    }else if(!s.datesValid){
+      label = txt.stickyPickDates;
+      action = () => scrollToEl(els.dateBox);
+    }else if(s.canGames && !s.gamesDone){
+      label = txt.stickyPickGames;
+      action = () => { if(typeof openGamePicker === 'function' && s.cid) openGamePicker(s.cid); else scrollToEl(q('.sum-game-box') || els.sumCard); };
+    }
+    const collapsed = getFlowFabCollapsed();
+    const collapsedSummary = getCollapsedFabSummary(s, remaining, txt);
+    if(eyebrow) eyebrow.textContent = txt.fabEyebrow;
+    if(titleEl) titleEl.textContent = collapsed ? collapsedSummary : title;
+    if(subEl) subEl.textContent = sub;
+    if(chipsEl) chipsEl.innerHTML = chips;
+    if(btn){
+      btn.textContent = label;
+      btn.classList.toggle('alt', !!(s.copyReady && !remaining.length));
+      btn.onclick = action;
+    }
+    if(toggleBtn){
+      toggleBtn.textContent = collapsed ? '＋' : '−';
+      toggleBtn.title = collapsed ? txt.fabExpand : txt.fabCollapse;
+      toggleBtn.setAttribute('aria-label', collapsed ? txt.fabExpand : txt.fabCollapse);
+      toggleBtn.onclick = function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        setFlowFabCollapsed(!getFlowFabCollapsed());
+        renderFloatingStepFab();
+      };
+    }
+    fab.classList.toggle('collapsed', collapsed);
+    fab.classList.toggle('show', shouldShow);
+  }
+  function updateFlowUi(){
+    ensureFlowScaffold();
+    renderFlowBar();
+    applyLocks();
+    renderStickyBar();
+    renderFloatingStepFab();
+  }
+  window.updateFlowUi = updateFlowUi;
+  const __flowOrigCalc = window.calc;
+  if(typeof __flowOrigCalc === 'function'){
+    window.calc = function(){ const r = __flowOrigCalc.apply(this, arguments); setTimeout(updateFlowUi, 0); return r; };
+  }
+  const __flowOrigToggleLang = window.toggleLang;
+  if(typeof __flowOrigToggleLang === 'function'){
+    window.toggleLang = function(){ const r = __flowOrigToggleLang.apply(this, arguments); setTimeout(updateFlowUi, 0); return r; };
+  }
+  const __flowOpenGamePicker = window.openGamePicker;
+  if(typeof __flowOpenGamePicker === 'function'){
+    window.openGamePicker = function(){ const r = __flowOpenGamePicker.apply(this, arguments); setTimeout(updateFlowUi, 0); return r; };
+  }
+  window.addEventListener('resize', updateFlowUi);
+  window.addEventListener('scroll', () => { renderStickyBar(); renderFloatingStepFab(); }, {passive:true});
+  setTimeout(updateFlowUi, 120);
+})();
+</script>
+
+
+<script>
+(function(){
+  function bookingGateState(){
+    const consoleValue = String(document.querySelector('#calcConsole')?.value || '').trim();
+    const cid = parseInt(consoleValue || '0', 10);
+    const consoleList = Array.isArray(window.consoles)
+      ? window.consoles
+      : (typeof consoles !== 'undefined' && Array.isArray(consoles) ? consoles : []);
+    const c = consoleList.find(x => Number(x.id) === cid) || null;
+    const consoleSelected = !!(consoleValue && consoleValue !== '0' && c);
+    const days = (typeof getSelectedDays === 'function') ? getSelectedDays() : null;
+    const datesValid = !!(consoleSelected && days && days >= 3);
+    const canGames = !!(consoleSelected && c && typeof canPickGamesForConsole === 'function' && canPickGamesForConsole(c));
+    let gs = {games:[], notifyLater:false};
+    try{ if(typeof ensureState === 'function' && cid) gs = ensureState(cid) || gs; }catch(e){}
+    const gamesCount = Array.isArray(gs.games) ? gs.games.length : 0;
+    const gamesDone = !!gs.notifyLater || gamesCount > 0;
+    const copyReady = consoleSelected && datesValid && (!canGames || gamesDone);
+    return {consoleSelected, datesValid, canGames, gamesDone, copyReady};
+  }
+  function updateBookingActionVisibility(){
+    const host = document.querySelector('#sumContent');
+    if(!host) return;
+    const s = bookingGateState();
+    host.querySelectorAll('.btn-copy, .btn-line, .btn-wa').forEach(el => {
+      el.style.display = s.copyReady ? '' : 'none';
+    });
+    let note = host.querySelector('.copy-gate-note');
+    if(!s.copyReady){
+      if(!note){
+        note = document.createElement('div');
+        note.className = 'copy-gate-note';
+        note.style.cssText = 'margin-top:10px;padding:10px 12px;border:1px solid rgba(204,0,0,.18);background:#fff6f6;border-radius:10px;font-size:12px;line-height:1.7;color:#8a2a2a;font-weight:700;';
+        host.appendChild(note);
+      }
+      note.innerHTML = (typeof lang !== 'undefined' && lang === 'en')
+        ? 'Complete the required steps first: select a console, choose valid rental dates, and choose games or tick that you will send the game list later.'
+        : 'กรุณาทำขั้นที่จำเป็นให้ครบก่อน: เลือกเครื่อง เลือกวันเช่าให้ถูกต้อง และเลือกเกมหรือแจ้งรายชื่อเกมภายหลัง';
+    }else if(note){
+      note.remove();
+    }
+  }
+  const __gateCalc = window.calc;
+  if(typeof __gateCalc === 'function'){
+    window.calc = function(){ const r = __gateCalc.apply(this, arguments); setTimeout(updateBookingActionVisibility, 0); return r; };
+  }
+  const __gateToggleLang = window.toggleLang;
+  if(typeof __gateToggleLang === 'function'){
+    window.toggleLang = function(){ const r = __gateToggleLang.apply(this, arguments); setTimeout(updateBookingActionVisibility, 0); return r; };
+  }
+  window.updateBookingActionVisibility = updateBookingActionVisibility;
+  setTimeout(updateBookingActionVisibility, 120);
+})();
+</script>
+
 </body>
 </html>
