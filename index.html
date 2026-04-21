@@ -52,6 +52,8 @@ html.aj-preload-pending body::before{
       if(data.consoles) localStorage.setItem('aj_consoles', JSON.stringify(normalizeConsoleArrayBoot(data.consoles)));
       if(data.images) localStorage.setItem('aj_images', JSON.stringify(data.images || {}));
       if(data.homeData) localStorage.setItem(HOME_KEY_BOOT, JSON.stringify(data.homeData));
+      if(Object.prototype.hasOwnProperty.call(data,'retEnabled')) localStorage.setItem('aj_ret_enabled', data.retEnabled ? 'true' : 'false');
+      else if(data.featureSettings && Object.prototype.hasOwnProperty.call(data.featureSettings,'returningDiscountEnabled')) localStorage.setItem('aj_ret_enabled', data.featureSettings.returningDiscountEnabled ? 'true' : 'false');
       if(gistId) localStorage.setItem('aj_gist_id', gistId);
     }catch(e){}
     return data;
@@ -2207,6 +2209,8 @@ function logout(){isAdmin=false;closeAdmin();}
 function toggleRet(val){
   retEnabled=val;
   localStorage.setItem('aj_ret_enabled', val?'true':'false');
+  const retToggle = document.getElementById('retToggle');
+  if(retToggle) retToggle.checked = !!retEnabled;
   renderRetRow();
   calc();
 }
@@ -5066,6 +5070,15 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     if(!data || typeof data !== 'object') return false;
     if(data.consoles) consoles = normalizeConsoleArray(data.consoles);
     if(data.images) images = safeImages(data.images);
+    const remoteRetEnabled = Object.prototype.hasOwnProperty.call(data,'retEnabled')
+      ? !!data.retEnabled
+      : ((data.featureSettings && Object.prototype.hasOwnProperty.call(data.featureSettings,'returningDiscountEnabled'))
+          ? !!data.featureSettings.returningDiscountEnabled
+          : null);
+    if(remoteRetEnabled !== null){
+      try{ retEnabled = !!remoteRetEnabled; }catch(e){}
+      try{ localStorage.setItem('aj_ret_enabled', remoteRetEnabled ? 'true' : 'false'); }catch(e){}
+    }
     try{ localStorage.setItem('aj_consoles', JSON.stringify(normalizeConsoleArray(consoles))); }catch(e){}
     try{ localStorage.setItem('aj_images', JSON.stringify(safeImages(images))); }catch(e){}
     if(data.homeData){
@@ -5075,6 +5088,12 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     syncHomeFromStorage();
     try{ if(typeof syncMapUiText === 'function') syncMapUiText(); }catch(e){}
     try{ if(typeof renderAdmConsoles === 'function') renderAdmConsoles(); }catch(e){}
+    try{
+      const retToggle = document.getElementById('retToggle');
+      if(retToggle) retToggle.checked = !!retEnabled;
+      if(typeof renderRetRow === 'function') renderRetRow();
+      if(typeof calc === 'function') calc();
+    }catch(e){}
     syncGistUi();
     return true;
   }
@@ -5106,7 +5125,11 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       const payload = {
         consoles: normalizeConsoleArray(consoles),
         images: safeImages(images),
-        homeData: getCurrentHomeData()
+        homeData: getCurrentHomeData(),
+        retEnabled: !!retEnabled,
+        featureSettings: {
+          returningDiscountEnabled: !!retEnabled
+        }
       };
       let url = '', method = '', body = '';
       if(id){
