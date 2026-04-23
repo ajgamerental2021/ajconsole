@@ -5068,6 +5068,18 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   }
 
   renderHomeSections();
+  // v9 fix: expose the closure-private functions so later patches and the
+  // v9 toggleLang hook can actually reach renderHomeSections. Without
+  // these assignments, `window.renderHomeSections` stays undefined and
+  // every wrapper that reads it is silently skipped.
+  try{
+    if(typeof renderHomeSections === 'function' && !window.renderHomeSections){
+      window.renderHomeSections = renderHomeSections;
+    }
+    if(typeof itemText === 'function' && !window.itemText){
+      window.itemText = itemText;
+    }
+  }catch(e){}
   setTimeout(() => { decorateAdminConsoleRows(); handleConsoleGameShortcut(false); }, 180);
 })();
 </script>
@@ -10433,6 +10445,103 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     mo.observe(home, {childList:true, subtree:true, characterData:true});
     rerun();
   });
+})();
+</script>
+
+<script id="aj-fix-card-admin-values-v9">
+/*
+ * v9: Make home section cards actually use admin-entered titleEn/subtitleEn.
+ *
+ * What was wrong
+ * --------------
+ * The admin Home Sections panel saves titleTh/titleEn/subtitleTh/subtitleEn
+ * on every card. renderHomeSections -> renderHighlightCard -> itemText()
+ * already reads the right field based on `lang`, so in principle this works.
+ *
+ * BUT on a language toggle, toggleLang calls renderAll, and renderAll has
+ * been observed to throw inside onDateChange ("startValue is not defined").
+ * That exception escapes before the outer renderAll wrappers can reach
+ * `renderHomeSections()`, so the DOM stays stuck on the previous language.
+ *
+ * Meanwhile several earlier patches (v6 / v22 / v23 / v25) install static
+ * Thai->English cardMap translations that run on a timer / MutationObserver
+ * and "translate" the stale Thai DOM text to HARDCODED English phrases,
+ * completely ignoring whatever admin typed. That is exactly what the user
+ * reported: admin entered "Starting at 90 THB..." in SUBTITLE (EN) but the
+ * card keeps showing a different phrase from the hardcoded dictionary.
+ *
+ * The fix
+ * -------
+ *   - Hook toggleLang at the outermost layer (re-hook a few times on
+ *     DOMContentLoaded / load / delayed to stay outermost against later
+ *     wrappers — idempotent via the __ajV9CardAdmin marker).
+ *   - On every toggle, call renderHomeSections() DIRECTLY, wrapped in
+ *     try/catch so a broken renderAll cannot block the home re-render.
+ *   - Call it several times on short delays so we beat any late-running
+ *     cardMap translator that would otherwise re-stamp stale Thai text.
+ *
+ * After this patch the card pipeline becomes simple again:
+ *     homeData (admin input)  ->  itemText()  ->  DOM
+ * The legacy cardMap translators don't fire on admin's English text
+ * (their keys are Thai) so they no longer overwrite it.
+ *
+ * If admin leaves subtitleEn blank, itemText's natural fallback to
+ * subtitleTh runs — this patch intentionally does not substitute a
+ * dictionary translation, per the requirement that cards reflect
+ * admin data rather than hardcoded strings.
+ */
+(function(){
+  'use strict';
+
+  function safeRender(){
+    try{
+      if(typeof window.renderHomeSections === 'function'){
+        window.renderHomeSections();
+      }
+    }catch(e){
+      // Swallow — one failure must not block subsequent retries.
+    }
+  }
+
+  function hookToggle(){
+    var fn = window.toggleLang;
+    if(typeof fn !== 'function') return false;
+    if(fn.__ajV9CardAdmin) return true;    // already outermost
+    var prev = fn;
+    var wrapped = function(){
+      var out;
+      try{ out = prev.apply(this, arguments); }
+      catch(e){ /* keep the toggle alive even if an inner wrapper throws */ }
+      // Re-render from homeData (uses itemText -> admin's EN/Th values).
+      safeRender();
+      setTimeout(safeRender, 0);
+      setTimeout(safeRender, 60);
+      setTimeout(safeRender, 180);
+      setTimeout(safeRender, 400);
+      setTimeout(safeRender, 900);
+      return out;
+    };
+    wrapped.__ajV9CardAdmin = true;
+    wrapped.__ajV9Inner = prev;
+    window.toggleLang = wrapped;
+    return true;
+  }
+
+  // Install now + defensively re-install so later-loaded scripts that
+  // wrap toggleLang don't bury our hook permanently.
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', hookToggle);
+  }else{
+    hookToggle();
+  }
+  window.addEventListener('load', hookToggle);
+  setTimeout(hookToggle, 100);
+  setTimeout(hookToggle, 500);
+  setTimeout(hookToggle, 1500);
+  setTimeout(hookToggle, 3000);
+
+  // Expose for manual verification from DevTools.
+  window.__ajV9ForceRenderHome = safeRender;
 })();
 </script>
 
