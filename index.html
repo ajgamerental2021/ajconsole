@@ -10860,5 +10860,146 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 })();
 </script>
 
+
+<script id="aj-admin-add-fix">
+(function(){
+  function cssEscapeSafe(v){
+    try{ return CSS.escape(String(v)); }catch(e){ return String(v).replace(/([^a-zA-Z0-9_-])/g,'\\$1'); }
+  }
+  function isVisible(el){
+    if(!el) return false;
+    if(el.closest('.adm-panel') && !el.closest('.adm-panel').classList.contains('act')) return false;
+    const style = window.getComputedStyle ? getComputedStyle(el) : null;
+    if(style && (style.display === 'none' || style.visibility === 'hidden')) return false;
+    return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+  }
+  function getBestById(id){
+    if(!id) return null;
+    const all = Array.from(document.querySelectorAll('#' + cssEscapeSafe(id)));
+    if(!all.length) return null;
+    return all.find(isVisible) || all[all.length - 1] || null;
+  }
+  function val(id, fallback){
+    const el = getBestById(id);
+    if(!el) return fallback || '';
+    return (typeof el.value === 'string' ? el.value : (el.textContent || fallback || ''));
+  }
+  function checked(id, fallback){
+    const el = getBestById(id);
+    if(!el) return !!fallback;
+    return !!el.checked;
+  }
+  function setVal(id, value){
+    const el = getBestById(id);
+    if(el) el.value = value;
+  }
+  function setChecked(id, value){
+    const el = getBestById(id);
+    if(el) el.checked = !!value;
+  }
+  function visibleQuickField(sectionKey, field){
+    return getBestById(`ajQuick-${field}-${sectionKey}`);
+  }
+
+  window.addConsole = function(){
+    const name = (val('nCname','') || '').trim();
+    const nameEn = (val('nCnameEn', name) || '').trim() || name;
+    const rate = parseInt(val('nCrate','300'), 10) || 300;
+    const type = (val('nCtype','console') || 'console').trim();
+    const brand = (val('nCbrand','other') || 'other').trim();
+    const icon = (val('nCicon','🎮') || '🎮').trim() || '🎮';
+    const imgUrl = (val('nCimg','') || '').trim();
+    const showGameButton = checked('nCshowGameBtn', true);
+    const gameUrlRaw = (val('nCgameUrl','') || '').trim();
+    if(!name){
+      alert(typeof lang !== 'undefined' && lang === 'en' ? 'Please enter a console name.' : 'กรุณาใส่ชื่อเครื่อง');
+      return;
+    }
+    const wM = {300:1500,350:1800,400:2500,500:3000};
+    const dM = {300:2000,350:2000,400:2000,500:4000};
+    const newConsole = {
+      id: Date.now(),
+      name,
+      nameEn,
+      rate,
+      weekly: wM[rate] || 1500,
+      deposit: dM[rate] || 2000,
+      cat: String(rate),
+      type,
+      brand,
+      icon,
+      showGameButton,
+      gameUrl: showGameButton ? (gameUrlRaw || (typeof GAME_URL !== 'undefined' ? GAME_URL : 'game_index.html')) : ''
+    };
+    try{ if(typeof ensureConsoleDetails === 'function') ensureConsoleDetails(newConsole); }catch(e){}
+    try{ if(typeof ensureGameButtonConfig === 'function') ensureGameButtonConfig(newConsole); }catch(e){}
+    if(!Array.isArray(window.consoles)) window.consoles = [];
+    window.consoles.push(newConsole);
+    if(imgUrl){
+      if(!window.images || typeof window.images !== 'object') window.images = {};
+      window.images[newConsole.id] = imgUrl;
+    }
+    try{ if(typeof save === 'function') save(); }catch(e){ console.error('addConsole save failed', e); }
+    try{ if(typeof renderAdmConsoles === 'function') renderAdmConsoles(); }catch(e){}
+    try{ if(typeof renderAll === 'function') renderAll(); }catch(e){}
+    setVal('nCname','');
+    setVal('nCnameEn','');
+    setVal('nCimg','');
+    setVal('nCgameUrl','');
+    setChecked('nCshowGameBtn', true);
+  };
+
+  window.ajHomeAddItem = function(sectionKey){
+    const data = (typeof getHomeData === 'function') ? getHomeData() : null;
+    if(!data || !data[sectionKey]) return;
+    const isHighlight = sectionKey === 'highlight';
+    const fresh = (typeof newItem === 'function') ? newItem(sectionKey) : {
+      id: 'itm_' + Date.now(),
+      active: true,
+      badgeTh: isHighlight ? 'Highlight' : 'New',
+      badgeEn: isHighlight ? 'Highlight' : 'New',
+      titleTh: '', titleEn: '', subtitleTh: '', subtitleEn: '',
+      image: '', url: isHighlight ? '?go=calc' : 'game_index.html?platforms=ps45&focus=ps45',
+      emojiFallback: isHighlight ? '🔥' : '✨',
+      overlayTone: isHighlight ? 'red' : 'purple'
+    };
+    const item = Object.assign({}, fresh, {
+      id: fresh.id || ('itm_' + Date.now()),
+      active: !!visibleQuickField(sectionKey,'active')?.checked,
+      badgeTh: ((visibleQuickField(sectionKey,'badgeTh')?.value || fresh.badgeTh || '') + '').trim() || (fresh.badgeTh || ''),
+      badgeEn: ((visibleQuickField(sectionKey,'badgeEn')?.value || fresh.badgeEn || '') + '').trim() || (fresh.badgeEn || ''),
+      titleTh: ((visibleQuickField(sectionKey,'titleTh')?.value || '') + '').trim(),
+      titleEn: ((visibleQuickField(sectionKey,'titleEn')?.value || '') + '').trim(),
+      subtitleTh: ((visibleQuickField(sectionKey,'subtitleTh')?.value || '') + '').trim(),
+      subtitleEn: ((visibleQuickField(sectionKey,'subtitleEn')?.value || '') + '').trim(),
+      image: ((visibleQuickField(sectionKey,'image')?.value || '') + '').trim(),
+      url: ((visibleQuickField(sectionKey,'url')?.value || fresh.url || '') + '').trim() || (fresh.url || ''),
+      emojiFallback: ((visibleQuickField(sectionKey,'emoji')?.value || fresh.emojiFallback || '') + '').trim() || (fresh.emojiFallback || (isHighlight ? '🔥' : '✨')),
+      overlayTone: ((visibleQuickField(sectionKey,'tone')?.value || fresh.overlayTone || '') + '').trim() || (fresh.overlayTone || (isHighlight ? 'red' : 'purple'))
+    });
+    if(!item.titleTh && !item.titleEn){
+      item.titleTh = fresh.titleTh || (isHighlight ? 'ตัวอย่างไฮไลต์' : 'รายการอัปเดตใหม่');
+      item.titleEn = fresh.titleEn || (isHighlight ? 'Highlight Sample' : 'Fresh Update');
+    }
+    if(!item.subtitleTh && !item.subtitleEn){
+      item.subtitleTh = fresh.subtitleTh || (isHighlight ? 'แก้ไขข้อความสั้นบนรูป 1:1 ได้จากหน้า Admin' : 'เพิ่มเครื่องใหม่หรือเกมใหม่พร้อมลิงก์ได้');
+      item.subtitleEn = fresh.subtitleEn || (isHighlight ? 'Edit the short overlay text from Admin.' : 'Add a new console or game with a direct link.');
+    }
+    if(!Array.isArray(data[sectionKey].items)) data[sectionKey].items = [];
+    data[sectionKey].items.push(item);
+    try{ if(typeof saveHomeData === 'function') saveHomeData(data, typeof lang !== 'undefined' && lang === 'en' ? 'Added new item.' : 'เพิ่มรายการแล้ว'); }catch(e){ console.error('ajHomeAddItem save failed', e); }
+    try{ if(typeof renderHomeAdminPanelFixed === 'function') renderHomeAdminPanelFixed(); }catch(e){}
+    const resetFresh = (typeof newItem === 'function') ? newItem(sectionKey) : fresh;
+    ['badgeTh','badgeEn','titleTh','titleEn','subtitleTh','subtitleEn','image','url'].forEach(function(key){
+      const el = visibleQuickField(sectionKey, key);
+      if(el) el.value = resetFresh[key] || '';
+    });
+    const activeEl = visibleQuickField(sectionKey,'active'); if(activeEl) activeEl.checked = true;
+    const emojiEl = visibleQuickField(sectionKey,'emoji'); if(emojiEl) emojiEl.value = resetFresh.emojiFallback || (isHighlight ? '🔥' : '✨');
+    const toneEl = visibleQuickField(sectionKey,'tone'); if(toneEl) toneEl.value = resetFresh.overlayTone || (isHighlight ? 'red' : 'purple');
+  };
+})();
+</script>
+
 </body>
 </html>
