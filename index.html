@@ -989,7 +989,7 @@ footer{background:#0d0d0d;padding:30px 22px;text-align:center;}
           <div class="chk-row">
             <input type="checkbox" id="noConChk" onchange="onNoConChange()">
             <label for="noConChk"><strong id="lbl-nocon-t">ไม่ต้องการทำสัญญาการเช่า</strong><br>
-              <span id="lbl-nocon-d" style="font-size:12px;">ค่ามัดจำเพิ่มขึ้น (฿2,000→฿5,000 / ฿4,000→฿8,000)</span></label>
+              <span id="lbl-nocon-d" style="font-size:12px;">ค่าประกันเพิ่มขึ้น (฿2,000→฿5,000 / ฿4,000→฿8,000)</span></label>
           </div>
           <div class="nocon-note" id="noConNote"></div>
           <div class="fgroup" id="paymentOptionWrap" style="margin-top:6px;display:none">
@@ -1008,7 +1008,7 @@ footer{background:#0d0d0d;padding:30px 22px;text-align:center;}
               <button type="button" class="maps-open-btn" id="maps-open-btn" onclick="openMapsPicker()">🗺️ เปิด Google Maps</button>
               <button type="button" class="maps-help-btn" id="maps-help-btn" onclick="openMapsHelp()">📍 วิธีคัดลอกลิงก์ Google Maps</button>
             </div>
-            <p style="font-size:11px;color:var(--accent);margin-top:4px;font-weight:700;line-height:1.6;" id="delivery-note">* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น<br><br><span style="display:block;color:var(--accent);font-weight:700;">🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | ช่วยค่าส่งสูงสุด 100 บาท/เที่ยว</span></p>
+            <p style="font-size:11px;color:var(--accent);margin-top:4px;font-weight:700;line-height:1.6;" id="delivery-note">* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น<br><br><span style="display:block;color:var(--accent);font-weight:700;">🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว</span></p>
           </div>
         </div>
       </div>
@@ -1234,9 +1234,9 @@ const T={
     cltag:'คำนวณ',clh:'เช็คคิว & คำนวณค่าเช่า',clp:'ขั้นต่ำ 3 วัน | ราคาเรทบุคคล',
     lblCat:'ประเภทเครื่อง',lblConsole:'เครื่องเกม',consolePlaceholder:'-- ยังไม่ได้เลือกเครื่องเกม --',lblStart:'วันที่เริ่มเช่า',lblEnd:'วันคืนเครื่อง',
     lblRetT:'ลูกค้าเก่า',lblRetD:'รับส่วนลด 10% ค่าเช่า',
-    lblNoConT:'ไม่ต้องการทำสัญญาการเช่า',lblNoConD:'ค่ามัดจำเพิ่มขึ้น (฿2,000→฿5,000 / ฿4,000→฿8,000)',
-    noConNote:'⚠️ เมื่อไม่ทำสัญญา ค่ามัดจำจะสูงขึ้นตามเรทที่กำหนด',
-    lblMaps:'Google Maps ที่อยู่จัดส่ง (เช็คค่าส่งก่อนตัดสินใจ)',lblMapsNote:'* ใส่ลิงก์ Google Maps เพื่อให้ร้านเช็คค่าส่งเบื้องต้นได้เร็วขึ้น',mapsHelpBtn:'📍 วิธีคัดลอกลิงก์ Google Maps',deliveryNote:'* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น<br><br><span style="display:block;color:var(--accent);font-weight:700;">🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | ช่วยค่าส่งสูงสุด 100 บาท/เที่ยว</span>',mapsHelpTitle:'📍 วิธีคัดลอกลิงก์ Google Maps',mapsHelpIntro:'กดตามภาพด้านล่างได้เลย ใช้ได้ทั้งมือถือและคอม โดยหลักคือเปิดสถานที่หรือบ้านของคุณใน Google Maps แล้วกดแชร์ จากนั้นคัดลอกลิงก์มาแปะในช่องนี้',mapsHelpStep1Title:'1) เปิดสถานที่ใน Google Maps',mapsHelpStep1Desc:'ค้นหาบ้าน คอนโด หรือจุดจัดส่งที่ต้องการ แล้วแตะให้ขึ้นหน้ารายละเอียดสถานที่',mapsHelpStep2Title:'2) กดปุ่ม แชร์',mapsHelpStep2Desc:'มองหาปุ่ม แชร์ / Share ในหน้าสถานที่ หรือกดเมนูเพิ่มเติมแล้วเลือกแชร์',mapsHelpStep3Title:'3) กดคัดลอกลิงก์ แล้วนำมาแปะ',mapsHelpStep3Desc:'กด คัดลอกลิงก์ / Copy link แล้วนำลิงก์ที่ได้มาแปะในช่อง Google Maps ที่อยู่จัดส่งด้านบน',mapsHelpTip:'💡 แนะนำให้ส่งลิงก์จาก Google Maps ตรง ๆ จะช่วยให้ร้านเช็กพื้นที่จัดส่งและเรียกรถได้ง่ายขึ้น',
+    lblNoConT:'ไม่ต้องการทำสัญญาการเช่า',lblNoConD:'ค่าประกันเพิ่มขึ้น (฿2,000→฿5,000 / ฿4,000→฿8,000)',
+    noConNote:'⚠️ เมื่อไม่ทำสัญญา ค่าประกันจะสูงขึ้นตามเรทที่กำหนด',
+    lblMaps:'Google Maps ที่อยู่จัดส่ง (เช็คค่าส่งก่อนตัดสินใจ)',lblMapsNote:'* ใส่ลิงก์ Google Maps เพื่อให้ร้านเช็คค่าส่งเบื้องต้นได้เร็วขึ้น',mapsHelpBtn:'📍 วิธีคัดลอกลิงก์ Google Maps',deliveryNote:'* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น<br><br><span style="display:block;color:var(--accent);font-weight:700;">🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว</span>',mapsHelpTitle:'📍 วิธีคัดลอกลิงก์ Google Maps',mapsHelpIntro:'กดตามภาพด้านล่างได้เลย ใช้ได้ทั้งมือถือและคอม โดยหลักคือเปิดสถานที่หรือบ้านของคุณใน Google Maps แล้วกดแชร์ จากนั้นคัดลอกลิงก์มาแปะในช่องนี้',mapsHelpStep1Title:'1) เปิดสถานที่ใน Google Maps',mapsHelpStep1Desc:'ค้นหาบ้าน คอนโด หรือจุดจัดส่งที่ต้องการ แล้วแตะให้ขึ้นหน้ารายละเอียดสถานที่',mapsHelpStep2Title:'2) กดปุ่ม แชร์',mapsHelpStep2Desc:'มองหาปุ่ม แชร์ / Share ในหน้าสถานที่ หรือกดเมนูเพิ่มเติมแล้วเลือกแชร์',mapsHelpStep3Title:'3) กดคัดลอกลิงก์ แล้วนำมาแปะ',mapsHelpStep3Desc:'กด คัดลอกลิงก์ / Copy link แล้วนำลิงก์ที่ได้มาแปะในช่อง Google Maps ที่อยู่จัดส่งด้านบน',mapsHelpTip:'💡 แนะนำให้ส่งลิงก์จาก Google Maps ตรง ๆ จะช่วยให้ร้านเช็กพื้นที่จัดส่งและเรียกรถได้ง่ายขึ้น',
     formConsoleLbl:'🎮 เลือกเครื่อง',formDateLbl:'📅 ช่วงเวลาเช่า',formOptLbl:'⚙️ ตัวเลือกเพิ่มเติม',
     sumTitle:'📋 สรุปค่าเช่า',sumEmpty:'เลือกเครื่องและวันที่เพื่อดูสรุปค่าเช่า',sumDeliveryExcluded:'🚚 ยังไม่รวมค่าจัดส่ง',sumDeliveryChat:'ค่าส่งแจ้งทางแชท',
     contractLbl:'ทำสัญญาการเช่าผ่านลิงก์',contractNote:'กรุณากรอกสัญญาก่อนนัดส่งเครื่อง',
@@ -1257,13 +1257,13 @@ const T={
     lblPayment:'ตัวเลือกการชำระเงิน',payBank:'Thai Bank Transfer',payWise:'Wise',payCash:'Cash (Thai Baht only)',slPayment:'การชำระเงิน',slCash:'💵 จ่ายเงินสดตอนส่งมอบ',
     needDates:'⏳ กรุณาเลือกวันเริ่มเช่าและวันคืนเครื่อง',noConLabel:'(ไม่ทำสัญญา)',
     slConsole:'เครื่อง',slBundle:'Bundle',slSection:'หมวดเครื่อง',slStart:'วันที่เริ่มเช่า',slEnd:'วันคืนเครื่อง',slDuration:'ระยะเวลา',slWeekly:'(เรทรายสัปดาห์)',
-    slRental:'ค่าเช่า',slAddon:'อุปกรณ์เสริม',slDiscount:'ส่วนลดลูกค้าเก่า',slDeposit:'ค่ามัดจำ',slDelivery:'ค่าจัดส่ง',
+    slRental:'ค่าเช่า',slAddon:'อุปกรณ์เสริม',slDiscount:'ส่วนลดลูกค้าเก่า',slDeposit:'ค่าประกัน',slDelivery:'ค่าจัดส่ง',
     slTotal:'ยอดรวมทั้งหมด',slUpfront:'💳 โอนล่วงหน้า (ยืนยันการจอง)',slOD:'🚚 จ่ายตอนของถึง',
     calcGuideHtml:'<h3>📌 วิธีใช้งานส่วนเช็คคิว & คำนวณค่าเช่า</h3><p><strong>1) ใช้แท็บด้านบนไล่ทีละขั้นตอน</strong> เริ่มจากเลือกประเภทเครื่องและเครื่องเกมก่อน<br><strong>2) กดเลือกวันที่เริ่มเช่า 1 ครั้ง</strong> แล้วกดเลือกวันคืนเครื่องอีก 1 ครั้งจากปฏิทิน ระบบจะไฮไลต์ช่วงวันที่ให้ทันที<br><strong>3) ระบบจะเช็คคิวเครื่องอัตโนมัติ</strong> ถ้าเครื่องว่างจะไปต่อได้ แต่ถ้าไม่ว่าง ระบบจะแจ้งวันว่างถัดไปให้<br><strong>4) ถ้ารุ่นนั้นมี Bundle หรืออุปกรณ์เสริม</strong> สามารถติ๊กเพิ่มได้ในขั้นตอนถัดไป<br><strong>5) เรื่องสัญญาการเช่าและค่าส่ง</strong> สามารถกรอกต่อในตัวเลือกเพิ่มเติมและดูสรุปได้ด้านล่าง<br><strong>6) เลือกเกม</strong> กด <strong>เลือก / แก้ไขรายชื่อเกม</strong> หรือ ติ๊ก <strong>แจ้งรายชื่อเกมภายหลัง</strong><br><strong>7) เมื่อสรุปเรียบร้อย</strong> กด <strong>Copy ข้อความจองเช่า</strong> แล้วส่งไปที่ <strong>Line</strong> หรือ <strong>WhatsApp</strong> ได้ทันที</p>',
     sumContractRequired:'⚠️ ต้องทำสัญญาการเช่า หรือไปเลือกที่ Additional ว่า “ไม่ต้องการทำสัญญาการเช่า”',
     sumContractLinkTitle:'📝 ลิงก์ทำสัญญาการเช่า',
     sumContractSelected:'✅ เลือกทำสัญญาการเช่าแล้ว กรุณากดลิงก์ด้านล่างเพื่อกรอกสัญญาก่อนนัดส่งเครื่อง',
-    sumNoContractSelected:'⚠️ เลือกไม่ทำสัญญาการเช่าแล้ว ค่ามัดจำจะแพงขึ้นตามเงื่อนไข',
+    sumNoContractSelected:'⚠️ เลือกไม่ทำสัญญาการเช่าแล้ว ค่าประกันจะแพงขึ้นตามเงื่อนไข',
     sumDetailsTitle:'สิ่งที่รวมในชุด',
     steps:[
       {ic:'💬',t:'ติดต่อสอบถาม',d:'Line: @ajgame เพื่อเช็คเครื่องว่าง และเลือกเกมที่ต้องการ'},
@@ -2788,18 +2788,15 @@ function calc(){
   if(paymentOption==='cash'){upfront=0;onDelivery=total;}
   const paymentLabel=paymentOption==='wise'?t('payWise'):paymentOption==='cash'?t('payCash'):t('payBank');
   let h='';
-  h+=`<div class="sum-hero"><div class="sum-hero-img">${sumImgHtml}</div><div class="sum-hero-meta"><div class="sum-hero-section">🔥 ${getSummarySectionLabel(c)}</div><div class="sum-hero-name">${cName(c)}</div></div></div>`;
   const detailLines=getConsoleDetails(c);
   const detailItems=[...detailLines];
   if(canShowGamesBtn) detailItems.push(`<a class="btn-games" href="${getGameButtonUrl(c)}" target="_blank">${t('viewGames')}</a>`);
-  if(detailItems.length){
-    h+=`<div class="sum-detail-list"><div class="sum-row" style="padding-top:0;border-bottom:none;"><span class="sl" style="max-width:none;font-weight:700;color:var(--text);">${t('sumDetailsTitle')}</span></div>${detailItems.map(item=>item.startsWith('<a ')?`<div class="sum-detail-action">${item}</div>`:`<div class="sum-detail-item">• ${item}</div>`).join('')}</div>`;
-  }
   h+=`<div class="sum-note">${t('sumContractRequired')}</div>`;
   if(!availabilityGate.pass && availabilityGate.summaryHtml){ h+=`<div class="sum-note">${availabilityGate.summaryHtml}</div>`; }
   h+=`<div class="summary-warning">${t('summaryWarning')}</div>`;
   if(!noCon){ h+=`<div class="contract-wrap summary-contract"><a class="clink" href="${t('contractLink')}" target="_blank">📝 <span>${t('contractLbl')}</span></a><p>${t('contractNote')}</p></div>`; }
-  h+=sR(t('slConsole'),cName(c),false,true);
+  h+=sR(t('slConsole'),summaryConsoleCell(c,sumImgHtml),false,true);
+  h+=sR(t('included'),summaryIncludedCell(detailLines),false,true);
   h+=sR(t('slSection'),getSummarySectionLabel(c),false,true);
   if(bn)h+=sR(t('slBundle'),bn,false,true);
   if(lang==='en')h+=sR(t('slPayment'),paymentLabel,false,true);
@@ -2826,6 +2823,8 @@ function calc(){
   window._cd={c,consoleName:cName(c),sectionName:getSummarySectionLabel(c),startDate:formatDateDisplay(startDate),endDate:formatDateDisplay(endDate),days,rental,addonTotal,addonLines,disc,isRet,deposit,total,upfront,onDelivery,maps,noCon,bundleName:bn,wkA,paymentOption};
 }
 function sR(lb,val,green=false,muted=false){return `<div class="sum-row"><span class="sl" style="${muted?'color:var(--text2);':''}">${lb}</span><span class="sv${green?' green':''}">${val}</span></div>`;}
+function summaryConsoleCell(c,imgHtml){return `<div style="display:flex;align-items:center;gap:10px;justify-content:flex-end;max-width:100%;"><span style="width:42px;height:42px;border-radius:10px;background:#fff;border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;overflow:hidden;flex:0 0 42px;">${imgHtml}</span><span style="font-weight:800;display:inline-block;text-align:right;line-height:1.35;">${cName(c)}</span></div>`;}
+function summaryIncludedCell(lines){ if(!lines||!lines.length) return '-'; return `<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;text-align:right;">${lines.map(item=>`<div>${item}</div>`).join('')}</div>`;}
 function copyMsg(){
   const d=window._cd;if(!d)return;
   const nl='\n';
@@ -2837,13 +2836,13 @@ function copyMsg(){
   const retLine=d.isRet?`${nl}✅ ${lang==='th'?'ลูกค้าเก่า (ลด 10%)':'Returning Customer (10% off)'}`:'';
   const contractMsg = d.noCon
     ? (lang==='th'
-        ? `${nl}${nl}⚠️ เลือกไม่ทำสัญญาการเช่าแล้ว ค่ามัดจำจะสูงขึ้น${nl}หากต้องการเปลี่ยน สามารถกลับไปเอาติ๊กออกที่ Additional ได้`
+        ? `${nl}${nl}⚠️ เลือกไม่ทำสัญญาการเช่าแล้ว ค่าประกันจะสูงขึ้น${nl}หากต้องการเปลี่ยน สามารถกลับไปเอาติ๊กออกที่ Additional ได้`
         : `${nl}${nl}⚠️ No rental contract selected. The deposit is higher under the stated rules.${nl}If needed, go back to Additional and uncheck it.`)
     : (lang==='th'
         ? `${nl}${nl}📝 กรุณาทำสัญญาการเช่าก่อนนัดส่งเครื่อง${nl}${t('contractLink')}${nl}หากไม่ต้องการทำสัญญา ให้ไปเลือกที่ Additional ว่า “ไม่ต้องการทำสัญญาการเช่า”`
         : `${nl}${nl}📝 Please complete the rental contract before delivery${nl}${t('contractLink')}${nl}If you do not want a contract, select “No Rental Contract” in Additional.`);
   const msg=lang==='th'
-    ?`สวัสดีครับ/ค่ะ ขอจองเช่าเครื่องเกม 🎮${nl}${nl}📱 เครื่อง: ${d.consoleName}${bundleLine}${nl}🔥 หมวดเครื่อง: ${d.sectionName}${nl}📅 วันที่เริ่มเช่า: ${d.startDate}${nl}📅 วันคืนเครื่อง: ${d.endDate}${nl}📅 ระยะเวลา: ${d.days} วัน${retLine}${noConLine}${nl}${nl}💰 สรุปค่าใช้จ่าย:${nl}  • ค่าเช่า: ${fmt(d.rental)}${addons}${discLine}${nl}  • ค่ามัดจำ: ${fmt(d.deposit)}${nl}${nl}💵 ยอดรวมทั้งหมด: ${fmt(d.total)}${nl}💳 โอนล่วงหน้า (ยืนยันจอง): ${fmt(d.upfront)}${nl}🚚 จ่ายตอนของถึง: ${fmt(d.onDelivery)}${mapsLine}${contractMsg}${nl}${nl}ขอบคุณครับ/ค่ะ 🙏`
+    ?`สวัสดีครับ/ค่ะ ขอจองเช่าเครื่องเกม 🎮${nl}${nl}📱 เครื่อง: ${d.consoleName}${bundleLine}${nl}🔥 หมวดเครื่อง: ${d.sectionName}${nl}📅 วันที่เริ่มเช่า: ${d.startDate}${nl}📅 วันคืนเครื่อง: ${d.endDate}${nl}📅 ระยะเวลา: ${d.days} วัน${retLine}${noConLine}${nl}${nl}💰 สรุปค่าใช้จ่าย:${nl}  • ค่าเช่า: ${fmt(d.rental)}${addons}${discLine}${nl}  • ค่าประกัน: ${fmt(d.deposit)}${nl}${nl}💵 ยอดรวมทั้งหมด: ${fmt(d.total)}${nl}💳 โอนล่วงหน้า (ยืนยันจอง): ${fmt(d.upfront)}${nl}🚚 จ่ายตอนของถึง: ${fmt(d.onDelivery)}${mapsLine}${contractMsg}${nl}${nl}ขอบคุณครับ/ค่ะ 🙏`
     :`Hello! Game console rental booking 🎮${nl}${nl}📱 Console: ${d.consoleName}${bundleLine}${nl}🔥 Section: ${d.sectionName}${nl}📅 Start Date: ${d.startDate}${nl}📅 Return Date: ${d.endDate}${nl}📅 Duration: ${d.days} days${retLine}${noConLine}${nl}${nl}💰 Cost Summary:${nl}  • Rental: ${fmt(d.rental)}${addons}${discLine}${nl}  • Deposit: ${fmt(d.deposit)}${nl}${nl}💵 Total: ${fmt(d.total)}${d.paymentOption==='cash'?`${nl}💵 Pay Cash on Delivery: ${fmt(d.onDelivery)}`:d.paymentOption==='wise'?`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}`:`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}${nl}🚚 Pay on Delivery: ${fmt(d.onDelivery)}`}${mapsLine}${contractMsg}${nl}${nl}Thank you! 🙏`;
   navigator.clipboard.writeText(msg).then(()=>{
     const btn=document.querySelector('.btn-copy');if(!btn)return;
@@ -3757,7 +3756,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     const retLine=d.isRet?`${nl}✅ ${lang==='th'?'ลูกค้าเก่า (ลด 10%)':'Returning Customer (10% off)'}`:'';
     const contractMsg = d.noCon
       ? (lang==='th'
-          ? `${nl}${nl}⚠️ เลือกไม่ทำสัญญาการเช่าแล้ว ค่ามัดจำจะสูงขึ้น${nl}หากต้องการเปลี่ยน สามารถกลับไปเอาติ๊กออกที่ Additional ได้`
+          ? `${nl}${nl}⚠️ เลือกไม่ทำสัญญาการเช่าแล้ว ค่าประกันจะสูงขึ้น${nl}หากต้องการเปลี่ยน สามารถกลับไปเอาติ๊กออกที่ Additional ได้`
           : `${nl}${nl}⚠️ No rental contract selected. The deposit is higher under the stated rules.${nl}If needed, go back to Additional and uncheck it.`)
       : (lang==='th'
           ? `${nl}${nl}📝 กรุณาทำสัญญาการเช่าก่อนนัดส่งเครื่อง${nl}${t('contractLink')}${nl}หากไม่ต้องการทำสัญญา ให้ไปเลือกที่ Additional ว่า “ไม่ต้องการทำสัญญาการเช่า”`
@@ -3768,7 +3767,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
           ? `${nl}${nl}${mt().bookingGames}${nl}${state.games.map((g,i)=>`  ${i+1}. ${g.name}${g.platformName?` (${g.platformName})`:''}`).join(nl)}`
           : '');
     const msg=lang==='th'
-      ?`สวัสดีครับ/ค่ะ ขอจองเช่าเครื่องเกม 🎮${nl}${nl}📱 เครื่อง: ${d.consoleName}${bundleLine}${nl}🔥 หมวดเครื่อง: ${d.sectionName}${nl}📅 วันที่เริ่มเช่า: ${d.startDate}${nl}📅 วันคืนเครื่อง: ${d.endDate}${nl}📅 ระยะเวลา: ${d.days} วัน${retLine}${noConLine}${gameLines}${nl}${nl}💰 สรุปค่าใช้จ่าย:${nl}  • ค่าเช่า: ${fmt(d.rental)}${addons}${discLine}${nl}  • ค่ามัดจำ: ${fmt(d.deposit)}${nl}${nl}💵 ยอดรวมทั้งหมด: ${fmt(d.total)}${nl}💳 โอนล่วงหน้า (ยืนยันจอง): ${fmt(d.upfront)}${nl}🚚 จ่ายตอนของถึง: ${fmt(d.onDelivery)}${mapsLine}${contractMsg}${nl}${nl}ขอบคุณครับ/ค่ะ 🙏`
+      ?`สวัสดีครับ/ค่ะ ขอจองเช่าเครื่องเกม 🎮${nl}${nl}📱 เครื่อง: ${d.consoleName}${bundleLine}${nl}🔥 หมวดเครื่อง: ${d.sectionName}${nl}📅 วันที่เริ่มเช่า: ${d.startDate}${nl}📅 วันคืนเครื่อง: ${d.endDate}${nl}📅 ระยะเวลา: ${d.days} วัน${retLine}${noConLine}${gameLines}${nl}${nl}💰 สรุปค่าใช้จ่าย:${nl}  • ค่าเช่า: ${fmt(d.rental)}${addons}${discLine}${nl}  • ค่าประกัน: ${fmt(d.deposit)}${nl}${nl}💵 ยอดรวมทั้งหมด: ${fmt(d.total)}${nl}💳 โอนล่วงหน้า (ยืนยันจอง): ${fmt(d.upfront)}${nl}🚚 จ่ายตอนของถึง: ${fmt(d.onDelivery)}${mapsLine}${contractMsg}${nl}${nl}ขอบคุณครับ/ค่ะ 🙏`
       :`Hello! Game console rental booking 🎮${nl}${nl}📱 Console: ${d.consoleName}${bundleLine}${nl}🔥 Section: ${d.sectionName}${nl}📅 Start Date: ${d.startDate}${nl}📅 Return Date: ${d.endDate}${nl}📅 Duration: ${d.days} days${retLine}${noConLine}${gameLines}${nl}${nl}💰 Cost Summary:${nl}  • Rental: ${fmt(d.rental)}${addons}${discLine}${nl}  • Deposit: ${fmt(d.deposit)}${nl}${nl}💵 Total: ${fmt(d.total)}${d.paymentOption==='cash'?`${nl}💵 Pay Cash on Delivery: ${fmt(d.onDelivery)}`:d.paymentOption==='wise'?`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}`:`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}${nl}🚚 Pay on Delivery: ${fmt(d.onDelivery)}`}${mapsLine}${contractMsg}${nl}${nl}Thank you! 🙏`;
     navigator.clipboard.writeText(msg).then(()=>{
       const btn=document.querySelector('#sumContent .btn-copy');if(!btn)return;
@@ -6039,7 +6038,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     window.__ajCalcGuideOpen = !!next;
     try{ sessionStorage.setItem(GUIDE_STATE_KEY, next ? '1' : '0'); }catch(e){}
   }
-  function guideHint(){ return isEnLang() ? 'More details — click to expand' : 'รายละเอียดเพิ่มเติมคลิก'; }
+  function guideHint(){ return isEnLang() ? 'Click to expand' : 'คลิกเพื่อขยาย'; }
   function guideBodyHtml(){
     if(isEnLang()){
       return '<p><strong>1)</strong> Select a console by category and model first<br><strong>2)</strong> Choose the rental start date and return date. Minimum rental is 3 days<br><strong>3)</strong> The system will check the console queue automatically. If the console is available for your selected dates, you can continue right away. If it is unavailable or already booked during that period, the system will show the next available date and you can click <strong>Adjust rental dates to available date</strong><br><strong>4)</strong> If that model has bundles or accessories, you can add them here<br><strong>5)</strong> If you want a rental contract, keep Additional options as normal and the contract link will appear in the summary<br><strong>6)</strong> If you do not want a rental contract, select <strong>No Rental Contract</strong> in Additional. The deposit will increase based on the stated rules<br><strong>7)</strong> Open Google Maps, choose your delivery location, then paste the link into the <strong>Google Maps delivery address</strong> field<br><strong>8)</strong> Choose games by clicking <strong>Choose / Edit Games</strong> or tick <strong>I will send the game list later</strong><br><strong>9)</strong> When everything looks good, click <strong>Copy Booking Message</strong> and send it via <strong>Line</strong> or <strong>WhatsApp</strong> right away</p>';
@@ -6125,7 +6124,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     const contractMsg = d.noCon
       ? (isEnLang()
           ? `${nl}${nl}${E.warn} No rental contract selected. The deposit is higher under the stated rules.${nl}If needed, go back to Additional and uncheck it.`
-          : `${nl}${nl}${E.warn} เลือกไม่ทำสัญญาการเช่าแล้ว ค่ามัดจำจะสูงขึ้น${nl}หากต้องการเปลี่ยน สามารถกลับไปเอาติ๊กออกที่ Additional ได้`)
+          : `${nl}${nl}${E.warn} เลือกไม่ทำสัญญาการเช่าแล้ว ค่าประกันจะสูงขึ้น${nl}หากต้องการเปลี่ยน สามารถกลับไปเอาติ๊กออกที่ Additional ได้`)
       : (isEnLang()
           ? `${nl}${nl}${E.memo} Please complete the rental contract before delivery${nl}${typeof t === 'function' ? t('contractLink') : ''}${nl}If you do not want a contract, select No Rental Contract in Additional.`
           : `${nl}${nl}${E.memo} กรุณาทำสัญญาการเช่าก่อนนัดส่งเครื่อง${nl}${typeof t === 'function' ? t('contractLink') : ''}${nl}หากไม่ต้องการทำสัญญา ให้ไปเลือกที่ Additional ว่า ไม่ต้องการทำสัญญาการเช่า`);
@@ -6144,7 +6143,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
           : `${nl}${E.card} Transfer Before Delivery: ${fmtAmount(d.upfront)}${nl}${E.truck} Pay on Delivery: ${fmtAmount(d.onDelivery)}`;
       return `Hello! Game console rental booking ${E.game}${nl}${nl}${E.phone} Console: ${escapeText(d.consoleName)}${bundleLine}${nl}${E.fire} Section: ${escapeText(d.sectionName)}${nl}${E.cal} Start Date: ${escapeText(d.startDate)}${nl}${E.cal} Return Date: ${escapeText(d.endDate)}${nl}${E.cal} Duration: ${escapeText(d.days)} days${retLine}${noConLine}${gameLines}${nl}${nl}${E.money} Cost Summary:${nl}  - Rental: ${fmtAmount(d.rental)}${addons}${discLine}${nl}  - Deposit: ${fmtAmount(d.deposit)}${nl}${nl}${E.money} Total: ${fmtAmount(d.total)}${payLines}${mapsLine}${contractMsg}${nl}${nl}Thank you! ${E.pray}`;
     }
-    return `สวัสดีครับ/ค่ะ ขอจองเช่าเครื่องเกม ${E.game}${nl}${nl}${E.phone} เครื่อง: ${escapeText(d.consoleName)}${bundleLine}${nl}${E.fire} หมวดเครื่อง: ${escapeText(d.sectionName)}${nl}${E.cal} วันที่เริ่มเช่า: ${escapeText(d.startDate)}${nl}${E.cal} วันคืนเครื่อง: ${escapeText(d.endDate)}${nl}${E.cal} ระยะเวลา: ${escapeText(d.days)} วัน${retLine}${noConLine}${gameLines}${nl}${nl}${E.money} สรุปค่าใช้จ่าย:${nl}  - ค่าเช่า: ${fmtAmount(d.rental)}${addons}${discLine}${nl}  - ค่ามัดจำ: ${fmtAmount(d.deposit)}${nl}${nl}${E.money} ยอดรวมทั้งหมด: ${fmtAmount(d.total)}${nl}${E.card} โอนล่วงหน้า (ยืนยันจอง): ${fmtAmount(d.upfront)}${nl}${E.truck} จ่ายตอนของถึง: ${fmtAmount(d.onDelivery)}${mapsLine}${contractMsg}${nl}${nl}ขอบคุณครับ/ค่ะ ${E.pray}`;
+    return `สวัสดีครับ/ค่ะ ขอจองเช่าเครื่องเกม ${E.game}${nl}${nl}${E.phone} เครื่อง: ${escapeText(d.consoleName)}${bundleLine}${nl}${E.fire} หมวดเครื่อง: ${escapeText(d.sectionName)}${nl}${E.cal} วันที่เริ่มเช่า: ${escapeText(d.startDate)}${nl}${E.cal} วันคืนเครื่อง: ${escapeText(d.endDate)}${nl}${E.cal} ระยะเวลา: ${escapeText(d.days)} วัน${retLine}${noConLine}${gameLines}${nl}${nl}${E.money} สรุปค่าใช้จ่าย:${nl}  - ค่าเช่า: ${fmtAmount(d.rental)}${addons}${discLine}${nl}  - ค่าประกัน: ${fmtAmount(d.deposit)}${nl}${nl}${E.money} ยอดรวมทั้งหมด: ${fmtAmount(d.total)}${nl}${E.card} โอนล่วงหน้า (ยืนยันจอง): ${fmtAmount(d.upfront)}${nl}${E.truck} จ่ายตอนของถึง: ${fmtAmount(d.onDelivery)}${mapsLine}${contractMsg}${nl}${nl}ขอบคุณครับ/ค่ะ ${E.pray}`;
   }
   async function copyTextSmart(text){
     if(!text) return false;
@@ -6280,7 +6279,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     return '<p><strong>1)</strong> เลือกเครื่อง จากหมวดและรุ่นที่ต้องการก่อน<br><strong>2)</strong> เลือกวันเริ่มเช่า และ วันคืนเครื่อง โดยระบบคิดขั้นต่ำ 3 วัน<br><strong>3)</strong> ระบบจะเช็คคิวเครื่องให้อัตโนมัติ ถ้าเครื่องว่างสามารถไปขั้นถัดไปได้ทันที แต่ถ้าเครื่องไม่ว่าง ระบบจะแจ้งวันว่างถัดไปและสามารถกด <strong>ปรับวันเช่าเป็นวันที่ว่าง</strong> ได้<br><strong>4)</strong> ถ้ารุ่นนั้นมี Bundle หรืออุปกรณ์เสริม สามารถติ๊กเพิ่มได้ในหน้านี้<br><strong>5)</strong> หากต้องการทำสัญญา ให้ปล่อยค่า Additional ตามปกติ แล้วลิงก์สัญญาจะขึ้นในสรุปค่าเช่า<br><strong>6)</strong> ถ้าไม่ทำสัญญาการเช่า ให้เลือก <strong>ไม่ต้องการทำสัญญาการเช่า</strong> ใน Additional ซึ่งค่ามัดจำจะเพิ่มขึ้นตามที่ระบบแจ้ง<br><strong>7)</strong> เปิด Google Maps เลือกสถานที่จัดส่ง แล้วคัดลอกลิงก์มาแปะในช่อง <strong>Google Maps ที่อยู่จัดส่ง</strong><br><strong>8)</strong> เลือกเกม โดยกด <strong>เลือก / แก้ไขรายชื่อเกม</strong> หรือ ติ๊ก <strong>แจ้งรายชื่อเกมภายหลัง</strong><br><strong>9)</strong> เมื่อสรุปเรียบร้อย กด <strong>Copy ข้อความจองเช่า</strong> แล้วส่งไปที่ <strong>Line</strong> ได้ทันที</p>';
   }
   function title(){ return isEn() ? '📌 How to use queue check & rental calculator' : '📌 วิธีใช้งานส่วนเช็คคิว & คำนวณค่าเช่า'; }
-  function hint(){ return isEn() ? 'More details — click to expand' : 'รายละเอียดเพิ่มเติมคลิก'; }
+  function hint(){ return isEn() ? 'Click to expand' : 'คลิกเพื่อขยาย'; }
   function render(){
     var calc = document.getElementById('calculator');
     if(!calc) return;
@@ -6961,7 +6960,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       const title=standalone.querySelector('.aj-guide-title');
       const hint=standalone.querySelector('.aj-guide-hint');
       if(title) title.textContent = lang==='en'?'How to use queue check & rental calculator':'วิธีใช้งานส่วนเช็คคิว & คำนวณค่าเช่า';
-      if(hint) hint.textContent = lang==='en'?'More details – click to expand':'รายละเอียดเพิ่มเติมคลิก';
+      if(hint) hint.textContent = lang==='en'?'Click to expand':'คลิกเพื่อขยาย';
     }
   }
 
@@ -7253,7 +7252,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       }else{
         label = lang==='en' ? 'Done' : 'เสร็จแล้ว';
         disabled = false;
-        onclick = "document.getElementById('sumContent')?.scrollIntoView({behavior:'smooth',block:'start'})";
+        onclick = "document.getElementById('sum-title')?.scrollIntoView({behavior:'smooth',block:'start'})";
       }
       wrap.innerHTML = `<button type="button" class="calc-next-btn" ${disabled ? 'disabled' : ''} onclick="${onclick}">${label} →</button>`;
     });
@@ -7826,7 +7825,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       let wrap=pane.querySelector('.final-pane-nav');
       if(!wrap){ wrap=document.createElement('div'); wrap.className='final-pane-nav'; pane.appendChild(wrap); }
       const left = def.prev ? `<button type="button" class="final-nav-btn prev" data-prev="${def.prev}">← ${TT('back')}</button>` : `<span></span>`;
-      const right = def.next ? `<button type="button" class="final-nav-btn next" data-next="${def.next}" ${def.nextDisabled?'disabled':''}>${TT('next')} →</button>` : `<button type="button" class="final-nav-btn next" onclick="document.getElementById('sumContent')?.scrollIntoView({behavior:'smooth',block:'start'})">${TT('done')}</button>`;
+      const right = def.next ? `<button type="button" class="final-nav-btn next" data-next="${def.next}" ${def.nextDisabled?'disabled':''}>${TT('next')} →</button>` : `<button type="button" class="final-nav-btn next" onclick="document.getElementById('sum-title')?.scrollIntoView({behavior:'smooth',block:'start'})">${TT('done')}</button>`;
       wrap.innerHTML = `<div class="left">${left}</div><div class="right">${right}</div>`;
       wrap.querySelector('[data-prev]')?.addEventListener('click', e=>{ showStep(Number(e.currentTarget.dataset.prev)); });
       wrap.querySelector('[data-next]')?.addEventListener('click', e=>{
@@ -7932,12 +7931,12 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   function patchAdditionalOptionTranslations(){
     if(typeof renderRetRow==='function') renderRetRow();
     const noConT=document.getElementById('lbl-nocon-t'); if(noConT) noConT.textContent = lang==='en' ? 'No Rental Contract' : 'ไม่ต้องการทำสัญญาการเช่า';
-    const noConD=document.getElementById('lbl-nocon-d'); if(noConD) noConD.textContent = lang==='en' ? 'Deposit increases (฿2,000→฿5,000 / ฿4,000→฿8,000)' : 'ค่ามัดจำเพิ่มขึ้น (฿2,000→฿5,000 / ฿4,000→฿8,000)';
+    const noConD=document.getElementById('lbl-nocon-d'); if(noConD) noConD.textContent = lang==='en' ? 'Deposit increases (฿2,000→฿5,000 / ฿4,000→฿8,000)' : 'ค่าประกันเพิ่มขึ้น (฿2,000→฿5,000 / ฿4,000→฿8,000)';
     const mo=document.getElementById('maps-open-btn'); if(mo) mo.textContent = lang==='en' ? '🗺️ Open Google Maps' : '🗺️ เปิด Google Maps';
     const mh=document.getElementById('maps-help-btn'); if(mh) mh.textContent = lang==='en' ? '📍 How to copy your Google Maps link' : '📍 วิธีคัดลอกลิงก์ Google Maps';
     const dn=document.getElementById('delivery-note'); if(dn) dn.innerHTML = lang==='en'
       ? '* Delivery only in Bangkok & Greater Bangkok<br><br><span style="display:block;color:var(--accent);font-weight:700;">🔥 Delivery promo: 3–6 days free return* | 7+ days free round trip* | Up to THB 100/trip</span>'
-      : '* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น<br><br><span style="display:block;color:var(--accent);font-weight:700;">🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | ช่วยค่าส่งสูงสุด 100 บาท/เที่ยว</span>';
+      : '* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น<br><br><span style="display:block;color:var(--accent);font-weight:700;">🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว</span>';
   }
 
   function refreshEverythingFinal(){
@@ -8355,7 +8354,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
           unlockStep(def.next);
           setActiveStep(def.next);
         }else{
-          document.getElementById('sumContent')?.scrollIntoView({behavior:'smooth', block:'center'});
+          document.getElementById('sum-title')?.scrollIntoView({behavior:'smooth', block:'start'});
         }
       });
     });
@@ -9023,7 +9022,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       pane.appendChild(nav);
       nav.querySelector('.prev')?.addEventListener('click',()=>setActiveStep(def.prev));
       nav.querySelector('.next')?.addEventListener('click',()=>{
-        if(def.next){ if(!def.ready) return; unlockStep(def.next); setActiveStep(def.next); } else { document.getElementById('sumContent')?.scrollIntoView({behavior:'smooth',block:'center'}); }
+        if(def.next){ if(!def.ready) return; unlockStep(def.next); setActiveStep(def.next); } else { document.getElementById('sum-title')?.scrollIntoView({behavior:'smooth',block:'start'}); }
       });
     });
   }
@@ -9372,17 +9371,17 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     contractLink:(window.T&&window.T.en&&window.T.en.contractLink)||'https://forms.gle/92PBGXEHMQhtPov48'
   } : {
     secTag:'คำนวณ',secH:'เช็คคิว & คำนวณค่าเช่า',secP:'ขั้นต่ำ 3 วัน | ราคาเรทบุคคล',
-    guideH:'วิธีใช้งานส่วนเช็คคิว & คำนวณค่าเช่า',guideP:'ใช้งานตาม 4 แท็บด้านบน เริ่มจากเลือกเครื่องและวันเช่าก่อน แล้วค่อยกรอกตัวเลือกเพิ่มเติม เลือกเกม และดูสรุปค่าเช่า',
+    guideH:'วิธีใช้งานส่วนเช็คคิว & คำนวณค่าเช่า',guideP:'ใช้งานตาม 4 แท็บด้านล่าง เริ่มจากเลือกเครื่องและวันเช่าก่อน แล้วค่อยกรอกตัวเลือกเพิ่มเติม เลือกเกม และดูสรุปค่าเช่า',
     tabs:['เลือกเครื่อง/วันที่','ตัวเลือกเพิ่มเติม','เลือกเกม','สรุปค่าเช่า'],
     step1:'เลือกเครื่อง + เลือกวัน',step1sub:'เลือกเครื่องเกมและช่วงวันเช่าจากบล็อกนี้โดยตรง แล้วค่อยไปขั้นตอนถัดไป',menu:'เมนู',closeMenu:'ซ่อนเมนู',
     cat:'ประเภท',catAll:'-- ทั้งหมด --',console:'เครื่องเกม',start:'วันที่เริ่มเช่า',end:'วันคืนเครื่อง',ready:'ช่วงวันพร้อมแล้ว ไปขั้นตอนถัดไปได้',need:'เลือกเครื่องและช่วงวันที่ถูกต้องก่อน',availableNow:'เครื่องว่างตามวันที่เลือก',min3:'ขั้นต่ำเช่า 3 วัน',
     pickerTitle:'📅 ปฏิทินเช็คคิวเครื่อง',pickerStart:'เลือกวันที่เริ่มเช่า',pickerEnd:'เลือกวันคืนเครื่อง',pickerPrev:'เดือนก่อน',pickerNext:'เดือนถัดไป',pickerConfirm:'ตกลง',other:'โปรดเลือกวันอื่นแทน',available:'ว่าง',unavailable:'ไม่ว่าง',partial:'เช่าได้สั้นกว่า',disabled:'ผ่านมาแล้ว / เลือกไม่ได้',minLock:'เลือกไม่ได้ ขั้นต่ำ 3 วัน',startDay:'เริ่มเช่า',endDay:'คืนเครื่อง',inRange:'ช่วงเช่า',checking:'กำลังเช็คคิว...',pickConsoleFirst:'กรุณาเลือกเครื่องเกมก่อน',daysSelected:'วันที่เลือก',confirmRent:'ตกลง (เช่า {days} วัน)',dateUnset:'เลือกวัน',datePreview:'กำลังเลือก',dateSelected:'เลือกแล้ว',
-    step2:'ตัวเลือกเพิ่มเติม',ret:'ลูกค้าเก่า',retSub:'รับส่วนลด 10% ค่าเช่า',noCon:'ไม่ต้องการทำสัญญาการเช่า',noConSub:'ค่ามัดจำเพิ่มขึ้น (฿2,000→฿5,000 / ฿4,000→฿8,000)',payment:'ตัวเลือกการชำระเงิน',maps:'Google Maps ที่อยู่จัดส่ง (เช็คค่าจัดส่งก่อนตัดสินใจ)',mapsNote:'ใส่ลิงก์ Google Maps เพื่อให้ร้านเช็คค่าส่งเบื้องต้นได้เร็วขึ้น',mapsBtn:'🗺️ เปิด Google Maps',mapsHow:'📍 วิธีคัดลอกลิงก์ Google Maps',delivery:'* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น',promo:'🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | ช่วยค่าส่งสูงสุด 100 บาท/เที่ยว',
+    step2:'ตัวเลือกเพิ่มเติม',ret:'ลูกค้าเก่า',retSub:'รับส่วนลด 10% ค่าเช่า',noCon:'ไม่ต้องการทำสัญญาการเช่า',noConSub:'ค่าประกันเพิ่มขึ้น (฿2,000→฿5,000 / ฿4,000→฿8,000)',payment:'ตัวเลือกการชำระเงิน',maps:'Google Maps ที่อยู่จัดส่ง (เช็คค่าจัดส่งก่อนตัดสินใจ)',mapsNote:'ใส่ลิงก์ Google Maps เพื่อให้ร้านเช็คค่าส่งเบื้องต้นได้เร็วขึ้น',mapsBtn:'🗺️ เปิด Google Maps',mapsHow:'📍 วิธีคัดลอกลิงก์ Google Maps',delivery:'* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น',promo:'🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว',
     step3:'เลือกเกม',step3sub:'เลือกเกมสำหรับการเช่ารอบนี้ได้ที่ขั้นตอนนี้ หากเครื่องรุ่นนี้ไม่มีคลังเกม สามารถข้ามขั้นตอนได้',openGames:'🎮 เปิดหน้าเลือกเกม',clear:'🗑️ ล้างทั้งหมด',later:'แจ้งรายชื่อเกมภายหลัง',noCatalog:'เครื่องรุ่นนี้ไม่ใช้ตัวเลือกเกมในระบบ',
     step4:'สรุปค่าเช่า',included:'สิ่งที่รวมในชุด',contractLbl:'ทำสัญญาการเช่าผ่านลิงก์',contractNote:'กรุณากรอกสัญญาก่อนนัดส่งเครื่อง',needContract:'ต้องทำสัญญาการเช่า หรือไปเลือกที่ Additional ว่า “ไม่ต้องการทำสัญญาการเช่า”',warning:'ราคาด้านล่างนี้ เป็นราคาเช่าในนามบุคคลเท่านั้น ไม่สามารถออกใบกำกับภาษีหรือใบเสร็จรับเงินได้ หากต้องการใบกำกับภาษี/ใบเสร็จ จะเป็นเรทบริษัท กรุณาติดต่อทาง Line: @ajgame หรือ โทร. 081-624-4715 🙏',
-    slConsole:'เครื่อง',slSection:'หมวดเครื่อง',slStart:'วันที่เริ่มเช่า',slEnd:'วันคืนเครื่อง',slDuration:'ระยะเวลา',slRental:'ค่าเช่า',slDeposit:'ค่ามัดจำ',slDelivery:'ค่าจัดส่ง',slTotal:'ยอดรวมทั้งหมด',slUpfront:'โอนล่วงหน้า (ยืนยันการจอง)',slOD:'จ่ายตอนของถึง',slCash:'จ่ายตอนของถึง',slPayment:'การชำระเงิน',
+    slConsole:'เครื่อง',slSection:'หมวดเครื่อง',slStart:'วันที่เริ่มเช่า',slEnd:'วันคืนเครื่อง',slDuration:'ระยะเวลา',slRental:'ค่าเช่า',slDeposit:'ค่าประกัน',slDelivery:'ค่าจัดส่ง',slTotal:'ยอดรวมทั้งหมด',slUpfront:'โอนล่วงหน้า (ยืนยันการจอง)',slOD:'จ่ายตอนของถึง',slCash:'จ่ายตอนของถึง',slPayment:'การชำระเงิน',
     copy:'📋 Copy ข้อความจองเช่า',copied:'คัดลอกแล้ว!',line:'ส่งข้อความทาง Line',wa:'ส่งข้อความทาง WhatsApp',lineHint:'แล้วส่งไปที่ Line: <b>@ajgame</b> เพื่อยืนยัน',
-    back:'ย้อนกลับ',nextStep:'ไปขั้นตอนถัดไป →',done:'เสร็จแล้ว',day:'วัน',wk:'สัปดาห์',deposit:'มัดจำ',sectionOther:'อื่น ๆ',payBank:'โอนบัญชีธนาคารไทย',payWise:'Wise',payCash:'เงินสด (บาทไทย)',noDates:'เลือกเครื่องและวันที่เพื่อดูสรุปค่าเช่า',discount:'ส่วนลดลูกค้าเก่า 10%',noConLabel:'ไม่ทำสัญญา',
+    back:'ย้อนกลับ',nextStep:'ไปขั้นตอนถัดไป →',done:'เสร็จแล้ว',day:'วัน',wk:'สัปดาห์',deposit:'มัดจำ',sectionOther:'อื่น ๆ',payBank:'โอนบัญชีธนาคารไทย',payWise:'Wise',payCash:'เงินสด (บาทไทย)',noDates:'เลือกเครื่องและวันที่เพื่อดูสรุปค่าเช่า',discount:'ส่วนลดลูกค้าเก่า 10%',noConLabel:'(ไม่ทำสัญญา)',
     contractLink:(window.T&&window.T.th&&window.T.th.contractLink)||'https://forms.gle/Y6xfFaMyuJ9REhtz9'
   };}
 
@@ -9517,13 +9516,34 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     return stepReady(1);
   }
 
+  function scrollToSummaryHeading(){
+    const target=q('#ajxSummaryTitle') || q('#ajxPane4 h4') || q('#sum-title') || q('#flowSummaryCard') || q('#calculator .sum-card');
+    if(!target) return;
+    const nav=q('nav');
+    const navH=nav ? nav.offsetHeight : 64;
+    const extra=24;
+    const y=window.pageYOffset + target.getBoundingClientRect().top - navH - extra;
+    window.scrollTo({top:Math.max(0,y), behavior:'smooth'});
+    setTimeout(()=>{
+      const y2=window.pageYOffset + target.getBoundingClientRect().top - navH - extra;
+      window.scrollTo({top:Math.max(0,y2), behavior:'auto'});
+    },260);
+  }
+
   function gotoStep(n){
     if(n<1 || n>4) return;
     if(n>1 && !stepReady(n-1)) return;
     state.step=n;
     render();
-    const pane=q('#ajxPane'+n);
-    setTimeout(()=>pane?.scrollIntoView({behavior:'smooth', block:'center'}),50);
+    setTimeout(()=>{
+      if(n===4){
+        if(typeof window.scrollSummaryHeader==='function') window.scrollSummaryHeader(true);
+        else scrollToSummaryHeading();
+        return;
+      }
+      const pane=q('#ajxPane'+n);
+      pane?.scrollIntoView({behavior:'smooth', block:'center'});
+    },60);
   }
 
   function navBtns(prev,next){
@@ -9664,9 +9684,14 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     return {c,days,bundleName,rental,deposit,addons,addonLines,disc,total,upfront,onDelivery,payment};
   }
 
+  function noContractFlagHtml(){
+    if(!state.noCon) return '';
+    return `<span class="ajx-no-contract-flag-inline" style="font-size:12px;color:#aa5500;font-weight:800;white-space:nowrap;"> ${isEn()?'(No contract)':'(ไม่ทำสัญญา)'}</span>`;
+  }
+
   function renderStep4(){
     const s=calcSummary();
-    if(!s) return `<div class="ajx-pane ${state.step===4?'active':''}" id="ajxPane4"><h4>${tt().step4}</h4><div class="ajx-note">${tt().noDates}</div>${navBtns(3,0)}</div>`;
+    if(!s) return `<div class="ajx-pane ${state.step===4?'active':''}" id="ajxPane4"><h4 id="ajxSummaryTitle" style="scroll-margin-top:120px">${tt().step4}</h4><div class="ajx-note">${tt().noDates}</div>${navBtns(3,0)}</div>`;
     const c=s.c, img=getImage(c), details=detailsFor(c);
     const deadlineDate = state.start ? fmtIso(addDays(parseDate(state.start), -1)) : '';
     const gameSummaryHtml = state.notifyLater
@@ -9674,31 +9699,22 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       : (state.games.length ? `<div class="ajx-game-summary-box"><div class="ajx-game-summary-title">${isEn()?'Selected games':'รายการเกมที่เลือก'}</div><div class="ajx-game-summary-sub">${isEn()?'These games will be added to the booking message automatically.':'รายการนี้จะถูกแนบไปกับข้อความจองเช่าอัตโนมัติ'}</div><div class="ajx-game-list">${state.games.map((g,i)=>`<div class="ajx-game-item">${i+1}. ${g.name}${g.platformName?` (${g.platformName})`:''}</div>`).join('')}</div></div>` : '');
 
     return `<div class="ajx-pane ${state.step===4?'active':''}" id="ajxPane4">
-      <h4>${tt().step4}</h4>
-      <div class="ajx-summary-soft">
-        <div class="ajx-summary-hero">
-          <div class="ajx-summary-hero-img">${img?`<img src="${img}" alt="">`:'🎮'}</div>
-          <div><div style="display:inline-flex;align-items:center;gap:6px;background:rgba(204,0,0,.06);border:1px solid rgba(204,0,0,.14);color:var(--accent);padding:4px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.4px;margin-bottom:6px">🔥 ${sectionLabel(c)}</div><div class="ajx-summary-hero-name">${cName(c)}</div></div>
-        </div>
-      </div>
-      <div class="ajx-summary-soft">
-        <div style="font-size:18px;font-weight:900;margin-bottom:8px">${tt().included}</div>
-        ${details.length ? details.map(x=>`<div style="font-size:13px;color:var(--text2);line-height:1.75;margin-top:4px">• ${x}</div>`).join('') : `<div style="font-size:13px;color:var(--text3);line-height:1.7">-</div>`}
-      </div>
+      <h4 id="ajxSummaryTitle" style="scroll-margin-top:120px">${tt().step4}</h4>
+
       <div class="ajx-warning">⚠️ ${tt().warning}</div>
       ${!state.noCon?`<div class="ajx-contract"><div style="font-size:13px;color:#176331;font-weight:800;line-height:1.75;margin-bottom:10px">⚠️ ${tt().needContract}</div><a href="${tt().contractLink}" target="_blank">${tt().contractLbl}</a><div style="font-size:12px;color:#558855;margin-top:5px">${tt().contractNote}</div></div>`:''}
       <div class="ajx-summary-soft">
         <div class="ajx-summary-lines">
-          <div class="ajx-srow"><span class="l">${tt().slConsole}</span><span class="v">${cName(c)}</span></div>
-          <div class="ajx-srow"><span class="l">${tt().slSection}</span><span class="v">${sectionLabel(c)}</span></div>
+          <div class="ajx-srow"><span class="l">${tt().slConsole}</span><span class="v" style="display:flex;align-items:center;justify-content:flex-end;gap:10px;">${img?`<span style=\"width:42px;height:42px;border-radius:10px;background:#fff;border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;overflow:hidden;flex:0 0 42px;\"><img src=\"${img}\" alt=\"\" style=\"width:100%;height:100%;object-fit:contain;padding:4px;\"></span>`:'🎮'}<span>${cName(c)}</span></span></div>
+          <div class="ajx-srow"><span class="l">${tt().included}</span><span class="v" style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;text-align:right;">${details.length ? details.map(x=>`<div>${x}</div>`).join('') : '-'}</span></div>\n          <div class="ajx-srow"><span class="l">${tt().slSection}</span><span class="v">${sectionLabel(c)}</span></div>
           ${isEn()?`<div class="ajx-srow"><span class="l">${tt().slPayment}</span><span class="v">${s.payment==='bank'?tt().payBank:s.payment==='wise'?tt().payWise:tt().payCash}</span></div>`:''}
           <div class="ajx-srow"><span class="l">${tt().slStart}</span><span class="v">${formatDisplay(state.start)}</span></div>
           <div class="ajx-srow"><span class="l">${tt().slEnd}</span><span class="v">${formatDisplay(state.end)}</span></div>
           <div class="ajx-srow"><span class="l">${tt().slDuration}</span><span class="v">${s.days} ${isEn()?'days':'วัน'}</span></div>
           <div class="ajx-srow"><span class="l">${tt().slRental}</span><span class="v">${fmtMoney(s.rental)}</span></div>
           ${s.addonLines.map(a=>`<div class="ajx-srow"><span class="l">${a.name}</span><span class="v">${fmtMoney(a.cost)}</span></div>`).join('')}
-          ${state.ret?`<div class="ajx-srow"><span class="l">${tt().discount}</span><span class="v">-${fmtMoney(s.disc)}</span></div>`:''}
-          <div class="ajx-srow"><span class="l">${tt().slDeposit}</span><span class="v">${fmtMoney(s.deposit)}</span></div>
+          ${state.ret?`<div class="ajx-srow"><span class="l">${tt().discount}</span><span class="v" style="color:#228833;">-${fmtMoney(s.disc)}</span></div>`:''}
+          <div class="ajx-srow"><span class="l">${tt().slDeposit}</span><span class="v">${fmtMoney(s.deposit)}${noContractFlagHtml()}</span></div>
           <div class="ajx-srow"><span class="l">${tt().slDelivery}</span><span class="v">${isEn()?'Delivery fee confirmed in chat':'ค่าส่งแจ้งทางแชท'}</span></div>
           <div class="ajx-srow total"><span class="l">${tt().slTotal}</span><span class="v">${fmtMoney(s.total)}</span></div>
         </div>
@@ -9840,6 +9856,13 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     const s=calcSummary(); if(!s) return;
     const c=s.c;
     const deadlineDate = state.start ? fmtIso(addDays(parseDate(state.start), -1)) : '';
+    const noContractSuffix = state.noCon ? (isEn() ? ' (No contract)' : ' (ไม่ทำสัญญา)') : '';
+    const thContractLines = state.noCon
+      ? ['⚠️ ลูกค้าเลือก: ไม่ทำสัญญาการเช่า', 'การจองนี้เป็นแบบไม่ทำสัญญาการเช่า']
+      : ['📝 กรุณาทำสัญญาการเช่าก่อนนัดส่งเครื่อง', `${tt().contractLink}`, 'หากไม่ต้องการทำสัญญา ให้ไปเลือกที่ Additional ว่า ไม่ต้องการทำสัญญาการเช่า'];
+    const enContractLines = state.noCon
+      ? ['⚠️ Customer selected: No Rental Contract', 'This booking will proceed without a rental contract.']
+      : ['📝 Please complete the rental contract before delivery', `${tt().contractLink}`, 'If you do not want a contract, select No Rental Contract in Additional.'];
 
     const gameLines = (()=>{
       if(state.notifyLater){
@@ -9867,15 +9890,13 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       `  - ค่าเช่า: ${fmtMoney(s.rental)}`,
       ...s.addonLines.map(a=>`  - ${a.name}: ${fmtMoney(a.cost)}`),
       state.ret?`  - ${tt().discount}: -${fmtMoney(s.disc)}`:null,
-      `  - ค่ามัดจำ: ${fmtMoney(s.deposit)}`,
+      `  - ค่าประกัน: ${fmtMoney(s.deposit)}${noContractSuffix}`,
       '',
       `💰 ยอดรวมทั้งหมด: ${fmtMoney(s.total)}`,
       `💳 โอนล่วงหน้า (ยืนยันจอง): ${fmtMoney(s.upfront)}`,
       `🚚 จ่ายตอนของถึง: ${fmtMoney(s.onDelivery)}`,
       '',
-      '📝 กรุณาทำสัญญาการเช่าก่อนนัดส่งเครื่อง',
-      `${tt().contractLink}`,
-      'หากไม่ต้องการทำสัญญา ให้ไปเลือกที่ Additional ว่า ไม่ต้องการทำสัญญาการเช่า',
+      ...thContractLines,
       '',
       'ขอบคุณครับ/ค่ะ 🙏'
     ];
@@ -9899,14 +9920,12 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       `  - Rental: ${fmtMoney(s.rental)}`,
       ...s.addonLines.map(a=>`  - ${a.name}: ${fmtMoney(a.cost)}`),
       state.ret?`  - ${tt().discount}: -${fmtMoney(s.disc)}`:null,
-      `  - Deposit: ${fmtMoney(s.deposit)}`,
+      `  - Deposit: ${fmtMoney(s.deposit)}${noContractSuffix}`,
       '',
       `💰 Total: ${fmtMoney(s.total)}`,
       ...enPaymentLines,
       '',
-      '📝 Please complete the rental contract before delivery',
-      `${tt().contractLink}`,
-      'If you do not want a contract, select No Rental Contract in Additional.',
+      ...enContractLines,
       '',
       'Thank you! 🙏'
     ];
@@ -11001,5 +11020,182 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 })();
 </script>
 
+
+<style id="aj-summary-layout-v3">
+.sum-row .sv img{width:100%;height:100%;object-fit:contain;padding:4px;}
+#ajCalcGuideStandalone .aj-guide-summary{cursor:pointer;}
+#ajCalcGuideStandalone .aj-guide-hint{font-weight:700;}
+</style>
+<script id="aj-ui-patch-v3">
+(function(){
+  function patchGuideHint(){
+    var s=document.querySelector('#ajCalcGuideStandalone .aj-guide-summary');
+    var h=document.querySelector('#ajCalcGuideStandalone .aj-guide-hint');
+    if(s) s.title=(document.documentElement.lang==='en'||window.lang==='en')?'Click to expand':'คลิกเพื่อขยาย';
+    if(h) h.textContent=(document.documentElement.lang==='en'||window.lang==='en')?'Click to expand':'คลิกเพื่อขยาย';
+  }
+  function patchLegacySummary(){
+    var sum=document.getElementById('sumContent');
+    if(!sum) return;
+    sum.querySelectorAll('.sum-hero,.sum-detail-list').forEach(function(el){ el.remove(); });
+  }
+  function run(){ patchGuideHint(); patchLegacySummary(); }
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(run,0); setTimeout(run,500); });
+  window.addEventListener('load', function(){ setTimeout(run,200); setTimeout(run,1000); });
+  var _toggleLang=window.toggleLang;
+  if(typeof _toggleLang==='function' && !_toggleLang.__ajUiPatchV3){
+    window.toggleLang=function(){ var r=_toggleLang.apply(this,arguments); setTimeout(run,0); setTimeout(run,200); return r; };
+    window.toggleLang.__ajUiPatchV3=true;
+  }
+})();
+</script>
+
+
+<script id="aj-summary-scroll-patch-v1">
+(function(){
+  function scrollSummaryHeader(smooth=true){
+    const target = document.getElementById('ajxPane4') || document.getElementById('ajxSummaryTitle') || document.querySelector('#ajxPane4 h4') || document.getElementById('sum-title') || document.querySelector('.sum-ttl') || document.getElementById('flowSummaryCard') || document.querySelector('#calculator .sum-card');
+    if(!target) return;
+    const nav = document.querySelector('nav');
+    const navH = nav ? nav.offsetHeight : 60;
+    const extra = 16;
+    const y = window.pageYOffset + target.getBoundingClientRect().top - navH - extra;
+    window.scrollTo({top: Math.max(0, y), behavior: smooth ? 'smooth' : 'auto'});
+  }
+  window.scrollSummaryHeader = scrollSummaryHeader;
+
+  const origGoToTab = window.goToTab;
+  if(typeof origGoToTab === 'function'){
+    window.goToTab = function(step){
+      const out = origGoToTab.apply(this, arguments);
+      if(Number(step) === 4){
+        requestAnimationFrame(()=>setTimeout(()=>scrollSummaryHeader(true), 120));
+      }
+      return out;
+    };
+  }
+
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('.calc-next-btn, #stickySummaryBtn');
+    if(!btn) return;
+    const txt = (btn.textContent || '').trim();
+    const wantsSummary = /สรุปค่าเช่า|ดูสรุป|Rental Summary|View Summary/i.test(txt);
+    if(wantsSummary){
+      requestAnimationFrame(()=>setTimeout(()=>scrollSummaryHeader(true), 120));
+    }
+  }, true);
+
+  const origRenderPaneNextButtons = window.renderPaneNextButtons;
+  if(typeof origRenderPaneNextButtons === 'function'){
+    window.renderPaneNextButtons = function(){
+      const out = origRenderPaneNextButtons.apply(this, arguments);
+      document.querySelectorAll('#calcPane3 .calc-next-btn, #calcPane4 .calc-next-btn').forEach(btn=>{
+        if(/ไปขั้นตอนถัดไป|Next step|เสร็จแล้ว|Done/i.test(btn.textContent || '')){
+          btn.onclick = function(){ scrollSummaryHeader(true); };
+        }
+      });
+      return out;
+    };
+  }
+
+  window.addEventListener('load', function(){
+    setTimeout(function(){
+      if(typeof window.renderPaneNextButtons === 'function') window.renderPaneNextButtons();
+    }, 300);
+  });
+})();
+</script>
+
+<style id="aj-final-summary-tune-v4">
+#sum-title{scroll-margin-top:120px;}
+.contract-wrap.summary-contract,.ajx-contract{display:none !important;}
+</style>
+<script id="aj-final-summary-tune-v4-script">
+(function(){
+  function isNoContractSelected(){
+    var a=document.getElementById('noConChk');
+    var b=document.getElementById('ajxNoCon');
+    return !!((a && a.checked) || (b && b.checked) || (window.state && window.state.noCon));
+  }
+  function depositSuffixHtml(){
+    var isEn=(document.documentElement.lang==='en'||window.lang==='en');
+    if(isEn) return ' <span style="font-size:12px;color:#aa5500;font-weight:800;">(No contract)</span>';
+    return ' <span style="font-size:12px;color:#aa5500;font-weight:800;">(ไม่ทำสัญญา)</span>';
+  }
+  function normalizeLabelText(s){
+    return (s||'').replace(/\s+/g,' ').trim();
+  }
+  function patchSummaryRows(){
+    document.querySelectorAll('.ajx-srow, .sum-row').forEach(function(row){
+      var l = row.querySelector('.l, .sl');
+      var v = row.querySelector('.v, .sv');
+      if(!l || !v) return;
+      var label = normalizeLabelText(l.textContent);
+      if(/ค่ามัดจำ|Deposit/i.test(label)){
+        if(/ค่ามัดจำ/.test(label)) l.textContent='ค่าประกัน';
+        if(/Deposit/i.test(label) && !/Security deposit/i.test(label)) l.textContent='Deposit';
+        if(isNoContractSelected() && !v.querySelector('.aj-no-contract-flag')){
+          var span=document.createElement('span');
+          span.className='aj-no-contract-flag';
+          span.style.cssText='font-size:12px;color:#aa5500;font-weight:800;white-space:nowrap;';
+          span.innerHTML=(document.documentElement.lang==='en'||window.lang==='en')?' (No contract)':' (ไม่ทำสัญญา)';
+          v.appendChild(span);
+        }
+      }
+    });
+  }
+  function scrollSummaryHeader(smooth=true){
+    var target = document.getElementById('ajxPane4') || document.getElementById('ajxSummaryTitle') || document.querySelector('#ajxPane4 h4') || document.getElementById('sum-title') || document.querySelector('.sum-ttl') || document.getElementById('flowSummaryCard') || document.querySelector('#calculator .sum-card');
+    if(!target) return;
+    var nav = document.querySelector('nav');
+    var navH = nav ? nav.offsetHeight : 64;
+    var extra = 16;
+    var y = window.pageYOffset + target.getBoundingClientRect().top - navH - extra;
+    window.scrollTo({top: Math.max(0, y), behavior: smooth ? 'smooth' : 'auto'});
+    setTimeout(function(){
+      var y2 = window.pageYOffset + target.getBoundingClientRect().top - navH - extra;
+      window.scrollTo({top: Math.max(0, y2), behavior:'auto'});
+    }, 260);
+  }
+  window.scrollSummaryHeader = scrollSummaryHeader;
+  function run(){ patchSummaryRows(); }
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(run,0); setTimeout(run,400); });
+  window.addEventListener('load', function(){ setTimeout(run,200); setTimeout(run,900); });
+  document.addEventListener('change', function(e){
+    if(e.target && (e.target.id==='noConChk' || e.target.id==='ajxNoCon')) setTimeout(run,50);
+  }, true);
+  document.addEventListener('click', function(e){
+    var btn=e.target.closest('.calc-next-btn, #stickySummaryBtn, .final-nav-btn.next, [data-next="4"], [data-done]');
+    if(!btn) return;
+    var txt=(btn.textContent||'').trim();
+    if(btn.matches('[data-next="4"], [data-done]') || /สรุปค่าเช่า|ดูสรุป|Rental Summary|View Summary|ไปขั้นตอนถัดไป|Next step|เสร็จแล้ว|Done/i.test(txt)){
+      requestAnimationFrame(function(){ setTimeout(function(){ scrollSummaryHeader(true); run(); }, 160); });
+    }
+  }, true);
+  var origGotoStep=window.gotoStep;
+  if(typeof origGotoStep==='function' && !origGotoStep.__ajV4){
+    window.gotoStep=function(step){
+      var out=origGotoStep.apply(this, arguments);
+      if(Number(step)===4){
+        requestAnimationFrame(function(){ setTimeout(function(){ scrollSummaryHeader(true); run(); }, 170); });
+      }
+      return out;
+    };
+    window.gotoStep.__ajV4=true;
+  }
+  var origGoToTab=window.goToTab;
+  if(typeof origGoToTab==='function' && !origGoToTab.__ajV4){
+    window.goToTab=function(step){ var out=origGoToTab.apply(this, arguments); if(Number(step)===4){ requestAnimationFrame(function(){ setTimeout(function(){ scrollSummaryHeader(true); run(); }, 170); }); } return out; };
+    window.goToTab.__ajV4=true;
+  }
+  var origSetActiveStep=window.setActiveStep;
+  if(typeof origSetActiveStep==='function' && !origSetActiveStep.__ajV4){
+    window.setActiveStep=function(step){ var out=origSetActiveStep.apply(this, arguments); if(Number(step)===4){ requestAnimationFrame(function(){ setTimeout(function(){ scrollSummaryHeader(true); run(); }, 170); }); } return out; };
+    window.setActiveStep.__ajV4=true;
+  }
+})();
+</script>
+
 </body>
+
 </html>
