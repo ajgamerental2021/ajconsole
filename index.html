@@ -10545,5 +10545,320 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 })();
 </script>
 
+
+<script id="aj-final-gist-sync-fix">
+(function(){
+  const FIXED_GIST_ID = '4e8fb8c04f38df0538dc9172da99887a';
+  const GIST_FILE = 'aj_rental_data.json';
+  const HOME_KEY = 'aj_home_sections_v1';
+  const GIST_ID_KEY = 'aj_gist_id';
+  const TOKEN_KEY = 'aj_gist_token';
+  const AUTO_PUSH_DELAY = 1200;
+
+  try{ window.DEFAULT_GIST_ID = FIXED_GIST_ID; }catch(e){}
+  try{ localStorage.setItem(GIST_ID_KEY, FIXED_GIST_ID); }catch(e){}
+
+  let autoPushTimer = null;
+  let autoPushInFlight = false;
+  let autoPushQueued = false;
+  let applyingRemote = false;
+
+  function getToken(){
+    try{ return (localStorage.getItem(TOKEN_KEY) || '').trim(); }catch(e){ return ''; }
+  }
+  function getGistId(){ return FIXED_GIST_ID; }
+  function saveGistId(){
+    try{ localStorage.setItem(GIST_ID_KEY, FIXED_GIST_ID); }catch(e){}
+    return FIXED_GIST_ID;
+  }
+  function saveToken(token){
+    try{ localStorage.setItem(TOKEN_KEY, String(token || '').trim()); }catch(e){}
+  }
+  function status(setterState, msg, adminOnly){
+    try{
+      const statusEl = document.getElementById('ghAdminStatus');
+      if(statusEl && !adminOnly) statusEl.textContent = msg;
+      if(typeof window.ghSetBar === 'function') window.ghSetBar(setterState, msg, true);
+    }catch(e){}
+  }
+  function syncUi(){
+    try{
+      const gidEl = document.getElementById('ghGistIdIn');
+      const tokEl = document.getElementById('ghTokenIn');
+      const dispEl = document.getElementById('gistIdDisplay');
+      if(gidEl) gidEl.value = FIXED_GIST_ID;
+      if(dispEl) dispEl.textContent = FIXED_GIST_ID;
+      if(tokEl){
+        const tok = getToken();
+        if(tok && !tokEl.value) tokEl.value = tok;
+      }
+    }catch(e){}
+  }
+  function normalizeConsoleArray(value){
+    if(Array.isArray(value)) return value;
+    if(value && typeof value === 'object') return Object.values(value);
+    return [];
+  }
+  function safeObj(value){
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  }
+  function collectHomeData(){
+    try{
+      if(typeof window.getCurrentHomeData === 'function'){
+        const data = window.getCurrentHomeData();
+        if(data && typeof data === 'object') return data;
+      }
+    }catch(e){}
+    try{
+      return JSON.parse(localStorage.getItem(HOME_KEY) || 'null') || null;
+    }catch(e){
+      return null;
+    }
+  }
+  function persistLocalOnly(){
+    try{ saveGistId(); }catch(e){}
+    try{ if(typeof window.save === 'function') window.save.__ajOriginal ? window.save.__ajOriginal() : window.save(); }catch(e){}
+    try{
+      const hd = collectHomeData();
+      if(hd) localStorage.setItem(HOME_KEY, JSON.stringify(hd));
+    }catch(e){}
+  }
+  function buildPayload(){
+    let retFlag = null;
+    try{ retFlag = !!window.retEnabled; }catch(e){}
+    if(retFlag === null){
+      try{ retFlag = localStorage.getItem('aj_ret_enabled') === 'true'; }catch(e){ retFlag = false; }
+    }
+    return {
+      consoles: normalizeConsoleArray(window.consoles),
+      images: safeObj(window.images),
+      homeData: collectHomeData(),
+      retEnabled: !!retFlag,
+      featureSettings: { returningDiscountEnabled: !!retFlag }
+    };
+  }
+  async function fetchRemote(){
+    const headers = {};
+    const token = getToken();
+    if(token) headers.Authorization = `token ${token}`;
+    const resp = await fetch(`https://api.github.com/gists/${FIXED_GIST_ID}?t=${Date.now()}`, {
+      headers,
+      cache: 'no-store'
+    });
+    if(!resp.ok) throw new Error(`Gist fetch failed: ${resp.status}`);
+    const json = await resp.json();
+    const raw = json && json.files && json.files[GIST_FILE] && json.files[GIST_FILE].content;
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }
+  function applyRemote(data){
+    if(!data || typeof data !== 'object') return false;
+    applyingRemote = true;
+    try{
+      if(data.consoles) window.consoles = normalizeConsoleArray(data.consoles);
+      if(data.images) window.images = safeObj(data.images);
+      const hasRet = Object.prototype.hasOwnProperty.call(data, 'retEnabled')
+        || (data.featureSettings && Object.prototype.hasOwnProperty.call(data.featureSettings, 'returningDiscountEnabled'));
+      const nextRet = Object.prototype.hasOwnProperty.call(data, 'retEnabled')
+        ? !!data.retEnabled
+        : !!(data.featureSettings && data.featureSettings.returningDiscountEnabled);
+
+      try{ localStorage.setItem('aj_consoles', JSON.stringify(normalizeConsoleArray(window.consoles))); }catch(e){}
+      try{ localStorage.setItem('aj_images', JSON.stringify(safeObj(window.images))); }catch(e){}
+      try{ localStorage.setItem(GIST_ID_KEY, FIXED_GIST_ID); }catch(e){}
+      if(data.homeData){
+        try{ localStorage.setItem(HOME_KEY, JSON.stringify(data.homeData)); }catch(e){}
+      }
+      if(hasRet){
+        try{ window.retEnabled = nextRet; }catch(e){}
+        try{ localStorage.setItem('aj_ret_enabled', nextRet ? 'true' : 'false'); }catch(e){}
+      }
+      try{ if(typeof window.syncHomeFromStorage === 'function') window.syncHomeFromStorage(); }catch(e){}
+      try{ if(typeof window.renderAll === 'function') window.renderAll(); }catch(e){}
+      try{ if(typeof window.syncMapUiText === 'function') window.syncMapUiText(); }catch(e){}
+      try{ if(typeof window.renderAdmConsoles === 'function') window.renderAdmConsoles(); }catch(e){}
+      try{
+        const retToggle = document.getElementById('retToggle');
+        if(retToggle && hasRet) retToggle.checked = nextRet;
+      }catch(e){}
+      try{ if(typeof window.renderRetRow === 'function') window.renderRetRow(); }catch(e){}
+      try{ if(typeof window.calc === 'function') window.calc(); }catch(e){}
+      syncUi();
+      return true;
+    } finally {
+      applyingRemote = false;
+    }
+  }
+
+  async function pushNow(statusEl){
+    const token = getToken();
+    const setS = (state, msg) => {
+      try{ if(statusEl) statusEl.textContent = msg; }catch(e){}
+      try{ if(typeof window.ghSetBar === 'function') window.ghSetBar(state, msg, true); }catch(e){}
+    };
+    if(!token){
+      setS('err', '❌ ยังไม่ได้ใส่ Token');
+      return false;
+    }
+    persistLocalOnly();
+    setS('sync', '⬆️ กำลัง Sync...');
+    const payload = buildPayload();
+    const resp = await fetch(`https://api.github.com/gists/${FIXED_GIST_ID}`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `token ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        files: {
+          [GIST_FILE]: { content: JSON.stringify(payload, null, 2) }
+        }
+      }),
+      cache: 'no-store'
+    });
+    const json = await resp.json().catch(() => ({}));
+    if(!resp.ok) throw new Error((json && json.message) ? json.message : resp.status);
+    saveGistId();
+    syncUi();
+    setS('ok', `✅ Sync สำเร็จ — Gist ID: ${FIXED_GIST_ID}`);
+    return true;
+  }
+
+  async function runAutoPush(){
+    if(autoPushInFlight){
+      autoPushQueued = true;
+      return;
+    }
+    if(!getToken()) return;
+    autoPushInFlight = true;
+    try{
+      await pushNow(null);
+    }catch(e){
+      try{ if(typeof window.ghSetBar === 'function') window.ghSetBar('err', '❌ Auto Sync ไม่สำเร็จ', true); }catch(_){}
+      console.error('AJ auto gist push failed', e);
+    }finally{
+      autoPushInFlight = false;
+      if(autoPushQueued){
+        autoPushQueued = false;
+        window.__ajScheduleCloudPush();
+      }
+    }
+  }
+
+  window.__ajScheduleCloudPush = function(){
+    if(applyingRemote) return;
+    if(!getToken()) return;
+    clearTimeout(autoPushTimer);
+    autoPushTimer = setTimeout(runAutoPush, AUTO_PUSH_DELAY);
+  };
+
+  window.gistGetId = getGistId;
+  window.gistGetToken = getToken;
+  window.gistSaveId = saveGistId;
+  window.gistSaveToken = saveToken;
+  window.doGhSaveCfg = function(){
+    const tokInput = document.getElementById('ghTokenIn');
+    const token = ((tokInput && tokInput.value) || '').trim();
+    saveGistId();
+    if(token) saveToken(token);
+    syncUi();
+    const statusEl = document.getElementById('ghAdminStatus');
+    if(statusEl) statusEl.textContent = '✅ บันทึกแล้ว';
+    try{ if(typeof window.ghSetBar === 'function') window.ghSetBar('ok','☁️ Gist พร้อมใช้งาน',true); }catch(e){}
+  };
+  window.gistPush = async function(statusEl){
+    try{ return await pushNow(statusEl || null); }
+    catch(e){
+      try{
+        if(statusEl) statusEl.textContent = '❌ ' + e.message;
+        if(typeof window.ghSetBar === 'function') window.ghSetBar('err', '❌ ' + e.message, true);
+      }catch(_){}
+      return false;
+    }
+  };
+  window.doGhPushAdmin = async function(){ return await window.gistPush(document.getElementById('ghAdminStatus')); };
+  window.doGhPushMain = async function(){ return await window.gistPush(null); };
+  window.doGhPull = async function(){
+    const statusEl = document.getElementById('ghAdminStatus');
+    try{
+      if(statusEl) statusEl.textContent = '⬇️ กำลังดึงข้อมูล...';
+      if(typeof window.ghSetBar === 'function') window.ghSetBar('sync','⬇️ กำลังดึงข้อมูล...',true);
+      const data = await fetchRemote();
+      if(!data){
+        if(statusEl) statusEl.textContent = '❌ ดึงล้มเหลว ตรวจสอบ Gist ID';
+        if(typeof window.ghSetBar === 'function') window.ghSetBar('err','❌ ดึงล้มเหลว',true);
+        return false;
+      }
+      applyRemote(data);
+      if(statusEl) statusEl.textContent = '✅ Pull สำเร็จ!';
+      if(typeof window.ghSetBar === 'function') window.ghSetBar('ok','✅ ข้อมูลอัปเดตแล้ว',true);
+      return true;
+    }catch(e){
+      if(statusEl) statusEl.textContent = '❌ ' + e.message;
+      if(typeof window.ghSetBar === 'function') window.ghSetBar('err','❌ ' + e.message,true);
+      return false;
+    }
+  };
+  window.gistAutoSync = async function(opts){
+    const options = opts && typeof opts === 'object' ? opts : {};
+    try{
+      saveGistId();
+      if(!options.silent && typeof window.ghSetBar === 'function') window.ghSetBar('sync','⟳ กำลังโหลดข้อมูลจาก Gist...',true);
+      const data = await fetchRemote();
+      if(data) applyRemote(data);
+      if(!options.silent && typeof window.ghSetBar === 'function'){
+        window.ghSetBar('ok', data ? '✅ โหลดข้อมูลล่าสุดจาก Gist แล้ว' : '☁️ Gist พร้อม (ไม่มีข้อมูลใหม่)', true);
+      }
+      return data;
+    }catch(e){
+      if(!options.silent && typeof window.ghSetBar === 'function') window.ghSetBar('err','❌ โหลดจาก Gist ไม่สำเร็จ',true);
+      console.error('AJ gist auto sync failed', e);
+      return null;
+    }
+  };
+
+  if(typeof window.save === 'function' && !window.save.__ajAutoCloudWrapped){
+    const originalSave = window.save;
+    const wrappedSave = function(){
+      const out = originalSave.apply(this, arguments);
+      if(!applyingRemote) window.__ajScheduleCloudPush();
+      return out;
+    };
+    wrappedSave.__ajAutoCloudWrapped = true;
+    wrappedSave.__ajOriginal = originalSave;
+    window.save = wrappedSave;
+  }
+
+  const wrapNamed = (name) => {
+    if(typeof window[name] !== 'function' || window[name].__ajAutoCloudWrapped) return;
+    const original = window[name];
+    const wrapped = function(){
+      const out = original.apply(this, arguments);
+      if(!applyingRemote) window.__ajScheduleCloudPush();
+      return out;
+    };
+    wrapped.__ajAutoCloudWrapped = true;
+    wrapped.__ajOriginal = original;
+    window[name] = wrapped;
+  };
+  wrapNamed('saveHomeData');
+  wrapNamed('saveFaqData');
+  wrapNamed('saveFaqData2');
+  wrapNamed('saveGameState');
+  wrapNamed('saveGameStore');
+
+  function init(){
+    saveGistId();
+    syncUi();
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  }else{
+    init();
+  }
+  window.addEventListener('load', init);
+})();
+</script>
+
 </body>
 </html>
