@@ -137,6 +137,39 @@ html.aj-preload-pending body::before{
 .ajx-srow.payA{background:#fff4f4;padding:12px 14px;border:1px solid rgba(204,0,0,.18);border-radius:12px;margin-top:10px}
 .ajx-srow.payB{background:#eef9f0;padding:12px 14px;border:1px solid rgba(34,136,51,.18);border-radius:12px;margin-top:8px}
 
+
+@media (max-width:760px){
+  .ajx-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;overflow:visible;padding:0;border:none;box-shadow:none;background:transparent;}
+  .ajx-tab{min-width:0;padding:11px 12px;border-radius:14px;}
+  .ajx-tab-title{font-size:13px;white-space:normal;overflow:visible;text-overflow:clip;}
+  .ajx-grid2.step1-grid,.ajx-row.step1-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+  .ajx-card{padding:12px;}
+  .ajx-label{font-size:10px;}
+  .ajx-select,.ajx-input{padding:9px 10px;font-size:13px;}
+  .ajx-modal{padding:0;align-items:stretch;justify-content:stretch;}
+  .ajx-modal-card{width:100vw;max-width:100vw;height:100vh;max-height:100vh;border-radius:0;padding:14px 14px 18px;display:flex;flex-direction:column;overflow:auto;}
+  .ajx-modal-head{margin-bottom:10px;position:sticky;top:0;background:#fff;z-index:4;padding-bottom:8px;}
+  .ajx-close{width:44px;height:44px;font-size:26px;}
+  .ajx-top-picks{position:sticky;top:56px;background:#fff;z-index:3;padding-top:4px;}
+  .ajx-top-pick .lbl{font-size:13px;}
+  .ajx-top-pick .val{font-size:20px;white-space:normal;}
+  .ajx-top-pick .sub{font-size:12px;}
+  .ajx-top-pick-arrow{font-size:34px;padding-bottom:4px;}
+  .ajx-legend{display:none;}
+  .ajx-cal-desktop-nav{display:none;}
+  .ajx-cal-months{display:flex;flex-direction:column;gap:18px;}
+  .ajx-month{padding:0;border:none;border-radius:0;box-shadow:none;background:transparent;}
+  .ajx-month h6{font-size:22px;margin:0 0 10px;position:sticky;top:154px;background:#fff;padding:10px 0 8px;z-index:2;}
+  .ajx-week,.ajx-days{gap:6px;}
+  .ajx-day{min-height:54px;border-radius:16px;}
+  .ajx-day .n{font-size:17px;}
+  .ajx-day .s{font-size:10px;}
+  .ajx-confirm-wrap{margin-top:auto;padding-bottom:max(10px,env(safe-area-inset-bottom));}
+  .ajx-confirm-btn{font-size:18px;min-height:54px;}
+  #hero.hero-collapsed{padding:10px 16px 16px;min-height:74px;}
+  .hero-menu-toggle{right:16px;bottom:12px;padding:10px 16px;font-size:14px;}
+}
+
 </style>
 <script id="aj-preload-gist">
 (function(){
@@ -750,6 +783,39 @@ footer{background:#0d0d0d;padding:30px 22px;text-align:center;}
 </style>
 
 
+
+<style id="aj-safe-mobile-fixes-v2">
+#hero,.hero-menu-toggle{display:none !important;}
+#mapsHelpOverlay:not(.open),#mapsPickerOverlay:not(.open),#adminOverlay:not(.open){display:none !important;visibility:hidden !important;pointer-events:none !important;}
+#mapsHelpOverlay:not(.open) .mclose,#mapsPickerOverlay:not(.open) .mclose,#adminOverlay:not(.open) .mclose{display:none !important;}
+@media (max-width:760px){
+  #faqPopupOverlay{display:none !important;}
+  #faqPopup{inset:0 !important;left:0 !important;top:0 !important;transform:none !important;width:100vw !important;max-width:100vw !important;height:100dvh !important;max-height:100dvh !important;border-radius:0 !important;padding:0 !important;overflow:hidden !important;z-index:1001 !important;}
+  #faqPopup.open{display:flex !important;flex-direction:column !important;}
+  #faqPopup .faq-popup-head{position:sticky !important;top:0 !important;z-index:4 !important;background:#fff !important;padding:16px 16px 12px !important;margin-bottom:0 !important;border-bottom:1px solid var(--border) !important;flex:0 0 auto !important;}
+  #faqPopup .faq-popup-head h3{font-size:20px !important;}
+  #faqPopupClose{width:40px !important;height:40px !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;}
+  #faqPopupList{flex:1 1 auto !important;overflow:auto !important;-webkit-overflow-scrolling:touch !important;padding:14px 14px calc(18px + env(safe-area-inset-bottom)) !important;background:#fff !important;}
+  #agodaCalcTabs,.calc-tabbar{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;overflow:visible !important;gap:8px !important;padding:8px !important;}
+  #agodaCalcTabs .calc-tab-btn,.calc-tabbar .calc-tab-btn{min-width:0 !important;width:100% !important;flex:1 1 auto !important;padding:10px 10px !important;}
+  #agodaCalcTabs .calc-tab-title,.calc-tabbar .calc-tab-title{font-size:12px !important;line-height:1.2 !important;white-space:normal !important;overflow:visible !important;text-overflow:clip !important;}
+  #agodaCalcTabs .calc-tab-top,.calc-tabbar .calc-tab-top{gap:6px !important;align-items:center !important;}
+  #agodaCalcTabs .calc-tab-arrow,.calc-tabbar .calc-tab-arrow{margin-left:auto !important;font-size:14px !important;}
+  .console-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:10px !important;}
+  .con-img{height:104px !important;}
+  .con-img img{padding:8px !important;}
+  .con-body{padding:10px !important;}
+  .con-name{font-size:12px !important;margin-bottom:6px !important;}
+  .price-row{gap:4px !important;margin-bottom:6px !important;}
+  .pc{padding:4px 7px !important;}
+  .pc .pv{font-size:12px !important;}
+  .dep-line,.device-detail{font-size:10px !important;line-height:1.35 !important;}
+  .btn-games{padding:10px 8px !important;font-size:12px !important;border-radius:9px !important;}
+  .console-group-head{padding:10px 12px !important;}
+  .console-group-title{font-size:15px !important;}
+}
+</style>
+
 </head>
 <body>
 <button type="button" class="mobile-step-fab" id="mobileStepFab"></button>
@@ -1242,7 +1308,7 @@ function availabilityText(){
     checkingTitle:'Checking the latest console queue...',
     checkingBody:'Please wait a moment while the system refreshes the latest inventory queue.',
     errorTitle:'Could not verify console availability',
-    errorBody:'Live queue check timed out. You can try again, or continue and confirm the queue in chat.',
+    errorBody:'Availability check timed out. You can try again, or continue and confirm the queue in chat.',
     errorShort:'⚠️ Live queue could not be verified yet. Please confirm with chat.',
     allBusyTitle:'This console is not available for the selected dates',
     allBusyBody:'The closest available unit becomes free on',
@@ -1251,7 +1317,7 @@ function availabilityText(){
     bookedSoonBody:'A unit is still free for a shorter period before the next booking starts.',
     bookedSoonShort:'⚠️ This console cannot cover the full selected duration.',
     noMatchTitle:'Availability feed has no matching device name',
-    noMatchBody:'The page will not block this booking because the live feed has no matching row for this console yet.',
+    noMatchBody:'The page will not block this booking because the queue feed has no matching row for this console yet.',
     maxDays:'Maximum rental length',
     latestReturn:'Latest return date',
     nextBooking:'Next queue date',
@@ -1308,12 +1374,12 @@ function availabilityText(){
     summaryShortPrefix:'⚠️ เครื่องรุ่นนี้เช่าได้สูงสุด',
     summaryShortSuffix:'วัน และควรคืนภายใน',
     lockUnavailable:'กรุณาเปลี่ยนวันเช่าก่อน เพราะเครื่องรุ่นนี้ยังไม่ว่างตามช่วงเวลาที่เลือก',
-    lockChecking:'รอสักครู่ ระบบกำลังเช็คคิวเครื่องล่าสุดก่อน',
+    lockChecking:'รอสักครู่ ระบบกำลังเช็คคิวเครื่องก่อน',
     copyGateBusy:'กรุณาเปลี่ยนวันเช่าก่อน เครื่องรุ่นนี้ยังไม่ว่างตามช่วงเวลาที่เลือก',
-    copyGateChecking:'รอสักครู่ ระบบกำลังเช็คคิวเครื่องล่าสุดก่อนส่งข้อความจอง',
-    fallbackTitle:'เช็คคิวสดใช้เวลานานกว่าปกติ',
+    copyGateChecking:'รอสักครู่ ระบบกำลังเช็คคิวเครื่องก่อนส่งข้อความจอง',
+    fallbackTitle:'เช็คคิวใช้เวลานานกว่าปกติ',
     fallbackBody:'ระบบจะไม่ล็อกฟอร์มไว้ แต่แนะนำให้คอนเฟิร์มคิวทางแชทก่อนชำระเงิน',
-    fallbackShort:'⚠️ เช็คคิวสดไม่สำเร็จในตอนนี้ กรุณาคอนเฟิร์มทางแชทอีกครั้ง',
+    fallbackShort:'⚠️ เช็คคิวไม่สำเร็จในตอนนี้ กรุณาคอนเฟิร์มทางแชทอีกครั้ง',
     availableTitle:'เครื่องรุ่นนี้ว่างตามวันที่เลือก',
     availableBody:'เช่าได้ตามช่วงวันที่เลือก สามารถทำขั้นตอนถัดไปต่อได้เลย',
     availableShort:'✅ เครื่องว่างตามวันที่เลือก',
@@ -9189,6 +9255,28 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 .ajx-picker-head h5{font-size:18px;font-weight:900;margin:0}
 .ajx-picker-close{width:38px;height:38px;border:none;border-radius:999px;background:#f1f1f1;font-size:20px;font-weight:800;cursor:pointer}
 .ajx-picker-frame{flex:1;width:100%;border:none;background:#fff}
+
+.ajx-grid2.step1-grid,.ajx-row.step1-row{grid-template-columns:repeat(2,minmax(0,1fr));}
+.ajx-days.mobile-pruned{gap:6px;}
+.ajx-days.mobile-pruned .ajx-day{min-height:52px;}
+.ajx-top-picks{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:end;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.ajx-top-pick{text-align:left;min-width:0;}
+.ajx-top-pick .lbl{font-size:12px;font-weight:800;color:var(--text2);margin-bottom:4px;}
+.ajx-top-pick .val{font-size:28px;font-weight:900;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ajx-top-pick .sub{font-size:13px;color:var(--text2);margin-top:4px;}
+.ajx-top-pick-arrow{font-size:42px;font-weight:300;line-height:1;color:#111;align-self:center;padding-bottom:10px;}
+.ajx-cal-desktop-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;}
+.ajx-cal-desktop-nav .center{font-size:16px;font-weight:900;color:#333;}
+.ajx-cal-arrow{width:42px;height:42px;border:none;border-radius:999px;background:#f3f3f3;font-size:28px;line-height:1;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#3456d9;}
+.ajx-cal-arrow[disabled]{opacity:.35;cursor:not-allowed;color:#aaa;}
+.ajx-confirm-wrap{position:sticky;bottom:0;z-index:2;margin-top:16px;padding-top:14px;background:linear-gradient(180deg,rgba(255,255,255,0) 0%, #fff 24px);}
+.ajx-confirm-btn{width:100%;min-height:56px;border:none;border-radius:999px;background:#2f6dde;color:#fff;font-size:22px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 12px 24px rgba(47,109,222,.18);}
+.ajx-confirm-btn[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none;}
+#hero.hero-collapsed{padding:14px 22px 18px;min-height:86px;}
+#hero.hero-collapsed .hero-toggle-wrap{display:none;}
+.hero-menu-toggle{position:absolute;right:22px;bottom:14px;z-index:3;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;box-shadow:0 10px 22px rgba(204,0,0,.18);}
+.hero-menu-toggle:hover{background:var(--accent-h);}
+
 @media (max-width:900px){
   .ajx-grid2,.ajx-row,.ajx-cal-months{grid-template-columns:1fr}
   .ajx-tab{min-width:170px}
@@ -9207,9 +9295,9 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     secTag:'CALCULATOR',secH:'Check queue & calculate rental',secP:'Min. 3 days | Individual rates',
     guideH:'How to use queue check & rental calculator',guideP:'Use the 4 tabs in order. Choose the console and dates first, then fill in additional options, choose games, and review the summary.',
     tabs:['Console / dates','Additional options','Choose games','Rental summary'],
-    step1:'Choose console + dates',step1sub:'Choose the console and rental dates directly in this block, then continue to the next step.',
+    step1:'Choose console + dates',step1sub:'Choose the console and rental dates directly in this block, then continue to the next step.',menu:'Menu',closeMenu:'Hide menu',
     cat:'Device type',catAll:'-- All Types --',console:'Console',start:'Rental start date',end:'Return date',ready:'Dates are ready. You can continue.',need:'Choose a console and valid dates first.',availableNow:'Good news — this console can be rented for the selected dates.',min3:'Minimum rental is 3 days.',
-    pickerTitle:'📅 Queue calendar view',pickerStart:'Click once to choose the rental start date',pickerEnd:'Click again to choose the return date',pickerPrev:'← Previous month',pickerNext:'Next month →',pickerCancel:'Cancel',pickerConfirm:'Use these dates',other:'Please choose another date.',available:'Available',unavailable:'Unavailable',partial:'Shorter period only',disabled:'Past / not selectable',minLock:'Minimum 3 days',startDay:'Start',endDay:'Return',inRange:'In range',checking:'Checking live queue...',pickConsoleFirst:'Please choose a console first.',
+    pickerTitle:'📅 Queue calendar view',pickerStart:'Select rental start date',pickerEnd:'Select return date',pickerPrev:'Previous month',pickerNext:'Next month',pickerConfirm:'Confirm',other:'Please choose another date.',available:'Available',unavailable:'Unavailable',partial:'Shorter period only',disabled:'Past / not selectable',minLock:'Minimum 3 days',startDay:'Start',endDay:'Return',inRange:'In range',checking:'Checking availability...',pickConsoleFirst:'Please choose a console first.',daysSelected:'days selected',confirmRent:'Confirm (Rent {days} days)',dateUnset:'Select date',datePreview:'Tentative',dateSelected:'Selected',
     step2:'Additional options',ret:'Returning Customer',retSub:'Get 10% off rental fee',noCon:'No Rental Contract',noConSub:'Deposit increases (฿2,000→฿5,000 / ฿4,000→฿8,000)',payment:'Payment options',maps:'Google Maps delivery address (check delivery cost before booking)',mapsNote:'Paste your Google Maps link so we can estimate delivery cost faster',mapsBtn:'🗺️ Open Google Maps',mapsHow:'📍 How to copy your Google Maps link',delivery:'* Delivery only in Bangkok & Greater Bangkok',promo:'🔥 Delivery promo: 3–6 days free return* | 7+ days free round trip* | Up to THB 100/trip',
     step3:'Choose games',step3sub:'Choose the games for this rental here. If this console has no game catalog, you can skip this step.',openGames:'🎮 Open game picker',clear:'🗑️ Clear all',later:'I will send the game list later',noCatalog:'This console does not use the game picker.',
     step4:'Rental summary',included:'Included in the set',contractLbl:'Complete Rental Agreement',contractNote:'Please fill in the form before delivery.',needContract:'You must complete the rental contract, or select "No Rental Contract" in Additional.',warning:'The rental pricing below is for personal rental only. Tax invoice / receipt cannot be issued. If you need one, company rates apply. Please contact us via Line: @ajgame or tel. +66 81-624-4715 🙏',
@@ -9221,9 +9309,9 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     secTag:'คำนวณ',secH:'เช็คคิว & คำนวณค่าเช่า',secP:'ขั้นต่ำ 3 วัน | ราคาเรทบุคคล',
     guideH:'วิธีใช้งานส่วนเช็คคิว & คำนวณค่าเช่า',guideP:'ใช้งานตาม 4 แท็บด้านบน เริ่มจากเลือกเครื่องและวันเช่าก่อน แล้วค่อยกรอกตัวเลือกเพิ่มเติม เลือกเกม และดูสรุปค่าเช่า',
     tabs:['เลือกเครื่อง/วันที่','ตัวเลือกเพิ่มเติม','เลือกเกม','สรุปค่าเช่า'],
-    step1:'เลือกเครื่อง + เลือกวัน',step1sub:'เลือกเครื่องเกมและช่วงวันเช่าจากบล็อกนี้โดยตรง แล้วค่อยไปขั้นตอนถัดไป',
+    step1:'เลือกเครื่อง + เลือกวัน',step1sub:'เลือกเครื่องเกมและช่วงวันเช่าจากบล็อกนี้โดยตรง แล้วค่อยไปขั้นตอนถัดไป',menu:'เมนู',closeMenu:'ซ่อนเมนู',
     cat:'ประเภท',catAll:'-- ทั้งหมด --',console:'เครื่องเกม',start:'วันที่เริ่มเช่า',end:'วันคืนเครื่อง',ready:'ช่วงวันพร้อมแล้ว ไปขั้นตอนถัดไปได้',need:'เลือกเครื่องและช่วงวันที่ถูกต้องก่อน',availableNow:'เครื่องว่างตามวันที่เลือก',min3:'ขั้นต่ำเช่า 3 วัน',
-    pickerTitle:'📅 ปฏิทินเช็คคิวเครื่อง',pickerStart:'คลิก 1 ครั้งเพื่อเลือกวันเริ่มเช่า',pickerEnd:'คลิกอีก 1 ครั้งเพื่อเลือกวันคืนเครื่อง',pickerPrev:'← เดือนก่อน',pickerNext:'ไปเดือนถัดไป →',pickerCancel:'ยกเลิก',pickerConfirm:'ใช้ช่วงวันนี้',other:'โปรดเลือกวันอื่นแทน',available:'ว่าง',unavailable:'ไม่ว่าง',partial:'เช่าได้สั้นกว่า',disabled:'ผ่านมาแล้ว / เลือกไม่ได้',minLock:'เลือกไม่ได้ ขั้นต่ำ 3 วัน',startDay:'เริ่มเช่า',endDay:'คืนเครื่อง',inRange:'ช่วงเช่า',checking:'กำลังเช็คคิวสด...',pickConsoleFirst:'กรุณาเลือกเครื่องเกมก่อน',
+    pickerTitle:'📅 ปฏิทินเช็คคิวเครื่อง',pickerStart:'เลือกวันที่เริ่มเช่า',pickerEnd:'เลือกวันคืนเครื่อง',pickerPrev:'เดือนก่อน',pickerNext:'เดือนถัดไป',pickerConfirm:'ตกลง',other:'โปรดเลือกวันอื่นแทน',available:'ว่าง',unavailable:'ไม่ว่าง',partial:'เช่าได้สั้นกว่า',disabled:'ผ่านมาแล้ว / เลือกไม่ได้',minLock:'เลือกไม่ได้ ขั้นต่ำ 3 วัน',startDay:'เริ่มเช่า',endDay:'คืนเครื่อง',inRange:'ช่วงเช่า',checking:'กำลังเช็คคิว...',pickConsoleFirst:'กรุณาเลือกเครื่องเกมก่อน',daysSelected:'วันที่เลือก',confirmRent:'ตกลง (เช่า {days} วัน)',dateUnset:'เลือกวัน',datePreview:'กำลังเลือก',dateSelected:'เลือกแล้ว',
     step2:'ตัวเลือกเพิ่มเติม',ret:'ลูกค้าเก่า',retSub:'รับส่วนลด 10% ค่าเช่า',noCon:'ไม่ต้องการทำสัญญาการเช่า',noConSub:'ค่ามัดจำเพิ่มขึ้น (฿2,000→฿5,000 / ฿4,000→฿8,000)',payment:'ตัวเลือกการชำระเงิน',maps:'Google Maps ที่อยู่จัดส่ง (เช็คค่าจัดส่งก่อนตัดสินใจ)',mapsNote:'ใส่ลิงก์ Google Maps เพื่อให้ร้านเช็คค่าส่งเบื้องต้นได้เร็วขึ้น',mapsBtn:'🗺️ เปิด Google Maps',mapsHow:'📍 วิธีคัดลอกลิงก์ Google Maps',delivery:'* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น',promo:'🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | ช่วยค่าส่งสูงสุด 100 บาท/เที่ยว',
     step3:'เลือกเกม',step3sub:'เลือกเกมสำหรับการเช่ารอบนี้ได้ที่ขั้นตอนนี้ หากเครื่องรุ่นนี้ไม่มีคลังเกม สามารถข้ามขั้นตอนได้',openGames:'🎮 เปิดหน้าเลือกเกม',clear:'🗑️ ล้างทั้งหมด',later:'แจ้งรายชื่อเกมภายหลัง',noCatalog:'เครื่องรุ่นนี้ไม่ใช้ตัวเลือกเกมในระบบ',
     step4:'สรุปค่าเช่า',included:'สิ่งที่รวมในชุด',contractLbl:'ทำสัญญาการเช่าผ่านลิงก์',contractNote:'กรุณากรอกสัญญาก่อนนัดส่งเครื่อง',needContract:'ต้องทำสัญญาการเช่า หรือไปเลือกที่ Additional ว่า “ไม่ต้องการทำสัญญาการเช่า”',warning:'ราคาด้านล่างนี้ เป็นราคาเช่าในนามบุคคลเท่านั้น ไม่สามารถออกใบกำกับภาษีหรือใบเสร็จรับเงินได้ หากต้องการใบกำกับภาษี/ใบเสร็จ จะเป็นเรทบริษัท กรุณาติดต่อทาง Line: @ajgame หรือ โทร. 081-624-4715 🙏',
@@ -9264,6 +9352,29 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   const fmtMoney = n => '฿'+Number(n||0).toLocaleString();
   const formatDisplay = v => { const d=parseDate(v); if(!d) return '-'; return isEn()? d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}); };
 
+  const isMobileCalendar = () => window.innerWidth <= 760;
+  const currentMonthStart = () => { const n=new Date(); return new Date(n.getFullYear(), n.getMonth(), 1); };
+  const sameMonth = (a,b) => a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth();
+  const pickerHeadlineDate = (iso, selected) => {
+    const d=parseDate(iso);
+    if(!d) return {main:tt().dateUnset, sub:''};
+    const main=isEn()? d.toLocaleDateString('en-US',{weekday:'short', day:'numeric', month:'short'}) : d.toLocaleDateString('th-TH',{weekday:'short', day:'numeric', month:'short'});
+    return {main, sub:selected ? tt().dateSelected : tt().datePreview};
+  };
+  const selectedDaysText = (days) => isEn() ? `${days} ${tt().daysSelected}` : `เช่า ${days} วัน`;
+  const confirmLabel = (days) => tt().confirmRent.replace('{days}', String(days||0));
+  function monthMatrix(month){
+    const first=new Date(month.getFullYear(), month.getMonth(), 1), lead=first.getDay(), count=new Date(month.getFullYear(), month.getMonth()+1, 0).getDate();
+    const weeks=[]; let row=[];
+    for(let i=0;i<lead;i++) row.push(null);
+    for(let n=1;n<=count;n++){
+      row.push(new Date(month.getFullYear(), month.getMonth(), n));
+      if(row.length===7){ weeks.push(row); row=[]; }
+    }
+    if(row.length){ while(row.length<7) row.push(null); weeks.push(row); }
+    return weeks;
+  }
+
   function lineIconSvg(){
     return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20.5 11.8c0-4.7-3.8-8.5-8.5-8.5S3.5 7.1 3.5 11.8c0 4.2 3 7.7 7 8.4l-.9 3.3 3.8-3.1h.6c4.7 0 8.5-3.8 8.5-8.6Z"/><path fill="#06C755" d="M12 4.8c3.9 0 7 3 7 6.9 0 3.8-3.1 7-7 7h-.9l-1.7 1.4.4-1.7c-3-.8-5.2-3.5-5.2-6.7 0-3.9 3.1-6.9 7-6.9Z"/><path fill="#fff" d="M8.1 10.1h1.1v3.4h1.9v.9H8.1v-4.3Zm3.7 0h1.1v4.3h-1.1v-4.3Zm1.8 0h1.1l1.6 2.2v-2.2h1v4.3h-1l-1.7-2.3v2.3h-1v-4.3Z"/></svg>`;
   }
@@ -9283,7 +9394,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   function consoleById(id){ return consoleList().find(c=>String(c.id)===String(id)); }
   function cName(c){ return isEn() ? (c?.nameEn||c?.name||'') : (c?.name||c?.nameEn||''); }
   function getImage(c){ try{ if(typeof getConsoleImageSrc==='function') return getConsoleImageSrc(c)||''; }catch(e){} try{return (images&&images[c.id])||''}catch(e){return ''} }
-  function sectionLabel(c){ const k=String(c?.type||'').toLowerCase(); return {console:'Console',vr:'VR & AR',handheld:'PC Handheld',racing:isEn()?'Racing Simulator':'Racing'}[k] || tt().sectionOther; }
+  function sectionLabel(c){ const k=String(c?.type||'').toLowerCase(); return {console:'Console',vr:'VR & AR',handheld:'PC Handheld',racing:isEn()?'Racing Simulator':'Racing Simulator'}[k] || tt().sectionOther; }
   function detailsFor(c){ try{ if(typeof getConsoleDetails==='function') return getConsoleDetails(c)||[]; }catch(e){} return []; }
   function selectedDays(){ const s=parseDate(state.start), e=parseDate(state.end); if(!s||!e) return null; return diffDays(s,e); }
   function currentRows(){ return Array.isArray(state.availRows) ? state.availRows : []; }
@@ -9314,7 +9425,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       window.__ajAvailabilityState = window.__ajAvailabilityState || {};
       window.__ajAvailabilityState.rows = state.availRows;
     }catch(err){
-      state.availError = String(err && err.name === 'AbortError' ? (isEn()?'Live queue check timed out':'เช็คคิวสดหมดเวลา') : (err?.message || err));
+      state.availError = String(err && err.name === 'AbortError' ? (isEn()?'Availability check timed out':'เช็คคิวหมดเวลา') : (err?.message || err));
     }finally{
       clearTimeout(timer);
       state.availLoading = false;
@@ -9394,12 +9505,12 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       const res=evaluateRange(state.start,state.end);
       if(!d || d<3) statusHtml = `<div class="ajx-chip-note warn">${tt().min3}</div>`;
       else if(res && res.pass===false) statusHtml = `<div class="ajx-chip-note warn">${res.summaryHtml || tt().other}</div>`;
-      else statusHtml = `<div class="ajx-chip-note">${tt().availableNow}</div>`;
+      else statusHtml = `<div class="ajx-chip-note">${tt().availableNow}<br><small style="display:block;font-size:12px;margin-top:4px;opacity:.9">${selectedDaysText(d)}</small></div>`;
     }
     return `<div class="ajx-pane ${state.step===1?'active':''}" id="ajxPane1">
       <h4>${tt().step1}</h4>
       <div class="ajx-note">${tt().step1sub}</div>
-      <div class="ajx-grid2">
+      <div class="ajx-grid2 step1-grid">
         <div class="ajx-card"><label class="ajx-label">${tt().cat}</label>
           <select class="ajx-select" id="ajxCat">
             <option value="">${tt().catAll}</option>
@@ -9417,7 +9528,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
         </div>
       </div>
       ${renderSpecialOpts()}
-      <div class="ajx-row">
+      <div class="ajx-row step1-row">
         <div class="ajx-card"><label class="ajx-label">${tt().start}</label><input class="ajx-input" id="ajxStart" readonly value="${state.start||''}" placeholder="YYYY-MM-DD"></div>
         <div class="ajx-card"><label class="ajx-label">${tt().end}</label><input class="ajx-input" id="ajxEnd" readonly value="${state.end||''}" placeholder="YYYY-MM-DD"></div>
       </div>
@@ -9509,9 +9620,8 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
         <div style="font-size:18px;font-weight:900;margin-bottom:8px">${tt().included}</div>
         ${details.length ? details.map(x=>`<div style="font-size:13px;color:var(--text2);line-height:1.75;margin-top:4px">• ${x}</div>`).join('') : `<div style="font-size:13px;color:var(--text3);line-height:1.7">-</div>`}
       </div>
-      <div class="ajx-warning">⚠️ ${tt().needContract}</div>
       <div class="ajx-warning">⚠️ ${tt().warning}</div>
-      ${!state.noCon?`<div class="ajx-contract"><a href="${tt().contractLink}" target="_blank">${tt().contractLbl}</a><div style="font-size:12px;color:#558855;margin-top:5px">${tt().contractNote}</div></div>`:''}
+      ${!state.noCon?`<div class="ajx-contract"><div style="font-size:13px;color:#176331;font-weight:800;line-height:1.75;margin-bottom:10px">⚠️ ${tt().needContract}</div><a href="${tt().contractLink}" target="_blank">${tt().contractLbl}</a><div style="font-size:12px;color:#558855;margin-top:5px">${tt().contractNote}</div></div>`:''}
       <div class="ajx-summary-soft">
         <div class="ajx-summary-lines">
           <div class="ajx-srow"><span class="l">${tt().slConsole}</span><span class="v">${cName(c)}</span></div>
@@ -9547,27 +9657,36 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   }
 
   function renderCalendar(){
-    const months=[new Date(state.base.getFullYear(),state.base.getMonth(),1), new Date(state.base.getFullYear(),state.base.getMonth()+1,1)];
     const today=dateOnly(new Date());
+    const mobile=isMobileCalendar();
+    const current=currentMonthStart();
+    if(state.base < current) state.base = current;
+    const months = mobile
+      ? Array.from({length:6}, (_,i)=>new Date(current.getFullYear(), current.getMonth()+i, 1))
+      : [new Date(state.base.getFullYear(),state.base.getMonth(),1), new Date(state.base.getFullYear(),state.base.getMonth()+1,1)];
     const hint=(state.draftStart && !state.draftEnd && state.pickerMode==='end') ? tt().pickerEnd : tt().pickerStart;
+    const startHead = pickerHeadlineDate(state.draftStart, !!state.draftStart);
+    const endHead = pickerHeadlineDate(state.draftEnd || state.end, !!state.draftEnd);
+    const days=state.draftStart && state.draftEnd ? diffDays(parseDate(state.draftStart), parseDate(state.draftEnd)) : 0;
+    const confirmText = confirmLabel(days || 0);
     return `<div class="ajx-modal ${state.calendarOpen?'open':''}" id="ajxModal"><div class="ajx-modal-card">
       <div class="ajx-modal-head"><div><h5>${tt().pickerTitle}</h5><div style="font-size:13px;color:#666;line-height:1.6;margin-top:4px">${hint}</div></div><button class="ajx-close" id="ajxClose">×</button></div>
+      <div class="ajx-top-picks"><div class="ajx-top-pick"><div class="lbl">${tt().start}</div><div class="val">${startHead.main}</div><div class="sub">${startHead.sub}</div></div><div class="ajx-top-pick-arrow">→</div><div class="ajx-top-pick"><div class="lbl">${tt().end}</div><div class="val">${endHead.main}</div><div class="sub">${endHead.sub}</div></div></div>
       <div class="ajx-modal-hint ${state.modalHint?'show':''}" id="ajxModalHint">${state.modalHint||''}</div>
-      <div class="ajx-cal-toolbar"><div class="left"><button class="ajx-btn soft" id="ajxPrevM">${tt().pickerPrev}</button><div style="font-size:16px;font-weight:900;color:#333">${monthLabel(state.base)}</div><button class="ajx-btn soft" id="ajxNextM">${tt().pickerNext}</button></div></div>
+      ${mobile ? '' : `<div class="ajx-cal-desktop-nav"><button class="ajx-cal-arrow" id="ajxPrevM" ${sameMonth(state.base,current)?'disabled':''}>‹</button><div class="center">${monthLabel(months[0])}${months[1]?` — ${monthLabel(months[1])}`:''}</div><button class="ajx-cal-arrow" id="ajxNextM">›</button></div>`}
       <div class="ajx-legend"><span><i style="background:#eef9f0;border-color:rgba(34,136,51,.22)"></i>${tt().available}</span><span><i style="background:#fff1f1;border-color:rgba(204,0,0,.18)"></i>${tt().unavailable}</span><span><i style="background:#fff7e8;border-color:rgba(204,140,0,.18)"></i>${tt().partial}</span><span><i style="background:#f1f1f1;border-color:#ddd"></i>${tt().disabled}</span><span><i style="background:#fff4f4;border:3px solid #d9342b"></i>${tt().startDay}</span><span><i style="background:#f3f6ff;border:3px solid #3456d9"></i>${tt().endDay}</span></div>
-      <div class="ajx-cal-months">${months.map(m=>renderMonth(m,today)).join('')}</div>
-      <div class="ajx-nav" style="margin-top:14px"><div class="ajx-nav-hint">${state.draftStart?`${tt().start}: ${state.draftStart} &nbsp;|&nbsp; ${tt().end}: ${state.draftEnd||'-'}`:hint}</div><div style="display:flex;gap:10px"><button class="ajx-btn soft" id="ajxCancel">${tt().pickerCancel}</button><button class="ajx-btn primary" id="ajxUse" ${canApplyRange()?'':'disabled'}>${tt().pickerConfirm}</button></div></div>
+      <div class="ajx-cal-months">${months.map(m=>renderMonth(m,today,mobile)).join('')}</div>
+      <div class="ajx-confirm-wrap"><button class="ajx-confirm-btn" id="ajxUse" ${canApplyRange()?'':'disabled'}>${confirmText}</button></div>
     </div></div>`;
   }
 
-  function renderMonth(month, today){
-    const first=new Date(month.getFullYear(), month.getMonth(), 1), lead=first.getDay(), count=new Date(month.getFullYear(), month.getMonth()+1, 0).getDate();
-    let out='';
-    for(let i=0;i<lead;i++) out += `<button class="ajx-day empty" tabindex="-1"></button>`;
-    for(let n=1;n<=count;n++){
-      const d=new Date(month.getFullYear(), month.getMonth(), n); const iso=fmtIso(d);
+  function renderMonth(month, today, mobile=false){
+    const weeks=monthMatrix(month);
+    const sd=parseDate(state.draftStart), ed=parseDate(state.draftEnd);
+    const renderDayBtn=(d)=>{
+      if(!d) return `<button class="ajx-day empty" tabindex="-1"></button>`;
+      const iso=fmtIso(d);
       const cls=['ajx-day']; let note='', disabled=false;
-      const sd=parseDate(state.draftStart), ed=parseDate(state.draftEnd);
       if(d<today){ cls.push('disabled'); note=tt().disabled; disabled=true; }
       else if(!state.consoleId){ cls.push('disabled'); note=tt().pickConsoleFirst; disabled=true; }
       else if(state.pickerMode==='end' && sd && !ed){
@@ -9580,16 +9699,26 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
           else { cls.push('available'); note=tt().available; }
         }
       } else {
-        let res=evaluateRange(iso, fmtIso(addDays(d,3)));
+        const res=evaluateRange(iso, fmtIso(addDays(d,3)));
         if(res.pass===false){ if(res.mode==='partial'){ cls.push('partial'); note=tt().partial; } else { cls.push('unavailable'); note=tt().unavailable; } }
         else { cls.push('available'); note=tt().available; }
       }
       if(sd && ed && d>sd && d<ed && !disabled){ cls.push('range'); note=tt().inRange; }
       if(state.draftStart===iso){ cls.push('start'); note=tt().startDay; }
       if(state.draftEnd===iso){ cls.push('end'); note=tt().endDay; }
-      out += `<button class="${cls.join(' ')}" data-day="${iso}" ${disabled?'disabled':''}><div class="n">${n}</div><div class="s">${note}</div></button>`;
+      return `<button class="${cls.join(' ')}" data-day="${iso}" ${disabled?'disabled':''}><div class="n">${d.getDate()}</div><div class="s">${note}</div></button>`;
+    };
+    let visibleWeeks=weeks;
+    if(mobile && sameMonth(month,today)){
+      visibleWeeks=weeks.filter(week=>{
+        const real=week.filter(Boolean);
+        if(!real.length) return false;
+        const latest=real[real.length-1];
+        return latest >= today;
+      });
     }
-    return `<div class="ajx-month"><h6>${monthLabel(month)}</h6><div class="ajx-week">${weekdays().map(w=>`<div>${w}</div>`).join('')}</div><div class="ajx-days">${out}</div></div>`;
+    const weekHtml=visibleWeeks.map(week=>week.map(renderDayBtn).join('')).join('');
+    return `<div class="ajx-month"><h6>${monthLabel(month)}</h6><div class="ajx-week">${weekdays().map(w=>`<div>${w}</div>`).join('')}</div><div class="ajx-days ${mobile?'mobile-pruned':''}">${weekHtml}</div></div>`;
   }
 
   function canApplyRange(){
@@ -9623,6 +9752,8 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     state.pickerMode = mode;
     state.draftStart = state.start || '';
     state.draftEnd = state.end || '';
+    const baseSource=parseDate(state.start) || currentMonthStart();
+    state.base = new Date(baseSource.getFullYear(), baseSource.getMonth(), 1);
     state.modalHint = '';
     render();
   }
@@ -9763,11 +9894,10 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     qa('[data-next]').forEach(btn=>btn.onclick=()=>gotoStep(Number(btn.dataset.next)));
     qa('[data-done]').forEach(btn=>btn.onclick=()=>q('#ajCleanCalcRoot')?.scrollIntoView({behavior:'smooth', block:'start'}));
     q('#ajxCopy') && (q('#ajxCopy').onclick=copyMessage);
-    q('#ajxLine') && (q('#ajxLine').onclick=async()=>{ await copyMessage(); window.open('https://lin.ee/P2mp0RK','_blank'); });
+    q('#ajxLine') && (q('#ajxLine').onclick=async()=>{ const msg = await copyMessage(); const lineUrl = 'https://line.me/R/msg/text/?' + encodeURIComponent(msg||''); window.open(lineUrl,'_blank'); });
     q('#ajxWa') && (q('#ajxWa').onclick=async()=>{ const msg = await copyMessage(); window.open(`https://wa.me/66816244715?text=${encodeURIComponent(msg||'')}`,'_blank'); });
     q('#ajxClose') && (q('#ajxClose').onclick=()=>{ state.calendarOpen=false; render(); });
-    q('#ajxCancel') && (q('#ajxCancel').onclick=()=>{ state.calendarOpen=false; render(); });
-    q('#ajxPrevM') && (q('#ajxPrevM').onclick=()=>{ state.base=new Date(state.base.getFullYear(), state.base.getMonth()-1, 1); render(); });
+    q('#ajxPrevM') && (q('#ajxPrevM').onclick=()=>{ const current=currentMonthStart(); const prev=new Date(state.base.getFullYear(), state.base.getMonth()-1, 1); if(prev < current) return; state.base=prev; render(); });
     q('#ajxNextM') && (q('#ajxNextM').onclick=()=>{ state.base=new Date(state.base.getFullYear(), state.base.getMonth()+1, 1); render(); });
     q('#ajxUse') && (q('#ajxUse').onclick=()=>{ if(!canApplyRange()) return; state.start=state.draftStart; state.end=state.draftEnd; state.calendarOpen=false; render(); });
     qa('[data-day]').forEach(btn=>btn.onclick=()=>pickDay(btn.dataset.day));
@@ -9785,6 +9915,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     state.base = new Date();
     fetchAvailability(true);
     render();
+    if(typeof window.initHeroMenuToggle==='function') window.initHeroMenuToggle();
   }
 
   // receive selected games from embedded picker
@@ -9829,5 +9960,190 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 })();
 </script>
 
+
+<script>
+(function(){
+  function getLangSafe(){
+    try{ return (typeof lang!=='undefined' ? lang : (window.lang || 'th')); }catch(e){ return window.lang || 'th'; }
+  }
+  function label(){ return getLangSafe()==='en' ? {open:'Menu', close:'Hide menu'} : {open:'เมนู', close:'ซ่อนเมนู'}; }
+  function ensureWrap(){
+    const hero=document.getElementById('hero');
+    if(!hero) return null;
+    let wrap=hero.querySelector('.hero-toggle-wrap');
+    if(!wrap){
+      wrap=document.createElement('div');
+      wrap.className='hero-toggle-wrap';
+      while(hero.firstChild){ wrap.appendChild(hero.firstChild); }
+      hero.appendChild(wrap);
+    }
+    let btn=hero.querySelector('.hero-menu-toggle');
+    if(!btn){
+      btn=document.createElement('button');
+      btn.type='button';
+      btn.className='hero-menu-toggle';
+      hero.appendChild(btn);
+      btn.addEventListener('click', function(){
+        hero.classList.toggle('hero-collapsed');
+        localStorage.setItem('aj_hero_menu_open', hero.classList.contains('hero-collapsed') ? '0' : '1');
+        updateLabel();
+      });
+    }
+    return hero;
+  }
+  function updateLabel(){
+    const hero=document.getElementById('hero');
+    const btn=hero?.querySelector('.hero-menu-toggle');
+    if(!hero || !btn) return;
+    const txt=label();
+    btn.textContent=hero.classList.contains('hero-collapsed') ? txt.open : txt.close;
+  }
+  window.initHeroMenuToggle=function(){
+    const hero=ensureWrap();
+    if(!hero) return;
+    const saved=localStorage.getItem('aj_hero_menu_open');
+    if(saved!=='1') hero.classList.add('hero-collapsed');
+    else hero.classList.remove('hero-collapsed');
+    updateLabel();
+  };
+  document.addEventListener('DOMContentLoaded', function(){
+    window.initHeroMenuToggle();
+    setInterval(updateLabel, 400);
+  });
+})();
+</script>
+
+
+<script id="aj-safe-mobile-fixes-v3-script">
+(function(){
+  function isEnglish(){
+    try{
+      if(typeof window.lang === 'string') return window.lang === 'en';
+      if(typeof localStorage !== 'undefined'){
+        var saved = localStorage.getItem('aj_lang') || localStorage.getItem('lang');
+        if(saved) return saved === 'en';
+      }
+    }catch(e){}
+    var btn = document.getElementById('langBtn');
+    if(btn && /TH/i.test(btn.textContent||'')) return true;
+    return false;
+  }
+  function syncFaqUi(){
+    var en = isEnglish();
+    var faqBtn = document.getElementById('faqOpenBtn');
+    if(faqBtn){
+      faqBtn.innerHTML = en ? '❓ FAQ' : '❓ คำถามที่พบบ่อย';
+      faqBtn.setAttribute('aria-label', en ? 'FAQ' : 'คำถามที่พบบ่อย');
+    }
+    var faqTitle = document.getElementById('faqPopupTitle');
+    if(faqTitle) faqTitle.textContent = en ? 'Frequently Asked Questions' : 'คำถามที่พบบ่อย';
+  }
+  function applySafeFixes(){
+    syncFaqUi();
+    var hero = document.getElementById('hero');
+    if(hero) hero.style.display = 'none';
+    document.querySelectorAll('.hero-menu-toggle').forEach(function(el){ el.remove(); });
+    ['mapsHelpOverlay','mapsPickerOverlay','adminOverlay'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el && !el.classList.contains('open')){
+        el.classList.remove('open');
+        el.setAttribute('aria-hidden','true');
+      }
+    });
+    var faq = document.getElementById('faqPopup');
+    var faqList = document.getElementById('faqPopupList');
+    if(faq && faqList && faqList.parentNode !== faq){ faq.appendChild(faqList); }
+  }
+  function boot(){
+    applySafeFixes();
+    setTimeout(applySafeFixes, 120);
+    setTimeout(applySafeFixes, 600);
+    setTimeout(applySafeFixes, 1200);
+  }
+  document.addEventListener('DOMContentLoaded', boot);
+  window.addEventListener('load', boot);
+  setInterval(syncFaqUi, 300);
+  if(typeof window.toggleLang === 'function' && !window.toggleLang.__ajSafeFixesV3){
+    var old = window.toggleLang;
+    window.toggleLang = function(){
+      var out = old.apply(this, arguments);
+      setTimeout(applySafeFixes, 60);
+      setTimeout(applySafeFixes, 250);
+      setTimeout(applySafeFixes, 600);
+      return out;
+    };
+    window.toggleLang.__ajSafeFixesV3 = true;
+  }
+})();
+</script>
+
+
+<style id="aj-final-mobile-step-faq-fixes">
+@media (max-width:760px){
+  #agodaCalcTabs, .calc-tabbar, .ajx-tabs{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    width:100% !important;
+    overflow:visible !important;
+    overflow-x:visible !important;
+    white-space:normal !important;
+    gap:8px !important;
+    padding:8px !important;
+  }
+  #agodaCalcTabs .calc-tab-btn, .calc-tabbar .calc-tab-btn, .ajx-tabs .ajx-tab{
+    min-width:0 !important;
+    width:100% !important;
+    flex:0 0 auto !important;
+    padding:10px 10px !important;
+  }
+  #agodaCalcTabs .calc-tab-title, .calc-tabbar .calc-tab-title, .ajx-tabs .ajx-tab-title{
+    font-size:12px !important;
+    line-height:1.2 !important;
+    white-space:normal !important;
+    overflow:visible !important;
+    text-overflow:clip !important;
+  }
+  #agodaCalcTabs .calc-tab-top, .calc-tabbar .calc-tab-top, .ajx-tabs .ajx-tab-top{
+    gap:6px !important;
+    align-items:center !important;
+  }
+  #agodaCalcTabs .calc-tab-arrow, .calc-tabbar .calc-tab-arrow, .ajx-tabs .ajx-tab-arrow{
+    margin-left:auto !important;
+    font-size:14px !important;
+  }
+}
+</style>
+
+
+<style id="aj-fix-checking-and-floating-x">
+#mapsHelpOverlay,#mapsPickerOverlay,#adminOverlay{display:none !important;visibility:hidden !important;pointer-events:none !important;}
+#mapsHelpOverlay.open,#mapsPickerOverlay.open,#adminOverlay.open{display:flex !important;visibility:visible !important;pointer-events:auto !important;}
+.mclose{display:none !important;}
+#mapsHelpOverlay.open .mclose,#mapsPickerOverlay.open .mclose,#adminOverlay.open .mclose{display:inline-flex !important;align-items:center;justify-content:center;}
+</style>
+<script id="aj-fix-floating-x-script">
+(function(){
+  function hideFloatingX(){
+    ['mapsHelpOverlay','mapsPickerOverlay','adminOverlay'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el) return;
+      if(!el.classList.contains('open')){
+        el.style.display='none';
+        el.style.visibility='hidden';
+        el.style.pointerEvents='none';
+      }else{
+        el.style.display='flex';
+        el.style.visibility='visible';
+        el.style.pointerEvents='auto';
+      }
+    });
+  }
+  document.addEventListener('DOMContentLoaded', hideFloatingX);
+  window.addEventListener('load', hideFloatingX);
+  setTimeout(hideFloatingX, 150);
+  setTimeout(hideFloatingX, 800);
+  setInterval(hideFloatingX, 1500);
+})();
+</script>
 </body>
 </html>
