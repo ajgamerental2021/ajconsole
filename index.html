@@ -9,7 +9,7 @@
 html.aj-preload-pending body{overflow:hidden;}
 html.aj-preload-pending body>*{opacity:0;pointer-events:none;}
 html.aj-preload-pending body::before{
-  content:'กำลังโหลดข้อมูลล่าสุด / Please Wait';
+  content:'กำลังโหลด / Please Wait';
   position:fixed;inset:0;z-index:99999;
   display:flex;align-items:center;justify-content:center;
   background:#ffffff;color:#111111;
@@ -11031,343 +11031,6 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 </script>
 
 
-<script id="aj-admin-console-faq-hard-fix-v5">
-(function(){
-'use strict';
-const $=id=>document.getElementById(id);
-const L=(th,en)=>(typeof lang!=='undefined'&&lang==='en')?en:th;
-const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const q=v=>JSON.stringify(String(v==null?'':v));
-const W={300:1500,350:1800,400:2500,500:3000},D={300:2000,350:2000,400:2000,500:4000};
-const FAQ_KEY='aj_faq_data_v1';
-function norm(c,i){c=Object.assign({},c||{}); if(c.id==null||c.id==='')c.id='custom_'+Date.now()+'_'+i; c.name=String(c.name||c.nameEn||'').trim()||'Console'; c.nameEn=String(c.nameEn||c.name).trim()||c.name; c.rate=parseInt(c.rate,10)||300; c.weekly=parseInt(c.weekly,10)||W[c.rate]||1500; c.deposit=parseInt(c.deposit,10)||D[c.rate]||2000; c.cat=String(c.rate); c.type=c.type||'console'; c.brand=c.brand||'other'; c.icon=String(c.icon||'🎮').trim()||'🎮'; c.detailsTh=Array.isArray(c.detailsTh)?c.detailsTh:[]; c.detailsEn=Array.isArray(c.detailsEn)?c.detailsEn:[]; if(typeof c.showGameButton!=='boolean')c.showGameButton=true; c.gameUrl=String(c.gameUrl||'').trim(); try{if(typeof ensureConsoleDetails==='function')ensureConsoleDetails(c)}catch(e){} return c;}
-function setCons(list){const seen=new Set(); consoles=(Array.isArray(list)?list:Object.values(list||{})).filter(x=>x&&(x.name||x.nameEn)).map((x,i)=>{const c=norm(x,i); let id=String(c.id); while(seen.has(id)){id=id+'_'+i;c.id=id} seen.add(id); return c}); try{localStorage.setItem('aj_consoles',JSON.stringify(consoles));}catch(e){}}
-function saveAdmin(t){setCons(consoles); try{localStorage.setItem('aj_images',JSON.stringify(images||{}));}catch(e){} try{if(typeof save==='function')save()}catch(e){} try{if(typeof renderConsoles==='function')renderConsoles()}catch(e){} try{if(typeof renderAll==='function')renderAll()}catch(e){} try{renderAdmConsoles()}catch(e){} try{if(typeof calc==='function')calc()}catch(e){} try{if(typeof window.__ajCleanSchedulePush==='function')window.__ajCleanSchedulePush()}catch(e){} const st=$('ajCleanAdminStatus')||$('ghAdminStatus'); if(st&&t)st.textContent=t;}
-function hasGame(c){if(!c||c.showGameButton===false)return false; const u=String(c.gameUrl||'').trim(); if(u&&!/^(game_index(?:\(11\))?\.html|https?:\/\/ajgamerental2021\.github\.io\/ajgame\/?|https?:\/\/ajgamerental2021\.github\.io\/ajgame\/game_index\.html)$/i.test(u))return true; try{if(typeof mapConsoleToPlatform==='function'&&mapConsoleToPlatform(c))return true; if(typeof getConsolePlatformIds==='function'&&(getConsolePlatformIds(c)||[]).length)return true}catch(e){} return false;}
-window.canShowGameButton=hasGame;
-window.renderAdmConsoles=function(){const el=$('admCList'); if(!el)return; setCons(consoles); const sorted=consoles.slice().sort((a,b)=>(a.rate||0)-(b.rate||0)||String(a.name).localeCompare(String(b.name),'th')); if(!sorted.length){el.innerHTML='<p style="color:var(--muted);text-align:center;padding:18px;">ไม่มีเครื่องเกม</p>';return} el.innerHTML=sorted.map(c=>{const id=String(c.id),img=images&&images[id],qid=q(id),dth=Array.isArray(c.detailsTh)?c.detailsTh.join('\n'):'',den=Array.isArray(c.detailsEn)?c.detailsEn.join('\n'):''; return `<div class="adm-item" id="adm-row-${esc(id)}" style="flex-direction:column;align-items:stretch;gap:0;padding:0"><div style="display:flex;align-items:center;gap:9px;padding:9px 11px"><div class="adm-img-prev">${img?`<img src="${esc(img)}">`:`<span>${esc(c.icon)}</span>`}</div><div class="adm-info"><div class="adm-info-name">${esc(c.name)}</div><div class="adm-info-meta">฿${esc(c.rate)}/วัน | ${esc(c.type)} | ${esc(c.brand)}</div></div><div class="adm-btns"><button type="button" class="btn-sm" onclick='toggleEditRow(${qid})'>✏️ ${L('แก้ไข','Edit')}</button><button type="button" class="btn-sm" onclick='delConsole(${qid})' style="color:#cc0000">✕</button></div></div><div id="adm-edit-${esc(id)}" style="display:none;padding:12px 11px 13px;border-top:1px solid var(--border);background:var(--surface)"><div class="frow"><div class="fgroup"><label class="flbl">ชื่อ (TH)</label><input id="ec-name-${esc(id)}" value="${esc(c.name)}"></div><div class="fgroup"><label class="flbl">ชื่อ (EN)</label><input id="ec-nameen-${esc(id)}" value="${esc(c.nameEn||c.name)}"></div></div><div class="frow"><div class="fgroup"><label class="flbl">เรท</label><select id="ec-rate-${esc(id)}">${[300,350,400,500].map(r=>`<option value="${r}" ${Number(c.rate)===r?'selected':''}>${r} บาท/วัน</option>`).join('')}</select></div><div class="fgroup"><label class="flbl">ประเภท</label><select id="ec-type-${esc(id)}">${[['console','Console'],['vr','VR & AR'],['handheld','PC Handheld'],['racing','Racing']].map(a=>`<option value="${a[0]}" ${(c.type||'console')===a[0]?'selected':''}>${a[1]}</option>`).join('')}</select></div></div><div class="frow"><div class="fgroup"><label class="flbl">แบรนด์</label><select id="ec-brand-${esc(id)}">${[['playstation','PlayStation'],['nintendo','Nintendo'],['xbox','Xbox'],['other','Other']].map(a=>`<option value="${a[0]}" ${(c.brand||'other')===a[0]?'selected':''}>${a[1]}</option>`).join('')}</select></div><div class="fgroup"><label class="flbl">Icon</label><input id="ec-icon-${esc(id)}" value="${esc(c.icon)}" maxlength="4"></div></div><div class="fgroup"><label class="flbl">รายละเอียดการ์ด (TH)</label><textarea class="device-textarea" id="ec-detailsth-${esc(id)}">${esc(dth)}</textarea></div><div class="fgroup"><label class="flbl">Card Details (EN)</label><textarea class="device-textarea" id="ec-detailsen-${esc(id)}">${esc(den)}</textarea></div><div class="fgroup"><label class="flbl">ลิงก์รูป (URL)</label><input id="ec-img-${esc(id)}" value="${esc(img||'')}" placeholder="https://..."></div><div class="chk-row"><input type="checkbox" id="ec-showGameBtn-${esc(id)}" ${c.showGameButton!==false?'checked':''}><label for="ec-showGameBtn-${esc(id)}"><strong>${L('แสดงปุ่ม คลิกเลือก 10 เกม','Show game button')}</strong></label></div><div class="fgroup"><label class="flbl">ลิงก์ปุ่ม คลิกเลือก 10 เกม</label><input id="ec-gameurl-${esc(id)}" value="${esc(c.gameUrl||'')}" placeholder="https://..."></div><div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" class="btn-aa green" onclick='saveEditConsole(${qid})'>💾 ${L('บันทึก','Save')}</button><button type="button" class="btn-aa" onclick='toggleEditRow(${qid})' style="background:none;border-color:var(--border);color:var(--text2)">${L('ยกเลิก','Cancel')}</button></div></div></div>`}).join('')};
-window.toggleEditRow=function(id){const el=$('adm-edit-'+String(id)); if(el)el.style.display=(el.style.display==='none'||!el.style.display)?'block':'none'};
-window.addConsole=function(){const name=($('nCname')?.value||'').trim(); if(!name){alert(L('กรุณาใส่ชื่อเครื่อง','Please enter console name.'));return} const rate=parseInt($('nCrate')?.value,10)||300; const c=norm({id:'custom_'+Date.now(),name,nameEn:($('nCnameEn')?.value||name).trim()||name,rate,weekly:W[rate],deposit:D[rate],cat:String(rate),type:$('nCtype')?.value||'console',brand:$('nCbrand')?.value||'other',icon:($('nCicon')?.value||'🎮').trim()||'🎮',showGameButton:!!$('nCshowGameBtn')?.checked,gameUrl:($('nCgameUrl')?.value||'').trim()},0); consoles.push(c); const img=($('nCimg')?.value||'').trim(); if(img)images[String(c.id)]=img; ['nCname','nCnameEn','nCimg','nCgameUrl'].forEach(id=>{if($(id))$(id).value=''}); saveAdmin(L('✅ เพิ่มเครื่องเกมแล้ว','✅ Console added.'))};
-window.saveEditConsole=function(id){id=String(id); const c=consoles.find(x=>String(x.id)===id); if(!c)return; const g=k=>$('ec-'+k+'-'+id); const name=(g('name')?.value||'').trim(); if(!name){alert(L('กรุณาใส่ชื่อเครื่อง','Please enter console name.'));return} const rate=parseInt(g('rate')?.value,10)||300; c.name=name; c.nameEn=(g('nameen')?.value||name).trim()||name; c.rate=rate; c.weekly=W[rate]||c.weekly; c.deposit=D[rate]||c.deposit; c.cat=String(rate); c.type=g('type')?.value||'console'; c.brand=g('brand')?.value||'other'; c.icon=(g('icon')?.value||'🎮').trim()||'🎮'; c.detailsTh=(g('detailsth')?.value||'').split(/\n+/).map(x=>x.trim()).filter(Boolean); c.detailsEn=(g('detailsen')?.value||'').split(/\n+/).map(x=>x.trim()).filter(Boolean); c.showGameButton=!!g('showGameBtn')?.checked; c.gameUrl=(g('gameurl')?.value||'').trim(); const img=(g('img')?.value||'').trim(); if(img)images[id]=img; else delete images[id]; saveAdmin(L('✅ บันทึกข้อมูลเครื่องแล้ว','✅ Console saved.')); setTimeout(()=>{const e=$('adm-edit-'+id); if(e)e.style.display='block'},80)};
-window.delConsole=function(id){id=String(id); if(!confirm(L('ลบเครื่องนี้?','Delete this console?')))return; consoles=consoles.filter(c=>String(c.id)!==id); try{delete images[id]}catch(e){} saveAdmin(L('✅ ลบเครื่องแล้ว','✅ Console deleted.'))};
-function getFaq(){if(!Array.isArray(window.faqData)){try{window.faqData=JSON.parse(localStorage.getItem(FAQ_KEY)||'[]')}catch(e){window.faqData=[]}} return window.faqData}
-function setFaq(d,t,filter){window.faqData=(Array.isArray(d)?d:[]).map(x=>({qTh:String(x.qTh||'').trim(),aTh:String(x.aTh||'').trim(),qEn:String(x.qEn||'').trim(),aEn:String(x.aEn||'').trim()})); if(filter)window.faqData=window.faqData.filter(x=>x.qTh||x.aTh||x.qEn||x.aEn); try{localStorage.setItem(FAQ_KEY,JSON.stringify(window.faqData))}catch(e){} renderFaq(); const st=$('ajCleanAdminStatus')||$('ghAdminStatus'); if(st&&t)st.textContent=t; try{if(typeof window.__ajCleanSchedulePush==='function')window.__ajCleanSchedulePush()}catch(e){}}
-function renderFaq(){const en=typeof lang!=='undefined'&&lang==='en',data=getFaq().filter(x=>x.qTh||x.aTh||x.qEn||x.aEn); const html=data.map(x=>`<div class="faq-item"><div class="faq-q">${esc(en?(x.qEn||x.qTh):(x.qTh||x.qEn))}</div><div class="faq-a">${esc(en?(x.aEn||x.aTh):(x.aTh||x.aEn))}</div></div>`).join(''); if($('faqList'))$('faqList').innerHTML=html; if($('faqPopupList'))$('faqPopupList').innerHTML=html}
-window.renderFaqSection=renderFaq; window.renderFaqPopup=renderFaq;
-window.renderFaqAdmin=function(){const panel=$('ajCleanFAQ')||$('admFAQ'); if(!panel)return; const data=getFaq(); panel.innerHTML=`<div class="aform"><h4>❓ FAQ</h4><p class="gh-note">${L('FAQ ตัวเดียวที่ใช้จริง เพิ่ม/แก้ไข/ลบ แล้ว Sync ผ่าน Gist','Single FAQ source. Add/edit/delete and sync via Gist.')}</p><div id="ajCleanFaqList">${data.map((x,i)=>`<div class="admin-faq-item"><h5>FAQ ${i+1}</h5><div class="fgroup"><label class="flbl">Question (TH)</label><input data-faq-qth="${i}" value="${esc(x.qTh||'')}"></div><div class="fgroup"><label class="flbl">Answer (TH)</label><input data-faq-ath="${i}" value="${esc(x.aTh||'')}"></div><div class="fgroup"><label class="flbl">Question (EN)</label><input data-faq-qen="${i}" value="${esc(x.qEn||'')}"></div><div class="fgroup"><label class="flbl">Answer (EN)</label><input data-faq-aen="${i}" value="${esc(x.aEn||'')}"></div><button type="button" class="btn-aa" onclick="window.ajCleanFaqDelete(${i})">${L('ลบ','Delete')}</button></div>`).join('')}</div><button type="button" class="btn-aa green" onclick="window.ajCleanFaqAdd()">➕ ${L('เพิ่ม FAQ','Add FAQ')}</button> <button type="button" class="btn-aa blue" onclick="window.ajCleanFaqSave()">💾 ${L('บันทึก FAQ','Save FAQ')}</button><div id="ajCleanAdminStatus" style="font-size:12px;color:var(--muted);min-height:20px;padding-top:8px"></div></div>`};
-window.ajCleanFaqAdd=function(){const d=getFaq().slice(); d.push({qTh:'',aTh:'',qEn:'',aEn:''}); setFaq(d,L('✅ เพิ่มช่อง FAQ แล้ว','✅ FAQ row added.'),false); window.renderFaqAdmin()};
-window.ajCleanFaqDelete=function(i){setFaq(getFaq().filter((_,idx)=>idx!==i),L('✅ ลบ FAQ แล้ว','✅ FAQ deleted.'),false); window.renderFaqAdmin()};
-window.ajCleanFaqSave=function(){const d=getFaq().map((_,i)=>({qTh:(document.querySelector(`[data-faq-qth="${i}"]`)?.value||'').trim(),aTh:(document.querySelector(`[data-faq-ath="${i}"]`)?.value||'').trim(),qEn:(document.querySelector(`[data-faq-qen="${i}"]`)?.value||'').trim(),aEn:(document.querySelector(`[data-faq-aen="${i}"]`)?.value||'').trim()})); setFaq(d,L('✅ บันทึก FAQ แล้ว','✅ FAQ saved.'),true); window.renderFaqAdmin()};
-function installFaq(){const tabs=document.querySelector('.adm-tabs'),body=$('adminBody'); if(!tabs||!body)return; Array.from(tabs.querySelectorAll('.adm-tab')).filter(b=>/FAQ|คำถาม/.test(b.textContent||'')).forEach(b=>b.remove()); ['admFAQ','ajFaqAdminFinal'].forEach(id=>$(id)?.remove()); let p=$('ajCleanFAQ'); if(!p){p=document.createElement('div');p.id='ajCleanFAQ';p.className='adm-panel';body.appendChild(p)} const b=document.createElement('button'); b.className='adm-tab'; b.id='ajCleanFaqTab'; b.textContent='❓ FAQ'; b.onclick=function(){if(typeof swTab==='function')swTab(this,'ajCleanFAQ');window.renderFaqAdmin()}; const cloud=Array.from(tabs.querySelectorAll('.adm-tab')).find(x=>/cloud sync/i.test(x.textContent||'')); if(cloud)cloud.insertAdjacentElement('afterend',b); else tabs.appendChild(b); window.renderFaqAdmin()}
-const orp=window.renderAdminPanel; if(typeof orp==='function')window.renderAdminPanel=function(){const r=orp.apply(this,arguments); setTimeout(()=>{try{window.renderAdmConsoles()}catch(e){} installFaq()},0); return r};
-const osw=window.swTab; if(typeof osw==='function')window.swTab=function(btn,pid){const r=osw.apply(this,arguments); setTimeout(()=>{if(pid==='admAC')window.renderAdmConsoles(); if(pid==='ajCleanFAQ')window.renderFaqAdmin(); installFaq()},0); return r};
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{renderFaq();installFaq()});else{renderFaq();installFaq()}
-})();
-</script>
-<script id="aj-final-admin-console-faq-v6">
-(function(){
-  'use strict';
-  const FAQ_KEY = 'aj_faq_data_v1';
-  const $ = (id) => document.getElementById(id);
-  const L = (th,en) => (typeof lang !== 'undefined' && lang === 'en') ? en : th;
-  const esc = (v) => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  const weeklyMap = {300:1500,350:1800,400:2500,500:3000};
-  const depositMap = {300:2000,350:2000,400:2000,500:4000};
-
-  function currentConsoles(){
-    try{
-      if(!Array.isArray(consoles)) consoles = [];
-      return consoles;
-    }catch(e){
-      return [];
-    }
-  }
-  function currentImages(){
-    try{
-      if(!images || typeof images !== 'object' || Array.isArray(images)) images = {};
-      return images;
-    }catch(e){
-      return {};
-    }
-  }
-  function normalizeConsoleFinal(c){
-    c = Object.assign({}, c || {});
-    c.id = String(c.id || ('custom_' + Date.now() + '_' + Math.floor(Math.random()*100000)));
-    c.name = String(c.name || c.nameEn || 'Console').trim() || 'Console';
-    c.nameEn = String(c.nameEn || c.name).trim() || c.name;
-    c.rate = parseInt(c.rate,10) || 300;
-    c.weekly = parseInt(c.weekly,10) || weeklyMap[c.rate] || 1500;
-    c.deposit = parseInt(c.deposit,10) || depositMap[c.rate] || 2000;
-    c.cat = String(c.rate);
-    c.type = String(c.type || 'console');
-    c.brand = String(c.brand || 'other');
-    c.icon = String(c.icon || '🎮').trim() || '🎮';
-    c.detailsTh = Array.isArray(c.detailsTh) ? c.detailsTh : [];
-    c.detailsEn = Array.isArray(c.detailsEn) ? c.detailsEn : [];
-    c.showGameButton = c.showGameButton !== false;
-    c.gameUrl = String(c.gameUrl || '').trim();
-    try{ if(typeof ensureConsoleDetails === 'function') ensureConsoleDetails(c); }catch(e){}
-    try{ if(typeof ensureGameButtonConfig === 'function') ensureGameButtonConfig(c); }catch(e){}
-    return c;
-  }
-  function status(text){
-    ['ajCleanAdminStatus','ghAdminStatus','ajHomeAdminStatus','aj_home_sections_status_v1'].forEach(id=>{ const el=$(id); if(el && text) el.textContent = text; });
-  }
-  function persistAll(text){
-    const imgs = currentImages();
-    try{ consoles = currentConsoles().map(normalizeConsoleFinal); }catch(e){}
-    try{ localStorage.setItem('aj_consoles', JSON.stringify(currentConsoles())); }catch(e){}
-    try{ localStorage.setItem('aj_images', JSON.stringify(imgs)); }catch(e){}
-    try{ if(typeof save === 'function') save(); }catch(e){}
-    try{ if(typeof renderConsoles === 'function') renderConsoles(); }catch(e){}
-    try{ if(typeof renderAll === 'function') renderAll(); }catch(e){}
-    try{ if(typeof calc === 'function') calc(); }catch(e){}
-    try{ if(typeof window.renderAdmConsoles === 'function') window.renderAdmConsoles(); }catch(e){}
-    try{ if(typeof window.__ajCleanSchedulePush === 'function') window.__ajCleanSchedulePush(); }catch(e){}
-    status(text);
-  }
-  function q(id){ return JSON.stringify(String(id)); }
-  function imgLabel(){ return L({url:'ลิงก์รูป (URL)',save:'บันทึกรูปจาก URL',remove:'ลบรูป'}.url,{url:'Image URL',save:'Save image URL',remove:'Remove image'}.url); }
-
-  window.renderAdmConsoles = function(){
-    const el = $('admCList');
-    if(!el) return;
-    const list = currentConsoles().map(normalizeConsoleFinal);
-    const imgs = currentImages();
-    if(!list.length){
-      el.innerHTML = '<p style="color:var(--muted);text-align:center;padding:18px;">ไม่มีเครื่องเกม</p>';
-      return;
-    }
-    const sorted = list.slice().sort((a,b)=>(Number(a.rate)||0)-(Number(b.rate)||0)||String(a.name).localeCompare(String(b.name),'th'));
-    el.innerHTML = sorted.map(c=>{
-      const id = String(c.id);
-      const img = imgs[id] || '';
-      const dth = Array.isArray(c.detailsTh) ? c.detailsTh.join('\n') : '';
-      const den = Array.isArray(c.detailsEn) ? c.detailsEn.join('\n') : '';
-      return `<div class="adm-item" id="adm-row-${esc(id)}" style="flex-direction:column;align-items:stretch;gap:0;padding:0">
-        <div style="display:flex;align-items:center;gap:9px;padding:9px 11px">
-          <div class="adm-img-prev">${img ? `<img src="${esc(img)}">` : `<span>${esc(c.icon)}</span>`}</div>
-          <div class="adm-info"><div class="adm-info-name">${esc(c.name)}</div><div class="adm-info-meta">฿${esc(c.rate)}/วัน | ${esc(c.type)} | ${esc(c.brand)}</div></div>
-          <div class="adm-btns">
-            <button type="button" class="btn-sm" onclick='toggleEditRow(${q(id)})'>✏️ ${L('แก้ไข','Edit')}</button>
-            <button type="button" class="btn-sm" onclick='delConsole(${q(id)})' style="color:#cc0000">✕</button>
-          </div>
-        </div>
-        <div id="adm-edit-${esc(id)}" style="display:none;padding:12px 11px 13px;border-top:1px solid var(--border);background:var(--surface)">
-          <div class="frow"><div class="fgroup"><label class="flbl">ชื่อ (TH)</label><input id="ec-name-${esc(id)}" value="${esc(c.name)}"></div><div class="fgroup"><label class="flbl">ชื่อ (EN)</label><input id="ec-nameen-${esc(id)}" value="${esc(c.nameEn||c.name)}"></div></div>
-          <div class="frow"><div class="fgroup"><label class="flbl">เรท</label><select id="ec-rate-${esc(id)}">${[300,350,400,500].map(r=>`<option value="${r}" ${Number(c.rate)===r?'selected':''}>${r} บาท/วัน</option>`).join('')}</select></div><div class="fgroup"><label class="flbl">ประเภท</label><select id="ec-type-${esc(id)}">${[['console','Console'],['vr','VR & AR'],['handheld','PC Handheld'],['racing','Racing']].map(a=>`<option value="${a[0]}" ${(c.type||'console')===a[0]?'selected':''}>${a[1]}</option>`).join('')}</select></div></div>
-          <div class="frow"><div class="fgroup"><label class="flbl">แบรนด์</label><select id="ec-brand-${esc(id)}">${[['playstation','PlayStation'],['nintendo','Nintendo'],['xbox','Xbox'],['other','Other']].map(a=>`<option value="${a[0]}" ${(c.brand||'other')===a[0]?'selected':''}>${a[1]}</option>`).join('')}</select></div><div class="fgroup"><label class="flbl">Icon</label><input id="ec-icon-${esc(id)}" value="${esc(c.icon)}" maxlength="4"></div></div>
-          <div class="fgroup"><label class="flbl">รายละเอียดการ์ด (TH)</label><textarea class="device-textarea" id="ec-detailsth-${esc(id)}">${esc(dth)}</textarea></div>
-          <div class="fgroup"><label class="flbl">Card Details (EN)</label><textarea class="device-textarea" id="ec-detailsen-${esc(id)}">${esc(den)}</textarea></div>
-          <div class="fgroup"><label class="flbl">ลิงก์รูป (URL)</label><input id="ec-img-${esc(id)}" value="${esc(img)}" placeholder="https://..."></div>
-          <div class="chk-row"><input type="checkbox" id="ec-showGameBtn-${esc(id)}" ${c.showGameButton!==false?'checked':''}><label for="ec-showGameBtn-${esc(id)}"><strong>${L('แสดงปุ่ม คลิกเลือก 10 เกม','Show game button')}</strong></label></div>
-          <div class="fgroup"><label class="flbl">ลิงก์ปุ่ม คลิกเลือก 10 เกม</label><input id="ec-gameurl-${esc(id)}" value="${esc(c.gameUrl||'')}" placeholder="game_index.html หรือ https://..."></div>
-          <div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" class="btn-aa green" onclick='saveEditConsole(${q(id)})'>💾 ${L('บันทึก','Save')}</button><button type="button" class="btn-aa" onclick='toggleEditRow(${q(id)})' style="background:none;border-color:var(--border);color:var(--text2)">${L('ยกเลิก','Cancel')}</button></div>
-        </div>
-      </div>`;
-    }).join('');
-  };
-
-  window.toggleEditRow = function(id){
-    id = String(id);
-    const el = $('adm-edit-' + id);
-    if(!el) return;
-    el.style.display = (el.style.display === 'none' || !el.style.display) ? 'block' : 'none';
-  };
-
-  window.addConsole = function(){
-    const name = ($('nCname')?.value || '').trim();
-    if(!name){ alert(L('กรุณาใส่ชื่อเครื่อง','Please enter console name.')); return; }
-    const rate = parseInt($('nCrate')?.value,10) || 300;
-    const id = 'custom_' + Date.now() + '_' + Math.floor(Math.random()*100000);
-    const item = normalizeConsoleFinal({
-      id,
-      name,
-      nameEn: ($('nCnameEn')?.value || name).trim() || name,
-      rate,
-      weekly: weeklyMap[rate] || 1500,
-      deposit: depositMap[rate] || 2000,
-      cat: String(rate),
-      type: $('nCtype')?.value || 'console',
-      brand: $('nCbrand')?.value || 'other',
-      icon: ($('nCicon')?.value || '🎮').trim() || '🎮',
-      showGameButton: !!($('nCshowGameBtn') ? $('nCshowGameBtn').checked : true),
-      gameUrl: ($('nCgameUrl')?.value || '').trim()
-    });
-    const list = currentConsoles();
-    list.push(item);
-    try{ consoles = list; }catch(e){}
-    const img = ($('nCimg')?.value || '').trim();
-    if(img) currentImages()[item.id] = img;
-    ['nCname','nCnameEn','nCimg','nCgameUrl'].forEach(fid=>{ const el=$(fid); if(el) el.value=''; });
-    const ck = $('nCshowGameBtn'); if(ck) ck.checked = true;
-    persistAll(L('✅ เพิ่มเครื่องเกมแล้ว','✅ Console added.'));
-    setTimeout(()=>{
-      const row = $('adm-row-' + item.id);
-      if(row){ row.scrollIntoView({behavior:'smooth',block:'center'}); row.style.outline='3px solid rgba(204,0,0,.25)'; setTimeout(()=>row.style.outline='',1200); }
-    },80);
-  };
-
-  window.saveEditConsole = function(id){
-    id = String(id);
-    const list = currentConsoles();
-    const c = list.find(x => String(x.id) === id);
-    if(!c) return;
-    const g = (k) => $('ec-' + k + '-' + id);
-    const name = (g('name')?.value || '').trim();
-    if(!name){ alert(L('กรุณาใส่ชื่อเครื่อง','Please enter console name.')); return; }
-    const rate = parseInt(g('rate')?.value,10) || 300;
-    c.name = name;
-    c.nameEn = (g('nameen')?.value || name).trim() || name;
-    c.rate = rate;
-    c.weekly = weeklyMap[rate] || c.weekly || 1500;
-    c.deposit = depositMap[rate] || c.deposit || 2000;
-    c.cat = String(rate);
-    c.type = g('type')?.value || 'console';
-    c.brand = g('brand')?.value || 'other';
-    c.icon = (g('icon')?.value || '🎮').trim() || '🎮';
-    c.detailsTh = (g('detailsth')?.value || '').split(/\n+/).map(x=>x.trim()).filter(Boolean);
-    c.detailsEn = (g('detailsen')?.value || '').split(/\n+/).map(x=>x.trim()).filter(Boolean);
-    c.showGameButton = !!g('showGameBtn')?.checked;
-    c.gameUrl = (g('gameurl')?.value || '').trim();
-    const img = (g('img')?.value || '').trim();
-    if(img) currentImages()[id] = img; else delete currentImages()[id];
-    try{ consoles = list; }catch(e){}
-    persistAll(L('✅ บันทึกข้อมูลเครื่องแล้ว','✅ Console saved.'));
-    setTimeout(()=>{ const e=$('adm-edit-' + id); if(e) e.style.display='block'; },80);
-  };
-
-  window.delConsole = function(id){
-    id = String(id);
-    if(!confirm(L('ลบเครื่องนี้?','Delete this console?'))) return;
-    try{ consoles = currentConsoles().filter(c => String(c.id) !== id); }catch(e){}
-    try{ delete currentImages()[id]; }catch(e){}
-    persistAll(L('✅ ลบเครื่องแล้ว','✅ Console deleted.'));
-  };
-
-  function getFaq(){
-    if(!Array.isArray(window.faqData)){
-      try{ window.faqData = JSON.parse(localStorage.getItem(FAQ_KEY) || '[]'); }catch(e){ window.faqData = []; }
-    }
-    return window.faqData;
-  }
-  function readFaqForm(){
-    return getFaq().map((old,i)=>({
-      qTh:(document.querySelector(`[data-faq-qth="${i}"]`)?.value ?? old.qTh ?? '').trim(),
-      aTh:(document.querySelector(`[data-faq-ath="${i}"]`)?.value ?? old.aTh ?? '').trim(),
-      qEn:(document.querySelector(`[data-faq-qen="${i}"]`)?.value ?? old.qEn ?? '').trim(),
-      aEn:(document.querySelector(`[data-faq-aen="${i}"]`)?.value ?? old.aEn ?? '').trim()
-    }));
-  }
-  function setFaq(data,text,filterBlank){
-    window.faqData = (Array.isArray(data) ? data : []).map(x=>({qTh:String(x.qTh||'').trim(),aTh:String(x.aTh||'').trim(),qEn:String(x.qEn||'').trim(),aEn:String(x.aEn||'').trim()}));
-    if(filterBlank) window.faqData = window.faqData.filter(x=>x.qTh||x.aTh||x.qEn||x.aEn);
-    try{ localStorage.setItem(FAQ_KEY, JSON.stringify(window.faqData)); }catch(e){}
-    renderFaqMain();
-    try{ if(typeof window.__ajCleanSchedulePush === 'function') window.__ajCleanSchedulePush(); }catch(e){}
-    status(text);
-  }
-  function renderFaqMain(){
-    const en = typeof lang !== 'undefined' && lang === 'en';
-    const data = getFaq().filter(x=>x.qTh||x.aTh||x.qEn||x.aEn);
-    const html = data.map(x=>`<div class="faq-item"><div class="faq-q">${esc(en?(x.qEn||x.qTh):(x.qTh||x.qEn))}</div><div class="faq-a">${esc(en?(x.aEn||x.aTh):(x.aTh||x.aEn))}</div></div>`).join('');
-    if($('faqList')) $('faqList').innerHTML = html;
-    if($('faqPopupList')) $('faqPopupList').innerHTML = html;
-  }
-  window.renderFaqSection = renderFaqMain;
-  window.renderFaqPopup = renderFaqMain;
-  window.renderFaq = renderFaqMain;
-
-  window.renderFaqAdmin = function(){
-    const panel = $('ajCleanFAQ') || $('admFAQ');
-    if(!panel) return;
-    const data = getFaq();
-    panel.innerHTML = `<div class="aform"><h4>❓ FAQ</h4>
-      <p class="gh-note">${L('FAQ ตัวเดียวที่ใช้จริง เพิ่ม/แก้ไข/ลบ/เลื่อนลำดับ แล้ว Sync ผ่าน Gist','Single FAQ source. Add/edit/delete/reorder and sync via Gist.')}</p>
-      <div id="ajCleanFaqList">${data.map((x,i)=>`<div class="admin-faq-item"><h5 style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span>FAQ ${i+1}</span><span style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="btn-sm" onclick="window.ajCleanFaqMove(${i},-1)" ${i===0?'disabled':''}>⬆️ ${L('ขึ้น','Up')}</button><button type="button" class="btn-sm" onclick="window.ajCleanFaqMove(${i},1)" ${i===data.length-1?'disabled':''}>⬇️ ${L('ลง','Down')}</button></span></h5><div class="fgroup"><label class="flbl">Question (TH)</label><input data-faq-qth="${i}" value="${esc(x.qTh||'')}"></div><div class="fgroup"><label class="flbl">Answer (TH)</label><input data-faq-ath="${i}" value="${esc(x.aTh||'')}"></div><div class="fgroup"><label class="flbl">Question (EN)</label><input data-faq-qen="${i}" value="${esc(x.qEn||'')}"></div><div class="fgroup"><label class="flbl">Answer (EN)</label><input data-faq-aen="${i}" value="${esc(x.aEn||'')}"></div><button type="button" class="btn-aa" onclick="window.ajCleanFaqDelete(${i})">${L('ลบ','Delete')}</button></div>`).join('')}</div>
-      <button type="button" class="btn-aa green" onclick="window.ajCleanFaqAdd()">➕ ${L('เพิ่ม FAQ','Add FAQ')}</button>
-      <button type="button" class="btn-aa blue" onclick="window.ajCleanFaqSave()">💾 ${L('บันทึก FAQ','Save FAQ')}</button>
-      <div id="ajCleanAdminStatus" style="font-size:12px;color:var(--muted);min-height:20px;padding-top:8px"></div></div>`;
-  };
-  window.ajCleanFaqAdd = function(){
-    const d = readFaqForm();
-    d.push({qTh:'',aTh:'',qEn:'',aEn:''});
-    setFaq(d,L('✅ เพิ่มช่อง FAQ แล้ว','✅ FAQ row added.'),false);
-    window.renderFaqAdmin();
-    setTimeout(()=>{ const list=$('ajCleanFaqList'); if(list) list.lastElementChild?.scrollIntoView({behavior:'smooth',block:'center'}); },50);
-  };
-  window.ajCleanFaqDelete = function(i){
-    const d = readFaqForm();
-    d.splice(i,1);
-    setFaq(d,L('✅ ลบ FAQ แล้ว','✅ FAQ deleted.'),false);
-    window.renderFaqAdmin();
-  };
-  window.ajCleanFaqMove = function(i,dir){
-    const d = readFaqForm();
-    const ni = i + dir;
-    if(ni < 0 || ni >= d.length) return;
-    [d[i], d[ni]] = [d[ni], d[i]];
-    setFaq(d,L('✅ เลื่อนลำดับ FAQ แล้ว','✅ FAQ order updated.'),false);
-    window.renderFaqAdmin();
-  };
-  window.ajCleanFaqSave = function(){
-    setFaq(readFaqForm(),L('✅ บันทึก FAQ แล้ว','✅ FAQ saved.'),true);
-    window.renderFaqAdmin();
-  };
-
-  function installFaqTab(){
-    const tabs = document.querySelector('.adm-tabs');
-    const body = $('adminBody');
-    if(!tabs || !body) return;
-    Array.from(tabs.querySelectorAll('.adm-tab')).filter(b => /FAQ|คำถาม/i.test(b.textContent || '') && b.id !== 'ajCleanFaqTab').forEach(b=>b.remove());
-    ['admFAQ','ajFaqAdminFinal'].forEach(id=>{ const el=$(id); if(el && id!=='ajCleanFAQ') el.remove(); });
-    let panel = $('ajCleanFAQ');
-    if(!panel){ panel = document.createElement('div'); panel.id='ajCleanFAQ'; panel.className='adm-panel'; body.appendChild(panel); }
-    let tab = $('ajCleanFaqTab');
-    if(!tab){
-      tab = document.createElement('button');
-      tab.type = 'button';
-      tab.className = 'adm-tab';
-      tab.id = 'ajCleanFaqTab';
-      tab.textContent = '❓ FAQ';
-      tab.onclick = function(){ if(typeof swTab === 'function') swTab(tab,'ajCleanFAQ'); window.renderFaqAdmin(); };
-      tabs.appendChild(tab);
-    }
-    window.renderFaqAdmin();
-  }
-
-  const oldRenderAdminPanel = window.renderAdminPanel;
-  if(typeof oldRenderAdminPanel === 'function'){
-    window.renderAdminPanel = function(){
-      const out = oldRenderAdminPanel.apply(this, arguments);
-      setTimeout(()=>{ try{ window.renderAdmConsoles(); }catch(e){} installFaqTab(); },0);
-      return out;
-    };
-  }
-  const oldSwTab = window.swTab;
-  if(typeof oldSwTab === 'function'){
-    window.swTab = function(btn,pid){
-      const out = oldSwTab.apply(this, arguments);
-      setTimeout(()=>{ if(pid === 'admAC') window.renderAdmConsoles(); if(pid === 'ajCleanFAQ') window.renderFaqAdmin(); installFaqTab(); },0);
-      return out;
-    };
-  }
-  document.addEventListener('click', function(e){
-    const btn = e.target && e.target.closest ? e.target.closest('button') : null;
-    if(!btn) return;
-    const txt = (btn.textContent || '').trim();
-    if(/เพิ่มเครื่อง|Add console/i.test(txt)){
-      setTimeout(()=>{ try{ window.renderAdmConsoles(); }catch(err){} },60);
-    }
-  }, true);
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', ()=>{ renderFaqMain(); installFaqTab(); try{ window.renderAdmConsoles(); }catch(e){} });
-  }else{
-    renderFaqMain(); installFaqTab(); try{ window.renderAdmConsoles(); }catch(e){}
-  }
-})();
-</script>
-
 <script id="aj-admin-v7-hard-reset">
 (function(){
   'use strict';
@@ -11573,6 +11236,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
   window.ajV7 = {
     showTab:function(pid,btn){ document.querySelectorAll('#adminBody .adm-panel').forEach(function(p){p.classList.remove('act');}); document.querySelectorAll('#adminBody .adm-tab').forEach(function(b){b.classList.remove('act');}); var p=$(pid); if(p) p.classList.add('act'); if(btn) btn.classList.add('act'); if(pid==='ajV7Consoles') renderConsoleAdmin(); if(pid==='ajV7Home') renderHomePanel(); if(pid==='ajV7Faq') renderFaqPanel(); },
+    renderHomePanel:function(){ renderHomePanel(); },
+    renderConsoleAdmin:function(){ renderConsoleAdmin(); },
+    renderFaqPanel:function(){ renderFaqPanel(); },
     addConsole:function(){
       var name=getInput('ajV7NewName'); if(!name){ alert(L('กรุณาใส่ชื่อเครื่อง','Please enter console name.')); return; }
       var rate=parseInt(getInput('ajV7NewRate'),10)||300; var item=normalizeConsole({id:'custom_'+Date.now()+'_'+Math.floor(Math.random()*999999),name:name,nameEn:getInput('ajV7NewNameEn')||name,rate:rate,weekly:weeklyMap[rate],deposit:depositMap[rate],cat:String(rate),type:getInput('ajV7NewType')||'console',brand:getInput('ajV7NewBrand')||'other',icon:getInput('ajV7NewIcon')||'🎮',gamePlatform:getInput('ajV7NewPlatform'),showGameButton:($('ajV7NewShowGame')?$('ajV7NewShowGame').checked:true),gameUrl:''});
@@ -11749,7 +11415,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   };
   window.doGhPushAdmin=pushGist; window.doGhPushMain=pushGist; window.gistPush=pushGist; window.doGhPull=pullGist;
   var oldRender=window.renderAdminPanel;
-  window.renderAdminPanel=function(){ if(typeof oldRender==='function') oldRender.apply(this,arguments); var body=$('adminBody'); if(!body)return; var panel=$('ajV7Consoles'); if(panel){panel.innerHTML=renderConsolePanel(); renderConsoleAdmin();} var home=$('ajV7HomePanel'); if(home && window.ajV7){ window.ajV7.addHome=window.ajV8.addHome; window.ajV7.saveHome=window.ajV8.saveHome; } var setPanel=$('ajV7Settings'); if(setPanel){setPanel.innerHTML='<div class="aform"><h4>🎛️ '+L('ตั้งค่าฟีเจอร์','Feature settings')+'</h4><div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:14px;font-weight:700;color:var(--text)">'+L('ส่วนลดลูกค้าเก่า 10%','Returning customer discount 10%')+'</div><div style="font-size:12px;color:var(--muted);margin-top:3px">'+L('เปิด/ปิดตัวเลือกส่วนลดในหน้าคำนวณ','Enable/disable discount option in calculator')+'</div></div><label class="toggle-switch"><input type="checkbox" id="ajV7RetToggle" onchange="ajV8.toggleRet(this.checked)"><span class="toggle-slider"></span></label></div></div>'; } syncRetUI(); };
+  window.renderAdminPanel=function(){ if(typeof oldRender==='function') oldRender.apply(this,arguments); var body=$('adminBody'); if(!body)return; var panel=$('ajV7Consoles'); if(panel){panel.innerHTML=renderConsolePanel(); renderConsoleAdmin();} var home=$('ajV7HomePanel'); if(home && window.ajV7){ window.ajV7.addHome=window.ajV8.addHome; window.ajV7.saveHome=window.ajV8.saveHome; } var setPanel=$('ajV7Settings'); if(setPanel){var retOn=localStorage.getItem('aj_ret_enabled')==='true'; setPanel.innerHTML='<div class="aform"><h4>🎛️ '+L('ตั้งค่าฟีเจอร์','Feature settings')+'</h4><div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:14px;font-weight:700;color:var(--text)">'+L('ส่วนลดลูกค้าเก่า 10%','Returning customer discount 10%')+'</div><div style="font-size:12px;color:var(--muted);margin-top:3px">'+L('เปิด/ปิดตัวเลือกส่วนลดในหน้าคำนวณ','Enable/disable discount option in calculator')+'</div></div><label class="toggle-switch"><input type="checkbox" id="ajV7RetToggle" '+(retOn?'checked':'')+' onchange="ajV8.toggleRet(this.checked)"><span class="toggle-slider"></span></label></div></div>'; } syncRetUI(); };
   document.addEventListener('click',function(e){var t=e.target; if(!t)return; var text=(t.textContent||'').trim(); if(/เพิ่มรายการ|Add item/.test(text)){var s=String(t.getAttribute('onclick')||''); if(s.indexOf("newGames")>=0){e.preventDefault(); e.stopPropagation(); window.ajV8.addHome('newGames');} }},true);
   try{if(window.ajV7){window.ajV7.addConsole=window.ajV8.addConsole; window.ajV7.saveConsole=window.ajV8.saveConsole; window.ajV7.deleteConsole=window.ajV8.deleteConsole; window.ajV7.toggleConsole=window.ajV8.toggleConsole; window.ajV7.addHome=window.ajV8.addHome; window.ajV7.saveHome=window.ajV8.saveHome; window.ajV7.toggleRet=window.ajV8.toggleRet;}}catch(e){}
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setConsoleList(getConsoleList()); syncRetUI();}); else {setConsoleList(getConsoleList()); syncRetUI();}
@@ -11932,6 +11598,247 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>{commitConsoles(getConsolesLS());}); else commitConsoles(getConsolesLS());
 })();
 </script>
+
+<style id="aj-v10-final-fix-style">
+/* Hide the "Returning customer" discount row completely when toggle is off */
+html.aj-ret-off #retRowWrap,
+html.aj-ret-off [data-ret-row],
+html.aj-ret-off .ret-row-wrap { display: none !important; }
+</style>
+
+<script id="aj-v10-final-fix">
+/* v10 — final cleanup & fix layer
+ * 1. Home panel "เพิ่มรายการ" now re-renders (wires through ajV7.renderHomePanel)
+ * 2. Auto-push to Gist after any admin change (debounced) so data survives refresh
+ * 3. Settings toggle truly gates the calculator discount row (hide, not just disable)
+ */
+(function(){
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const HOME_KEY = 'aj_home_sections_v1';
+  const FAQ_KEY  = 'aj_faq_data_v1';
+  const GIST_FILE = 'aj_rental_data.json';
+  const DEFAULT_GIST_ID = '4e8fb8c04f38df0538dc9172da99887a';
+  const isEn = () => { try { return lang === 'en'; } catch(e){ return false; } };
+  const L = (th, en) => isEn() ? en : th;
+
+  function setStatus(text){
+    ['ajV7Status','ajV7HomeStatus','ajV8Status','ajV9Status','ghAdminStatus'].forEach(id=>{
+      const el=$(id); if(el) el.textContent = text || '';
+    });
+  }
+
+  /* -----------------------------------------------------------
+   *  FIX 1 — Home admin "เพิ่มรายการ" re-render
+   *  Root cause: v9's saveHome called window.ajV7.renderHomePanel
+   *              but that was never exported. We exported it in v7
+   *              already; here we belt-and-suspenders it.
+   * ---------------------------------------------------------- */
+  function forceRenderHomePanel(){
+    try{
+      if(window.ajV7){
+        if(typeof window.ajV7.renderHomePanel === 'function'){
+          window.ajV7.renderHomePanel();
+          return;
+        }
+        // Fallback: if on home tab, re-trigger showTab to refresh contents
+        const homePanel = $('ajV7Home');
+        if(homePanel && homePanel.classList.contains('act') && typeof window.ajV7.showTab === 'function'){
+          const homeBtn = document.querySelector('.adm-tabs .adm-tab[onclick*="ajV7Home"]');
+          window.ajV7.showTab('ajV7Home', homeBtn);
+        }
+      }
+    }catch(e){}
+  }
+
+  /* -----------------------------------------------------------
+   *  FIX 2 — Auto-push to Gist (debounced)
+   *  Root cause: preload script overwrites localStorage from Gist
+   *              on every page load. If user didn't click Push,
+   *              their local edits disappear.
+   *  Solution: after any admin change, schedule an auto-push.
+   * ---------------------------------------------------------- */
+  function readConsoles(){
+    let list = [];
+    try { list = JSON.parse(localStorage.getItem('aj_consoles') || '[]') || []; } catch(e){}
+    if(!Array.isArray(list)) list = Object.values(list || {});
+    return list;
+  }
+  function readImages(){
+    try { return JSON.parse(localStorage.getItem('aj_images') || '{}') || {}; } catch(e){ return {}; }
+  }
+  function readHomeLS(){
+    let d=null;
+    try { d = JSON.parse(localStorage.getItem(HOME_KEY) || 'null'); } catch(e){}
+    if(!d) d = {};
+    ['highlight','newGames'].forEach(k=>{
+      if(!d[k]) d[k] = {enabled:true,titleTh:k==='highlight'?'Highlight':'New Games Update',titleEn:k==='highlight'?'Highlights':'New Games Update',subtitleTh:'',subtitleEn:'',items:[]};
+      if(!Array.isArray(d[k].items)) d[k].items = [];
+    });
+    return d;
+  }
+  function readFaq(){
+    let d=[];
+    try { d = JSON.parse(localStorage.getItem(FAQ_KEY) || '[]') || []; } catch(e){}
+    if(!Array.isArray(d)) d = Object.values(d || {});
+    return d.filter(x => x && (x.qTh || x.aTh || x.qEn || x.aEn));
+  }
+  function buildPayload(){
+    let ret = localStorage.getItem('aj_ret_enabled') === 'true';
+    try { ret = !!retEnabled; } catch(e){}
+    return {
+      consoles : readConsoles(),
+      images   : readImages(),
+      homeData : readHomeLS(),
+      faqData  : readFaq(),
+      retEnabled: ret,
+      featureSettings: { returningDiscountEnabled: ret }
+    };
+  }
+
+  let pushTimer = null;
+  let inFlight = false;
+  async function doPush(){
+    if(inFlight) return false;
+    const gid = (localStorage.getItem('aj_gist_id') || DEFAULT_GIST_ID || '').trim();
+    const tok = (localStorage.getItem('aj_gist_token') || '').trim();
+    if(!gid || !tok){
+      setStatus(L('⚠️ ข้อมูลถูกบันทึกเฉพาะในเครื่อง — ใส่ Gist Token ในแท็บ Cloud Sync เพื่อซิงค์อัตโนมัติ',
+                  '⚠️ Saved locally only — set Gist Token in Cloud Sync tab to auto-sync'));
+      return false;
+    }
+    inFlight = true;
+    setStatus(L('☁️ กำลังซิงค์ขึ้น Gist...', '☁️ Syncing to Gist...'));
+    try{
+      const r = await fetch('https://api.github.com/gists/' + gid, {
+        method: 'PATCH',
+        headers: { Authorization: 'token ' + tok, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ files: { [GIST_FILE]: { content: JSON.stringify(buildPayload(), null, 2) } } })
+      });
+      if(!r.ok){
+        let msg = r.status;
+        try { const j = await r.json(); msg = j.message || msg; } catch(e){}
+        setStatus(L('❌ ซิงค์ล้มเหลว: ', '❌ Sync failed: ') + msg);
+        return false;
+      }
+      setStatus(L('✅ ซิงค์ Gist สำเร็จ', '✅ Synced to Gist'));
+      return true;
+    } catch(e){
+      setStatus(L('❌ ซิงค์ล้มเหลว: ', '❌ Sync failed: ') + (e.message || e));
+      return false;
+    } finally {
+      inFlight = false;
+    }
+  }
+  function schedulePush(delay){
+    if(pushTimer) clearTimeout(pushTimer);
+    pushTimer = setTimeout(()=>{ pushTimer = null; doPush(); }, delay || 1500);
+  }
+  // Expose as __ajCleanSchedulePush so existing calls throughout the file hit this too
+  window.__ajCleanSchedulePush = schedulePush;
+  // Also expose as ajAutoPush for convenience
+  window.ajAutoPush = schedulePush;
+
+  /* -----------------------------------------------------------
+   *  FIX 3 — Settings toggle visibility + state sync
+   * ---------------------------------------------------------- */
+  function applyRetHideClass(){
+    const on = localStorage.getItem('aj_ret_enabled') === 'true';
+    document.documentElement.classList.toggle('aj-ret-off', !on);
+    // Also sync any visible toggle checkboxes
+    ['ajV7RetToggle','retToggle'].forEach(id=>{
+      const el = $(id); if(el) el.checked = on;
+    });
+    try { retEnabled = on; } catch(e){}
+    try { if(typeof renderRetRow === 'function') renderRetRow(); } catch(e){}
+    try { if(typeof calc === 'function') calc(); } catch(e){}
+  }
+
+  // Hook storage changes (cross-tab) and same-tab changes
+  window.addEventListener('storage', e=>{
+    if(e.key === 'aj_ret_enabled') applyRetHideClass();
+  });
+
+  /* -----------------------------------------------------------
+   *  Wrap admin methods to trigger auto-push after any change
+   * ---------------------------------------------------------- */
+  function wrapForAutoPush(ns, fn){
+    const orig = ns[fn];
+    if(!orig || orig.__v10Wrapped) return;
+    const wrapped = function(){
+      const out = orig.apply(this, arguments);
+      schedulePush();
+      return out;
+    };
+    wrapped.__v10Wrapped = true;
+    ns[fn] = wrapped;
+  }
+  function installPushHooks(){
+    if(window.ajV7){
+      ['addConsole','saveConsole','deleteConsole','addHome','saveHome','deleteHome','moveHome',
+       'addFaq','deleteFaq','moveFaq','saveFaq','toggleRet'].forEach(fn => wrapForAutoPush(window.ajV7, fn));
+    }
+    if(window.ajV8){
+      ['addConsole','saveConsole','deleteConsole','addHome','saveHome','toggleRet'].forEach(fn => wrapForAutoPush(window.ajV8, fn));
+    }
+  }
+
+  /* -----------------------------------------------------------
+   *  Wrap saveHome / addHome / etc so they re-render the Home
+   *  panel even when the underlying helper called the wrong
+   *  window.ajV7.renderHomePanel reference
+   * ---------------------------------------------------------- */
+  function wrapForHomeRerender(ns, fn){
+    const orig = ns[fn];
+    if(!orig || orig.__v10HomeWrapped) return;
+    const wrapped = function(){
+      const out = orig.apply(this, arguments);
+      setTimeout(forceRenderHomePanel, 0);
+      return out;
+    };
+    wrapped.__v10HomeWrapped = true;
+    wrapped.__v10Wrapped = orig.__v10Wrapped;   // preserve push marker if any
+    ns[fn] = wrapped;
+  }
+  function installHomeRerenderHooks(){
+    ['addHome','saveHome','deleteHome','moveHome'].forEach(fn=>{
+      if(window.ajV7) wrapForHomeRerender(window.ajV7, fn);
+      if(window.ajV8) wrapForHomeRerender(window.ajV8, fn);
+    });
+  }
+
+  /* -----------------------------------------------------------
+   *  Wrap renderAdminPanel so our hooks install after every
+   *  admin re-render (v8 overwrites ajV7 methods on each render)
+   * ---------------------------------------------------------- */
+  const _origRender = window.renderAdminPanel;
+  window.renderAdminPanel = function(){
+    const r = typeof _origRender === 'function' ? _origRender.apply(this, arguments) : undefined;
+    // Let v8/v9's own setTimeout(0) installs run first, then we hook on top
+    setTimeout(()=>{
+      installHomeRerenderHooks();
+      installPushHooks();
+      applyRetHideClass();
+    }, 30);
+    return r;
+  };
+
+  /* -----------------------------------------------------------
+   *  Initial setup
+   * ---------------------------------------------------------- */
+  function init(){
+    applyRetHideClass();
+    installHomeRerenderHooks();
+    installPushHooks();
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
 
 </body>
 </html>
