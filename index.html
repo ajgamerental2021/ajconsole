@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AJ Game Rental - รายการเครื่อง</title>
+<meta name="description" content="บริการให้เช่าเครื่องเล่นเกม พร้อมส่งด่วน 2 ชม. ในกรุงเทพฯ และปริมณฑล🔥">
+<meta property="og:description" content="บริการให้เช่าเครื่องเล่นเกม พร้อมส่งด่วน 2 ชม. ในกรุงเทพฯ และปริมณฑล🔥">
+<meta name="twitter:description" content="บริการให้เช่าเครื่องเล่นเกม พร้อมส่งด่วน 2 ชม. ในกรุงเทพฯ และปริมณฑล🔥">
 
 <style id="aj-preload-style">
 html.aj-preload-pending body{overflow:hidden;}
@@ -9367,6 +9370,243 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   const getLang=()=>{try{if(typeof lang!=='undefined') return lang;}catch(e){} return window.lang||'th';};
   const isEn=()=>getLang()==='en';
 
+  function patchGamePickerUi(frame){
+    let unlock = null;
+    try{
+      const doc = frame && (frame.contentDocument || (frame.contentWindow && frame.contentWindow.document));
+      if(!doc || !doc.body) return false;
+      if(doc.body.__ajGamePickerPatching) return true;
+      doc.body.__ajGamePickerPatching = true;
+      unlock = function(){ doc.body.__ajGamePickerPatching = false; };
+
+      const textOf = el => String((el && el.textContent) || '').replace(/\s+/g,' ').trim();
+      const langNow = isEn() ? 'en' : 'th';
+      const COMPACT_KEY = 'aj_game_picker_compact_details_v1';
+
+      function upsertPatchStyle(){
+        const css = `
+          [data-aj-compact-target="1"].aj-compact-hidden{display:none !important;}
+          .aj-compact-toggle-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid rgba(0,0,0,.10);background:#fff;color:#333;border-radius:999px;padding:9px 14px;font-weight:800;font-size:13px;line-height:1.2;box-shadow:0 6px 18px rgba(0,0,0,.08);cursor:pointer;margin:10px 0 12px;font-family:inherit;}
+          .aj-compact-toggle-btn:hover{border-color:rgba(204,0,0,.35);color:#cc0000;}
+          .aj-compact-toggle-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+        `;
+        let st = doc.getElementById('aj-game-picker-compact-patch-style');
+        if(!st){ st = doc.createElement('style'); st.id = 'aj-game-picker-compact-patch-style'; (doc.head || doc.documentElement).appendChild(st); }
+        if(st.textContent !== css) st.textContent = css;
+      }
+
+      function closestCleanBlock(el){
+        if(!el) return null;
+        let cur = el;
+        while(cur && cur !== doc.body){
+          const tag = (cur.tagName || '').toUpperCase();
+          const txt = textOf(cur);
+          if(['SECTION','ARTICLE','ASIDE','HEADER','DIV'].includes(tag) && txt.length > 0 && txt.length < 2200){
+            return cur;
+          }
+          cur = cur.parentElement;
+        }
+        return el;
+      }
+
+      function guideHtml(){
+        return langNow === 'en'
+          ? '<h3>💡 How to choose games</h3><ol><li>Select a console/game category, then the games in that category will appear.</li><li>Click a game cover to select ✓ — click again to deselect.</li><li>Select up to 10 games across all categories.</li><li>Click <strong>"Use this list"</strong> to attach the game list to the message for the shop to install.</li><li>Or click <strong>"Create message to send later"</strong> and click <strong>"Copy list"</strong>, then send it to Line <strong>@ajgame</strong>.</li></ol>'
+          : '<h3>💡 วิธีเลือกเกม</h3><ol><li>เลือกประเภทเครื่องเกม จากนั้นเกมในประเภทนั้นจะแสดงขึ้นมา</li><li>คลิกรูปเกมเพื่อเลือก ✓ — คลิกซ้ำเพื่อยกเลิก</li><li>เลือกได้สูงสุด 10 เกม จากทุกประเภท</li><li>กด <strong>"ใช้รายการนี้"</strong> เพื่อแนบรายการเกมไปในข้อความแจ้งให้ทางร้านติดตั้ง</li><li>หรือ กด <strong>"สร้างข้อความเพื่อแจ้งภายหลัง"</strong> และกด <strong>"Copy รายการ"</strong> แล้วส่งมาที่ Line <strong>@ajgame</strong></li></ol>';
+      }
+
+      function findGuideBox(){
+        const re = /วิธีเลือกเกม|How to choose games|เลือกประเภทเครื่องเกม|Select a console\/game category|เลือกได้สูงสุด 10 เกม|Select up to 10 games|สร้างข้อความเพื่อแจ้งภายหลัง|Create message to send later/i;
+        const nodes = Array.from(doc.querySelectorAll('[data-aj-game-guide], .guide, .game-guide, .how-to, .howto, .instruction, .instructions, .help, .tips, [class*="guide"], [class*="how"], [class*="instruction"], [class*="help"], [class*="tip"], section, article, aside, div'));
+        const candidates = nodes.filter(el=>{
+          if(!el || el === doc.body) return false;
+          const txt = textOf(el);
+          return txt && txt.length < 2200 && re.test(txt);
+        }).sort((a,b)=>{
+          const ao = a.querySelector && a.querySelector('ol,ul') ? 0 : 300;
+          const bo = b.querySelector && b.querySelector('ol,ul') ? 0 : 300;
+          return (textOf(a).length + ao) - (textOf(b).length + bo);
+        });
+        if(candidates.length) return candidates[0];
+        const heading = Array.from(doc.querySelectorAll('h1,h2,h3,h4,strong,b')).find(el=>/วิธีเลือกเกม|How to choose games/i.test(textOf(el)));
+        return closestCleanBlock(heading);
+      }
+
+      function patchGuide(){
+        const guide = findGuideBox();
+        if(!guide) return null;
+        if(guide.getAttribute('data-aj-guide-patched') !== '1' || guide.getAttribute('data-aj-guide-lang') !== langNow){
+          guide.innerHTML = guideHtml();
+          guide.setAttribute('data-aj-guide-patched','1');
+          guide.setAttribute('data-aj-guide-lang',langNow);
+        }
+        guide.setAttribute('data-aj-game-guide','1');
+        return guide;
+      }
+
+      function isToggleButton(el){
+        const txt = textOf(el);
+        return /ปิดรายละเอียด|แสดงรายละเอียด|เลือกแต่เกม|Hide details|Show details|choose games only/i.test(txt);
+      }
+
+      function findToggleButtons(){
+        return Array.from(doc.querySelectorAll('button,a,[role="button"]')).filter(isToggleButton);
+      }
+
+      function introTargets(){
+        const phrases = [
+          'เลือกเกมที่อยากเล่น',
+          'เลือกได้สูงสุด 10 เกม แล้วส่งรายการที่เลือกกลับไปยังหน้าจอจองเช่า',
+          'Choose the games you want to play',
+          'Choose games you want to play',
+          'Choose up to 10 games, then send the selected list back to the booking page',
+          'Select up to 10 games, then send the selected list back to the booking page'
+        ];
+        const toggles = findToggleButtons();
+        const guide = (typeof findGuideBox === 'function') ? findGuideBox() : null;
+        // Find smallest matching elements (leaf-like) for each phrase
+        const leaves = [];
+        Array.from(doc.querySelectorAll('h1,h2,h3,h4,h5,h6,p,span,div,header,section,small,em,strong,b')).forEach(el=>{
+          const txt = textOf(el);
+          if(!txt || txt.length > 400) return;
+          if(!phrases.some(p=>txt.includes(p))) return;
+          if(toggles.some(btn=>el.contains(btn))) return;
+          if(guide && (el === guide || el.contains(guide) || guide.contains(el))) return;
+          // Prefer the smallest element that contains the phrase
+          const hasSmallerMatch = leaves.some(other => el.contains(other) && other !== el);
+          if(hasSmallerMatch) return;
+          // Remove any larger matches we already added
+          for(let i=leaves.length-1; i>=0; i--){
+            if(leaves[i].contains(el) && leaves[i] !== el) leaves.splice(i,1);
+          }
+          leaves.push(el);
+        });
+        return leaves;
+      }
+
+      function markCompactTargets(){
+        Array.from(doc.querySelectorAll('[data-aj-compact-target="1"]')).forEach(el=>{
+          el.removeAttribute('data-aj-compact-target');
+          el.classList.remove('aj-compact-hidden');
+        });
+        const guide = findGuideBox();
+        const intros = introTargets();
+        const allLeaves = [];
+        intros.forEach(el=>{ if(el && !allLeaves.includes(el)) allLeaves.push(el); });
+        if(guide && !allLeaves.includes(guide)) allLeaves.push(guide);
+
+        // Try to find a common ancestor that contains all leaves but does NOT contain
+        // any toggle button and is NOT the body. If found, hiding it cleanly removes
+        // any whitespace/wrappers between the leaves too.
+        const toggles = findToggleButtons();
+        let chosenAncestor = null;
+        if(allLeaves.length >= 2){
+          // Build ancestor chain from the first leaf
+          const chain = [];
+          let cur = allLeaves[0].parentElement;
+          while(cur && cur !== doc.body){
+            chain.push(cur);
+            cur = cur.parentElement;
+          }
+          for(const anc of chain){
+            const containsAllLeaves = allLeaves.every(l => anc.contains(l));
+            if(!containsAllLeaves) continue;
+            const containsToggle = toggles.some(btn => anc.contains(btn));
+            if(containsToggle) continue;
+            // Avoid picking something that is excessively large (likely the whole page)
+            const txt = textOf(anc);
+            if(txt.length > 4000) continue;
+            chosenAncestor = anc;
+            break;
+          }
+        }
+
+        const targets = [];
+        if(chosenAncestor){
+          targets.push(chosenAncestor);
+        } else {
+          allLeaves.forEach(el=>{ if(el && !targets.includes(el)) targets.push(el); });
+        }
+        targets.forEach(el=>el.setAttribute('data-aj-compact-target','1'));
+        return targets;
+      }
+
+      function compactLabel(on){
+        return langNow === 'en'
+          ? (on ? '👀 Show details' : '🙈 Hide details and choose games only')
+          : (on ? '👀 แสดงรายละเอียด' : '🙈 ปิดรายละเอียดและเลือกแต่เกม');
+      }
+
+      function setCompact(on){
+        const targets = markCompactTargets();
+        targets.forEach(el=>el.classList.toggle('aj-compact-hidden', !!on));
+        findToggleButtons().forEach(btn=>{
+          btn.textContent = compactLabel(!!on);
+          btn.setAttribute('data-aj-compact-toggle','1');
+        });
+        try{ doc.defaultView.localStorage.setItem(COMPACT_KEY, on ? '1' : '0'); }catch(e){}
+      }
+
+      function attachToggle(btn){
+        if(!btn || btn.__ajCompactToggleAttached) return;
+        btn.__ajCompactToggleAttached = true;
+        btn.classList.add('aj-compact-toggle-btn');
+        btn.setAttribute('data-aj-compact-toggle','1');
+        btn.addEventListener('click', function(ev){
+          const hidden = !!doc.querySelector('[data-aj-compact-target="1"].aj-compact-hidden');
+          setCompact(!hidden);
+          if(ev && ev.stopPropagation) ev.stopPropagation();
+        }, true);
+      }
+
+      function ensureToggleButton(){
+        let buttons = findToggleButtons();
+        if(!buttons.length){
+          const guide = findGuideBox();
+          if(guide && guide.parentNode){
+            const wrap = doc.createElement('div');
+            wrap.className = 'aj-compact-toggle-wrap';
+            const btn = doc.createElement('button');
+            btn.type = 'button';
+            btn.className = 'aj-compact-toggle-btn';
+            btn.textContent = compactLabel(false);
+            wrap.appendChild(btn);
+            guide.parentNode.insertBefore(wrap, guide.nextSibling);
+            buttons = [btn];
+          }
+        }
+        buttons.forEach(attachToggle);
+        return buttons;
+      }
+
+      upsertPatchStyle();
+      patchGuide();
+      ensureToggleButton();
+      let shouldCompact = false;
+      try{ shouldCompact = doc.defaultView.localStorage.getItem(COMPACT_KEY) === '1'; }catch(e){}
+      setCompact(shouldCompact);
+
+      if(!doc.body.__ajGamePickerObserver){
+        let timer = null;
+        const observer = new MutationObserver(()=>{
+          clearTimeout(timer);
+          timer = setTimeout(()=>patchGamePickerUi(frame), 80);
+        });
+        observer.observe(doc.body,{childList:true,subtree:true,characterData:true});
+        doc.body.__ajGamePickerObserver = observer;
+      }
+      return true;
+    }catch(e){
+      return false;
+    }finally{
+      if(unlock) unlock();
+    }
+  }
+
+  function scheduleGamePickerUiPatch(frame){
+    [0,120,300,650,1100,1800,2800,4200,6000,8000].forEach(ms=>setTimeout(()=>patchGamePickerUi(frame), ms));
+  }
+
   function tt(){ return isEn() ? {
     secTag:'CALCULATOR',secH:'Check queue & calculate rental',secP:'Min. 3 days | Individual rates',
     guideH:'How to use queue check & rental calculator',guideP:'Use the 4 tabs in order. Choose the console and dates first, then fill in additional options, choose games, and review the summary.',
@@ -9897,12 +10137,19 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     const c=s.c;
     const deadlineDate = state.start ? fmtIso(addDays(parseDate(state.start), -1)) : '';
     const noContractSuffix = state.noCon ? (isEn() ? ' (No contract)' : ' (ไม่ทำสัญญา)') : '';
-    const thContractLines = state.noCon
-      ? ['⚠️ ลูกค้าเลือก: ไม่ทำสัญญาการเช่า', 'การจองนี้เป็นแบบไม่ทำสัญญาการเช่า']
-      : ['📝 กรุณาทำสัญญาการเช่าก่อนนัดส่งเครื่อง', `${tt().contractLink}`, 'หากไม่ต้องการทำสัญญา ให้ไปเลือกที่ Additional ว่า ไม่ต้องการทำสัญญาการเช่า'];
-    const enContractLines = state.noCon
-      ? ['⚠️ Customer selected: No Rental Contract', 'This booking will proceed without a rental contract.']
-      : ['📝 Please complete the rental contract before delivery', `${tt().contractLink}`, 'If you do not want a contract, select No Rental Contract in Additional.'];
+    const mapsLink = String(state.maps || '').trim();
+    const thMapsLines = mapsLink ? ['', `📍 Google Maps ที่อยู่จัดส่งสำหรับเช็คค่าจัดส่ง: ${mapsLink}`] : [];
+    const enMapsLines = mapsLink ? ['', `📍 Google Maps delivery address for checking delivery cost: ${mapsLink}`] : [];
+    const thContractLines = state.ret
+      ? []
+      : (state.noCon
+        ? ['⚠️ ลูกค้าเลือก: ไม่ทำสัญญาการเช่า', 'การจองนี้เป็นแบบไม่ทำสัญญาการเช่า']
+        : ['📝 กรุณาทำสัญญาการเช่าก่อนนัดส่งเครื่อง', `${tt().contractLink}`, 'หากไม่ต้องการทำสัญญา ให้ไปเลือกที่ Additional ว่า ไม่ต้องการทำสัญญาการเช่า']);
+    const enContractLines = state.ret
+      ? []
+      : (state.noCon
+        ? ['⚠️ Customer selected: No Rental Contract', 'This booking will proceed without a rental contract.']
+        : ['📝 Please complete the rental contract before delivery', `${tt().contractLink}`, 'If you do not want a contract, select No Rental Contract in Additional.']);
 
     const gameLines = (()=>{
       if(state.notifyLater){
@@ -9924,6 +10171,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       `📅 วันที่เริ่มเช่า: ${formatDisplay(state.start)}`,
       `📅 วันคืนเครื่อง: ${formatDisplay(state.end)}`,
       `📅 ระยะเวลา: ${s.days} วัน`,
+      ...thMapsLines,
       ...(gameLines.length ? ['', ...gameLines] : []),
       '',
       '💰 สรุปค่าใช้จ่าย:',
@@ -9935,9 +10183,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       `💰 ยอดรวมทั้งหมด: ${fmtMoney(s.total)}`,
       `💳 โอนล่วงหน้า (ยืนยันจอง): ${fmtMoney(s.upfront)}`,
       `🚚 จ่ายตอนของถึง: ${fmtMoney(s.onDelivery)}`,
-      '',
-      ...thContractLines,
-      '',
+      ...(thContractLines.length ? ['', ...thContractLines, ''] : ['']),
       'ขอบคุณครับ/ค่ะ 🙏'
     ];
 
@@ -9954,6 +10200,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       `📅 Start Date: ${formatDisplay(state.start)}`,
       `📅 Return Date: ${formatDisplay(state.end)}`,
       `📅 Duration: ${s.days} days`,
+      ...enMapsLines,
       ...(gameLines.length ? ['', ...gameLines.map(line=>line === '  แจ้งภายหลัง' ? '  Send later' : line)] : []),
       '',
       '💰 Cost Summary:',
@@ -9964,9 +10211,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       '',
       `💰 Total: ${fmtMoney(s.total)}`,
       ...enPaymentLines,
-      '',
-      ...enContractLines,
-      '',
+      ...(enContractLines.length ? ['', ...enContractLines, ''] : ['']),
       'Thank you! 🙏'
     ];
 
@@ -9983,6 +10228,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     render();
     const frame=q('#ajxPickerFrame');
     function postOpen(){
+      scheduleGamePickerUiPatch(frame);
       frame?.contentWindow?.postMessage({
         type:'AJ_PICKER_OPEN',
         requestId:'ajx-'+Date.now(),
@@ -9990,6 +10236,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
         lang:getLang(),
         selectedGameIds:state.games.map(g=>g.id).filter(Boolean)
       }, '*');
+      scheduleGamePickerUiPatch(frame);
     }
     frame?.addEventListener('load', postOpen, {once:true});
     setTimeout(postOpen, 600);
@@ -10054,6 +10301,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     if(data.type==='AJ_GAME_READY' && state.pickerOpen){
       const c=currentConsole();
       const frame=q('#ajxPickerFrame');
+      scheduleGamePickerUiPatch(frame);
       frame?.contentWindow?.postMessage({
         type:'AJ_PICKER_OPEN',
         requestId:'ajx-'+Date.now(),
@@ -10061,6 +10309,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
         lang:getLang(),
         selectedGameIds:state.games.map(g=>g.id).filter(Boolean)
       }, '*');
+      scheduleGamePickerUiPatch(frame);
     }
   });
 
