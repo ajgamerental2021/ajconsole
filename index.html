@@ -2847,6 +2847,9 @@ function copyMsg(){
   const discLine=d.isRet&&d.disc>0?`${nl}  • ${lang==='th'?'ส่วนลดลูกค้าเก่า 10%':'Returning Customer Discount 10%'}: -${fmt(d.disc)}`:'';
   const noConLine='';
   const bundleLine=d.bundleName?`${nl}  🎁 ${d.bundleName}`:'';
+  const extrasLine=(d.addonLines && d.addonLines.length)
+    ? `${nl}🧩 ${lang==='th'?'อุปกรณ์เสริมที่เลือก':'Selected accessories'}:${nl}${d.addonLines.map(a=>`  • ${a.name}`).join(nl)}`
+    : '';
   const mapsLine=d.maps?`${nl}${nl}📍 ${lang==='th'?'ที่อยู่จัดส่ง':'Delivery Address'}: ${d.maps}`:'';
   const retLine=d.isRet?`${nl}✅ ${lang==='th'?'ลูกค้าเก่า (ลด 10%)':'Returning Customer (10% off)'}`:'';
   const contractMsg = d.noCon
@@ -2857,8 +2860,8 @@ function copyMsg(){
         ? `${nl}${nl}📝 กรุณาทำสัญญาการเช่าก่อนนัดส่งเครื่อง${nl}${t('contractLink')}${nl}หากไม่ต้องการทำสัญญา ให้ไปเลือกที่ Additional ว่า “ไม่ต้องการทำสัญญาการเช่า”`
         : `${nl}${nl}📝 Please complete the rental contract before delivery${nl}${t('contractLink')}${nl}If you do not want a contract, select “No Rental Contract” in Additional.`);
   const msg=lang==='th'
-    ?`สวัสดีครับ/ค่ะ ขอจองเช่าเครื่องเกม 🎮${nl}${nl}📱 เครื่อง: ${d.consoleName}${bundleLine}${nl}🔥 หมวดเครื่อง: ${d.sectionName}${nl}📅 วันที่เริ่มเช่า: ${d.startDate}${nl}📅 วันคืนเครื่อง: ${d.endDate}${nl}📅 ระยะเวลา: ${d.days} วัน${retLine}${noConLine}${nl}${nl}💰 สรุปค่าใช้จ่าย:${nl}  • ค่าเช่า: ${fmt(d.rental)}${addons}${discLine}${nl}  • ค่าประกัน: ${fmt(d.deposit)}${nl}${nl}💵 ยอดรวมทั้งหมด: ${fmt(d.total)}${nl}💳 โอนล่วงหน้า (ยืนยันจอง): ${fmt(d.upfront)}${nl}🚚 จ่ายตอนของถึง: ${fmt(d.onDelivery)}${mapsLine}${contractMsg}${nl}${nl}ขอบคุณครับ/ค่ะ 🙏`
-    :`Hello! Game console rental booking 🎮${nl}${nl}📱 Console: ${d.consoleName}${bundleLine}${nl}🔥 Section: ${d.sectionName}${nl}📅 Start Date: ${d.startDate}${nl}📅 Return Date: ${d.endDate}${nl}📅 Duration: ${d.days} days${retLine}${noConLine}${nl}${nl}💰 Cost Summary:${nl}  • Rental: ${fmt(d.rental)}${addons}${discLine}${nl}  • Deposit: ${fmt(d.deposit)}${nl}${nl}💵 Total: ${fmt(d.total)}${d.paymentOption==='cash'?`${nl}💵 Pay Cash on Delivery: ${fmt(d.onDelivery)}`:d.paymentOption==='wise'?`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}`:`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}${nl}🚚 Pay on Delivery: ${fmt(d.onDelivery)}`}${mapsLine}${contractMsg}${nl}${nl}Thank you! 🙏`;
+    ?`สวัสดีครับ/ค่ะ ขอจองเช่าเครื่องเกม 🎮${nl}${nl}📱 เครื่อง: ${d.consoleName}${bundleLine}${extrasLine}${nl}🔥 หมวดเครื่อง: ${d.sectionName}${nl}📅 วันที่เริ่มเช่า: ${d.startDate}${nl}📅 วันคืนเครื่อง: ${d.endDate}${nl}📅 ระยะเวลา: ${d.days} วัน${retLine}${noConLine}${nl}${nl}💰 สรุปค่าใช้จ่าย:${nl}  • ค่าเช่า: ${fmt(d.rental)}${addons}${discLine}${nl}  • ค่าประกัน: ${fmt(d.deposit)}${nl}${nl}💵 ยอดรวมทั้งหมด: ${fmt(d.total)}${nl}💳 โอนล่วงหน้า (ยืนยันจอง): ${fmt(d.upfront)}${nl}🚚 จ่ายตอนของถึง: ${fmt(d.onDelivery)}${mapsLine}${contractMsg}${nl}${nl}ขอบคุณครับ/ค่ะ 🙏`
+    :`Hello! Game console rental booking 🎮${nl}${nl}📱 Console: ${d.consoleName}${bundleLine}${extrasLine}${nl}🔥 Section: ${d.sectionName}${nl}📅 Start Date: ${d.startDate}${nl}📅 Return Date: ${d.endDate}${nl}📅 Duration: ${d.days} days${retLine}${noConLine}${nl}${nl}💰 Cost Summary:${nl}  • Rental: ${fmt(d.rental)}${addons}${discLine}${nl}  • Deposit: ${fmt(d.deposit)}${nl}${nl}💵 Total: ${fmt(d.total)}${d.paymentOption==='cash'?`${nl}💵 Pay Cash on Delivery: ${fmt(d.onDelivery)}`:d.paymentOption==='wise'?`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}`:`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}${nl}🚚 Pay on Delivery: ${fmt(d.onDelivery)}`}${mapsLine}${contractMsg}${nl}${nl}Thank you! 🙏`;
   navigator.clipboard.writeText(msg).then(()=>{
     const btn=document.querySelector('.btn-copy');if(!btn)return;
     const orig=btn.textContent;btn.textContent=t('copiedTxt');btn.style.background='#228833';
@@ -3767,6 +3770,9 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     const discLine=d.isRet&&d.disc>0?`${nl}  • ${lang==='th'?'ส่วนลดลูกค้าเก่า 10%':'Returning Customer Discount 10%'}: -${fmt(d.disc)}`:'';
     const noConLine='';
     const bundleLine=d.bundleName?`${nl}  🎁 ${d.bundleName}`:'';
+    const extrasLine=(d.addonLines && d.addonLines.length)
+      ? `${nl}🧩 ${lang==='th'?'อุปกรณ์เสริมที่เลือก':'Selected accessories'}:${nl}${d.addonLines.map(a=>`  • ${a.name}`).join(nl)}`
+      : '';
     const mapsLine=d.maps?`${nl}${nl}📍 ${lang==='th'?'ที่อยู่จัดส่ง':'Delivery Address'}: ${d.maps}`:'';
     const retLine=d.isRet?`${nl}✅ ${lang==='th'?'ลูกค้าเก่า (ลด 10%)':'Returning Customer (10% off)'}`:'';
     const contractMsg = d.noCon
@@ -3782,8 +3788,8 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
           ? `${nl}${nl}${mt().bookingGames}${nl}${state.games.map((g,i)=>`  ${i+1}. ${g.name}${g.platformName?` (${g.platformName})`:''}`).join(nl)}`
           : '');
     const msg=lang==='th'
-      ?`สวัสดีครับ/ค่ะ ขอจองเช่าเครื่องเกม 🎮${nl}${nl}📱 เครื่อง: ${d.consoleName}${bundleLine}${nl}🔥 หมวดเครื่อง: ${d.sectionName}${nl}📅 วันที่เริ่มเช่า: ${d.startDate}${nl}📅 วันคืนเครื่อง: ${d.endDate}${nl}📅 ระยะเวลา: ${d.days} วัน${retLine}${noConLine}${gameLines}${nl}${nl}💰 สรุปค่าใช้จ่าย:${nl}  • ค่าเช่า: ${fmt(d.rental)}${addons}${discLine}${nl}  • ค่าประกัน: ${fmt(d.deposit)}${nl}${nl}💵 ยอดรวมทั้งหมด: ${fmt(d.total)}${nl}💳 โอนล่วงหน้า (ยืนยันจอง): ${fmt(d.upfront)}${nl}🚚 จ่ายตอนของถึง: ${fmt(d.onDelivery)}${mapsLine}${contractMsg}${nl}${nl}ขอบคุณครับ/ค่ะ 🙏`
-      :`Hello! Game console rental booking 🎮${nl}${nl}📱 Console: ${d.consoleName}${bundleLine}${nl}🔥 Section: ${d.sectionName}${nl}📅 Start Date: ${d.startDate}${nl}📅 Return Date: ${d.endDate}${nl}📅 Duration: ${d.days} days${retLine}${noConLine}${gameLines}${nl}${nl}💰 Cost Summary:${nl}  • Rental: ${fmt(d.rental)}${addons}${discLine}${nl}  • Deposit: ${fmt(d.deposit)}${nl}${nl}💵 Total: ${fmt(d.total)}${d.paymentOption==='cash'?`${nl}💵 Pay Cash on Delivery: ${fmt(d.onDelivery)}`:d.paymentOption==='wise'?`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}`:`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}${nl}🚚 Pay on Delivery: ${fmt(d.onDelivery)}`}${mapsLine}${contractMsg}${nl}${nl}Thank you! 🙏`;
+      ?`สวัสดีครับ/ค่ะ ขอจองเช่าเครื่องเกม 🎮${nl}${nl}📱 เครื่อง: ${d.consoleName}${bundleLine}${extrasLine}${nl}🔥 หมวดเครื่อง: ${d.sectionName}${nl}📅 วันที่เริ่มเช่า: ${d.startDate}${nl}📅 วันคืนเครื่อง: ${d.endDate}${nl}📅 ระยะเวลา: ${d.days} วัน${retLine}${noConLine}${gameLines}${nl}${nl}💰 สรุปค่าใช้จ่าย:${nl}  • ค่าเช่า: ${fmt(d.rental)}${addons}${discLine}${nl}  • ค่าประกัน: ${fmt(d.deposit)}${nl}${nl}💵 ยอดรวมทั้งหมด: ${fmt(d.total)}${nl}💳 โอนล่วงหน้า (ยืนยันจอง): ${fmt(d.upfront)}${nl}🚚 จ่ายตอนของถึง: ${fmt(d.onDelivery)}${mapsLine}${contractMsg}${nl}${nl}ขอบคุณครับ/ค่ะ 🙏`
+      :`Hello! Game console rental booking 🎮${nl}${nl}📱 Console: ${d.consoleName}${bundleLine}${extrasLine}${nl}🔥 Section: ${d.sectionName}${nl}📅 Start Date: ${d.startDate}${nl}📅 Return Date: ${d.endDate}${nl}📅 Duration: ${d.days} days${retLine}${noConLine}${gameLines}${nl}${nl}💰 Cost Summary:${nl}  • Rental: ${fmt(d.rental)}${addons}${discLine}${nl}  • Deposit: ${fmt(d.deposit)}${nl}${nl}💵 Total: ${fmt(d.total)}${d.paymentOption==='cash'?`${nl}💵 Pay Cash on Delivery: ${fmt(d.onDelivery)}`:d.paymentOption==='wise'?`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}`:`${nl}💳 Transfer Before Delivery: ${fmt(d.upfront)}${nl}🚚 Pay on Delivery: ${fmt(d.onDelivery)}`}${mapsLine}${contractMsg}${nl}${nl}Thank you! 🙏`;
     navigator.clipboard.writeText(msg).then(()=>{
       const btn=document.querySelector('#sumContent .btn-copy');if(!btn)return;
       const orig=btn.textContent;btn.textContent=t('copiedTxt');btn.style.background='#228833';
@@ -6134,6 +6140,9 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     const discLine = d.isRet && d.disc > 0 ? `${nl}  - ${isEnLang() ? 'Returning Customer Discount 10%' : 'ส่วนลดลูกค้าเก่า 10%'}: -${fmtAmount(d.disc)}` : '';
     const noConLine = d.noCon ? `${nl}${E.warn} ${isEnLang() ? 'No Rental Contract' : 'ไม่ได้ทำสัญญาการเช่า'}` : '';
     const bundleLine = d.bundleName ? `${nl}${E.gift} Bundle: ${escapeText(d.bundleName)}` : '';
+    const extrasLine = addonLines.length
+      ? `${nl}🧩 ${isEnLang() ? 'Selected accessories' : 'อุปกรณ์เสริมที่เลือก'}:${nl}${addonLines.map(a => `  - ${escapeText(a.name)}`).join(nl)}`
+      : '';
     const mapsLine = d.maps ? `${nl}${nl}${E.pin} ${isEnLang() ? 'Delivery Address' : 'ที่อยู่จัดส่ง'}: ${escapeText(d.maps)}` : '';
     const retLine = d.isRet ? `${nl}${E.check} ${isEnLang() ? 'Returning Customer (10% off)' : 'ลูกค้าเก่า (ลด 10%)'}` : '';
     const contractMsg = d.noCon
@@ -6156,9 +6165,9 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
         : d.paymentOption === 'wise'
           ? `${nl}${E.card} Transfer Before Delivery: ${fmtAmount(d.upfront)}`
           : `${nl}${E.card} Transfer Before Delivery: ${fmtAmount(d.upfront)}${nl}${E.truck} Pay on Delivery: ${fmtAmount(d.onDelivery)}`;
-      return `Hello! Game console rental booking ${E.game}${nl}${nl}${E.phone} Console: ${escapeText(d.consoleName)}${bundleLine}${nl}${E.fire} Section: ${escapeText(d.sectionName)}${nl}${E.cal} Start Date: ${escapeText(d.startDate)}${nl}${E.cal} Return Date: ${escapeText(d.endDate)}${nl}${E.cal} Duration: ${escapeText(d.days)} days${retLine}${noConLine}${gameLines}${nl}${nl}${E.money} Cost Summary:${nl}  - Rental: ${fmtAmount(d.rental)}${addons}${discLine}${nl}  - Deposit: ${fmtAmount(d.deposit)}${nl}${nl}${E.money} Total: ${fmtAmount(d.total)}${payLines}${mapsLine}${contractMsg}${nl}${nl}Thank you! ${E.pray}`;
+      return `Hello! Game console rental booking ${E.game}${nl}${nl}${E.phone} Console: ${escapeText(d.consoleName)}${bundleLine}${extrasLine}${nl}${E.fire} Section: ${escapeText(d.sectionName)}${nl}${E.cal} Start Date: ${escapeText(d.startDate)}${nl}${E.cal} Return Date: ${escapeText(d.endDate)}${nl}${E.cal} Duration: ${escapeText(d.days)} days${retLine}${noConLine}${gameLines}${nl}${nl}${E.money} Cost Summary:${nl}  - Rental: ${fmtAmount(d.rental)}${addons}${discLine}${nl}  - Deposit: ${fmtAmount(d.deposit)}${nl}${nl}${E.money} Total: ${fmtAmount(d.total)}${payLines}${mapsLine}${contractMsg}${nl}${nl}Thank you! ${E.pray}`;
     }
-    return `สวัสดีครับ/ค่ะ ขอจองเช่าเครื่องเกม ${E.game}${nl}${nl}${E.phone} เครื่อง: ${escapeText(d.consoleName)}${bundleLine}${nl}${E.fire} หมวดเครื่อง: ${escapeText(d.sectionName)}${nl}${E.cal} วันที่เริ่มเช่า: ${escapeText(d.startDate)}${nl}${E.cal} วันคืนเครื่อง: ${escapeText(d.endDate)}${nl}${E.cal} ระยะเวลา: ${escapeText(d.days)} วัน${retLine}${noConLine}${gameLines}${nl}${nl}${E.money} สรุปค่าใช้จ่าย:${nl}  - ค่าเช่า: ${fmtAmount(d.rental)}${addons}${discLine}${nl}  - ค่าประกัน: ${fmtAmount(d.deposit)}${nl}${nl}${E.money} ยอดรวมทั้งหมด: ${fmtAmount(d.total)}${nl}${E.card} โอนล่วงหน้า (ยืนยันจอง): ${fmtAmount(d.upfront)}${nl}${E.truck} จ่ายตอนของถึง: ${fmtAmount(d.onDelivery)}${mapsLine}${contractMsg}${nl}${nl}ขอบคุณครับ/ค่ะ ${E.pray}`;
+    return `สวัสดีครับ/ค่ะ ขอจองเช่าเครื่องเกม ${E.game}${nl}${nl}${E.phone} เครื่อง: ${escapeText(d.consoleName)}${bundleLine}${extrasLine}${nl}${E.fire} หมวดเครื่อง: ${escapeText(d.sectionName)}${nl}${E.cal} วันที่เริ่มเช่า: ${escapeText(d.startDate)}${nl}${E.cal} วันคืนเครื่อง: ${escapeText(d.endDate)}${nl}${E.cal} ระยะเวลา: ${escapeText(d.days)} วัน${retLine}${noConLine}${gameLines}${nl}${nl}${E.money} สรุปค่าใช้จ่าย:${nl}  - ค่าเช่า: ${fmtAmount(d.rental)}${addons}${discLine}${nl}  - ค่าประกัน: ${fmtAmount(d.deposit)}${nl}${nl}${E.money} ยอดรวมทั้งหมด: ${fmtAmount(d.total)}${nl}${E.card} โอนล่วงหน้า (ยืนยันจอง): ${fmtAmount(d.upfront)}${nl}${E.truck} จ่ายตอนของถึง: ${fmtAmount(d.onDelivery)}${mapsLine}${contractMsg}${nl}${nl}ขอบคุณครับ/ค่ะ ${E.pray}`;
   }
   async function copyTextSmart(text){
     if(!text) return false;
@@ -9370,241 +9379,286 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   const getLang=()=>{try{if(typeof lang!=='undefined') return lang;}catch(e){} return window.lang||'th';};
   const isEn=()=>getLang()==='en';
 
+  // ============================================================
+  // Game picker UI patch
+  // Runs inside the game catalog iframe (game_index.html?embed=picker).
+  // Responsibilities:
+  //   1. Replace the built-in "How to choose games" guide with the
+  //      shop's preferred 5-step version (matching guideHtml below).
+  //   2. Add a "Hide details / Show details" toggle that hides the
+  //      intro heading + subtitle + guide, leaving only the game
+  //      picker visible. Toggle state persists in localStorage.
+  // ============================================================
+
+  // The 5-step guide HTML the shop wants to show. Two languages.
+  const GAME_GUIDE_HTML = {
+    th: '<h3>💡 วิธีเลือกเกม</h3>'
+      + '<ol>'
+      + '<li>เลือกประเภทเครื่องเกม จากนั้นเกมในประเภทนั้นจะแสดงขึ้นมา</li>'
+      + '<li>คลิกรูปเกมเพื่อเลือก ✓ — คลิกซ้ำเพื่อยกเลิก</li>'
+      + '<li>เลือกได้สูงสุด 10 เกม จากทุกประเภท</li>'
+      + '<li>กด <strong>"ใช้รายการนี้"</strong> เพื่อแนบรายการเกมไปในข้อความแจ้งให้ทางร้านติดตั้ง</li>'
+      + '<li>หรือ กด <strong>"สร้างข้อความเพื่อแจ้งภายหลัง"</strong> และกด <strong>"Copy รายการ"</strong> แล้วส่งมาที่ Line <strong>@ajgame</strong></li>'
+      + '</ol>',
+    en: '<h3>💡 How to choose games</h3>'
+      + '<ol>'
+      + '<li>Select a console/game category, then the games in that category will appear.</li>'
+      + '<li>Click a game cover to select ✓ — click again to deselect.</li>'
+      + '<li>Select up to 10 games across all categories.</li>'
+      + '<li>Click <strong>"Use this list"</strong> to attach the game list to the message for the shop to install.</li>'
+      + '<li>Or click <strong>"Create message to send later"</strong> and click <strong>"Copy list"</strong>, then send it to Line <strong>@ajgame</strong>.</li>'
+      + '</ol>'
+  };
+
+  // Phrases used to identify the intro section (heading + subtitle).
+  // Hidden when compact mode is on.
+  const INTRO_PHRASES = [
+    'เลือกเกมที่อยากเล่น',
+    'เลือกได้สูงสุด 10 เกม แล้วส่งรายการที่เลือกกลับไปยังหน้าจอจองเช่า',
+    'Choose the games you want to play',
+    'Choose games you want to play',
+    'Choose up to 10 games, then send the selected list back to the booking page',
+    'Select up to 10 games, then send the selected list back to the booking page'
+  ];
+
+  // Phrase used to identify the guide heading. Used for both finding
+  // the guide for rewrite and for marking it as hideable.
+  const GUIDE_HEADING_RE = /วิธีเลือกเกม|How to choose games/i;
+
+  // CSS injected into the iframe.
+  const PATCH_CSS = ''
+    + '[data-aj-pkr-hide="1"].aj-pkr-hidden{display:none !important;}'
+    + '.aj-pkr-toggle{display:inline-flex;align-items:center;justify-content:center;gap:6px;'
+    +   'border:1px solid rgba(0,0,0,.10);background:#fff;color:#333;border-radius:999px;'
+    +   'padding:9px 14px;font-weight:800;font-size:13px;line-height:1.2;'
+    +   'box-shadow:0 6px 18px rgba(0,0,0,.08);cursor:pointer;margin:10px 0 12px;font-family:inherit;}'
+    + '.aj-pkr-toggle:hover{border-color:rgba(204,0,0,.35);color:#cc0000;}'
+    + '.aj-pkr-toggle-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0;}';
+
+  const PATCH_STORAGE_KEY = 'aj_game_picker_compact_details_v1';
+  const GUIDE_VERSION = 'v3-clean';
+
   function patchGamePickerUi(frame){
-    let unlock = null;
+    let doc;
     try{
-      const doc = frame && (frame.contentDocument || (frame.contentWindow && frame.contentWindow.document));
-      if(!doc || !doc.body) return false;
-      if(doc.body.__ajGamePickerPatching) return true;
-      doc.body.__ajGamePickerPatching = true;
-      unlock = function(){ doc.body.__ajGamePickerPatching = false; };
-
-      const textOf = el => String((el && el.textContent) || '').replace(/\s+/g,' ').trim();
+      doc = frame && (frame.contentDocument || (frame.contentWindow && frame.contentWindow.document));
+    }catch(e){ return false; }
+    if(!doc || !doc.body) return false;
+    if(doc.body.__ajPkrPatching) return true;
+    doc.body.__ajPkrPatching = true;
+    try{
       const langNow = isEn() ? 'en' : 'th';
-      const COMPACT_KEY = 'aj_game_picker_compact_details_v1';
-
-      function upsertPatchStyle(){
-        const css = `
-          [data-aj-compact-target="1"].aj-compact-hidden{display:none !important;}
-          .aj-compact-toggle-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid rgba(0,0,0,.10);background:#fff;color:#333;border-radius:999px;padding:9px 14px;font-weight:800;font-size:13px;line-height:1.2;box-shadow:0 6px 18px rgba(0,0,0,.08);cursor:pointer;margin:10px 0 12px;font-family:inherit;}
-          .aj-compact-toggle-btn:hover{border-color:rgba(204,0,0,.35);color:#cc0000;}
-          .aj-compact-toggle-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-        `;
-        let st = doc.getElementById('aj-game-picker-compact-patch-style');
-        if(!st){ st = doc.createElement('style'); st.id = 'aj-game-picker-compact-patch-style'; (doc.head || doc.documentElement).appendChild(st); }
-        if(st.textContent !== css) st.textContent = css;
-      }
-
-      function closestCleanBlock(el){
-        if(!el) return null;
-        let cur = el;
-        while(cur && cur !== doc.body){
-          const tag = (cur.tagName || '').toUpperCase();
-          const txt = textOf(cur);
-          if(['SECTION','ARTICLE','ASIDE','HEADER','DIV'].includes(tag) && txt.length > 0 && txt.length < 2200){
-            return cur;
-          }
-          cur = cur.parentElement;
-        }
-        return el;
-      }
-
-      function guideHtml(){
-        return langNow === 'en'
-          ? '<h3>💡 How to choose games</h3><ol><li>Select a console/game category, then the games in that category will appear.</li><li>Click a game cover to select ✓ — click again to deselect.</li><li>Select up to 10 games across all categories.</li><li>Click <strong>"Use this list"</strong> to attach the game list to the message for the shop to install.</li><li>Or click <strong>"Create message to send later"</strong> and click <strong>"Copy list"</strong>, then send it to Line <strong>@ajgame</strong>.</li></ol>'
-          : '<h3>💡 วิธีเลือกเกม</h3><ol><li>เลือกประเภทเครื่องเกม จากนั้นเกมในประเภทนั้นจะแสดงขึ้นมา</li><li>คลิกรูปเกมเพื่อเลือก ✓ — คลิกซ้ำเพื่อยกเลิก</li><li>เลือกได้สูงสุด 10 เกม จากทุกประเภท</li><li>กด <strong>"ใช้รายการนี้"</strong> เพื่อแนบรายการเกมไปในข้อความแจ้งให้ทางร้านติดตั้ง</li><li>หรือ กด <strong>"สร้างข้อความเพื่อแจ้งภายหลัง"</strong> และกด <strong>"Copy รายการ"</strong> แล้วส่งมาที่ Line <strong>@ajgame</strong></li></ol>';
-      }
-
-      function findGuideBox(){
-        const re = /วิธีเลือกเกม|How to choose games|เลือกประเภทเครื่องเกม|Select a console\/game category|เลือกได้สูงสุด 10 เกม|Select up to 10 games|สร้างข้อความเพื่อแจ้งภายหลัง|Create message to send later/i;
-        const nodes = Array.from(doc.querySelectorAll('[data-aj-game-guide], .guide, .game-guide, .how-to, .howto, .instruction, .instructions, .help, .tips, [class*="guide"], [class*="how"], [class*="instruction"], [class*="help"], [class*="tip"], section, article, aside, div'));
-        const candidates = nodes.filter(el=>{
-          if(!el || el === doc.body) return false;
-          const txt = textOf(el);
-          return txt && txt.length < 2200 && re.test(txt);
-        }).sort((a,b)=>{
-          const ao = a.querySelector && a.querySelector('ol,ul') ? 0 : 300;
-          const bo = b.querySelector && b.querySelector('ol,ul') ? 0 : 300;
-          return (textOf(a).length + ao) - (textOf(b).length + bo);
-        });
-        if(candidates.length) return candidates[0];
-        const heading = Array.from(doc.querySelectorAll('h1,h2,h3,h4,strong,b')).find(el=>/วิธีเลือกเกม|How to choose games/i.test(textOf(el)));
-        return closestCleanBlock(heading);
-      }
-
-      function patchGuide(){
-        const guide = findGuideBox();
-        if(!guide) return null;
-        if(guide.getAttribute('data-aj-guide-patched') !== '1' || guide.getAttribute('data-aj-guide-lang') !== langNow){
-          guide.innerHTML = guideHtml();
-          guide.setAttribute('data-aj-guide-patched','1');
-          guide.setAttribute('data-aj-guide-lang',langNow);
-        }
-        guide.setAttribute('data-aj-game-guide','1');
-        return guide;
-      }
-
-      function isToggleButton(el){
-        const txt = textOf(el);
-        return /ปิดรายละเอียด|แสดงรายละเอียด|เลือกแต่เกม|Hide details|Show details|choose games only/i.test(txt);
-      }
-
-      function findToggleButtons(){
-        return Array.from(doc.querySelectorAll('button,a,[role="button"]')).filter(isToggleButton);
-      }
-
-      function introTargets(){
-        const phrases = [
-          'เลือกเกมที่อยากเล่น',
-          'เลือกได้สูงสุด 10 เกม แล้วส่งรายการที่เลือกกลับไปยังหน้าจอจองเช่า',
-          'Choose the games you want to play',
-          'Choose games you want to play',
-          'Choose up to 10 games, then send the selected list back to the booking page',
-          'Select up to 10 games, then send the selected list back to the booking page'
-        ];
-        const toggles = findToggleButtons();
-        const guide = (typeof findGuideBox === 'function') ? findGuideBox() : null;
-        // Find smallest matching elements (leaf-like) for each phrase
-        const leaves = [];
-        Array.from(doc.querySelectorAll('h1,h2,h3,h4,h5,h6,p,span,div,header,section,small,em,strong,b')).forEach(el=>{
-          const txt = textOf(el);
-          if(!txt || txt.length > 400) return;
-          if(!phrases.some(p=>txt.includes(p))) return;
-          if(toggles.some(btn=>el.contains(btn))) return;
-          if(guide && (el === guide || el.contains(guide) || guide.contains(el))) return;
-          // Prefer the smallest element that contains the phrase
-          const hasSmallerMatch = leaves.some(other => el.contains(other) && other !== el);
-          if(hasSmallerMatch) return;
-          // Remove any larger matches we already added
-          for(let i=leaves.length-1; i>=0; i--){
-            if(leaves[i].contains(el) && leaves[i] !== el) leaves.splice(i,1);
-          }
-          leaves.push(el);
-        });
-        return leaves;
-      }
-
-      function markCompactTargets(){
-        Array.from(doc.querySelectorAll('[data-aj-compact-target="1"]')).forEach(el=>{
-          el.removeAttribute('data-aj-compact-target');
-          el.classList.remove('aj-compact-hidden');
-        });
-        const guide = findGuideBox();
-        const intros = introTargets();
-        const allLeaves = [];
-        intros.forEach(el=>{ if(el && !allLeaves.includes(el)) allLeaves.push(el); });
-        if(guide && !allLeaves.includes(guide)) allLeaves.push(guide);
-
-        // Try to find a common ancestor that contains all leaves but does NOT contain
-        // any toggle button and is NOT the body. If found, hiding it cleanly removes
-        // any whitespace/wrappers between the leaves too.
-        const toggles = findToggleButtons();
-        let chosenAncestor = null;
-        if(allLeaves.length >= 2){
-          // Build ancestor chain from the first leaf
-          const chain = [];
-          let cur = allLeaves[0].parentElement;
-          while(cur && cur !== doc.body){
-            chain.push(cur);
-            cur = cur.parentElement;
-          }
-          for(const anc of chain){
-            const containsAllLeaves = allLeaves.every(l => anc.contains(l));
-            if(!containsAllLeaves) continue;
-            const containsToggle = toggles.some(btn => anc.contains(btn));
-            if(containsToggle) continue;
-            // Avoid picking something that is excessively large (likely the whole page)
-            const txt = textOf(anc);
-            if(txt.length > 4000) continue;
-            chosenAncestor = anc;
-            break;
-          }
-        }
-
-        const targets = [];
-        if(chosenAncestor){
-          targets.push(chosenAncestor);
-        } else {
-          allLeaves.forEach(el=>{ if(el && !targets.includes(el)) targets.push(el); });
-        }
-        targets.forEach(el=>el.setAttribute('data-aj-compact-target','1'));
-        return targets;
-      }
-
-      function compactLabel(on){
-        return langNow === 'en'
-          ? (on ? '👀 Show details' : '🙈 Hide details and choose games only')
-          : (on ? '👀 แสดงรายละเอียด' : '🙈 ปิดรายละเอียดและเลือกแต่เกม');
-      }
-
-      function setCompact(on){
-        const targets = markCompactTargets();
-        targets.forEach(el=>el.classList.toggle('aj-compact-hidden', !!on));
-        findToggleButtons().forEach(btn=>{
-          btn.textContent = compactLabel(!!on);
-          btn.setAttribute('data-aj-compact-toggle','1');
-        });
-        try{ doc.defaultView.localStorage.setItem(COMPACT_KEY, on ? '1' : '0'); }catch(e){}
-      }
-
-      function attachToggle(btn){
-        if(!btn || btn.__ajCompactToggleAttached) return;
-        btn.__ajCompactToggleAttached = true;
-        btn.classList.add('aj-compact-toggle-btn');
-        btn.setAttribute('data-aj-compact-toggle','1');
-        btn.addEventListener('click', function(ev){
-          const hidden = !!doc.querySelector('[data-aj-compact-target="1"].aj-compact-hidden');
-          setCompact(!hidden);
-          if(ev && ev.stopPropagation) ev.stopPropagation();
-        }, true);
-      }
-
-      function ensureToggleButton(){
-        let buttons = findToggleButtons();
-        if(!buttons.length){
-          const guide = findGuideBox();
-          if(guide && guide.parentNode){
-            const wrap = doc.createElement('div');
-            wrap.className = 'aj-compact-toggle-wrap';
-            const btn = doc.createElement('button');
-            btn.type = 'button';
-            btn.className = 'aj-compact-toggle-btn';
-            btn.textContent = compactLabel(false);
-            wrap.appendChild(btn);
-            guide.parentNode.insertBefore(wrap, guide.nextSibling);
-            buttons = [btn];
-          }
-        }
-        buttons.forEach(attachToggle);
-        return buttons;
-      }
-
-      upsertPatchStyle();
-      patchGuide();
-      ensureToggleButton();
-      let shouldCompact = false;
-      try{ shouldCompact = doc.defaultView.localStorage.getItem(COMPACT_KEY) === '1'; }catch(e){}
-      setCompact(shouldCompact);
-
-      if(!doc.body.__ajGamePickerObserver){
-        let timer = null;
-        const observer = new MutationObserver(()=>{
-          clearTimeout(timer);
-          timer = setTimeout(()=>patchGamePickerUi(frame), 80);
-        });
-        observer.observe(doc.body,{childList:true,subtree:true,characterData:true});
-        doc.body.__ajGamePickerObserver = observer;
-      }
+      ensureStyle(doc);
+      const guide = rewriteGuide(doc, langNow);
+      const intros = findIntroElements(doc, guide);
+      markHideTargets(doc, intros, guide);
+      const toggleBtn = ensureToggleButton(doc, guide, langNow);
+      let on = false;
+      try{ on = doc.defaultView.localStorage.getItem(PATCH_STORAGE_KEY) === '1'; }catch(e){}
+      applyCompactState(doc, on, langNow);
+      installObserver(doc, frame);
       return true;
-    }catch(e){
-      return false;
     }finally{
-      if(unlock) unlock();
+      doc.body.__ajPkrPatching = false;
     }
   }
 
+  function ensureStyle(doc){
+    let st = doc.getElementById('aj-pkr-style');
+    if(!st){
+      st = doc.createElement('style');
+      st.id = 'aj-pkr-style';
+      (doc.head || doc.documentElement).appendChild(st);
+    }
+    if(st.textContent !== PATCH_CSS) st.textContent = PATCH_CSS;
+  }
+
+  function textOf(el){
+    return String((el && el.textContent) || '').replace(/\s+/g,' ').trim();
+  }
+
+  // -------- Guide rewrite --------
+  function findGuideContainer(doc){
+    // Find the heading element ("💡 วิธีเลือกเกม" / "💡 How to choose games"),
+    // then walk up to the smallest ancestor that contains both the heading
+    // AND a list (ol/ul). That ancestor is the guide box.
+    const headings = Array.from(doc.querySelectorAll('h1,h2,h3,h4,h5,h6,strong,b,div,p,span'))
+      .filter(el => {
+        const t = textOf(el);
+        return t.length > 0 && t.length < 120 && GUIDE_HEADING_RE.test(t);
+      });
+    if(!headings.length) return null;
+    // Pick the smallest matching heading (deepest in tree).
+    headings.sort((a,b) => textOf(a).length - textOf(b).length);
+    const heading = headings[0];
+    let cur = heading.parentElement;
+    while(cur && cur !== doc.body){
+      if(cur.querySelector && cur.querySelector('ol,ul')){
+        const txt = textOf(cur);
+        if(txt && txt.length < 4000) return cur;
+      }
+      cur = cur.parentElement;
+    }
+    // Fallback: use heading's nearest block ancestor.
+    cur = heading.parentElement;
+    while(cur && cur !== doc.body){
+      const tag = (cur.tagName || '').toUpperCase();
+      if(['DIV','SECTION','ARTICLE','ASIDE'].includes(tag)) return cur;
+      cur = cur.parentElement;
+    }
+    return heading;
+  }
+
+  function rewriteGuide(doc, langNow){
+    const guide = findGuideContainer(doc);
+    if(!guide) return null;
+    const stamp = GUIDE_VERSION + '-' + langNow;
+    if(guide.getAttribute('data-aj-guide-stamp') !== stamp){
+      guide.innerHTML = GAME_GUIDE_HTML[langNow] || GAME_GUIDE_HTML.th;
+      guide.setAttribute('data-aj-guide-stamp', stamp);
+    }
+    guide.setAttribute('data-aj-pkr-guide','1');
+    return guide;
+  }
+
+  // -------- Intro section detection --------
+  function findIntroElements(doc, guide){
+    // Walk every text node. When a node's text contains one of our intro
+    // phrases, find the smallest block ancestor that contains it (excluding
+    // the guide box and the toggle button area). That's an element we want
+    // to be able to hide.
+    const found = [];
+    const blockTags = new Set(['DIV','SECTION','ARTICLE','ASIDE','HEADER','MAIN','P','H1','H2','H3','H4','H5','H6','LI','UL','OL','LABEL','FIGCAPTION','SUMMARY','FIGURE']);
+    const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, {
+      acceptNode: function(node){
+        const t = (node.nodeValue || '').trim();
+        if(!t) return NodeFilter.FILTER_REJECT;
+        return INTRO_PHRASES.some(p => t.indexOf(p) >= 0)
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_REJECT;
+      }
+    });
+    let textNode;
+    while((textNode = walker.nextNode())){
+      // Skip if inside guide.
+      if(guide && guide.contains(textNode)) continue;
+      // Skip if inside an existing toggle button wrap.
+      if(textNode.parentElement && textNode.parentElement.closest && textNode.parentElement.closest('.aj-pkr-toggle-wrap')) continue;
+      // Walk up to the smallest block ancestor with a reasonable size.
+      let cur = textNode.parentElement;
+      let chosen = null;
+      while(cur && cur !== doc.body){
+        if(guide && (cur === guide || cur.contains(guide))) break;
+        if(cur.classList && cur.classList.contains('aj-pkr-toggle-wrap')) break;
+        const tag = (cur.tagName || '').toUpperCase();
+        if(blockTags.has(tag)){
+          const txt = textOf(cur);
+          if(txt && txt.length <= 600){
+            chosen = cur;
+            // Try to expand to parent if parent still small and clean.
+            const p = cur.parentElement;
+            if(p && p !== doc.body){
+              const pTag = (p.tagName || '').toUpperCase();
+              const pTxt = textOf(p);
+              if(blockTags.has(pTag) && pTxt.length <= 600
+                && !(guide && (p === guide || p.contains(guide)))
+                && !(p.classList && p.classList.contains('aj-pkr-toggle-wrap'))
+                && !(p.querySelector && p.querySelector('.aj-pkr-toggle-wrap'))){
+                chosen = p;
+              }
+            }
+            break;
+          }
+        }
+        cur = cur.parentElement;
+      }
+      if(!chosen) chosen = textNode.parentElement;
+      if(!chosen || chosen === doc.body) continue;
+      // Dedupe with containment logic: keep only the largest of any
+      // overlapping pair, but not so large it engulfs other things.
+      const containedByExisting = found.some(el => el.contains(chosen) && el !== chosen);
+      if(containedByExisting) continue;
+      // Remove existing entries that are descendants of the new one.
+      for(let i = found.length - 1; i >= 0; i--){
+        if(chosen.contains(found[i]) && found[i] !== chosen) found.splice(i,1);
+      }
+      if(!found.includes(chosen)) found.push(chosen);
+    }
+    return found;
+  }
+
+  // -------- Hide-target marking --------
+  function markHideTargets(doc, introElements, guide){
+    // Clear previous markers.
+    Array.from(doc.querySelectorAll('[data-aj-pkr-hide="1"]')).forEach(el => {
+      el.removeAttribute('data-aj-pkr-hide');
+      el.classList.remove('aj-pkr-hidden');
+    });
+    introElements.forEach(el => el.setAttribute('data-aj-pkr-hide','1'));
+    if(guide) guide.setAttribute('data-aj-pkr-hide','1');
+  }
+
+  // -------- Toggle button --------
+  function toggleLabel(on, langNow){
+    if(langNow === 'en'){
+      return on ? '👀 Show details' : '🙈 Hide details and choose games only';
+    }
+    return on ? '👀 แสดงรายละเอียด' : '🙈 ปิดรายละเอียดและเลือกแต่เกม';
+  }
+
+  function ensureToggleButton(doc, guide, langNow){
+    // Reuse existing button if any.
+    let btn = doc.querySelector('button.aj-pkr-toggle');
+    if(!btn){
+      // Insert a wrap right before the guide so it sits with the intro area.
+      const wrap = doc.createElement('div');
+      wrap.className = 'aj-pkr-toggle-wrap';
+      btn = doc.createElement('button');
+      btn.type = 'button';
+      btn.className = 'aj-pkr-toggle';
+      wrap.appendChild(btn);
+      if(guide && guide.parentNode){
+        guide.parentNode.insertBefore(wrap, guide);
+      } else {
+        doc.body.insertBefore(wrap, doc.body.firstChild);
+      }
+    }
+    if(!btn.__ajPkrBound){
+      btn.__ajPkrBound = true;
+      btn.addEventListener('click', function(ev){
+        if(ev && ev.stopPropagation) ev.stopPropagation();
+        const isOn = doc.body.classList.contains('aj-pkr-compact-on');
+        applyCompactState(doc, !isOn, isEn() ? 'en' : 'th');
+      }, true);
+    }
+    return btn;
+  }
+
+  function applyCompactState(doc, on, langNow){
+    const targets = Array.from(doc.querySelectorAll('[data-aj-pkr-hide="1"]'));
+    targets.forEach(el => el.classList.toggle('aj-pkr-hidden', !!on));
+    doc.body.classList.toggle('aj-pkr-compact-on', !!on);
+    const btn = doc.querySelector('button.aj-pkr-toggle');
+    if(btn) btn.textContent = toggleLabel(!!on, langNow);
+    try{ doc.defaultView.localStorage.setItem(PATCH_STORAGE_KEY, on ? '1' : '0'); }catch(e){}
+  }
+
+  // -------- Mutation observer --------
+  function installObserver(doc, frame){
+    if(doc.body.__ajPkrObserver) return;
+    let timer = null;
+    const observer = new (doc.defaultView.MutationObserver || MutationObserver)(function(){
+      clearTimeout(timer);
+      timer = setTimeout(function(){ patchGamePickerUi(frame); }, 100);
+    });
+    observer.observe(doc.body, {childList:true, subtree:true, characterData:true});
+    doc.body.__ajPkrObserver = observer;
+  }
+
   function scheduleGamePickerUiPatch(frame){
-    [0,120,300,650,1100,1800,2800,4200,6000,8000].forEach(ms=>setTimeout(()=>patchGamePickerUi(frame), ms));
+    [0,120,300,650,1100,1800,2800,4200,6000,8000].forEach(ms => {
+      setTimeout(function(){ patchGamePickerUi(frame); }, ms);
+    });
   }
 
   function tt(){ return isEn() ? {
@@ -10164,9 +10218,20 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       return [];
     })();
 
+    const thBundleLine = s.bundleName ? [`  🎁 ${s.bundleName}`] : [];
+    const enBundleLine = s.bundleName ? [`  🎁 ${s.bundleName}`] : [];
+    const thExtrasBlock = (Array.isArray(s.addonLines) && s.addonLines.length)
+      ? ['🧩 อุปกรณ์เสริมที่เลือก:', ...s.addonLines.map(a=>`  • ${a.name}`)]
+      : [];
+    const enExtrasBlock = (Array.isArray(s.addonLines) && s.addonLines.length)
+      ? ['🧩 Selected accessories:', ...s.addonLines.map(a=>`  • ${a.name}`)]
+      : [];
+
     const thLines = [
       'สวัสดีครับ/ค่ะ ขอจองเช่าเครื่องเกม 🎮','',
       `📱 เครื่อง: ${cName(c)}`,
+      ...thBundleLine,
+      ...thExtrasBlock,
       `🔥 หมวดเครื่อง: ${sectionLabel(c)}`,
       `📅 วันที่เริ่มเช่า: ${formatDisplay(state.start)}`,
       `📅 วันคืนเครื่อง: ${formatDisplay(state.end)}`,
@@ -10196,6 +10261,8 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     const enLines = [
       'Hello! Game console rental booking 🎮','',
       `📱 Console: ${cName(c)}`,
+      ...enBundleLine,
+      ...enExtrasBlock,
       `🔥 Section: ${sectionLabel(c)}`,
       `📅 Start Date: ${formatDisplay(state.start)}`,
       `📅 Return Date: ${formatDisplay(state.end)}`,
