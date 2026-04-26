@@ -9385,9 +9385,8 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   // Responsibilities:
   //   1. Replace the built-in "How to choose games" guide with the
   //      shop's preferred 5-step version (matching guideHtml below).
-  //   2. Add a "Hide details / Show details" toggle that hides the
-  //      intro heading + subtitle + guide, leaving only the game
-  //      picker visible. Toggle state persists in localStorage.
+  //   2. Remove the extra details-toggle button when game_index is opened
+  //      through the booking page.
   // ============================================================
 
   // The 5-step guide HTML the shop wants to show. Two languages.
@@ -9428,14 +9427,8 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   // CSS injected into the iframe.
   const PATCH_CSS = ''
     + '[data-aj-pkr-hide="1"].aj-pkr-hidden{display:none !important;}'
-    + '.aj-pkr-toggle{display:inline-flex;align-items:center;justify-content:center;gap:6px;'
-    +   'border:1px solid rgba(0,0,0,.10);background:#fff;color:#333;border-radius:999px;'
-    +   'padding:9px 14px;font-weight:800;font-size:13px;line-height:1.2;'
-    +   'box-shadow:0 6px 18px rgba(0,0,0,.08);cursor:pointer;margin:10px 0 12px;font-family:inherit;}'
-    + '.aj-pkr-toggle:hover{border-color:rgba(204,0,0,.35);color:#cc0000;}'
-    + '.aj-pkr-toggle-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0;}';
+    + '.pick-details-bar,#pick-details-toggle{display:none !important;}';
 
-  const PATCH_STORAGE_KEY = 'aj_game_picker_compact_details_v1';
   const GUIDE_VERSION = 'v3-clean';
 
   function patchGamePickerUi(frame){
@@ -9452,10 +9445,8 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       const guide = rewriteGuide(doc, langNow);
       const intros = findIntroElements(doc, guide);
       markHideTargets(doc, intros, guide);
-      const toggleBtn = ensureToggleButton(doc, guide, langNow);
-      let on = false;
-      try{ on = doc.defaultView.localStorage.getItem(PATCH_STORAGE_KEY) === '1'; }catch(e){}
-      applyCompactState(doc, on, langNow);
+      removeToggleButton(doc);
+      applyCompactState(doc, false, langNow);
       installObserver(doc, frame);
       return true;
     }finally{
@@ -9598,49 +9589,18 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     if(guide) guide.setAttribute('data-aj-pkr-hide','1');
   }
 
-  // -------- Toggle button --------
-  function toggleLabel(on, langNow){
-    if(langNow === 'en'){
-      return on ? '👀 Show details' : '🙈 Hide details and choose games only';
-    }
-    return on ? '👀 แสดงรายละเอียด' : '🙈 ปิดรายละเอียดและเลือกแต่เกม';
-  }
-
-  function ensureToggleButton(doc, guide, langNow){
-    // Reuse existing button if any.
-    let btn = doc.querySelector('button.aj-pkr-toggle');
-    if(!btn){
-      // Insert a wrap right before the guide so it sits with the intro area.
-      const wrap = doc.createElement('div');
-      wrap.className = 'aj-pkr-toggle-wrap';
-      btn = doc.createElement('button');
-      btn.type = 'button';
-      btn.className = 'aj-pkr-toggle';
-      wrap.appendChild(btn);
-      if(guide && guide.parentNode){
-        guide.parentNode.insertBefore(wrap, guide);
-      } else {
-        doc.body.insertBefore(wrap, doc.body.firstChild);
-      }
-    }
-    if(!btn.__ajPkrBound){
-      btn.__ajPkrBound = true;
-      btn.addEventListener('click', function(ev){
-        if(ev && ev.stopPropagation) ev.stopPropagation();
-        const isOn = doc.body.classList.contains('aj-pkr-compact-on');
-        applyCompactState(doc, !isOn, isEn() ? 'en' : 'th');
-      }, true);
-    }
-    return btn;
+  // -------- Compact state --------
+  function removeToggleButton(doc){
+    Array.from(doc.querySelectorAll('.aj-pkr-toggle-wrap,button.aj-pkr-toggle,.pick-details-bar,#pick-details-toggle')).forEach(el => el.remove());
+    Array.from(doc.querySelectorAll('#pick-overlay .pick-box,.pick-box')).forEach(el => el.classList.remove('pick-details-collapsed'));
+    try{ doc.defaultView.localStorage.removeItem('aj_pick_details_collapsed_v1'); }catch(e){}
   }
 
   function applyCompactState(doc, on, langNow){
     const targets = Array.from(doc.querySelectorAll('[data-aj-pkr-hide="1"]'));
     targets.forEach(el => el.classList.toggle('aj-pkr-hidden', !!on));
     doc.body.classList.toggle('aj-pkr-compact-on', !!on);
-    const btn = doc.querySelector('button.aj-pkr-toggle');
-    if(btn) btn.textContent = toggleLabel(!!on, langNow);
-    try{ doc.defaultView.localStorage.setItem(PATCH_STORAGE_KEY, on ? '1' : '0'); }catch(e){}
+    removeToggleButton(doc);
   }
 
   // -------- Mutation observer --------
