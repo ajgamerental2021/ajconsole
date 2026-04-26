@@ -2403,9 +2403,9 @@ function applyAvailabilitySuggestedStart(){
   onDateChange();
 }
 window.applyAvailabilitySuggestedStart = applyAvailabilitySuggestedStart;
-window.addEventListener('focus', () => scheduleAvailabilityCheck({force:true}));
+window.addEventListener('focus', () => { if(window.__ajMobileNativeSelectBusy && window.__ajMobileNativeSelectBusy()) return; scheduleAvailabilityCheck({force:true}); });
 document.addEventListener('visibilitychange', () => {
-  if(!document.hidden) scheduleAvailabilityCheck({force:true});
+  if(!document.hidden){ if(window.__ajMobileNativeSelectBusy && window.__ajMobileNativeSelectBusy()) return; scheduleAvailabilityCheck({force:true}); }
 });
 const cName=c=>lang==='th'?c.name:(c.nameEn||c.name);
 const fmt=n=>`฿${n.toLocaleString()}`;
@@ -8488,7 +8488,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     const d=e.data||{};
     if(d.type==='AJ_PICKER_SELECTED'){ setTimeout(refreshV23, 50); setTimeout(refreshV23, 300); }
   });
-  window.addEventListener('focus', ()=>setTimeout(refreshV23, 120));
+  window.addEventListener('focus', ()=>{ if(window.__ajMobileNativeSelectBusy && window.__ajMobileNativeSelectBusy()) return; setTimeout(refreshV23, 120); });
 
   const oldRenderAll=window.renderAll;
   if(typeof oldRenderAll==='function'){
@@ -9107,7 +9107,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     ensureDateInputs(); ensureDateModal(); moveSections(); renderTabs(); renderPaneNav(); renderGamePane(); renderSummaryGames(); translateHome();
     document.querySelectorAll('#agodaCalcPanes .calc-tab-pane').forEach((pane,idx)=>pane.classList.toggle('is-active', idx===activeStep()-1));
   }
-  window.addEventListener('focus', ()=>setTimeout(refreshV25,120));
+  window.addEventListener('focus', ()=>{ if(window.__ajMobileNativeSelectBusy && window.__ajMobileNativeSelectBusy()) return; setTimeout(refreshV25,120); });
   window.addEventListener('message', e=>{ const d=e.data||{}; if(d.type==='AJ_PICKER_SELECTED') { setTimeout(refreshV25,80); setTimeout(refreshV25,500); }});
   const oldRenderAll=window.renderAll; if(typeof oldRenderAll==='function'){ window.renderAll=function(){ const o=oldRenderAll.apply(this,arguments); refreshV25(); return o; }; }
   const oldUpdate=window.updateStatic; if(typeof oldUpdate==='function'){ window.updateStatic=function(){ const o=oldUpdate.apply(this,arguments); refreshV25(); return o; }; }
@@ -9450,7 +9450,12 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       const langNow = isEn() ? 'en' : 'th';
       ensureStyle(doc);
       const guide = rewriteGuide(doc, langNow);
-      cleanupLegacyPickerCompact(doc);
+      const intros = findIntroElements(doc, guide);
+      markHideTargets(doc, intros, guide);
+      const toggleBtn = ensureToggleButton(doc, guide, langNow);
+      let on = false;
+      try{ on = doc.defaultView.localStorage.getItem(PATCH_STORAGE_KEY) === '1'; }catch(e){}
+      applyCompactState(doc, on, langNow);
       installObserver(doc, frame);
       return true;
     }finally{
@@ -9466,23 +9471,6 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       (doc.head || doc.documentElement).appendChild(st);
     }
     if(st.textContent !== PATCH_CSS) st.textContent = PATCH_CSS;
-  }
-
-
-  function cleanupLegacyPickerCompact(doc){
-    // Remove the extra compact toggle injected by index.html.
-    // The game catalog already has its own "ปิดรายละเอียดและเลือกแต่เกม" button.
-    Array.from(doc.querySelectorAll('.aj-pkr-toggle-wrap, button.aj-pkr-toggle')).forEach(el => {
-      const wrap = el.closest && el.closest('.aj-pkr-toggle-wrap');
-      const target = wrap || el;
-      if(target && target.parentNode) target.parentNode.removeChild(target);
-    });
-    Array.from(doc.querySelectorAll('[data-aj-pkr-hide="1"]')).forEach(el => {
-      el.removeAttribute('data-aj-pkr-hide');
-      el.classList.remove('aj-pkr-hidden');
-    });
-    if(doc.body) doc.body.classList.remove('aj-pkr-compact-on');
-    try{ doc.defaultView.localStorage.removeItem(PATCH_STORAGE_KEY); }catch(e){}
   }
 
   function textOf(el){
@@ -9723,6 +9711,18 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     pickerOpen:false, pickerLoaded:false
   };
   let lastLang='';
+  let __ajxDeferredRenderTimer = 0;
+  function ajxNativeSelectBusy(){
+    try{ return !!(window.__ajMobileNativeSelectBusy && window.__ajMobileNativeSelectBusy()); }catch(e){ return false; }
+  }
+  function ajxPickerAlreadyOpen(){
+    try{
+      const overlay = q('#ajxPickerOverlay');
+      const frame = q('#ajxPickerFrame');
+      const src = frame ? String(frame.getAttribute('src') || '') : '';
+      return !!(state.pickerOpen && overlay && overlay.classList.contains('open') && frame && src && src !== 'about:blank');
+    }catch(e){ return false; }
+  }
 
   const dateOnly = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
   const parseDate = v => { if(!v) return null; const d=(window.availabilityParseDate?window.availabilityParseDate(v):new Date(v)); return d && !isNaN(d) ? dateOnly(d) : null; };
@@ -9967,7 +9967,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       <div class="ajx-note">${tt().step3sub}</div>
       <div class="ajx-card">
         <div style="font-size:18px;font-weight:800;margin-bottom:12px">${c?cName(c):'-'}</div>
-        ${canGames(c) ? `<div class="ajx-actions"><button class="ajx-btn primary" id="ajxOpenGames">${tt().openGames}</button><button class="ajx-btn soft" id="ajxClearGames">${tt().clear}</button></div>` : `<div class="ajx-note">${tt().noCatalog}</div>`}
+        ${canGames(c) ? `<div class="ajx-actions"><button type="button" class="ajx-btn primary" id="ajxOpenGames">${tt().openGames}</button><button type="button" class="ajx-btn soft" id="ajxClearGames">${tt().clear}</button></div>` : `<div class="ajx-note">${tt().noCatalog}</div>`}
         <div class="ajx-check" style="margin-top:12px"><input type="checkbox" id="ajxLater" ${state.notifyLater?'checked':''}><label for="ajxLater">${tt().later}</label></div>
         ${state.games.length?`<div class="ajx-game-list" style="margin-top:14px">${state.games.map((g,i)=>`<div class="ajx-game-item">${i+1}. ${g.name}${g.platformName?` (${g.platformName})`:''}</div>`).join('')}</div>`:''}
       </div>
@@ -10158,6 +10158,14 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 
   function render(){
     const root=q('#ajCleanCalcRoot'); if(!root) return;
+    if(ajxNativeSelectBusy()){
+      clearTimeout(__ajxDeferredRenderTimer);
+      __ajxDeferredRenderTimer = setTimeout(render, 350);
+      return;
+    }
+    if(ajxPickerAlreadyOpen()){
+      return;
+    }
     root.innerHTML = `
       <div class="ajx-sec-tag">${tt().secTag}</div>
       <div class="ajx-sec-h">${tt().secH}</div>
@@ -12167,6 +12175,42 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
 })();
 </script>
 
+
+
+
+<script id="aj-mobile-select-stability-patch">
+(function(){
+  function isMobile(){
+    return (window.matchMedia && window.matchMedia('(max-width: 760px)').matches) || window.innerWidth <= 760;
+  }
+  function isTargetSelect(el){
+    return !!(el && el.tagName === 'SELECT' && (el.closest('#ajCleanCalcRoot') || el.closest('#calculator')));
+  }
+  function mark(ms){
+    if(!isMobile()) return;
+    window.__ajNativeSelectHoldUntil = Date.now() + (ms || 3500);
+  }
+  window.__ajMarkNativeSelectBusy = mark;
+  window.__ajMobileNativeSelectBusy = function(){
+    try{
+      if(!isMobile()) return false;
+      var ae = document.activeElement;
+      return Date.now() < (window.__ajNativeSelectHoldUntil || 0) || isTargetSelect(ae);
+    }catch(e){ return false; }
+  };
+  ['pointerdown','touchstart','mousedown','focusin'].forEach(function(evName){
+    document.addEventListener(evName, function(ev){
+      if(isTargetSelect(ev.target)) mark(4200);
+    }, true);
+  });
+  document.addEventListener('change', function(ev){
+    if(isTargetSelect(ev.target)) mark(500);
+  }, true);
+  document.addEventListener('blur', function(ev){
+    if(isTargetSelect(ev.target)) mark(250);
+  }, true);
+})();
+</script>
 
 </body>
 </html>
