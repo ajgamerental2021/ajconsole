@@ -9450,12 +9450,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       const langNow = isEn() ? 'en' : 'th';
       ensureStyle(doc);
       const guide = rewriteGuide(doc, langNow);
-      const intros = findIntroElements(doc, guide);
-      markHideTargets(doc, intros, guide);
-      const toggleBtn = ensureToggleButton(doc, guide, langNow);
-      let on = false;
-      try{ on = doc.defaultView.localStorage.getItem(PATCH_STORAGE_KEY) === '1'; }catch(e){}
-      applyCompactState(doc, on, langNow);
+      cleanupLegacyPickerCompact(doc);
       installObserver(doc, frame);
       return true;
     }finally{
@@ -9471,6 +9466,23 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       (doc.head || doc.documentElement).appendChild(st);
     }
     if(st.textContent !== PATCH_CSS) st.textContent = PATCH_CSS;
+  }
+
+
+  function cleanupLegacyPickerCompact(doc){
+    // Remove the extra compact toggle injected by index.html.
+    // The game catalog already has its own "ปิดรายละเอียดและเลือกแต่เกม" button.
+    Array.from(doc.querySelectorAll('.aj-pkr-toggle-wrap, button.aj-pkr-toggle')).forEach(el => {
+      const wrap = el.closest && el.closest('.aj-pkr-toggle-wrap');
+      const target = wrap || el;
+      if(target && target.parentNode) target.parentNode.removeChild(target);
+    });
+    Array.from(doc.querySelectorAll('[data-aj-pkr-hide="1"]')).forEach(el => {
+      el.removeAttribute('data-aj-pkr-hide');
+      el.classList.remove('aj-pkr-hidden');
+    });
+    if(doc.body) doc.body.classList.remove('aj-pkr-compact-on');
+    try{ doc.defaultView.localStorage.removeItem(PATCH_STORAGE_KEY); }catch(e){}
   }
 
   function textOf(el){
