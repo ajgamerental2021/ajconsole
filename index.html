@@ -992,7 +992,7 @@ footer{background:#0d0d0d;padding:30px 22px;text-align:center;}
           <div class="chk-row">
             <input type="checkbox" id="noConChk" onchange="onNoConChange()">
             <label for="noConChk"><strong id="lbl-nocon-t">ไม่ต้องการทำสัญญาการเช่า</strong><br>
-              <span id="lbl-nocon-d" style="font-size:12px;">ค่าประกันเพิ่มขึ้น (฿2,000→฿5,000 / ฿4,000→฿8,000)</span></label>
+              <span id="lbl-nocon-d" style="font-size:12px;line-height:1.55;display:inline-block;margin-top:2px;">สำหรับผู้เช่าครั้งแรก ต้องทำสัญญาและแนบสำเนาบัตรประชาชน + รูปเซลฟี่คู่บัตรทุกกรณี หากไม่สะดวก ให้ติ๊กช่องนี้ ค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น</span></label>
           </div>
           <div class="nocon-note" id="noConNote"></div>
           <div class="fgroup" id="paymentOptionWrap" style="margin-top:6px;display:none">
@@ -1249,7 +1249,7 @@ const T={
     cltag:'คำนวณ',clh:'เช็คคิว & คำนวณค่าเช่า',clp:'ขั้นต่ำ 3 วัน | ราคาเรทบุคคล',
     lblCat:'ประเภทเครื่อง',lblConsole:'เครื่องเกม',consolePlaceholder:'-- ยังไม่ได้เลือกเครื่องเกม --',lblStart:'วันที่เริ่มเช่า',lblEnd:'วันคืนเครื่อง',
     lblRetT:'ลูกค้าเก่า',lblRetD:'รับส่วนลด 10% ค่าเช่า',
-    lblNoConT:'ไม่ต้องการทำสัญญาการเช่า',lblNoConD:'ค่าประกันเพิ่มขึ้น (฿2,000→฿5,000 / ฿4,000→฿8,000)',
+    lblNoConT:'ไม่ต้องการทำสัญญาการเช่า',lblNoConD:'สำหรับผู้เช่าครั้งแรก ต้องทำสัญญาและแนบสำเนาบัตรประชาชน + รูปเซลฟี่คู่บัตรทุกกรณี หากไม่สะดวก ให้ติ๊กช่องนี้ ค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น',
     noConNote:'⚠️ เมื่อไม่ทำสัญญา ค่าประกันจะสูงขึ้นตามเรทที่กำหนด',
     lblMaps:'Google Maps ที่อยู่จัดส่ง (เช็คค่าส่งก่อนตัดสินใจ)',lblMapsNote:'* ใส่ลิงก์ Google Maps เพื่อให้ร้านเช็คค่าส่งเบื้องต้นได้เร็วขึ้น',mapsHelpBtn:'📍 วิธีคัดลอกลิงก์ Google Maps',deliveryNote:'* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น<br><br><span style="display:block;color:var(--accent);font-weight:700;">🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว</span>',mapsHelpTitle:'📍 วิธีคัดลอกลิงก์ Google Maps',mapsHelpIntro:'กดตามภาพด้านล่างได้เลย ใช้ได้ทั้งมือถือและคอม โดยหลักคือเปิดสถานที่หรือบ้านของคุณใน Google Maps แล้วกดแชร์ จากนั้นคัดลอกลิงก์มาแปะในช่องนี้',mapsHelpStep1Title:'1) เปิดสถานที่ใน Google Maps',mapsHelpStep1Desc:'ค้นหาบ้าน คอนโด หรือจุดจัดส่งที่ต้องการ แล้วแตะให้ขึ้นหน้ารายละเอียดสถานที่',mapsHelpStep2Title:'2) กดปุ่ม แชร์',mapsHelpStep2Desc:'มองหาปุ่ม แชร์ / Share ในหน้าสถานที่ หรือกดเมนูเพิ่มเติมแล้วเลือกแชร์',mapsHelpStep3Title:'3) กดคัดลอกลิงก์ แล้วนำมาแปะ',mapsHelpStep3Desc:'กด คัดลอกลิงก์ / Copy link แล้วนำลิงก์ที่ได้มาแปะในช่อง Google Maps ที่อยู่จัดส่งด้านบน',mapsHelpTip:'💡 แนะนำให้ส่งลิงก์จาก Google Maps ตรง ๆ จะช่วยให้ร้านเช็กพื้นที่จัดส่งและเรียกรถได้ง่ายขึ้น',
     formConsoleLbl:'🎮 เลือกเครื่อง',formDateLbl:'📅 ช่วงเวลาเช่า',formOptLbl:'⚙️ ตัวเลือกเพิ่มเติม',
@@ -1300,7 +1300,7 @@ const T={
     cltag:'CALCULATOR',clh:'Check Queue & Calculate Rental',clp:'Min. 3 days | Individual rates',
     lblCat:'Device Type',lblConsole:'Console',consolePlaceholder:'-- No console selected yet --',lblStart:'Rental Start Date',lblEnd:'Return Date',
     lblRetT:'Returning Customer',lblRetD:'Get 10% off rental fee',
-    lblNoConT:'No Rental Contract',lblNoConD:'Deposit increases (฿2,000→฿5,000 / ฿4,000→฿8,000)',
+    lblNoConT:'No Rental Contract',lblNoConD:'First-time renters must complete the rental agreement and attach an ID copy + selfie with ID. If not convenient, tick this option; the deposit will change from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the device.',
     noConNote:'⚠️ Without a contract, the deposit will be higher.',
     lblMaps:'Google Maps Delivery Address (check delivery cost before booking)',lblMapsNote:'* Paste your Google Maps link so we can estimate delivery cost faster',mapsHelpBtn:'📍 How to copy your Google Maps link',deliveryNote:'* Delivery only in Bangkok & Greater Bangkok<br><br><span style="display:block;color:var(--accent);font-weight:700;">🔥 Delivery promo: 3–6 days free return* | 7+ days free round trip* | Up to THB 100/trip</span>',mapsHelpTitle:'📍 How to copy your Google Maps link',mapsHelpIntro:'Follow the visual steps below. This works on both phone and desktop: open your place in Google Maps, tap Share, then copy the link and paste it into this field.',mapsHelpStep1Title:'1) Open the place in Google Maps',mapsHelpStep1Desc:'Search for your home, condo, hotel, or delivery point and open its place details card.',mapsHelpStep2Title:'2) Tap Share',mapsHelpStep2Desc:'Look for the Share button on the place card, or open more options and choose Share.',mapsHelpStep3Title:'3) Copy link and paste it here',mapsHelpStep3Desc:'Tap Copy link, then paste that Google Maps link into the delivery address field above.',mapsHelpTip:'💡 A direct Google Maps link makes it much easier for us to check the service area and arrange delivery smoothly.',
     formConsoleLbl:'🎮 Select Console',formDateLbl:'📅 Rental Period',formOptLbl:'⚙️ Additional Options',
@@ -3558,7 +3558,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     const picker = document.createElement('div');
     picker.id = 'gamePickerOverlay';
     picker.className = 'game-picker-overlay';
-    picker.innerHTML = `<div class="game-picker-shell"><div class="game-picker-head"><div><div class="game-picker-title" id="gamePickerTitle"></div><div class="game-picker-sub" id="gamePickerSub"></div></div><button class="game-picker-close" type="button" id="gamePickerClose">✕</button></div><iframe class="game-picker-frame" id="gamePickerFrame" loading="lazy"></iframe></div>`;
+    picker.innerHTML = `<div class="game-picker-shell"><div class="game-picker-head"><div><div class="game-picker-title" id="gamePickerTitle"></div><div class="game-picker-sub" id="gamePickerSub"></div></div><button class="game-picker-close" type="button" id="gamePickerClose">✕</button></div><iframe class="game-picker-frame" id="gamePickerFrame" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"></iframe></div>`;
     document.body.appendChild(picker);
     pickerOverlay = picker;
     pickerIframe = document.getElementById('gamePickerFrame');
@@ -7955,7 +7955,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   function patchAdditionalOptionTranslations(){
     if(typeof renderRetRow==='function') renderRetRow();
     const noConT=document.getElementById('lbl-nocon-t'); if(noConT) noConT.textContent = lang==='en' ? 'No Rental Contract' : 'ไม่ต้องการทำสัญญาการเช่า';
-    const noConD=document.getElementById('lbl-nocon-d'); if(noConD) noConD.textContent = lang==='en' ? 'Deposit increases (฿2,000→฿5,000 / ฿4,000→฿8,000)' : 'ค่าประกันเพิ่มขึ้น (฿2,000→฿5,000 / ฿4,000→฿8,000)';
+    const noConD=document.getElementById('lbl-nocon-d'); if(noConD) noConD.textContent = lang==='en' ? 'First-time renters must complete the rental agreement and attach an ID copy + selfie with ID. If not convenient, tick this option; the deposit will change from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the device.' : 'สำหรับผู้เช่าครั้งแรก ต้องทำสัญญาและแนบสำเนาบัตรประชาชน + รูปเซลฟี่คู่บัตรทุกกรณี หากไม่สะดวก ให้ติ๊กช่องนี้ ค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น';
     const mo=document.getElementById('maps-open-btn'); if(mo) mo.textContent = lang==='en' ? '🗺️ Open Google Maps' : '🗺️ เปิด Google Maps';
     const mh=document.getElementById('maps-help-btn'); if(mh) mh.textContent = lang==='en' ? '📍 How to copy your Google Maps link' : '📍 วิธีคัดลอกลิงก์ Google Maps';
     const dn=document.getElementById('delivery-note'); if(dn) dn.innerHTML = lang==='en'
@@ -9669,7 +9669,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     step1:'Choose console + dates',step1sub:'Choose the console and rental dates directly in this block, then continue to the next step.',menu:'Menu',closeMenu:'Hide menu',
     cat:'Device type',catAll:'-- All Types --',console:'Console',start:'Rental start date',end:'Return date',ready:'Dates are ready. You can continue.',need:'Choose a console and valid dates first.',availableNow:'Good news — this console can be rented for the selected dates.',min3:'Minimum rental is 3 days.',
     pickerTitle:'📅 Queue calendar view',pickerStart:'Select rental start date',pickerEnd:'Select return date',pickerPrev:'Previous month',pickerNext:'Next month',pickerConfirm:'Confirm',other:'Please choose another date.',available:'Available',unavailable:'Unavailable',partial:'Shorter period only',disabled:'Past / not selectable',minLock:'Minimum 3 days',startDay:'Start',endDay:'Return',inRange:'In range',checking:'Checking availability...',pickConsoleFirst:'Please choose a console first.',daysSelected:'days selected',confirmRent:'Confirm (Rent {days} days)',dateUnset:'Select date',datePreview:'Tentative',dateSelected:'Selected',
-    step2:'Additional options',ret:'Returning Customer',retSub:'Get 10% off rental fee',noCon:'No Rental Contract',noConSub:'Deposit increases (฿2,000→฿5,000 / ฿4,000→฿8,000)',payment:'Payment options',maps:'Google Maps delivery address (check delivery cost before booking)',mapsNote:'Paste your Google Maps link so we can estimate delivery cost faster',mapsBtn:'🗺️ Open Google Maps',mapsHow:'📍 How to copy your Google Maps link',delivery:'* Delivery only in Bangkok & Greater Bangkok',promo:'🔥 Delivery promo: 3–6 days free return* | 7+ days free round trip* | Up to THB 100/trip',
+    step2:'Additional options',ret:'Returning Customer',retSub:'Get 10% off rental fee',noCon:'No Rental Contract',noConSub:'First-time renters must complete the rental agreement and attach an ID copy + selfie with ID. If not convenient, tick this option; the deposit will change from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the device.',payment:'Payment options',maps:'Google Maps delivery address (check delivery cost before booking)',mapsNote:'Paste your Google Maps link so we can estimate delivery cost faster',mapsBtn:'🗺️ Open Google Maps',mapsHow:'📍 How to copy your Google Maps link',delivery:'* Delivery only in Bangkok & Greater Bangkok',promo:'🔥 Delivery promo: 3–6 days free return* | 7+ days free round trip* | Up to THB 100/trip',
     step3:'Choose games',step3sub:'Choose the games for this rental here. If this console has no game catalog, you can skip this step.',openGames:'🎮 Open game picker',clear:'🗑️ Clear all',later:'I will send the game list later',noCatalog:'This console does not use the game picker.',
     step4:'Rental summary',included:'Included in the set',contractLbl:'Complete Rental Agreement',contractNote:'Please fill in the form before delivery.',needContract:'You must complete the rental contract, or select "No Rental Contract" in Additional.',warning:'The rental pricing below is for personal rental only. Tax invoice / receipt cannot be issued. If you need one, company rates apply. Please contact us via Line: @ajgame or tel. +66 81-624-4715 🙏',
     slConsole:'Console',slSection:'Section',slStart:'Start Date',slEnd:'Return Date',slDuration:'Duration',slRental:'Rental Cost',slDeposit:'Deposit',slDelivery:'Delivery',slTotal:'Total Amount',slUpfront:'Transfer Before Delivery',slOD:'Pay on Delivery',slCash:'Pay Cash on Delivery',slPayment:'Payment',
@@ -9683,7 +9683,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     step1:'เลือกเครื่อง + เลือกวัน',step1sub:'เลือกเครื่องเกมและช่วงวันเช่าจากบล็อกนี้โดยตรง แล้วค่อยไปขั้นตอนถัดไป',menu:'เมนู',closeMenu:'ซ่อนเมนู',
     cat:'ประเภท',catAll:'-- ทั้งหมด --',console:'เครื่องเกม',start:'วันที่เริ่มเช่า',end:'วันคืนเครื่อง',ready:'ช่วงวันพร้อมแล้ว ไปขั้นตอนถัดไปได้',need:'เลือกเครื่องและช่วงวันที่ถูกต้องก่อน',availableNow:'เครื่องว่างตามวันที่เลือก',min3:'ขั้นต่ำเช่า 3 วัน',
     pickerTitle:'📅 ปฏิทินเช็คคิวเครื่อง',pickerStart:'เลือกวันที่เริ่มเช่า',pickerEnd:'เลือกวันคืนเครื่อง',pickerPrev:'เดือนก่อน',pickerNext:'เดือนถัดไป',pickerConfirm:'ตกลง',other:'โปรดเลือกวันอื่นแทน',available:'ว่าง',unavailable:'ไม่ว่าง',partial:'เช่าได้สั้นกว่า',disabled:'ผ่านมาแล้ว / เลือกไม่ได้',minLock:'เลือกไม่ได้ ขั้นต่ำ 3 วัน',startDay:'เริ่มเช่า',endDay:'คืนเครื่อง',inRange:'ช่วงเช่า',checking:'กำลังเช็คคิว...',pickConsoleFirst:'กรุณาเลือกเครื่องเกมก่อน',daysSelected:'วันที่เลือก',confirmRent:'ตกลง (เช่า {days} วัน)',dateUnset:'เลือกวัน',datePreview:'กำลังเลือก',dateSelected:'เลือกแล้ว',
-    step2:'ตัวเลือกเพิ่มเติม',ret:'ลูกค้าเก่า',retSub:'รับส่วนลด 10% ค่าเช่า',noCon:'ไม่ต้องการทำสัญญาการเช่า',noConSub:'ค่าประกันเพิ่มขึ้น (฿2,000→฿5,000 / ฿4,000→฿8,000)',payment:'ตัวเลือกการชำระเงิน',maps:'Google Maps ที่อยู่จัดส่ง (เช็คค่าจัดส่งก่อนตัดสินใจ)',mapsNote:'ใส่ลิงก์ Google Maps เพื่อให้ร้านเช็คค่าส่งเบื้องต้นได้เร็วขึ้น',mapsBtn:'🗺️ เปิด Google Maps',mapsHow:'📍 วิธีคัดลอกลิงก์ Google Maps',delivery:'* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น',promo:'🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว',
+    step2:'ตัวเลือกเพิ่มเติม',ret:'ลูกค้าเก่า',retSub:'รับส่วนลด 10% ค่าเช่า',noCon:'ไม่ต้องการทำสัญญาการเช่า',noConSub:'สำหรับผู้เช่าครั้งแรก ต้องทำสัญญาและแนบสำเนาบัตรประชาชน + รูปเซลฟี่คู่บัตรทุกกรณี หากไม่สะดวก ให้ติ๊กช่องนี้ ค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น',payment:'ตัวเลือกการชำระเงิน',maps:'Google Maps ที่อยู่จัดส่ง (เช็คค่าจัดส่งก่อนตัดสินใจ)',mapsNote:'ใส่ลิงก์ Google Maps เพื่อให้ร้านเช็คค่าส่งเบื้องต้นได้เร็วขึ้น',mapsBtn:'🗺️ เปิด Google Maps',mapsHow:'📍 วิธีคัดลอกลิงก์ Google Maps',delivery:'* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น',promo:'🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว',
     step3:'เลือกเกม',step3sub:'เลือกเกมสำหรับการเช่ารอบนี้ได้ที่ขั้นตอนนี้ หากเครื่องรุ่นนี้ไม่มีคลังเกม สามารถข้ามขั้นตอนได้',openGames:'🎮 เปิดหน้าเลือกเกม',clear:'🗑️ ล้างทั้งหมด',later:'แจ้งรายชื่อเกมภายหลัง',noCatalog:'เครื่องรุ่นนี้ไม่ใช้ตัวเลือกเกมในระบบ',
     step4:'สรุปค่าเช่า',included:'สิ่งที่รวมในชุด',contractLbl:'ทำสัญญาการเช่าผ่านลิงก์',contractNote:'กรุณากรอกสัญญาก่อนนัดส่งเครื่อง',needContract:'ต้องทำสัญญาการเช่า หรือไปเลือกที่ Additional ว่า “ไม่ต้องการทำสัญญาการเช่า”',warning:'ราคาด้านล่างนี้ เป็นราคาเช่าในนามบุคคลเท่านั้น ไม่สามารถออกใบกำกับภาษีหรือใบเสร็จรับเงินได้ หากต้องการใบกำกับภาษี/ใบเสร็จ จะเป็นเรทบริษัท กรุณาติดต่อทาง Line: @ajgame หรือ โทร. 081-624-4715 🙏',
     slConsole:'เครื่อง',slSection:'หมวดเครื่อง',slStart:'วันที่เริ่มเช่า',slEnd:'วันคืนเครื่อง',slDuration:'ระยะเวลา',slRental:'ค่าเช่า',slDeposit:'ค่าประกัน',slDelivery:'ค่าจัดส่ง',slTotal:'ยอดรวมทั้งหมด',slUpfront:'โอนล่วงหน้า (ยืนยันการจอง)',slOD:'จ่ายตอนของถึง',slCash:'จ่ายตอนของถึง',slPayment:'การชำระเงิน',
@@ -9946,7 +9946,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     return `<div class="ajx-pane ${state.step===2?'active':''}" id="ajxPane2">
       <h4>${tt().step2}</h4>
       <div class="ajx-check"><input type="checkbox" id="ajxRet" ${state.ret?'checked':''}><label for="ajxRet"><strong>${tt().ret}</strong><br><span style="font-size:12px;color:var(--text3)">${tt().retSub}</span></label></div>
-      <div class="ajx-check"><input type="checkbox" id="ajxNoCon" ${state.noCon?'checked':''}><label for="ajxNoCon"><strong>${tt().noCon}</strong><br><span style="font-size:12px;color:var(--text3)">${tt().noConSub}</span></label></div>
+      <div class="ajx-check"><input type="checkbox" id="ajxNoCon" ${state.noCon?'checked':''}><label for="ajxNoCon"><strong>${tt().noCon}</strong><br><span style="font-size:12px;color:var(--text3);line-height:1.55;display:inline-block;margin-top:2px">${tt().noConSub}</span></label></div>
       ${showPayment?`<div class="ajx-card"><label class="ajx-label">${tt().payment}</label><select class="ajx-select" id="ajxPayment"><option value="bank">${tt().payBank}</option><option value="wise">${tt().payWise}</option><option value="cash">${tt().payCash}</option></select></div>`:''}
       <div class="ajx-card"><label class="ajx-label">${tt().maps}</label>
         <input class="ajx-input" id="ajxMaps" placeholder="https://maps.google.com/..." value="${state.maps||''}">
@@ -10176,7 +10176,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       <div class="ajx-picker-overlay ${state.pickerOpen?'open':''}" id="ajxPickerOverlay">
         <div class="ajx-picker-box">
           <div class="ajx-picker-head"><h5>${isEn()?'Choose games':'เลือกเกม'}</h5><button class="ajx-picker-close" id="ajxPickerClose">×</button></div>
-          <iframe class="ajx-picker-frame" id="ajxPickerFrame" src="${state.pickerOpen ? `game_index.html?embed=picker` : 'about:blank'}"></iframe>
+          <iframe class="ajx-picker-frame" id="ajxPickerFrame" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"></iframe>
         </div>
       </div>`;
     bind();
@@ -10315,6 +10315,8 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     state.pickerOpen = true;
     render();
     const frame=q('#ajxPickerFrame');
+    const pickerUrl='game_index.html?embed=picker';
+    if(frame && frame.getAttribute('src') !== pickerUrl){ frame.setAttribute('src', pickerUrl); }
     function postOpen(){
       scheduleGamePickerUiPatch(frame);
       frame?.contentWindow?.postMessage({
@@ -10346,7 +10348,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     q('#ajxMaps') && (q('#ajxMaps').value=state.maps, q('#ajxMaps').oninput=e=>{ state.maps=e.target.value; });
     q('#ajxOpenMaps') && (q('#ajxOpenMaps').onclick=()=>{ try{ if(typeof openMapsPicker==='function') openMapsPicker(); }catch(e){} });
     q('#ajxMapsHow') && (q('#ajxMapsHow').onclick=()=>{ try{ if(typeof openMapsHelp==='function') openMapsHelp(); }catch(e){} });
-    q('#ajxOpenGames') && (q('#ajxOpenGames').onclick=openGamePicker);
+    q('#ajxOpenGames') && (q('#ajxOpenGames').onclick=(ev)=>{ if(ev){ ev.preventDefault(); ev.stopPropagation(); } openGamePicker(); });
     q('#ajxClearGames') && (q('#ajxClearGames').onclick=()=>{ state.games=[]; state.notifyLater=false; render(); });
     q('#ajxLater') && (q('#ajxLater').checked=state.notifyLater, q('#ajxLater').onchange=e=>{ state.notifyLater=!!e.target.checked; });
     qa('[data-prev]').forEach(btn=>btn.onclick=()=>gotoStep(Number(btn.dataset.prev)));
