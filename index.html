@@ -9452,10 +9452,11 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       const guide = rewriteGuide(doc, langNow);
       const intros = findIntroElements(doc, guide);
       markHideTargets(doc, intros, guide);
-      const toggleBtn = ensureToggleButton(doc, guide, langNow);
-      let on = false;
-      try{ on = doc.defaultView.localStorage.getItem(PATCH_STORAGE_KEY) === '1'; }catch(e){}
-      applyCompactState(doc, on, langNow);
+      // Remove the extra parent-injected compact toggle button.
+      // Keep only the native in-page toggle from game_index.html.
+      Array.from(doc.querySelectorAll('.aj-pkr-toggle-wrap')).forEach(function(el){ el.remove(); });
+      try{ doc.defaultView.localStorage.removeItem(PATCH_STORAGE_KEY); }catch(e){}
+      applyCompactState(doc, false, langNow);
       installObserver(doc, frame);
       return true;
     }finally{
