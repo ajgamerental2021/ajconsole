@@ -210,6 +210,8 @@ html.aj-preload-pending body::before{
       if(data.homeData) localStorage.setItem(HOME_KEY_BOOT, JSON.stringify(data.homeData));
       if(Object.prototype.hasOwnProperty.call(data,'retEnabled')) localStorage.setItem('aj_ret_enabled', data.retEnabled ? 'true' : 'false');
       else if(data.featureSettings && Object.prototype.hasOwnProperty.call(data.featureSettings,'returningDiscountEnabled')) localStorage.setItem('aj_ret_enabled', data.featureSettings.returningDiscountEnabled ? 'true' : 'false');
+      if(data.bgPromo && typeof data.bgPromo==='object') localStorage.setItem('aj_bg_promo', JSON.stringify({enabled:!!data.bgPromo.enabled, mode:data.bgPromo.mode==='fixed'?'fixed':'percent', value:Number(data.bgPromo.value)||0}));
+      if(data.consolePromo && typeof data.consolePromo==='object') localStorage.setItem('aj_console_promo', JSON.stringify({enabled:!!data.consolePromo.enabled, mode:data.consolePromo.mode==='fixed'?'fixed':'percent', value:Number(data.consolePromo.value)||0}));
       if(gistId) localStorage.setItem('aj_gist_id', gistId);
     }catch(e){}
     return data;
@@ -1082,6 +1084,123 @@ const SW_SUB=[
   {id:'bat',th:'เพิ่มไม้แบต 2 อัน',en:'Extra 2 Bat Controllers',daily:70,weekly:350},
   {id:'wheel',th:'เพิ่มจอยพวงมาลัย 2 อัน',en:'Extra 2 Steering Wheels',daily:70,weekly:350},
 ];
+const BG_CATALOG=[{"id":"g_1","th":"เหลี่ยมสัตว์","en":"Dirty Work","descTh":"เกมปาร์ตี้วางแผนเบาๆ เล่นง่าย สนุกไว เหมาะกับกลุ่มเพื่อนและครอบครัว","descEn":"A light strategy party game that is easy to learn and fun for friends and families.","howTh":"ผลัดกันเลือกและเล่นตามกติกาของเกม ใช้การสังเกตและตัดสินใจให้ไวเพื่อเก็บคะแนนหรือเอาชนะคู่แข่ง","howEn":"Take turns following the game rules, using observation and quick decisions to score points or beat your opponents.","img":"https://i.postimg.cc/pLWRXJ0p/618815188_1488173483317868_3759553166913810667_n.jpg","players":"2-5","playTime":"20-30 นาที","age":"8+","tier":"เรทมาตรฐาน 90","catTh":"ปาร์ตี้","r1":90,"r3":240,"r7":490,"dep":800,"depNc":2800},{"id":"g_9","th":"เจ้าแห่งแวมไพร์ ปะทะ นักล่าปีศาจ","en":"Dracula vs Van Helsing","descTh":"เกมดวลสองฝ่าย ใช้การคาดเดาและวางจังหวะเพื่อไล่ล่าหรือเอาตัวรอด","descEn":"A two-player duel of deduction and timing as one side hunts while the other tries to survive.","howTh":"ผู้เล่นผลัดกันขยับตำแหน่ง ใช้ความสามารถเฉพาะ และอ่านใจคู่ต่อสู้เพื่อคว้าชัย","howEn":"Players alternate actions, use special powers, and read the opponent’s moves to claim victory.","img":"https://i.postimg.cc/28FCDK7n/mx9b5t.jpg","players":"2","playTime":"20-30 นาที","age":"10+","tier":"เรทมาตรฐาน 90","catTh":"วางแผน","r1":90,"r3":240,"r7":490,"dep":900,"depNc":2900},{"id":"g_10","th":"7 สิ่งมหัศจรรย์ดวล","en":"7 Wonders Duel","descTh":"เกมวางแผนอารยธรรมสำหรับ 2 คน แข่งกันชนะด้วยวิทยาศาสตร์ ทหาร หรือคะแนนปลายเกม","descEn":"A two-player civilization game where you can win by science, military supremacy, or points.","howTh":"ผู้เล่นผลัดกันเลือกการ์ดจากผังพีระมิดเพื่อสร้างสิ่งปลูกสร้าง เก็บทรัพยากร พัฒนาวิทยาศาสตร์ และบีบคู่แข่งในสนามทหาร","howEn":"Players draft cards from a pyramid display to build structures, collect resources, advance science, and pressure the opponent on the military track.","img":"https://i.postimg.cc/tCH98jW3/1631180210748.jpg","players":"2","playTime":"30 นาที","age":"10+","tier":"เรทมาตรฐาน 90","catTh":"วางแผน","r1":90,"r3":240,"r7":490,"dep":700,"depNc":2700},{"id":"g_11","th":"Mind Bug","en":"Mind Bug","descTh":"เกมการ์ดดวลเร็ว ใช้มอนสเตอร์พลังแปลกและจังหวะชิงไหวชิงพริบ","descEn":"A fast tactical card duel featuring strange monsters and clever timing.","howTh":"สลับกันลงการ์ดโจมตี แต่ต้องระวังการใช้ Mind Bug ที่อาจโดนแย่งมอนสเตอร์สำคัญไปกลางคัน","howEn":"Take turns playing creatures and attacking, but watch out for Mind Bug moments that let your opponent steal your key monster.","img":"https://i.postimg.cc/7YMqkWn5/78d01cc5fef605dd0aed2f8ed3513b25.jpg","players":"2","playTime":"15-25 นาที","age":"8+","tier":"เรทมาตรฐาน 90","catTh":"วางแผน","r1":90,"r3":240,"r7":490,"dep":900,"depNc":2900},{"id":"g_12","th":"มัฟฟินไทม์","en":"Muffin Time","descTh":"เกมปาร์ตี้สายป่วน กติกาพลิกไปมา มีทั้งแกล้งกันและวางกับดักกันฮาๆ","descEn":"A chaotic party card game filled with pranks, traps, and constantly changing rules.","howTh":"จั่วและเล่นการ์ดที่มีเอฟเฟกต์แสบๆ ตั้งเงื่อนไขให้ตัวเองชนะก่อนคนอื่น","howEn":"Draw and play wild effect cards, set tricky win conditions, and try to be the first to meet one.","img":"https://i.postimg.cc/dtKJgYr8/i8b5yb.png","players":"2-6","playTime":"20-40 นาที","age":"13+","tier":"เรทมาตรฐาน 90","catTh":"ปาร์ตี้","r1":90,"r3":240,"r7":490,"dep":1000,"depNc":3000},{"id":"g_13","th":"สกัล วาง ท้า ดวล","en":"Skull","descTh":"เกมบลัฟฟ์เรียบง่ายแต่คมมาก ต้องกล้าท้าและเดาใจฝ่ายตรงข้ามให้แม่น","descEn":"A sharp bluffing game that is simple to learn but full of tense mind games.","howTh":"ผู้เล่นลงแผ่นดอกไม้หรือหัวกะโหลกคว่ำหน้า แล้วเปิดประมูลว่าใครกล้าเปิดได้กี่ใบโดยไม่เจอหัวกะโหลก","howEn":"Players place flowers or skulls face down, then bid on how many they can reveal without hitting a skull.","img":"https://i.postimg.cc/nctnNJBK/th_11134207_7r98s_lqigqvql57fo11.jpg","players":"3-6","playTime":"20-30 นาที","age":"10+","tier":"เรทมาตรฐาน 90","catTh":"ปาร์ตี้","r1":90,"r3":240,"r7":490,"dep":700,"depNc":2700},{"id":"g_14","th":"1 คืนปริศนาเกมล่ามนุษย์หมาป่า","en":"One Night Ultimate Werewolf","descTh":"เกมปาร์ตี้สายจับผิด เล่นไวมาก บทบาทสลับไปมาและเดายากสุดๆ","descEn":"A fast social deduction party game with hidden roles, shifting identities, and lots of debate.","howTh":"แต่ละคนได้รับบทลับและใช้ความสามารถตอนกลางคืน จากนั้นถกเถียงกันตอนกลางวันเพื่อหาว่าใครคือมนุษย์หมาป่า","howEn":"Each player gets a secret role, uses special powers at night, then debates during the day to find the werewolf.","img":"https://i.postimg.cc/zX1q4rKH/SIAMBOARDGAMES_SIAMBOARDGAMESONENIGHTULTIMATEWEREWOLFTH_MKP1790246_1.webp","players":"3-10","playTime":"10 นาที","age":"8+","tier":"เรทมาตรฐาน 90","catTh":"ปาร์ตี้","r1":90,"r3":240,"r7":490,"dep":700,"depNc":2700},{"id":"g_16","th":"ผีถ้วยแก้ว","en":"Spirit Board","descTh":"เกมปาร์ตี้บรรยากาศลึกลับ เล่นง่าย และมีจังหวะชวนลุ้นตลอดเวลา","descEn":"A spooky party game with simple rules and suspenseful moments throughout.","howTh":"ทำตามเงื่อนไขการ์ดและกติกาของเกม ใช้การสังเกตและความจำเพื่อเอาตัวรอดหรือเก็บคะแนน","howEn":"Follow the card effects and game rules, using observation and memory to survive or score points.","img":"https://i.postimg.cc/Prkd0jYr/pid_217058.jpg","players":"2-8","playTime":"15-30 นาที","age":"8+","tier":"เรทมาตรฐาน 90","catTh":"ปาร์ตี้","r1":90,"r3":240,"r7":490,"dep":900,"depNc":2900},{"id":"g_17","th":"ทีมค้นหา ไฟฉายมหัศจรรย์","en":"Spotlight","descTh":"เกมครอบครัวสำหรับเด็กและผู้ใหญ่ ใช้แผ่นไฟฉายค้นหาของในภาพอย่างสนุก","descEn":"A family-friendly search game where players use a flashlight effect to find hidden objects.","howTh":"ส่องไฟฉายกระดาษไปบนฉากเพื่อหาเป้าหมายที่ซ่อนอยู่ แล้วช่วยกันทำภารกิจให้ครบ","howEn":"Move the paper flashlight over the scene to find hidden targets and complete the mission together.","img":"https://i.postimg.cc/9FjcshZ4/zo.jpg","players":"1-5","playTime":"15-20 นาที","age":"4+","tier":"เรทมาตรฐาน 90","catTh":"ครอบครัว","r1":90,"r3":240,"r7":490,"dep":1000,"depNc":3000},{"id":"g_19","th":"ชีพจรลงเท้า: เกมแห่งการเดินทาง","en":"Itchy Feet: The Travel Game","descTh":"เกมเดินทางรอบโลก วางแผนเส้นทาง เก็บประสบการณ์ และรับมือเหตุการณ์ชวนป่วน","descEn":"A globe-trotting travel game about planning routes, gaining experiences, and handling unexpected events.","howTh":"ใช้การ์ดและแผนที่เพื่อเดินทางไปยังจุดหมายต่างๆ บริหารทรัพยากรและตัดสินใจเลือกเส้นทางที่คุ้มที่สุด","howEn":"Use cards and the map to travel to destinations, manage resources, and choose the most rewarding route.","img":"https://i.postimg.cc/sDR3br7z/DICECUPBOARDGAME_ITCHYFEETTHAIVERSIONBOARDGAME_MKP2064590_1.webp","players":"2-4","playTime":"45-60 นาที","age":"10+","tier":"เรทมาตรฐาน 90","catTh":"ครอบครัว","r1":90,"r3":240,"r7":490,"dep":900,"depNc":2900},{"id":"g_20","th":"X-Virus","en":"X-Virus","descTh":"เกมการ์ดไวๆ ที่ต้องกำจัดไวรัสและป้องกันการติดเชื้อของตัวเอง","descEn":"A quick card game about curing viruses and protecting yourself from infection.","howTh":"ลงการ์ดยา วัคซีน หรือไวรัสใส่ผู้เล่นคนอื่น จัดการไพ่ในมือให้ดีเพื่อเป็นคนสุดท้ายที่รอด","howEn":"Play medicine, vaccine, or virus cards against others and manage your hand wisely to be the last one standing.","img":"https://i.postimg.cc/65NBFXnN/images_19.jpg","players":"2-6","playTime":"15-25 นาที","age":"8+","tier":"เรทมาตรฐาน 90","catTh":"ปาร์ตี้","r1":90,"r3":240,"r7":490,"dep":800,"depNc":2800},{"id":"g_2","th":"เกมค้าเพชร","en":"Splendor","descTh":"เกมสะสมอัญมณีและซื้อการ์ดพัฒนา แข่งกันสร้างเครื่องยนต์ทรัพยากรให้คะแนนพุ่งไวที่สุด","descEn":"A gem-collecting engine-building game where players buy development cards and race for prestige points.","howTh":"ในแต่ละเทิร์น ผู้เล่นเลือกเก็บโทเคนอัญมณี จองการ์ด หรือซื้อการ์ดเพื่อนำส่วนลดสีมาใช้ต่อยอด เป้าหมายคือทำคะแนนให้ถึงก่อนคนอื่น","howEn":"On each turn, players collect gem tokens, reserve cards, or buy cards to gain permanent discounts and reach the target score first.","img":"https://i.postimg.cc/fRzDTf8F/1631269809337.jpg","players":"2-4","playTime":"30 นาที","age":"10+","tier":"เรท 120","catTh":"วางแผน","r1":120,"r3":320,"r7":650,"dep":1200,"depNc":3200},{"id":"g_3","th":"PUBG Battlegrounds เดอะบอร์ดเกม","en":"PUBG Battlegrounds: The Board Game","descTh":"บอร์ดเกมเอาตัวรอดที่ได้อารมณ์เหมือนเกมยิง เลือกเส้นทาง เก็บของ และปะทะกันจนเหลือผู้ชนะ","descEn":"A survival board game inspired by battle royale shooters where players loot, move, and fight to be the last one standing.","howTh":"สำรวจแผนที่ เก็บอาวุธและอุปกรณ์ บริหารจังหวะการเคลื่อนที่ และเอาตัวรอดจากวงที่บีบเข้ามา","howEn":"Explore the map, collect weapons and gear, manage movement carefully, and survive the shrinking zone.","img":"https://i.postimg.cc/rwVMFNhT/74k79f.jpg","players":"2-4","playTime":"30-45 นาที","age":"12+","tier":"เรท 120","catTh":"ทั่วไป","r1":120,"r3":320,"r7":650,"dep":1700,"depNc":3700},{"id":"g_4","th":"Dead by Daylight เดอะบอร์ดเกม","en":"Dead by Daylight: The Board Game","descTh":"เกมเอาชีวิตรอดแบบ 1 ปะทะหลายคน ฝั่งผู้รอดชีวิตต้องซ่อมเครื่องและหนี ส่วนฆาตกรต้องตามล่าให้ทัน","descEn":"An asymmetrical survival game where survivors repair generators and escape while the killer hunts them down.","howTh":"ฝั่งผู้รอดชีวิตร่วมมือกันซ่อมเครื่องปั่นไฟและหลบการตามล่า ส่วนผู้เล่นฝั่งฆาตกรใช้พลังพิเศษไล่จับให้ครบก่อนจะหนีสำเร็จ","howEn":"Survivors cooperate to repair generators and avoid danger, while the killer uses unique powers to catch them before they escape.","img":"https://i.postimg.cc/Qxkj3yJ4/Dead_by_Daylight_The_Board_Game_(Thai_version).jpg","players":"3-5","playTime":"45 นาที","age":"14+","tier":"เรท 120","catTh":"ปาร์ตี้","r1":120,"r3":320,"r7":650,"dep":1500,"depNc":3500},{"id":"g_6","th":"อาถรรย์แห่งอาครัม","en":"Arkham Horror","descTh":"เกมร่วมมือกันสืบสวนและต่อกรกับสิ่งลี้ลับในจักรวาล Lovecraft เต็มไปด้วยเหตุการณ์ไม่คาดคิด","descEn":"A cooperative Lovecraftian adventure game full of investigations, monsters, and unexpected events.","howTh":"ผู้เล่นรับบทนักสืบ เดินทางเก็บเบาะแส สู้มอนสเตอร์ และปิดประตูมิติให้ทันก่อนโลกจะถูกกลืนกิน","howEn":"Players act as investigators, gathering clues, fighting monsters, and sealing gates before the ancient evil overwhelms the world.","img":"https://i.postimg.cc/YqftHszJ/Arkham_Horror_TGG_box_front_png.webp","players":"1-6","playTime":"120 นาที","age":"14+","tier":"เรท 120","catTh":"เกมหนัก","r1":120,"r3":320,"r7":650,"dep":1500,"depNc":3500},{"id":"g_7","th":"Harmonies","en":"Harmonies","descTh":"เกมจัดวางภูมิประเทศสีสวย สร้างถิ่นอาศัยให้สัตว์และทำคะแนนจากแพตเทิร์นที่ลงตัว","descEn":"A beautiful spatial puzzle game about building landscapes and creating habitats for animals.","howTh":"เลือกชิ้นภูมิประเทศมาวางบนกระดานส่วนตัวให้ตรงกับเงื่อนไขของการ์ดสัตว์ ยิ่งวางได้สอดคล้องยิ่งทำคะแนนดี","howEn":"Choose terrain tokens and place them on your board to match animal card patterns for higher scores.","img":"https://i.postimg.cc/vHLGsNt3/v92068.jpg","players":"1-4","playTime":"30 นาที","age":"10+","tier":"เรท 120","catTh":"ครอบครัว","r1":120,"r3":320,"r7":650,"dep":1200,"depNc":3200},{"id":"g_8","th":"ผู้ตรวจการแห่งนอตทิงแฮม 2nd Edition","en":"Sheriff of Nottingham 2nd Edition","descTh":"เกม bluff และต่อรองสุดป่วน ลอบขนของ หลอกเจ้าหน้าที่ หรือเนียนให้รอดก็ได้","descEn":"A bluffing and negotiation game full of smuggling, deception, and risky decisions.","howTh":"ผลัดกันเป็นนายอำเภอ ตรวจสัมภาระของผู้เล่นคนอื่น ใครจะพูดจริงหรือโกหกต้องวัดใจกันล้วนๆ","howEn":"Players take turns being the sheriff, inspecting others' goods while everyone bluffs and bargains to get contraband through.","img":"https://i.postimg.cc/SN7mhvfL/zxqvnk.jpg","players":"3-6","playTime":"45-60 นาที","age":"14+","tier":"เรท 120","catTh":"ปาร์ตี้","r1":120,"r3":320,"r7":650,"dep":1500,"depNc":3500},{"id":"g_15","th":"เซเลสเทีย","en":"Celestia","descTh":"เกมผจญภัยบนเรือเหาะ จะไปต่อหรือโดดลงเก็บแต้มก่อนดี ต้องเสี่ยงอย่างมีสไตล์","descEn":"A stylish airship adventure game where players decide whether to stay on board or jump off with treasure.","howTh":"กัปตันต้องทอยและเล่นการ์ดผ่านอุปสรรค ส่วนผู้เล่นคนอื่นตัดสินใจว่าจะอยู่บนเรือต่อหรือรีบลงเก็บสมบัติ","howEn":"The captain rolls and plays cards to overcome obstacles while the other players decide whether to stay aboard or leave with their treasure.","img":"https://i.postimg.cc/xTS9B2Mq/Celestia_(Thai_version).jpg","players":"2-6","playTime":"30 นาที","age":"8+","tier":"เรท 120","catTh":"ครอบครัว","r1":120,"r3":320,"r7":650,"dep":1300,"depNc":3300},{"id":"g_18","th":"ต่าย ตัก ติม","en":"Bunny Scoop","descTh":"เกมครอบครัวธีมน่ารัก เล่นง่าย จังหวะเร็ว เหมาะกับทุกวัย","descEn":"A cute and easy family game with quick turns and simple fun for all ages.","howTh":"ทำตามกติกาของการ์ดหรืออุปกรณ์ในเกม เพื่อเก็บคะแนนหรือไปถึงเป้าหมายก่อน","howEn":"Follow the card effects and game tools to score points or reach the goal first.","img":"https://i.postimg.cc/MK8zgSVx/pic9232481_png.webp","players":"2-4","playTime":"15-20 นาที","age":"6+","tier":"เรท 120","catTh":"ครอบครัว","r1":120,"r3":320,"r7":650,"dep":1500,"depNc":3500},{"id":"g_21","th":"The Lord of the Rings: Duel for Middle-Earth","en":"The Lord of the Rings: Duel for Middle-Earth","descTh":"เกมดวลสำหรับ 2 คนในธีมลอร์ดออฟเดอะริงส์ วางแผน คุมพื้นที่ และแข่งชิงเงื่อนไขชนะ","descEn":"A two-player duel set in Middle-earth where players plan carefully, control areas, and race toward victory conditions.","howTh":"เลือกการ์ดและใช้ความสามารถของฝ่ายตัวเองเพื่อสร้างความได้เปรียบทั้งในแผนที่และเป้าหมายพิเศษของเกม","howEn":"Choose cards and use your faction abilities to gain advantages on the map and pursue special victory goals.","img":"https://i.postimg.cc/J4WRSLZL/%E0%B9%80%E0%B8%94%E0%B8%AD%E0%B8%B0%E0%B8%A5%E0%B8%AD%E0%B8%A3_%E0%B8%94%E0%B8%AD%E0%B8%AD%E0%B8%9F%E0%B9%80%E0%B8%94%E0%B8%AD%E0%B8%B0%E0%B8%A3_%E0%B8%87%E0%B8%AA_%E0%B8%A1%E0%B8%AB%E0%B8%B2%E0%B8%AA%E0%B8%87%E0%B8%84%E0%B8%A3%E0%B8%B2%E0%B8%A1%E0%B8%94%E0%B8%A7%E0%B8%A5%E0%B8%8A_%E0%B8%87%E0%B8%9E_%E0%B8%A0%E0%B8%9E_(The_Lord_of_the_Rings_Duel_for_Middle_earth).jpg","players":"2","playTime":"30-45 นาที","age":"10+","tier":"เรท 120","catTh":"วางแผน","r1":120,"r3":320,"r7":650,"dep":1500,"depNc":3500},{"id":"g_23","th":"Dungeons & Dragons Starter Set: Heroes of the Borderlands","en":"Dungeons & Dragons Starter Set: Heroes of the Borderlands","descTh":"ชุดเริ่มต้น Dungeons & Dragons สำหรับผู้เล่นใหม่ เน้นการผจญภัยร่วมกัน มีโหมดต่อสู้ สำรวจ และสวมบทบาท พร้อมการ์ด แผนที่ โทเคน และลูกเต๋าให้เริ่มเล่นได้ง่าย","descEn":"A Dungeons & Dragons starter set designed for new players, featuring cooperative adventures across combat, exploration, and roleplaying with cards, maps, tokens, and dice included.","howTh":"หนึ่งคนรับบท Dungeon Master เพื่อเล่าเรื่องและควบคุมโลก ส่วนผู้เล่นคนอื่นรับบทฮีโร่ เลือกการกระทำ ทอยลูกเต๋า แก้ปัญหา ต่อสู้ และดำเนินเรื่องตามฉากผจญภัย","howEn":"One player acts as Dungeon Master while the others play heroes. The group makes choices, rolls dice, resolves encounters, fights monsters, and progresses through the included adventures.","img":"https://i.postimg.cc/2jtmBFgG/Dungeons_Dragons_Starter_Set_Heroes_of_the_Borderlands.png","players":"3-5","playTime":"60+ นาที","age":"12+","tier":"เรท 120","catTh":"เกมหนัก","r1":120,"r3":320,"r7":650,"dep":2000,"depNc":4000},{"id":"g_38","th":"Worms: The Board Game","en":"Worms: The Board Game","descTh":"เกมต่อสู้สุดป่วนจากวิดีโอเกม Worms ใช้แผนที่หกเหลี่ยม อาวุธสุดฮา ลูกเต๋า และภูมิประเทศที่สร้างความวุ่นวายเพื่อเป็นทีมหนอนทีมสุดท้ายที่รอด","descEn":"A chaotic tabletop battle based on Worms, featuring hex maps, funny weapons, dice, hazards, and explosive moments as teams try to be the last worms standing.","howTh":"ขยับหนอน เก็บกล่องอาวุธ เล็งเป้าหมาย และใช้อาวุธโจมตีทีมอื่น ระวังน้ำ ระเบิด ทุ่นระเบิด ลม และเหตุการณ์ Sudden Death ที่ทำให้เกมพลิกได้ตลอด","howEn":"Players move worms, collect weapon crates, aim at rivals, and attack while navigating water, mines, wind, explosions, and sudden-death events that can swing the match.","img":"https://i.postimg.cc/FRnDDWCM/717j-P-t4d5L.jpg","players":"2-6","playTime":"40-60 นาที","age":"10+","tier":"เรท 120","catTh":"ปาร์ตี้","r1":120,"r3":320,"r7":650,"dep":1500,"depNc":3500},{"id":"g_39","th":"Hot Streak แก๊งเบรคแตก","en":"Hot Streak","descTh":"เกมปาร์ตี้แข่งมาสคอตสุดปั่น ผู้เล่นวางเดิมพันกับผลการแข่งขันที่เต็มไปด้วยการชน ล้ม กลับทิศ และเหตุการณ์ฮาๆ ที่คาดเดายาก","descEn":"A party racing and betting game where players wager on chaotic mascot races full of crashes, reversals, disqualifications, and unpredictable outcomes.","howTh":"ก่อนแข่งผู้เล่นเลือกตั๋วเดิมพันและอาจแอบใส่การ์ดเข้าเด็คแข่ง จากนั้นเปิดการ์ดทีละใบให้มาสคอตวิ่ง ชน หรือหลุดสนาม จ่ายเงินตามผลอันดับหลังจบการแข่งขัน","howEn":"Players draft betting tickets and may secretly add cards to the race deck. Cards are revealed to move mascots, cause crashes, or disqualify racers, then bets pay out.","img":"https://i.postimg.cc/nzw00RwH/th-11134207-81ztp-mlohr45nvdadc2.jpg","players":"2-8","playTime":"20 นาที","age":"6+","tier":"เรท 120","catTh":"ปาร์ตี้","r1":120,"r3":320,"r7":650,"dep":1500,"depNc":3500},{"id":"g_41","th":"โค้ดลับ! รหัสห้า","en":"Got Five!","descTh":"เกมตรรกะและ deduction ที่ผู้เล่นต้องหาตัวเลขลับห้าตัวของตัวเองจากข้อมูลที่เห็นของคนอื่นและคำใบ้ที่ได้ในแต่ละเทิร์น","descEn":"A logic and deduction game where players try to identify their own five hidden numbers using visible information and clues from other players.","howTh":"ในเทิร์นของตัวเองเปิดไทล์ใหม่ แล้วใช้ไทล์ที่เปิดอยู่เพื่อถามคำใบ้จากผู้เล่นข้างๆ นำข้อมูลสี จุด และลำดับมาค่อยๆ ตัดความเป็นไปได้ ใครประกาศคำตอบถูกก่อนชนะ","howEn":"On your turn, reveal a tile and use available tiles to ask a neighbor for clues. Combine color, dot, and order information to deduce your five hidden numbers first.","img":"https://i.postimg.cc/wvb00fbd/6u.jpg","players":"2-4","playTime":"15 นาที","age":"8+","tier":"เรท 120","catTh":"ครอบครัว","r1":120,"r3":320,"r7":650,"dep":1200,"depNc":3200},{"id":"g_5","th":"Zombicide 2nd Edition ภาษาไทย","en":"Zombicide 2nd Edition","descTh":"เกมร่วมมือกันเอาตัวรอดจากซอมบี้แบบแอ็กชันจัดเต็ม เก็บของ อัปเลเวล และเคลียร์ภารกิจ","descEn":"A fast-paced cooperative zombie survival game with missions, loot, leveling, and swarms of undead.","howTh":"ผู้เล่นควบคุมตัวละครหลายตัว ทำภารกิจในแผนที่ เก็บอาวุธ และกำจัดซอมบี้ที่เกิดเพิ่มทุกเทิร์น","howEn":"Players control survivors, complete missions, find better gear, and fight zombies that keep spawning each round.","img":"https://i.postimg.cc/mgLB2ydk/xpqhjq.png","players":"1-6","playTime":"60 นาที","age":"13+","tier":"เรท 150","catTh":"เกมหนัก","r1":150,"r3":400,"r7":820,"dep":2500,"depNc":4500},{"id":"g_22","th":"Dead Cells: The Rogue-Lite Board Game","en":"Dead Cells: The Rogue-Lite Board Game","descTh":"เกมร่วมมือแนวโร้กไลต์ดันเจี้ยนจากวิดีโอเกม Dead Cells ผู้เล่นเลือกตัวละคร ออกสำรวจไบโอม ต่อสู้ศัตรู เก็บอาวุธและอัปเกรดเพื่อเอาชนะบอสในแต่ละรัน","descEn":"A cooperative rogue-lite dungeon crawler based on Dead Cells. Players choose characters, explore biomes, fight enemies, collect weapons, and upgrade over repeated runs to defeat bosses.","howTh":"เล่นร่วมกันเป็นทีม เลือกเส้นทางในไบโอม เปิดเหตุการณ์ ต่อสู้ด้วยการ์ด/ความสามารถ เก็บ Cells เพื่อปลดล็อกการอัปเกรด แม้แพ้ก็ยังมีความคืบหน้าสำหรับรอบถัดไป","howEn":"Players move through branching biomes together, reveal encounters, fight with cards and powers, collect Cells, and unlock upgrades between runs. Even failed runs help future attempts.","img":"https://i.postimg.cc/0jhsRPpD/dfhg32.jpg","players":"1-4","playTime":"45 นาที","age":"14+","tier":"เรท 150","catTh":"เกมหนัก","r1":150,"r3":400,"r7":820,"dep":3000,"depNc":5000}];
+window.BG_CATALOG=BG_CATALOG;
+// === Sync board game catalog from Google Sheet (real-time, JSONP) ===
+(function(){
+  const BG_SHEET_ID = '1V26nwz19jFAPbNR14n-yCUxV_4S6kh3dTooRnS4BiIY';
+  const BG_CACHE_KEY = 'aj_bg_catalog_cache_v3';
+  try{ localStorage.removeItem('aj_bg_catalog_cache_v1'); localStorage.removeItem('aj_bg_catalog_cache_v2'); }catch(e){}
+  const SHEETS = { boardGames:'BoardGames', tiers:'Tiers', categories:'Categories' };
+  function t(v){ return String(v==null?'':v).trim(); }
+  function n(v,d){ const x=Number(String(v==null?'':v).toString().replace(/,/g,'')); return isFinite(x)?x:(d||0); }
+  function truthy(v){ if(v===true) return true; if(v===false) return false; const s=String(v==null?'':v).trim().toLowerCase(); return s==='true'||s==='1'||s==='yes'||s==='y'||s==='active'||s==='available'||s==='✓'||s==='✔'; }
+  function playTimeFmt(v){ const s=t(v); if(!s) return ''; return /นาที|min/i.test(s)?s:`${s} นาที`; }
+  function parseGvizText(txt){
+    const i=txt.indexOf('{'), j=txt.lastIndexOf('}'); if(i<0||j<0) throw new Error('bad gviz');
+    return JSON.parse(txt.slice(i,j+1));
+  }
+  function rowsFromJson(json){
+    const headers=(json.table.cols||[]).map((c,i)=>t(c.label||c.id||('col_'+i)));
+    return (json.table.rows||[]).map(r=>{ const o={}; (r.c||[]).forEach((c,i)=>{ if(headers[i]) o[headers[i]]=c?c.v:''; }); return o; }).filter(r=>Object.values(r).some(v=>t(v)!==''));
+  }
+  function gvizUrl(sheetName){
+    return `https://docs.google.com/spreadsheets/d/${encodeURIComponent(BG_SHEET_ID)}/gviz/tq?headers=1&tqx=out:json&sheet=${encodeURIComponent(sheetName)}&t=${Date.now()}`;
+  }
+  function fetchSheet(sheetName){
+    // Try fetch first, fall back to JSONP via <script> tag (for file:// and CORS edge cases)
+    return fetch(gvizUrl(sheetName),{cache:'no-store'}).then(r=>{ if(!r.ok) throw new Error('http '+r.status); return r.text(); }).then(txt=>rowsFromJson(parseGvizText(txt))).catch(()=>new Promise((resolve,reject)=>{
+      const cbName='__ajGviz'+Math.random().toString(36).slice(2);
+      const url=`https://docs.google.com/spreadsheets/d/${encodeURIComponent(BG_SHEET_ID)}/gviz/tq?headers=1&tqx=out:json;responseHandler:${cbName}&sheet=${encodeURIComponent(sheetName)}&t=${Date.now()}`;
+      const s=document.createElement('script');
+      const cleanup=()=>{ try{delete window[cbName];}catch(e){window[cbName]=undefined;} try{s.remove();}catch(e){} };
+      window[cbName]=function(json){ try{ resolve(rowsFromJson(json)); }catch(e){ reject(e); } cleanup(); };
+      s.onerror=()=>{ cleanup(); reject(new Error('jsonp fail '+sheetName)); };
+      s.src=url; document.head.appendChild(s);
+      setTimeout(()=>{ if(window[cbName]){ cleanup(); reject(new Error('jsonp timeout '+sheetName)); } }, 15000);
+    }));
+  }
+  function mapCatalog(rows){
+    const tierMap={}; (rows.tiers||[]).forEach(r=>{ const id=t(r.tier_id); if(id) tierMap[id]=t(r.tier_name_th)||t(r.tier_name_en)||id; });
+    const catMap={}; (rows.categories||[]).forEach(r=>{ const id=t(r.category_id); if(id) catMap[id]=t(r.name_th)||t(r.name_en)||id; });
+    const seen=new Set();
+    return (rows.boardGames||[]).filter(r=>truthy(r.active)).map(r=>{
+      const status=t(r.available_status).toUpperCase();
+      if(status && status!=='AVAILABLE') return null;
+      const title=t(r.name_th)||t(r.name_en); if(!title) return null;
+      const key=title.toLowerCase(); if(seen.has(key)) return null; seen.add(key);
+      const dep=n(r.deposit_normal,0);
+      const catIds=t(r.category_id).split(/[,;/|]+/).map(x=>x.trim()).filter(Boolean);
+      const catTh=catIds.map(id=>catMap[id]||id).join(', ')||'-';
+      const tier=tierMap[t(r.tier_id)]||'';
+      return {
+        id:'g_'+(t(r.game_id)||title.toLowerCase().replace(/[^a-z0-9]+/g,'_')),
+        th:title, en:t(r.name_en)||title,
+        descTh:t(r.description_th), descEn:t(r.description_en),
+        howTh:t(r.how_to_play_th), howEn:t(r.how_to_play_en),
+        img:t(r.image_url),
+        players:t(r.players)||'-',
+        playTime:playTimeFmt(r.play_time_mins)||'-',
+        age:t(r.age)||'-',
+        tier, catTh,
+        r1:n(r.price_1_day,90), r3:n(r.price_3_day,240), r7:n(r.price_7_day,490),
+        dep, depNc:n(r.deposit_no_contract,dep+2000)
+      };
+    }).filter(Boolean).sort((a,b)=>(a.r3||0)-(b.r3||0));
+  }
+  let renderAttempts=0;
+  function tryRender(){
+    if(typeof window.ajxRender==='function'){ try{ window.ajxRender(); }catch(e){} return; }
+    if(renderAttempts++ < 40) setTimeout(tryRender, 250);
+  }
+  function applyCatalog(list){
+    if(!Array.isArray(list)||!list.length) return;
+    window.BG_CATALOG=list;
+    tryRender();
+  }
+  // load cache first
+  try{ const cached=JSON.parse(localStorage.getItem(BG_CACHE_KEY)||'null'); if(cached && Array.isArray(cached.list) && cached.list.length) applyCatalog(cached.list); }catch(e){}
+  // fetch fresh (waits for DOM so JSONP <script> tag has head available)
+  function doSync(){
+    Promise.all([fetchSheet(SHEETS.boardGames), fetchSheet(SHEETS.tiers).catch(()=>[]), fetchSheet(SHEETS.categories).catch(()=>[])])
+      .then(([boardGames,tiers,categories])=>{
+        const list=mapCatalog({boardGames,tiers,categories});
+        console.log('[BG sheet sync] loaded',list.length,'games from sheet');
+        if(list.length){ applyCatalog(list); try{ localStorage.setItem(BG_CACHE_KEY,JSON.stringify({at:Date.now(),list})); }catch(e){} }
+        else console.warn('[BG sheet sync] returned 0 games — check sheet permission/columns');
+      }).catch(e=>{ console.warn('[BG sheet sync] failed:', e&&e.message); });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', doSync, {once:true});
+  else doSync();
+})();
+function ajLoadPromo(key,def){try{const v=JSON.parse(localStorage.getItem(key)||'null'); return v && typeof v==='object' ? Object.assign({},def,v) : Object.assign({},def);}catch(e){return Object.assign({},def);}}
+window.ajPromo={
+  bg: ajLoadPromo('aj_bg_promo', {enabled:false, mode:'percent', value:0}),
+  console: ajLoadPromo('aj_console_promo', {enabled:false, mode:'percent', value:0})
+};
+window.ajSavePromo=function(){
+  try{localStorage.setItem('aj_bg_promo', JSON.stringify(window.ajPromo.bg));}catch(e){}
+  try{localStorage.setItem('aj_console_promo', JSON.stringify(window.ajPromo.console));}catch(e){}
+};
+window.ajCalcBgDiscount=function(bgSubtotal, bgItemCount){
+  const p=window.ajPromo&&window.ajPromo.bg; if(!p||!p.enabled) return 0;
+  const v=Number(p.value)||0; if(v<=0) return 0;
+  if(p.mode==='fixed') return Math.min(bgSubtotal, v*Number(bgItemCount||0));
+  return Math.round(bgSubtotal * v/100);
+};
+window.ajCalcConsoleDiscount=function(consoleRental){
+  const p=window.ajPromo&&window.ajPromo.console; if(!p||!p.enabled) return 0;
+  const v=Number(p.value)||0; if(v<=0) return 0;
+  if(p.mode==='fixed') return Math.min(consoleRental, v);
+  return Math.round(consoleRental * v/100);
+};
+window.ajPromoLabel=function(which, lang){
+  const p=window.ajPromo&&window.ajPromo[which]; if(!p) return '';
+  const en=lang==='en';
+  const base = which==='bg' ? (en?'Board game promo':'ส่วนลดบอร์ดเกม') : (en?'Console rental promo':'ส่วนลดค่าเช่าเครื่อง');
+  const detail = p.mode==='percent' ? ` ${Number(p.value)||0}%` : (en?` (per item ฿${Number(p.value)||0})`:` (ลด ฿${Number(p.value)||0}/รายการ)`);
+  return base + (p.mode==='percent' ? detail : (which==='bg'?detail:` (-฿${Number(p.value)||0})`));
+};
 const DEFAULT_CONSOLES=[
   {id:1, name:'PS4',              nameEn:'PS4',              rate:300,weekly:1500,deposit:2000,cat:'300',type:'console', brand:'playstation',icon:'🎮',showGameButton:true,gameUrl:GAME_URL},
   {id:2, name:'PS Portal',        nameEn:'PS Portal',        rate:300,weekly:1500,deposit:2000,cat:'300',type:'console', brand:'playstation',icon:'🎮',showGameButton:false,gameUrl:''},
@@ -5956,7 +6075,9 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
         retEnabled: !!retEnabled,
         featureSettings: {
           returningDiscountEnabled: !!retEnabled
-        }
+        },
+        bgPromo: (window.ajPromo&&window.ajPromo.bg)||{enabled:false,mode:'percent',value:0},
+        consolePromo: (window.ajPromo&&window.ajPromo.console)||{enabled:false,mode:'percent',value:0}
       };
       let url = '', method = '', body = '';
       if(id){
@@ -6777,6 +6898,8 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
             homeData: (typeof getCurrentHomeData === 'function') ? getCurrentHomeData() : undefined,
             retEnabled: !!retEnabled,
             featureSettings:{returningDiscountEnabled:!!retEnabled},
+            bgPromo: (window.ajPromo&&window.ajPromo.bg)||{enabled:false,mode:'percent',value:0},
+            consolePromo: (window.ajPromo&&window.ajPromo.console)||{enabled:false,mode:'percent',value:0},
             faqData: getFaqData()
           };
           const headers = { 'Content-Type':'application/json', Authorization:`token ${tok}` };
@@ -7116,6 +7239,8 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
           homeData: typeof getCurrentHomeData==='function' ? getCurrentHomeData() : undefined,
           retEnabled: !!window.retEnabled,
           featureSettings:{returningDiscountEnabled:!!window.retEnabled},
+          bgPromo: (window.ajPromo&&window.ajPromo.bg)||{enabled:false,mode:'percent',value:0},
+          consolePromo: (window.ajPromo&&window.ajPromo.console)||{enabled:false,mode:'percent',value:0},
           faqData:getFaqData2()
         };
         const res=await fetch(`https://api.github.com/gists/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json',Authorization:`token ${tok}`},body:JSON.stringify({files:{'aj_rental_data.json':{content:JSON.stringify(payload,null,2)}}})});
@@ -9827,6 +9952,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     ret:false,noCon:false,payment:'cash',maps:'',
     games:[],notifyLater:false,
     bundleId:'',switchExtras:[],vdock:false,
+    boardgames:[],
     availRows:[], availLoading:false, availError:'', pickerRequest:0,
     pickerOpen:false, pickerLoaded:false
   };
@@ -9993,29 +10119,49 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     return `<div class="ajx-tabs">${labels.map((lab,i)=>{ const s=i+1; const locked = s>1 && !stepReady(s-1); const cls=['ajx-tab',state.step===s?'active':'',stepReady(s)?'done':'',locked?'locked':''].join(' ').trim(); return `<button class="${cls}" data-tab="${s}"><div class="ajx-tab-top"><span class="ajx-tab-num">${s}</span><span class="ajx-tab-title">${lab}</span><span class="ajx-tab-arrow">→</span></div></button>`;}).join('')}</div>`;
   }
 
+  function priceLineConsole(daily, weekly, deposit){
+    const pi=consolePromoInfo();
+    const showDisc = pi.on && pi.mode==='percent';
+    const dDaily = showDisc ? consoleDiscPrice(daily) : daily;
+    const dWeekly = showDisc ? consoleDiscPrice(weekly) : weekly;
+    const fmt = (o,d) => (showDisc && d<o) ? `<span style="text-decoration:line-through;color:#999;">฿${Number(o).toLocaleString()}</span> <span style="color:#1f7a32;font-weight:900;">฿${Number(d).toLocaleString()}</span>` : `฿${Number(o).toLocaleString()}`;
+    return `${fmt(daily,dDaily)}/${tt().day} | ${fmt(weekly,dWeekly)}/${tt().wk} | ${tt().deposit} ฿${Number(deposit).toLocaleString()}`;
+  }
+  function priceLineAcc(daily, weekly){
+    const pi=consolePromoInfo();
+    const showDisc = pi.on && pi.mode==='percent';
+    const dDaily = showDisc ? consoleDiscPrice(daily) : daily;
+    const dWeekly = showDisc ? consoleDiscPrice(weekly) : weekly;
+    const fmt = (o,d) => (showDisc && d<o) ? `<span style="text-decoration:line-through;color:#999;">฿${Number(o).toLocaleString()}</span> <span style="color:#1f7a32;font-weight:900;">฿${Number(d).toLocaleString()}</span>` : `฿${Number(o).toLocaleString()}`;
+    return `${fmt(daily,dDaily)}/${tt().day} | ${fmt(weekly,dWeekly)}/${tt().wk}`;
+  }
   function renderSpecialOpts(){
     const c=currentConsole(); if(!c) return '';
     if(window.SPEC && Number(c.id)===Number(window.SPEC.PS5) && Array.isArray(window.PS5_BUNDLES)){
       const selected=state.bundleId||'';
-      return `<div class="ajx-card"><span class="ajx-label">${isEn()?'🎮 PS5 Bundle Options':'🎮 BUNDLE กับ PS5'}</span><div class="ajx-bundle">
-        <label><input type="radio" name="ajx_ps5b" value="" ${selected===''?'checked':''}><div><div>${isEn()?'PS5 Only':'PS5 เท่านั้น'}</div><div class="meta">฿400/${tt().day} | ฿2,500/${tt().wk} | ${tt().deposit} ฿2,000</div></div></label>
-        ${window.PS5_BUNDLES.map(b=>`<label><input type="radio" name="ajx_ps5b" value="${b.id}" ${selected===b.id?'checked':''}><div><div>${isEn()?b.en:b.th}</div><div class="meta">฿${b.rate}/${tt().day} | ฿${Number(b.weekly).toLocaleString()}/${tt().wk} | ${tt().deposit} ฿${Number(b.deposit).toLocaleString()}</div></div></label>`).join('')}
+      return `<div class="ajx-card"><span class="ajx-label">${isEn()?'🎮 PS5 Bundle Options':'🎮 BUNDLE กับ PS5'}</span>${promoBadgeConsole()}<div class="ajx-bundle">
+        <label><input type="radio" name="ajx_ps5b" value="" ${selected===''?'checked':''}><div><div>${isEn()?'PS5 Only':'PS5 เท่านั้น'}</div><div class="meta">${priceLineConsole(400,2500,2000)}</div></div></label>
+        ${window.PS5_BUNDLES.map(b=>`<label><input type="radio" name="ajx_ps5b" value="${b.id}" ${selected===b.id?'checked':''}><div><div>${isEn()?b.en:b.th}</div><div class="meta">${priceLineConsole(b.rate,b.weekly,b.deposit)}</div></div></label>`).join('')}
       </div></div>`;
     }
     if(window.SWITCH_IDS && window.SWITCH_IDS.has(Number(c.id)) && Array.isArray(window.SW_ROOT) && Array.isArray(window.SW_SUB)){
       const joy=(window.SW_ROOT||[]).find(x=>x.id==='joy');
       const others=(window.SW_ROOT||[]).filter(x=>x.id!=='joy');
-      return `<div class="ajx-card"><span class="ajx-label">${isEn()?'🎮 Switch accessories':'🎮 อุปกรณ์เสริม'}</span>
-        <div class="ajx-check"><input type="checkbox" id="ajxSwJoy" ${state.switchExtras.includes('joy')?'checked':''}><label for="ajxSwJoy"><strong>${isEn()?joy.en:joy.th}</strong><br><span style="font-size:12px;color:var(--text3)">฿${joy.daily}/${tt().day} | ฿${joy.weekly}/${tt().wk}</span></label></div>
+      return `<div class="ajx-card"><span class="ajx-label">${isEn()?'🎮 Switch accessories':'🎮 อุปกรณ์เสริม'}</span>${promoBadgeConsole()}
+        <div class="ajx-check"><input type="checkbox" id="ajxSwJoy" ${state.switchExtras.includes('joy')?'checked':''}><label for="ajxSwJoy"><strong>${isEn()?joy.en:joy.th}</strong><br><span style="font-size:12px;color:var(--text3)">${priceLineAcc(joy.daily,joy.weekly)}</span></label></div>
         <div class="ajx-bundle-sub" style="${state.switchExtras.includes('joy')?'':'display:none'}" id="ajxSwSubWrap">
           <div style="font-size:12px;color:var(--text3);font-weight:800;margin-bottom:2px">${isEn()?'Additional accessories (optional)':'อุปกรณ์เพิ่มเติม (เลือกเพิ่มได้)'}</div>
-          ${window.SW_SUB.map(s=>`<label style="display:flex;gap:10px;align-items:flex-start"><input type="checkbox" data-sw="${s.id}" ${state.switchExtras.includes(s.id)?'checked':''}><div><div>${isEn()?s.en:s.th}</div><div class="meta">฿${s.daily}/${tt().day} | ฿${s.weekly}/${tt().wk}</div></div></label>`).join('')}
+          ${window.SW_SUB.map(s=>`<label style="display:flex;gap:10px;align-items:flex-start"><input type="checkbox" data-sw="${s.id}" ${state.switchExtras.includes(s.id)?'checked':''}><div><div>${isEn()?s.en:s.th}</div><div class="meta">${priceLineAcc(s.daily,s.weekly)}</div></div></label>`).join('')}
         </div>
-        <div class="ajx-bundle" style="margin-top:10px">${others.map(s=>`<label><input type="checkbox" data-sw="${s.id}" ${state.switchExtras.includes(s.id)?'checked':''}><div><div>${isEn()?s.en:s.th}</div><div class="meta">฿${s.daily}/${tt().day} | ฿${s.weekly}/${tt().wk}</div></div></label>`).join('')}</div>
+        <div class="ajx-bundle" style="margin-top:10px">${others.map(s=>`<label><input type="checkbox" data-sw="${s.id}" ${state.switchExtras.includes(s.id)?'checked':''}><div><div>${isEn()?s.en:s.th}</div><div class="meta">${priceLineAcc(s.daily,s.weekly)}</div></div></label>`).join('')}</div>
       </div>`;
     }
     if(window.VITURE_IDS && window.VITURE_IDS.has(Number(c.id))){
-      return `<div class="ajx-card"><span class="ajx-label">${isEn()?'🥽 Viture accessories':'🥽 อุปกรณ์เสริม Viture'}</span><div class="ajx-check"><input type="checkbox" id="ajxVdock" ${state.vdock?'checked':''}><label for="ajxVdock"><strong>${isEn()?'Add Viture Mobile Dock':'เพิ่ม Viture Mobile Dock'}</strong><br><span style="font-size:12px;color:var(--text3)">+฿200/${isEn()?'rental':'การเช่า'}</span></label></div></div>`;
+      const pi=consolePromoInfo();
+      const showDisc = pi.on && pi.mode==='percent';
+      const dockDisc = showDisc ? consoleDiscPrice(200) : 200;
+      const dockHtml = (showDisc && dockDisc<200) ? `<span style="text-decoration:line-through;color:#999;">+฿200</span> <span style="color:#1f7a32;font-weight:900;">+฿${dockDisc}</span>` : `+฿200`;
+      return `<div class="ajx-card"><span class="ajx-label">${isEn()?'🥽 Viture accessories':'🥽 อุปกรณ์เสริม Viture'}</span>${promoBadgeConsole()}<div class="ajx-check"><input type="checkbox" id="ajxVdock" ${state.vdock?'checked':''}><label for="ajxVdock"><strong>${isEn()?'Add Viture Mobile Dock':'เพิ่ม Viture Mobile Dock'}</strong><br><span style="font-size:12px;color:var(--text3)">${dockHtml}/${isEn()?'rental':'การเช่า'}</span></label></div></div>`;
     }
     return '';
   }
@@ -10043,14 +10189,17 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
             <option value="racing">Racing Simulator</option>
           </select>
         </div>
-        <div class="ajx-card"><label class="ajx-label">${tt().console}</label>
+        <div class="ajx-card">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;"><label class="ajx-label" style="margin:0;">${tt().console}</label>${(()=>{ const b=promoBadgeConsole(); return b ? b.replace('margin-bottom:8px;','margin-bottom:0;') : ''; })()}</div>
           <select class="ajx-select" id="ajxConsole">
             <option value="">${isEn()?'-- Choose console --':'-- เลือกเครื่องเกม --'}</option>
-            ${consolesFiltered.map(c=>`<option value="${c.id}">${cName(c)} (฿${c.rate}/${tt().day})</option>`).join('')}
+            ${consolesFiltered.map(c=>{ const pi=consolePromoInfo(); const dp = (pi.on && pi.mode==='percent') ? consoleDiscPrice(c.rate) : c.rate; const label = (pi.on && pi.mode==='percent' && dp<c.rate) ? `${cName(c)} (฿${c.rate} → ฿${dp}/${tt().day})` : `${cName(c)} (฿${c.rate}/${tt().day})`; return `<option value="${c.id}">${label}</option>`; }).join('')}
           </select>
+          ${(()=>{ const cc=currentConsole(); const pi=consolePromoInfo(); if(!cc||!pi.on||pi.mode!=='percent') return ''; const dDaily=consoleDiscPrice(cc.rate); const dWeekly=consoleDiscPrice(cc.weekly); if(dDaily>=cc.rate) return ''; return `<div style="margin-top:8px;font-size:12px;line-height:1.6;"><span style="text-decoration:line-through;color:#999;">฿${cc.rate.toLocaleString()}/${tt().day}</span> <span style="color:#1f7a32;font-weight:900;">฿${dDaily.toLocaleString()}/${tt().day}</span> <span style="color:#aaa;">|</span> <span style="text-decoration:line-through;color:#999;">฿${cc.weekly.toLocaleString()}/${tt().wk}</span> <span style="color:#1f7a32;font-weight:900;">฿${dWeekly.toLocaleString()}/${tt().wk}</span></div>`; })()}
         </div>
       </div>
       ${renderSpecialOpts()}
+      ${renderBoardgameBundle()}
       <div class="ajx-row step1-row">
         <div class="ajx-card"><label class="ajx-label">${tt().start}</label><input class="ajx-input" id="ajxStart" readonly value="${state.start||''}" placeholder="YYYY-MM-DD"></div>
         <div class="ajx-card"><label class="ajx-label">${tt().end}</label><input class="ajx-input" id="ajxEnd" readonly value="${state.end||''}" placeholder="YYYY-MM-DD"></div>
@@ -10096,6 +10245,76 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   }
 
   function dailyWeeklyCost(days, daily, weekly){ if(days>=7){ const w=Math.floor(days/7), r=days%7; return w*weekly + r*daily; } return days*daily; }
+  function bgCostFor(g, days){
+    if(!g || !days) return 0;
+    if(days<=3) return Number(g.r3)||0;
+    if(days>=7){ const extra=days-7; return (Number(g.r7)||0) + extra*(Number(g.r1)||0); }
+    return (Number(g.r3)||0) + (days-3)*(Number(g.r1)||0);
+  }
+  function bgExtraDepositFor(g, consoleDep){
+    const bgDep=Number(g&&g.dep)||0; const cDep=Number(consoleDep)||0;
+    if(bgDep<=cDep) return 0;
+    const diff=bgDep-cDep;
+    if(diff<=500) return 500;
+    if(diff<=1500) return 750;
+    return 1000;
+  }
+  function bgFindById(id){ return (window.BG_CATALOG||[]).find(x=>String(x.id)===String(id)); }
+  function bgName(g){ return isEn()?(g.en||g.th):(g.th||g.en); }
+  function bgPromoInfo(){ const p=(window.ajPromo&&window.ajPromo.bg)||{enabled:false}; return {on:!!p.enabled && Number(p.value)>0, mode:p.mode, value:Number(p.value)||0}; }
+  function consolePromoInfo(){ const p=(window.ajPromo&&window.ajPromo.console)||{enabled:false}; return {on:!!p.enabled && Number(p.value)>0, mode:p.mode, value:Number(p.value)||0}; }
+  function bgDiscPrice(orig){ const pi=bgPromoInfo(); if(!pi.on) return orig; if(pi.mode==='percent') return Math.max(0, Math.round(orig*(1-pi.value/100))); return Math.max(0, orig - pi.value); }
+  function consoleDiscPrice(orig){ const pi=consolePromoInfo(); if(!pi.on || pi.mode!=='percent') return orig; return Math.max(0, Math.round(orig*(1-pi.value/100))); }
+  function promoBadgeBg(){ const pi=bgPromoInfo(); if(!pi.on) return ''; const lbl = pi.mode==='percent' ? `-${pi.value}%` : (isEn()?`-฿${pi.value}/item`:`-฿${pi.value}/รายการ`); return `<div style="display:inline-flex;align-items:center;gap:6px;background:#e8f7eb;color:#1f7a32;border:1px solid #b9e3c2;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800;margin-bottom:8px;">🎉 ${isEn()?'Board game promo':'โปรโมชั่นส่วนลด'} ${lbl}</div>`; }
+  function promoBadgeConsole(){ const pi=consolePromoInfo(); if(!pi.on) return ''; const lbl = pi.mode==='percent' ? `-${pi.value}%` : `-฿${pi.value}`; return `<div style="display:inline-flex;align-items:center;gap:6px;background:#e8f7eb;color:#1f7a32;border:1px solid #b9e3c2;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800;margin-bottom:8px;">🎉 ${isEn()?'Console rental promo':'โปรโมชั่นส่วนลด'} ${lbl}</div>`; }
+  function priceConsoleHtml(orig){
+    const pi=consolePromoInfo();
+    if(!pi.on || pi.mode!=='percent') return `฿${Number(orig).toLocaleString()}`;
+    const dp = consoleDiscPrice(orig);
+    if(dp===orig) return `฿${Number(orig).toLocaleString()}`;
+    return `<span style="text-decoration:line-through;color:#999;margin-right:6px;">฿${Number(orig).toLocaleString()}</span><span style="color:#1f7a32;font-weight:900;">฿${Number(dp).toLocaleString()}</span>`;
+  }
+  function renderBoardgameBundle(){
+    const days=selectedDays();
+    const pi=bgPromoInfo();
+    const rows = (state.boardgames||[]).map((id,idx)=>{
+      const g=bgFindById(id);
+      const rawPrice = g ? (days&&days>=3 ? bgCostFor(g,days) : g.r3) : 0;
+      const discPrice = g ? bgDiscPrice(rawPrice) : 0;
+      const durLabel = g ? (days&&days>=3 ? `/ ${days} ${isEn()?'days':'วัน'}` : `/ 3 ${isEn()?'days':'วัน'}`) : '';
+      const priceHtml = g
+        ? (pi.on && discPrice<rawPrice
+            ? `<span style="text-decoration:line-through;color:#999;font-size:11px;">฿${rawPrice.toLocaleString()}</span> <span style="color:#1f7a32;">฿${discPrice.toLocaleString()}</span> <span style="font-weight:600;color:var(--text3);">${durLabel}</span>`
+            : `${fmtMoney(rawPrice)} ${durLabel}`)
+        : '';
+      const usedIds = new Set((state.boardgames||[]).map((x,i)=> i!==idx ? String(x) : null).filter(Boolean));
+      const opts = (window.BG_CATALOG||[]).filter(b=>!usedIds.has(String(b.id))).map(b=>{
+        const dp = bgDiscPrice(b.r3);
+        const r3lbl = (pi.on && dp<b.r3) ? `฿${dp}` : `฿${b.r3}`;
+        return `<option value="${b.id}" ${String(b.id)===String(id)?'selected':''}>${bgName(b)} — ${r3lbl} (3${isEn()?'d':'ว'}) / ฿${b.r7} (7${isEn()?'d':'ว'})</option>`;
+      }).join('');
+      const thumb = g
+        ? `<button type="button" class="ajx-bg-thumb" data-bg-detail="${g.id}" title="${isEn()?'Click to view details':'คลิกดูรายละเอียด'}" style="position:relative;width:48px;height:48px;border-radius:8px;flex:0 0 48px;background:#f5f5f5;padding:0;border:1px solid var(--border);cursor:pointer;overflow:hidden;"><img src="${g.img}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;"><span style="position:absolute;right:2px;bottom:2px;background:rgba(0,0,0,.6);color:#fff;font-size:9px;border-radius:6px;padding:1px 4px;line-height:1.2;pointer-events:none;">🔍</span></button>`
+        : `<div style="width:48px;height:48px;border-radius:8px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex:0 0 48px;">🎲</div>`;
+      return `<div class="ajx-bg-row" data-bg-idx="${idx}" style="display:flex;gap:8px;align-items:center;padding:8px;border:1px solid var(--border);border-radius:10px;background:#fff;margin-bottom:8px;flex-wrap:wrap;">
+        ${thumb}
+        <select class="ajx-select ajx-bg-sel" data-bg-idx="${idx}" style="flex:1;min-width:160px;">
+          <option value="">${isEn()?'-- Choose a board game --':'-- เลือกบอร์ดเกม --'}</option>
+          ${opts}
+        </select>
+        <div style="font-size:12px;font-weight:800;color:var(--accent);min-width:130px;text-align:right;">${priceHtml}</div>
+        <button type="button" class="ajx-btn soft ajx-bg-del" data-bg-idx="${idx}" style="padding:6px 10px;">✕</button>
+      </div>`;
+    }).join('');
+    return `<div class="ajx-card">
+      <span class="ajx-label">🎲 ${isEn()?'Add-on Board Games (Bundle)':'Bundle บอร์ดเกม'}</span>
+      ${promoBadgeBg()}
+      <div style="font-size:12px;color:var(--text3);line-height:1.6;margin:4px 0 4px;">${isEn()?'Add board games to your rental. Price uses the 3-day rate plus a per-day add-on for longer rentals.':'เพิ่มบอร์ดเกมเข้าชุดเช่า — ราคาเรท 3 วัน + เพิ่มตามจำนวนวันตามแพ็กของแต่ละเกม'}</div>
+      <div style="font-size:12px;color:var(--accent);line-height:1.6;margin-bottom:10px;font-weight:700;">${isEn()?'💡 Click the image to view board game details':'💡 คลิกที่รูปเพื่อดูรายละเอียดของบอร์ดเกมนั้นๆ'}</div>
+      <div id="ajxBgList">${rows}</div>
+      ${(()=>{ const sel=(state.boardgames||[]).filter(x=>x); const total=(window.BG_CATALOG||[]).length; const full=sel.length>=total; return `<button type="button" class="ajx-btn primary" id="ajxBgAdd" style="margin-top:6px;${full?'opacity:.5;cursor:not-allowed;':''}" ${full?'disabled':''}>+ ${isEn()?'Add board game':'เพิ่มรายการบอร์ดเกม'}${full?` (${isEn()?'all selected':'เลือกครบแล้ว'})`:''}</button>`; })()}
+    </div>`;
+  }
   function calcSummary(){
     const c=currentConsole(); if(!c) return null;
     const days=selectedDays(); if(!days || days<3) return null;
@@ -10106,6 +10325,9 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     }
     const baseDeposit = deposit;
     if(state.noCon){ deposit = deposit<=2000?5000:deposit<=3000?6000:8000; }
+    let bgExtraDeposit = 0;
+    (state.boardgames||[]).forEach(bid=>{ const g=bgFindById(bid); if(g) bgExtraDeposit += bgExtraDepositFor(g, baseDeposit); });
+    deposit += bgExtraDeposit;
     let rental=dailyWeeklyCost(days,daily,weekly), addons=0, addonLines=[];
     const push=(name,cost,id)=>{ addons+=cost; addonLines.push({name,cost,id:id||''}); };
     if(window.SWITCH_IDS && window.SWITCH_IDS.has(Number(c.id))){
@@ -10113,18 +10335,29 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       (state.switchExtras||[]).forEach(id=>{ const s=items.find(x=>x.id===id); if(s) push(isEn()?s.en:s.th, dailyWeeklyCost(days, s.daily, s.weekly), id); });
     }
     if(window.VITURE_IDS && window.VITURE_IDS.has(Number(c.id)) && state.vdock) push('Viture Mobile Dock', 200, 'vdock');
+    (state.boardgames||[]).forEach(bid=>{
+      const g=bgFindById(bid); if(!g) return;
+      const cost=bgCostFor(g, days);
+      const label = (isEn()?'🎲 ':'🎲 ') + bgName(g);
+      push(label, cost, 'bg:'+bid);
+    });
     const selectedNames = [];
     if(bundleName) selectedNames.push(bundleName);
     addonLines.forEach(a=>{ if(a && a.name) selectedNames.push(a.name); });
     const summaryName = [cName(c), ...selectedNames].filter(Boolean).join(' + ');
     const disc = state.ret ? Math.round((rental+addons)*0.1) : 0;
-    const net = rental + addons - disc;
+    const bgSubtotal = addonLines.filter(a=>String(a.id||'').startsWith('bg:')).reduce((s,a)=>s+Number(a.cost||0),0);
+    const bgItemCount = addonLines.filter(a=>String(a.id||'').startsWith('bg:')).length;
+    const consoleAddonSubtotal = addonLines.filter(a=>!String(a.id||'').startsWith('bg:')).reduce((s,a)=>s+Number(a.cost||0),0);
+    const bgDisc = (typeof window.ajCalcBgDiscount==='function') ? window.ajCalcBgDiscount(bgSubtotal, bgItemCount) : 0;
+    const consoleDisc = (typeof window.ajCalcConsoleDiscount==='function') ? window.ajCalcConsoleDiscount(rental + consoleAddonSubtotal) : 0;
+    const net = rental + addons - disc - bgDisc - consoleDisc;
     const total = net + deposit;
     let upfront=200, onDelivery=total-upfront;
     const payment = isEn() ? state.payment : 'bank';
     if(payment==='wise'){ upfront=total; onDelivery=0; }
     if(payment==='cash'){ upfront=0; onDelivery=total; }
-    return {c,days,bundleName,selectedNames,summaryName,rental,deposit,baseDeposit,addons,addonLines,disc,total,upfront,onDelivery,payment};
+    return {c,days,bundleName,selectedNames,summaryName,rental,deposit,baseDeposit,bgExtraDeposit,addons,addonLines,disc,bgDisc,consoleDisc,total,upfront,onDelivery,payment};
   }
 
   function noContractFlagHtml(){
@@ -10178,10 +10411,13 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
           <div class="ajx-srow"><span class="l">${tt().slStart}</span><span class="v">${formatDisplay(state.start)}</span></div>
           <div class="ajx-srow"><span class="l">${tt().slEnd}</span><span class="v">${formatDisplay(state.end)}</span></div>
           <div class="ajx-srow"><span class="l">${tt().slDuration}</span><span class="v">${s.days} ${isEn()?'days':'วัน'}</span></div>
-          <div class="ajx-srow"><span class="l">${tt().slRental}</span><span class="v">${fmtMoney(s.rental)}</span></div>
+          <div class="ajx-srow"><span class="l">${tt().slRental} ${cName(c)}</span><span class="v">${fmtMoney(s.rental)}</span></div>
           ${s.addonLines.map(a=>`<div class="ajx-srow"><span class="l">${a.name}</span><span class="v">${fmtMoney(a.cost)}</span></div>`).join('')}
           ${state.ret?`<div class="ajx-srow"><span class="l">${tt().discount}</span><span class="v" style="color:#228833;">-${fmtMoney(s.disc)}</span></div>`:''}
-          <div class="ajx-srow"><span class="l">${tt().slDeposit}</span><span class="v">${fmtMoney(s.deposit)}${noContractFlagHtml()}</span></div>
+          ${s.consoleDisc>0?`<div class="ajx-srow"><span class="l">${window.ajPromoLabel('console', isEn()?'en':'th')}</span><span class="v" style="color:#228833;">-${fmtMoney(s.consoleDisc)}</span></div>`:''}
+          ${s.bgDisc>0?`<div class="ajx-srow"><span class="l">${window.ajPromoLabel('bg', isEn()?'en':'th')}</span><span class="v" style="color:#228833;">-${fmtMoney(s.bgDisc)}</span></div>`:''}
+          <div class="ajx-srow"><span class="l">${tt().slDeposit} ${cName(c)}</span><span class="v">${fmtMoney(s.deposit - (s.bgExtraDeposit||0))}${noContractFlagHtml()}</span></div>
+          ${s.bgExtraDeposit>0?`<div class="ajx-srow"><span class="l">${isEn()?'Extra board game deposit':'ค่าประกันบอร์ดเกมเพิ่มเติม'}</span><span class="v">+${fmtMoney(s.bgExtraDeposit)}</span></div>`:''}
           <div class="ajx-srow"><span class="l">${tt().slDelivery}</span><span class="v">${isEn()?'Delivery fee confirmed in chat':'ค่าส่งแจ้งทางแชท'}</span></div>
           <div class="ajx-srow total"><span class="l">${tt().slTotal}</span><span class="v">${fmtMoney(s.total)}</span></div>
         </div>
@@ -10377,6 +10613,9 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     const policyLines = bookingPolicyLines(s);
     const thContractLines = !isEn() ? policyLines : [];
     const enContractLines = isEn() ? policyLines : [];
+    const hasBg = (state.boardgames||[]).some(id=>bgFindById(id));
+    const bgWarnTh = hasBg ? ['⚠️ บอร์ดเกมและอุปกรณ์เสียหาย/สูญหาย คิดค่าเสียหายตามจริง หากค่าประกันไม่พอ จะมีเรียกเก็บส่วนต่างเพิ่มเติม'] : [];
+    const bgWarnEn = hasBg ? ['⚠️ Damaged or lost board games and accessories will be charged at actual cost. If the deposit is insufficient, the difference will be billed separately.'] : [];
 
     const gameLines = (()=>{
       if(state.notifyLater){
@@ -10413,14 +10652,18 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       ...(gameLines.length ? ['', ...gameLines] : []),
       '',
       '💰 สรุปค่าใช้จ่าย:',
-      `  - ค่าเช่า: ${fmtMoney(s.rental)}`,
+      `  - ค่าเช่า ${cName(c)}: ${fmtMoney(s.rental)}`,
       ...s.addonLines.map(a=>`  - ${a.name}: ${fmtMoney(a.cost)}`),
       state.ret?`  - ${tt().discount}: -${fmtMoney(s.disc)}`:null,
-      `  - ค่าประกัน: ${fmtMoney(s.deposit)}${noContractSuffix}`,
+      s.consoleDisc>0?`  - ${window.ajPromoLabel('console','th')}: -${fmtMoney(s.consoleDisc)}`:null,
+      s.bgDisc>0?`  - ${window.ajPromoLabel('bg','th')}: -${fmtMoney(s.bgDisc)}`:null,
+      `  - ค่าประกัน ${cName(c)}: ${fmtMoney(s.deposit - (s.bgExtraDeposit||0))}${noContractSuffix}`,
+      s.bgExtraDeposit>0?`  - ค่าประกันบอร์ดเกมเพิ่มเติม: +${fmtMoney(s.bgExtraDeposit)}`:null,
       '',
       `💰 ยอดรวมทั้งหมด: ${fmtMoney(s.total)}`,
       `💳 โอนล่วงหน้า (ยืนยันจอง): ${fmtMoney(s.upfront)}`,
       `🚚 จ่ายตอนของถึง: ${fmtMoney(s.onDelivery)}`,
+      ...(bgWarnTh.length ? ['', ...bgWarnTh] : []),
       ...(thContractLines.length ? ['', ...thContractLines, ''] : ['']),
       'ขอบคุณครับ/ค่ะ 🙏'
     ];
@@ -10444,13 +10687,17 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       ...(gameLines.length ? ['', ...gameLines.map(line=>line === '  แจ้งภายหลัง' ? '  Send later' : line)] : []),
       '',
       '💰 Cost Summary:',
-      `  - Rental: ${fmtMoney(s.rental)}`,
+      `  - Rental ${cName(c)}: ${fmtMoney(s.rental)}`,
       ...s.addonLines.map(a=>`  - ${a.name}: ${fmtMoney(a.cost)}`),
       state.ret?`  - ${tt().discount}: -${fmtMoney(s.disc)}`:null,
-      `  - Deposit: ${fmtMoney(s.deposit)}${noContractSuffix}`,
+      s.consoleDisc>0?`  - ${window.ajPromoLabel('console','en')}: -${fmtMoney(s.consoleDisc)}`:null,
+      s.bgDisc>0?`  - ${window.ajPromoLabel('bg','en')}: -${fmtMoney(s.bgDisc)}`:null,
+      `  - Deposit ${cName(c)}: ${fmtMoney(s.deposit - (s.bgExtraDeposit||0))}${noContractSuffix}`,
+      s.bgExtraDeposit>0?`  - Extra board game deposit: +${fmtMoney(s.bgExtraDeposit)}`:null,
       '',
       `💰 Total: ${fmtMoney(s.total)}`,
       ...enPaymentLines,
+      ...(bgWarnEn.length ? ['', ...bgWarnEn] : []),
       ...(enContractLines.length ? ['', ...enContractLines, ''] : ['']),
       'Thank you! 🙏'
     ];
@@ -10498,6 +10745,10 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     q('#ajxNoCon') && (q('#ajxNoCon').checked=state.noCon, q('#ajxNoCon').onchange=e=>{ state.noCon=!!e.target.checked; render(); });
     q('#ajxPayment') && (q('#ajxPayment').value=state.payment, q('#ajxPayment').onchange=e=>{ state.payment=e.target.value; render(); });
     q('#ajxMaps') && (q('#ajxMaps').value=state.maps, q('#ajxMaps').oninput=e=>{ state.maps=e.target.value; });
+    q('#ajxBgAdd') && (q('#ajxBgAdd').onclick=()=>{ state.boardgames=[...(state.boardgames||[]),'']; render(); });
+    qa('.ajx-bg-sel').forEach(sel=>{ sel.onchange=e=>{ const idx=Number(e.target.dataset.bgIdx); const v=String(e.target.value||''); const arr=[...(state.boardgames||[])]; arr[idx]=v; state.boardgames=arr; render(); }; });
+    qa('.ajx-bg-del').forEach(btn=>{ btn.onclick=e=>{ const idx=Number(e.currentTarget.dataset.bgIdx); const arr=[...(state.boardgames||[])]; arr.splice(idx,1); state.boardgames=arr; render(); }; });
+    qa('.ajx-bg-thumb').forEach(b=>{ b.onclick=e=>{ const id=e.currentTarget.dataset.bgDetail; if(id) window.ajxOpenBgDetail(id); }; });
     q('#ajxOpenMaps') && (q('#ajxOpenMaps').onclick=()=>{ try{ if(typeof openMapsPicker==='function') openMapsPicker(); }catch(e){} });
     q('#ajxMapsHow') && (q('#ajxMapsHow').onclick=()=>{ try{ if(typeof openMapsHelp==='function') openMapsHelp(); }catch(e){} });
     q('#ajxOpenGames') && (q('#ajxOpenGames').onclick=(ev)=>{ if(ev){ ev.preventDefault(); ev.stopPropagation(); } openGamePicker(); });
@@ -10567,6 +10818,70 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     window.toggleLang=wrapped;
   }
 
+  window.ajxRender = function(){ try{ render(); }catch(e){} };
+  window.ajxOpenBgDetail = function(id){
+    const g=bgFindById(id); if(!g) return;
+    const en=isEn();
+    const name = en ? (g.en||g.th) : (g.th||g.en);
+    const desc = en ? (g.descEn||g.descTh||'') : (g.descTh||g.descEn||'');
+    const how = en ? (g.howEn||g.howTh||'') : (g.howTh||g.howEn||'');
+    const tier = g.tier||'';
+    const players = g.players||'-';
+    const playTime = g.playTime||'-';
+    const age = g.age||'-';
+    const cat = g.catTh||'-';
+    const dep = Number(g.dep)||0;
+    const depNc = Number(g.depNc)||0;
+    const pi=bgPromoInfo();
+    const showDisc = pi.on;
+    const r1 = g.r1, r3 = g.r3, r7 = g.r7;
+    const r1d = bgDiscPrice(r1), r3d = bgDiscPrice(r3), r7d = bgDiscPrice(r7);
+    const priceCell = (orig, disc) => (showDisc && disc<orig)
+      ? `<span style="text-decoration:line-through;color:#999;font-size:12px;">฿${orig}</span> <span style="color:#1f7a32;font-weight:900;">฿${disc}</span>`
+      : `<b>฿${orig}</b>`;
+    const overlayId='ajxBgDetailOverlay';
+    let overlay=document.getElementById(overlayId);
+    if(!overlay){
+      overlay=document.createElement('div');
+      overlay.id=overlayId;
+      overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+      document.body.appendChild(overlay);
+    }
+    overlay.innerHTML = `<div role="dialog" style="background:#fff;max-width:880px;width:100%;max-height:92vh;border-radius:18px;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);box-shadow:0 30px 80px rgba(0,0,0,.35);">
+      <div style="background:linear-gradient(135deg,#101114,#2a2c32);position:relative;min-height:260px;">
+        <img src="${g.img}" alt="" style="width:100%;height:100%;min-height:260px;object-fit:cover;display:block;">
+      </div>
+      <div style="padding:18px 20px;overflow:auto;">
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+          ${tier?`<span style="background:#fff1f2;color:#bd1f2b;border:1px solid #ffd5d8;border-radius:999px;padding:3px 9px;font-size:11px;font-weight:900;">${tier}</span>`:''}
+          ${cat?`<span style="background:#f3f4f6;color:#374151;border:1px solid #e5e7eb;border-radius:999px;padding:3px 9px;font-size:11px;font-weight:800;">${cat}</span>`:''}
+          ${showDisc?`<span style="background:#e8f7eb;color:#1f7a32;border:1px solid #b9e3c2;border-radius:999px;padding:3px 9px;font-size:11px;font-weight:900;">🎉 ${pi.mode==='percent'?`-${pi.value}%`:(en?`-฿${pi.value}/item`:`-฿${pi.value}/รายการ`)}</span>`:''}
+        </div>
+        <h3 style="margin:0 0 8px;font-size:22px;font-weight:900;letter-spacing:-.02em;">${name}</h3>
+        ${desc?`<p style="margin:0 0 14px;color:#4b5563;font-size:14px;line-height:1.6;">${desc}</p>`:''}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+          <div style="border:1px solid #e5e7eb;border-radius:12px;padding:9px 11px;background:#fafafa;"><div style="font-size:11px;color:#6b7280;font-weight:800;">${en?'Players':'จำนวนผู้เล่น'}</div><div style="font-size:14px;font-weight:900;">👥 ${players}</div></div>
+          <div style="border:1px solid #e5e7eb;border-radius:12px;padding:9px 11px;background:#fafafa;"><div style="font-size:11px;color:#6b7280;font-weight:800;">${en?'Play time':'เวลาเล่น'}</div><div style="font-size:14px;font-weight:900;">⏱ ${playTime}</div></div>
+          <div style="border:1px solid #e5e7eb;border-radius:12px;padding:9px 11px;background:#fafafa;"><div style="font-size:11px;color:#6b7280;font-weight:800;">${en?'Age':'อายุแนะนำ'}</div><div style="font-size:14px;font-weight:900;">🎂 ${age}</div></div>
+          <div style="border:1px solid #e5e7eb;border-radius:12px;padding:9px 11px;background:#fafafa;"><div style="font-size:11px;color:#6b7280;font-weight:800;">${en?'Deposit':'ค่าประกัน'}</div><div style="font-size:14px;font-weight:900;">🔒 ฿${dep.toLocaleString()}</div></div>
+        </div>
+        <div style="border:1px solid #ffd5d8;border-radius:12px;padding:10px 12px;background:#fff7f8;margin-bottom:12px;">
+          <div style="font-size:12px;color:#bd1f2b;font-weight:900;margin-bottom:6px;">${en?'Rental rates':'ค่าเช่าตามแพ็ก'}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:13px;">
+            <div><div style="font-size:11px;color:#6b7280;font-weight:800;">${en?'1 Day':'1 วัน'}</div>${priceCell(r1,r1d)}</div>
+            <div><div style="font-size:11px;color:#6b7280;font-weight:800;">${en?'3 Days':'3 วัน'}</div>${priceCell(r3,r3d)}</div>
+            <div><div style="font-size:11px;color:#6b7280;font-weight:800;">${en?'7 Days':'7 วัน'}</div>${priceCell(r7,r7d)}</div>
+          </div>
+        </div>
+        ${how?`<div style="margin-bottom:14px;"><div style="font-size:13px;font-weight:900;margin-bottom:4px;">${en?'How to play':'วิธีเล่นคร่าว ๆ'}</div><p style="margin:0;color:#4b5563;font-size:13px;line-height:1.7;">${how}</p></div>`:''}
+        ${depNc?`<div style="font-size:12px;color:#8a5700;background:#fff8e7;border:1px solid #ffe0a3;border-radius:10px;padding:8px 10px;margin-bottom:10px;">${en?'No contract deposit':'ค่าประกัน (ไม่ทำสัญญา)'}: <b>฿${depNc.toLocaleString()}</b></div>`:''}
+        <div style="display:flex;justify-content:flex-end;"><button type="button" id="ajxBgDetailClose" style="background:#bd1f2b;color:#fff;border:none;border-radius:999px;padding:9px 18px;font-weight:900;cursor:pointer;">${en?'Close':'ปิด'} ✕</button></div>
+      </div>
+    </div>`;
+    const close=()=>{ overlay.remove(); };
+    overlay.onclick = (e)=>{ if(e.target===overlay) close(); };
+    const btn=overlay.querySelector('#ajxBgDetailClose'); if(btn) btn.onclick=close;
+  };
   window.addEventListener('DOMContentLoaded', ()=>{
     mount();
     lastLang=getLang();
@@ -11500,9 +11815,9 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   window.gistSaveId = id => { try{ localStorage.setItem('aj_gist_id',String(id||'').trim()); localStorage.setItem(NEW_GIST_FLAG,'true'); }catch(e){} updateGistUi(); };
   window.gistSaveToken = t => { try{ localStorage.setItem('aj_gist_token',String(t||'').trim()); }catch(e){} };
   function updateGistUi(){ if($('ghGistIdIn')) $('ghGistIdIn').value=activeGistId(); if($('ghTokenIn') && token() && !$('ghTokenIn').value) $('ghTokenIn').value=token(); if($('gistIdDisplay')) $('gistIdDisplay').textContent=activeGistId(); }
-  function payload(){ return {consoles:sanitizeConsoles(consoles),images:safeObj(images),homeData:collectHomeInputs(getHome()),faqData:getFaq(),retEnabled:!!retEnabled,featureSettings:{returningDiscountEnabled:!!retEnabled}}; }
+  function payload(){ return {consoles:sanitizeConsoles(consoles),images:safeObj(images),homeData:collectHomeInputs(getHome()),faqData:getFaq(),retEnabled:!!retEnabled,featureSettings:{returningDiscountEnabled:!!retEnabled},bgPromo:(window.ajPromo&&window.ajPromo.bg)||{enabled:false,mode:'percent',value:0},consolePromo:(window.ajPromo&&window.ajPromo.console)||{enabled:false,mode:'percent',value:0}}; }
   async function getGist(id){ const r=await fetch(`https://api.github.com/gists/${id}?t=${Date.now()}`,{headers:token()?{Authorization:`token ${token()}`}:{},cache:'no-store'}); if(!r.ok) throw new Error('Gist fetch failed: '+r.status); const j=await r.json(); const raw=j.files&&j.files[GIST_FILE]&&j.files[GIST_FILE].content; return raw?JSON.parse(raw):null; }
-  function applyData(data){ if(!data) return; if(data.consoles) setConsoleList(data.consoles); if(data.images) images=safeObj(data.images); if(data.homeData) localStorage.setItem(HOME_KEY,JSON.stringify(data.homeData)); if(Array.isArray(data.faqData)) setFaq(data.faqData); if(Object.prototype.hasOwnProperty.call(data,'retEnabled')){ retEnabled=!!data.retEnabled; localStorage.setItem('aj_ret_enabled',retEnabled?'true':'false'); } saveEverything(); try{ if(typeof window.ajHomeSyncFromStorage==='function') window.ajHomeSyncFromStorage(); }catch(e){} renderFaq(); }
+  function applyData(data){ if(!data) return; if(data.consoles) setConsoleList(data.consoles); if(data.images) images=safeObj(data.images); if(data.homeData) localStorage.setItem(HOME_KEY,JSON.stringify(data.homeData)); if(Array.isArray(data.faqData)) setFaq(data.faqData); if(Object.prototype.hasOwnProperty.call(data,'retEnabled')){ retEnabled=!!data.retEnabled; localStorage.setItem('aj_ret_enabled',retEnabled?'true':'false'); } if(data.bgPromo && typeof data.bgPromo==='object'){ window.ajPromo=window.ajPromo||{bg:{},console:{}}; window.ajPromo.bg={enabled:!!data.bgPromo.enabled, mode:data.bgPromo.mode==='fixed'?'fixed':'percent', value:Number(data.bgPromo.value)||0}; try{localStorage.setItem('aj_bg_promo',JSON.stringify(window.ajPromo.bg));}catch(e){} } if(data.consolePromo && typeof data.consolePromo==='object'){ window.ajPromo=window.ajPromo||{bg:{},console:{}}; window.ajPromo.console={enabled:!!data.consolePromo.enabled, mode:data.consolePromo.mode==='fixed'?'fixed':'percent', value:Number(data.consolePromo.value)||0}; try{localStorage.setItem('aj_console_promo',JSON.stringify(window.ajPromo.console));}catch(e){} } saveEverything(); try{ if(typeof window.ajHomeSyncFromStorage==='function') window.ajHomeSyncFromStorage(); }catch(e){} renderFaq(); }
   window.doGhSaveCfg=function(){ const gid=($('ghGistIdIn')?.value||'').trim(); const tk=($('ghTokenIn')?.value||'').trim(); if(gid) localStorage.setItem('aj_gist_id',gid); if(tk) localStorage.setItem('aj_gist_token',tk); updateGistUi(); status('✅ บันทึก Cloud Sync แล้ว'); };
   window.doGhPull=async function(){ try{ status('⬇️ กำลังดึงข้อมูล...'); const data=await getGist(activeGistId()); applyData(data); status('✅ Pull สำเร็จ'); updateGistUi(); }catch(e){ status('❌ '+e.message); } };
   window.doGhPullOld=async function(){ try{ status('⬇️ กำลังดึงจาก Gist เดิม...'); const data=await getGist(OLD_GIST_ID); applyData(data); status('✅ ดึงข้อมูลจาก Gist เดิมแล้ว'); }catch(e){ status('❌ '+e.message); } };
@@ -11872,7 +12187,9 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   function setFaq(d,filter){d=arr(d).map(function(x){return {qTh:String(x.qTh||'').trim(),aTh:String(x.aTh||'').trim(),qEn:String(x.qEn||'').trim(),aEn:String(x.aEn||'').trim()};}); if(filter) d=d.filter(function(x){return x.qTh||x.aTh||x.qEn||x.aEn;}); window.faqData=d; try{localStorage.setItem(FAQ_KEY,JSON.stringify(d));}catch(e){} try{if(typeof renderFaq==='function') renderFaq();}catch(e){} }
   function buildPayload(){
     var ret=localStorage.getItem('aj_ret_enabled')==='true'; try{ret=!!retEnabled;}catch(e){}
-    return {consoles:getConsoleList(),images:getImages(),homeData:readHomeForm(),faqData:readFaq().filter(function(x){return x.qTh||x.aTh||x.qEn||x.aEn;}),retEnabled:ret,featureSettings:{returningDiscountEnabled:ret}};
+    var bgP=(window.ajPromo&&window.ajPromo.bg)||{enabled:false,mode:'percent',value:0};
+    var conP=(window.ajPromo&&window.ajPromo.console)||{enabled:false,mode:'percent',value:0};
+    return {consoles:getConsoleList(),images:getImages(),homeData:readHomeForm(),faqData:readFaq().filter(function(x){return x.qTh||x.aTh||x.qEn||x.aEn;}),retEnabled:ret,featureSettings:{returningDiscountEnabled:ret},bgPromo:bgP,consolePromo:conP};
   }
   function activeGistId(){try{return (localStorage.getItem('aj_gist_id')||'').trim()||OLD_GIST_ID;}catch(e){return OLD_GIST_ID;}}
   function token(){try{return (localStorage.getItem('aj_gist_token')||'').trim();}catch(e){return '';}}
@@ -11883,7 +12200,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     var r=await fetch('https://api.github.com/gists/'+activeGistId(),{method:'PATCH',headers:{Authorization:'token '+token(),'Content-Type':'application/json'},body:JSON.stringify({files:{[GIST_FILE]:{content:JSON.stringify(buildPayload(),null,2)}}})});
     var j=await r.json().catch(function(){return {};}); if(!r.ok){msg('❌ '+(j.message||r.status)); return false;} msg('✅ Push สำเร็จ — ข้อมูลเครื่อง / New Games / FAQ ถูกส่งขึ้น Gist แล้ว'); return true;
   }
-  function applyData(data){if(!data) return; if(data.consoles) setConsoleList(data.consoles); if(data.images) setImages(data.images); if(data.homeData) localStorage.setItem(HOME_KEY,JSON.stringify(data.homeData)); if(Array.isArray(data.faqData)) setFaq(data.faqData,true); var ret=null; if(Object.prototype.hasOwnProperty.call(data,'retEnabled')) ret=!!data.retEnabled; else if(data.featureSettings&&Object.prototype.hasOwnProperty.call(data.featureSettings,'returningDiscountEnabled')) ret=!!data.featureSettings.returningDiscountEnabled; if(ret!==null){try{retEnabled=ret;}catch(e){} localStorage.setItem('aj_ret_enabled',ret?'true':'false');} repaint(); syncRetUI(); try{if(typeof window.ajHomeSyncFromStorage==='function') window.ajHomeSyncFromStorage();}catch(e){} }
+  function applyData(data){if(!data) return; if(data.consoles) setConsoleList(data.consoles); if(data.images) setImages(data.images); if(data.homeData) localStorage.setItem(HOME_KEY,JSON.stringify(data.homeData)); if(Array.isArray(data.faqData)) setFaq(data.faqData,true); var ret=null; if(Object.prototype.hasOwnProperty.call(data,'retEnabled')) ret=!!data.retEnabled; else if(data.featureSettings&&Object.prototype.hasOwnProperty.call(data.featureSettings,'returningDiscountEnabled')) ret=!!data.featureSettings.returningDiscountEnabled; if(ret!==null){try{retEnabled=ret;}catch(e){} localStorage.setItem('aj_ret_enabled',ret?'true':'false');} if(data.bgPromo && typeof data.bgPromo==='object'){ window.ajPromo=window.ajPromo||{bg:{},console:{}}; window.ajPromo.bg={enabled:!!data.bgPromo.enabled, mode:data.bgPromo.mode==='fixed'?'fixed':'percent', value:Number(data.bgPromo.value)||0}; try{localStorage.setItem('aj_bg_promo',JSON.stringify(window.ajPromo.bg));}catch(e){} } if(data.consolePromo && typeof data.consolePromo==='object'){ window.ajPromo=window.ajPromo||{bg:{},console:{}}; window.ajPromo.console={enabled:!!data.consolePromo.enabled, mode:data.consolePromo.mode==='fixed'?'fixed':'percent', value:Number(data.consolePromo.value)||0}; try{localStorage.setItem('aj_console_promo',JSON.stringify(window.ajPromo.console));}catch(e){} } repaint(); syncRetUI(); try{if(typeof window.ajHomeSyncFromStorage==='function') window.ajHomeSyncFromStorage();}catch(e){} }
   async function pullGist(){try{msg('⬇️ กำลัง Pull ข้อมูล...'); var r=await fetch('https://api.github.com/gists/'+activeGistId(),{headers:token()?{Authorization:'token '+token()}:{}}); var j=await r.json(); if(!r.ok) throw new Error(j.message||r.status); var raw=j.files&&j.files[GIST_FILE]&&j.files[GIST_FILE].content; applyData(raw?JSON.parse(raw):null); msg('✅ Pull สำเร็จ');}catch(e){msg('❌ '+e.message);}}
   function syncRetUI(){
     var on=false; try{on=localStorage.getItem('aj_ret_enabled')==='true'; retEnabled=on;}catch(e){}
@@ -11902,11 +12219,28 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     deleteConsole:function(id){if(!confirm(L('ลบเครื่องนี้?','Delete this console?')))return; setConsoleList(getConsoleList().filter(function(c){return String(c.id)!==String(id);})); var im=getImages(); delete im[id]; setImages(im); saveLocalOnly('✅ ลบเครื่องแล้ว — กด Push เพื่อส่งขึ้น Gist');},
     addHome:function(k){var d=readHomeForm(); if(!d[k]) d[k]=blankHome()[k]; d[k].items.push({id:'itm_'+Date.now()+'_'+Math.floor(Math.random()*9999),active:true,badgeTh:k==='highlight'?'Highlight':'New',badgeEn:k==='highlight'?'Highlight':'New',titleTh:k==='highlight'?'ไฮไลต์ใหม่':'เกมใหม่',titleEn:k==='highlight'?'New Highlight':'New Game',subtitleTh:'',subtitleEn:'',image:'',url:k==='highlight'?'?go=calc':'game_index.html',emojiFallback:k==='highlight'?'🔥':'✨',overlayTone:k==='highlight'?'red':'purple'}); saveHomeData(d,'✅ เพิ่มรายการแล้ว — กด Push เพื่อส่งขึ้น Gist'); if(window.ajV7&&window.ajV7.showTab){try{window.ajV7.showTab('ajV7Home',document.querySelector('[onclick*="ajV7Home"]'));}catch(e){}}},
     saveHome:function(){saveHomeData(readHomeForm(),'✅ บันทึก Home Sections แล้ว — กด Push เพื่อส่งขึ้น Gist');},
-    toggleRet:function(v){var on=!!v; try{retEnabled=on;}catch(e){} localStorage.setItem('aj_ret_enabled',on?'true':'false'); syncRetUI(); msg('✅ บันทึกสถานะส่วนลดลูกค้าเก่าแล้ว — กด Push เพื่อส่งขึ้น Gist');}
+    toggleRet:function(v){var on=!!v; try{retEnabled=on;}catch(e){} localStorage.setItem('aj_ret_enabled',on?'true':'false'); syncRetUI(); msg('✅ บันทึกสถานะส่วนลดลูกค้าเก่าแล้ว — กด Push เพื่อส่งขึ้น Gist');},
+    togglePromo:function(which,v){ if(!window.ajPromo) return; window.ajPromo[which].enabled=!!v; window.ajSavePromo&&window.ajSavePromo(); msg('✅ บันทึกแล้ว — กด Push เพื่อส่งขึ้น Gist'); ajRenderPromoBlock(which); try{window.ajxRender&&window.ajxRender();}catch(e){} },
+    setPromoMode:function(which,mode){ if(!window.ajPromo) return; window.ajPromo[which].mode=mode==='fixed'?'fixed':'percent'; window.ajSavePromo&&window.ajSavePromo(); msg('✅ บันทึกแล้ว — กด Push เพื่อส่งขึ้น Gist'); ajRenderPromoBlock(which); try{window.ajxRender&&window.ajxRender();}catch(e){} },
+    setPromoValue:function(which,val){ if(!window.ajPromo) return; var n=Number(val)||0; if(n<0) n=0; window.ajPromo[which].value=n; window.ajSavePromo&&window.ajSavePromo(); try{window.ajxRender&&window.ajxRender();}catch(e){} }
   };
+  function ajPromoBlockHtml(which){
+    var p=(window.ajPromo&&window.ajPromo[which])||{enabled:false,mode:'percent',value:0};
+    var titleTh=which==='bg'?'โปรโมชั่นส่วนลดค่าเช่าบอร์ดเกม':'โปรโมชั่นส่วนลดค่าเช่าเครื่องเกม';
+    var titleEn=which==='bg'?'Board game rental promo':'Console rental promo';
+    var hintTh=which==='bg'?'ลดราคาบอร์ดเกมทุกรายการ (%) หรือกำหนดยอดลดต่อ 1 รายการ':'ลดค่าเช่าเครื่อง (%) หรือกำหนดยอดลด (บาท)';
+    var hintEn=which==='bg'?'Discount per board game (% of price, or fixed amount per item).':'Discount on console rental (% or fixed THB).';
+    var unit = p.mode==='percent' ? '%' : (which==='bg' ? L('บาท/รายการ','THB/item') : L('บาท','THB'));
+    return '<div id="ajPromoBlock-'+which+'" style="padding:14px 0;border-bottom:1px solid var(--border)">'+
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px"><div style="flex:1"><div style="font-size:14px;font-weight:700;color:var(--text)">'+L(titleTh,titleEn)+'</div><div style="font-size:12px;color:var(--muted);margin-top:3px">'+L(hintTh,hintEn)+'</div></div>'+
+      '<label class="toggle-switch"><input type="checkbox" '+(p.enabled?'checked':'')+' onchange="ajV8.togglePromo(\''+which+'\',this.checked)"><span class="toggle-slider"></span></label></div>'+
+      (p.enabled?'<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><label style="display:flex;align-items:center;gap:5px;font-size:13px"><input type="radio" name="ajPromoMode-'+which+'" value="percent" '+(p.mode==='percent'?'checked':'')+' onchange="ajV8.setPromoMode(\''+which+'\',\'percent\')">'+L('เปอร์เซ็นต์ (%)','Percent (%)')+'</label><label style="display:flex;align-items:center;gap:5px;font-size:13px"><input type="radio" name="ajPromoMode-'+which+'" value="fixed" '+(p.mode==='fixed'?'checked':'')+' onchange="ajV8.setPromoMode(\''+which+'\',\'fixed\')">'+L('กำหนดยอดลด','Fixed amount')+'</label><input type="number" min="0" step="1" value="'+(Number(p.value)||0)+'" onchange="ajV8.setPromoValue(\''+which+'\',this.value)" style="width:110px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px"><span style="font-size:12px;color:var(--muted)">'+unit+'</span></div>':'')+
+    '</div>';
+  }
+  function ajRenderPromoBlock(which){ var el=document.getElementById('ajPromoBlock-'+which); if(el){ el.outerHTML=ajPromoBlockHtml(which); } }
   window.doGhPushAdmin=pushGist; window.doGhPushMain=pushGist; window.gistPush=pushGist; window.doGhPull=pullGist;
   var oldRender=window.renderAdminPanel;
-  window.renderAdminPanel=function(){ if(typeof oldRender==='function') oldRender.apply(this,arguments); var body=$('adminBody'); if(!body)return; var panel=$('ajV7Consoles'); if(panel){panel.innerHTML=renderConsolePanel(); renderConsoleAdmin();} var home=$('ajV7HomePanel'); if(home && window.ajV7){ window.ajV7.addHome=window.ajV8.addHome; window.ajV7.saveHome=window.ajV8.saveHome; } var setPanel=$('ajV7Settings'); if(setPanel){var retOn=localStorage.getItem('aj_ret_enabled')==='true'; setPanel.innerHTML='<div class="aform"><h4>🎛️ '+L('ตั้งค่าฟีเจอร์','Feature settings')+'</h4><div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:14px;font-weight:700;color:var(--text)">'+L('ส่วนลดลูกค้าเก่า 10%','Returning customer discount 10%')+'</div><div style="font-size:12px;color:var(--muted);margin-top:3px">'+L('เปิด/ปิดตัวเลือกส่วนลดในหน้าคำนวณ','Enable/disable discount option in calculator')+'</div></div><label class="toggle-switch"><input type="checkbox" id="ajV7RetToggle" '+(retOn?'checked':'')+' onchange="ajV8.toggleRet(this.checked)"><span class="toggle-slider"></span></label></div></div>'; } syncRetUI(); };
+  window.renderAdminPanel=function(){ if(typeof oldRender==='function') oldRender.apply(this,arguments); var body=$('adminBody'); if(!body)return; var panel=$('ajV7Consoles'); if(panel){panel.innerHTML=renderConsolePanel(); renderConsoleAdmin();} var home=$('ajV7HomePanel'); if(home && window.ajV7){ window.ajV7.addHome=window.ajV8.addHome; window.ajV7.saveHome=window.ajV8.saveHome; } var setPanel=$('ajV7Settings'); if(setPanel){var retOn=localStorage.getItem('aj_ret_enabled')==='true'; setPanel.innerHTML='<div class="aform"><h4>🎛️ '+L('ตั้งค่าฟีเจอร์','Feature settings')+'</h4><div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:14px;font-weight:700;color:var(--text)">'+L('ส่วนลดลูกค้าเก่า 10%','Returning customer discount 10%')+'</div><div style="font-size:12px;color:var(--muted);margin-top:3px">'+L('เปิด/ปิดตัวเลือกส่วนลดในหน้าคำนวณ','Enable/disable discount option in calculator')+'</div></div><label class="toggle-switch"><input type="checkbox" id="ajV7RetToggle" '+(retOn?'checked':'')+' onchange="ajV8.toggleRet(this.checked)"><span class="toggle-slider"></span></label></div>'+ajPromoBlockHtml('console')+ajPromoBlockHtml('bg')+'</div>'; } syncRetUI(); };
   document.addEventListener('click',function(e){var t=e.target; if(!t)return; var text=(t.textContent||'').trim(); if(/เพิ่มรายการ|Add item/.test(text)){var s=String(t.getAttribute('onclick')||''); if(s.indexOf("newGames")>=0){e.preventDefault(); e.stopPropagation(); window.ajV8.addHome('newGames');} }},true);
   try{if(window.ajV7){window.ajV7.addConsole=window.ajV8.addConsole; window.ajV7.saveConsole=window.ajV8.saveConsole; window.ajV7.deleteConsole=window.ajV8.deleteConsole; window.ajV7.toggleConsole=window.ajV8.toggleConsole; window.ajV7.addHome=window.ajV8.addHome; window.ajV7.saveHome=window.ajV8.saveHome; window.ajV7.toggleRet=window.ajV8.toggleRet;}}catch(e){}
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setConsoleList(getConsoleList()); syncRetUI();}); else {setConsoleList(getConsoleList()); syncRetUI();}
@@ -12062,7 +12396,9 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   function getFaq(){try{return arr(JSON.parse(localStorage.getItem(FAQ_KEY)||'[]'))}catch(e){return arr(window.faqData)}}
   function buildPayload(){
     let ret=localStorage.getItem('aj_ret_enabled')==='true'; try{ret=!!retEnabled}catch(e){}
-    return {consoles:getConsolesLS(),images:getImages(),homeData:readHomeForm(),faqData:getFaq().filter(x=>x&&(x.qTh||x.aTh||x.qEn||x.aEn)),retEnabled:ret,featureSettings:{returningDiscountEnabled:ret}};
+    const bgP=(window.ajPromo&&window.ajPromo.bg)||{enabled:false,mode:'percent',value:0};
+    const conP=(window.ajPromo&&window.ajPromo.console)||{enabled:false,mode:'percent',value:0};
+    return {consoles:getConsolesLS(),images:getImages(),homeData:readHomeForm(),faqData:getFaq().filter(x=>x&&(x.qTh||x.aTh||x.qEn||x.aEn)),retEnabled:ret,featureSettings:{returningDiscountEnabled:ret},bgPromo:bgP,consolePromo:conP};
   }
   async function pushGist(){
     const gid=($('ghGistIdIn')?.value||localStorage.getItem('aj_gist_id')||OLD_GIST_ID).trim(); const tok=($('ghTokenIn')?.value||localStorage.getItem('aj_gist_token')||'').trim();
@@ -12183,7 +12519,9 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
       homeData : readHomeLS(),
       faqData  : readFaq(),
       retEnabled: ret,
-      featureSettings: { returningDiscountEnabled: ret }
+      featureSettings: { returningDiscountEnabled: ret },
+      bgPromo: (window.ajPromo&&window.ajPromo.bg)||{enabled:false,mode:'percent',value:0},
+      consolePromo: (window.ajPromo&&window.ajPromo.console)||{enabled:false,mode:'percent',value:0}
     };
   }
 
