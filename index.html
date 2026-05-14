@@ -10411,12 +10411,12 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
           <div class="ajx-srow"><span class="l">${tt().slStart}</span><span class="v">${formatDisplay(state.start)}</span></div>
           <div class="ajx-srow"><span class="l">${tt().slEnd}</span><span class="v">${formatDisplay(state.end)}</span></div>
           <div class="ajx-srow"><span class="l">${tt().slDuration}</span><span class="v">${s.days} ${isEn()?'days':'วัน'}</span></div>
-          <div class="ajx-srow"><span class="l">${tt().slRental} ${cName(c)}</span><span class="v">${fmtMoney(s.rental)}</span></div>
+          <div class="ajx-srow"><span class="l">${isEn()?`${cName(c)}'s ${tt().slRental}`:`${tt().slRental} ${cName(c)}`}</span><span class="v">${fmtMoney(s.rental)}</span></div>
           ${s.addonLines.map(a=>`<div class="ajx-srow"><span class="l">${a.name}</span><span class="v">${fmtMoney(a.cost)}</span></div>`).join('')}
           ${state.ret?`<div class="ajx-srow"><span class="l">${tt().discount}</span><span class="v" style="color:#228833;">-${fmtMoney(s.disc)}</span></div>`:''}
           ${s.consoleDisc>0?`<div class="ajx-srow"><span class="l">${window.ajPromoLabel('console', isEn()?'en':'th')}</span><span class="v" style="color:#228833;">-${fmtMoney(s.consoleDisc)}</span></div>`:''}
           ${s.bgDisc>0?`<div class="ajx-srow"><span class="l">${window.ajPromoLabel('bg', isEn()?'en':'th')}</span><span class="v" style="color:#228833;">-${fmtMoney(s.bgDisc)}</span></div>`:''}
-          <div class="ajx-srow"><span class="l">${tt().slDeposit} ${cName(c)}</span><span class="v">${fmtMoney(s.deposit - (s.bgExtraDeposit||0))}${noContractFlagHtml()}</span></div>
+          <div class="ajx-srow"><span class="l">${isEn()?`${cName(c)}'s ${tt().slDeposit}`:`${tt().slDeposit} ${cName(c)}`}</span><span class="v">${fmtMoney(s.deposit - (s.bgExtraDeposit||0))}${noContractFlagHtml()}</span></div>
           ${s.bgExtraDeposit>0?`<div class="ajx-srow"><span class="l">${isEn()?'Extra board game deposit':'ค่าประกันบอร์ดเกมเพิ่มเติม'}</span><span class="v">+${fmtMoney(s.bgExtraDeposit)}</span></div>`:''}
           <div class="ajx-srow"><span class="l">${tt().slDelivery}</span><span class="v">${isEn()?'Delivery fee confirmed in chat':'ค่าส่งแจ้งทางแชท'}</span></div>
           <div class="ajx-srow total"><span class="l">${tt().slTotal}</span><span class="v">${fmtMoney(s.total)}</span></div>
@@ -10687,12 +10687,12 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       ...(gameLines.length ? ['', ...gameLines.map(line=>line === '  แจ้งภายหลัง' ? '  Send later' : line)] : []),
       '',
       '💰 Cost Summary:',
-      `  - Rental ${cName(c)}: ${fmtMoney(s.rental)}`,
+      `  - ${cName(c)}'s Rental Cost: ${fmtMoney(s.rental)}`,
       ...s.addonLines.map(a=>`  - ${a.name}: ${fmtMoney(a.cost)}`),
       state.ret?`  - ${tt().discount}: -${fmtMoney(s.disc)}`:null,
       s.consoleDisc>0?`  - ${window.ajPromoLabel('console','en')}: -${fmtMoney(s.consoleDisc)}`:null,
       s.bgDisc>0?`  - ${window.ajPromoLabel('bg','en')}: -${fmtMoney(s.bgDisc)}`:null,
-      `  - Deposit ${cName(c)}: ${fmtMoney(s.deposit - (s.bgExtraDeposit||0))}${noContractSuffix}`,
+      `  - ${cName(c)}'s Deposit: ${fmtMoney(s.deposit - (s.bgExtraDeposit||0))}${noContractSuffix}`,
       s.bgExtraDeposit>0?`  - Extra board game deposit: +${fmtMoney(s.bgExtraDeposit)}`:null,
       '',
       `💰 Total: ${fmtMoney(s.total)}`,
