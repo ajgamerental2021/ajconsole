@@ -10709,16 +10709,40 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     }).catch(()=>msg);
   }
 
+  function openDeferredChatWindow(url){
+    let chatWindow = null;
+    try {
+      chatWindow = window.open('about:blank', '_blank');
+      if(chatWindow) chatWindow.opener = null;
+    } catch(e) {
+      chatWindow = null;
+    }
+    return function navigateChatWindow(finalUrl){
+      const targetUrl = finalUrl || url;
+      if(!targetUrl) {
+        if(chatWindow) chatWindow.close();
+        return;
+      }
+      if(chatWindow) {
+        chatWindow.location.href = targetUrl;
+      } else {
+        window.open(targetUrl, '_blank');
+      }
+    };
+  }
+
   async function sendLineMessage(){
+    const navigateChatWindow = openDeferredChatWindow();
     const msg = await copyMessage();
-    if(!msg) return;
-    window.open('https://line.me/R/msg/text/?' + encodeURIComponent(msg), '_blank');
+    if(!msg) return navigateChatWindow('');
+    navigateChatWindow('https://line.me/R/msg/text/?' + encodeURIComponent(msg));
   }
 
   async function sendWhatsAppMessage(){
+    const navigateChatWindow = openDeferredChatWindow();
     const msg = await copyMessage();
-    if(!msg) return;
-    window.open(`https://wa.me/66816244715?text=${encodeURIComponent(msg)}`, '_blank');
+    if(!msg) return navigateChatWindow('');
+    navigateChatWindow(`https://wa.me/66816244715?text=${encodeURIComponent(msg)}`);
   }
 
   function closeDoneConfirm(){
@@ -11631,10 +11655,10 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     if(e.target && (e.target.id==='noConChk' || e.target.id==='ajxNoCon')) setTimeout(run,50);
   }, true);
   document.addEventListener('click', function(e){
-    var btn=e.target.closest('.calc-next-btn, #stickySummaryBtn, .final-nav-btn.next, [data-next="4"], [data-done]');
+    var btn=e.target.closest('.calc-next-btn, #stickySummaryBtn, .final-nav-btn.next, [data-next="4"]');
     if(!btn) return;
     var txt=(btn.textContent||'').trim();
-    if(btn.matches('[data-next="4"], [data-done]') || /สรุปค่าเช่า|ดูสรุป|Rental Summary|View Summary|ไปขั้นตอนถัดไป|Next step|เสร็จแล้ว|Done/i.test(txt)){
+    if(btn.matches('[data-next="4"]') || /สรุปค่าเช่า|ดูสรุป|Rental Summary|View Summary|ไปขั้นตอนถัดไป|Next step/i.test(txt)){
       requestAnimationFrame(function(){ setTimeout(function(){ scrollSummaryHeader(true); run(); }, 160); });
     }
   }, true);
