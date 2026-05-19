@@ -9957,6 +9957,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   };
   let lastLang='';
   let __ajxDeferredRenderTimer = 0;
+  let __ajxForceRenderOnce = false;
   function ajxNativeSelectBusy(){
     try{ return !!(window.__ajMobileNativeSelectBusy && window.__ajMobileNativeSelectBusy()); }catch(e){ return false; }
   }
@@ -10515,7 +10516,9 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 
   function render(){
     const root=q('#ajCleanCalcRoot'); if(!root) return;
-    if(ajxNativeSelectBusy()){
+    const forceRender = __ajxForceRenderOnce;
+    __ajxForceRenderOnce = false;
+    if(!forceRender && ajxNativeSelectBusy()){
       clearTimeout(__ajxDeferredRenderTimer);
       __ajxDeferredRenderTimer = setTimeout(render, 350);
       return;
@@ -10824,7 +10827,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       }
       render();
     });
-    q('#ajxConsole') && (q('#ajxConsole').value=state.consoleId, q('#ajxConsole').onchange=e=>{ const nextId=String(e.target.value||''); if(String(state.consoleId||'')!==nextId){ state.games=[]; state.notifyLater=false; state.pickerOpen=false; } state.consoleId=nextId; state.bundleId=''; state.switchExtras=[]; state.vdock=false; fetchAvailability(true); render(); });
+    q('#ajxConsole') && (q('#ajxConsole').value=state.consoleId, q('#ajxConsole').onchange=e=>{ const nextId=String(e.target.value||''); if(String(state.consoleId||'')!==nextId){ state.games=[]; state.notifyLater=false; state.pickerOpen=false; } state.consoleId=nextId; state.bundleId=''; state.switchExtras=[]; state.vdock=false; fetchAvailability(true); __ajxForceRenderOnce=true; render(); });
     qa('input[name="ajx_ps5b"]').forEach(r=>r.onchange=()=>{ state.bundleId=q('input[name="ajx_ps5b"]:checked')?.value||''; render(); });
     q('#ajxSwJoy') && (q('#ajxSwJoy').onchange=e=>{ const on=!!e.target.checked; state.switchExtras = state.switchExtras.filter(x=>!['joy','bat','wheel'].includes(x)); if(on) state.switchExtras.push('joy'); render(); });
     qa('[data-sw]').forEach(c=>c.onchange=()=>{ const joyOn = state.switchExtras.includes('joy'); const base = state.switchExtras.filter(x=>!['ringfit','taiko','bat','wheel'].includes(x)); const checked = qa('[data-sw]:checked').map(x=>x.dataset.sw); if(joyOn && !base.includes('joy')) base.push('joy'); state.switchExtras=[...base,...checked]; render(); });
