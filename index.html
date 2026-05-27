@@ -10634,10 +10634,21 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     'Google Maps',
     'สถานะ'
   ];
+  const AJ_SESSION_RENTAL_CODES = new Set();
 
   function rentalCodeDate(){
     const d = new Date();
     return String(d.getFullYear()) + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+  }
+  function rentalCodeCounterKey(ymd){
+    return 'aj_rental_code_counter_' + ymd;
+  }
+  function rentalCodeNumber(code, ymd){
+    const m = String(code || '').trim().match(new RegExp('^AJ-' + ymd + '-R(\\d+)$', 'i'));
+    return m ? (parseInt(m[1], 10) || 0) : 0;
+  }
+  function formatRentalCode(ymd, n){
+    return 'AJ-' + ymd + '-R' + String(n).padStart(4,'0');
   }
   function rentalSignature(s){
     return [
@@ -10655,17 +10666,69 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       s ? Math.round(Number(s.total)||0) : ''
     ].join('|');
   }
-  function nextRentalCode(){
-    const ymd = rentalCodeDate();
-    const key = 'aj_rental_code_counter_' + ymd;
-    const n = (parseInt(localStorage.getItem(key) || '0', 10) || 0) + 1;
-    localStorage.setItem(key, String(n));
-    return 'AJ-' + ymd + '-R' + String(n).padStart(4,'0');
+  function gvizSheetUrl(){
+    return 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(AJ_RENTAL_SHEET_ID) + '/gviz/tq?gid=' + encodeURIComponent(AJ_RENTAL_SHEET_GID) + '&headers=1&tqx=out:json&t=' + Date.now();
   }
-  function getRentalCode(s){
+  function parseGvizRows(text){
+    const raw = String(text || '');
+    const start = raw.indexOf('{');
+    const end = raw.lastIndexOf('}');
+    if(start < 0 || end < start) return [];
+    const data = JSON.parse(raw.slice(start, end + 1));
+    const cols = (data.table && data.table.cols || []).map(function(col){ return String((col && (col.label || col.id)) || '').trim(); });
+    return (data.table && data.table.rows || []).map(function(row){
+      const obj = {};
+      (row.c || []).forEach(function(cell, i){
+        const key = cols[i] || ('col' + i);
+        obj[key] = cell && cell.v != null ? cell.v : '';
+      });
+      return obj;
+    });
+  }
+  function rowRentalCode(row){
+    const targets = ['รหัสการเช่า', 'Rental Code', 'rental code', 'Booking Code'];
+    const keys = Object.keys(row || {});
+    for(const target of targets){
+      const found = keys.find(function(key){ return String(key || '').trim().toLowerCase() === String(target).trim().toLowerCase(); });
+      if(found && row[found]) return String(row[found]).trim();
+    }
+    return '';
+  }
+  async function existingRentalCodes(){
+    try{
+      const res = await fetch(gvizSheetUrl(), {cache:'no-store'});
+      if(!res.ok) throw new Error('Sheet read failed ' + res.status);
+      const rows = parseGvizRows(await res.text());
+      return new Set(rows.map(rowRentalCode).filter(Boolean));
+    }catch(err){
+      console.warn('AJ rental code sheet check failed', err);
+      return new Set();
+    }
+  }
+  async function nextRentalCode(existingCodes){
+    const ymd = rentalCodeDate();
+    const key = rentalCodeCounterKey(ymd);
+    const used = existingCodes || await existingRentalCodes();
+    let n = (parseInt(localStorage.getItem(key) || '0', 10) || 0) + 1;
+    used.forEach(function(code){
+      const codeNo = rentalCodeNumber(code, ymd);
+      if(codeNo >= n) n = codeNo + 1;
+    });
+    while(used.has(formatRentalCode(ymd, n))) n++;
+    localStorage.setItem(key, String(n));
+    return formatRentalCode(ymd, n);
+  }
+  async function getRentalCode(s){
     const sig = rentalSignature(s);
-    if(state.rentalCode && state.rentalCodeSig === sig) return state.rentalCode;
-    state.rentalCode = nextRentalCode();
+    const used = await existingRentalCodes();
+    if(
+      state.rentalCode &&
+      state.rentalCodeSig === sig &&
+      !used.has(state.rentalCode) &&
+      !AJ_SESSION_RENTAL_CODES.has(state.rentalCode) &&
+      localStorage.getItem('aj_rental_sheet_submitted_' + state.rentalCode) !== '1'
+    ) return state.rentalCode;
+    state.rentalCode = await nextRentalCode(used);
     state.rentalCodeSig = sig;
     return state.rentalCode;
   }
@@ -10719,6 +10782,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     if(!endpoint || !rentalCode) return;
     const submittedKey = 'aj_rental_sheet_submitted_' + rentalCode;
     if(localStorage.getItem(submittedKey) === '1') return;
+    AJ_SESSION_RENTAL_CODES.add(rentalCode);
     const payload = buildRentalSheetPayload(s, rentalCode, channel);
     const url = endpoint + (endpoint.indexOf('?') === -1 ? '?' : '&') + 'action=appendRental&payload=' + encodeURIComponent(JSON.stringify(payload));
     fetch(url, {method:'GET', mode:'no-cors', cache:'no-store'}).then(function(){
@@ -10729,10 +10793,10 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   }
   window.ajRentalSheetColumns = function(){ return AJ_RENTAL_SHEET_COLUMNS.slice(); };
 
-  function copyMessage(channel){
+  async function copyMessage(channel){
     const s=calcSummary(); if(!s) return;
     const c=s.c;
-    const rentalCode = getRentalCode(s);
+    const rentalCode = await getRentalCode(s);
     const deadlineDate = state.start ? fmtIso(addDays(parseDate(state.start), -1)) : '';
     const noContractSuffix = state.noCon ? (isEn() ? ' (No contract)' : ' (ไม่ทำสัญญา)') : '';
     const mapsLink = String(state.maps || '').trim();
