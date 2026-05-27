@@ -1424,7 +1424,7 @@ const T={
     formConsoleLbl:'🎮 Select Console',formDateLbl:'📅 Rental Period',formOptLbl:'⚙️ Additional Options',
     sumTitle:'📋 Rental Summary',sumEmpty:'Select a console and dates to see summary.',
     contractLbl:'Complete Rental Agreement',contractNote:'Please fill in the form before delivery.',
-    contractLink:'https://aj-line-oa-bot.onrender.com/liff/',
+    contractLink:'https://liff.line.me/2010196202-iYu3RKIb',
     dateWarnMin:'⚠️ Minimum 3 days — please select a new return date.',dateWarnOrder:'⚠️ Return date must be after start date.',
     flblType:'Type',flblBrand:'Brand',flblSort:'Sort',
     filterAll:'All',filterConsole:'Console',filterVR:'VR & AR',filterHandheld:'PC Handheld',filterRacing:'Racing',
@@ -9918,7 +9918,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     slConsole:'Console',slSection:'Section',slStart:'Start Date',slEnd:'Return Date',slDuration:'Duration',slRental:'Rental Cost',slDeposit:'Deposit',slDelivery:'Delivery',slTotal:'Total Amount',slUpfront:'Transfer Before Delivery',slOD:'Pay on Delivery',slCash:'Pay Cash on Delivery',slPayment:'Payment',
     copy:'📋 Copy Booking Message',copied:'Copied!',line:'Send via Line',wa:'Send via WhatsApp',lineHint:'Send to Line: <b>@ajgame</b> or <b>WhatsApp</b> to confirm',
     back:'Back',nextStep:'Next step →',done:'Done',day:'day',wk:'wk',deposit:'Deposit',sectionOther:'Other',payBank:'Thai Bank Transfer',payWise:'Wise',payCash:'Cash (Thai Baht only)',noDates:'Choose the console and dates to see the rental summary.',discount:'Returning Customer Discount 10%',noConLabel:'No contract',
-    contractLink:(window.T&&window.T.en&&window.T.en.contractLink)||'https://aj-line-oa-bot.onrender.com/liff/'
+    contractLink:(window.T&&window.T.en&&window.T.en.contractLink)||'https://liff.line.me/2010196202-iYu3RKIb'
   } : {
     secTag:'คำนวณ',secH:'เช็คคิว & คำนวณค่าเช่า',secP:'ขั้นต่ำ 3 วัน | ราคาเรทบุคคล',
     guideH:'วิธีใช้งานส่วนเช็คคิว & คำนวณค่าเช่า',guideP:'ใช้งานตาม 4 แท็บด้านล่าง เริ่มจากเลือกเครื่องและวันเช่าก่อน แล้วค่อยกรอกตัวเลือกเพิ่มเติม เลือกเกม และดูสรุปค่าเช่า',
@@ -10614,7 +10614,6 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 
   const AJ_RENTAL_SHEET_ID = '13QZWpd_E-L_0G_Xd0zSL5_OcgV4sdwk9febXZSkZepc';
   const AJ_RENTAL_SHEET_GID = '1105203002';
-  const AJ_BOOKING_SHEET_GID = '74873645';
   const AJ_RENTAL_SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyDvxt10gsT-GN24xmmGpa1y0cUbfDiWSc4yxfqv-AFoK32sjmpiRJPdQmo6PnU3uZh/exec';
   const AJ_RENTAL_SHEET_COLUMNS = [
     'รหัสการเช่า',
@@ -10693,7 +10692,6 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       action: 'appendRental',
       sheetId: AJ_RENTAL_SHEET_ID,
       gid: AJ_RENTAL_SHEET_GID,
-      bookingGid: AJ_BOOKING_SHEET_GID,
       columns: AJ_RENTAL_SHEET_COLUMNS,
       row: {
         'รหัสการเช่า': rentalCode,
