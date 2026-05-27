@@ -13259,7 +13259,7 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
       if(!state.rows) state.rows = await fetchRows();
       var rows = matchingRows();
       if(!rows.length){
-        body.innerHTML = '<div class="aj-liff-history-empty">' + esc(text('ไม่พบประวัติการเช่าของ LINE ID นี้ใน Google Sheet', 'No rental history found for this LINE ID in Google Sheet.')) + '<br><small>LINE ID: ' + esc(shortId(uid)) + '</small></div>';
+        body.innerHTML = '<div class="aj-liff-history-empty">' + esc(text('ไม่พบประวัติการเช่าของ LINE ID นี้', 'No rental history found for this LINE ID.')) + '</div>';
         return;
       }
       var totalAmount = rows.reduce(function(sum, r){ return sum + moneyNum(r.amount); }, 0);
@@ -13315,6 +13315,8 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
         localStorage.setItem('aj_line_unique_id', p.userId || '');
         localStorage.setItem('aj_line_display_name', p.displayName || '');
         renderCard();
+      }else if(silent && liff.isInClient && liff.isInClient() && liff.login){
+        liff.login(loginOptions());
       }else if(!silent && liff.login){
         liff.login(loginOptions());
       }
