@@ -9978,7 +9978,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   const monthLabel = d => isEn() ? d.toLocaleDateString('en-US',{month:'long',year:'numeric'}) : d.toLocaleDateString('th-TH',{month:'long',year:'numeric'});
   const weekdays = () => isEn()?['Sun','Mon','Tue','Wed','Thu','Fri','Sat']:['อา','จ','อ','พ','พฤ','ศ','ส'];
   const fmtMoney = n => '฿'+Number(n||0).toLocaleString();
-  const formatDisplay = v => { const d=parseDate(v); if(!d) return '-'; return isEn()? d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}); };
+  const formatDisplay = v => { const d=parseDate(v); if(!d) return '-'; return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; };
 
   const isMobileCalendar = () => window.innerWidth <= 760;
   const currentMonthStart = () => { const n=new Date(); return new Date(n.getFullYear(), n.getMonth(), 1); };
@@ -10573,14 +10573,21 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     return 5000;
   }
 
-  function bookingPolicyLines(s){
+  function rentalContractLink(rentalCode){
+    const base = String(tt().contractLink || '').trim();
+    const clean = base.replace(/\/?#.*$/, '').replace(/\/$/, '');
+    return clean + '/#' + String(rentalCode || '').trim();
+  }
+
+  function bookingPolicyLines(s, rentalCode){
     const lines = [];
     const needsContractBlock = !(state.noCon || state.ret);
     const noConDeposit = noContractDepositFromBase(s && s.baseDeposit);
+    const contractLink = rentalContractLink(rentalCode);
     if(isEn()){
       if(needsContractBlock){
         lines.push('📝 Please complete the rental agreement before delivery');
-        lines.push(`${tt().contractLink}`);
+        lines.push(contractLink);
         lines.push(`❌ No rental contract → Deposit: ${fmtMoney(noConDeposit)}`);
       }
       if(s.payment === 'bank'){
@@ -10595,7 +10602,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     }
     if(needsContractBlock){
       lines.push('📝 กรุณาทำสัญญาการเช่าก่อนนัดส่งเครื่อง');
-      lines.push(`${tt().contractLink}`);
+      lines.push(contractLink);
       lines.push(`❌ ไม่ทำสัญญา → ค่าประกัน ${Number(noConDeposit).toLocaleString('th-TH')} บาท`);
     }
     lines.push('🚫 ยกเลิกโดยลูกค้า → ไม่คืนเงินจอง 200 บาท');
@@ -10605,15 +10612,135 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     return lines;
   }
 
-  function copyMessage(){
+  const AJ_RENTAL_SHEET_ID = '13QZWpd_E-L_0G_Xd0zSL5_OcgV4sdwk9febXZSkZepc';
+  const AJ_RENTAL_SHEET_GID = '1105203002';
+  const AJ_BOOKING_SHEET_GID = '74873645';
+  const AJ_RENTAL_SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyDvxt10gsT-GN24xmmGpa1y0cUbfDiWSc4yxfqv-AFoK32sjmpiRJPdQmo6PnU3uZh/exec';
+  const AJ_RENTAL_SHEET_COLUMNS = [
+    'รหัสการเช่า',
+    'วันที่บันทึก',
+    'ช่องทาง',
+    'ภาษา',
+    'Line Unique ID',
+    'ชื่อ LINE',
+    'วันที่เช่า',
+    'วันที่คืน',
+    'จำนวนวันที่เช่า',
+    'จำนวนเครื่องที่เช่า',
+    'เครื่องที่เช่า',
+    'รายการเสริม / เกม',
+    'ยอดค่าเช่า',
+    'ค่าประกัน',
+    'ยอดรวมทั้งหมด',
+    'Google Maps',
+    'สถานะ'
+  ];
+
+  function rentalCodeDate(){
+    const d = new Date();
+    return String(d.getFullYear()) + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+  }
+  function rentalSignature(s){
+    return [
+      state.consoleId,
+      state.start,
+      state.end,
+      state.bundleId,
+      (state.switchExtras||[]).join(','),
+      state.vdock ? 'vdock' : '',
+      (state.boardgames||[]).join(','),
+      (state.games||[]).map(g=>g.id||g.name).join(','),
+      state.notifyLater ? 'later' : '',
+      state.noCon ? 'nocon' : '',
+      state.ret ? 'ret' : '',
+      s ? Math.round(Number(s.total)||0) : ''
+    ].join('|');
+  }
+  function nextRentalCode(){
+    const ymd = rentalCodeDate();
+    const key = 'aj_rental_code_counter_' + ymd;
+    const n = (parseInt(localStorage.getItem(key) || '0', 10) || 0) + 1;
+    localStorage.setItem(key, String(n));
+    return 'AJ-' + ymd + '-R' + String(n).padStart(4,'0');
+  }
+  function getRentalCode(s){
+    const sig = rentalSignature(s);
+    if(state.rentalCode && state.rentalCodeSig === sig) return state.rentalCode;
+    state.rentalCode = nextRentalCode();
+    state.rentalCodeSig = sig;
+    return state.rentalCode;
+  }
+  function lineUniqueId(){
+    try{
+      const qs = new URLSearchParams(location.search);
+      return qs.get('lineUserId') || qs.get('line_user_id') || localStorage.getItem('aj_line_unique_id') || '';
+    }catch(e){ return localStorage.getItem('aj_line_unique_id') || ''; }
+  }
+  function rentalNetAmount(s){
+    return Math.max(0, Number(s.rental||0) + Number(s.addons||0) - Number(s.disc||0) - Number(s.bgDisc||0) - Number(s.consoleDisc||0));
+  }
+  function rentalSheetEndpoint(){
+    return String(localStorage.getItem('aj_rental_sheet_webapp_url') || window.AJ_RENTAL_SHEET_WEBAPP_URL || AJ_RENTAL_SHEET_WEBAPP_URL || '').trim();
+  }
+  function buildRentalSheetPayload(s, rentalCode, channel){
+    const c = s.c;
+    const addonText = [
+      ...(s.addonLines||[]).map(a=>a.name).filter(Boolean),
+      ...(state.games||[]).map(g=>g.name || g.id).filter(Boolean),
+      state.notifyLater ? (isEn() ? 'Send game list later' : 'แจ้งรายชื่อเกมภายหลัง') : ''
+    ].filter(Boolean).join(' | ');
+    return {
+      action: 'appendRental',
+      sheetId: AJ_RENTAL_SHEET_ID,
+      gid: AJ_RENTAL_SHEET_GID,
+      bookingGid: AJ_BOOKING_SHEET_GID,
+      columns: AJ_RENTAL_SHEET_COLUMNS,
+      row: {
+        'รหัสการเช่า': rentalCode,
+        'วันที่บันทึก': new Date().toISOString(),
+        'ช่องทาง': channel || 'copy',
+        'ภาษา': isEn() ? 'EN' : 'TH',
+        'Line Unique ID': lineUniqueId(),
+        'ชื่อ LINE': localStorage.getItem('aj_line_display_name') || '',
+        'วันที่เช่า': formatDisplay(state.start),
+        'วันที่คืน': formatDisplay(state.end),
+        'จำนวนวันที่เช่า': s.days,
+        'จำนวนเครื่องที่เช่า': 1,
+        'เครื่องที่เช่า': s.summaryName || cName(c),
+        'รายการเสริม / เกม': addonText,
+        'ยอดค่าเช่า': rentalNetAmount(s),
+        'ค่าประกัน': s.deposit,
+        'ยอดรวมทั้งหมด': s.total,
+        'Google Maps': String(state.maps || '').trim(),
+        'สถานะ': 'Pending'
+      }
+    };
+  }
+  function submitRentalToSheet(s, rentalCode, channel){
+    const endpoint = rentalSheetEndpoint();
+    if(!endpoint || !rentalCode) return;
+    const submittedKey = 'aj_rental_sheet_submitted_' + rentalCode;
+    if(localStorage.getItem(submittedKey) === '1') return;
+    const payload = buildRentalSheetPayload(s, rentalCode, channel);
+    const url = endpoint + (endpoint.indexOf('?') === -1 ? '?' : '&') + 'action=appendRental&payload=' + encodeURIComponent(JSON.stringify(payload));
+    fetch(url, {method:'GET', mode:'no-cors', cache:'no-store'}).then(function(){
+      localStorage.setItem(submittedKey, '1');
+    }).catch(function(err){
+      console.warn('AJ rental sheet append failed', err);
+    });
+  }
+  window.ajRentalSheetColumns = function(){ return AJ_RENTAL_SHEET_COLUMNS.slice(); };
+
+  function copyMessage(channel){
     const s=calcSummary(); if(!s) return;
     const c=s.c;
+    const rentalCode = getRentalCode(s);
     const deadlineDate = state.start ? fmtIso(addDays(parseDate(state.start), -1)) : '';
     const noContractSuffix = state.noCon ? (isEn() ? ' (No contract)' : ' (ไม่ทำสัญญา)') : '';
     const mapsLink = String(state.maps || '').trim();
     const thMapsLines = mapsLink ? ['', `📍 Google Maps ที่อยู่จัดส่งสำหรับเช็คค่าจัดส่ง: ${mapsLink}`] : [];
     const enMapsLines = mapsLink ? ['', `📍 Google Maps delivery address for checking delivery cost: ${mapsLink}`] : [];
-    const policyLines = bookingPolicyLines(s);
+    const policyLines = bookingPolicyLines(s, rentalCode);
     const thContractLines = !isEn() ? policyLines : [];
     const enContractLines = isEn() ? policyLines : [];
     const hasBg = (state.boardgames||[]).some(id=>bgFindById(id));
@@ -10644,6 +10771,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 
     const thLines = [
       'สวัสดีครับ/ค่ะ ขอจองเช่าเครื่องเกม 🎮','',
+      `🧾 รหัสการเช่า: ${rentalCode}`,
       `📱 เครื่อง: ${cName(c)}`,
       ...thBundleLine,
       ...thExtrasBlock,
@@ -10679,6 +10807,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 
     const enLines = [
       'Hello! Game console rental booking 🎮','',
+      `🧾 Rental Code: ${rentalCode}`,
       `📱 Console: ${cName(c)}`,
       ...enBundleLine,
       ...enExtrasBlock,
@@ -10706,6 +10835,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     ];
 
     const msg = (isEn()?enLines:thLines).filter(v=>v!==undefined && v!==null).join('\n');
+    submitRentalToSheet(s, rentalCode, channel || 'copy');
     return navigator.clipboard.writeText(msg).then(()=>{
       const b=q('#ajxCopy'); if(b){ const old=b.textContent; b.textContent=tt().copied; setTimeout(()=>b.textContent=old,1800); }
       return msg;
@@ -10736,14 +10866,14 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 
   async function sendLineMessage(){
     const navigateChatWindow = openDeferredChatWindow();
-    const msg = await copyMessage();
+    const msg = await copyMessage('line');
     if(!msg) return navigateChatWindow('');
     navigateChatWindow('https://line.me/R/msg/text/?' + encodeURIComponent(msg));
   }
 
   async function sendWhatsAppMessage(){
     const navigateChatWindow = openDeferredChatWindow();
-    const msg = await copyMessage();
+    const msg = await copyMessage('whatsapp');
     if(!msg) return navigateChatWindow('');
     navigateChatWindow(`https://wa.me/66816244715?text=${encodeURIComponent(msg)}`);
   }
@@ -10856,7 +10986,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     qa('[data-prev]').forEach(btn=>btn.onclick=()=>gotoStep(Number(btn.dataset.prev)));
     qa('[data-next]').forEach(btn=>btn.onclick=()=>gotoStep(Number(btn.dataset.next)));
     qa('[data-done]').forEach(btn=>btn.onclick=openDoneConfirm);
-    q('#ajxCopy') && (q('#ajxCopy').onclick=copyMessage);
+    q('#ajxCopy') && (q('#ajxCopy').onclick=()=>copyMessage('copy'));
     q('#ajxLine') && (q('#ajxLine').onclick=sendLineMessage);
     q('#ajxWa') && (q('#ajxWa').onclick=sendWhatsAppMessage);
     q('#ajxClose') && (q('#ajxClose').onclick=()=>{ state.calendarOpen=false; render(); });
@@ -12871,6 +13001,361 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
   document.addEventListener('blur', function(ev){
     if(isTargetSelect(ev.target)) mark(250);
   }, true);
+})();
+</script>
+
+<style id="aj-liff-rental-history-style">
+.aj-liff-customer-card{background:#fff;border:1px solid var(--border);border-radius:8px;min-height:96px;padding:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:7px}
+.aj-liff-customer-card .aj-liff-kicker{font-size:11px;font-weight:900;letter-spacing:1.1px;color:#cc0000;text-transform:uppercase}
+.aj-liff-customer-card .aj-liff-name{font-size:15px;font-weight:900;line-height:1.28;color:#111;overflow-wrap:anywhere}
+.aj-liff-customer-card .aj-liff-meta{display:none}
+.aj-liff-customer-card .aj-liff-actions{display:grid;grid-template-columns:1fr;gap:7px;margin-top:auto}
+.aj-liff-mini-btn{border:none;border-radius:8px;padding:8px 9px;font-size:12px;font-weight:900;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px}
+.aj-liff-mini-btn.history{background:#cc0000;color:#fff}
+.aj-liff-mini-btn.line{background:#06c755;color:#fff}
+.aj-liff-mini-btn.wa{background:#128c7e;color:#fff}
+.aj-liff-mini-btn.soft{background:#f3f3f3;color:#333}
+.aj-liff-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(156px,190px);gap:18px;align-items:start}
+.aj-liff-top-copy{min-width:0}
+.aj-liff-history-overlay{position:fixed;inset:0;background:rgba(0,0,0,.36);z-index:1800;display:none;align-items:center;justify-content:center;padding:18px}
+.aj-liff-history-overlay.open{display:flex}
+.aj-liff-history-modal{width:min(980px,calc(100vw - 24px));max-height:min(88vh,920px);overflow:auto;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 26px 70px rgba(0,0,0,.24)}
+.aj-liff-history-head{position:sticky;top:0;background:#fff;z-index:2;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border)}
+.aj-liff-history-head h3{font-size:20px;font-weight:900;line-height:1.25;margin:0}
+.aj-liff-history-head p{font-size:12px;color:#666;line-height:1.55;margin:4px 0 0}
+.aj-liff-history-close{border:none;background:#f2f2f2;color:#111;width:40px;height:40px;border-radius:999px;font-size:24px;font-weight:900;line-height:1;cursor:pointer;flex:0 0 auto}
+.aj-liff-history-body{padding:16px 18px 18px}
+.aj-liff-history-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.aj-liff-history-stat{background:#fff7f7;border:1px solid rgba(204,0,0,.14);border-radius:12px;padding:12px}
+.aj-liff-history-stat .lbl{font-size:11px;color:#666;font-weight:800;line-height:1.35}
+.aj-liff-history-stat .val{font-size:22px;font-weight:900;color:#cc0000;line-height:1.1;margin-top:3px}
+.aj-liff-history-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px}
+.aj-liff-history-table{width:100%;border-collapse:collapse;min-width:860px;background:#fff}
+.aj-liff-history-table th,.aj-liff-history-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;line-height:1.45;text-align:left;vertical-align:top}
+.aj-liff-history-table th{background:#f7f7f7;font-size:12px;font-weight:900;color:#444;white-space:nowrap}
+.aj-liff-history-table td.num,.aj-liff-history-table th.num{text-align:right}
+.aj-liff-status{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:900;white-space:nowrap}
+.aj-liff-status.pending{background:#fff7e8;color:#8f5b00;border:1px solid rgba(204,140,0,.18)}
+.aj-liff-status.confirmed{background:#eef9f0;color:#176331;border:1px solid rgba(34,136,51,.18)}
+.aj-liff-status.canceled{background:#fff1f1;color:#a12525;border:1px solid rgba(204,0,0,.16)}
+.aj-liff-history-empty{padding:18px;border:1px dashed rgba(0,0,0,.16);border-radius:12px;background:#fafafa;color:#666;font-size:14px;line-height:1.7}
+@media(max-width:760px){
+  .aj-liff-top{grid-template-columns:minmax(0,1fr) minmax(126px,136px);gap:10px;align-items:start}
+  .aj-liff-customer-card{min-height:0;padding:9px;gap:5px}
+  .aj-liff-customer-card .aj-liff-kicker{font-size:10px;letter-spacing:.9px}
+  .aj-liff-customer-card .aj-liff-name{font-size:12px;line-height:1.24}
+  .aj-liff-customer-card .aj-liff-actions{gap:5px}
+  .aj-liff-mini-btn{padding:7px 6px;font-size:10px;border-radius:7px}
+  .aj-liff-history-overlay{padding:0;align-items:stretch}
+  .aj-liff-history-modal{width:100vw;max-height:100dvh;border-radius:0}
+  .aj-liff-history-summary{grid-template-columns:1fr}
+}
+@media(max-width:360px){
+  .aj-liff-top{grid-template-columns:minmax(0,1fr) 124px;gap:8px}
+  .aj-liff-customer-card{padding:8px}
+  .aj-liff-customer-card .aj-liff-name{font-size:11px}
+  .aj-liff-mini-btn{font-size:9px;padding-left:5px;padding-right:5px}
+}
+</style>
+
+<script id="aj-liff-rental-history">
+(function(){
+  'use strict';
+  var SHEET_ID = '13QZWpd_E-L_0G_Xd0zSL5_OcgV4sdwk9febXZSkZepc';
+  var SHEET_GID = '1105203002';
+  var DEFAULT_LIFF_ID = '2010212481-16RHJsnX';
+  var CONTRACT_LIFF_ID = '2010196202-iYu3RKIb';
+  var WA_NUMBER = '66816244715';
+  var state = { ready:false, loading:false, profile:null, error:'', rows:null };
+
+  function $(sel, root){ return (root || document).querySelector(sel); }
+  function esc(v){
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function(ch){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]);
+    });
+  }
+  function isEn(){
+    try{ return document.documentElement.lang === 'en' || window.lang === 'en' || lang === 'en'; }catch(e){ return false; }
+  }
+  function text(th, en){ return isEn() ? en : th; }
+  function normKey(s){
+    return String(s || '').toLowerCase().replace(/\s+/g,'').replace(/[()_\-:./]/g,'');
+  }
+  function shortId(id){
+    id = String(id || '');
+    return id.length > 14 ? id.slice(0,6) + '...' + id.slice(-5) : id;
+  }
+  function moneyNum(v){
+    var n = Number(String(v == null ? '' : v).replace(/[^\d.-]/g,''));
+    return isFinite(n) ? n : 0;
+  }
+  function fmtMoney(v){
+    var n = moneyNum(v);
+    return '฿' + n.toLocaleString('th-TH', {maximumFractionDigits:0});
+  }
+  function dateVal(v){
+    if(v instanceof Date) return v;
+    var s = String(v || '').trim();
+    if(!s) return null;
+    var m = s.match(/^Date\((\d+),(\d+),(\d+)/);
+    if(m) return new Date(Number(m[1]), Number(m[2]), Number(m[3]));
+    var d = new Date(s);
+    if(!isNaN(d)) return d;
+    var dm = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+    if(dm){
+      var y = Number(dm[3]); if(y < 100) y += 2000; if(y > 2400) y -= 543;
+      return new Date(y, Number(dm[2]) - 1, Number(dm[1]));
+    }
+    return null;
+  }
+  function sortByRentDate(a,b){
+    var da = dateVal(a.rentDate), db = dateVal(b.rentDate);
+    if(da && db) return da - db;
+    if(da) return -1;
+    if(db) return 1;
+    return Number(a.no || 0) - Number(b.no || 0);
+  }
+  function cellValue(cell){
+    if(!cell) return '';
+    if(cell.f != null) return cell.f;
+    if(cell.v == null) return '';
+    return cell.v;
+  }
+  function parseGviz(txt){
+    var start = txt.indexOf('{'), end = txt.lastIndexOf('}');
+    if(start < 0 || end < 0) throw new Error('bad sheet response');
+    var table = JSON.parse(txt.slice(start, end + 1)).table || {};
+    var labels = (table.cols || []).map(function(c, i){ return c.label || c.id || ('Col' + i); });
+    return (table.rows || []).map(function(r){
+      var obj = {};
+      (r.c || []).forEach(function(c, i){ obj[labels[i] || ('Col' + i)] = cellValue(c); });
+      return obj;
+    });
+  }
+  function getAny(row, names){
+    var wanted = names.map(normKey);
+    var keys = Object.keys(row || {});
+    for(var i=0;i<keys.length;i++){
+      if(wanted.indexOf(normKey(keys[i])) !== -1) return row[keys[i]];
+    }
+    for(var j=0;j<keys.length;j++){
+      var nk = normKey(keys[j]);
+      if(wanted.some(function(w){ return nk.indexOf(w) !== -1 || w.indexOf(nk) !== -1; })) return row[keys[j]];
+    }
+    return '';
+  }
+  function normalizeRow(row, idx){
+    return {
+      no: getAny(row, ['ลำดับ','no','number','index']) || (idx + 1),
+      rentalCode: getAny(row, ['รหัสการเช่า','rental code','booking code','rent code','code']),
+      status: getAny(row, ['สถานะ','status','booking status']),
+      lineId: getAny(row, ['Line Unique ID','LINE Unique ID','lineuserid','line user id','userId','uid','line id','ไลน์ไอดี']),
+      rentDate: getAny(row, ['วันที่เช่า','วันเช่า','rent date','start date','start','date rent']),
+      returnDate: getAny(row, ['วันที่คืน','วันคืน','return date','end date','end']),
+      days: getAny(row, ['จำนวนวันที่เช่า','จำนวนวัน','days','rental days','duration']),
+      machine: getAny(row, ['เครื่องที่เช่า','เครื่องเกม','console','machine','item','สินค้า']),
+      amount: getAny(row, ['ยอดค่าเช่า','ยอดที่เช่า','ค่าเช่า','rental amount','amount','total','price']),
+      qty: getAny(row, ['จำนวนเครื่องที่เช่า','จำนวนเครื่อง','qty','quantity'])
+    };
+  }
+  async function fetchRows(){
+    var url = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(SHEET_ID) + '/gviz/tq?gid=' + encodeURIComponent(SHEET_GID) + '&headers=1&tqx=out:json&t=' + Date.now();
+    var res = await fetch(url, {cache:'no-store'});
+    if(!res.ok) throw new Error('Google Sheet HTTP ' + res.status);
+    var rawRows = parseGviz(await res.text());
+    return rawRows.map(normalizeRow).filter(function(r){
+      return String(r.lineId || r.rentDate || r.machine || r.amount).trim();
+    });
+  }
+  function currentLineId(){
+    var qs = new URLSearchParams(location.search);
+    return qs.get('lineUserId') || qs.get('line_user_id') || localStorage.getItem('aj_line_unique_id') || (state.profile && state.profile.userId) || '';
+  }
+  function matchingRows(){
+    var uid = currentLineId();
+    if(!uid || !state.rows) return [];
+    return state.rows.filter(function(r){ return String(r.lineId || '').trim() === String(uid).trim(); }).sort(sortByRentDate);
+  }
+  function statusMeta(status){
+    var s = String(status || 'Pending').trim().toLowerCase();
+    if(s === 'confirmed') return {cls:'confirmed', label:'✅ Confirmed'};
+    if(s === 'canceled' || s === 'cancelled') return {cls:'canceled', label:'❌ Canceled'};
+    return {cls:'pending', label:'⌛ Pending'};
+  }
+  function statusHtml(status){
+    var meta = statusMeta(status);
+    return '<span class="aj-liff-status ' + esc(meta.cls) + '">' + esc(meta.label) + '</span>';
+  }
+  function renderCard(){
+    var card = $('#ajLiffCustomerCard');
+    if(!card) return;
+    var en = isEn();
+    var profile = state.profile || {};
+    var uid = currentLineId();
+    var name = profile.displayName || localStorage.getItem('aj_line_display_name') || state.error || text('ยังไม่ได้เชื่อมต่อ LINE', 'LINE not connected');
+    var lineMeta = uid ? 'LINE ID: ' + shortId(uid) : '';
+    card.innerHTML = [
+      '<div class="aj-liff-kicker">' + esc(en ? 'LINE / WhatsApp' : 'LINE') + '</div>',
+      '<div class="aj-liff-name">' + esc(name) + '</div>',
+      lineMeta ? '<div class="aj-liff-meta">' + esc(lineMeta) + '</div>' : '',
+      '<div class="aj-liff-actions">',
+        '<button type="button" class="aj-liff-mini-btn history" id="ajLiffHistoryBtn">' + esc(text('ประวัติการเช่า', 'Rental history')) + '</button>',
+        '<button type="button" class="aj-liff-mini-btn line" id="ajLiffLoginBtn">' + esc(uid ? text('รีเฟรช LINE', 'Refresh LINE') : text('เชื่อมต่อ LINE', 'Connect LINE')) + '</button>',
+        en ? '<button type="button" class="aj-liff-mini-btn wa" id="ajLiffWaBtn">WhatsApp</button>' : '',
+      '</div>'
+    ].join('');
+    $('#ajLiffHistoryBtn', card).onclick = openHistory;
+    $('#ajLiffLoginBtn', card).onclick = connectLine;
+    var waBtn = $('#ajLiffWaBtn', card);
+    if(waBtn) waBtn.onclick = function(){ window.open('https://wa.me/' + WA_NUMBER, '_blank'); };
+  }
+  function injectCard(){
+    var root = $('#ajCleanCalcRoot');
+    if(!root || $('#ajLiffCustomerCard')) return;
+    var tag = $('.ajx-sec-tag', root);
+    var h = $('.ajx-sec-h', root);
+    var p = $('.ajx-sec-p', root);
+    if(!tag || !h || !p) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'aj-liff-top';
+    var copy = document.createElement('div');
+    copy.className = 'aj-liff-top-copy';
+    copy.appendChild(tag);
+    copy.appendChild(h);
+    copy.appendChild(p);
+    var card = document.createElement('div');
+    card.id = 'ajLiffCustomerCard';
+    card.className = 'aj-liff-customer-card';
+    wrap.appendChild(copy);
+    wrap.appendChild(card);
+    root.insertBefore(wrap, root.firstChild);
+    renderCard();
+  }
+  function ensureModal(){
+    if($('#ajLiffHistoryOverlay')) return;
+    var overlay = document.createElement('div');
+    overlay.id = 'ajLiffHistoryOverlay';
+    overlay.className = 'aj-liff-history-overlay';
+    overlay.innerHTML = '<div class="aj-liff-history-modal" role="dialog" aria-modal="true" aria-labelledby="ajLiffHistoryTitle"><div class="aj-liff-history-head"><div><h3 id="ajLiffHistoryTitle"></h3><p id="ajLiffHistorySub"></p></div><button type="button" class="aj-liff-history-close" id="ajLiffHistoryClose">×</button></div><div class="aj-liff-history-body" id="ajLiffHistoryBody"></div></div>';
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', function(ev){ if(ev.target === overlay) closeHistory(); });
+    $('#ajLiffHistoryClose', overlay).onclick = closeHistory;
+  }
+  function closeHistory(){ $('#ajLiffHistoryOverlay')?.classList.remove('open'); }
+  async function openHistory(){
+    ensureModal();
+    var overlay = $('#ajLiffHistoryOverlay');
+    overlay.classList.add('open');
+    $('#ajLiffHistoryTitle').textContent = text('ประวัติการเช่า', 'Rental history');
+    $('#ajLiffHistorySub').textContent = state.profile && state.profile.displayName ? state.profile.displayName : '';
+    var body = $('#ajLiffHistoryBody');
+    var uid = currentLineId();
+    if(!uid){
+      body.innerHTML = '<div class="aj-liff-history-empty">' + esc(text('กรุณากดเชื่อมต่อ LINE ก่อนดูประวัติการเช่า', 'Please connect LINE before viewing rental history.')) + '</div>';
+      return;
+    }
+    body.innerHTML = '<div class="aj-liff-history-empty">' + esc(text('กำลังโหลดประวัติจาก Google Sheet...', 'Loading history from Google Sheet...')) + '</div>';
+    try{
+      if(!state.rows) state.rows = await fetchRows();
+      var rows = matchingRows();
+      if(!rows.length){
+        body.innerHTML = '<div class="aj-liff-history-empty">' + esc(text('ไม่พบประวัติการเช่าของ LINE ID นี้ใน Google Sheet', 'No rental history found for this LINE ID in Google Sheet.')) + '<br><small>LINE ID: ' + esc(shortId(uid)) + '</small></div>';
+        return;
+      }
+      var totalAmount = rows.reduce(function(sum, r){ return sum + moneyNum(r.amount); }, 0);
+      var totalQty = rows.reduce(function(sum, r){ var q = moneyNum(r.qty); return sum + (q > 0 ? q : 1); }, 0);
+      body.innerHTML =
+        '<div class="aj-liff-history-summary">' +
+          '<div class="aj-liff-history-stat"><div class="lbl">' + esc(text('จำนวนครั้งที่เช่า', 'Rental count')) + '</div><div class="val">' + rows.length.toLocaleString('th-TH') + '</div></div>' +
+          '<div class="aj-liff-history-stat"><div class="lbl">' + esc(text('จำนวนเครื่องที่เช่า', 'Machines rented')) + '</div><div class="val">' + totalQty.toLocaleString('th-TH') + '</div></div>' +
+          '<div class="aj-liff-history-stat"><div class="lbl">' + esc(text('ยอดที่เช่า', 'Rental total')) + '</div><div class="val">' + esc(fmtMoney(totalAmount)) + '</div></div>' +
+        '</div>' +
+        '<div class="aj-liff-history-table-wrap"><table class="aj-liff-history-table"><thead><tr>' +
+          '<th>' + esc(text('ลำดับ', 'No.')) + '</th><th>' + esc(text('รหัสการเช่า', 'Rental code')) + '</th><th>' + esc(text('สถานะ', 'Status')) + '</th><th>' + esc(text('วันที่เช่า', 'Rent date')) + '</th><th>' + esc(text('วันที่คืน', 'Return date')) + '</th><th class="num">' + esc(text('จำนวนวันที่เช่า', 'Days')) + '</th><th>' + esc(text('เครื่องที่เช่า', 'Machine')) + '</th><th class="num">' + esc(text('ยอดค่าเช่า', 'Amount')) + '</th>' +
+        '</tr></thead><tbody>' +
+          rows.map(function(r, i){
+            return '<tr><td>' + esc(r.no || (i + 1)) + '</td><td>' + esc(r.rentalCode || '-') + '</td><td>' + statusHtml(r.status) + '</td><td>' + esc(r.rentDate) + '</td><td>' + esc(r.returnDate) + '</td><td class="num">' + esc(r.days) + '</td><td>' + esc(r.machine) + '</td><td class="num">' + esc(fmtMoney(r.amount)) + '</td></tr>';
+          }).join('') +
+        '</tbody></table></div>';
+    }catch(err){
+      body.innerHTML = '<div class="aj-liff-history-empty">' + esc(text('โหลด Google Sheet ไม่สำเร็จ กรุณาตรวจสอบว่า Sheet เปิดให้อ่านแบบ public แล้ว', 'Could not load Google Sheet. Please check that the sheet is publicly readable.')) + '<br><small>' + esc(err.message || err) + '</small></div>';
+    }
+  }
+  function loadLiffSdk(){
+    if(window.liff) return Promise.resolve(window.liff);
+    return new Promise(function(resolve, reject){
+      var existing = document.querySelector('script[data-aj-liff-sdk]');
+      if(existing){
+        existing.addEventListener('load', function(){ resolve(window.liff); }, {once:true});
+        existing.addEventListener('error', reject, {once:true});
+        return;
+      }
+      var s = document.createElement('script');
+      s.src = 'https://static.line-scdn.net/liff/edge/2/sdk.js';
+      s.async = true;
+      s.setAttribute('data-aj-liff-sdk','1');
+      s.onload = function(){ resolve(window.liff); };
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+  async function initLiff(silent){
+    try{
+      var liffId = currentLiffId();
+      if(!liffId){
+        state.error = silent ? '' : text('กรุณาตั้งค่า LIFF ID ของหน้านี้ก่อน', 'Please set this page LIFF ID first');
+        renderCard();
+        return;
+      }
+      var liff = await loadLiffSdk();
+      await liff.init({liffId:liffId});
+      if(liff.isLoggedIn()){
+        var p = await liff.getProfile();
+        state.profile = p;
+        localStorage.setItem('aj_line_unique_id', p.userId || '');
+        localStorage.setItem('aj_line_display_name', p.displayName || '');
+        renderCard();
+      }else if(!silent && liff.login){
+        liff.login(loginOptions());
+      }
+    }catch(err){
+      state.error = err.message || String(err);
+      renderCard();
+      if(!silent) openLiffDirect();
+    }
+  }
+  function currentLiffId(){
+    var id = String(localStorage.getItem('aj_liff_id') || window.AJ_PAGE_LIFF_ID || DEFAULT_LIFF_ID || '').trim();
+    if(id === CONTRACT_LIFF_ID) return '';
+    return id;
+  }
+  function isLocalUrl(){
+    return location.protocol === 'file:' || /^(localhost|127\.0\.0\.1|0\.0\.0\.0)$/i.test(location.hostname || '');
+  }
+  function loginOptions(){
+    if(isLocalUrl()) return {};
+    return {redirectUri: location.href};
+  }
+  function openLiffDirect(){
+    var liffId = currentLiffId();
+    if(!liffId){
+      alert(text('LIFF ID ตัวปัจจุบันเป็นของหน้าสัญญาเช่า กรุณาสร้าง LIFF ID ใหม่สำหรับหน้าเว็บนี้ แล้วตั้งค่า aj_liff_id', 'The current LIFF ID belongs to the rental contract page. Please create a new LIFF ID for this page and set aj_liff_id.'));
+      return;
+    }
+    window.location.href = 'https://liff.line.me/' + encodeURIComponent(liffId);
+  }
+  function connectLine(){ initLiff(false); }
+  function boot(){
+    injectCard();
+    ensureModal();
+    initLiff(true);
+    var mo = new MutationObserver(function(){ injectCard(); });
+    var root = $('#ajCleanCalcRoot') || $('#calculator');
+    if(root) mo.observe(root, {childList:true, subtree:false});
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(boot, 120); });
+  else setTimeout(boot, 120);
+  window.ajOpenRentalHistory = openHistory;
 })();
 </script>
 
