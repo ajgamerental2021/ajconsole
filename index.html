@@ -3685,11 +3685,12 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   }
   function mapConsoleToPlatform(c){
     if(!c) return '';
+    if(c.gamePlatform) return String(c.gamePlatform).trim();
     const s = `${c.name || ''} ${c.nameEn || ''}`.toLowerCase();
     if(s.includes('ps4') || s.includes('ps5')) return 'ps45';
     if(s.includes('switch 1')) return 'switch1';
     if(s.includes('switch 2')) return 'switch2';
-    if(s.includes('rog') || s.includes('legion')) return 'rog';
+    if(s.includes('rog') || s.includes('ally') || s.includes('legion') || s.includes('msi claw')) return 'rog';
     if(s.includes('xbox')) return 'xbox';
     if(s.includes('meta quest')) return 'meta';
     if(s.includes('steam deck')) return 'p_1774941944007';
@@ -3810,6 +3811,14 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     });
     attachGameButtonHandlers();
   }
+  function consoleIdFromGameButton(btn){
+    const direct = Number(btn && btn.dataset && btn.dataset.consoleId || 0);
+    if(direct) return direct;
+    const card = btn && btn.closest && btn.closest('.con-card');
+    const name = card ? (card.querySelector('.con-name')?.textContent?.trim() || '') : '';
+    const c = name ? consoles.find(x => cName(x) === name || x.name === name || x.nameEn === name) : null;
+    return c ? Number(c.id) : 0;
+  }
   window.openGamePicker = openGamePicker;
   function openGamePicker(consoleId){
     const c = consoles.find(x => Number(x.id) === Number(consoleId));
@@ -3833,6 +3842,17 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     document.body.style.overflow = '';
     if(pickerReady && pickerIframe?.contentWindow){ pickerIframe.contentWindow.postMessage({type:'AJ_PICKER_CLOSE'}, '*'); }
   }
+  document.addEventListener('click', function(e){
+    const btn = e.target && e.target.closest ? e.target.closest('.btn-games') : null;
+    if(!btn) return;
+    const cid = consoleIdFromGameButton(btn);
+    if(!cid) return;
+    e.preventDefault();
+    btn.dataset.consoleId = String(cid);
+    btn.href = '#';
+    btn.removeAttribute('target');
+    openGamePicker(cid);
+  }, true);
   function installAdminTab(){
     const tabs = document.querySelector('.adm-tabs');
     if(!tabs || document.getElementById('admTabGames')) return;
@@ -9951,6 +9971,25 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     'ROG Xbox Ally X':'rog','Lenovo Legion GO2':'rog',
     'Steam Deck OLED':'p_1774941944007'
   };
+  function gamePlatformForConsole(c){
+    if(!c) return '';
+    if(c.gamePlatform) return String(c.gamePlatform).trim();
+    if(typeof window.mapConsoleToPlatform === 'function'){
+      try{
+        const p = window.mapConsoleToPlatform(c);
+        if(p) return p;
+      }catch(e){}
+    }
+    const s = `${c.name || ''} ${c.nameEn || ''}`.toLowerCase();
+    if(s.includes('ps4') || s.includes('ps5') || s.includes('playstation')) return 'ps45';
+    if(s.includes('switch 1') || s.includes('nintendo switch 1')) return 'switch1';
+    if(s.includes('switch 2') || s.includes('nintendo switch 2')) return 'switch2';
+    if(s.includes('xbox')) return 'xbox';
+    if(s.includes('quest') || s.includes('meta')) return 'meta';
+    if(s.includes('rog') || s.includes('ally') || s.includes('legion') || s.includes('msi claw')) return 'rog';
+    if(s.includes('steam deck')) return 'p_1774941944007';
+    return PLATFORM_MAP[c.name] || '';
+  }
 
   const state = {
     step:1,cat:'',consoleId:'',start:'',end:'',
@@ -10035,7 +10074,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   function currentRows(){ return Array.isArray(state.availRows) ? state.availRows : []; }
   function canGames(c){
     if(!c) return false;
-    return !!PLATFORM_MAP[c.name];
+    return c.showGameButton !== false && !!gamePlatformForConsole(c);
   }
   function currentConsole(){ return consoleById(state.consoleId); }
 
@@ -10994,14 +11033,14 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     state.pickerOpen = true;
     render();
     const frame=q('#ajxPickerFrame');
-    const pickerUrl='game_index.html?embed=picker';
+    const pickerUrl='game_index.html?embed=picker&v=20260529';
     if(frame && frame.getAttribute('src') !== pickerUrl){ frame.setAttribute('src', pickerUrl); }
     function postOpen(){
       scheduleGamePickerUiPatch(frame);
       frame?.contentWindow?.postMessage({
         type:'AJ_PICKER_OPEN',
         requestId:'ajx-'+Date.now(),
-        platformId:PLATFORM_MAP[c.name],
+        platformId:gamePlatformForConsole(c),
         lang:getLang(),
         selectedGameIds:state.games.map(g=>g.id).filter(Boolean)
       }, '*');
@@ -11096,7 +11135,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       frame?.contentWindow?.postMessage({
         type:'AJ_PICKER_OPEN',
         requestId:'ajx-'+Date.now(),
-        platformId:c && PLATFORM_MAP[c.name] ? PLATFORM_MAP[c.name] : '',
+        platformId:gamePlatformForConsole(c),
         lang:getLang(),
         selectedGameIds:state.games.map(g=>g.id).filter(Boolean)
       }, '*');
