@@ -5852,11 +5852,12 @@ function applyDataBundle(bundle) {
 }
 
 // โหลดข้อมูลจาก Gist เมื่อเปิดเว็บ (ไม่ต้อง token — public gist)
-function fetchFromJSONBin() {
+function fetchFromJSONBin(options) {
+  var shouldRender = !(options && options.render === false);
   loadGistConfigFromStorage();
   // Use localStorage config, or fall back to DEFAULT_GIST_ID baked into HTML
   var gistId = gistConfig.gistId || DEFAULT_GIST_ID;
-  if (!gistId) return;
+  if (!gistId) return Promise.resolve(false);
   // Temporarily use the resolved ID
   var _origId = gistConfig.gistId;
   if (!gistConfig.gistId && DEFAULT_GIST_ID) gistConfig.gistId = DEFAULT_GIST_ID;
@@ -5866,7 +5867,7 @@ function fetchFromJSONBin() {
   var headers = { 'Accept': 'application/vnd.github.v3+json' };
   if (gistConfig.token) headers['Authorization'] = 'Bearer ' + gistConfig.token;
 
-  fetch('https://api.github.com/gists/' + gistId + '?_=' + Date.now(), {
+  return fetch('https://api.github.com/gists/' + gistId + '?_=' + Date.now(), {
     headers: headers,
     cache: 'no-store',
   })
@@ -5893,11 +5894,14 @@ function fetchFromJSONBin() {
         localStorage.setItem('ajgame_howto', JSON.stringify(howToSteps));
         localStorage.setItem('ajgame_faq', JSON.stringify(faqItems));
       } catch(e) {}
-      renderPublic(); renderFAQ();
+      if (typeof window.ajApplyGameCatalogFilters === 'function') window.ajApplyGameCatalogFilters();
+      if (shouldRender) { renderPublic(); renderFAQ(); }
       console.log('[AJGame] Loaded from Gist: ' + bundle.games.length + ' games, savedAt: ' + bundle.savedAt);
+      return true;
     }
+    return false;
   })
-  .catch(function(e) { console.log('[AJGame] Gist fetch skipped:', e.message); });
+  .catch(function(e) { console.log('[AJGame] Gist fetch skipped:', e.message); return false; });
 }
 
 // บันทึกข้อมูลขึ้น Gist (PATCH — ไม่ต้องการ SHA!)
@@ -5993,9 +5997,12 @@ function showSyncStatus(msg, type) {
 
 
 loadData();
-renderPublic();
-if (typeof renderFAQ === 'function') renderFAQ();
-setTimeout(fetchFromJSONBin, 800);
+window.ajGameCatalogReady = fetchFromJSONBin({ render:false }).then(function(){
+  if (typeof window.ajApplyGameCatalogFilters === 'function') window.ajApplyGameCatalogFilters();
+  renderPublic();
+  if (typeof renderFAQ === 'function') renderFAQ();
+  return true;
+});
 </script>
 
   <!-- Floating Search Button -->
@@ -6390,7 +6397,9 @@ document.addEventListener('touchstart', function(e) {
   ensureEmbedStyles();
   if(isPicker()) document.body.classList.add('aj-embed-picker');
   if(isAdmin()) document.body.classList.add('aj-embed-admin');
-  setTimeout(function(){ post('AJ_GAME_READY', { mode: embedMode }); }, 250);
+  Promise.resolve(window.ajGameCatalogReady).then(function(){
+    setTimeout(function(){ post('AJ_GAME_READY', { mode: embedMode }); }, 0);
+  });
 })();
 </script>
 
@@ -6450,12 +6459,27 @@ document.addEventListener('touchstart', function(e) {
   const focusId = focusIds[0] || scopedIds[0];
   window.__ajScopedPlatformIds = scopedIds.slice();
   window.__ajScopedFocusId = focusId;
-  if(Array.isArray(window.platforms)) window.platforms = window.platforms.filter(p => scopedIds.includes(p.id));
-  if(Array.isArray(window.games)) window.games = window.games.filter(g => scopedIds.includes(g.platformId));
-  if(typeof window.activePlatformTab !== 'undefined') window.activePlatformTab = focusId;
-  if(typeof window.adminGameFilter !== 'undefined' && !scopedIds.includes(window.adminGameFilter)) window.adminGameFilter = focusId;
-  if(typeof renderPublic === 'function') renderPublic();
-  if(typeof applyLang === 'function') applyLang();
+  function applyScopedCatalog(){
+    try{
+      if(Array.isArray(platforms)) platforms = platforms.filter(p => scopedIds.includes(p.id));
+      if(Array.isArray(games)) games = games.filter(g => scopedIds.includes(g.platformId));
+      if(typeof activePlatformTab !== 'undefined') activePlatformTab = focusId;
+      if(typeof adminGameFilter !== 'undefined' && !scopedIds.includes(adminGameFilter)) adminGameFilter = focusId;
+    }catch(e){}
+  }
+  window.ajApplyGameCatalogFilters = applyScopedCatalog;
+  applyScopedCatalog();
+  function renderScopedView(){
+    applyScopedCatalog();
+    if(typeof renderPublic === 'function') renderPublic();
+    if(typeof applyLang === 'function') applyLang();
+    renderNotice();
+  }
+  if(window.ajGameCatalogReady && typeof window.ajGameCatalogReady.then === 'function'){
+    window.ajGameCatalogReady.then(renderScopedView);
+  }else{
+    renderScopedView();
+  }
   function renderNotice(){
     const hero = document.querySelector('main .hero');
     if(!hero) return;
@@ -6469,7 +6493,6 @@ document.addEventListener('touchstart', function(e) {
     }
     host.textContent = (window.currentLang === 'en') ? ('Showing only: ' + names) : ('กำลังแสดงเฉพาะ: ' + names);
   }
-  renderNotice();
   const origToggleLang = window.toggleLang;
   if(typeof origToggleLang === 'function' && !origToggleLang.__ajScopedWrapped){
     window.toggleLang = function(){
