@@ -3610,6 +3610,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 (function(){
   const STORAGE_KEY = 'aj_console_game_picker_state_v1';
   const iframeSrc = 'game_index.html';
+  const GAME_INDEX_VERSION = '20260529';
   let pickerReady = false;
   let adminReady = false;
   let pickerRequestId = null;
@@ -3661,6 +3662,11 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       close: isEn ? 'Close' : 'ปิด'
     };
   }
+  function gameIndexUrl(params){
+    const search = new URLSearchParams(params || {});
+    search.set('v', GAME_INDEX_VERSION);
+    return iframeSrc + '?' + search.toString();
+  }
   function parseDateLocal(str){
     if(!str || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return null;
     const [y,m,d] = str.split('-').map(Number);
@@ -3698,7 +3704,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     const picker = document.createElement('div');
     picker.id = 'gamePickerOverlay';
     picker.className = 'game-picker-overlay';
-    picker.innerHTML = `<div class="game-picker-shell"><div class="game-picker-head"><div><div class="game-picker-title" id="gamePickerTitle"></div><div class="game-picker-sub" id="gamePickerSub"></div></div><button class="game-picker-close" type="button" id="gamePickerClose">✕</button></div><iframe class="game-picker-frame" id="gamePickerFrame" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"></iframe></div>`;
+    picker.innerHTML = `<div class="game-picker-shell"><div class="game-picker-head"><div><div class="game-picker-title" id="gamePickerTitle"></div><div class="game-picker-sub" id="gamePickerSub"></div></div><button class="game-picker-close" type="button" id="gamePickerClose">✕</button></div><iframe class="game-picker-frame" id="gamePickerFrame" loading="eager" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"></iframe></div>`;
     document.body.appendChild(picker);
     pickerOverlay = picker;
     pickerIframe = document.getElementById('gamePickerFrame');
@@ -3712,7 +3718,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     const iframe = document.createElement('iframe');
     iframe.id = 'gameAdminFrame';
     iframe.loading = 'lazy';
-    iframe.src = iframeSrc + '?embed=admin';
+    iframe.src = gameIndexUrl({embed:'admin'});
     wrap.appendChild(iframe);
     adminIframe = iframe;
     return iframe;
@@ -3816,7 +3822,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     pickerRequestId = 'req_' + Date.now();
     pickerOverlay.classList.add('open');
     document.body.style.overflow = 'hidden';
-    if(!pickerIframe.src) pickerIframe.src = iframeSrc + '?embed=picker';
+    if(!pickerIframe.src) pickerIframe.src = gameIndexUrl({embed:'picker'});
     const msg = { type:'AJ_PICKER_OPEN', requestId: pickerRequestId, platformId, lang, selectedGameIds: clone(ensureState(consoleId).gameIds) };
     if(pickerReady){ pickerIframe.contentWindow.postMessage(msg, '*'); }
     else{ pickerIframe.dataset.pendingMessage = JSON.stringify(msg); }
@@ -3988,6 +3994,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 
   loadGameState();
   createOverlays();
+  if(pickerIframe && !pickerIframe.src) pickerIframe.src = gameIndexUrl({embed:'picker'});
   syncPickerTexts();
   if(typeof renderAll === 'function') setTimeout(() => { syncCardButtons(); injectSummaryGameBlock(); }, 60);
 })();
