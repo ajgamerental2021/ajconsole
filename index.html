@@ -2747,7 +2747,7 @@ function renderConsoleCards(list){
       <div class="price-row"><div class="pc"><div class="pl">${t('daily')}</div><div class="pv">฿${c.rate}<small>/${t('day')}</small></div></div><div class="pc"><div class="pl">${t('weekly')}</div><div class="pv">฿${c.weekly.toLocaleString()}<small>/${t('wk')}</small></div></div></div>
       <div class="dep-line">🔒 ${t('deposit')} ฿${c.deposit.toLocaleString()}</div>
       <div class="device-details">${getConsoleDetails(c).map(line=>`<div class="device-detail">${line}</div>`).join('')}</div>
-      ${hasBtn?`<a class="btn-games" href="${gameUrl}" target="_blank">${t('viewGames')}</a>`:''}
+      ${hasBtn?`<a class="btn-games" href="${gameUrl}" target="_blank" data-console-id="${String(c.id).replace(/"/g,'&quot;')}" onclick="return window.ajOpenConsoleGamePicker ? window.ajOpenConsoleGamePicker(event,this) : true">${t('viewGames')}</a>`:''}
       </div></div>`;
   }).join('')}</div>`;
 }
@@ -3745,7 +3745,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       btn.dataset.ajBound = '1';
       btn.addEventListener('click', function(e){
         e.preventDefault();
-        const cid = Number(btn.dataset.consoleId || 0);
+        const cid = String(btn.dataset.consoleId || '').trim();
         if(cid) openGamePicker(cid);
       });
     });
@@ -3812,22 +3812,23 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     attachGameButtonHandlers();
   }
   function consoleIdFromGameButton(btn){
-    const direct = Number(btn && btn.dataset && btn.dataset.consoleId || 0);
+    const direct = String(btn && btn.dataset && btn.dataset.consoleId || '').trim();
     if(direct) return direct;
     const card = btn && btn.closest && btn.closest('.con-card');
     const name = card ? (card.querySelector('.con-name')?.textContent?.trim() || '') : '';
     const c = name ? consoles.find(x => cName(x) === name || x.name === name || x.nameEn === name) : null;
-    return c ? Number(c.id) : 0;
+    return c ? String(c.id) : '';
   }
   window.openGamePicker = openGamePicker;
   function openGamePicker(consoleId){
-    const c = consoles.find(x => Number(x.id) === Number(consoleId));
+    const key = String(consoleId || '');
+    const c = consoles.find(x => String(x.id) === key);
     if(!c) return;
     const platformId = mapConsoleToPlatform(c);
     if(!platformId){ alert(mt().unsupported); return; }
     createOverlays();
     syncPickerTexts();
-    pickerConsoleId = Number(consoleId);
+    pickerConsoleId = key;
     pickerRequestId = 'req_' + Date.now();
     pickerOverlay.classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -3853,6 +3854,21 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     btn.removeAttribute('target');
     openGamePicker(cid);
   }, true);
+  window.ajOpenConsoleGamePicker = function(ev, btn){
+    const cid = consoleIdFromGameButton(btn);
+    if(!cid) return true;
+    if(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+    }
+    if(btn){
+      btn.dataset.consoleId = String(cid);
+      btn.href = '#';
+      btn.removeAttribute('target');
+    }
+    openGamePicker(cid);
+    return false;
+  };
   function installAdminTab(){
     const tabs = document.querySelector('.adm-tabs');
     if(!tabs || document.getElementById('admTabGames')) return;
