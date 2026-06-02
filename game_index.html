@@ -3033,7 +3033,17 @@
     <input type="hidden" id="gf-id">
     <div class="form-row">
       <label class="form-label">ประเภทเครื่อง *</label>
-      <select class="form-select" id="gf-platform"></select>
+      <select class="form-select" id="gf-platform" onchange="toggleGamePlatformFields()"></select>
+      <div id="gf-ps-platforms-row" style="display:none;margin-top:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg)">
+        <div class="form-label" style="margin-bottom:8px">แสดงเกมนี้ในรายการ</div>
+        <label style="display:inline-flex;align-items:center;gap:7px;margin-right:14px;font-weight:700;cursor:pointer">
+          <input type="checkbox" id="gf-ps4" style="width:16px;height:16px;accent-color:var(--accent)"> PS4
+        </label>
+        <label style="display:inline-flex;align-items:center;gap:7px;font-weight:700;cursor:pointer">
+          <input type="checkbox" id="gf-ps5" style="width:16px;height:16px;accent-color:var(--accent)"> PS5
+        </label>
+        <p class="form-hint" style="margin-top:8px">ติ๊กได้มากกว่า 1 ช่อง ถ้าเกมรองรับทั้ง PS4 และ PS5</p>
+      </div>
     </div>
     <div class="form-row">
       <label class="form-label">ชื่อเกม *</label>
@@ -3175,7 +3185,8 @@
    DEFAULT DATA
 ────────────────────────────────────── */
 const DEFAULT_PLATFORMS = [
-  { id: 'ps45',   name: 'PS4 & PS5',             icon: '🎮', color: '#003087', gamepassUrl: '' },
+  { id: 'ps4',    name: 'PS4',                   icon: '🎮', color: '#003087', gamepassUrl: '' },
+  { id: 'ps5',    name: 'PS5',                   icon: '🎮', color: '#003087', gamepassUrl: '' },
   { id: 'switch1',name: 'Nintendo Switch 1',     icon: '🟥', color: '#e60012', gamepassUrl: '' },
   { id: 'switch2',name: 'Nintendo Switch 2',     icon: '🔴', color: '#c0001a', gamepassUrl: '' },
   { id: 'xbox',   name: 'XBOX',                  icon: '🟩', color: '#107c10', gamepassUrl: 'https://www.xbox.com/th-th/xbox-game-pass/games' },
@@ -3889,10 +3900,256 @@ let platformGenreFilter = {}; // genre string or ''
 let sectionCollapsed = {}; // platformId → bool
 let platformViewMode = {}; // platformId → 'grid' | 'list'
 
+const AJ_PS4_GAME_NAME_KEYS = new Set([
+  'alanwakeremastered',
+  'anno1800',
+  'aotennis2',
+  'apexlegends',
+  'arksurvival',
+  'assassinscreedmirage',
+  'assassinscreedodyssey',
+  'assassinscreedvalhalla',
+  'atlasfallenreignofsand',
+  'battlefieldv',
+  'battlefiled4',
+  'bioshock',
+  'bloodborne',
+  'burnoutparadise',
+  'callofdutyblackops3',
+  'callofdutyblackops4',
+  'callofdutyblackops6',
+  'callofdutyblackopscoldwar',
+  'callofdutymodernwarfare2',
+  'callofdutymodernwarfare3',
+  'callofdutywarzone',
+  'callofdutywwii',
+  'constructionsimulator',
+  'control',
+  'cricket24',
+  'crisiscorefinalfantasyreunion',
+  'cyberpunk2077',
+  'davethediver',
+  'daygone',
+  'deadisland2',
+  'deathstrandingdirectorscut',
+  'detroit',
+  'diablo4',
+  'dirt5',
+  'dredge',
+  'dyinglight',
+  'dyinglight2stayhuman',
+  'dynastywarriors9',
+  'easportfc24fifa24',
+  'easportfc25fifa25',
+  'easportfc26fifa26',
+  'efootball2024pes2024',
+  'eldenring',
+  'everybodygolf',
+  'evilwest',
+  'evilwithin',
+  'evilwithin2',
+  'f12024',
+  'fallout4',
+  'farcry5',
+  'farcry6',
+  'farcryprimal',
+  'fifa22',
+  'fifa23',
+  'finalfantasy7remake',
+  'forhonor',
+  'fortnite',
+  'ghostoftshushimadirectorcut',
+  'ghostreconbreakpoint',
+  'ghostrunner',
+  'godofwar3',
+  'godofwar4',
+  'godofwarragnarok',
+  'granturismo7',
+  'gravityrush2',
+  'greedfall',
+  'gtav',
+  'gtsport',
+  'harrypotterquidditchchampions',
+  'helldivers',
+  'hellneighbor',
+  'hitman',
+  'hitman2',
+  'hitman3',
+  'hogwartslegacy',
+  'hollowknight',
+  'homesweethome',
+  'horizonforbiddenwest',
+  'horizonzerodawn',
+  'hotwheelunleashed',
+  'humanfallflat',
+  'humanity',
+  'infamoussecondson',
+  'injustice2',
+  'ittaketwo',
+  'judgement',
+  'jurassicworldevolution2',
+  'justcause4',
+  'kenabridgeofspirits',
+  'lego2kdrive',
+  'legobatman3beyondgotham',
+  'legoharrypotter',
+  'legohobbit',
+  'legomarvelsavengers',
+  'legomarvelsuperheroes2',
+  'legoninjagomovie',
+  'legotheincredibles',
+  'likeadragongaidenthemanwhoerasedhisname',
+  'madmax',
+  'maneaten',
+  'manofmedan',
+  'marvelsguardiansofthegalaxy',
+  'marvelvscapcominfinite',
+  'metalgearsolidv',
+  'metaphorrefantazio',
+  'middleearthshadowofwar',
+  'minecraftlegends',
+  'monsterenergysupercross6',
+  'monsterhuntericeborne',
+  'monsterhunterrise',
+  'monstertruckchampionship',
+  'mortalkombat11',
+  'narutoshippuden',
+  'nba2k20',
+  'nba2k22',
+  'nba2k23',
+  'nba2k25',
+  'nierautomata',
+  'nioh',
+  'nioh2',
+  'nobodysavestheworld',
+  'nomanssky',
+  'oddballers',
+  'onepieceodyssey',
+  'onepiecepiratewarrior4',
+  'outlast',
+  'outlast2',
+  'overcooked',
+  'overcooked2',
+  'overcookedallyoucaneat',
+  'persona3reload',
+  'persona5striker',
+  'pes2021',
+  'pgatour2021',
+  'plantsvszombiesbattleforneighborville',
+  'policesimulator',
+  'prisonarchitect',
+  'raymanlegends',
+  'reddeadredemption2',
+  'residentevil2',
+  'residentevil3',
+  'residentevil4remakeseparateway',
+  'residentevil7',
+  'residentevilvillagewintersexpansion',
+  'ride4',
+  'ridersrepublic',
+  'rocketleague',
+  'sackboyabigadvanture',
+  'saintrow',
+  'scarletnexus',
+  'sdgundambattlealliance',
+  'secretneighbor',
+  'sekiroshadowsdietwice',
+  'shadowofthecolossus',
+  'sifu',
+  'soulcalibur',
+  'spiderman',
+  'spidermanmilesmolares',
+  'starwarsbattlefrontii',
+  'starwarsjedifallenorder',
+  'streetfighter6',
+  'streetfighterv',
+  'subnautica',
+  'superbombermanr',
+  'superhot',
+  'taikonotatsujin',
+  'talesofarise',
+  'tekken7',
+  'tennisworldtour2',
+  'terraria',
+  'thecallistoprotocal',
+  'thecrew2',
+  'thefishermanfishingplanet',
+  'thelastofus',
+  'thelegomovievideogame',
+  'thelittlenightmares2',
+  'theshow24mbl',
+  'thesims4',
+  'thewitcher3ps5upgraded',
+  'tombrider',
+  'tomclancysrainbowsixextraction',
+  'trektoyomi',
+  'tunic',
+  'ufc4',
+  'uncharted4',
+  'unchartedthelostlegacy',
+  'untildawn',
+  'watchdogslegion',
+  'werewolf',
+  'wwe2k23',
+  'wwe2k24',
+]);
+
+const PLAYSTATION_ADMIN_ID = 'ps45';
+const PLAYSTATION_PUBLIC_PLATFORMS = [
+  { id: 'ps4', name: 'PS4', icon: '🎮', color: '#003087', gamepassUrl: '' },
+  { id: 'ps5', name: 'PS5', icon: '🎮', color: '#003087', gamepassUrl: '' },
+];
+const PLAYSTATION_ADMIN_PLATFORM = { id: PLAYSTATION_ADMIN_ID, name: 'PS4 & PS5', icon: '🎮', color: '#003087', gamepassUrl: '' };
+function ajGameNameKey(value) { return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ''); }
+function ajIsPs4GameName(value) { return AJ_PS4_GAME_NAME_KEYS.has(ajGameNameKey(value)); }
+function ajUniqueIds(ids) { return Array.from(new Set((ids || []).map(String).filter(Boolean))); }
+function gamePlatformIds(g) {
+  if (!g) return [];
+  let ids = Array.isArray(g.platformIds) && g.platformIds.length ? g.platformIds.slice() : [g.platformId];
+  ids = ajUniqueIds(ids.map(id => id === PLAYSTATION_ADMIN_ID ? 'ps5' : id));
+  if ((g.platformId === PLAYSTATION_ADMIN_ID || ids.includes('ps5')) && ajIsPs4GameName(g.name)) ids.push('ps4');
+  return ajUniqueIds(ids);
+}
+function gameMatchesPlatform(g, platformId) {
+  const ids = gamePlatformIds(g);
+  if (platformId === PLAYSTATION_ADMIN_ID) return ids.includes('ps4') || ids.includes('ps5');
+  return ids.includes(platformId);
+}
+function primaryPlatformId(g) {
+  const ids = gamePlatformIds(g);
+  if (ids.includes('ps5')) return 'ps5';
+  return ids[0] || (g && g.platformId) || '';
+}
+function normalizeGameRecord(g) {
+  const next = Object.assign({}, g || {});
+  const ids = gamePlatformIds(next);
+  next.platformIds = ids;
+  next.platformId = primaryPlatformId(next);
+  return next;
+}
+function ensurePlayStationPlatforms() {
+  const rest = (platforms || []).filter(p => p && !['ps4','ps5',PLAYSTATION_ADMIN_ID].includes(p.id));
+  platforms = PLAYSTATION_PUBLIC_PLATFORMS.map(p => Object.assign({}, p)).concat(rest);
+  games = (games || []).map(normalizeGameRecord);
+}
+function adminFilterPlatforms() {
+  return [Object.assign({}, PLAYSTATION_ADMIN_PLATFORM)].concat((platforms || []).filter(p => p && !['ps4','ps5',PLAYSTATION_ADMIN_ID].includes(p.id)));
+}
+function platformDisplayNameById(id) {
+  if (id === PLAYSTATION_ADMIN_ID) return PLAYSTATION_ADMIN_PLATFORM.name;
+  const p = (platforms || []).find(x => x.id === id);
+  return p ? p.name : id || '';
+}
+function platformObjectById(id) {
+  if (id === PLAYSTATION_ADMIN_ID) return PLAYSTATION_ADMIN_PLATFORM;
+  return (platforms || []).find(x => x.id === id) || null;
+}
+
+
 /* ──────────────────────────────────────
    STORAGE
 ────────────────────────────────────── */
-const DATA_VERSION = '2025-06-v4'; // bump this when DEFAULT_GAMES changes
+const DATA_VERSION = '2026-06-ps4ps5-v1'; // bump this when DEFAULT_GAMES changes
 
 function loadData() {
   try {
@@ -3927,15 +4184,8 @@ function loadData() {
     } else {
       games = JSON.parse(JSON.stringify(DEFAULT_GAMES));
     }
-    // Migration: merge old ps4+ps5 → ps45
-    const hasOldPs = platforms.some(x => x.id === 'ps4' || x.id === 'ps5');
-    const hasMerged = platforms.some(x => x.id === 'ps45');
-    if (hasOldPs && !hasMerged) {
-      platforms = platforms.filter(x => x.id !== 'ps4' && x.id !== 'ps5');
-      platforms.unshift({ id: 'ps45', name: 'PS4 & PS5', icon: '🎮', color: '#003087', gamepassUrl: '' });
-      games = games.map(g => (g.platformId === 'ps4' || g.platformId === 'ps5') ? { ...g, platformId: 'ps45' } : g);
-      saveData();
-    }
+    // Migration: split public PS4 / PS5 tabs while keeping a combined admin editor.
+    ensurePlayStationPlatforms();
     // Load howToSteps and FAQ
     const ht = localStorage.getItem('ajgame_howto');
     const fq = localStorage.getItem('ajgame_faq');
@@ -3944,6 +4194,7 @@ function loadData() {
   } catch(e) {
     platforms  = JSON.parse(JSON.stringify(DEFAULT_PLATFORMS));
     games      = JSON.parse(JSON.stringify(DEFAULT_GAMES));
+    ensurePlayStationPlatforms();
     howToSteps = JSON.parse(JSON.stringify(DEFAULT_HOW_TO_USE));
     faqItems   = JSON.parse(JSON.stringify(DEFAULT_FAQ));
   }
@@ -4018,7 +4269,7 @@ function openGameDetail(gameId) {
   gdCurrentGame = g;
   gdLang = currentLang || 'th';
 
-  const platform = platforms.find(p => p.id === g.platformId);
+  const platform = platformObjectById(primaryPlatformId(g));
   const key = g.name.toLowerCase().trim();
   const detail = GAME_DETAILS[key] || {};
 
@@ -4176,8 +4427,8 @@ function switchAdminTab(tab, el) {
 function renderAdminPlatforms() {
   const wrap = document.getElementById('admin-platform-list');
   if (!platforms.length) { wrap.innerHTML = '<p style="color:var(--text3);font-size:13px">ยังไม่มีประเภทเครื่องเกม</p>'; return; }
-  wrap.innerHTML = platforms.map(p => {
-    const cnt = games.filter(g => g.platformId === p.id).length;
+  wrap.innerHTML = adminFilterPlatforms().map(p => {
+    const cnt = games.filter(g => gameMatchesPlatform(g, p.id)).length;
     return `<div class="platform-row" style="flex-wrap:wrap;gap:6px">
       <div class="platform-row-icon">${p.icon}</div>
       <div style="flex:1;min-width:0">
@@ -4199,7 +4450,7 @@ function renderAdminPlatforms() {
 /* Admin Games */
 function renderAdminPlatformFilter() {
   const wrap = document.getElementById('admin-platform-filter');
-  wrap.innerHTML = platforms.map(p =>
+  wrap.innerHTML = adminFilterPlatforms().map(p =>
     `<button class="pf-btn ${adminGameFilter === p.id ? 'active' : ''}" onclick="setAdminGameFilter('${p.id}')">${p.icon} ${escHtml(p.name)}</button>`
   ).join('');
 }
@@ -4209,8 +4460,8 @@ function setAdminGameFilter(id) {
   renderAdminGames();
 }
 function renderAdminGames() {
-  const pName = platforms.find(p => p.id === adminGameFilter)?.name || '';
-  const pg = games.filter(g => g.platformId === adminGameFilter);
+  const pName = platformDisplayNameById(adminGameFilter);
+  const pg = games.filter(g => gameMatchesPlatform(g, adminGameFilter));
   document.getElementById('admin-games-title').textContent = `รายการเกม — ${pName} (${pg.length})`;
   const wrap = document.getElementById('admin-game-list');
   if (!pg.length) { wrap.innerHTML = '<p style="color:var(--text3);font-size:13px">ยังไม่มีเกมในประเภทนี้</p>'; return; }
@@ -4238,6 +4489,7 @@ function renderAdminGames() {
    PLATFORM FORM
 ────────────────────────────────────── */
 function openPlatformForm(id) {
+  if (id === PLAYSTATION_ADMIN_ID) { alert('PS4 และ PS5 ใช้รายการรวมใน Admin และแยกด้วย checkbox ในหน้าแก้ไขเกม'); return; }
   const p = id ? platforms.find(x => x.id === id) : null;
   document.getElementById('platform-form-title').textContent = p ? 'แก้ไขประเภทเครื่องเกม' : 'เพิ่มประเภทเครื่องเกม';
   document.getElementById('pf-id').value = id || '';
@@ -4263,11 +4515,12 @@ function savePlatform() {
   showToast(id ? 'อัปเดตประเภทเรียบร้อย' : 'เพิ่มประเภทเรียบร้อย');
 }
 function deletePlatform(id) {
+  if (id === PLAYSTATION_ADMIN_ID) { alert('ไม่สามารถลบกลุ่ม PS4 & PS5 ได้'); return; }
   const p = platforms.find(x => x.id === id);
-  const cnt = games.filter(g => g.platformId === id).length;
+  const cnt = games.filter(g => gameMatchesPlatform(g, id)).length;
   showConfirm('🗑', `ลบ "${p.name}"?`, cnt > 0 ? `จะลบเกมที่เกี่ยวข้องด้วย ${cnt} รายการ` : 'ยืนยันการลบประเภทนี้', () => {
     platforms = platforms.filter(x => x.id !== id);
-    games = games.filter(g => g.platformId !== id);
+    games = games.filter(g => !gameMatchesPlatform(g, id));
     if (adminGameFilter === id) adminGameFilter = platforms[0]?.id || null;
     saveData(); renderAdminPlatforms(); renderAdminPlatformFilter(); renderAdminGames(); renderPublic();
     showToast('ลบประเภทเรียบร้อย');
@@ -4283,7 +4536,9 @@ function openGameForm(id) {
   document.getElementById('gf-id').value = id || '';
   // populate platform select
   const sel = document.getElementById('gf-platform');
-  sel.innerHTML = platforms.map(p => `<option value="${p.id}" ${(g ? g.platformId : adminGameFilter) === p.id ? 'selected' : ''}>${p.icon} ${escHtml(p.name)}</option>`).join('');
+  const currentIds = g ? gamePlatformIds(g) : [];
+  const currentPlatform = (currentIds.includes('ps4') || currentIds.includes('ps5')) ? PLAYSTATION_ADMIN_ID : (g ? primaryPlatformId(g) : adminGameFilter);
+  sel.innerHTML = adminFilterPlatforms().map(p => `<option value="${p.id}" ${currentPlatform === p.id ? 'selected' : ''}>${p.icon} ${escHtml(p.name)}</option>`).join('');
   document.getElementById('gf-name').value = g ? g.name : '';
   document.getElementById('gf-img').value = g ? (g.imgUrl || '') : '';
   document.getElementById('gf-yt').value = g ? (g.ytId || '') : '';
@@ -4302,10 +4557,21 @@ function openGameForm(id) {
   if (unavailEl) unavailEl.checked = g ? !!g.unavailable : false;
   if (dateEl) dateEl.value = g ? (g.available_date || '') : '';
   if (dateRow) dateRow.style.display = (g && g.unavailable) ? 'block' : 'none';
+  const ps4El = document.getElementById('gf-ps4');
+  const ps5El = document.getElementById('gf-ps5');
+  if (ps4El) ps4El.checked = g ? currentIds.includes('ps4') : false;
+  if (ps5El) ps5El.checked = g ? (currentIds.includes('ps5') || !currentIds.includes('ps4')) : true;
+  toggleGamePlatformFields();
   document.getElementById('game-form-overlay').classList.add('open');
 }
 function editGame(id) { openGameForm(id); }
 function closeGameForm() { document.getElementById('game-form-overlay').classList.remove('open'); }
+function toggleGamePlatformFields() {
+  const sel = document.getElementById('gf-platform');
+  const row = document.getElementById('gf-ps-platforms-row');
+  if (!sel || !row) return;
+  row.style.display = sel.value === PLAYSTATION_ADMIN_ID ? 'block' : 'none';
+}
 function previewGameImg() {
   const url = document.getElementById('gf-img').value.trim();
   const prev = document.getElementById('gf-img-preview');
@@ -4316,6 +4582,15 @@ function saveGame() {
   const name = document.getElementById('gf-name').value.trim();
   const platformId = document.getElementById('gf-platform').value;
   if (!name) { alert('กรุณากรอกชื่อเกม'); return; }
+  let platformIds = [platformId];
+  let savePlatformId = platformId;
+  if (platformId === PLAYSTATION_ADMIN_ID) {
+    platformIds = [];
+    if (document.getElementById('gf-ps4')?.checked) platformIds.push('ps4');
+    if (document.getElementById('gf-ps5')?.checked) platformIds.push('ps5');
+    if (!platformIds.length) platformIds.push('ps5');
+    savePlatformId = platformIds.includes('ps5') ? 'ps5' : platformIds[0];
+  }
   const imgUrl = document.getElementById('gf-img').value.trim();
   const ytId   = document.getElementById('gf-yt').value.trim();
   const year   = parseInt(document.getElementById('gf-year').value)||null;
@@ -4328,10 +4603,10 @@ function saveGame() {
   const available_date = unavailable ? (document.getElementById('gf-available-date')?.value || null) : null;
   if (id) {
     const g = games.find(x => x.id === id);
-    if (g) { g.name=name; g.platformId=platformId; g.imgUrl=imgUrl; g.ytId=ytId; g.year=year; g.players=players; g.genre=genre; g.desc_th=desc_th; g.desc_en=desc_en; g.unavailable=unavailable; g.available_date=available_date; }
+    if (g) { g.name=name; g.platformId=savePlatformId; g.platformIds=platformIds; g.imgUrl=imgUrl; g.ytId=ytId; g.year=year; g.players=players; g.genre=genre; g.desc_th=desc_th; g.desc_en=desc_en; g.unavailable=unavailable; g.available_date=available_date; }
   } else {
     // Insert at BEGINNING of games array so new game appears first
-    games.unshift({ id:'g_'+Date.now(), platformId, name, imgUrl, ytId, year, players, genre, desc_th, desc_en, unavailable, available_date, insertedAt: Date.now() });
+    games.unshift({ id:'g_'+Date.now(), platformId:savePlatformId, platformIds, name, imgUrl, ytId, year, players, genre, desc_th, desc_en, unavailable, available_date, insertedAt: Date.now() });
   }
   adminGameFilter = platformId;
   saveData(); closeGameForm(); renderAdminPlatforms(); renderAdminPlatformFilter(); renderAdminGames(); renderPublic();
@@ -4470,7 +4745,7 @@ function processExcelFile(file) {
       if (ci.descEn   < 0) ci.descEn   = 8;
 
       const dataRows = rows.slice(headerRow + 1);
-      const validPlatformIds = new Set(platforms.map(p => p.id));
+      const validPlatformIds = new Set(adminFilterPlatforms().map(p => p.id));
       importParsed = [];
 
       for (const row of dataRows) {
@@ -4527,7 +4802,7 @@ function renderImportPreview() {
 
   const tbody = document.getElementById('import-preview-body');
   tbody.innerHTML = importParsed.map(r => {
-    const pName = platforms.find(p => p.id === r.platformId)?.name || r.platformId || '—';
+    const pName = platformDisplayNameById(r.platformId) || r.platformId || '—';
     return `<tr class="${r.valid ? 'import-row-ok' : 'import-row-err'}">
       <td>${r.valid ? '' : `<span style="color:var(--danger);font-size:11px">${escHtml(r.errMsg)}</span>`}</td>
       <td>${escHtml(pName)}</td>
@@ -4550,13 +4825,21 @@ function confirmImport() {
   if (mode === 'replace') {
     // Get unique platforms in import data
     const toReplace = [...new Set(validRows.map(r => r.platformId))];
-    games = games.filter(g => !toReplace.includes(g.platformId));
+    games = games.filter(g => !toReplace.some(id => gameMatchesPlatform(g, id)));
   }
 
   validRows.forEach(r => {
+    let platformIds = [r.platformId];
+    let platformId = r.platformId;
+    if (r.platformId === PLAYSTATION_ADMIN_ID) {
+      platformIds = ['ps5'];
+      if (ajIsPs4GameName(r.name)) platformIds.unshift('ps4');
+      platformId = 'ps5';
+    }
     games.push({
       id: 'g_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
-      platformId: r.platformId,
+      platformId,
+      platformIds,
       name: r.name,
       imgUrl: r.imgUrl,
       ytId: extractYtId(r.ytId)
@@ -4756,7 +5039,7 @@ function renderPickPlatformTabs() {
   // When no selection yet, show all as pills
   if (!pickActivePlatform) {
     wrap.innerHTML = platforms.map(p => {
-      const cnt = pickedGames.filter(id => games.find(g => g.id === id)?.platformId === p.id).length;
+      const cnt = pickedGames.filter(id => gameMatchesPlatform(games.find(g => g.id === id), p.id)).length;
       return `<button class="pptab" onclick="setPickPlatform('${p.id}')">
         ${p.icon} ${escHtml(p.name)}${cnt > 0 ? ` <span style="font-family:'DM Mono',monospace;font-size:10px;background:var(--accent);color:#fff;padding:1px 5px;border-radius:8px;margin-left:2px">${cnt}</span>` : ''}
       </button>`;
@@ -4767,7 +5050,7 @@ function renderPickPlatformTabs() {
   // Active platform selected — show only selected tab + a "เปลี่ยน / Change" button
   const ap = platforms.find(p => p.id === pickActivePlatform);
   if (!ap) return;
-  const cntActive = pickedGames.filter(id => games.find(g => g.id === id)?.platformId === ap.id).length;
+  const cntActive = pickedGames.filter(id => gameMatchesPlatform(games.find(g => g.id === id), ap.id)).length;
   const isEn = currentLang === 'en';
   wrap.innerHTML = `
     <button class="pptab active">
@@ -4886,7 +5169,7 @@ function setPickSort(mode) {
 
 
 function renderPickGenreRow() {
-  const pg = games.filter(g => g.platformId === pickActivePlatform);
+  const pg = games.filter(g => gameMatchesPlatform(g, pickActivePlatform));
   const genres = [...new Set(pg.flatMap(g => g.genre || []))].sort();
   const row = document.getElementById('pick-genre-row');
   const allLabel = isEn() ? 'All' : 'ทั้งหมด';
@@ -4974,7 +5257,7 @@ function generateCopyText() {
   const lines = ['รายการเกมที่ต้องการครับ/ค่ะ 😊', ''];
   pickedGames.forEach((id, i) => {
     const g = games.find(x => x.id === id);
-    const p = g ? platforms.find(x => x.id === g.platformId) : null;
+    const p = g ? platformObjectById(primaryPlatformId(g)) : null;
     if (g) lines.push(`${i+1}. ${g.name}${p ? ` (${p.name})` : ''}`);
   });
   lines.push('');
@@ -5235,7 +5518,7 @@ function renderTabs() {
     <span class="ptab-count">${games.length}</span>
   </button>`;
   for (const p of platforms) {
-    const cnt = games.filter(g => g.platformId === p.id).length;
+    const cnt = games.filter(g => gameMatchesPlatform(g, p.id)).length;
     html += `<button class="ptab ${activePlatformTab === p.id ? 'active' : ''}" onclick="setPlatformTab('${p.id}')">
       <span style="font-size:15px">${p.icon}</span> ${p.name}
       <span class="ptab-count">${cnt}</span>
@@ -5251,7 +5534,7 @@ function renderSections() {
   let html = '';
 
   for (const p of platforms) {
-    const allPg = games.filter(g => g.platformId === p.id);
+    const allPg = games.filter(g => gameMatchesPlatform(g, p.id));
     const visible = activePlatformTab === 'all' || activePlatformTab === p.id;
     const sortMode = platformSortMode[p.id] || 'newest';
     const genreFilter = platformGenreFilter[p.id] || '';
@@ -5419,7 +5702,7 @@ function generateCopyText() {
   const lines = [T.copy_greeting, ''];
   pickedGames.forEach((id, i) => {
     const g = games.find(x => x.id === id);
-    const p = g ? platforms.find(x => x.id === g.platformId) : null;
+    const p = g ? platformObjectById(primaryPlatformId(g)) : null;
     if (g) lines.push(`${i+1}. ${g.name}${p ? ` (${p.name})` : ''}`);
   });
   lines.push('');
@@ -5473,14 +5756,14 @@ function togglePickView() {
 // renderPickBody — supports grid and list view
 function renderPickBody() {
   const T = TRANSLATIONS[currentLang];
-  let pg = games.filter(g => g.platformId === pickActivePlatform);
+  let pg = games.filter(g => gameMatchesPlatform(g, pickActivePlatform));
   if (pickGenreFilter) pg = pg.filter(g => (g.genre||[]).includes(pickGenreFilter));
   if (pickSearchQuery) pg = pg.filter(g => g.name.toLowerCase().includes(pickSearchQuery));
   if (pickSortMode === 'alpha') pg = [...pg].sort((a,b) => a.name.localeCompare(b.name));
   else if (pickSortMode === 'newest') pg = [...pg].sort((a,b) => { const ai=a.insertedAt||0, bi=b.insertedAt||0; if(bi!==ai) return bi-ai; return (b.year||0)-(a.year||0); });
 
   const body = document.getElementById('pick-body');
-  if (!games.filter(g => g.platformId === pickActivePlatform).length) {
+  if (!games.filter(g => gameMatchesPlatform(g, pickActivePlatform)).length) {
     body.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3)">${T.pick_empty}</div>`;
     return;
   }
@@ -5770,6 +6053,7 @@ function importData(input) {
       DEFAULT_GAMES.forEach(function(dg) { if (!importedIds.has(dg.id)) games.push(Object.assign({}, dg)); });
 
       if (bundle.platforms && Array.isArray(bundle.platforms)) platforms = bundle.platforms;
+      ensurePlayStationPlatforms();
       if (bundle.howToSteps && Array.isArray(bundle.howToSteps)) howToSteps = bundle.howToSteps;
       if (bundle.faqItems && Array.isArray(bundle.faqItems)) faqItems = bundle.faqItems;
 
@@ -5846,6 +6130,7 @@ function applyDataBundle(bundle) {
   var ids = new Set(bundle.games.map(function(s){ return s.id; }));
   DEFAULT_GAMES.forEach(function(dg){ if (!ids.has(dg.id)) games.push(Object.assign({}, dg)); });
   if (bundle.platforms && bundle.platforms.length) platforms = bundle.platforms;
+  ensurePlayStationPlatforms();
   if (bundle.howToSteps) howToSteps = bundle.howToSteps;
   if (bundle.faqItems)   faqItems   = bundle.faqItems;
   return true;
@@ -6244,7 +6529,35 @@ document.addEventListener('touchstart', function(e) {
     }else{
       currentLang = nextLang;
     }
+    try{ document.documentElement.lang = currentLang; }catch(e){}
+    try{ if(typeof applyLang === 'function') applyLang(); }catch(e){}
     try{ if(typeof updatePickDetailsToggle === 'function') updatePickDetailsToggle(); }catch(e){}
+  }
+  function applyEmbedLangLabels(){
+    if(!isPicker()) return;
+    const isEn = (typeof currentLang !== 'undefined' && currentLang === 'en');
+    const search = document.getElementById('pick-search-input');
+    if(search) search.placeholder = isEn ? 'Search games...' : 'ค้นหาเกม...';
+    const newest = document.getElementById('pf-label-newest');
+    if(newest) newest.textContent = isEn ? 'Latest' : 'ใหม่ล่าสุด';
+    const genre = document.getElementById('pf-label-genre');
+    if(genre && !genre.textContent.includes(':')) genre.textContent = isEn ? 'Genre' : 'ประเภท';
+    const view = document.getElementById('pf-label-view');
+    if(view){
+      const listMode = (typeof pickViewMode !== 'undefined') && pickViewMode === 'list';
+      view.textContent = listMode ? (isEn ? 'Grid' : 'กริด') : (isEn ? 'List' : 'รายชื่อ');
+    }
+    const selected = document.querySelector('.pick-selected-label');
+    if(selected) selected.textContent = isEn ? 'Selected Games' : 'เกมที่เลือก';
+    const clear = document.querySelector('[data-i18n="btn_clear_all"], .btn-pick-clear');
+    if(clear) clear.textContent = isEn ? 'Clear All' : 'ล้างทั้งหมด';
+    const generate = document.getElementById('btn-generate-copy');
+    if(generate){
+      const span = generate.querySelector('[data-i18n="btn_generate"]');
+      if(span) span.textContent = isEn ? 'Create message to send later' : 'สร้างข้อความเพื่อแจ้งภายหลัง';
+    }
+    const howto = document.getElementById('btn-howto-label');
+    if(howto) howto.textContent = isEn ? 'How to use' : 'วิธีใช้';
   }
   function post(type, payload){
     try{ window.parent.postMessage(Object.assign({type:type}, payload || {}), '*'); }catch(e){}
@@ -6317,8 +6630,9 @@ document.addEventListener('touchstart', function(e) {
     return ids.map(id => {
       const g = allGames.find(x => x.id === id);
       if(!g) return null;
-      const p = allPlatforms.find(x => x.id === g.platformId);
-      return { id:g.id, name:g.name, platformId:g.platformId, platformName:p ? p.name : '' };
+      const pid = gameMatchesPlatform(g, bridgePlatformId) ? bridgePlatformId : primaryPlatformId(g);
+      const p = platformObjectById(pid);
+      return { id:g.id, name:g.name, platformId:pid, platformName:p ? p.name : '' };
     }).filter(Boolean);
   }
   function confirmSelection(){
@@ -6332,6 +6646,7 @@ document.addEventListener('touchstart', function(e) {
   }
   function refreshEmbedPicker(){
     if(!isPicker()) return;
+    applyEmbedLangLabels();
     const titleSub = document.querySelector('.pick-sub');
     if(titleSub) titleSub.textContent = bridgeText().sub;
     const changeBtn = document.querySelector('.pptab-change');
@@ -6351,7 +6666,7 @@ document.addEventListener('touchstart', function(e) {
     ensureEmbedStyles();
     document.body.classList.add('aj-embed-picker');
     bridgeRequestId = data.requestId || '';
-    bridgePlatformId = data.platformId || '';
+    bridgePlatformId = data.platformId === PLAYSTATION_ADMIN_ID ? 'ps5' : (data.platformId || '');
     setLangSafe(data.lang || 'th');
     if(typeof openPickModal === 'function') openPickModal();
     pickedGames = Array.isArray(data.selectedGameIds) ? data.selectedGameIds.filter(id => getGamesSafe().some(g => g.id === id)).slice(0,10) : [];
@@ -6397,6 +6712,10 @@ document.addEventListener('touchstart', function(e) {
   ensureEmbedStyles();
   if(isPicker()) document.body.classList.add('aj-embed-picker');
   if(isAdmin()) document.body.classList.add('aj-embed-admin');
+  if(isPicker()){
+    setLangSafe(params.get('lang') || 'th');
+    setTimeout(refreshEmbedPicker, 0);
+  }
   Promise.resolve(window.ajGameCatalogReady).then(function(){
     setTimeout(function(){ post('AJ_GAME_READY', { mode: embedMode }); }, 0);
   });
@@ -6434,7 +6753,7 @@ document.addEventListener('touchstart', function(e) {
       addAlias(map, String(p.name || '').replace(/\s*&\s*/g,' '), p.id);
     });
     [
-      ['ps4','ps45'],['ps5','ps45'],['ps45','ps45'],['ps4-ps5','ps45'],['ps4andps5','ps45'],['ps4-ps5-games','ps45'],['playstation','ps45'],['playstation-4-5','ps45'],['ps4-amp-ps5','ps45'],['ps4-ps5-only','ps45'],
+      ['ps4','ps4'],['playstation-4','ps4'],['ps5','ps5'],['playstation-5','ps5'],['ps45','ps45'],['ps4-ps5','ps45'],['ps4andps5','ps45'],['ps4-ps5-games','ps45'],['playstation','ps45'],['playstation-4-5','ps45'],['ps4-amp-ps5','ps45'],['ps4-ps5-only','ps45'],
       ['switch','switch1'],['switch1','switch1'],['switch-1','switch1'],['nintendo-switch','switch1'],['nintendo-switch-1','switch1'],
       ['switch2','switch2'],['switch-2','switch2'],['nintendo-switch-2','switch2'],
       ['xbox','xbox'],['xbox-series-s','xbox'],['xbox-series-x','xbox'],
@@ -6451,6 +6770,7 @@ document.addEventListener('touchstart', function(e) {
       .map(v => String(v || '').trim())
       .filter(Boolean)
       .map(v => aliasMap.get(v.toLowerCase()) || aliasMap.get(slugify(v)) || aliasMap.get(flatKey(v)) || '')
+      .flatMap(v => v === 'ps45' ? ['ps4','ps5'] : [v])
       .filter(Boolean)));
   }
   const scopedIds = resolveIds(params.get('platforms') || params.get('platform') || params.get('console') || params.get('platformId') || '');
@@ -6462,7 +6782,7 @@ document.addEventListener('touchstart', function(e) {
   function applyScopedCatalog(){
     try{
       if(Array.isArray(platforms)) platforms = platforms.filter(p => scopedIds.includes(p.id));
-      if(Array.isArray(games)) games = games.filter(g => scopedIds.includes(g.platformId));
+      if(Array.isArray(games)) games = games.filter(g => scopedIds.some(id => gameMatchesPlatform(g, id)));
       if(typeof activePlatformTab !== 'undefined') activePlatformTab = focusId;
       if(typeof adminGameFilter !== 'undefined' && !scopedIds.includes(adminGameFilter)) adminGameFilter = focusId;
     }catch(e){}
@@ -6524,7 +6844,7 @@ document.addEventListener('touchstart', function(e) {
   function safePlatformId(requested){
     ensureCatalogReady();
     if(requested && Array.isArray(platforms) && platforms.some(function(p){ return p.id === requested; })) return requested;
-    const firstWithGames = (Array.isArray(platforms) ? platforms : []).find(function(p){ return (Array.isArray(games) ? games : []).some(function(g){ return g.platformId === p.id; }); });
+    const firstWithGames = (Array.isArray(platforms) ? platforms : []).find(function(p){ return (Array.isArray(games) ? games : []).some(function(g){ return gameMatchesPlatform(g, p.id); }); });
     return firstWithGames ? firstWithGames.id : '';
   }
   function forceRenderPicker(request){
