@@ -3683,11 +3683,26 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       ? `${mt().laterNotePrefix} 18:00 on ${dd}/${mm}/${yy}.`
       : `${mt().laterNotePrefix} 18.00 น. ของวันที่ ${dd}/${mm}/${yy}`;
   }
+  function playStationPlatformForConsole(c){
+    const s = `${c && c.name || ''} ${c && c.nameEn || ''}`.toLowerCase();
+    if(s.includes('ps4')) return 'ps4';
+    if(s.includes('ps5') || s.includes('playstation')) return 'ps5';
+    return '';
+  }
+  function normalizeConsoleGamePlatform(pid, c){
+    const raw = String(pid || '').trim();
+    const key = raw.toLowerCase();
+    const psPlatform = playStationPlatformForConsole(c);
+    if(psPlatform && (key === 'ps4' || key === 'ps5' || key === 'ps45' || key === 'ps4-ps5' || key === 'playstation' || key === 'ps4ps5')) return psPlatform;
+    if(key === 'ps45' || key === 'ps4-ps5' || key === 'playstation' || key === 'ps4ps5') return playStationPlatformForConsole(c) || 'ps5';
+    return raw;
+  }
   function mapConsoleToPlatform(c){
     if(!c) return '';
-    if(c.gamePlatform) return String(c.gamePlatform).trim();
+    if(c.gamePlatform) return normalizeConsoleGamePlatform(c.gamePlatform, c);
     const s = `${c.name || ''} ${c.nameEn || ''}`.toLowerCase();
-    if(s.includes('ps4') || s.includes('ps5')) return 'ps45';
+    const psPlatform = playStationPlatformForConsole(c);
+    if(psPlatform) return psPlatform;
     if(s.includes('switch 1')) return 'switch1';
     if(s.includes('switch 2')) return 'switch2';
     if(s.includes('rog') || s.includes('ally') || s.includes('legion') || s.includes('msi claw')) return 'rog';
@@ -3699,6 +3714,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   function canPickGamesForConsole(c){ return !!mapConsoleToPlatform(c); }
   window.ensureState = ensureState;
   window.canPickGamesForConsole = canPickGamesForConsole;
+  window.normalizeConsoleGamePlatform = normalizeConsoleGamePlatform;
   window.mapConsoleToPlatform = mapConsoleToPlatform;
   function createOverlays(){
     if(document.getElementById('gamePickerOverlay')) return;
@@ -9589,6 +9605,11 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 .ajx-done-confirm-card p{font-size:14px;line-height:1.7;color:var(--text2);margin:0}
 .ajx-done-confirm-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:18px}
 .ajx-done-confirm-actions .ajx-btn{min-height:44px}
+.ajx-final-cta{position:sticky;top:72px;z-index:8;margin:12px 0 14px;padding:12px;border:2px solid rgba(204,0,0,.18);border-radius:16px;background:linear-gradient(180deg,#fff7f7 0%,#fff 100%);box-shadow:0 14px 30px rgba(204,0,0,.10)}
+.ajx-final-cta-title{font-size:15px;font-weight:900;line-height:1.45;color:#9f1111;margin-bottom:8px}
+.ajx-final-cta-sub{font-size:12px;font-weight:700;line-height:1.6;color:#555;margin-bottom:10px}
+.ajx-final-cta .ajx-copy-actions{display:grid;margin:0;grid-template-columns:repeat(2,minmax(0,1fr))}
+.ajx-final-cta .ajx-copy-actions .ajx-btn{min-height:46px}
 
 .ajx-grid2.step1-grid,.ajx-row.step1-row{grid-template-columns:repeat(2,minmax(0,1fr));}
 .ajx-days.mobile-pruned{gap:6px;}
@@ -9614,6 +9635,8 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 @media (max-width:900px){
   .ajx-grid2,.ajx-row,.ajx-cal-months{grid-template-columns:1fr}
   .ajx-tab{min-width:170px}
+  .ajx-final-cta{top:60px;margin-top:10px}
+  .ajx-final-cta .ajx-copy-actions{grid-template-columns:1fr}
 }
 </style>
 <script id="aj-v50-script">
@@ -9958,6 +9981,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     step2:'Additional options',ret:'Returning Customer',retSub:'Get 10% off rental fee',noCon:'No Rental Contract',noConSub:'First-time renters must complete the rental agreement and attach an ID copy + selfie with ID. If not convenient, tick this option; the deposit will change from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the device.',payment:'Payment options',maps:'Google Maps delivery address (check delivery cost before booking)',mapsNote:'Paste your Google Maps link so we can estimate delivery cost faster',mapsBtn:'🗺️ Open Google Maps',mapsHow:'📍 How to copy your Google Maps link',delivery:'* Delivery only in Bangkok & Greater Bangkok',promo:'🔥 Delivery promo: 3–6 days free return* | 7+ days free round trip* | Up to THB 100/trip',
     step3:'Choose games',step3sub:'Choose the games for this rental here. If this console has no game catalog, you can skip this step.',openGames:'🎮 Open game picker',clear:'🗑️ Clear all',later:'I will send the game list later',noCatalog:'This console does not use the game picker.',
     step4:'Rental summary',included:'Included in the set',contractLbl:'Complete Rental Agreement',contractNote:'Please fill in the form before delivery.',needContract:'You must complete the rental contract, or select "No Rental Contract" in Additional.',warning:'The rental pricing below is for personal rental only. Tax invoice / receipt cannot be issued. If you need one, company rates apply. Please contact us via Line: @ajgame or tel. +66 81-624-4715 🙏',
+    finalCtaTitle:'Final step: send this booking message to confirm',finalCtaSub:'Tap Line, WhatsApp, or copy the message and send it to the shop.',
     slConsole:'Console',slSection:'Section',slStart:'Start Date',slEnd:'Return Date',slDuration:'Duration',slRental:'Rental Cost',slDeposit:'Deposit',slDelivery:'Delivery',slTotal:'Total Amount',slUpfront:'Transfer Before Delivery',slOD:'Pay on Delivery',slCash:'Pay Cash on Delivery',slPayment:'Payment',
     copy:'📋 Copy Booking Message',copied:'Copied!',line:'Send via Line',wa:'Send via WhatsApp',lineHint:'Send to Line: <b>@ajgame</b> or <b>WhatsApp</b> to confirm',
     back:'Back',nextStep:'Next step →',done:'Done',day:'day',wk:'wk',deposit:'Deposit',sectionOther:'Other',payBank:'Thai Bank Transfer',payWise:'Wise',payCash:'Cash (Thai Baht only)',noDates:'Choose the console and dates to see the rental summary.',discount:'Returning Customer Discount 10%',noConLabel:'No contract',
@@ -9972,6 +9996,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     step2:'ตัวเลือกเพิ่มเติม',ret:'ลูกค้าเก่า',retSub:'รับส่วนลด 10% ค่าเช่า',noCon:'ไม่ต้องการทำสัญญาการเช่า',noConSub:'สำหรับผู้เช่าครั้งแรก ต้องทำสัญญาและแนบสำเนาบัตรประชาชน + รูปเซลฟี่คู่บัตรทุกกรณี หากไม่สะดวก ให้ติ๊กช่องนี้ ค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น',payment:'ตัวเลือกการชำระเงิน',maps:'Google Maps ที่อยู่จัดส่ง (เช็คค่าจัดส่งก่อนตัดสินใจ)',mapsNote:'ใส่ลิงก์ Google Maps เพื่อให้ร้านเช็คค่าส่งเบื้องต้นได้เร็วขึ้น',mapsBtn:'🗺️ เปิด Google Maps',mapsHow:'📍 วิธีคัดลอกลิงก์ Google Maps',delivery:'* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น',promo:'🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว',
     step3:'เลือกเกม',step3sub:'เลือกเกมสำหรับการเช่ารอบนี้ได้ที่ขั้นตอนนี้ หากเครื่องรุ่นนี้ไม่มีคลังเกม สามารถข้ามขั้นตอนได้',openGames:'🎮 เปิดหน้าเลือกเกม',clear:'🗑️ ล้างทั้งหมด',later:'แจ้งรายชื่อเกมภายหลัง',noCatalog:'เครื่องรุ่นนี้ไม่ใช้ตัวเลือกเกมในระบบ',
     step4:'สรุปค่าเช่า',included:'สิ่งที่รวมในชุด',contractLbl:'ทำสัญญาการเช่าผ่านลิงก์',contractNote:'กรุณากรอกสัญญาก่อนนัดส่งเครื่อง',needContract:'ต้องทำสัญญาการเช่า หรือไปเลือกที่ Additional ว่า “ไม่ต้องการทำสัญญาการเช่า”',warning:'ราคาด้านล่างนี้ เป็นราคาเช่าในนามบุคคลเท่านั้น ไม่สามารถออกใบกำกับภาษีหรือใบเสร็จรับเงินได้ หากต้องการใบกำกับภาษี/ใบเสร็จ จะเป็นเรทบริษัท กรุณาติดต่อทาง Line: @ajgame หรือ โทร. 081-624-4715 🙏',
+    finalCtaTitle:'ขั้นตอนสุดท้าย: ส่งข้อความนี้เพื่อยืนยันการจอง',finalCtaSub:'กดส่งข้อความทาง Line หรือ Copy ข้อความจองเช่า แล้วส่งให้ร้านยืนยัน',
     slConsole:'เครื่อง',slSection:'หมวดเครื่อง',slStart:'วันที่เริ่มเช่า',slEnd:'วันคืนเครื่อง',slDuration:'ระยะเวลา',slRental:'ค่าเช่า',slDeposit:'ค่าประกัน',slDelivery:'ค่าจัดส่ง',slTotal:'ยอดรวมทั้งหมด',slUpfront:'โอนล่วงหน้า (ยืนยันการจอง)',slOD:'จ่ายตอนของถึง',slCash:'จ่ายตอนของถึง',slPayment:'การชำระเงิน',
     copy:'📋 Copy ข้อความจองเช่า',copied:'คัดลอกแล้ว!',line:'ส่งข้อความทาง Line',wa:'ส่งข้อความทาง WhatsApp',lineHint:'แล้วส่งไปที่ Line: <b>@ajgame</b> เพื่อยืนยัน',
     back:'ย้อนกลับ',nextStep:'ไปขั้นตอนถัดไป →',done:'เสร็จแล้ว',day:'วัน',wk:'สัปดาห์',deposit:'มัดจำ',sectionOther:'อื่น ๆ',payBank:'โอนบัญชีธนาคารไทย',payWise:'Wise',payCash:'เงินสด (บาทไทย)',noDates:'เลือกเครื่องและวันที่เพื่อดูสรุปค่าเช่า',discount:'ส่วนลดลูกค้าเก่า 10%',noConLabel:'(ไม่ทำสัญญา)',
@@ -9980,7 +10005,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 
   const ORDER = ['PS5','PS5 Pro','PS4','PS Portal','PS VR2','Nintendo Switch 2','Nintendo Switch 1','Logitech G29','Meta Quest 3','Meta Quest 3s','Viture Beast','Viture Luma Ultra','Viture Luma Pro','XREAL One','ROG Xbox Ally X','Xbox Series X','Xbox Series S','Lenovo Legion GO2','Steam Deck OLED'];
   const PLATFORM_MAP = {
-    'PS4':'ps45','PS5':'ps45','PS5 Pro':'ps45',
+    'PS4':'ps4','PS5':'ps5','PS5 Pro':'ps5',
     'Nintendo Switch 1':'switch1','Nintendo Switch 2':'switch2',
     'Xbox Series X':'xbox','Xbox Series S':'xbox',
     'Meta Quest 3':'meta','Meta Quest 3s':'meta',
@@ -9989,7 +10014,16 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   };
   function gamePlatformForConsole(c){
     if(!c) return '';
-    if(c.gamePlatform) return String(c.gamePlatform).trim();
+    const psFromName = `${c.name || ''} ${c.nameEn || ''}`.toLowerCase().includes('ps4')
+      ? 'ps4'
+      : (`${c.name || ''} ${c.nameEn || ''}`.toLowerCase().includes('ps5') || `${c.name || ''} ${c.nameEn || ''}`.toLowerCase().includes('playstation') ? 'ps5' : '');
+    if(c.gamePlatform){
+      const direct = String(c.gamePlatform).trim();
+      if(psFromName && /^(ps4|ps5|ps45|ps4-ps5|ps4ps5|playstation)$/i.test(direct)) return psFromName;
+      if(typeof window.normalizeConsoleGamePlatform === 'function') return window.normalizeConsoleGamePlatform(direct, c);
+      if(direct.toLowerCase() === 'ps45') return `${c.name || ''} ${c.nameEn || ''}`.toLowerCase().includes('ps4') ? 'ps4' : 'ps5';
+      return direct;
+    }
     if(typeof window.mapConsoleToPlatform === 'function'){
       try{
         const p = window.mapConsoleToPlatform(c);
@@ -9997,7 +10031,8 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       }catch(e){}
     }
     const s = `${c.name || ''} ${c.nameEn || ''}`.toLowerCase();
-    if(s.includes('ps4') || s.includes('ps5') || s.includes('playstation')) return 'ps45';
+    if(s.includes('ps4')) return 'ps4';
+    if(s.includes('ps5') || s.includes('playstation')) return 'ps5';
     if(s.includes('switch 1') || s.includes('nintendo switch 1')) return 'switch1';
     if(s.includes('switch 2') || s.includes('nintendo switch 2')) return 'switch2';
     if(s.includes('xbox')) return 'xbox';
@@ -10017,9 +10052,75 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     availRows:[], availLoading:false, availError:'', pickerRequest:0,
     pickerOpen:false, pickerLoaded:false
   };
+  const DRAFT_KEY = 'aj_clean_calc_customer_draft_v1';
+  const DRAFT_TTL_MS = 14 * 24 * 60 * 60 * 1000;
+  let __ajxDraftSaveTimer = 0;
   let lastLang='';
   let __ajxDeferredRenderTimer = 0;
   let __ajxForceRenderOnce = false;
+  function cleanDraftArray(value){
+    return Array.isArray(value) ? value.filter(Boolean).slice(0,20) : [];
+  }
+  function restoreDraft(){
+    try{
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if(!raw) return;
+      const saved = JSON.parse(raw);
+      if(!saved || !saved.data || !saved.at || Date.now() - Number(saved.at) > DRAFT_TTL_MS) return;
+      const d = saved.data;
+      Object.assign(state, {
+        step: Math.min(4, Math.max(1, Number(d.step)||1)),
+        cat: String(d.cat || ''),
+        consoleId: String(d.consoleId || ''),
+        start: String(d.start || ''),
+        end: String(d.end || ''),
+        ret: !!d.ret,
+        noCon: !!d.noCon,
+        payment: String(d.payment || 'cash'),
+        maps: String(d.maps || ''),
+        games: cleanDraftArray(d.games).slice(0,10),
+        notifyLater: !!d.notifyLater,
+        bundleId: String(d.bundleId || ''),
+        switchExtras: cleanDraftArray(d.switchExtras).map(String),
+        vdock: !!d.vdock,
+        boardgames: cleanDraftArray(d.boardgames).map(String)
+      });
+      state.draftStart = '';
+      state.draftEnd = '';
+      state.calendarOpen = false;
+      state.pickerOpen = false;
+    }catch(e){}
+  }
+  function saveDraftSoon(immediate=false){
+    clearTimeout(__ajxDraftSaveTimer);
+    const write = function(){
+      try{
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          at: Date.now(),
+          data: {
+            step: state.step,
+            cat: state.cat,
+            consoleId: state.consoleId,
+            start: state.start,
+            end: state.end,
+            ret: !!state.ret,
+            noCon: !!state.noCon,
+            payment: state.payment,
+            maps: state.maps,
+            games: cleanDraftArray(state.games).slice(0,10),
+            notifyLater: !!state.notifyLater,
+            bundleId: state.bundleId,
+            switchExtras: cleanDraftArray(state.switchExtras).map(String),
+            vdock: !!state.vdock,
+            boardgames: cleanDraftArray(state.boardgames).map(String)
+          }
+        }));
+      }catch(e){}
+    };
+    if(immediate) write();
+    else __ajxDraftSaveTimer = setTimeout(write, 220);
+  }
+  restoreDraft();
   function ajxNativeSelectBusy(){
     try{ return !!(window.__ajMobileNativeSelectBusy && window.__ajMobileNativeSelectBusy()); }catch(e){ return false; }
   }
@@ -10279,7 +10380,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       <div class="ajx-check"><input type="checkbox" id="ajxNoCon" ${state.noCon?'checked':''}><label for="ajxNoCon"><strong>${tt().noCon}</strong><br><span style="font-size:12px;color:var(--text3);line-height:1.55;display:inline-block;margin-top:2px">${tt().noConSub}</span></label></div>
       ${showPayment?`<div class="ajx-card"><label class="ajx-label">${tt().payment}</label><select class="ajx-select" id="ajxPayment"><option value="bank">${tt().payBank}</option><option value="wise">${tt().payWise}</option><option value="cash">${tt().payCash}</option></select></div>`:''}
       <div class="ajx-card"><label class="ajx-label">${tt().maps}</label>
-        <input class="ajx-input" id="ajxMaps" placeholder="https://maps.google.com/..." value="${escAttr(state.maps||'')}" inputmode="url" autocomplete="off">
+        <input class="ajx-input" id="ajxMaps" type="text" placeholder="https://maps.google.com/..." value="${escAttr(state.maps||'')}" inputmode="url" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done">
         <div class="aj-maps-status" id="ajxMapsStatus" aria-live="polite"></div>
         <div style="font-size:12px;color:var(--text3);margin-top:6px;line-height:1.7;">${tt().mapsNote}</div>
         <div class="ajx-actions" style="margin-top:10px;">
@@ -10464,6 +10565,15 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     return `<div class="ajx-pane ${state.step===4?'active':''}" id="ajxPane4">
       <h4 id="ajxSummaryTitle" style="scroll-margin-top:120px">${tt().step4}</h4>
 
+      <div class="ajx-final-cta">
+        <div class="ajx-final-cta-title">${tt().finalCtaTitle}</div>
+        <div class="ajx-final-cta-sub">${tt().finalCtaSub}</div>
+        <div class="ajx-copy-actions">
+          <button class="ajx-btn primary" id="ajxTopCopy">${tt().copy}</button>
+          <button class="ajx-btn line" id="ajxTopLine">${lineIconSvg()}<span>${tt().line}</span></button>
+          ${isEn()?`<button class="ajx-btn wa" id="ajxTopWa">${waIconSvg()}<span>${tt().wa}</span></button>`:''}
+        </div>
+      </div>
       <div class="ajx-warning">⚠️ ${tt().warning}</div>
       ${!state.noCon?`<div class="ajx-contract"><div style="font-size:13px;color:#176331;font-weight:800;line-height:1.75;margin-bottom:10px">⚠️ ${tt().needContract}</div><a href="${tt().contractLink}" target="_blank">${tt().contractLbl}</a><div style="font-size:12px;color:#558855;margin-top:5px">${tt().contractNote}</div></div>`:''}
       <div class="ajx-summary-soft">
@@ -10578,6 +10688,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
 
   function render(){
     const root=q('#ajCleanCalcRoot'); if(!root) return;
+    saveDraftSoon();
     const forceRender = __ajxForceRenderOnce;
     __ajxForceRenderOnce = false;
     if(!forceRender && ajxNativeSelectBusy()){
@@ -10989,17 +11100,15 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   }
 
   async function sendLineMessage(){
-    const navigateChatWindow = openDeferredChatWindow();
     const msg = await copyMessage('line');
-    if(!msg) return navigateChatWindow('');
-    navigateChatWindow('https://line.me/R/msg/text/?' + encodeURIComponent(msg));
+    if(!msg) return;
+    window.location.href = 'https://line.me/R/msg/text/?' + encodeURIComponent(msg);
   }
 
   async function sendWhatsAppMessage(){
-    const navigateChatWindow = openDeferredChatWindow();
     const msg = await copyMessage('whatsapp');
-    if(!msg) return navigateChatWindow('');
-    navigateChatWindow(`https://wa.me/66816244715?text=${encodeURIComponent(msg)}`);
+    if(!msg) return;
+    window.location.href = `https://wa.me/66816244715?text=${encodeURIComponent(msg)}`;
   }
 
   function closeDoneConfirm(){
@@ -11066,6 +11175,28 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     setTimeout(postOpen, 600);
   }
 
+  function installMapsPasteFallback(input){
+    if(!input || input.__ajMapsPasteFallback) return;
+    input.__ajMapsPasteFallback = true;
+    input.addEventListener('paste', function(ev){
+      const clip = ev.clipboardData || window.clipboardData;
+      const text = clip && typeof clip.getData === 'function' ? clip.getData('text') : '';
+      if(text){
+        ev.preventDefault();
+        const start = Number.isFinite(input.selectionStart) ? input.selectionStart : input.value.length;
+        const end = Number.isFinite(input.selectionEnd) ? input.selectionEnd : input.value.length;
+        const next = input.value.slice(0, start) + String(text).trim() + input.value.slice(end);
+        input.value = next;
+      }
+      setTimeout(function(){
+        state.maps = String(input.value || '').trim();
+        input.value = state.maps;
+        saveDraftSoon(true);
+        try{ window.ajHandleMapsInput(input, true, q('#ajxMapsStatus')); }catch(_){}
+      }, 0);
+    });
+  }
+
   function bind(){
     qa('.ajx-tab').forEach(btn=>btn.onclick=()=>{ const n=Number(btn.dataset.tab); if(btn.classList.contains('locked')) return; gotoStep(n); });
     q('#ajxCat') && (q('#ajxCat').value=state.cat, q('#ajxCat').onchange=e=>{
@@ -11091,11 +11222,14 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     q('#ajxRet') && (q('#ajxRet').checked=state.ret, q('#ajxRet').onchange=e=>{ state.ret=!!e.target.checked; render(); });
     q('#ajxNoCon') && (q('#ajxNoCon').checked=state.noCon, q('#ajxNoCon').onchange=e=>{ state.noCon=!!e.target.checked; render(); });
     q('#ajxPayment') && (q('#ajxPayment').value=state.payment, q('#ajxPayment').onchange=e=>{ state.payment=e.target.value; render(); });
-    q('#ajxMaps') && (q('#ajxMaps').value=state.maps, q('#ajxMaps').oninput=e=>{
+    q('#ajxMaps') && (q('#ajxMaps').value=state.maps, installMapsPasteFallback(q('#ajxMaps')), q('#ajxMaps').oninput=e=>{
       state.maps=e.target.value;
+      saveDraftSoon();
       try{ window.ajHandleMapsInput(e.target, false, q('#ajxMapsStatus')); }catch(_){}
     }, q('#ajxMaps').onchange=e=>{
-      state.maps=e.target.value;
+      state.maps=String(e.target.value || '').trim();
+      e.target.value=state.maps;
+      saveDraftSoon(true);
       try{ window.ajHandleMapsInput(e.target, true, q('#ajxMapsStatus')); }catch(_){}
     });
     q('#ajxBgAdd') && (q('#ajxBgAdd').onclick=()=>{ state.boardgames=[...(state.boardgames||[]),'']; render(); });
@@ -11106,17 +11240,20 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     q('#ajxMapsHow') && (q('#ajxMapsHow').onclick=()=>{ try{ if(typeof openMapsHelp==='function') openMapsHelp(); }catch(e){} });
     q('#ajxOpenGames') && (q('#ajxOpenGames').onclick=(ev)=>{ if(ev){ ev.preventDefault(); ev.stopPropagation(); } openGamePicker(); });
     q('#ajxClearGames') && (q('#ajxClearGames').onclick=()=>{ state.games=[]; state.notifyLater=false; render(); });
-    q('#ajxLater') && (q('#ajxLater').checked=state.notifyLater, q('#ajxLater').onchange=e=>{ state.notifyLater=!!e.target.checked; });
+    q('#ajxLater') && (q('#ajxLater').checked=state.notifyLater, q('#ajxLater').onchange=e=>{ state.notifyLater=!!e.target.checked; saveDraftSoon(true); });
     qa('[data-prev]').forEach(btn=>btn.onclick=()=>gotoStep(Number(btn.dataset.prev)));
     qa('[data-next]').forEach(btn=>btn.onclick=()=>gotoStep(Number(btn.dataset.next)));
     qa('[data-done]').forEach(btn=>btn.onclick=openDoneConfirm);
     q('#ajxCopy') && (q('#ajxCopy').onclick=()=>copyMessage('copy'));
     q('#ajxLine') && (q('#ajxLine').onclick=sendLineMessage);
     q('#ajxWa') && (q('#ajxWa').onclick=sendWhatsAppMessage);
+    q('#ajxTopCopy') && (q('#ajxTopCopy').onclick=()=>copyMessage('copy'));
+    q('#ajxTopLine') && (q('#ajxTopLine').onclick=sendLineMessage);
+    q('#ajxTopWa') && (q('#ajxTopWa').onclick=sendWhatsAppMessage);
     q('#ajxClose') && (q('#ajxClose').onclick=()=>{ state.calendarOpen=false; render(); });
     q('#ajxPrevM') && (q('#ajxPrevM').onclick=()=>{ const current=currentMonthStart(); const prev=new Date(state.base.getFullYear(), state.base.getMonth()-1, 1); if(prev < current) return; state.base=prev; render(); });
     q('#ajxNextM') && (q('#ajxNextM').onclick=()=>{ state.base=new Date(state.base.getFullYear(), state.base.getMonth()+1, 1); render(); });
-    q('#ajxUse') && (q('#ajxUse').onclick=()=>{ if(!canApplyRange()) return; state.start=state.draftStart; state.end=state.draftEnd; state.calendarOpen=false; render(); });
+    q('#ajxUse') && (q('#ajxUse').onclick=()=>{ if(!canApplyRange()) return; state.start=state.draftStart; state.end=state.draftEnd; state.calendarOpen=false; saveDraftSoon(true); render(); });
     qa('[data-day]').forEach(btn=>btn.onclick=()=>pickDay(btn.dataset.day));
     q('#ajxPickerClose') && (q('#ajxPickerClose').onclick=()=>{ state.pickerOpen=false; render(); });
     q('#ajxPickerOverlay') && (q('#ajxPickerOverlay').onclick=(ev)=>{ if(ev.target.id==='ajxPickerOverlay'){ state.pickerOpen=false; render(); } });
@@ -11142,6 +11279,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       state.games = Array.isArray(data.games) ? data.games.slice(0,10) : [];
       state.notifyLater = false;
       state.pickerOpen = false;
+      saveDraftSoon(true);
       render();
     }
     if(data.type==='AJ_GAME_READY' && state.pickerOpen){
@@ -11172,6 +11310,8 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   }
 
   window.ajxRender = function(){ try{ render(); }catch(e){} };
+  window.addEventListener('beforeunload', function(){ saveDraftSoon(true); });
+  window.addEventListener('pagehide', function(){ saveDraftSoon(true); });
   window.ajxOpenBgDetail = function(id){
     const g=bgFindById(id); if(!g) return;
     const en=isEn();
@@ -12255,10 +12395,19 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     status(msg || L('บันทึกแล้ว','Saved.'));
   }
   function detectPlatform(c){
-    if(c && c.gamePlatform) return String(c.gamePlatform).trim();
+    if(c && c.gamePlatform){
+      var direct = String(c.gamePlatform).trim();
+      var psName = String((c.name||'')+' '+(c.nameEn||'')).toLowerCase();
+      if(/ps4/.test(psName) && /^(ps4|ps5|ps45|ps4-ps5|ps4ps5|playstation)$/i.test(direct)) return 'ps4';
+      if((/ps5|playstation/.test(psName)) && /^(ps4|ps5|ps45|ps4-ps5|ps4ps5|playstation)$/i.test(direct)) return 'ps5';
+      if(typeof window.normalizeConsoleGamePlatform === 'function') return window.normalizeConsoleGamePlatform(direct, c);
+      if(direct.toLowerCase() === 'ps45') return String((c.name||'')+' '+(c.nameEn||'')).toLowerCase().indexOf('ps4') >= 0 ? 'ps4' : 'ps5';
+      return direct;
+    }
     try{ if(typeof window.mapConsoleToPlatform === 'function'){ var pid = window.mapConsoleToPlatform(c); if(pid) return pid; } }catch(e){}
     var s = String((c && (c.name + ' ' + (c.nameEn||''))) || '').toLowerCase();
-    if(s.indexOf('ps4') >= 0 || s.indexOf('ps5') >= 0 || s.indexOf('playstation') >= 0) return 'ps45';
+    if(s.indexOf('ps4') >= 0) return 'ps4';
+    if(s.indexOf('ps5') >= 0 || s.indexOf('playstation') >= 0) return 'ps5';
     if(s.indexOf('switch 1') >= 0) return 'switch1';
     if(s.indexOf('switch 2') >= 0) return 'switch2';
     if(s.indexOf('xbox') >= 0) return 'xbox';
@@ -12308,7 +12457,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
         + '<div class="frow"><div class="fgroup"><label class="flbl">แบรนด์</label><select id="ajV7Brand-'+attr(id)+'">'+optionHtml(brandOptions,c.brand)+'</select></div><div class="fgroup"><label class="flbl">Icon</label><input id="ajV7Icon-'+attr(id)+'" value="'+attr(c.icon)+'" maxlength="4"></div></div>'
         + '<div class="fgroup"><label class="flbl">รายละเอียดการ์ด (TH)</label><textarea class="device-textarea" id="ajV7DetailsTh-'+attr(id)+'">'+esc(detailsText(c,'detailsTh'))+'</textarea></div>'
         + '<div class="fgroup"><label class="flbl">Card Details (EN)</label><textarea class="device-textarea" id="ajV7DetailsEn-'+attr(id)+'">'+esc(detailsText(c,'detailsEn'))+'</textarea></div>'
-        + '<div class="frow"><div class="fgroup"><label class="flbl">Image URL</label><input id="ajV7Img-'+attr(id)+'" value="'+attr(img)+'" placeholder="https://..."></div><div class="fgroup"><label class="flbl">Game Platform ID</label><input id="ajV7Platform-'+attr(id)+'" value="'+attr(c.gamePlatform || pid)+'" placeholder="ps45 / switch2 / xbox / meta"></div></div>'
+        + '<div class="frow"><div class="fgroup"><label class="flbl">Image URL</label><input id="ajV7Img-'+attr(id)+'" value="'+attr(img)+'" placeholder="https://..."></div><div class="fgroup"><label class="flbl">Game Platform ID</label><input id="ajV7Platform-'+attr(id)+'" value="'+attr(c.gamePlatform || pid)+'" placeholder="ps4 / ps5 / switch2 / xbox / meta"></div></div>'
         + '<div class="chk-row"><input type="checkbox" id="ajV7ShowGame-'+attr(id)+'" '+(c.showGameButton!==false?'checked':'')+'><label for="ajV7ShowGame-'+attr(id)+'"><strong>'+L('แสดงปุ่มเลือกเกม เฉพาะเครื่องที่มีรายการเกม','Show game picker only when catalog exists')+'</strong><br><span style="font-size:11px;color:var(--muted)">'+esc(gameUrl || L('เครื่องนี้ยังไม่มีรายการเกม จึงจะไม่แสดงปุ่ม','No game catalog detected; button will be hidden.'))+'</span></label></div>'
         + '<div class="fgroup"><label class="flbl">Custom Game URL (ไม่ใส่ = ใช้ game_index.html ตาม Platform ID)</label><input id="ajV7GameUrl-'+attr(id)+'" value="'+attr(c.gameUrl||'')+'" placeholder="game_index.html หรือ URL เฉพาะ"></div>'
         + '<div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" class="btn-aa green" onclick="ajV7.saveConsole(\''+attr(id)+'\')">💾 '+L('บันทึก','Save')+'</button><button type="button" class="btn-aa" onclick="ajV7.toggleConsole(\''+attr(id)+'\')" style="background:none;border-color:var(--border);color:var(--text2)">'+L('ยกเลิก','Cancel')+'</button></div>'
@@ -12321,7 +12470,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       + '<div class="frow"><div class="fgroup"><label class="flbl">ชื่อ (TH)</label><input id="ajV7NewName"></div><div class="fgroup"><label class="flbl">ชื่อ (EN)</label><input id="ajV7NewNameEn"></div></div>'
       + '<div class="frow"><div class="fgroup"><label class="flbl">เรท</label><select id="ajV7NewRate">'+optionHtml(rateOptions,300)+'</select></div><div class="fgroup"><label class="flbl">ประเภท</label><select id="ajV7NewType">'+optionHtml(typeOptions,'console')+'</select></div></div>'
       + '<div class="frow"><div class="fgroup"><label class="flbl">แบรนด์</label><select id="ajV7NewBrand">'+optionHtml(brandOptions,'other')+'</select></div><div class="fgroup"><label class="flbl">Icon</label><input id="ajV7NewIcon" value="🎮" maxlength="4"></div></div>'
-      + '<div class="frow"><div class="fgroup"><label class="flbl">Image URL</label><input id="ajV7NewImg" placeholder="https://..."></div><div class="fgroup"><label class="flbl">Game Platform ID</label><input id="ajV7NewPlatform" placeholder="ปล่อยว่างให้เดาจากชื่อ เช่น PS5 = ps45"></div></div>'
+      + '<div class="frow"><div class="fgroup"><label class="flbl">Image URL</label><input id="ajV7NewImg" placeholder="https://..."></div><div class="fgroup"><label class="flbl">Game Platform ID</label><input id="ajV7NewPlatform" placeholder="ปล่อยว่างให้เดาจากชื่อ เช่น PS4 = ps4, PS5 = ps5"></div></div>'
       + '<div class="chk-row"><input type="checkbox" id="ajV7NewShowGame" checked><label for="ajV7NewShowGame"><strong>'+L('แสดงปุ่มเลือกเกมถ้ามีรายการเกมใน game_index.html','Show game button if matched with game_index.html catalog')+'</strong></label></div>'
       + '<button type="button" class="btn-aa" onclick="ajV7.addConsole()">➕ '+L('เพิ่มเครื่อง','Add console')+'</button><span id="ajV7Status" style="font-size:12px;color:#007733;margin-left:8px"></span></div><div class="adm-list" id="ajV7ConsoleList"></div>';
   }
@@ -12496,10 +12645,19 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   }
   function saveLocalOnly(text){setConsoleList(getConsoleList()); setImages(getImages()); repaint(); if(text) msg(text);}
   function platformFor(c){
-    if(c&&c.gamePlatform) return String(c.gamePlatform).trim();
+    if(c&&c.gamePlatform){
+      var direct=String(c.gamePlatform).trim();
+      var psName=String(((c&&c.name)||'')+' '+((c&&c.nameEn)||'')).toLowerCase();
+      if(/ps4/.test(psName) && /^(ps4|ps5|ps45|ps4-ps5|ps4ps5|playstation)$/i.test(direct)) return 'ps4';
+      if((/ps5|playstation/.test(psName)) && /^(ps4|ps5|ps45|ps4-ps5|ps4ps5|playstation)$/i.test(direct)) return 'ps5';
+      if(typeof window.normalizeConsoleGamePlatform==='function') return window.normalizeConsoleGamePlatform(direct,c);
+      if(direct.toLowerCase()==='ps45') return String(((c&&c.name)||'')+' '+((c&&c.nameEn)||'')).toLowerCase().indexOf('ps4')>=0?'ps4':'ps5';
+      return direct;
+    }
     try{if(typeof window.mapConsoleToPlatform==='function'){var p=window.mapConsoleToPlatform(c); if(p) return p;}}catch(e){}
     var s=String(((c&&c.name)||'')+' '+((c&&c.nameEn)||'')).toLowerCase();
-    if(/ps4|ps5|playstation/.test(s)) return 'ps45';
+    if(/ps4/.test(s)) return 'ps4';
+    if(/ps5|playstation/.test(s)) return 'ps5';
     if(/switch\s*1|nintendo switch 1/.test(s)) return 'switch1';
     if(/switch\s*2|nintendo switch 2/.test(s)) return 'switch2';
     if(/xbox/.test(s)) return 'xbox';
@@ -12522,7 +12680,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   var typeOpts=[['console','Console'],['vr','VR & AR'],['handheld','PC Handheld'],['racing','Racing']];
   var brandOpts=[['playstation','PlayStation'],['nintendo','Nintendo'],['xbox','Xbox'],['other','Other']];
   function renderConsolePanel(){
-    return '<div class="aform"><h4>➕ '+L('เพิ่มเครื่องเกมใหม่','Add new console')+'</h4><div class="frow"><div class="fgroup"><label class="flbl">ชื่อ (TH)</label><input id="ajV8NewName"></div><div class="fgroup"><label class="flbl">ชื่อ (EN)</label><input id="ajV8NewNameEn"></div></div><div class="frow"><div class="fgroup"><label class="flbl">เรท</label><select id="ajV8NewRate">'+opt([300,350,400,500],300)+'</select></div><div class="fgroup"><label class="flbl">ประเภท</label><select id="ajV8NewType">'+opt(typeOpts,'console')+'</select></div></div><div class="frow"><div class="fgroup"><label class="flbl">แบรนด์</label><select id="ajV8NewBrand">'+opt(brandOpts,'other')+'</select></div><div class="fgroup"><label class="flbl">Icon</label><input id="ajV8NewIcon" value="🎮" maxlength="4"></div></div><div class="frow"><div class="fgroup"><label class="flbl">Image URL</label><input id="ajV8NewImg" placeholder="https://..."></div><div class="fgroup"><label class="flbl">Game Platform ID</label><input id="ajV8NewPlatform" placeholder="ps45 / switch2 / xbox / meta"></div></div><div class="chk-row"><input type="checkbox" id="ajV8NewShowGame" checked><label for="ajV8NewShowGame"><strong>'+L('แสดงปุ่มเลือกเกม ถ้ามีรายการเกม','Show game picker if catalog exists')+'</strong><br><span style="font-size:11px;color:var(--muted)">'+L('ระบบจะผูกกับ game_index.html ตาม Platform ID หรือเดาจากชื่อเครื่อง','Linked with game_index.html by Platform ID or device name')+'</span></label></div><button type="button" class="btn-aa green" onclick="ajV8.addConsole()">➕ '+L('เพิ่มเครื่อง','Add console')+'</button><span id="ajV8Status" style="font-size:12px;color:#007733;margin-left:8px"></span></div><div class="adm-list" id="ajV8ConsoleList"></div>';
+    return '<div class="aform"><h4>➕ '+L('เพิ่มเครื่องเกมใหม่','Add new console')+'</h4><div class="frow"><div class="fgroup"><label class="flbl">ชื่อ (TH)</label><input id="ajV8NewName"></div><div class="fgroup"><label class="flbl">ชื่อ (EN)</label><input id="ajV8NewNameEn"></div></div><div class="frow"><div class="fgroup"><label class="flbl">เรท</label><select id="ajV8NewRate">'+opt([300,350,400,500],300)+'</select></div><div class="fgroup"><label class="flbl">ประเภท</label><select id="ajV8NewType">'+opt(typeOpts,'console')+'</select></div></div><div class="frow"><div class="fgroup"><label class="flbl">แบรนด์</label><select id="ajV8NewBrand">'+opt(brandOpts,'other')+'</select></div><div class="fgroup"><label class="flbl">Icon</label><input id="ajV8NewIcon" value="🎮" maxlength="4"></div></div><div class="frow"><div class="fgroup"><label class="flbl">Image URL</label><input id="ajV8NewImg" placeholder="https://..."></div><div class="fgroup"><label class="flbl">Game Platform ID</label><input id="ajV8NewPlatform" placeholder="ps4 / ps5 / switch2 / xbox / meta"></div></div><div class="chk-row"><input type="checkbox" id="ajV8NewShowGame" checked><label for="ajV8NewShowGame"><strong>'+L('แสดงปุ่มเลือกเกม ถ้ามีรายการเกม','Show game picker if catalog exists')+'</strong><br><span style="font-size:11px;color:var(--muted)">'+L('ระบบจะผูกกับ game_index.html ตาม Platform ID หรือเดาจากชื่อเครื่อง','Linked with game_index.html by Platform ID or device name')+'</span></label></div><button type="button" class="btn-aa green" onclick="ajV8.addConsole()">➕ '+L('เพิ่มเครื่อง','Add console')+'</button><span id="ajV8Status" style="font-size:12px;color:#007733;margin-left:8px"></span></div><div class="adm-list" id="ajV8ConsoleList"></div>';
   }
   function renderConsoleAdmin(){
     var el=$('ajV8ConsoleList')||$('ajV7ConsoleList'); if(!el) return;
@@ -12660,14 +12818,15 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     c.icon=String(c.icon||'🎮').trim()||'🎮';
     c.detailsTh=Array.isArray(c.detailsTh)?c.detailsTh:[];
     c.detailsEn=Array.isArray(c.detailsEn)?c.detailsEn:[];
-    c.gamePlatform=String(c.gamePlatform||guessPlatform(c)).trim();
+    c.gamePlatform=normalizePlatform(c.gamePlatform||guessPlatform(c), c);
     c.gameUrl=String(c.gameUrl||'').trim();
     c.showGameButton = c.showGameButton !== false;
     return c;
   }
   function guessBrand(name){name=String(name||'').toLowerCase(); if(/ps|playstation/.test(name))return'playstation'; if(/switch|nintendo/.test(name))return'nintendo'; if(/xbox/.test(name))return'xbox'; if(/quest|meta/.test(name))return'meta'; if(/viture|xreal/.test(name))return'other'; if(/rog|ally/.test(name))return'rog'; if(/legion|lenovo/.test(name))return'lenovo'; if(/steam/.test(name))return'steamdeck'; return'other';}
-  function guessPlatform(c){const s=String((c&&c.name||'')+' '+(c&&c.nameEn||'')).toLowerCase(); if(/ps4|ps5|playstation/.test(s))return'ps45'; if(/switch\s*1|nintendo switch 1/.test(s))return'switch1'; if(/switch\s*2|nintendo switch 2/.test(s))return'switch2'; if(/xbox/.test(s))return'xbox'; if(/quest|meta/.test(s))return'meta'; if(/rog|ally|legion/.test(s))return'rog'; if(/steam deck/.test(s))return'p_1774941944007'; return'';}
-  function gameUrl(c){ const p=String(c.gamePlatform||guessPlatform(c)||'').trim(); if(!c.showGameButton || !p) return ''; return c.gameUrl && !/^game_index/i.test(c.gameUrl) ? c.gameUrl : 'game_index.html?platforms='+encodeURIComponent(p)+'&focus='+encodeURIComponent(p); }
+  function normalizePlatform(pid,c){const raw=String(pid||'').trim(); if(typeof window.normalizeConsoleGamePlatform==='function') return window.normalizeConsoleGamePlatform(raw,c); if(/^ps45$/i.test(raw)) return /ps4/i.test(String((c&&c.name||'')+' '+(c&&c.nameEn||'')))?'ps4':'ps5'; return raw;}
+  function guessPlatform(c){const s=String((c&&c.name||'')+' '+(c&&c.nameEn||'')).toLowerCase(); if(/ps4/.test(s))return'ps4'; if(/ps5|playstation/.test(s))return'ps5'; if(/switch\s*1|nintendo switch 1/.test(s))return'switch1'; if(/switch\s*2|nintendo switch 2/.test(s))return'switch2'; if(/xbox/.test(s))return'xbox'; if(/quest|meta/.test(s))return'meta'; if(/rog|ally|legion/.test(s))return'rog'; if(/steam deck/.test(s))return'p_1774941944007'; return'';}
+  function gameUrl(c){ const p=normalizePlatform(c.gamePlatform||guessPlatform(c)||'',c); if(!c.showGameButton || !p) return ''; return c.gameUrl && !/^game_index/i.test(c.gameUrl) ? c.gameUrl : 'game_index.html?platforms='+encodeURIComponent(p)+'&focus='+encodeURIComponent(p); }
   window.canShowGameButton = c => !!(c && c.showGameButton!==false && gameUrl(normalizeConsole(c,0)));
   window.getGameButtonUrl = c => gameUrl(normalizeConsole(c,0));
   window.getSuggestedConsoleGameUrl = window.getGameButtonUrl;
@@ -12697,7 +12856,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       <div class="frow"><div class="fgroup"><label class="flbl">ชื่อ (TH)</label><input id="ajV9NewName"></div><div class="fgroup"><label class="flbl">ชื่อ (EN)</label><input id="ajV9NewNameEn"></div></div>
       <div class="frow"><div class="fgroup"><label class="flbl">เรท</label><select id="ajV9NewRate">${opt(rateOpts,300)}</select></div><div class="fgroup"><label class="flbl">ประเภท</label><select id="ajV9NewType">${opt(typeOpts,'console')}</select></div></div>
       <div class="frow"><div class="fgroup"><label class="flbl">แบรนด์</label><select id="ajV9NewBrand">${opt(brandOpts,'other')}</select></div><div class="fgroup"><label class="flbl">Icon</label><input id="ajV9NewIcon" value="🎮" maxlength="4"></div></div>
-      <div class="frow"><div class="fgroup"><label class="flbl">Image URL</label><input id="ajV9NewImg" placeholder="https://..."></div><div class="fgroup"><label class="flbl">Game Platform ID</label><input id="ajV9NewPlatform" placeholder="ps45 / switch1 / switch2 / xbox / meta / rog"></div></div>
+      <div class="frow"><div class="fgroup"><label class="flbl">Image URL</label><input id="ajV9NewImg" placeholder="https://..."></div><div class="fgroup"><label class="flbl">Game Platform ID</label><input id="ajV9NewPlatform" placeholder="ps4 / ps5 / switch1 / switch2 / xbox / meta / rog"></div></div>
       <div class="chk-row"><input type="checkbox" id="ajV9NewShowGame" checked><label for="ajV9NewShowGame"><strong>${L('แสดงปุ่มเลือกเกม ถ้ามีรายการเกม','Show game picker if catalog exists')}</strong><br><span style="font-size:11px;color:var(--muted)">${L('ผูกกับ game_index.html ตาม Platform ID / ชื่อเครื่อง','Linked with game_index.html by Platform ID / device name')}</span></label></div>
       <button type="button" class="btn-aa green" id="ajV9AddConsoleBtn">➕ ${L('เพิ่มเครื่อง','Add console')}</button><span id="ajV9Status" style="font-size:12px;color:#007733;margin-left:8px"></span>
     </div><div class="adm-list" id="ajV9ConsoleList"></div>`;
@@ -13482,6 +13641,135 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(boot, 120); });
   else setTimeout(boot, 120);
   window.ajOpenRentalHistory = openHistory;
+})();
+</script>
+
+<script id="aj-playstation-picker-platform-guard">
+(function(){
+  'use strict';
+  function inferPlatformFromText(text){
+    var s = String(text || '').toLowerCase();
+    if(s.indexOf('ps4') >= 0) return 'ps4';
+    if(s.indexOf('ps5') >= 0 || s.indexOf('playstation') >= 0) return 'ps5';
+    return '';
+  }
+  function normalizePlatform(pid, source){
+    var raw = String(pid || '').trim();
+    var key = raw.toLowerCase();
+    if(source && typeof source === 'object'){
+      source = String((source.name || '') + ' ' + (source.nameEn || '') + ' ' + (source.title || '') + ' ' + (source.label || ''));
+    }
+    var psPlatform = inferPlatformFromText(source);
+    if(psPlatform && (key === 'ps4' || key === 'ps5' || key === 'ps45' || key === 'ps4-ps5' || key === 'ps4ps5' || key === 'playstation')) return psPlatform;
+    if(key === 'ps45' || key === 'ps4-ps5' || key === 'ps4ps5' || key === 'playstation') return inferPlatformFromText(source) || 'ps5';
+    return raw || inferPlatformFromText(source);
+  }
+  function selectedConsoleText(){
+    var sel = document.getElementById('ajxConsole') || document.getElementById('calcConsole');
+    if(!sel) return '';
+    var opt = sel.options && sel.selectedIndex >= 0 ? sel.options[sel.selectedIndex] : null;
+    return opt ? opt.textContent : sel.value;
+  }
+  function platformFromButton(btn){
+    var card = btn && btn.closest && btn.closest('.con-card,.device-card,.adm-item');
+    if(card){
+      var nameEl = card.querySelector('.con-name,.device-name,.adm-info-name,h3,h4');
+      var cardText = nameEl ? nameEl.textContent : card.textContent;
+      var p = normalizePlatform('', cardText);
+      if(p) return p;
+    }
+    var cid = btn && btn.getAttribute && btn.getAttribute('data-console-id');
+    if(cid && Array.isArray(window.consoles)){
+      var c = window.consoles.find(function(x){ return String(x && x.id) === String(cid); });
+      if(c) return normalizePlatform(c.gamePlatform, String((c.name || '') + ' ' + (c.nameEn || '')));
+    }
+    return normalizePlatform('', selectedConsoleText());
+  }
+  function pickerUrl(platform){
+    var v = '20260602';
+    try{ if(window.GAME_INDEX_VERSION) v = window.GAME_INDEX_VERSION; }catch(e){}
+    return 'game_index.html?embed=picker&platforms=' + encodeURIComponent(platform) + '&focus=' + encodeURIComponent(platform) + '&lang=' + encodeURIComponent(currentPageLang()) + '&v=' + encodeURIComponent(v);
+  }
+  function currentPageLang(){
+    try{ if(typeof lang !== 'undefined') return lang === 'en' ? 'en' : 'th'; }catch(e){}
+    if(document.documentElement && document.documentElement.lang === 'en') return 'en';
+    try{
+      var saved = localStorage.getItem('aj_lang') || localStorage.getItem('lang') || '';
+      if(String(saved).toLowerCase() === 'en') return 'en';
+    }catch(e){}
+    var btn = document.getElementById('langBtn');
+    if(btn && /TH|ไทย/i.test(btn.textContent || '')) return 'en';
+    return 'th';
+  }
+  function postPickerMessage(frame, platform){
+    var msg = {
+      type: 'AJ_PICKER_OPEN',
+      requestId: 'ps_split_' + Date.now(),
+      platformId: platform,
+      lang: currentPageLang(),
+      selectedGameIds: []
+    };
+    try{ frame.contentWindow && frame.contentWindow.postMessage(msg, '*'); }catch(e){}
+  }
+  function closeScopedPicker(){
+    var overlay = document.getElementById('gamePickerOverlay');
+    var frame = document.getElementById('gamePickerFrame');
+    if(overlay) overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    try{ frame && frame.contentWindow && frame.contentWindow.postMessage({type:'AJ_PICKER_CLOSE'}, '*'); }catch(e){}
+  }
+  function openScopedPicker(platform){
+    if(!platform) return false;
+    var overlay = document.getElementById('gamePickerOverlay');
+    var frame = document.getElementById('gamePickerFrame');
+    if(!overlay || !frame){
+      window.open('game_index.html?platforms=' + encodeURIComponent(platform) + '&focus=' + encodeURIComponent(platform), '_blank');
+      return true;
+    }
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    var nextUrl = pickerUrl(platform);
+    if(!frame.src || frame.src.indexOf('game_index.html') < 0 || frame.src.indexOf('platforms=' + encodeURIComponent(platform)) < 0){
+      frame.src = nextUrl;
+      frame.onload = function(){ postPickerMessage(frame, platform); };
+    }else{
+      postPickerMessage(frame, platform);
+      setTimeout(function(){ postPickerMessage(frame, platform); }, 250);
+    }
+    return true;
+  }
+  function isGamePickerButton(btn){
+    if(!btn) return false;
+    if(btn.matches && btn.matches('.btn-games') && btn.closest && btn.closest('.con-card,.device-card')) return true;
+    return false;
+  }
+  window.normalizeConsoleGamePlatform = normalizePlatform;
+  window.mapConsoleToPlatform = function(c){
+    if(!c) return '';
+    return normalizePlatform(c.gamePlatform, String((c.name || '') + ' ' + (c.nameEn || '')));
+  };
+  window.getGameButtonUrl = function(c){
+    var p = window.mapConsoleToPlatform(c);
+    return p ? 'game_index.html?platforms=' + encodeURIComponent(p) + '&focus=' + encodeURIComponent(p) : 'game_index.html';
+  };
+  window.ajOpenConsoleGamePicker = function(ev, btn){
+    if(ev && ev.preventDefault) ev.preventDefault();
+    if(ev && ev.stopPropagation) ev.stopPropagation();
+    return !openScopedPicker(platformFromButton(btn || (ev && ev.currentTarget)));
+  };
+  document.addEventListener('click', function(ev){
+    var btn = ev.target && ev.target.closest ? ev.target.closest('button,a') : null;
+    if(!isGamePickerButton(btn)) return;
+    var platform = platformFromButton(btn);
+    if(platform !== 'ps4' && platform !== 'ps5') return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    openScopedPicker(platform);
+  }, true);
+  window.addEventListener('message', function(ev){
+    var data = ev.data || {};
+    if(data.type === 'AJ_PICKER_SELECTED') setTimeout(closeScopedPicker, 0);
+  });
 })();
 </script>
 
