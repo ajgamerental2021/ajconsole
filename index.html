@@ -2881,6 +2881,15 @@ function onNoConChange(){
   document.getElementById('noConNote').style.display=document.getElementById('noConChk').checked?'block':'none';
   updateContractWrap();calc();
 }
+function consoleRentalCost(days,daily,weekly){
+  const monthly={300:4000,350:5200,400:6500,500:8500}[Number(daily)];
+  if(days>=30 && monthly){
+    const extra=days-30,w=Math.floor(extra/7),r=extra%7;
+    return monthly+w*weekly+r*daily;
+  }
+  if(days>=7){const w=Math.floor(days/7),r=days%7;return w*weekly+r*daily;}
+  return days*daily;
+}
 function calc(){
   const cid=parseInt(document.getElementById('calcConsole').value),c=consoles.find(x=>x.id===cid);
   const sumHost=document.getElementById('sumContent');
@@ -2907,7 +2916,7 @@ function calc(){
   if(cid===SPEC.PS5){const sel=document.querySelector('input[name="ps5b"]:checked');if(sel?.value){const b=PS5_BUNDLES.find(x=>x.id===sel.value);if(b){br=b.rate;wr=b.weekly;bd=b.deposit;bid=b.id;bn=lang==='th'?b.th:b.en;}}}
   let deposit=bd;if(noCon){deposit=bd<=2000?5000:bd<=3000?6000:8000;}
   let rental=0,wkA=false;
-  if(days>=7){const w=Math.floor(days/7),r=days%7;rental=w*wr+r*br;wkA=true;}else rental=days*br;
+  rental=consoleRentalCost(days,br,wr);wkA=days>=7;
   let addonTotal=0,addonLines=[];
   const pushA=(name,cost)=>{addonTotal+=cost;addonLines.push({name,cost});};
   if(SWITCH_IDS.has(cid)){[...SW_ROOT,...SW_SUB].forEach(s=>{const e=document.getElementById('sw_'+s.id);if(!e?.checked)return;const cost=days>=7?(Math.floor(days/7)*s.weekly+days%7*s.daily):days*s.daily;pushA(lang==='th'?s.th:s.en,cost);});}
@@ -10409,6 +10418,14 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   }
 
   function dailyWeeklyCost(days, daily, weekly){ if(days>=7){ const w=Math.floor(days/7), r=days%7; return w*weekly + r*daily; } return days*daily; }
+  function consoleRentalCost(days, daily, weekly){
+    const monthly={300:4000,350:5200,400:6500,500:8500}[Number(daily)];
+    if(days>=30 && monthly){
+      const extra=days-30, w=Math.floor(extra/7), r=extra%7;
+      return monthly + w*weekly + r*daily;
+    }
+    return dailyWeeklyCost(days,daily,weekly);
+  }
   function bgCostFor(g, days){
     if(!g || !days) return 0;
     if(days<=3) return Number(g.r3)||0;
@@ -10492,7 +10509,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     let bgExtraDeposit = 0;
     (state.boardgames||[]).forEach(bid=>{ const g=bgFindById(bid); if(g) bgExtraDeposit += bgExtraDepositFor(g, baseDeposit); });
     deposit += bgExtraDeposit;
-    let rental=dailyWeeklyCost(days,daily,weekly), addons=0, addonLines=[];
+    let rental=consoleRentalCost(days,daily,weekly), addons=0, addonLines=[];
     const push=(name,cost,id)=>{ addons+=cost; addonLines.push({name,cost,id:id||''}); };
     if(window.SWITCH_IDS && window.SWITCH_IDS.has(Number(c.id))){
       const items=[...(window.SW_ROOT||[]), ...(window.SW_SUB||[])];
