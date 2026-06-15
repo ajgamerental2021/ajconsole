@@ -2749,12 +2749,19 @@ function renderConsoleCards(list){
     const imgH=img?`<img src="${img}" alt="${cName(c)}" loading="lazy">`:`<span class="ci-emoji">${c.icon||'🎮'}</span>`;
     const hasBtn=canShowGameButton(c);
     const gameUrl=getGameButtonUrl(c);
-    return `<div class="con-card"><div class="con-img">${imgH}</div><div class="con-body">
+    const isFlexStrike=/PS FlexStrike Wireless Fight Stick/i.test(`${c.name||''} ${c.nameEn||''}`);
+    const fallbackReady=isFlexStrike?'2026-08-06':'';
+    const readyRaw=(typeof window.ajRentalReadyDate==='function'?window.ajRentalReadyDate(c):String(c.readyDate||c.unavailableUntil||''))||fallbackReady;
+    const unavailable=readyRaw&&new Date().toISOString().slice(0,10)<readyRaw;
+    const readyParts=String(readyRaw||'').split('-');
+    const readyText=readyParts.length===3?`${readyParts[2]}/${readyParts[1]}/${readyParts[0]}`:readyRaw;
+    const readyLabel=lang==='th'?`ยังไม่พร้อมให้บริการ\nพร้อมให้บริการวันที่ ${readyText}`:`Not available yet\nReady on ${readyText}`;
+    return `<div class="con-card${unavailable?' aj-console-unavailable':''}"><div class="con-img"${unavailable?` data-ready-label="${readyLabel.replace(/"/g,'&quot;')}"`:''}>${imgH}${unavailable?`<div class="aj-console-unavailable-overlay"><span>${readyLabel.replace('\n','<br>')}</span></div>`:''}</div><div class="con-body">
       <div class="con-name">${cName(c)}</div>
       <div class="price-row"><div class="pc"><div class="pl">${t('daily')}</div><div class="pv">฿${c.rate}<small>/${t('day')}</small></div></div><div class="pc"><div class="pl">${t('weekly')}</div><div class="pv">฿${c.weekly.toLocaleString()}<small>/${t('wk')}</small></div></div></div>
       <div class="dep-line">🔒 ${t('deposit')} ฿${c.deposit.toLocaleString()}</div>
       <div class="device-details">${getConsoleDetails(c).map(line=>`<div class="device-detail">${line}</div>`).join('')}</div>
-      ${hasBtn?`<a class="btn-games" href="${gameUrl}" target="_blank" data-console-id="${String(c.id).replace(/"/g,'&quot;')}" onclick="return window.ajOpenConsoleGamePicker ? window.ajOpenConsoleGamePicker(event,this) : true">${t('viewGames')}</a>`:''}
+      ${unavailable?`<div class="aj-console-ready-note">${readyLabel.replace('\n',' ')}</div>`:hasBtn?`<a class="btn-games" href="${gameUrl}" target="_blank" data-console-id="${String(c.id).replace(/"/g,'&quot;')}" onclick="return window.ajOpenConsoleGamePicker ? window.ajOpenConsoleGamePicker(event,this) : true">${t('viewGames')}</a>`:''}
       </div></div>`;
   }).join('')}</div>`;
 }
@@ -2816,7 +2823,7 @@ function renderCalcSelect(){
   const list=consoles.filter(c=>!catV||c.type===catV).slice().sort(sortCalcConsoles);
   const hasPrev=list.some(c=>String(c.id)===String(prev));
   const placeholder=`<option value=""${hasPrev?'':' selected'}>${t('consolePlaceholder')}</option>`;
-  sel.innerHTML=placeholder+list.map(c=>`<option value="${c.id}"${String(c.id)===String(prev)?' selected':''}>${cName(c)} (฿${c.rate}/${t('day')})</option>`).join('');
+  sel.innerHTML=placeholder+list.map(c=>{const unavailable=typeof window.ajRentalItemAvailable==='function'&&!window.ajRentalItemAvailable(c);const ready=typeof window.ajRentalReadyDate==='function'?window.ajRentalReadyDate(c):String(c.readyDate||c.unavailableUntil||'');const label=unavailable?`⛔ ${cName(c)} (฿${c.rate}/${t('day')}) — ${lang==='th'?'พร้อม '+ready:'Ready '+ready}`:`${cName(c)} (฿${c.rate}/${t('day')})`;return `<option value="${c.id}" class="${unavailable?'aj-option-unavailable':''}"${String(c.id)===String(prev)?' selected':''}${unavailable?' disabled':''}>${label}</option>`}).join('');
 }
 function onCatChange(){renderCalcSelect();onConsoleChange();}
 function onConsoleChange(){resetAvailabilityRangeSelection();renderSpecialOpts();updateContractWrap();calc();if(window.updateFlowUi) setTimeout(window.updateFlowUi,0);if(window.scheduleAvailabilityCheck) window.scheduleAvailabilityCheck({force:true});}
@@ -10399,7 +10406,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;"><label class="ajx-label" style="margin:0;">${tt().console}</label>${(()=>{ const b=promoBadgeConsole(); return b ? b.replace('margin-bottom:8px;','margin-bottom:0;') : ''; })()}</div>
           <select class="ajx-select" id="ajxConsole">
             <option value="">${isEn()?'-- Choose console --':'-- เลือกเครื่องเกม --'}</option>
-            ${consolesFiltered.map(c=>{ const pi=consolePromoInfo(); const dp = (pi.on && pi.mode==='percent') ? consoleDiscPrice(c.rate) : c.rate; const unavailable=!rentalReady(c); const ready=String(c.readyDate||c.unavailableUntil||''); const base=(pi.on && pi.mode==='percent' && dp<c.rate) ? `${cName(c)} (฿${c.rate} → ฿${dp}/${tt().day})` : `${cName(c)} (฿${c.rate}/${tt().day})`; const label=unavailable?`${base} — ${isEn()?'Ready '+formatDisplay(ready):'พร้อม '+formatDisplay(ready)}`:base; return `<option value="${c.id}" ${unavailable?'disabled':''}>${label}</option>`; }).join('')}
+            ${consolesFiltered.map(c=>{ const pi=consolePromoInfo(); const dp = (pi.on && pi.mode==='percent') ? consoleDiscPrice(c.rate) : c.rate; const unavailable=!rentalReady(c); const ready=typeof window.ajRentalReadyDate==='function'?window.ajRentalReadyDate(c):String(c.readyDate||c.unavailableUntil||''); const base=(pi.on && pi.mode==='percent' && dp<c.rate) ? `${cName(c)} (฿${c.rate} → ฿${dp}/${tt().day})` : `${cName(c)} (฿${c.rate}/${tt().day})`; const label=unavailable?`⛔ ${base} — ${isEn()?'Ready '+formatDisplay(ready):'พร้อม '+formatDisplay(ready)}`:base; return `<option value="${c.id}" class="${unavailable?'aj-option-unavailable':''}" ${unavailable?'disabled':''}>${label}</option>`; }).join('')}
           </select>
           ${(()=>{ const cc=currentConsole(); const pi=consolePromoInfo(); if(!cc||!pi.on||pi.mode!=='percent') return ''; const dDaily=consoleDiscPrice(cc.rate); const dWeekly=consoleDiscPrice(cc.weekly); if(dDaily>=cc.rate) return ''; return `<div style="margin-top:8px;font-size:12px;line-height:1.6;"><span style="text-decoration:line-through;color:#999;">฿${cc.rate.toLocaleString()}/${tt().day}</span> <span style="color:#1f7a32;font-weight:900;">฿${dDaily.toLocaleString()}/${tt().day}</span> <span style="color:#aaa;">|</span> <span style="text-decoration:line-through;color:#999;">฿${cc.weekly.toLocaleString()}/${tt().wk}</span> <span style="color:#1f7a32;font-weight:900;">฿${dWeekly.toLocaleString()}/${tt().wk}</span></div>`; })()}
         </div>
@@ -11259,7 +11266,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       if(sel){
         const filtered = consoleList().filter(c=>!state.cat || c.type===state.cat);
         const cur=state.consoleId;
-        sel.innerHTML = `<option value="">${isEn()?'-- Choose console --':'-- เลือกเครื่องเกม --'}</option>` + filtered.map(c=>{ const pi=consolePromoInfo(); const dp = (pi.on && pi.mode==='percent') ? consoleDiscPrice(c.rate) : c.rate; const unavailable=!rentalReady(c); const label = (pi.on && pi.mode==='percent' && dp<c.rate) ? `${cName(c)} (฿${c.rate} → ฿${dp}/${tt().day})` : `${cName(c)} (฿${c.rate}/${tt().day})`; return `<option value="${c.id}" ${String(c.id)===String(cur)?'selected':''} ${unavailable?'disabled':''}>${label}</option>`; }).join('');
+        sel.innerHTML = `<option value="">${isEn()?'-- Choose console --':'-- เลือกเครื่องเกม --'}</option>` + filtered.map(c=>{ const pi=consolePromoInfo(); const dp = (pi.on && pi.mode==='percent') ? consoleDiscPrice(c.rate) : c.rate; const unavailable=!rentalReady(c); const ready=typeof window.ajRentalReadyDate==='function'?window.ajRentalReadyDate(c):String(c.readyDate||c.unavailableUntil||''); const base=(pi.on && pi.mode==='percent' && dp<c.rate) ? `${cName(c)} (฿${c.rate} → ฿${dp}/${tt().day})` : `${cName(c)} (฿${c.rate}/${tt().day})`; const label=unavailable?`⛔ ${base} — ${isEn()?'Ready '+formatDisplay(ready):'พร้อม '+formatDisplay(ready)}`:base; return `<option value="${c.id}" class="${unavailable?'aj-option-unavailable':''}" ${String(c.id)===String(cur)?'selected':''} ${unavailable?'disabled':''}>${label}</option>`; }).join('');
         sel.value = cur || '';
       }
       render();
@@ -13836,12 +13843,12 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
 <style id="aj-rental-config-guide-style">
 .ajx-option-unavailable{opacity:.58;background:#f5f5f5!important;cursor:not-allowed!important}
 .ajx-unavailable-note{margin-top:5px;color:#b00000;font-size:11px;font-weight:900;line-height:1.45}
-.aj-guide-pointer{position:fixed;z-index:2502;font-size:34px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.28));pointer-events:none;animation:ajGuideBounce .75s ease-in-out infinite alternate}
-.aj-guide-box{position:fixed;z-index:2501;width:min(285px,calc(100vw - 24px));background:#fff;border:2px solid #d90000;border-radius:10px;padding:10px 11px 9px;box-shadow:0 12px 34px rgba(0,0,0,.2);font-size:12px;line-height:1.45}
+.aj-guide-pointer{position:absolute;z-index:2502;font-size:34px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.28));pointer-events:none;animation:ajGuideBounce .75s ease-in-out infinite alternate}
+.aj-guide-box{position:absolute;z-index:2501;width:min(285px,calc(100vw - 24px));background:#fff;border:2px solid #d90000;border-radius:10px;padding:9px 10px 8px;box-shadow:0 12px 34px rgba(0,0,0,.2);font-size:12px;line-height:1.45}
 .aj-guide-box-title{font-weight:900;color:#111;padding-right:30px}
-.aj-guide-close{position:absolute;right:7px;top:6px;border:0;background:#f1f1f1;width:28px;height:28px;border-radius:50%;font-size:18px;font-weight:900;cursor:pointer}
+.aj-guide-close{position:absolute;right:7px;top:6px;border:0;background:#f1f1f1;width:38px;height:38px;border-radius:50%;font-size:20px;font-weight:900;cursor:pointer;touch-action:manipulation}
 .aj-guide-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.aj-guide-actions button{border:1px solid #ddd;background:#fff;border-radius:7px;padding:5px 8px;font:inherit;font-weight:800;cursor:pointer}
+.aj-guide-actions button{border:1px solid #ddd;background:#fff;border-radius:7px;padding:8px 10px;min-width:78px;min-height:40px;flex:1 1 auto;font:inherit;font-size:12px;font-weight:900;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .aj-guide-actions button.primary{background:#d90000;color:#fff;border-color:#d90000}
 .aj-guide-target{outline:3px solid #e00000!important;outline-offset:4px!important;position:relative;z-index:2500!important}
 .aj-rental-admin-list{display:grid;gap:10px;margin-top:12px}
@@ -13849,9 +13856,15 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
 .aj-rental-admin-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}
 .aj-rental-admin-grid input,.aj-rental-admin-grid select{width:100%;padding:7px;border:1px solid var(--border);border-radius:6px}
 .aj-rental-admin-item label{font-size:11px;font-weight:800;color:var(--muted);display:block}
-.aj-console-unavailable{opacity:.58;pointer-events:none}
+.aj-console-unavailable{position:relative;pointer-events:none}
+.aj-console-unavailable .con-img{position:relative;filter:grayscale(.28);opacity:.72}
+.aj-console-unavailable-overlay{position:absolute!important;z-index:20!important;inset:0!important;display:flex!important;align-items:center;justify-content:center;padding:8px;background:repeating-linear-gradient(135deg,rgba(255,224,158,.86) 0 13px,rgba(135,135,135,.78) 13px 26px)!important;pointer-events:none}
+.aj-console-unavailable-overlay span{display:block;width:100%;padding:9px 6px;border-radius:6px;background:rgba(105,105,105,.9);color:#fff4bd;font-size:11px;font-weight:900;line-height:1.45;text-align:center}
+.aj-console-unavailable .con-body{opacity:.58}
+.aj-console-ready-note{margin:10px 0 0;padding:9px;border:1px solid #e7aaaa;border-radius:8px;background:#fff5f5;color:#a00000;font-size:12px;font-weight:900;line-height:1.45;text-align:center}
+.ajx-select option.aj-option-unavailable,#calcConsole option.aj-option-unavailable{text-decoration:line-through;color:#888}
 @keyframes ajGuideBounce{from{transform:translateY(-7px)}to{transform:translateY(7px)}}
-@media(max-width:760px){.aj-rental-admin-grid{grid-template-columns:1fr 1fr}.aj-guide-pointer{font-size:27px}.aj-guide-box{width:min(238px,calc(100vw - 18px));font-size:11px;padding:8px 9px 7px}.aj-guide-close{width:24px;height:24px;font-size:15px}.aj-guide-box-title{padding-right:25px}.aj-guide-actions button{padding:4px 7px}}
+@media(max-width:760px){.aj-rental-admin-grid{grid-template-columns:1fr 1fr}.aj-guide-pointer{font-size:27px}.aj-guide-box{width:min(250px,calc(100vw - 18px));font-size:11px;padding:8px 9px}.aj-guide-close{width:34px;height:34px;font-size:17px}.aj-guide-box-title{padding-right:36px;min-height:28px}.aj-guide-actions{gap:7px}.aj-guide-actions button{padding:8px 9px;min-height:40px;font-size:12px}}
 </style>
 
 <script id="aj-rental-config-guide-v11">
@@ -13875,16 +13888,29 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
   const attr=esc;
   function read(key,defaults){try{const v=JSON.parse(localStorage.getItem(key)||'null');return Array.isArray(v)?v:defaults}catch(e){return defaults}}
   function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
-  window.ajRentalItemAvailable=item=>!String(item&&item.readyDate||item&&item.unavailableUntil||'')||today()>=String(item.readyDate||item.unavailableUntil);
+  function readyDateOf(item){
+    const own=String(item&&item.readyDate||item&&item.unavailableUntil||'');
+    if(own)return own;
+    return /PS FlexStrike Wireless Fight Stick/i.test(String(item&&item.name||'')+' '+String(item&&item.nameEn||''))?'2026-08-06':'';
+  }
+  window.ajRentalReadyDate=readyDateOf;
+  window.ajRentalItemAvailable=item=>!readyDateOf(item)||today()>=readyDateOf(item);
+  function ensureDefaultConsoleReadyDates(){
+    let list=[];try{list=JSON.parse(localStorage.getItem('aj_consoles')||'[]')}catch(e){}
+    if(!Array.isArray(list))return;
+    let changed=false;
+    list.forEach(c=>{if(!String(c.readyDate||c.unavailableUntil||'')&&/PS FlexStrike Wireless Fight Stick/i.test(String(c.name||'')+' '+String(c.nameEn||''))){c.readyDate='2026-08-06';changed=true}});
+    if(changed){localStorage.setItem('aj_consoles',JSON.stringify(list));try{window.consoles=list}catch(e){}}
+  }
   function bundles(){return read(BUNDLE_KEY,DEFAULT_BUNDLES).map(x=>Object.assign({},x))}
   function accessories(){return read(ACC_KEY,DEFAULT_ACCESSORIES).map(x=>Object.assign({},x,{consoleIds:Array.isArray(x.consoleIds)?x.consoleIds.map(String):[]}))}
-  function publish(){window.PS5_BUNDLES=bundles();window.AJ_RENTAL_ACCESSORIES=accessories();try{window.ajxRender&&window.ajxRender()}catch(e){}}
+  function publish(){window.PS5_BUNDLES=bundles();window.AJ_RENTAL_ACCESSORIES=accessories();try{window.ajxRender&&window.ajxRender();window.renderConsoles&&window.renderConsoles()}catch(e){}setTimeout(()=>{try{enhanceConsoleCards()}catch(e){}},80)}
   function save(key,data){localStorage.setItem(key,JSON.stringify(data));publish();try{window.ajAutoPush&&window.ajAutoPush(500)}catch(e){}}
   window.ajRentalBundlesGet=bundles; window.ajRentalAccessoriesGet=accessories;
   if(!localStorage.getItem(BUNDLE_KEY)) localStorage.setItem(BUNDLE_KEY,JSON.stringify(DEFAULT_BUNDLES));
   if(!localStorage.getItem(ACC_KEY)) localStorage.setItem(ACC_KEY,JSON.stringify(DEFAULT_ACCESSORIES));
   if(localStorage.getItem(GUIDE_KEY)==null) localStorage.setItem(GUIDE_KEY,'true');
-  publish();
+  ensureDefaultConsoleReadyDates();publish();
 
   async function pullRentalConfig(){
     try{
@@ -13901,7 +13927,7 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
       if(Array.isArray(d.rentalBundles)) localStorage.setItem(BUNDLE_KEY,JSON.stringify(d.rentalBundles));
       if(Array.isArray(d.rentalAccessories)) localStorage.setItem(ACC_KEY,JSON.stringify(d.rentalAccessories));
       if(d.featureSettings&&Object.prototype.hasOwnProperty.call(d.featureSettings,'stepGuideEnabled')) localStorage.setItem(GUIDE_KEY,d.featureSettings.stepGuideEnabled?'true':'false');
-      publish();
+      ensureDefaultConsoleReadyDates();publish();
     }catch(e){}
   }
   pullRentalConfig();
@@ -13930,6 +13956,7 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
       <h4 style="margin-top:20px">${L('อุปกรณ์เสริม','Accessories')}</h4><button class="btn-aa green" data-config-add="accessory">+ ${L('เพิ่มอุปกรณ์','Add accessory')}</button><div class="aj-rental-admin-list">${itemRows('accessory')}</div></div>`;
   }
   function installAdmin(){
+    injectConsoleDates();
     const panel=$('ajV7Settings'); if(!panel||$('ajRentalConfigPanel'))return;
     panel.insertAdjacentHTML('beforeend',configPanel());
     $('ajGuideAdminToggle').onchange=e=>{localStorage.setItem(GUIDE_KEY,e.target.checked?'true':'false');if(!e.target.checked)dismissGuide();try{window.ajAutoPush&&window.ajAutoPush(500)}catch(_){}};
@@ -13946,23 +13973,34 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
   function refreshAdmin(){const old=$('ajRentalConfigPanel');if(old){old.outerHTML=configPanel();const panel=$('ajV7Settings');panel.addEventListener('click',adminClick);$('ajGuideAdminToggle').onchange=e=>{localStorage.setItem(GUIDE_KEY,e.target.checked?'true':'false');if(!e.target.checked)dismissGuide();try{window.ajAutoPush&&window.ajAutoPush(500)}catch(_){}}}}
   function injectConsoleDates(){
     const add=$('ajV9AddConsoleBtn'); if(add&&!$('ajV9NewReadyDate')) add.insertAdjacentHTML('beforebegin',`<div class="fgroup"><label class="flbl">${L('วันที่พร้อมให้บริการ (เว้นว่าง = พร้อม)','Ready date (blank = available)')}</label><input type="date" id="ajV9NewReadyDate"></div>`);
-    qa('[id^="ajV9Edit-"]').forEach(edit=>{const id=edit.id.replace('ajV9Edit-','');if($('ajV9ReadyDate-'+id))return;let list=[];try{list=JSON.parse(localStorage.getItem('aj_consoles')||'[]')}catch(e){}const c=Array.isArray(list)?list.find(x=>String(x.id)===String(id)):null;const saveBtn=edit.querySelector('[data-save]');saveBtn&&saveBtn.insertAdjacentHTML('beforebegin',`<div class="fgroup"><label class="flbl">${L('วันที่พร้อมให้บริการ (เว้นว่าง = พร้อม)','Ready date (blank = available)')}</label><input type="date" id="ajV9ReadyDate-${attr(id)}" value="${attr(c&&c.readyDate||'')}"></div>`);});
+    qa('[id^="ajV9Edit-"]').forEach(edit=>{const id=edit.id.replace('ajV9Edit-','');if($('ajV9ReadyDate-'+id))return;let list=[];try{list=JSON.parse(localStorage.getItem('aj_consoles')||'[]')}catch(e){}const c=Array.isArray(list)?list.find(x=>String(x.id)===String(id)):null;const saveBtn=edit.querySelector('[data-save]');saveBtn&&saveBtn.insertAdjacentHTML('beforebegin',`<div class="fgroup"><label class="flbl">${L('วันที่พร้อมให้บริการ (เว้นว่าง = พร้อม)','Ready date (blank = available)')}</label><input type="date" id="ajV9ReadyDate-${attr(id)}" value="${attr(c?readyDateOf(c):'')}"></div>`);});
   }
   document.addEventListener('click',e=>{
-    const saveBtn=e.target.closest('[data-save]');if(saveBtn&&saveBtn.closest('[id^="ajV9Edit-"]'))setTimeout(()=>saveConsoleReady(saveBtn.dataset.save),30);
+    const saveBtn=e.target.closest('[data-save]');
+    if(saveBtn&&saveBtn.closest('[id^="ajV9Edit-"]')){
+      const id=String(saveBtn.dataset.save||''), readyValue=$('ajV9ReadyDate-'+id)?.value||'';
+      setTimeout(()=>saveConsoleReady(id,readyValue),30);
+    }
     if(e.target.closest('#ajV9AddConsoleBtn')){const val=$('ajV9NewReadyDate')?.value||'';setTimeout(()=>{let l=[];try{l=JSON.parse(localStorage.getItem('aj_consoles')||'[]')}catch(_e){}if(Array.isArray(l)&&l.length){l[l.length-1].readyDate=val;localStorage.setItem('aj_consoles',JSON.stringify(l));try{window.ajAutoPush&&window.ajAutoPush(500)}catch(_){}}},50)}
   },true);
-  function saveConsoleReady(id){let l=[];try{l=JSON.parse(localStorage.getItem('aj_consoles')||'[]')}catch(e){}if(!Array.isArray(l))return;const c=l.find(x=>String(x.id)===String(id));if(c)c.readyDate=$('ajV9ReadyDate-'+id)?.value||'';localStorage.setItem('aj_consoles',JSON.stringify(l));try{window.consoles=l;window.ajAutoPush&&window.ajAutoPush(500);window.ajxRender&&window.ajxRender()}catch(e){}}
+  function saveConsoleReady(id,readyValue){let l=[];try{l=JSON.parse(localStorage.getItem('aj_consoles')||'[]')}catch(e){}if(!Array.isArray(l))return;const c=l.find(x=>String(x.id)===String(id));if(c)c.readyDate=String(readyValue||'');localStorage.setItem('aj_consoles',JSON.stringify(l));try{window.consoles=l;window.ajAutoPush&&window.ajAutoPush(500);window.ajxRender&&window.ajxRender();window.renderCalcSelect&&window.renderCalcSelect();window.renderConsoles&&window.renderConsoles()}catch(e){}setTimeout(()=>{injectConsoleDates();enhanceConsoleCards()},80)}
   function enhanceConsoleCards(){
     let list=[];try{list=JSON.parse(localStorage.getItem('aj_consoles')||'[]')}catch(e){}if(!Array.isArray(list))return;
     qa('.con-card').forEach(card=>{
       const first=String(card.innerText||'').split(/\n/)[0].trim(), c=list.find(x=>String(x.name||x.nameEn||'').trim()===first);
-      const unavailable=c&&!window.ajRentalItemAvailable(c);card.classList.toggle('aj-console-unavailable',!!unavailable);
+      const isFlexStrike=/PS FlexStrike Wireless Fight Stick/i.test(String(card.innerText||'')+' '+String(c&&c.name||'')+' '+String(c&&c.nameEn||''));
+      const readyDate=c?readyDateOf(c):(isFlexStrike?'2026-08-06':'');
+      const unavailable=!!readyDate&&today()<readyDate;card.classList.toggle('aj-console-unavailable',unavailable);
+      const img=card.querySelector('.con-img');
+      if(img)img.dataset.readyLabel=unavailable?L('ยังไม่พร้อมให้บริการ\nพร้อมให้บริการวันที่ ','Not available yet\nReady on ')+displayReadyDate(readyDate):'';
+      if(img&&unavailable&&!img.querySelector('.aj-console-unavailable-overlay')){const overlay=document.createElement('div');overlay.className='aj-console-unavailable-overlay';overlay.innerHTML='<span>'+esc(L('ยังไม่พร้อมให้บริการ','Not available yet'))+'<br>'+esc(L('พร้อมให้บริการวันที่ ','Ready on ')+displayReadyDate(readyDate))+'</span>';img.appendChild(overlay)}
+      if(img&&!unavailable)img.querySelector('.aj-console-unavailable-overlay')?.remove();
       const old=card.querySelector('.aj-console-ready-note');
       if(!unavailable&&old)old.remove();
-      if(unavailable&&!old){const note=document.createElement('div');note.className='aj-console-ready-note';note.style.cssText='margin:10px;padding:9px;border:1px solid #e7aaaa;border-radius:8px;background:#fff5f5;color:#a00000;font-size:12px;font-weight:900;text-align:center;';note.textContent=L('ยังไม่พร้อมให้บริการ พร้อมให้บริการวันที่ ','Not available yet. Ready on ')+String(c.readyDate||c.unavailableUntil||'');card.appendChild(note);qa('a,button,input',card).forEach(x=>{x.setAttribute('aria-disabled','true');x.tabIndex=-1})}
+      if(unavailable&&!old){const note=document.createElement('div');note.className='aj-console-ready-note';note.style.cssText='margin:10px;padding:9px;border:1px solid #e7aaaa;border-radius:8px;background:#fff5f5;color:#a00000;font-size:12px;font-weight:900;text-align:center;';note.textContent=L('ยังไม่พร้อมให้บริการ พร้อมให้บริการวันที่ ','Not available yet. Ready on ')+displayReadyDate(readyDate);card.appendChild(note);qa('a,button,input',card).forEach(x=>{x.setAttribute('aria-disabled','true');x.tabIndex=-1})}
     });
   }
+  function displayReadyDate(value){const p=String(value||'').split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:String(value||'')}
   const oldAdmin=window.renderAdminPanel;window.renderAdminPanel=function(){const r=oldAdmin?oldAdmin.apply(this,arguments):undefined;setTimeout(installAdmin,80);return r};
 
   let guideStepKey='', guideTimer=0;
@@ -13998,22 +14036,21 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
       if(!$('ajxStart')?.value)return {key:'1-start',target:$('ajxStart'),text:L('เลือกวันที่เริ่มเช่า แล้วเลือกวันที่คืน','Choose the rental start date, then the return date')};
       return {key:'1-next',target:nextButton(),text:L('พร้อมแล้ว ไปขั้นตอนถัดไปได้เลย','Ready. Continue to the next step')};
     }
-    if(n===2){const seq=sessionStorage.getItem('aj_guide_step2')||'ret';if(seq==='ret')return {key:'2-ret',target:$('ajxRet')?.closest('.ajx-check'),text:L('เคยเช่ากับทางร้านไหม?','Have you rented from us before?'),actions:[['yes',L('เคย','Yes')],['no',L('ไม่เคย','No')]]};if(seq==='contract')return {key:'2-contract',target:$('ajxNoCon')?.closest('.ajx-check'),text:L('ต้องการทำสัญญาการเช่าหรือไม่?','Would you like a rental contract?'),actions:[['want',L('ต้องการทำ','Yes')],['skip-contract',L('ไม่ต้องการทำ','No')]]};if(seq==='maps')return {key:'2-maps',target:$('ajxMaps'),text:L('Copy ลิงก์จาก Google Maps แล้วนำมาวางที่ช่องนี้ได้เลย','Copy a Google Maps link and paste it here'),actions:[['later-maps',L('แจ้งทีหลัง','Tell later')]]};return {key:'2-next',target:nextButton(),text:L('ไปขั้นตอนถัดไปได้เลย','Continue to the next step')}}
+    if(n===2){const seq=sessionStorage.getItem('aj_guide_step2')||'ret';if(seq==='ret')return {key:'2-ret',target:$('ajxRet')?.closest('.ajx-check'),text:L('เคยเช่ากับทางร้านไหม?','Have you rented from us before?'),actions:[['yes',L('เคย','Yes')],['no',L('ไม่เคย','No')]]};if(seq==='contract')return {key:'2-contract',target:$('ajxNoCon')?.closest('.ajx-check'),text:L('ต้องการทำสัญญาการเช่าหรือไม่?','Would you like a rental contract?'),actions:[['want',L('ต้องการทำ','Yes')],['skip-contract',L('ไม่ต้องการทำ','No')]]};if(seq==='payment'&&isEn())return {key:'2-payment',target:$('ajxPayment')?.closest('.ajx-card'),text:'Choose your preferred payment method',actions:[['payment-next','Continue']]};if(seq==='maps')return {key:'2-maps',target:$('ajxMaps'),text:L('Copy ลิงก์จาก Google Maps แล้วนำมาวางที่ช่องนี้ได้เลย','Copy a Google Maps link and paste it here'),actions:[['later-maps',L('แจ้งทีหลัง','Tell later')]]};return {key:'2-next',target:nextButton(),text:L('ไปขั้นตอนถัดไปได้เลย','Continue to the next step')}}
     if(n===3){if(!$('ajxLater')?.checked&&!(document.querySelectorAll('.ajx-game-item').length))return {key:'3-games',target:$('ajxOpenGames'),text:L('คลิกเลือกเกมเลย','Click to choose games'),actions:[['later-games',L('แจ้งภายหลัง','Tell later')]]};return {key:'3-next',target:nextButton(),text:L('ไปขั้นตอนถัดไปได้เลย','Continue to the next step')}}
     if(n===4)return {key:'4-send',target:$('ajxTopCopy')||$('ajxCopy'),target2:$('ajxTopLine')||$('ajxLine'),target3:isEn()?($('ajxTopWa')||$('ajxWa')):null,centerBetween:true,text:L('ส่งข้อความให้ร้าน สะดวกช่องทางไหนคลิกเลย','Choose the most convenient way to send the booking to us')};
     return null;
   }
-  function actGuide(action){if(action==='choose-bundle')sessionStorage.setItem('aj_guide_step1','bundle-choice');if(action==='skip-bundle')sessionStorage.setItem('aj_guide_step1',document.querySelector('[data-rental-accessory],#ajxSwJoy,#ajxVdock')?'accessory':'date');if(action==='choose-accessory')sessionStorage.setItem('aj_guide_step1','accessory-choice');if(action==='skip-accessory')sessionStorage.setItem('aj_guide_step1','date');if(action==='yes'){clickCheck('ajxRet',true);sessionStorage.setItem('aj_guide_step2','contract')}if(action==='no'){sessionStorage.setItem('aj_guide_step2','contract')}if(action==='want'){sessionStorage.setItem('aj_guide_step2','maps')}if(action==='skip-contract'){clickCheck('ajxNoCon',true);sessionStorage.setItem('aj_guide_step2','maps')}if(action==='later-maps'){sessionStorage.setItem('aj_guide_step2','next')}if(action==='later-games')clickCheck('ajxLater',true);setTimeout(renderGuide,80)}
+  function actGuide(action){if(action==='choose-bundle')sessionStorage.setItem('aj_guide_step1','bundle-choice');if(action==='skip-bundle')sessionStorage.setItem('aj_guide_step1',document.querySelector('[data-rental-accessory],#ajxSwJoy,#ajxVdock')?'accessory':'date');if(action==='choose-accessory')sessionStorage.setItem('aj_guide_step1','accessory-choice');if(action==='skip-accessory')sessionStorage.setItem('aj_guide_step1','date');if(action==='yes'){clickCheck('ajxRet',true);sessionStorage.setItem('aj_guide_step2','contract')}if(action==='no'){sessionStorage.setItem('aj_guide_step2','contract')}if(action==='want'){sessionStorage.setItem('aj_guide_step2',isEn()?'payment':'maps')}if(action==='skip-contract'){clickCheck('ajxNoCon',true);sessionStorage.setItem('aj_guide_step2',isEn()?'payment':'maps')}if(action==='payment-next'){sessionStorage.setItem('aj_guide_step2','maps')}if(action==='later-maps'){sessionStorage.setItem('aj_guide_step2','next')}if(action==='later-games')clickCheck('ajxLater',true);setTimeout(renderGuide,80)}
   function renderGuide(){
     clearTimeout(guideTimer);if(localStorage.getItem(GUIDE_KEY)==='false'||sessionStorage.getItem('aj_step_guide_dismissed')==='1'){removeGuide();return}
     const s=guideSpec();if(!s||!s.target){removeGuide();return}removeGuide();
     let r=s.target.getBoundingClientRect();
     if(s.centerBetween&&s.target2){const rs=[r,s.target2.getBoundingClientRect()];if(s.target3)rs.push(s.target3.getBoundingClientRect());const left=Math.min(...rs.map(x=>x.left)),right=Math.max(...rs.map(x=>x.right)),top=Math.min(...rs.map(x=>x.top)),bottom=Math.max(...rs.map(x=>x.bottom));r={left,right,top,bottom,width:right-left,height:bottom-top}}
-    if(guideStepKey!==s.key&&(r.top<90||r.bottom>innerHeight-170)){guideStepKey=s.key;s.target.scrollIntoView({behavior:'smooth',block:'center'});guideTimer=setTimeout(renderGuide,360);return}
     s.target.classList.add('aj-guide-target');if(s.target2)s.target2.classList.add('aj-guide-target');if(s.target3)s.target3.classList.add('aj-guide-target');
-    r=s.target.getBoundingClientRect();if(s.centerBetween&&s.target2){const rs=[r,s.target2.getBoundingClientRect()];if(s.target3)rs.push(s.target3.getBoundingClientRect());const left=Math.min(...rs.map(x=>x.left)),right=Math.max(...rs.map(x=>x.right)),top=Math.min(...rs.map(x=>x.top)),bottom=Math.max(...rs.map(x=>x.bottom));r={left,right,top,bottom,width:right-left,height:bottom-top}}const pointer=document.createElement('div');pointer.className='aj-guide-pointer';pointer.textContent='👇';pointer.style.left=Math.max(8,Math.min(innerWidth-48,r.left+r.width/2-18))+'px';pointer.style.top=Math.max(5,Math.min(innerHeight-48,r.top-48))+'px';document.body.appendChild(pointer);
+    r=s.target.getBoundingClientRect();if(s.centerBetween&&s.target2){const rs=[r,s.target2.getBoundingClientRect()];if(s.target3)rs.push(s.target3.getBoundingClientRect());const left=Math.min(...rs.map(x=>x.left)),right=Math.max(...rs.map(x=>x.right)),top=Math.min(...rs.map(x=>x.top)),bottom=Math.max(...rs.map(x=>x.bottom));r={left,right,top,bottom,width:right-left,height:bottom-top}}const pointer=document.createElement('div');pointer.className='aj-guide-pointer';pointer.textContent='👇';pointer.style.left=(scrollX+Math.max(8,Math.min(innerWidth-48,r.left+r.width/2-18)))+'px';pointer.style.top=(scrollY+Math.max(5,r.top-48))+'px';document.body.appendChild(pointer);
     const box=document.createElement('div');box.className='aj-guide-box';box.innerHTML=`<button class="aj-guide-close" aria-label="Close">×</button><div class="aj-guide-box-title">${esc(s.text)}</div>${s.actions?`<div class="aj-guide-actions">${s.actions.map((a,i)=>`<button data-guide-action="${a[0]}" class="${i===0?'primary':''}">${esc(a[1])}</button>`).join('')}</div>`:''}`;document.body.appendChild(box);
-    const bw=box.offsetWidth,bh=box.offsetHeight;box.style.left=Math.max(8,Math.min(innerWidth-bw-8,r.left+r.width/2-bw/2))+'px';box.style.top=Math.max(8,Math.min(innerHeight-bh-8,r.bottom+12))+'px';box.querySelector('.aj-guide-close').onclick=dismissGuide;qa('[data-guide-action]',box).forEach(b=>b.onclick=()=>actGuide(b.dataset.guideAction));guideStepKey=s.key;
+    const bw=box.offsetWidth;box.style.left=(scrollX+Math.max(8,Math.min(innerWidth-bw-8,r.left+r.width/2-bw/2)))+'px';box.style.top=(scrollY+Math.max(8,r.bottom+12))+'px';box.querySelector('.aj-guide-close').onclick=dismissGuide;qa('[data-guide-action]',box).forEach(b=>b.onclick=()=>actGuide(b.dataset.guideAction));guideStepKey=s.key;
   }
   const mo=new MutationObserver(mutations=>{
     const meaningful=mutations.some(m=>Array.from(m.addedNodes).concat(Array.from(m.removedNodes)).some(n=>n.nodeType!==1||!(n.matches&&n.matches('.aj-guide-pointer,.aj-guide-box'))));
