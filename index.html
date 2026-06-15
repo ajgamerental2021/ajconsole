@@ -174,6 +174,7 @@ html.aj-preload-pending body::before{
   document.documentElement.classList.add('aj-preload-pending');
   const DEFAULT_GIST_ID_BOOT = '4e8fb8c04f38df0538dc9172da99887a';
   const GIST_FILE_BOOT = 'aj_rental_data.json';
+  const GIST_OWNER_BOOT = 'ajgamerental2021';
   const HOME_KEY_BOOT = 'aj_home_sections_v1';
   function normalizeConsoleArrayBoot(value){
     if(Array.isArray(value)) return value;
@@ -194,9 +195,15 @@ html.aj-preload-pending body::before{
     const headers = token ? {Authorization:`token ${token}`} : {};
     const url = `https://api.github.com/gists/${gistId}?t=${Date.now()}`;
     const r = await fetch(url, {headers, cache:'no-store'});
-    if(!r.ok) return null;
-    const j = await r.json();
-    const raw = j.files && j.files[GIST_FILE_BOOT] && j.files[GIST_FILE_BOOT].content;
+    let raw = '';
+    if(r.ok){
+      const j = await r.json();
+      raw = j.files && j.files[GIST_FILE_BOOT] && j.files[GIST_FILE_BOOT].content;
+    }else{
+      const rawUrl = `https://gist.githubusercontent.com/${GIST_OWNER_BOOT}/${gistId}/raw/${GIST_FILE_BOOT}?t=${Date.now()}`;
+      const rawResponse = await fetch(rawUrl, {cache:'no-store'});
+      if(rawResponse.ok) raw = await rawResponse.text();
+    }
     if(!raw) return null;
     const data = JSON.parse(raw);
     try{
@@ -1380,7 +1387,7 @@ const T={
     filterPS:'PlayStation',filterNintendo:'Nintendo Switch',filterXbox:'Xbox',filterLogitech:'Logitech',filterMeta:'Meta Quest',filterViture:'Viture',filterXreal:'XREAL',filterLenovo:'Lenovo',filterROG:'ROG',filterSteamDeck:'Steam Deck',filterOther:'Other',
     sortGroupBrand:'แยกตามแบรนด์',sortAsc:'ราคา: ต่ำ → สูง',sortDesc:'ราคา: สูง → ต่ำ',sortName:'ชื่อ A → Z',
     statTotal:'เครื่องทั้งหมด',statConsole:'Console',statVR:'VR & AR',statHandheld:'PC Handheld',statRacing:'Racing',
-    daily:'รายวัน',weekly:'รายสัปดาห์',day:'วัน',wk:'สัปดาห์',deposit:'มัดจำ',viewGames:'🎮 คลิกตรงนี้เพื่อเลือก 10 เกม',
+    daily:'รายวัน',weekly:'รายสัปดาห์',day:'วัน',wk:'สัปดาห์',deposit:'ค่าประกัน',viewGames:'🎮 คลิกตรงนี้เพื่อเลือก 10 เกม',
     ps5BundleTitle:'🎮 BUNDLE กับ PS5',swAddonTitle:'🎮 อุปกรณ์เสริม',swSubLbl:'อุปกรณ์เพิ่มเติม (เลือกเพิ่มได้)',
     vdockTitle:'🥽 อุปกรณ์เสริม Viture',vdockLabel:'เพิ่ม Viture Mobile Dock (+฿200/การเช่า)',
     copiedTxt:'✅ คัดลอกแล้ว!',btnCopy:'📋 Copy ข้อความจองเช่า',btnLine:'ส่งข้อความทาง Line',btnWa:'ส่งข้อความทาง WhatsApp',
@@ -6058,9 +6065,16 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     const headers = tok ? {Authorization:`token ${tok}`} : {};
     const url = `https://api.github.com/gists/${id}?t=${Date.now()}`;
     const r = await fetch(url, {headers, cache:'no-store'});
-    if(!r.ok) throw new Error(`Gist fetch failed: ${r.status}`);
-    const j = await r.json();
-    const raw = j.files && j.files[GIST_FILE] && j.files[GIST_FILE].content;
+    let raw = '';
+    if(r.ok){
+      const j = await r.json();
+      raw = j.files && j.files[GIST_FILE] && j.files[GIST_FILE].content;
+    }else{
+      const rawUrl = `https://gist.githubusercontent.com/ajgamerental2021/${id}/raw/${GIST_FILE}?t=${Date.now()}`;
+      const rawResponse = await fetch(rawUrl, {cache:'no-store'});
+      if(rawResponse.ok) raw = await rawResponse.text();
+      else throw new Error(`Gist fetch failed: ${r.status}`);
+    }
     if(!raw) return null;
     return JSON.parse(raw);
   }
@@ -6289,7 +6303,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     if(isEnLang()){
       return '<p><strong>1)</strong> Select a console by category and model first<br><strong>2)</strong> Choose the rental start date and return date. Minimum rental is 3 days<br><strong>3)</strong> The system will check the console queue automatically. If the console is available for your selected dates, you can continue right away. If it is unavailable or already booked during that period, the system will show the next available date and you can click <strong>Adjust rental dates to available date</strong><br><strong>4)</strong> If that model has bundles or accessories, you can add them here<br><strong>5)</strong> If you want a rental contract, keep Additional options as normal and the contract link will appear in the summary<br><strong>6)</strong> If you do not want a rental contract, select <strong>No Rental Contract</strong> in Additional. The deposit will increase based on the stated rules<br><strong>7)</strong> Open Google Maps, choose your delivery location, then paste the link into the <strong>Google Maps delivery address</strong> field<br><strong>8)</strong> Choose games by clicking <strong>Choose / Edit Games</strong> or tick <strong>I will send the game list later</strong><br><strong>9)</strong> When everything looks good, click <strong>Copy Booking Message</strong> and send it via <strong>Line</strong> or <strong>WhatsApp</strong> right away</p>';
     }
-    return '<p><strong>1)</strong> เลือกเครื่อง จากหมวดและรุ่นที่ต้องการก่อน<br><strong>2)</strong> เลือกวันเริ่มเช่า และ วันคืนเครื่อง โดยระบบคิดขั้นต่ำ 3 วัน<br><strong>3)</strong> ระบบจะเช็คคิวเครื่องให้อัตโนมัติ ถ้าเครื่องว่างสามารถไปขั้นถัดไปได้ทันที แต่ถ้าเครื่องไม่ว่าง ระบบจะแจ้งวันว่างถัดไปและสามารถกด <strong>ปรับวันเช่าเป็นวันที่ว่าง</strong> ได้<br><strong>4)</strong> ถ้ารุ่นนั้นมี Bundle หรืออุปกรณ์เสริม สามารถติ๊กเพิ่มได้ในหน้านี้<br><strong>5)</strong> หากต้องการทำสัญญา ให้ปล่อยค่า Additional ตามปกติ แล้วลิงก์สัญญาจะขึ้นในสรุปค่าเช่า<br><strong>6)</strong> ถ้าไม่ทำสัญญาการเช่า ให้เลือก <strong>ไม่ต้องการทำสัญญาการเช่า</strong> ใน Additional ซึ่งค่ามัดจำจะเพิ่มขึ้นตามที่ระบบแจ้ง<br><strong>7)</strong> เปิด Google Maps เลือกสถานที่จัดส่ง แล้วคัดลอกลิงก์มาแปะในช่อง <strong>Google Maps ที่อยู่จัดส่ง</strong><br><strong>8)</strong> เลือกเกม โดยกด <strong>เลือก / แก้ไขรายชื่อเกม</strong> หรือ ติ๊ก <strong>แจ้งรายชื่อเกมภายหลัง</strong><br><strong>9)</strong> เมื่อสรุปเรียบร้อย กด <strong>Copy ข้อความจองเช่า</strong> แล้วส่งไปที่ <strong>Line</strong> ได้ทันที</p>';
+    return '<p><strong>1)</strong> เลือกเครื่อง จากหมวดและรุ่นที่ต้องการก่อน<br><strong>2)</strong> เลือกวันเริ่มเช่า และ วันคืนเครื่อง โดยระบบคิดขั้นต่ำ 3 วัน<br><strong>3)</strong> ระบบจะเช็คคิวเครื่องให้อัตโนมัติ ถ้าเครื่องว่างสามารถไปขั้นถัดไปได้ทันที แต่ถ้าเครื่องไม่ว่าง ระบบจะแจ้งวันว่างถัดไปและสามารถกด <strong>ปรับวันเช่าเป็นวันที่ว่าง</strong> ได้<br><strong>4)</strong> ถ้ารุ่นนั้นมี Bundle หรืออุปกรณ์เสริม สามารถติ๊กเพิ่มได้ในหน้านี้<br><strong>5)</strong> หากต้องการทำสัญญา ให้ปล่อยค่า Additional ตามปกติ แล้วลิงก์สัญญาจะขึ้นในสรุปค่าเช่า<br><strong>6)</strong> ถ้าไม่ทำสัญญาการเช่า ให้เลือก <strong>ไม่ต้องการทำสัญญาการเช่า</strong> ใน Additional ซึ่งค่าประกันจะเพิ่มขึ้นตามที่ระบบแจ้ง<br><strong>7)</strong> เปิด Google Maps เลือกสถานที่จัดส่ง แล้วคัดลอกลิงก์มาแปะในช่อง <strong>Google Maps ที่อยู่จัดส่ง</strong><br><strong>8)</strong> เลือกเกม โดยกด <strong>เลือก / แก้ไขรายชื่อเกม</strong> หรือ ติ๊ก <strong>แจ้งรายชื่อเกมภายหลัง</strong><br><strong>9)</strong> เมื่อสรุปเรียบร้อย กด <strong>Copy ข้อความจองเช่า</strong> แล้วส่งไปที่ <strong>Line</strong> ได้ทันที</p>';
   }
   window.__ajCalcGuideOpen = false;
   function renderGuideBox(){
@@ -6561,7 +6575,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   function isEn(){ try{return document.documentElement.lang==='en' || (typeof lang!=='undefined' && lang==='en');}catch(e){return false;} }
   function guideBody(){
     if(isEn()) return '<p><strong>1)</strong> Select a console by category and model first<br><strong>2)</strong> Choose the rental start date and return date. Minimum rental is 3 days<br><strong>3)</strong> The system will check the console queue automatically. If the console is available for your selected dates, you can continue right away. If it is unavailable or already booked during that period, the system will show the next available date and you can click <strong>Adjust rental dates to available date</strong><br><strong>4)</strong> If that model has bundles or accessories, you can add them here<br><strong>5)</strong> If you want a rental contract, keep Additional options as normal and the contract link will appear in the summary<br><strong>6)</strong> If you do not want a rental contract, select <strong>No Rental Contract</strong> in Additional. The deposit will increase based on the stated rules<br><strong>7)</strong> Open Google Maps, choose your delivery location, then paste the link into the <strong>Google Maps delivery address</strong> field<br><strong>8)</strong> Choose games by clicking <strong>Choose / Edit Games</strong> or tick <strong>I will send the game list later</strong><br><strong>9)</strong> When everything looks good, click <strong>Copy Booking Message</strong> and send it via <strong>Line</strong> or <strong>WhatsApp</strong> right away</p>';
-    return '<p><strong>1)</strong> เลือกเครื่อง จากหมวดและรุ่นที่ต้องการก่อน<br><strong>2)</strong> เลือกวันเริ่มเช่า และ วันคืนเครื่อง โดยระบบคิดขั้นต่ำ 3 วัน<br><strong>3)</strong> ระบบจะเช็คคิวเครื่องให้อัตโนมัติ ถ้าเครื่องว่างสามารถไปขั้นถัดไปได้ทันที แต่ถ้าเครื่องไม่ว่าง ระบบจะแจ้งวันว่างถัดไปและสามารถกด <strong>ปรับวันเช่าเป็นวันที่ว่าง</strong> ได้<br><strong>4)</strong> ถ้ารุ่นนั้นมี Bundle หรืออุปกรณ์เสริม สามารถติ๊กเพิ่มได้ในหน้านี้<br><strong>5)</strong> หากต้องการทำสัญญา ให้ปล่อยค่า Additional ตามปกติ แล้วลิงก์สัญญาจะขึ้นในสรุปค่าเช่า<br><strong>6)</strong> ถ้าไม่ทำสัญญาการเช่า ให้เลือก <strong>ไม่ต้องการทำสัญญาการเช่า</strong> ใน Additional ซึ่งค่ามัดจำจะเพิ่มขึ้นตามที่ระบบแจ้ง<br><strong>7)</strong> เปิด Google Maps เลือกสถานที่จัดส่ง แล้วคัดลอกลิงก์มาแปะในช่อง <strong>Google Maps ที่อยู่จัดส่ง</strong><br><strong>8)</strong> เลือกเกม โดยกด <strong>เลือก / แก้ไขรายชื่อเกม</strong> หรือ ติ๊ก <strong>แจ้งรายชื่อเกมภายหลัง</strong><br><strong>9)</strong> เมื่อสรุปเรียบร้อย กด <strong>Copy ข้อความจองเช่า</strong> แล้วส่งไปที่ <strong>Line</strong> ได้ทันที</p>';
+    return '<p><strong>1)</strong> เลือกเครื่อง จากหมวดและรุ่นที่ต้องการก่อน<br><strong>2)</strong> เลือกวันเริ่มเช่า และ วันคืนเครื่อง โดยระบบคิดขั้นต่ำ 3 วัน<br><strong>3)</strong> ระบบจะเช็คคิวเครื่องให้อัตโนมัติ ถ้าเครื่องว่างสามารถไปขั้นถัดไปได้ทันที แต่ถ้าเครื่องไม่ว่าง ระบบจะแจ้งวันว่างถัดไปและสามารถกด <strong>ปรับวันเช่าเป็นวันที่ว่าง</strong> ได้<br><strong>4)</strong> ถ้ารุ่นนั้นมี Bundle หรืออุปกรณ์เสริม สามารถติ๊กเพิ่มได้ในหน้านี้<br><strong>5)</strong> หากต้องการทำสัญญา ให้ปล่อยค่า Additional ตามปกติ แล้วลิงก์สัญญาจะขึ้นในสรุปค่าเช่า<br><strong>6)</strong> ถ้าไม่ทำสัญญาการเช่า ให้เลือก <strong>ไม่ต้องการทำสัญญาการเช่า</strong> ใน Additional ซึ่งค่าประกันจะเพิ่มขึ้นตามที่ระบบแจ้ง<br><strong>7)</strong> เปิด Google Maps เลือกสถานที่จัดส่ง แล้วคัดลอกลิงก์มาแปะในช่อง <strong>Google Maps ที่อยู่จัดส่ง</strong><br><strong>8)</strong> เลือกเกม โดยกด <strong>เลือก / แก้ไขรายชื่อเกม</strong> หรือ ติ๊ก <strong>แจ้งรายชื่อเกมภายหลัง</strong><br><strong>9)</strong> เมื่อสรุปเรียบร้อย กด <strong>Copy ข้อความจองเช่า</strong> แล้วส่งไปที่ <strong>Line</strong> ได้ทันที</p>';
   }
   function title(){ return isEn() ? '📌 How to use queue check & rental calculator' : '📌 วิธีใช้งานส่วนเช็คคิว & คำนวณค่าเช่า'; }
   function hint(){ return isEn() ? 'Click to expand' : 'คลิกเพื่อขยาย'; }
@@ -10008,11 +10022,11 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     finalCtaTitle:'ขั้นตอนสุดท้าย: ส่งข้อความนี้เพื่อยืนยันการจอง',finalCtaSub:'กดส่งข้อความทาง Line หรือ Copy ข้อความจองเช่า แล้วส่งให้ร้านยืนยัน',
     slConsole:'เครื่อง',slSection:'หมวดเครื่อง',slStart:'วันที่เริ่มเช่า',slEnd:'วันคืนเครื่อง',slDuration:'ระยะเวลา',slRental:'ค่าเช่า',slDeposit:'ค่าประกัน',slDelivery:'ค่าจัดส่ง',slTotal:'ยอดรวมทั้งหมด',slUpfront:'โอนล่วงหน้า (ยืนยันการจอง)',slOD:'จ่ายตอนของถึง',slCash:'จ่ายตอนของถึง',slPayment:'การชำระเงิน',
     copy:'📋 Copy ข้อความจองเช่า',copied:'คัดลอกแล้ว!',line:'ส่งข้อความทาง Line',wa:'ส่งข้อความทาง WhatsApp',lineHint:'แล้วส่งไปที่ Line: <b>@ajgame</b> เพื่อยืนยัน',
-    back:'ย้อนกลับ',nextStep:'ไปขั้นตอนถัดไป →',done:'เสร็จแล้ว',day:'วัน',wk:'สัปดาห์',deposit:'มัดจำ',sectionOther:'อื่น ๆ',payBank:'โอนบัญชีธนาคารไทย',payWise:'Wise',payCash:'เงินสด (บาทไทย)',noDates:'เลือกเครื่องและวันที่เพื่อดูสรุปค่าเช่า',discount:'ส่วนลดลูกค้าเก่า 10%',noConLabel:'(ไม่ทำสัญญา)',
+    back:'ย้อนกลับ',nextStep:'ไปขั้นตอนถัดไป →',done:'เสร็จแล้ว',day:'วัน',wk:'สัปดาห์',deposit:'ค่าประกัน',sectionOther:'อื่น ๆ',payBank:'โอนบัญชีธนาคารไทย',payWise:'Wise',payCash:'เงินสด (บาทไทย)',noDates:'เลือกเครื่องและวันที่เพื่อดูสรุปค่าเช่า',discount:'ส่วนลดลูกค้าเก่า 10%',noConLabel:'(ไม่ทำสัญญา)',
     contractLink:(window.T&&window.T.th&&window.T.th.contractLink)||'https://liff.line.me/2010196202-iYu3RKIb'
   };}
 
-  const ORDER = ['PS5','PS5 Pro','PS4','PS Portal','PS VR2','Nintendo Switch 2','Nintendo Switch 1','Logitech G29','Meta Quest 3','Meta Quest 3s','Viture Beast','Viture Luma Ultra','Viture Luma Pro','XREAL One','ROG Xbox Ally X','Xbox Series X','Xbox Series S','Lenovo Legion GO2','Steam Deck OLED'];
+  const ORDER = ['PS5','PS5 Pro','PS4','PS Portal','PS VR2','PS FlexStrike Wireless Fight Stick','Nintendo Switch 2','Nintendo Switch 1','Logitech G29','Meta Quest 3','Meta Quest 3s','Viture Beast','Viture Luma Ultra','Viture Luma Pro','XREAL One','ROG Xbox Ally X','Xbox Series X','Xbox Series S','Lenovo Legion GO2','Steam Deck OLED'];
   const PLATFORM_MAP = {
     'PS4':'ps4','PS5':'ps5','PS5 Pro':'ps5',
     'Nintendo Switch 1':'switch1','Nintendo Switch 2':'switch2',
@@ -10187,9 +10201,24 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     const list = Array.isArray(window.consoles) ? window.consoles.slice() : [];
     list.sort((a,b)=>{
       const ia = ORDER.indexOf(a.name), ib = ORDER.indexOf(b.name);
-      return (ia===-1?999:ia) - (ib===-1?999:ib) || String(a.name).localeCompare(String(b.name));
+      const brandA = typeof getBrandKey === 'function' ? getBrandKey(a) : String(a.brand||'other');
+      const brandB = typeof getBrandKey === 'function' ? getBrandKey(b) : String(b.brand||'other');
+      const orderA = typeof brandOrder === 'function' ? brandOrder(brandA) : 99;
+      const orderB = typeof brandOrder === 'function' ? brandOrder(brandB) : 99;
+      return orderA-orderB
+        || (ia===-1?999:ia) - (ib===-1?999:ib)
+        || String(a.name).localeCompare(String(b.name));
     });
     return list;
+  }
+  function rentalReady(item){ return typeof window.ajRentalItemAvailable==='function' ? window.ajRentalItemAvailable(item) : true; }
+  function isPs5Family(c){ return /ps5/i.test(`${c?.name||''} ${c?.nameEn||''}`); }
+  function isPs5Base(c){ return isPs5Family(c) && !/pro/i.test(`${c?.name||''} ${c?.nameEn||''}`); }
+  function readyMeta(item){
+    if(rentalReady(item)) return '';
+    const date=String(item?.readyDate||item?.unavailableUntil||'');
+    const label=isEn()?'Not available yet. Ready on ':'ยังไม่พร้อมให้บริการ พร้อมให้บริการวันที่ ';
+    return `<div class="ajx-unavailable-note">${label}${formatDisplay(date)}</div>`;
   }
   function consoleById(id){ return consoleList().find(c=>String(c.id)===String(id)); }
   function cName(c){ return isEn() ? (c?.nameEn||c?.name||'') : (c?.name||c?.nameEn||''); }
@@ -10247,7 +10276,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   function stepReady(step){
     if(step===1){
       const d = selectedDays();
-      return !!(state.consoleId && state.start && state.end && d>=3 && evaluateRange(state.start,state.end).pass!==false);
+      return !!(state.consoleId && rentalReady(currentConsole()) && state.start && state.end && d>=3 && evaluateRange(state.start,state.end).pass!==false);
     }
     return stepReady(1);
   }
@@ -10309,12 +10338,17 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   }
   function renderSpecialOpts(){
     const c=currentConsole(); if(!c) return '';
-    if(window.SPEC && Number(c.id)===Number(window.SPEC.PS5) && Array.isArray(window.PS5_BUNDLES)){
+    if(isPs5Base(c) && Array.isArray(window.PS5_BUNDLES)){
       const selected=state.bundleId||'';
+      const accessories=(window.AJ_RENTAL_ACCESSORIES||[]).filter(a=>Array.isArray(a.consoleIds)&&a.consoleIds.map(String).includes(String(c.id)));
       return `<div class="ajx-card"><span class="ajx-label">${isEn()?'🎮 PS5 Bundle Options':'🎮 BUNDLE กับ PS5'}</span>${promoBadgeConsole()}<div class="ajx-bundle">
         <label><input type="radio" name="ajx_ps5b" value="" ${selected===''?'checked':''}><div><div>${isEn()?'PS5 Only':'PS5 เท่านั้น'}</div><div class="meta">${priceLineConsole(400,2500,2000)}</div></div></label>
-        ${window.PS5_BUNDLES.map(b=>`<label><input type="radio" name="ajx_ps5b" value="${b.id}" ${selected===b.id?'checked':''}><div><div>${isEn()?b.en:b.th}</div><div class="meta">${priceLineConsole(b.rate,b.weekly,b.deposit)}</div></div></label>`).join('')}
-      </div></div>`;
+        ${window.PS5_BUNDLES.map(b=>`<label class="${rentalReady(b)?'':'ajx-option-unavailable'}"><input type="radio" name="ajx_ps5b" value="${b.id}" ${selected===b.id?'checked':''} ${rentalReady(b)?'':'disabled'}><div><div>${isEn()?b.en:b.th}</div><div class="meta">${priceLineConsole(b.rate,b.weekly,b.deposit)}</div>${readyMeta(b)}</div></label>`).join('')}
+      </div></div>${accessories.length?`<div class="ajx-card"><span class="ajx-label">${isEn()?'🎮 Accessories':'🎮 อุปกรณ์เสริม'}</span><div class="ajx-bundle"><label><input type="radio" name="ajx_ps_accessory" data-rental-accessory="" ${!accessories.some(a=>state.switchExtras.includes(a.id))?'checked':''}><div>${isEn()?'No extra accessory':'ไม่เพิ่มอุปกรณ์เสริม'}</div></label>${accessories.map(a=>`<label class="${rentalReady(a)?'':'ajx-option-unavailable'}"><input type="radio" name="ajx_ps_accessory" data-rental-accessory="${a.id}" ${state.switchExtras.includes(a.id)?'checked':''} ${rentalReady(a)?'':'disabled'}><div><div>${isEn()?a.en:a.th}</div><div class="meta">${priceLineAcc(a.daily,a.weekly)}</div>${readyMeta(a)}</div></label>`).join('')}</div></div>`:''}`;
+    }
+    if(isPs5Family(c)){
+      const accessories=(window.AJ_RENTAL_ACCESSORIES||[]).filter(a=>Array.isArray(a.consoleIds)&&a.consoleIds.map(String).includes(String(c.id)));
+      return accessories.length?`<div class="ajx-card"><span class="ajx-label">${isEn()?'🎮 Accessories':'🎮 อุปกรณ์เสริม'}</span><div class="ajx-bundle"><label><input type="radio" name="ajx_ps_accessory" data-rental-accessory="" ${!accessories.some(a=>state.switchExtras.includes(a.id))?'checked':''}><div>${isEn()?'No extra accessory':'ไม่เพิ่มอุปกรณ์เสริม'}</div></label>${accessories.map(a=>`<label class="${rentalReady(a)?'':'ajx-option-unavailable'}"><input type="radio" name="ajx_ps_accessory" data-rental-accessory="${a.id}" ${state.switchExtras.includes(a.id)?'checked':''} ${rentalReady(a)?'':'disabled'}><div><div>${isEn()?a.en:a.th}</div><div class="meta">${priceLineAcc(a.daily,a.weekly)}</div>${readyMeta(a)}</div></label>`).join('')}</div></div>`:'';
     }
     if(window.SWITCH_IDS && window.SWITCH_IDS.has(Number(c.id)) && Array.isArray(window.SW_ROOT) && Array.isArray(window.SW_SUB)){
       const joy=(window.SW_ROOT||[]).find(x=>x.id==='joy');
@@ -10365,7 +10399,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;"><label class="ajx-label" style="margin:0;">${tt().console}</label>${(()=>{ const b=promoBadgeConsole(); return b ? b.replace('margin-bottom:8px;','margin-bottom:0;') : ''; })()}</div>
           <select class="ajx-select" id="ajxConsole">
             <option value="">${isEn()?'-- Choose console --':'-- เลือกเครื่องเกม --'}</option>
-            ${consolesFiltered.map(c=>{ const pi=consolePromoInfo(); const dp = (pi.on && pi.mode==='percent') ? consoleDiscPrice(c.rate) : c.rate; const label = (pi.on && pi.mode==='percent' && dp<c.rate) ? `${cName(c)} (฿${c.rate} → ฿${dp}/${tt().day})` : `${cName(c)} (฿${c.rate}/${tt().day})`; return `<option value="${c.id}">${label}</option>`; }).join('')}
+            ${consolesFiltered.map(c=>{ const pi=consolePromoInfo(); const dp = (pi.on && pi.mode==='percent') ? consoleDiscPrice(c.rate) : c.rate; const unavailable=!rentalReady(c); const ready=String(c.readyDate||c.unavailableUntil||''); const base=(pi.on && pi.mode==='percent' && dp<c.rate) ? `${cName(c)} (฿${c.rate} → ฿${dp}/${tt().day})` : `${cName(c)} (฿${c.rate}/${tt().day})`; const label=unavailable?`${base} — ${isEn()?'Ready '+formatDisplay(ready):'พร้อม '+formatDisplay(ready)}`:base; return `<option value="${c.id}" ${unavailable?'disabled':''}>${label}</option>`; }).join('')}
           </select>
           ${(()=>{ const cc=currentConsole(); const pi=consolePromoInfo(); if(!cc||!pi.on||pi.mode!=='percent') return ''; const dDaily=consoleDiscPrice(cc.rate); const dWeekly=consoleDiscPrice(cc.weekly); if(dDaily>=cc.rate) return ''; return `<div style="margin-top:8px;font-size:12px;line-height:1.6;"><span style="text-decoration:line-through;color:#999;">฿${cc.rate.toLocaleString()}/${tt().day}</span> <span style="color:#1f7a32;font-weight:900;">฿${dDaily.toLocaleString()}/${tt().day}</span> <span style="color:#aaa;">|</span> <span style="text-decoration:line-through;color:#999;">฿${cc.weekly.toLocaleString()}/${tt().wk}</span> <span style="color:#1f7a32;font-weight:900;">฿${dWeekly.toLocaleString()}/${tt().wk}</span></div>`; })()}
         </div>
@@ -10500,9 +10534,9 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     const c=currentConsole(); if(!c) return null;
     const days=selectedDays(); if(!days || days<3) return null;
     let daily=c.rate, weekly=c.weekly, deposit=c.deposit, bundleName='';
-    if(window.SPEC && Number(c.id)===Number(window.SPEC.PS5) && Array.isArray(window.PS5_BUNDLES)){
+    if(isPs5Base(c) && Array.isArray(window.PS5_BUNDLES)){
       const b=window.PS5_BUNDLES.find(x=>x.id===state.bundleId);
-      if(b){ daily=b.rate; weekly=b.weekly; deposit=b.deposit; bundleName=isEn()?b.en:b.th; }
+      if(b && rentalReady(b)){ daily=b.rate; weekly=b.weekly; deposit=b.deposit; bundleName=isEn()?b.en:b.th; }
     }
     const baseDeposit = deposit;
     if(state.noCon){ deposit = deposit<=2000?5000:deposit<=3000?6000:8000; }
@@ -10515,6 +10549,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       const items=[...(window.SW_ROOT||[]), ...(window.SW_SUB||[])];
       (state.switchExtras||[]).forEach(id=>{ const s=items.find(x=>x.id===id); if(s) push(isEn()?s.en:s.th, dailyWeeklyCost(days, s.daily, s.weekly), id); });
     }
+    (state.switchExtras||[]).forEach(id=>{ const a=(window.AJ_RENTAL_ACCESSORIES||[]).find(x=>String(x.id)===String(id)); if(a && rentalReady(a)) push(isEn()?a.en:a.th, dailyWeeklyCost(days,a.daily,a.weekly), id); });
     if(window.VITURE_IDS && window.VITURE_IDS.has(Number(c.id)) && state.vdock) push('Viture Mobile Dock', 200, 'vdock');
     (state.boardgames||[]).forEach(bid=>{
       const g=bgFindById(bid); if(!g) return;
@@ -11224,15 +11259,16 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
       if(sel){
         const filtered = consoleList().filter(c=>!state.cat || c.type===state.cat);
         const cur=state.consoleId;
-        sel.innerHTML = `<option value="">${isEn()?'-- Choose console --':'-- เลือกเครื่องเกม --'}</option>` + filtered.map(c=>{ const pi=consolePromoInfo(); const dp = (pi.on && pi.mode==='percent') ? consoleDiscPrice(c.rate) : c.rate; const label = (pi.on && pi.mode==='percent' && dp<c.rate) ? `${cName(c)} (฿${c.rate} → ฿${dp}/${tt().day})` : `${cName(c)} (฿${c.rate}/${tt().day})`; return `<option value="${c.id}" ${String(c.id)===String(cur)?'selected':''}>${label}</option>`; }).join('');
+        sel.innerHTML = `<option value="">${isEn()?'-- Choose console --':'-- เลือกเครื่องเกม --'}</option>` + filtered.map(c=>{ const pi=consolePromoInfo(); const dp = (pi.on && pi.mode==='percent') ? consoleDiscPrice(c.rate) : c.rate; const unavailable=!rentalReady(c); const label = (pi.on && pi.mode==='percent' && dp<c.rate) ? `${cName(c)} (฿${c.rate} → ฿${dp}/${tt().day})` : `${cName(c)} (฿${c.rate}/${tt().day})`; return `<option value="${c.id}" ${String(c.id)===String(cur)?'selected':''} ${unavailable?'disabled':''}>${label}</option>`; }).join('');
         sel.value = cur || '';
       }
       render();
     });
-    q('#ajxConsole') && (q('#ajxConsole').value=state.consoleId, q('#ajxConsole').onchange=e=>{ const nextId=String(e.target.value||''); if(String(state.consoleId||'')!==nextId){ state.games=[]; state.notifyLater=false; state.pickerOpen=false; } state.consoleId=nextId; state.bundleId=''; state.switchExtras=[]; state.vdock=false; fetchAvailability(true); __ajxForceRenderOnce=true; render(); });
+    q('#ajxConsole') && (q('#ajxConsole').value=state.consoleId, q('#ajxConsole').onchange=e=>{ const nextId=String(e.target.value||''); if(String(state.consoleId||'')!==nextId){ state.games=[]; state.notifyLater=false; state.pickerOpen=false; try{sessionStorage.removeItem('aj_guide_step1')}catch(_e){} } state.consoleId=nextId; state.bundleId=''; state.switchExtras=[]; state.vdock=false; fetchAvailability(true); __ajxForceRenderOnce=true; render(); });
     qa('input[name="ajx_ps5b"]').forEach(r=>r.onchange=()=>{ state.bundleId=q('input[name="ajx_ps5b"]:checked')?.value||''; render(); });
     q('#ajxSwJoy') && (q('#ajxSwJoy').onchange=e=>{ const on=!!e.target.checked; state.switchExtras = state.switchExtras.filter(x=>!['joy','bat','wheel'].includes(x)); if(on) state.switchExtras.push('joy'); render(); });
     qa('[data-sw]').forEach(c=>c.onchange=()=>{ const joyOn = state.switchExtras.includes('joy'); const base = state.switchExtras.filter(x=>!['ringfit','taiko','bat','wheel'].includes(x)); const checked = qa('[data-sw]:checked').map(x=>x.dataset.sw); if(joyOn && !base.includes('joy')) base.push('joy'); state.switchExtras=[...base,...checked]; render(); });
+    qa('[data-rental-accessory]').forEach(c=>c.onchange=()=>{ const id=String(c.dataset.rentalAccessory||''); const psIds=(window.AJ_RENTAL_ACCESSORIES||[]).map(x=>String(x.id)); state.switchExtras=state.switchExtras.filter(x=>!psIds.includes(String(x))); if(c.checked) state.switchExtras.push(id); render(); });
     q('#ajxVdock') && (q('#ajxVdock').onchange=e=>{ state.vdock=!!e.target.checked; render(); });
     q('#ajxStart') && (q('#ajxStart').onclick=()=>openCalendar('start'));
     q('#ajxEnd') && (q('#ajxEnd').onclick=()=>openCalendar(state.start?'end':'start'));
@@ -12927,7 +12963,7 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     let ret=localStorage.getItem('aj_ret_enabled')==='true'; try{ret=!!retEnabled}catch(e){}
     const bgP=(window.ajPromo&&window.ajPromo.bg)||{enabled:false,mode:'percent',value:0};
     const conP=(window.ajPromo&&window.ajPromo.console)||{enabled:false,mode:'percent',value:0};
-    return {consoles:getConsolesLS(),images:getImages(),homeData:readHomeForm(),faqData:getFaq().filter(x=>x&&(x.qTh||x.aTh||x.qEn||x.aEn)),retEnabled:ret,featureSettings:{returningDiscountEnabled:ret},bgPromo:bgP,consolePromo:conP};
+    return {consoles:getConsolesLS(),images:getImages(),homeData:readHomeForm(),faqData:getFaq().filter(x=>x&&(x.qTh||x.aTh||x.qEn||x.aEn)),retEnabled:ret,featureSettings:{returningDiscountEnabled:ret,stepGuideEnabled:localStorage.getItem('aj_step_guide_enabled_v1')!=='false'},bgPromo:bgP,consolePromo:conP,rentalBundles:window.ajRentalBundlesGet?window.ajRentalBundlesGet():[],rentalAccessories:window.ajRentalAccessoriesGet?window.ajRentalAccessoriesGet():[]};
   }
   async function pushGist(){
     const gid=($('ghGistIdIn')?.value||localStorage.getItem('aj_gist_id')||OLD_GIST_ID).trim(); const tok=($('ghTokenIn')?.value||localStorage.getItem('aj_gist_token')||'').trim();
@@ -13048,9 +13084,11 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
       homeData : readHomeLS(),
       faqData  : readFaq(),
       retEnabled: ret,
-      featureSettings: { returningDiscountEnabled: ret },
+      featureSettings: { returningDiscountEnabled: ret, stepGuideEnabled: localStorage.getItem('aj_step_guide_enabled_v1') !== 'false' },
       bgPromo: (window.ajPromo&&window.ajPromo.bg)||{enabled:false,mode:'percent',value:0},
-      consolePromo: (window.ajPromo&&window.ajPromo.console)||{enabled:false,mode:'percent',value:0}
+      consolePromo: (window.ajPromo&&window.ajPromo.console)||{enabled:false,mode:'percent',value:0},
+      rentalBundles: window.ajRentalBundlesGet ? window.ajRentalBundlesGet() : [],
+      rentalAccessories: window.ajRentalAccessoriesGet ? window.ajRentalAccessoriesGet() : []
     };
   }
 
@@ -13089,6 +13127,11 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
     }
   }
   function schedulePush(delay){
+    if(location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      setStatus(L('🧪 โหมดทดสอบ: บันทึกเฉพาะเครื่องนี้ ไม่ส่งทับ Gist อัตโนมัติ',
+                  '🧪 Test mode: saved locally without overwriting Gist'));
+      return;
+    }
     if(pushTimer) clearTimeout(pushTimer);
     pushTimer = setTimeout(()=>{ pushTimer = null; doPush(); }, delay || 1500);
   }
@@ -13787,6 +13830,203 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
     var data = ev.data || {};
     if(data.type === 'AJ_PICKER_SELECTED') setTimeout(closeScopedPicker, 0);
   });
+})();
+</script>
+
+<style id="aj-rental-config-guide-style">
+.ajx-option-unavailable{opacity:.58;background:#f5f5f5!important;cursor:not-allowed!important}
+.ajx-unavailable-note{margin-top:5px;color:#b00000;font-size:11px;font-weight:900;line-height:1.45}
+.aj-guide-pointer{position:fixed;z-index:2502;font-size:34px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.28));pointer-events:none;animation:ajGuideBounce .75s ease-in-out infinite alternate}
+.aj-guide-box{position:fixed;z-index:2501;width:min(285px,calc(100vw - 24px));background:#fff;border:2px solid #d90000;border-radius:10px;padding:10px 11px 9px;box-shadow:0 12px 34px rgba(0,0,0,.2);font-size:12px;line-height:1.45}
+.aj-guide-box-title{font-weight:900;color:#111;padding-right:30px}
+.aj-guide-close{position:absolute;right:7px;top:6px;border:0;background:#f1f1f1;width:28px;height:28px;border-radius:50%;font-size:18px;font-weight:900;cursor:pointer}
+.aj-guide-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.aj-guide-actions button{border:1px solid #ddd;background:#fff;border-radius:7px;padding:5px 8px;font:inherit;font-weight:800;cursor:pointer}
+.aj-guide-actions button.primary{background:#d90000;color:#fff;border-color:#d90000}
+.aj-guide-target{outline:3px solid #e00000!important;outline-offset:4px!important;position:relative;z-index:2500!important}
+.aj-rental-admin-list{display:grid;gap:10px;margin-top:12px}
+.aj-rental-admin-item{border:1px solid var(--border);border-radius:8px;padding:11px;background:#fff}
+.aj-rental-admin-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}
+.aj-rental-admin-grid input,.aj-rental-admin-grid select{width:100%;padding:7px;border:1px solid var(--border);border-radius:6px}
+.aj-rental-admin-item label{font-size:11px;font-weight:800;color:var(--muted);display:block}
+.aj-console-unavailable{opacity:.58;pointer-events:none}
+@keyframes ajGuideBounce{from{transform:translateY(-7px)}to{transform:translateY(7px)}}
+@media(max-width:760px){.aj-rental-admin-grid{grid-template-columns:1fr 1fr}.aj-guide-pointer{font-size:27px}.aj-guide-box{width:min(238px,calc(100vw - 18px));font-size:11px;padding:8px 9px 7px}.aj-guide-close{width:24px;height:24px;font-size:15px}.aj-guide-box-title{padding-right:25px}.aj-guide-actions button{padding:4px 7px}}
+</style>
+
+<script id="aj-rental-config-guide-v11">
+(function(){
+  'use strict';
+  const BUNDLE_KEY='aj_rental_bundles_v1', ACC_KEY='aj_rental_accessories_v1', GUIDE_KEY='aj_step_guide_enabled_v1';
+  const DEFAULT_BUNDLES=[
+    {id:'vr2',th:'เช่าพร้อม PS VR2',en:'With PS VR2',rate:550,weekly:3500,deposit:3000,readyDate:''},
+    {id:'portal',th:'เช่าพร้อม PS Portal',en:'With PS Portal',rate:550,weekly:3500,deposit:3000,readyDate:''},
+    {id:'g29',th:'เช่าพร้อม Logitech G29',en:'With Logitech G29',rate:550,weekly:3500,deposit:3000,readyDate:''},
+    {id:'flexstrike',th:'เช่าพร้อม PS FlexStrike Wireless Fight Stick',en:'With PS FlexStrike Wireless Fight Stick',rate:550,weekly:3500,deposit:3000,readyDate:'2026-08-06'}
+  ];
+  const DEFAULT_ACCESSORIES=[
+    {id:'ps_joy1',th:'เพิ่มจอย 1 อัน (เล่นได้ 3 คน)',en:'Add 1 controller (3 players)',daily:120,weekly:600,consoleIds:['11','18'],readyDate:''},
+    {id:'ps_joy2',th:'เพิ่มจอย 2 อัน (เล่นได้ 4 คน)',en:'Add 2 controllers (4 players)',daily:200,weekly:900,consoleIds:['11','18'],readyDate:''}
+  ];
+  const $=id=>document.getElementById(id), qa=(s,r=document)=>Array.from(r.querySelectorAll(s));
+  const isEn=()=>{try{return document.documentElement.lang==='en'||window.lang==='en'||lang==='en'}catch(e){return false}};
+  const L=(th,en)=>isEn()?en:th;
+  const esc=s=>String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  const attr=esc;
+  function read(key,defaults){try{const v=JSON.parse(localStorage.getItem(key)||'null');return Array.isArray(v)?v:defaults}catch(e){return defaults}}
+  function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+  window.ajRentalItemAvailable=item=>!String(item&&item.readyDate||item&&item.unavailableUntil||'')||today()>=String(item.readyDate||item.unavailableUntil);
+  function bundles(){return read(BUNDLE_KEY,DEFAULT_BUNDLES).map(x=>Object.assign({},x))}
+  function accessories(){return read(ACC_KEY,DEFAULT_ACCESSORIES).map(x=>Object.assign({},x,{consoleIds:Array.isArray(x.consoleIds)?x.consoleIds.map(String):[]}))}
+  function publish(){window.PS5_BUNDLES=bundles();window.AJ_RENTAL_ACCESSORIES=accessories();try{window.ajxRender&&window.ajxRender()}catch(e){}}
+  function save(key,data){localStorage.setItem(key,JSON.stringify(data));publish();try{window.ajAutoPush&&window.ajAutoPush(500)}catch(e){}}
+  window.ajRentalBundlesGet=bundles; window.ajRentalAccessoriesGet=accessories;
+  if(!localStorage.getItem(BUNDLE_KEY)) localStorage.setItem(BUNDLE_KEY,JSON.stringify(DEFAULT_BUNDLES));
+  if(!localStorage.getItem(ACC_KEY)) localStorage.setItem(ACC_KEY,JSON.stringify(DEFAULT_ACCESSORIES));
+  if(localStorage.getItem(GUIDE_KEY)==null) localStorage.setItem(GUIDE_KEY,'true');
+  publish();
+
+  async function pullRentalConfig(){
+    try{
+      const gid=(localStorage.getItem('aj_gist_id')||'4e8fb8c04f38df0538dc9172da99887a').trim();
+      const r=await fetch('https://api.github.com/gists/'+gid,{cache:'no-store'});
+      let raw='';
+      if(r.ok){
+        const j=await r.json(); raw=j.files&&j.files['aj_rental_data.json']&&j.files['aj_rental_data.json'].content;
+      }else{
+        const rr=await fetch('https://gist.githubusercontent.com/ajgamerental2021/'+gid+'/raw/aj_rental_data.json?t='+Date.now(),{cache:'no-store'});
+        if(rr.ok)raw=await rr.text();
+      }
+      const d=raw?JSON.parse(raw):null; if(!d)return;
+      if(Array.isArray(d.rentalBundles)) localStorage.setItem(BUNDLE_KEY,JSON.stringify(d.rentalBundles));
+      if(Array.isArray(d.rentalAccessories)) localStorage.setItem(ACC_KEY,JSON.stringify(d.rentalAccessories));
+      if(d.featureSettings&&Object.prototype.hasOwnProperty.call(d.featureSettings,'stepGuideEnabled')) localStorage.setItem(GUIDE_KEY,d.featureSettings.stepGuideEnabled?'true':'false');
+      publish();
+    }catch(e){}
+  }
+  pullRentalConfig();
+
+  function consoleOptions(selected){
+    let list=[];try{list=JSON.parse(localStorage.getItem('aj_consoles')||'[]')}catch(e){}
+    if(!Array.isArray(list))list=[]; return list.map(c=>`<option value="${attr(c.id)}" ${selected.map(String).includes(String(c.id))?'selected':''}>${esc(c.name||c.nameEn||c.id)}</option>`).join('');
+  }
+  function itemRows(type){
+    const rows=type==='bundle'?bundles():accessories();
+    return rows.map(x=>`<div class="aj-rental-admin-item" data-config-row="${attr(type)}" data-id="${attr(x.id)}">
+      <strong>${esc(x.th||x.en)}</strong>
+      <div class="aj-rental-admin-grid">
+        <label>ชื่อ (TH)<input data-f="th" value="${attr(x.th||'')}"></label>
+        <label>Name (EN)<input data-f="en" value="${attr(x.en||'')}"></label>
+        ${type==='bundle'?`<label>${L('รายวัน','Daily')}<input type="number" data-f="rate" value="${Number(x.rate)||0}"></label><label>${L('รายสัปดาห์','Weekly')}<input type="number" data-f="weekly" value="${Number(x.weekly)||0}"></label><label>${L('ค่าประกัน','Deposit')}<input type="number" data-f="deposit" value="${Number(x.deposit)||0}"></label>`:`<label>${L('รายวัน','Daily')}<input type="number" data-f="daily" value="${Number(x.daily)||0}"></label><label>${L('รายสัปดาห์','Weekly')}<input type="number" data-f="weekly" value="${Number(x.weekly)||0}"></label><label>${L('ใช้กับเครื่อง','For consoles')}<select multiple data-f="consoleIds" style="min-height:78px">${consoleOptions(x.consoleIds||[])}</select></label>`}
+        <label>${L('วันที่พร้อมให้บริการ (เว้นว่าง = พร้อม)','Ready date (blank = available)')}<input type="date" data-f="readyDate" value="${attr(x.readyDate||'')}"></label>
+      </div>
+      <div style="display:flex;gap:7px;margin-top:9px"><button class="btn-sm" data-config-save="${attr(type)}">💾 ${L('บันทึก','Save')}</button><button class="btn-sm" data-config-delete="${attr(type)}" style="color:#c00">✕ ${L('ลบ','Delete')}</button></div>
+    </div>`).join('');
+  }
+  function configPanel(){
+    return `<div class="aform" id="ajRentalConfigPanel"><h4>🎮 ${L('Bundle และอุปกรณ์เสริม','Bundles and accessories')}</h4>
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)"><div><strong>${L('ระบบนิ้วชี้แนะนำขั้นตอน','Animated step guide')}</strong><div style="font-size:12px;color:var(--muted)">${L('เปิดเป็นค่าเริ่มต้น ลูกค้ากดกากบาทเพื่อปิดได้','Enabled by default; customers can close it')}</div></div><label class="toggle-switch"><input id="ajGuideAdminToggle" type="checkbox" ${localStorage.getItem(GUIDE_KEY)!=='false'?'checked':''}><span class="toggle-slider"></span></label></div>
+      <h4 style="margin-top:16px">PS5 Bundle</h4><button class="btn-aa green" data-config-add="bundle">+ ${L('เพิ่ม Bundle','Add bundle')}</button><div class="aj-rental-admin-list">${itemRows('bundle')}</div>
+      <h4 style="margin-top:20px">${L('อุปกรณ์เสริม','Accessories')}</h4><button class="btn-aa green" data-config-add="accessory">+ ${L('เพิ่มอุปกรณ์','Add accessory')}</button><div class="aj-rental-admin-list">${itemRows('accessory')}</div></div>`;
+  }
+  function installAdmin(){
+    const panel=$('ajV7Settings'); if(!panel||$('ajRentalConfigPanel'))return;
+    panel.insertAdjacentHTML('beforeend',configPanel());
+    $('ajGuideAdminToggle').onchange=e=>{localStorage.setItem(GUIDE_KEY,e.target.checked?'true':'false');if(!e.target.checked)dismissGuide();try{window.ajAutoPush&&window.ajAutoPush(500)}catch(_){}};
+    panel.addEventListener('click',adminClick);
+    injectConsoleDates();
+  }
+  function adminClick(e){
+    const add=e.target.closest('[data-config-add]'), del=e.target.closest('[data-config-delete]'), saveBtn=e.target.closest('[data-config-save]');
+    if(add){const type=add.dataset.configAdd,key=type==='bundle'?BUNDLE_KEY:ACC_KEY,list=type==='bundle'?bundles():accessories();list.push(type==='bundle'?{id:'bundle_'+Date.now(),th:'Bundle ใหม่',en:'New bundle',rate:550,weekly:3500,deposit:3000,readyDate:''}:{id:'accessory_'+Date.now(),th:'อุปกรณ์ใหม่',en:'New accessory',daily:0,weekly:0,consoleIds:[],readyDate:''});save(key,list);refreshAdmin();return}
+    const btn=del||saveBtn;if(!btn)return;const row=btn.closest('[data-config-row]'),type=row.dataset.configRow,key=type==='bundle'?BUNDLE_KEY:ACC_KEY,list=type==='bundle'?bundles():accessories(),idx=list.findIndex(x=>String(x.id)===String(row.dataset.id));if(idx<0)return;
+    if(del){if(confirm(L('ลบรายการนี้?','Delete this item?'))){list.splice(idx,1);save(key,list);refreshAdmin()}return}
+    qa('[data-f]',row).forEach(el=>{let v=el.multiple?qa('option:checked',el).map(o=>o.value):el.value;if(el.type==='number')v=Number(v)||0;list[idx][el.dataset.f]=v});save(key,list);refreshAdmin();
+  }
+  function refreshAdmin(){const old=$('ajRentalConfigPanel');if(old){old.outerHTML=configPanel();const panel=$('ajV7Settings');panel.addEventListener('click',adminClick);$('ajGuideAdminToggle').onchange=e=>{localStorage.setItem(GUIDE_KEY,e.target.checked?'true':'false');if(!e.target.checked)dismissGuide();try{window.ajAutoPush&&window.ajAutoPush(500)}catch(_){}}}}
+  function injectConsoleDates(){
+    const add=$('ajV9AddConsoleBtn'); if(add&&!$('ajV9NewReadyDate')) add.insertAdjacentHTML('beforebegin',`<div class="fgroup"><label class="flbl">${L('วันที่พร้อมให้บริการ (เว้นว่าง = พร้อม)','Ready date (blank = available)')}</label><input type="date" id="ajV9NewReadyDate"></div>`);
+    qa('[id^="ajV9Edit-"]').forEach(edit=>{const id=edit.id.replace('ajV9Edit-','');if($('ajV9ReadyDate-'+id))return;let list=[];try{list=JSON.parse(localStorage.getItem('aj_consoles')||'[]')}catch(e){}const c=Array.isArray(list)?list.find(x=>String(x.id)===String(id)):null;const saveBtn=edit.querySelector('[data-save]');saveBtn&&saveBtn.insertAdjacentHTML('beforebegin',`<div class="fgroup"><label class="flbl">${L('วันที่พร้อมให้บริการ (เว้นว่าง = พร้อม)','Ready date (blank = available)')}</label><input type="date" id="ajV9ReadyDate-${attr(id)}" value="${attr(c&&c.readyDate||'')}"></div>`);});
+  }
+  document.addEventListener('click',e=>{
+    const saveBtn=e.target.closest('[data-save]');if(saveBtn&&saveBtn.closest('[id^="ajV9Edit-"]'))setTimeout(()=>saveConsoleReady(saveBtn.dataset.save),30);
+    if(e.target.closest('#ajV9AddConsoleBtn')){const val=$('ajV9NewReadyDate')?.value||'';setTimeout(()=>{let l=[];try{l=JSON.parse(localStorage.getItem('aj_consoles')||'[]')}catch(_e){}if(Array.isArray(l)&&l.length){l[l.length-1].readyDate=val;localStorage.setItem('aj_consoles',JSON.stringify(l));try{window.ajAutoPush&&window.ajAutoPush(500)}catch(_){}}},50)}
+  },true);
+  function saveConsoleReady(id){let l=[];try{l=JSON.parse(localStorage.getItem('aj_consoles')||'[]')}catch(e){}if(!Array.isArray(l))return;const c=l.find(x=>String(x.id)===String(id));if(c)c.readyDate=$('ajV9ReadyDate-'+id)?.value||'';localStorage.setItem('aj_consoles',JSON.stringify(l));try{window.consoles=l;window.ajAutoPush&&window.ajAutoPush(500);window.ajxRender&&window.ajxRender()}catch(e){}}
+  function enhanceConsoleCards(){
+    let list=[];try{list=JSON.parse(localStorage.getItem('aj_consoles')||'[]')}catch(e){}if(!Array.isArray(list))return;
+    qa('.con-card').forEach(card=>{
+      const first=String(card.innerText||'').split(/\n/)[0].trim(), c=list.find(x=>String(x.name||x.nameEn||'').trim()===first);
+      const unavailable=c&&!window.ajRentalItemAvailable(c);card.classList.toggle('aj-console-unavailable',!!unavailable);
+      const old=card.querySelector('.aj-console-ready-note');
+      if(!unavailable&&old)old.remove();
+      if(unavailable&&!old){const note=document.createElement('div');note.className='aj-console-ready-note';note.style.cssText='margin:10px;padding:9px;border:1px solid #e7aaaa;border-radius:8px;background:#fff5f5;color:#a00000;font-size:12px;font-weight:900;text-align:center;';note.textContent=L('ยังไม่พร้อมให้บริการ พร้อมให้บริการวันที่ ','Not available yet. Ready on ')+String(c.readyDate||c.unavailableUntil||'');card.appendChild(note);qa('a,button,input',card).forEach(x=>{x.setAttribute('aria-disabled','true');x.tabIndex=-1})}
+    });
+  }
+  const oldAdmin=window.renderAdminPanel;window.renderAdminPanel=function(){const r=oldAdmin?oldAdmin.apply(this,arguments):undefined;setTimeout(installAdmin,80);return r};
+
+  let guideStepKey='', guideTimer=0;
+  function dismissGuide(){sessionStorage.setItem('aj_step_guide_dismissed','1');removeGuide()}
+  function removeGuide(){qa('.aj-guide-pointer,.aj-guide-box').forEach(x=>x.remove());qa('.aj-guide-target').forEach(x=>x.classList.remove('aj-guide-target'))}
+  function clickCheck(id,on=true){const el=$(id);if(!el)return;el.checked=on;el.dispatchEvent(new Event('change',{bubbles:true}))}
+  function nextButton(){return document.querySelector('.ajx-pane.active [data-next]')}
+  function hasOpenPopup(){
+    const selectors=[
+      '.overlay.open','.ajx-modal.open','.ajx-picker-overlay.open','.game-picker-overlay.open',
+      '.aj-liff-history-overlay.open','.ajx-done-confirm-overlay','#finalDateModal.open',
+      '.date-popup-overlay.open','.popup-calendar-wrap.open','.faq-popup.open','.faq-floating-overlay.open',
+      '[role="dialog"][aria-modal="true"]'
+    ];
+    return selectors.some(sel=>qa(sel).some(el=>{
+      if(el.closest('.aj-guide-box'))return false;
+      const st=getComputedStyle(el),r=el.getBoundingClientRect();
+      return st.display!=='none'&&st.visibility!=='hidden'&&Number(st.opacity||1)>0&&r.width>0&&r.height>0;
+    }));
+  }
+  function guideSpec(){
+    if(hasOpenPopup()) return null;
+    const pane=document.querySelector('.ajx-pane.active');if(!pane)return null;
+    const n=Number((pane.id||'').replace('ajxPane',''));
+    if(n===1){
+      if(!$('ajxConsole')?.value)return {key:'1-console',target:$('ajxConsole'),text:L('เลือกเครื่องเกมที่ต้องการเช่าก่อน','Choose the console you want to rent')};
+      let seq=sessionStorage.getItem('aj_guide_step1')||'';
+      const bundle=document.querySelector('input[name="ajx_ps5b"]')?.closest('.ajx-card');
+      const accessory=document.querySelector('[data-rental-accessory],#ajxSwJoy,#ajxVdock')?.closest('.ajx-card');
+      if(!seq)seq=bundle?'bundle':accessory?'accessory':'date';
+      if((seq==='bundle'||seq==='bundle-choice')&&bundle)return {key:'1-bundle-'+seq,target:bundle,text:seq==='bundle-choice'?L('เลือก Bundle ที่ต้องการได้เลย','Choose your preferred bundle'):L('ต้องการเพิ่ม Bundle กับเครื่องนี้ไหม?','Would you like to add a bundle?'),actions:seq==='bundle'?[['choose-bundle',L('เลือก Bundle','Choose bundle')],['skip-bundle',L('ไม่เพิ่ม','No bundle')]]:null};
+      if((seq==='accessory'||seq==='accessory-choice')&&accessory)return {key:'1-accessory-'+seq,target:accessory,text:seq==='accessory-choice'?L('เลือกอุปกรณ์เสริมได้ 1 รายการ','Choose one accessory'):L('ต้องการเพิ่มอุปกรณ์เสริมหรือไม่?','Would you like to add an accessory?'),actions:seq==='accessory'?[['choose-accessory',L('เลือกอุปกรณ์','Choose accessory')],['skip-accessory',L('ไม่เพิ่ม','No accessory')]]:null};
+      if(!$('ajxStart')?.value)return {key:'1-start',target:$('ajxStart'),text:L('เลือกวันที่เริ่มเช่า แล้วเลือกวันที่คืน','Choose the rental start date, then the return date')};
+      return {key:'1-next',target:nextButton(),text:L('พร้อมแล้ว ไปขั้นตอนถัดไปได้เลย','Ready. Continue to the next step')};
+    }
+    if(n===2){const seq=sessionStorage.getItem('aj_guide_step2')||'ret';if(seq==='ret')return {key:'2-ret',target:$('ajxRet')?.closest('.ajx-check'),text:L('เคยเช่ากับทางร้านไหม?','Have you rented from us before?'),actions:[['yes',L('เคย','Yes')],['no',L('ไม่เคย','No')]]};if(seq==='contract')return {key:'2-contract',target:$('ajxNoCon')?.closest('.ajx-check'),text:L('ต้องการทำสัญญาการเช่าหรือไม่?','Would you like a rental contract?'),actions:[['want',L('ต้องการทำ','Yes')],['skip-contract',L('ไม่ต้องการทำ','No')]]};if(seq==='maps')return {key:'2-maps',target:$('ajxMaps'),text:L('Copy ลิงก์จาก Google Maps แล้วนำมาวางที่ช่องนี้ได้เลย','Copy a Google Maps link and paste it here'),actions:[['later-maps',L('แจ้งทีหลัง','Tell later')]]};return {key:'2-next',target:nextButton(),text:L('ไปขั้นตอนถัดไปได้เลย','Continue to the next step')}}
+    if(n===3){if(!$('ajxLater')?.checked&&!(document.querySelectorAll('.ajx-game-item').length))return {key:'3-games',target:$('ajxOpenGames'),text:L('คลิกเลือกเกมเลย','Click to choose games'),actions:[['later-games',L('แจ้งภายหลัง','Tell later')]]};return {key:'3-next',target:nextButton(),text:L('ไปขั้นตอนถัดไปได้เลย','Continue to the next step')}}
+    if(n===4)return {key:'4-send',target:$('ajxTopCopy')||$('ajxCopy'),target2:$('ajxTopLine')||$('ajxLine'),target3:isEn()?($('ajxTopWa')||$('ajxWa')):null,centerBetween:true,text:L('ส่งข้อความให้ร้าน สะดวกช่องทางไหนคลิกเลย','Choose the most convenient way to send the booking to us')};
+    return null;
+  }
+  function actGuide(action){if(action==='choose-bundle')sessionStorage.setItem('aj_guide_step1','bundle-choice');if(action==='skip-bundle')sessionStorage.setItem('aj_guide_step1',document.querySelector('[data-rental-accessory],#ajxSwJoy,#ajxVdock')?'accessory':'date');if(action==='choose-accessory')sessionStorage.setItem('aj_guide_step1','accessory-choice');if(action==='skip-accessory')sessionStorage.setItem('aj_guide_step1','date');if(action==='yes'){clickCheck('ajxRet',true);sessionStorage.setItem('aj_guide_step2','contract')}if(action==='no'){sessionStorage.setItem('aj_guide_step2','contract')}if(action==='want'){sessionStorage.setItem('aj_guide_step2','maps')}if(action==='skip-contract'){clickCheck('ajxNoCon',true);sessionStorage.setItem('aj_guide_step2','maps')}if(action==='later-maps'){sessionStorage.setItem('aj_guide_step2','next')}if(action==='later-games')clickCheck('ajxLater',true);setTimeout(renderGuide,80)}
+  function renderGuide(){
+    clearTimeout(guideTimer);if(localStorage.getItem(GUIDE_KEY)==='false'||sessionStorage.getItem('aj_step_guide_dismissed')==='1'){removeGuide();return}
+    const s=guideSpec();if(!s||!s.target){removeGuide();return}removeGuide();
+    let r=s.target.getBoundingClientRect();
+    if(s.centerBetween&&s.target2){const rs=[r,s.target2.getBoundingClientRect()];if(s.target3)rs.push(s.target3.getBoundingClientRect());const left=Math.min(...rs.map(x=>x.left)),right=Math.max(...rs.map(x=>x.right)),top=Math.min(...rs.map(x=>x.top)),bottom=Math.max(...rs.map(x=>x.bottom));r={left,right,top,bottom,width:right-left,height:bottom-top}}
+    if(guideStepKey!==s.key&&(r.top<90||r.bottom>innerHeight-170)){guideStepKey=s.key;s.target.scrollIntoView({behavior:'smooth',block:'center'});guideTimer=setTimeout(renderGuide,360);return}
+    s.target.classList.add('aj-guide-target');if(s.target2)s.target2.classList.add('aj-guide-target');if(s.target3)s.target3.classList.add('aj-guide-target');
+    r=s.target.getBoundingClientRect();if(s.centerBetween&&s.target2){const rs=[r,s.target2.getBoundingClientRect()];if(s.target3)rs.push(s.target3.getBoundingClientRect());const left=Math.min(...rs.map(x=>x.left)),right=Math.max(...rs.map(x=>x.right)),top=Math.min(...rs.map(x=>x.top)),bottom=Math.max(...rs.map(x=>x.bottom));r={left,right,top,bottom,width:right-left,height:bottom-top}}const pointer=document.createElement('div');pointer.className='aj-guide-pointer';pointer.textContent='👇';pointer.style.left=Math.max(8,Math.min(innerWidth-48,r.left+r.width/2-18))+'px';pointer.style.top=Math.max(5,Math.min(innerHeight-48,r.top-48))+'px';document.body.appendChild(pointer);
+    const box=document.createElement('div');box.className='aj-guide-box';box.innerHTML=`<button class="aj-guide-close" aria-label="Close">×</button><div class="aj-guide-box-title">${esc(s.text)}</div>${s.actions?`<div class="aj-guide-actions">${s.actions.map((a,i)=>`<button data-guide-action="${a[0]}" class="${i===0?'primary':''}">${esc(a[1])}</button>`).join('')}</div>`:''}`;document.body.appendChild(box);
+    const bw=box.offsetWidth,bh=box.offsetHeight;box.style.left=Math.max(8,Math.min(innerWidth-bw-8,r.left+r.width/2-bw/2))+'px';box.style.top=Math.max(8,Math.min(innerHeight-bh-8,r.bottom+12))+'px';box.querySelector('.aj-guide-close').onclick=dismissGuide;qa('[data-guide-action]',box).forEach(b=>b.onclick=()=>actGuide(b.dataset.guideAction));guideStepKey=s.key;
+  }
+  const mo=new MutationObserver(mutations=>{
+    const meaningful=mutations.some(m=>Array.from(m.addedNodes).concat(Array.from(m.removedNodes)).some(n=>n.nodeType!==1||!(n.matches&&n.matches('.aj-guide-pointer,.aj-guide-box'))));
+    if(!meaningful)return;
+    clearTimeout(guideTimer);guideTimer=setTimeout(()=>{installAdmin();enhanceConsoleCards();renderGuide()},120);
+  });mo.observe(document.documentElement,{childList:true,subtree:true});
+  window.addEventListener('resize',()=>{clearTimeout(guideTimer);guideTimer=setTimeout(renderGuide,80)});
+  document.addEventListener('change',e=>{
+    if(e.target&&e.target.matches('input[name="ajx_ps5b"]'))sessionStorage.setItem('aj_guide_step1',document.querySelector('[data-rental-accessory],#ajxSwJoy,#ajxVdock')?'accessory':'date');
+    if(e.target&&e.target.matches('[data-rental-accessory],#ajxSwJoy,#ajxVdock'))sessionStorage.setItem('aj_guide_step1','date');
+  },true);
+  document.addEventListener('click',e=>{if(e.target.closest('.aj-guide-box'))return;clearTimeout(guideTimer);guideTimer=setTimeout(renderGuide,180)},true);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{enhanceConsoleCards();renderGuide()},250));else setTimeout(()=>{enhanceConsoleCards();renderGuide()},250);
 })();
 </script>
 
