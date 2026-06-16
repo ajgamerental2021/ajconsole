@@ -13844,13 +13844,13 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
 .ajx-option-unavailable{opacity:.58;background:#f5f5f5!important;cursor:not-allowed!important}
 .ajx-unavailable-note{margin-top:5px;color:#b00000;font-size:11px;font-weight:900;line-height:1.45}
 .aj-guide-pointer{position:absolute;z-index:2502;font-size:34px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.28));pointer-events:none;animation:ajGuideBounce .75s ease-in-out infinite alternate}
-.aj-guide-box{position:absolute;z-index:2501;width:min(285px,calc(100vw - 24px));background:#fff;border:2px solid #d90000;border-radius:10px;padding:9px 10px 8px;box-shadow:0 12px 34px rgba(0,0,0,.2);font-size:12px;line-height:1.45}
+.aj-guide-box{position:absolute;z-index:2501;width:min(285px,calc(100vw - 24px));background:#fff8c9;border:3px solid #1455d9;border-radius:12px;padding:10px 11px 9px;box-shadow:0 14px 36px rgba(20,85,217,.28),0 4px 0 rgba(255,200,0,.75) inset;font-size:12px;line-height:1.45}
 .aj-guide-box-title{font-weight:900;color:#111;padding-right:30px}
-.aj-guide-close{position:absolute;right:7px;top:6px;border:0;background:#f1f1f1;width:38px;height:38px;border-radius:50%;font-size:20px;font-weight:900;cursor:pointer;touch-action:manipulation}
+.aj-guide-close{position:absolute;right:7px;top:6px;border:0;background:#e4ecff;color:#1455d9;width:38px;height:38px;border-radius:50%;font-size:20px;font-weight:900;cursor:pointer;touch-action:manipulation}
 .aj-guide-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .aj-guide-actions button{border:1px solid #ddd;background:#fff;border-radius:7px;padding:8px 10px;min-width:78px;min-height:40px;flex:1 1 auto;font:inherit;font-size:12px;font-weight:900;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.aj-guide-actions button.primary{background:#d90000;color:#fff;border-color:#d90000}
-.aj-guide-target{outline:3px solid #e00000!important;outline-offset:4px!important;position:relative;z-index:2500!important}
+.aj-guide-actions button.primary{background:#1455d9;color:#fff;border-color:#1455d9}
+.aj-guide-target{outline:4px solid #1455d9!important;outline-offset:5px!important;box-shadow:0 0 0 7px rgba(255,215,0,.42)!important;position:relative;z-index:2500!important}
 .aj-rental-admin-list{display:grid;gap:10px;margin-top:12px}
 .aj-rental-admin-item{border:1px solid var(--border);border-radius:8px;padding:11px;background:#fff}
 .aj-rental-admin-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}
@@ -14008,6 +14008,10 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
   function removeGuide(){qa('.aj-guide-pointer,.aj-guide-box').forEach(x=>x.remove());qa('.aj-guide-target').forEach(x=>x.classList.remove('aj-guide-target'))}
   function clickCheck(id,on=true){const el=$(id);if(!el)return;el.checked=on;el.dispatchEvent(new Event('change',{bubbles:true}))}
   function nextButton(){return document.querySelector('.ajx-pane.active [data-next]')}
+  function step1AccessoryTarget(){return document.querySelector('[data-rental-accessory],#ajxSwJoy,#ajxVdock')?.closest('.ajx-card')}
+  function step1BoardgameTarget(){return $('ajxBgAdd')?.closest('.ajx-card')}
+  function step1AfterBundle(){return step1AccessoryTarget()?'accessory':(step1BoardgameTarget()?'boardgame':'date')}
+  function step1AfterAccessory(){return step1BoardgameTarget()?'boardgame':'date'}
   function hasOpenPopup(){
     const selectors=[
       '.overlay.open','.ajx-modal.open','.ajx-picker-overlay.open','.game-picker-overlay.open',
@@ -14029,10 +14033,12 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
       if(!$('ajxConsole')?.value)return {key:'1-console',target:$('ajxConsole'),text:L('เลือกเครื่องเกมที่ต้องการเช่าก่อน','Choose the console you want to rent')};
       let seq=sessionStorage.getItem('aj_guide_step1')||'';
       const bundle=document.querySelector('input[name="ajx_ps5b"]')?.closest('.ajx-card');
-      const accessory=document.querySelector('[data-rental-accessory],#ajxSwJoy,#ajxVdock')?.closest('.ajx-card');
-      if(!seq)seq=bundle?'bundle':accessory?'accessory':'date';
+      const accessory=step1AccessoryTarget();
+      const boardgame=step1BoardgameTarget();
+      if(!seq)seq=bundle?'bundle':accessory?'accessory':boardgame?'boardgame':'date';
       if((seq==='bundle'||seq==='bundle-choice')&&bundle)return {key:'1-bundle-'+seq,target:bundle,text:seq==='bundle-choice'?L('เลือก Bundle ที่ต้องการได้เลย','Choose your preferred bundle'):L('ต้องการเพิ่ม Bundle กับเครื่องนี้ไหม?','Would you like to add a bundle?'),actions:seq==='bundle'?[['choose-bundle',L('เลือก Bundle','Choose bundle')],['skip-bundle',L('ไม่เพิ่ม','No bundle')]]:null};
       if((seq==='accessory'||seq==='accessory-choice')&&accessory)return {key:'1-accessory-'+seq,target:accessory,text:seq==='accessory-choice'?L('เลือกอุปกรณ์เสริมได้ 1 รายการ','Choose one accessory'):L('ต้องการเพิ่มอุปกรณ์เสริมหรือไม่?','Would you like to add an accessory?'),actions:seq==='accessory'?[['choose-accessory',L('เลือกอุปกรณ์','Choose accessory')],['skip-accessory',L('ไม่เพิ่ม','No accessory')]]:null};
+      if((seq==='boardgame'||seq==='boardgame-choice')&&boardgame)return {key:'1-boardgame-'+seq,target:seq==='boardgame-choice'?($('ajxBgAdd')||boardgame):boardgame,text:seq==='boardgame-choice'?L('กดเพิ่มรายการ แล้วเลือกบอร์ดเกมที่อยากเช่าได้เลย','Tap Add board game, then choose the board game you want to rent'):L('ต้องการเพิ่ม Bundle บอร์ดเกมกับชุดเช่านี้ไหม?','Would you like to add a board game bundle to this rental?'),actions:seq==='boardgame'?[['choose-boardgame',L('เพิ่มบอร์ดเกม','Add board game')],['skip-boardgame',L('ไม่เพิ่ม','No board game')]]:[['skip-boardgame',L('ไม่ต้องการเพิ่มต่อ','No more add-ons')]]};
       if(!$('ajxStart')?.value)return {key:'1-start',target:$('ajxStart'),text:L('เลือกวันที่เริ่มเช่า แล้วเลือกวันที่คืน','Choose the rental start date, then the return date')};
       return {key:'1-next',target:nextButton(),text:L('พร้อมแล้ว ไปขั้นตอนถัดไปได้เลย','Ready. Continue to the next step')};
     }
@@ -14041,12 +14047,18 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
     if(n===4)return {key:'4-send',target:$('ajxTopCopy')||$('ajxCopy'),target2:$('ajxTopLine')||$('ajxLine'),target3:isEn()?($('ajxTopWa')||$('ajxWa')):null,centerBetween:true,text:L('ส่งข้อความให้ร้าน สะดวกช่องทางไหนคลิกเลย','Choose the most convenient way to send the booking to us')};
     return null;
   }
-  function actGuide(action){if(action==='choose-bundle')sessionStorage.setItem('aj_guide_step1','bundle-choice');if(action==='skip-bundle')sessionStorage.setItem('aj_guide_step1',document.querySelector('[data-rental-accessory],#ajxSwJoy,#ajxVdock')?'accessory':'date');if(action==='choose-accessory')sessionStorage.setItem('aj_guide_step1','accessory-choice');if(action==='skip-accessory')sessionStorage.setItem('aj_guide_step1','date');if(action==='yes'){clickCheck('ajxRet',true);sessionStorage.setItem('aj_guide_step2','contract')}if(action==='no'){sessionStorage.setItem('aj_guide_step2','contract')}if(action==='want'){sessionStorage.setItem('aj_guide_step2',isEn()?'payment':'maps')}if(action==='skip-contract'){clickCheck('ajxNoCon',true);sessionStorage.setItem('aj_guide_step2',isEn()?'payment':'maps')}if(action==='payment-next'){sessionStorage.setItem('aj_guide_step2','maps')}if(action==='later-maps'){sessionStorage.setItem('aj_guide_step2','next')}if(action==='later-games')clickCheck('ajxLater',true);setTimeout(renderGuide,80)}
+  function actGuide(action){if(action==='choose-bundle')sessionStorage.setItem('aj_guide_step1','bundle-choice');if(action==='skip-bundle')sessionStorage.setItem('aj_guide_step1',step1AfterBundle());if(action==='choose-accessory')sessionStorage.setItem('aj_guide_step1','accessory-choice');if(action==='skip-accessory')sessionStorage.setItem('aj_guide_step1',step1AfterAccessory());if(action==='choose-boardgame'){$('ajxBgAdd')?.click();sessionStorage.setItem('aj_guide_step1','boardgame-choice')}if(action==='skip-boardgame')sessionStorage.setItem('aj_guide_step1','date');if(action==='yes'){clickCheck('ajxRet',true);sessionStorage.setItem('aj_guide_step2','contract')}if(action==='no'){sessionStorage.setItem('aj_guide_step2','contract')}if(action==='want'){sessionStorage.setItem('aj_guide_step2',isEn()?'payment':'maps')}if(action==='skip-contract'){clickCheck('ajxNoCon',true);sessionStorage.setItem('aj_guide_step2',isEn()?'payment':'maps')}if(action==='payment-next'){sessionStorage.setItem('aj_guide_step2','maps')}if(action==='later-maps'){sessionStorage.setItem('aj_guide_step2','next')}if(action==='later-games')clickCheck('ajxLater',true);setTimeout(renderGuide,80)}
   function renderGuide(){
     clearTimeout(guideTimer);if(localStorage.getItem(GUIDE_KEY)==='false'||sessionStorage.getItem('aj_step_guide_dismissed')==='1'){removeGuide();return}
     const s=guideSpec();if(!s||!s.target){removeGuide();return}removeGuide();
     let r=s.target.getBoundingClientRect();
     if(s.centerBetween&&s.target2){const rs=[r,s.target2.getBoundingClientRect()];if(s.target3)rs.push(s.target3.getBoundingClientRect());const left=Math.min(...rs.map(x=>x.left)),right=Math.max(...rs.map(x=>x.right)),top=Math.min(...rs.map(x=>x.top)),bottom=Math.max(...rs.map(x=>x.bottom));r={left,right,top,bottom,width:right-left,height:bottom-top}}
+    if(guideStepKey!==s.key&&(r.top<90||r.bottom>innerHeight-170)){
+      guideStepKey=s.key;
+      s.target.scrollIntoView({behavior:'smooth',block:'center'});
+      guideTimer=setTimeout(renderGuide,360);
+      return
+    }
     s.target.classList.add('aj-guide-target');if(s.target2)s.target2.classList.add('aj-guide-target');if(s.target3)s.target3.classList.add('aj-guide-target');
     r=s.target.getBoundingClientRect();if(s.centerBetween&&s.target2){const rs=[r,s.target2.getBoundingClientRect()];if(s.target3)rs.push(s.target3.getBoundingClientRect());const left=Math.min(...rs.map(x=>x.left)),right=Math.max(...rs.map(x=>x.right)),top=Math.min(...rs.map(x=>x.top)),bottom=Math.max(...rs.map(x=>x.bottom));r={left,right,top,bottom,width:right-left,height:bottom-top}}const pointer=document.createElement('div');pointer.className='aj-guide-pointer';pointer.textContent='👇';pointer.style.left=(scrollX+Math.max(8,Math.min(innerWidth-48,r.left+r.width/2-18)))+'px';pointer.style.top=(scrollY+Math.max(5,r.top-48))+'px';document.body.appendChild(pointer);
     const box=document.createElement('div');box.className='aj-guide-box';box.innerHTML=`<button class="aj-guide-close" aria-label="Close">×</button><div class="aj-guide-box-title">${esc(s.text)}</div>${s.actions?`<div class="aj-guide-actions">${s.actions.map((a,i)=>`<button data-guide-action="${a[0]}" class="${i===0?'primary':''}">${esc(a[1])}</button>`).join('')}</div>`:''}`;document.body.appendChild(box);
@@ -14059,8 +14071,9 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
   });mo.observe(document.documentElement,{childList:true,subtree:true});
   window.addEventListener('resize',()=>{clearTimeout(guideTimer);guideTimer=setTimeout(renderGuide,80)});
   document.addEventListener('change',e=>{
-    if(e.target&&e.target.matches('input[name="ajx_ps5b"]'))sessionStorage.setItem('aj_guide_step1',document.querySelector('[data-rental-accessory],#ajxSwJoy,#ajxVdock')?'accessory':'date');
-    if(e.target&&e.target.matches('[data-rental-accessory],#ajxSwJoy,#ajxVdock'))sessionStorage.setItem('aj_guide_step1','date');
+    if(e.target&&e.target.matches('input[name="ajx_ps5b"]'))sessionStorage.setItem('aj_guide_step1',step1AfterBundle());
+    if(e.target&&e.target.matches('[data-rental-accessory],#ajxSwJoy,#ajxVdock'))sessionStorage.setItem('aj_guide_step1',step1AfterAccessory());
+    if(e.target&&e.target.matches('.ajx-bg-sel'))sessionStorage.setItem('aj_guide_step1','date');
   },true);
   document.addEventListener('click',e=>{if(e.target.closest('.aj-guide-box'))return;clearTimeout(guideTimer);guideTimer=setTimeout(renderGuide,180)},true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{enhanceConsoleCards();renderGuide()},250));else setTimeout(()=>{enhanceConsoleCards();renderGuide()},250);
