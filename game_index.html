@@ -6728,6 +6728,8 @@ document.addEventListener('touchstart', function(e) {
   const params = new URLSearchParams(window.location.search || '');
   const embedMode = params.get('embed');
   if(embedMode) return;
+  const shouldDeepLink = params.has('platforms') || params.has('platform') || params.has('console') || params.has('platformId') || params.has('filter') || params.has('device') || params.has('machine') || params.has('tab') || params.has('focus') || params.has('active');
+  if(!shouldDeepLink) return;
   function slugify(v){
     return String(v || '')
       .toLowerCase()
@@ -6747,10 +6749,12 @@ document.addEventListener('touchstart', function(e) {
   }
   function buildAliasMap(){
     const map = new Map();
-    (window.platforms || []).forEach(p => {
+    const list = (typeof platforms !== 'undefined' && Array.isArray(platforms)) ? platforms : (window.platforms || []);
+    list.forEach(p => {
       addAlias(map, p.id, p.id);
       addAlias(map, p.name, p.id);
       addAlias(map, String(p.name || '').replace(/\s*&\s*/g,' '), p.id);
+      addAlias(map, String(p.name || '').replace(/\s+/g,''), p.id);
     });
     [
       ['ps4','ps4'],['playstation-4','ps4'],['ps5','ps5'],['playstation-5','ps5'],['ps45','ps45'],['ps4-ps5','ps45'],['ps4andps5','ps45'],['ps4-ps5-games','ps45'],['playstation','ps45'],['playstation-4-5','ps45'],['ps4-amp-ps5','ps45'],['ps4-ps5-only','ps45'],
@@ -6759,12 +6763,12 @@ document.addEventListener('touchstart', function(e) {
       ['xbox','xbox'],['xbox-series-s','xbox'],['xbox-series-x','xbox'],
       ['meta','meta'],['meta-quest','meta'],['meta-quest-3','meta'],['meta-quest-3s','meta'],
       ['rog','rog'],['rog-ally','rog'],['rog-xbox-ally-x','rog'],['legion-go2','rog'],['legiongo2','rog'],
-      ['steam-deck','p_1774941944007'],['steamdeck','p_1774941944007']
+      ['steam-deck','p_1774941944007'],['steamdeck','p_1774941944007'],['steam','p_1774941944007']
     ].forEach(([alias,id]) => addAlias(map, alias, id));
     return map;
   }
-  const aliasMap = buildAliasMap();
   function resolveIds(rawValue){
+    const aliasMap = buildAliasMap();
     return Array.from(new Set(String(rawValue || '')
       .split(',')
       .map(v => String(v || '').trim())
@@ -6773,27 +6777,42 @@ document.addEventListener('touchstart', function(e) {
       .flatMap(v => v === 'ps45' ? ['ps4','ps5'] : [v])
       .filter(Boolean)));
   }
-  const scopedIds = resolveIds(params.get('platforms') || params.get('platform') || params.get('console') || params.get('platformId') || '');
+  const scopedIds = resolveIds(params.get('platforms') || params.get('platform') || params.get('console') || params.get('platformId') || params.get('filter') || params.get('device') || params.get('machine') || params.get('tab') || params.get('focus') || params.get('active') || '');
   if(!scopedIds.length) return;
   const focusIds = resolveIds(params.get('focus') || params.get('active') || params.get('tab') || '');
   const focusId = focusIds[0] || scopedIds[0];
+  const shouldKeepAllTabs = ['1','true','yes','all'].includes(String(params.get('keepTabs') || params.get('keep') || '').toLowerCase());
   window.__ajScopedPlatformIds = scopedIds.slice();
   window.__ajScopedFocusId = focusId;
   function applyScopedCatalog(){
     try{
-      if(Array.isArray(platforms)) platforms = platforms.filter(p => scopedIds.includes(p.id));
-      if(Array.isArray(games)) games = games.filter(g => scopedIds.some(id => gameMatchesPlatform(g, id)));
+      if(!shouldKeepAllTabs && Array.isArray(platforms)) platforms = platforms.filter(p => scopedIds.includes(p.id));
+      if(!shouldKeepAllTabs && Array.isArray(games)) games = games.filter(g => scopedIds.some(id => gameMatchesPlatform(g, id)));
       if(typeof activePlatformTab !== 'undefined') activePlatformTab = focusId;
       if(typeof adminGameFilter !== 'undefined' && !scopedIds.includes(adminGameFilter)) adminGameFilter = focusId;
+      if(typeof sectionCollapsed !== 'undefined') scopedIds.forEach(id => { sectionCollapsed[id] = false; });
     }catch(e){}
   }
   window.ajApplyGameCatalogFilters = applyScopedCatalog;
   applyScopedCatalog();
+  function scrollToFocusedSection(attempt){
+    const section = document.getElementById('section-' + focusId);
+    const tabs = document.getElementById('platform-tabs');
+    const target = section || tabs;
+    if(!target){
+      if((attempt || 0) < 8) setTimeout(() => scrollToFocusedSection((attempt || 0) + 1), 180);
+      return;
+    }
+    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - 18);
+    window.scrollTo({ top, behavior: (attempt || 0) ? 'auto' : 'smooth' });
+  }
   function renderScopedView(){
     applyScopedCatalog();
     if(typeof renderPublic === 'function') renderPublic();
     if(typeof applyLang === 'function') applyLang();
     renderNotice();
+    setTimeout(() => scrollToFocusedSection(0), 90);
+    setTimeout(() => scrollToFocusedSection(1), 520);
   }
   if(window.ajGameCatalogReady && typeof window.ajGameCatalogReady.then === 'function'){
     window.ajGameCatalogReady.then(renderScopedView);
@@ -6804,7 +6823,8 @@ document.addEventListener('touchstart', function(e) {
     const hero = document.querySelector('main .hero');
     if(!hero) return;
     let host = document.getElementById('ajScopedPlatformNotice');
-    const names = (window.platforms || []).map(p => p.name).join(' • ');
+    const list = (typeof platforms !== 'undefined' && Array.isArray(platforms)) ? platforms : (window.platforms || []);
+    const names = list.filter(p => shouldKeepAllTabs ? scopedIds.includes(p.id) : true).map(p => p.name).join(' • ');
     if(!host){
       host = document.createElement('div');
       host.id = 'ajScopedPlatformNotice';
@@ -6829,6 +6849,7 @@ document.addEventListener('touchstart', function(e) {
       if(scopedIds.length === 1 && typeof setPickPlatform === 'function') setPickPlatform(scopedIds[0]);
     }, 180);
   }
+  window.addEventListener('load', () => setTimeout(() => scrollToFocusedSection(0), 250));
 })();
 </script>
 
