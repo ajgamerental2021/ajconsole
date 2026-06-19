@@ -4127,6 +4127,16 @@ function normalizeGameRecord(g) {
   next.platformId = primaryPlatformId(next);
   return next;
 }
+function ajTodayYmd() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function isGameUnavailable(g) {
+  if (!g || !g.unavailable) return false;
+  const ready = String(g.available_date || '').trim();
+  if (!ready) return true;
+  return ajTodayYmd() < ready;
+}
 function ensurePlayStationPlatforms() {
   const rest = (platforms || []).filter(p => p && !['ps4','ps5',PLAYSTATION_ADMIN_ID].includes(p.id));
   platforms = PLAYSTATION_PUBLIC_PLATFORMS.map(p => Object.assign({}, p)).concat(rest);
@@ -4471,7 +4481,7 @@ function renderAdminGames() {
     <div class="game-row-num">${i+1}</div>
     ${g.imgUrl ? `<img class="game-row-img" src="${escHtml(g.imgUrl)}" alt="" loading="lazy" decoding="async" onerror="this.style.background='var(--bg2)'">` : '<div class="game-row-img" style="background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:18px">🎮</div>'}
     <div class="game-row-info" style="flex:1;min-width:0">
-      <div class="game-row-name">${escHtml(g.name)}${g.unavailable ? ' <span style="font-size:10px;background:#fff3cd;color:#856404;padding:1px 6px;border-radius:10px;margin-left:4px">⚠️ ไม่พร้อมบริการ'+(g.available_date?(' '+g.available_date):'')+'</span>' : ''}</div>
+      <div class="game-row-name">${escHtml(g.name)}${isGameUnavailable(g) ? ' <span style="font-size:10px;background:#fff3cd;color:#856404;padding:1px 6px;border-radius:10px;margin-left:4px">⚠️ ไม่พร้อมบริการ'+(g.available_date?(' '+g.available_date):'')+'</span>' : ''}</div>
       <div style="display:flex;flex-wrap:wrap;gap:4px;margin:2px 0">${gTags}</div>
       <div class="game-row-url">
         ${g.year?`📅 ${g.year} · `:''}${g.players?`👥 ${escHtml(g.players)} · `:''}${g.ytId?'▶ มี Trailer':'ไม่มี Trailer'}
@@ -4554,9 +4564,9 @@ function openGameForm(id) {
   const unavailEl = document.getElementById('gf-unavailable');
   const dateEl = document.getElementById('gf-available-date');
   const dateRow = document.getElementById('gf-available-date-row');
-  if (unavailEl) unavailEl.checked = g ? !!g.unavailable : false;
+  if (unavailEl) unavailEl.checked = g ? isGameUnavailable(g) : false;
   if (dateEl) dateEl.value = g ? (g.available_date || '') : '';
-  if (dateRow) dateRow.style.display = (g && g.unavailable) ? 'block' : 'none';
+  if (dateRow) dateRow.style.display = (g && isGameUnavailable(g)) ? 'block' : 'none';
   const ps4El = document.getElementById('gf-ps4');
   const ps5El = document.getElementById('gf-ps5');
   if (ps4El) ps4El.checked = g ? currentIds.includes('ps4') : false;
@@ -5635,7 +5645,7 @@ function renderSections() {
         const imgHtml = g.imgUrl
           ? `<img class="game-card-img" src="${escHtml(g.imgUrl)}" alt="${escHtml(g.name)}" loading="lazy" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
           : '';
-        const unavailRibbon = g.unavailable ? (() => {
+        const unavailRibbon = isGameUnavailable(g) ? (() => {
           const dateStr = g.available_date ? (() => {
             const [y,m,d] = g.available_date.split('-');
             return d+'/'+m+'/'+y;
@@ -5782,7 +5792,7 @@ function renderPickBody() {
     body.style.padding = '0';
     body.innerHTML = `<div class="game-list-view" style="margin:0">` + pg.map((g, i) => {
       const sel = pickedGames.includes(g.id);
-      const isUnavailL = !!g.unavailable;
+      const isUnavailL = isGameUnavailable(g);
       const disabled = (!sel && atMax) || isUnavailL;
       const genreTag = (g.genre && g.genre[0]) ? `<span class="game-list-genre">${escHtml(getGenreLabel(g.genre, currentLang))}</span>` : '';
       const unavailBadge = isUnavailL ? (() => {
@@ -5814,7 +5824,7 @@ function renderPickBody() {
       const placeholderStyle = g.imgUrl ? 'display:none' : '';
       const genreTag = (g.genre && g.genre[0]) ? `<div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);background:var(--accent-light);padding:1px 6px;border-radius:8px;margin-bottom:3px;display:inline-block">${escHtml(g.genre[0])}</div>` : '';
       // Unavailable overlay for pick modal
-      const isUnavail = !!g.unavailable;
+      const isUnavail = isGameUnavailable(g);
       const unavailPickRibbon = isUnavail ? (() => {
         const dateStr = g.available_date ? g.available_date.split('-').reverse().join('/') : '';
         const lbl = isEn() ? `Not available yet\nReady ${dateStr}` : `ยังไม่พร้อมบริการ\nพร้อมวันที่ ${dateStr}`;
