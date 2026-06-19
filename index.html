@@ -1343,6 +1343,11 @@ let images=safeReadJSON('aj_images',{});
 if(!images || typeof images!=='object' || Array.isArray(images)) images={};
 let retEnabled=localStorage.getItem('aj_ret_enabled')==='true';
 let lang='th',isAdmin=false,activeType='all',activeBrand='all';
+try{
+  const initialLangParam = String(new URLSearchParams(location.search).get('lang') || new URLSearchParams(location.search).get('language') || '').toLowerCase();
+  if(initialLangParam === 'en' || initialLangParam === 'english') lang = 'en';
+  if(initialLangParam === 'th' || initialLangParam === 'thai') lang = 'th';
+}catch(e){}
 
 // Migrate: sync brands from DEFAULT_CONSOLES into any stored data
 (()=>{
@@ -2274,7 +2279,9 @@ function renderAvailabilityCalendar(){
   }).join('');
 
   wrap.className = 'availability-calendar-wrap show';
-  wrap.innerHTML = `<div class="availability-calendar-head"><div><div class="availability-calendar-title">📅 ${escapeHtml(txt.calendarTitle)}</div><div class="availability-calendar-sub">${escapeHtml(pickMode === 'end' ? txt.calendarModeEnd : txt.calendarModeStart)} • ${escapeHtml(txt.calendarHelp)}</div></div><div class="availability-calendar-nav"><button type="button" class="availability-calendar-nav-btn" onclick="shiftAvailabilityCalendarMonth(-1)">${escapeHtml(txt.prevMonth)}</button><div class="availability-calendar-nav-label">${escapeHtml(availabilityMonthLabel(months[0]))}</div><button type="button" class="availability-calendar-nav-btn" onclick="shiftAvailabilityCalendarMonth(1)">${escapeHtml(txt.nextMonth)}</button></div></div><div class="availability-calendar-legend"><span><i style="background:#eef9f0;border-color:rgba(34,136,51,0.22)"></i>${escapeHtml(txt.legendAvailable)}</span><span><i style="background:#fff1f1;border-color:rgba(204,0,0,0.18)"></i>${escapeHtml(txt.legendUnavailable)}</span><span><i style="background:#fff7e8;border-color:rgba(204,140,0,0.18)"></i>${escapeHtml(txt.legendPartial)}</span><span class="legend-past"><i></i>${escapeHtml(txt.legendPast)}</span><span class="legend-start"><i></i>${escapeHtml(txt.legendStart)}</span><span class="legend-end"><i></i>${escapeHtml(txt.legendEnd)}</span></div><div class="availability-calendar-grid">${monthHtml}</div>`;
+  const calendarConsoleName = consoleObj ? cName(consoleObj) : '';
+  const calendarTitle = calendarConsoleName ? `${txt.calendarTitle} ${calendarConsoleName}` : txt.calendarTitle;
+  wrap.innerHTML = `<div class="availability-calendar-head"><div><div class="availability-calendar-title">📅 ${escapeHtml(calendarTitle)}</div><div class="availability-calendar-sub">${escapeHtml(pickMode === 'end' ? txt.calendarModeEnd : txt.calendarModeStart)} • ${escapeHtml(txt.calendarHelp)}</div></div><div class="availability-calendar-nav"><button type="button" class="availability-calendar-nav-btn" onclick="shiftAvailabilityCalendarMonth(-1)">${escapeHtml(txt.prevMonth)}</button><div class="availability-calendar-nav-label">${escapeHtml(availabilityMonthLabel(months[0]))}</div><button type="button" class="availability-calendar-nav-btn" onclick="shiftAvailabilityCalendarMonth(1)">${escapeHtml(txt.nextMonth)}</button></div></div><div class="availability-calendar-legend"><span><i style="background:#eef9f0;border-color:rgba(34,136,51,0.22)"></i>${escapeHtml(txt.legendAvailable)}</span><span><i style="background:#fff1f1;border-color:rgba(204,0,0,0.18)"></i>${escapeHtml(txt.legendUnavailable)}</span><span><i style="background:#fff7e8;border-color:rgba(204,140,0,0.18)"></i>${escapeHtml(txt.legendPartial)}</span><span class="legend-past"><i></i>${escapeHtml(txt.legendPast)}</span><span class="legend-start"><i></i>${escapeHtml(txt.legendStart)}</span><span class="legend-end"><i></i>${escapeHtml(txt.legendEnd)}</span></div><div class="availability-calendar-grid">${monthHtml}</div>`;
 }
 function renderAvailabilityPanel(){
   const panel = document.getElementById('availabilityPanel');
@@ -4964,21 +4971,31 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     if(initialShortcutHandled && !force) return;
     const params = new URLSearchParams(window.location.search);
     const view = String(params.get('view') || params.get('open') || '').toLowerCase();
-    const consoleRaw = params.get('console') || params.get('consoleId') || params.get('cid') || '';
+    const consoleRaw = params.get('console') || params.get('consoleId') || params.get('cid') || params.get('device') || params.get('machine') || '';
     if(!consoleRaw) return;
     const consoleObj = findConsoleByShortcut(consoleRaw);
     if(!consoleObj) return;
     const wantsGames = ['games','game','picker'].includes(view) || String(window.location.hash || '').toLowerCase() === '#games';
-    if(!wantsGames) return;
+    const wantsCalendar = ['calendar','queue','availability','date','dates'].includes(view)
+      || ['calendar','queue','availability'].some(key => ['1','true','yes','open'].includes(String(params.get(key) || '').toLowerCase()))
+      || String(window.location.hash || '').toLowerCase() === '#calendar';
+    if(!wantsGames && !wantsCalendar) return;
     initialShortcutHandled = true;
     setTimeout(() => {
       selectConsoleInCalculator(consoleObj);
       if(typeof window.scrollToCalculator === 'function') window.scrollToCalculator(false);
-      if(typeof window.openGamePicker === 'function'){
+      if(wantsGames && typeof window.openGamePicker === 'function'){
         setTimeout(() => { window.openGamePicker(consoleObj.id); }, 160);
+      }
+      if(wantsCalendar){
+        setTimeout(() => {
+          selectConsoleInCalculator(consoleObj);
+          if(typeof window.openDatePopup === 'function') window.openDatePopup('start');
+        }, 260);
       }
     }, 120);
   }
+  window.handleConsoleGameShortcut = handleConsoleGameShortcut;
 
   async function copyTextSafe(text){
     try{
@@ -5345,6 +5362,8 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     }
   }catch(e){}
   setTimeout(() => { decorateAdminConsoleRows(); handleConsoleGameShortcut(false); }, 180);
+  setTimeout(() => { handleConsoleGameShortcut(false); }, 700);
+  setTimeout(() => { handleConsoleGameShortcut(false); }, 1400);
 })();
 </script>
 
@@ -9164,11 +9183,16 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     if(host && body && host.parentElement!==body){ host.classList.add('in-v25-modal'); host.style.display='block'; body.appendChild(host); }
     return modal;
   }
+  function dateModalTitle(){
+    const c=currentConsoleObj();
+    const name=c ? ((typeof cName==='function') ? cName(c) : (lang==='en' ? (c.nameEn||c.name) : (c.name||c.nameEn))) : '';
+    return name ? `${TT('modalTitle')} ${name}` : TT('modalTitle');
+  }
   function openV25DateModal(mode){
     if(!selectedConsoleReady()){ ensureConsoleModal().classList.add('open'); return; }
     ensureDateInputs();
     const modal=ensureDateModal();
-    modal.querySelector('#v25DateTitle').textContent=TT('modalTitle');
+    modal.querySelector('#v25DateTitle').textContent=dateModalTitle();
     modal.querySelector('#v25DateSub').textContent=mode==='end'?TT('modalSubEnd'):TT('modalSubStart');
     if(typeof setAvailabilityPickMode==='function') setAvailabilityPickMode(mode);
     modal.classList.add('open');
@@ -10685,8 +10709,11 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     const endHead = pickerHeadlineDate(state.draftEnd || state.end, !!state.draftEnd);
     const days=state.draftStart && state.draftEnd ? diffDays(parseDate(state.draftStart), parseDate(state.draftEnd)) : 0;
     const confirmText = confirmLabel(days || 0);
+    const titleConsole = currentConsole();
+    const titleName = titleConsole ? (isEn() ? (titleConsole.nameEn || titleConsole.name) : (titleConsole.name || titleConsole.nameEn)) : '';
+    const pickerTitle = titleName ? `${tt().pickerTitle} ${titleName}` : tt().pickerTitle;
     return `<div class="ajx-modal ${state.calendarOpen?'open':''}" id="ajxModal"><div class="ajx-modal-card">
-      <div class="ajx-modal-head"><div><h5>${tt().pickerTitle}</h5><div style="font-size:13px;color:#666;line-height:1.6;margin-top:4px">${hint}</div></div><button class="ajx-close" id="ajxClose">×</button></div>
+      <div class="ajx-modal-head"><div><h5>${pickerTitle}</h5><div style="font-size:13px;color:#666;line-height:1.6;margin-top:4px">${hint}</div></div><button class="ajx-close" id="ajxClose">×</button></div>
       <div class="ajx-top-picks"><div class="ajx-top-pick"><div class="lbl">${tt().start}</div><div class="val">${startHead.main}</div><div class="sub">${startHead.sub}</div></div><div class="ajx-top-pick-arrow">→</div><div class="ajx-top-pick"><div class="lbl">${tt().end}</div><div class="val">${endHead.main}</div><div class="sub">${endHead.sub}</div></div></div>
       <div class="ajx-modal-hint ${state.modalHint?'show':''}" id="ajxModalHint">${state.modalHint||''}</div>
       ${mobile ? '' : `<div class="ajx-cal-desktop-nav"><button class="ajx-cal-arrow" id="ajxPrevM" ${sameMonth(state.base,current)?'disabled':''}>‹</button><div class="center">${monthLabel(months[0])}${months[1]?` — ${monthLabel(months[1])}`:''}</div><button class="ajx-cal-arrow" id="ajxNextM">›</button></div>`}
@@ -11370,6 +11397,27 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
   }
 
   window.ajxRender = function(){ try{ render(); }catch(e){} };
+  window.ajxSelectConsole = function(id){
+    const nextId = String(id || '');
+    if(!nextId) return false;
+    if(String(state.consoleId || '') !== nextId){
+      state.consoleId = nextId;
+      state.bundleId = '';
+      state.switchExtras = [];
+      state.vdock = false;
+      state.games = [];
+      state.notifyLater = false;
+      state.pickerOpen = false;
+      try{ sessionStorage.removeItem('aj_guide_step1'); }catch(_e){}
+      fetchAvailability(true);
+    }
+    __ajxForceRenderOnce = true;
+    render();
+    return true;
+  };
+  window.ajxOpenCalendar = function(mode){
+    openCalendar(mode === 'end' ? 'end' : 'start');
+  };
   window.addEventListener('beforeunload', function(){ saveDraftSoon(true); });
   window.addEventListener('pagehide', function(){ saveDraftSoon(true); });
   window.ajxOpenBgDetail = function(id){
@@ -14080,5 +14128,88 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
 })();
 </script>
 
+<script id="aj-console-calendar-deeplink-final">
+(function(){
+  'use strict';
+  const params = new URLSearchParams(location.search);
+  const rawConsole = params.get('console') || params.get('consoleId') || params.get('cid') || params.get('device') || params.get('machine') || '';
+  if(!rawConsole) return;
+  const view = String(params.get('view') || params.get('open') || '').toLowerCase();
+  const hash = String(location.hash || '').toLowerCase();
+  const wantsCalendar = ['calendar','queue','availability','date','dates'].includes(view)
+    || ['calendar','queue','availability'].some(key => ['1','true','yes','open'].includes(String(params.get(key) || '').toLowerCase()))
+    || hash === '#calendar';
+  if(!wantsCalendar) return;
+
+  const clean = value => String(value || '').trim().toLowerCase();
+  const slug = value => clean(value).replace(/[^a-z0-9ก-๙]+/g,'-').replace(/^-+|-+$/g,'');
+  const flat = value => clean(value).replace(/[^a-z0-9ก-๙]+/g,'');
+  function aliases(c){
+    const arr = [c && c.id, c && c.name, c && c.nameEn].map(String).filter(Boolean);
+    const joined = clean(`${c && c.name || ''} ${c && c.nameEn || ''}`);
+    if(joined.includes('ps5 pro')) arr.push('ps5-pro','ps5pro');
+    if(joined.includes('ps5')) arr.push('ps5');
+    if(joined.includes('ps4')) arr.push('ps4');
+    if(joined.includes('switch 2')) arr.push('switch-2','switch2','nintendoswitch2');
+    if(joined.includes('switch')) arr.push('switch','switch-1','switch1');
+    if(joined.includes('xbox series s')) arr.push('xbox-series-s','xboxseriess','seriess');
+    if(joined.includes('xbox series x')) arr.push('xbox-series-x','xboxseriesx','seriesx');
+    if(joined.includes('steam deck')) arr.push('steam-deck','steamdeck');
+    if(joined.includes('rog')) arr.push('rog','rog-ally','rogally');
+    return Array.from(new Set(arr.flatMap(x => [clean(x), slug(x), flat(x)]).filter(Boolean)));
+  }
+  function listConsoles(){
+    if(Array.isArray(window.consoles) && window.consoles.length) return window.consoles;
+    try{
+      const saved = JSON.parse(localStorage.getItem('aj_consoles') || '[]');
+      return Array.isArray(saved) ? saved : [];
+    }catch(e){ return []; }
+  }
+  function findConsole(){
+    const keys = [clean(rawConsole), slug(rawConsole), flat(rawConsole)].filter(Boolean);
+    return listConsoles().find(c => aliases(c).some(a => keys.includes(a))) || null;
+  }
+  function openLinkedCalendar(){
+    const c = findConsole();
+    if(!c) return false;
+    const id = String(c.id);
+    if(typeof window.ajxSelectConsole === 'function'){
+      window.ajxSelectConsole(id);
+      setTimeout(() => { if(typeof window.ajxOpenCalendar === 'function') window.ajxOpenCalendar('start'); }, 80);
+      return true;
+    }
+    const ajx = document.getElementById('ajxConsole');
+    if(ajx){
+      ajx.value = id;
+      ajx.dispatchEvent(new Event('change', {bubbles:true}));
+      setTimeout(() => document.getElementById('ajxStart')?.click(), 160);
+      return true;
+    }
+    const oldSel = document.getElementById('calcConsole');
+    if(oldSel){
+      const cat = document.getElementById('calcCat');
+      if(cat && c.type){
+        cat.value = c.type;
+        if(typeof window.renderCalcSelect === 'function') window.renderCalcSelect();
+      }
+      oldSel.value = id;
+      if(typeof window.onConsoleChange === 'function') window.onConsoleChange();
+      setTimeout(() => { if(typeof window.openDatePopup === 'function') window.openDatePopup('start'); }, 160);
+      return true;
+    }
+    return false;
+  }
+
+  let attempts = 0;
+  const timer = setInterval(() => {
+    attempts += 1;
+    const opened = openLinkedCalendar();
+    const ajxOpen = document.getElementById('ajxModal')?.classList.contains('open');
+    const oldOpen = document.getElementById('v25DateModal')?.classList.contains('open') || document.getElementById('finalDateModal')?.classList.contains('open');
+    if((opened && (ajxOpen || oldOpen)) || attempts >= 24) clearInterval(timer);
+  }, 220);
+  window.addEventListener('load', () => setTimeout(openLinkedCalendar, 80), {once:true});
+})();
+</script>
 </body>
 </html>
