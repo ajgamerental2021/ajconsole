@@ -10384,9 +10384,11 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     if(window.SWITCH_IDS && window.SWITCH_IDS.has(Number(c.id)) && Array.isArray(window.SW_ROOT) && Array.isArray(window.SW_SUB)){
       const joy=(window.SW_ROOT||[]).find(x=>x.id==='joy');
       const others=(window.SW_ROOT||[]).filter(x=>x.id!=='joy');
+      const isSwitch1=Number(c.id)===4;
+      const subVisible=isSwitch1||state.switchExtras.includes('joy');
       return `<div class="ajx-card"><span class="ajx-label">${isEn()?'🎮 Switch accessories':'🎮 อุปกรณ์เสริม'}</span>${promoBadgeConsole()}
         <div class="ajx-check"><input type="checkbox" id="ajxSwJoy" ${state.switchExtras.includes('joy')?'checked':''}><label for="ajxSwJoy"><strong>${isEn()?joy.en:joy.th}</strong><br><span style="font-size:12px;color:var(--text3)">${priceLineAcc(joy.daily,joy.weekly)}</span></label></div>
-        <div class="ajx-bundle-sub" style="${state.switchExtras.includes('joy')?'':'display:none'}" id="ajxSwSubWrap">
+        <div class="ajx-bundle-sub" style="${subVisible?'':'display:none'}" id="ajxSwSubWrap">
           <div style="font-size:12px;color:var(--text3);font-weight:800;margin-bottom:2px">${isEn()?'Additional accessories (optional)':'อุปกรณ์เพิ่มเติม (เลือกเพิ่มได้)'}</div>
           ${window.SW_SUB.map(s=>`<label style="display:flex;gap:10px;align-items:flex-start"><input type="checkbox" data-sw="${s.id}" ${state.switchExtras.includes(s.id)?'checked':''}><div><div>${isEn()?s.en:s.th}</div><div class="meta">${priceLineAcc(s.daily,s.weekly)}</div></div></label>`).join('')}
         </div>
@@ -11300,8 +11302,23 @@ if(window.scheduleAvailabilityCheck) setTimeout(() => window.scheduleAvailabilit
     });
     q('#ajxConsole') && (q('#ajxConsole').value=state.consoleId, q('#ajxConsole').onchange=e=>{ const nextId=String(e.target.value||''); if(String(state.consoleId||'')!==nextId){ state.games=[]; state.notifyLater=false; state.pickerOpen=false; try{sessionStorage.removeItem('aj_guide_step1')}catch(_e){} } state.consoleId=nextId; state.bundleId=''; state.switchExtras=[]; state.vdock=false; fetchAvailability(true); __ajxForceRenderOnce=true; render(); });
     qa('input[name="ajx_ps5b"]').forEach(r=>r.onchange=()=>{ state.bundleId=q('input[name="ajx_ps5b"]:checked')?.value||''; render(); });
-    q('#ajxSwJoy') && (q('#ajxSwJoy').onchange=e=>{ const on=!!e.target.checked; state.switchExtras = state.switchExtras.filter(x=>!['joy','bat','wheel'].includes(x)); if(on) state.switchExtras.push('joy'); render(); });
-    qa('[data-sw]').forEach(c=>c.onchange=()=>{ const joyOn = state.switchExtras.includes('joy'); const base = state.switchExtras.filter(x=>!['ringfit','taiko','bat','wheel'].includes(x)); const checked = qa('[data-sw]:checked').map(x=>x.dataset.sw); if(joyOn && !base.includes('joy')) base.push('joy'); state.switchExtras=[...base,...checked]; render(); });
+    q('#ajxSwJoy') && (q('#ajxSwJoy').onchange=e=>{
+      const on=!!e.target.checked;
+      const isSwitch1=Number(state.consoleId)===4;
+      state.switchExtras = state.switchExtras.filter(x=>isSwitch1 ? x!=='joy' : !['joy','bat','wheel'].includes(x));
+      if(on) state.switchExtras.push('joy');
+      try{sessionStorage.setItem('aj_guide_step1','boardgame')}catch(_e){}
+      render();
+    });
+    qa('[data-sw]').forEach(c=>c.onchange=()=>{
+      const joyOn = state.switchExtras.includes('joy');
+      const base = state.switchExtras.filter(x=>!['ringfit','taiko','bat','wheel'].includes(x));
+      const checked = qa('[data-sw]:checked').map(x=>x.dataset.sw);
+      if(joyOn && !base.includes('joy')) base.push('joy');
+      state.switchExtras=[...base,...checked];
+      try{sessionStorage.setItem('aj_guide_step1','boardgame')}catch(_e){}
+      render();
+    });
     qa('[data-rental-accessory]').forEach(c=>c.onchange=()=>{ const id=String(c.dataset.rentalAccessory||''); const psIds=(window.AJ_RENTAL_ACCESSORIES||[]).map(x=>String(x.id)); state.switchExtras=state.switchExtras.filter(x=>!psIds.includes(String(x))); if(c.checked) state.switchExtras.push(id); render(); });
     q('#ajxVdock') && (q('#ajxVdock').onchange=e=>{ state.vdock=!!e.target.checked; render(); });
     q('#ajxStart') && (q('#ajxStart').onclick=()=>openCalendar('start'));
@@ -14120,7 +14137,7 @@ html.aj-ret-off .ret-row-wrap { display: none !important; }
   window.addEventListener('resize',()=>{clearTimeout(guideTimer);guideTimer=setTimeout(renderGuide,80)});
   document.addEventListener('change',e=>{
     if(e.target&&e.target.matches('input[name="ajx_ps5b"]'))sessionStorage.setItem('aj_guide_step1',step1AfterBundle());
-    if(e.target&&e.target.matches('[data-rental-accessory],#ajxSwJoy,#ajxVdock'))sessionStorage.setItem('aj_guide_step1',step1AfterAccessory());
+    if(e.target&&e.target.matches('[data-rental-accessory],[data-sw],#ajxSwJoy,#ajxVdock'))sessionStorage.setItem('aj_guide_step1',step1AfterAccessory());
     if(e.target&&e.target.matches('.ajx-bg-sel'))sessionStorage.setItem('aj_guide_step1','date');
   },true);
   document.addEventListener('click',e=>{if(e.target.closest('.aj-guide-box'))return;clearTimeout(guideTimer);guideTimer=setTimeout(renderGuide,180)},true);
