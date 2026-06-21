@@ -151,7 +151,20 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .line-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .line-actions .btn{flex:1;min-width:140px}
 .line-actions .line-connect{background:#06c755;border-color:#06c755;color:#fff}
-.line-meta{font-size:12px;color:var(--text3);margin-top:4px;font-weight:800}
+.rental-history-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.rental-history-stat{background:#fff7f7;border:1px solid #f2d4d4;border-radius:12px;padding:12px}
+.rental-history-stat span{display:block;color:var(--text3);font-size:11px;font-weight:800}
+.rental-history-stat b{display:block;color:var(--accent);font-size:22px;margin-top:3px}
+.rental-history-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px}
+.rental-history-table{width:100%;min-width:860px;border-collapse:collapse;background:#fff}
+.rental-history-table th,.rental-history-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;text-align:left;vertical-align:top}
+.rental-history-table th{background:#f7f7f7;color:#444;font-size:12px;font-weight:900;white-space:nowrap}
+.rental-history-table .num{text-align:right}
+.rental-history-status{display:inline-flex;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:900;white-space:nowrap}
+.rental-history-status.pending{background:#fff7e8;color:#8f5b00}
+.rental-history-status.confirmed{background:#eef9f0;color:#176331}
+.rental-history-status.canceled{background:#fff1f1;color:#a12525}
+.rental-history-empty{padding:18px;border:1px dashed var(--border2);border-radius:12px;background:#fafafa;color:var(--text3);font-size:14px;line-height:1.7}
 .calendar-modal,.modal-overlay,.picker-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:500;align-items:center;justify-content:center;padding:18px}
 .calendar-modal.open,.modal-overlay.open,.picker-overlay.open{display:flex}
 .modal-card{background:#fff;border-radius:20px;box-shadow:var(--shadow2);width:min(980px,100%);max-height:92vh;overflow:auto}
@@ -331,6 +344,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .calendar-modal .modal-head{padding:12px 14px}
   .calendar-modal .modal-head h3{font-size:17px;line-height:1.25}
   .calendar-modal .xbtn{width:40px;height:40px;border-radius:999px;background:#f1f1f1;font-size:24px}
+  .rental-history-summary{grid-template-columns:1fr}
   .calendar-body{padding:12px}
   .cal-top-picks{padding-bottom:12px;margin-bottom:10px}
   .cal-pick b{font-size:18px;white-space:normal}
@@ -1398,7 +1412,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function renderLineCard(){
     const uid = localStorage.getItem("aj_line_unique_id") || "";
     const name = localStorage.getItem("aj_line_display_name") || (state.lang==="en" ? "LINE not connected" : "ยังไม่ได้เชื่อมต่อ LINE");
-    return `<div class="line-card"><div class="line-kicker">${state.lang==="en" ? "LINE / WHATSAPP" : "LINE / WHATSAPP"}</div><div class="line-name">${esc(name)}</div>${uid ? `<div class="line-meta">LINE ID: ${esc(uid.slice(0,6))}...</div>` : ""}<div class="line-actions"><button class="btn dark" id="lineHistoryBtn" type="button">${state.lang==="en" ? "Rental history" : "ประวัติการเช่า"}</button><button class="btn line-connect" id="lineConnectBtn" type="button">${uid ? (state.lang==="en" ? "Refresh LINE" : "รีเฟรช LINE") : (state.lang==="en" ? "Connect LINE" : "เชื่อมต่อ LINE")}</button></div></div>`;
+    return `<div class="line-card"><div class="line-kicker">LINE / WHATSAPP</div><div class="line-name">${esc(name)}</div><div class="line-actions"><button class="btn dark" id="lineHistoryBtn" type="button">${state.lang==="en" ? "Rental history" : "ประวัติการเช่า"}</button><button class="btn line-connect" id="lineConnectBtn" type="button">${uid ? (state.lang==="en" ? "Refresh LINE" : "รีเฟรช LINE") : (state.lang==="en" ? "Connect LINE" : "เชื่อมต่อ LINE")}</button></div></div>`;
   }
   function summaryDeviceHtml(c){
     const img = getConsoleImage(c);
@@ -1998,14 +2012,29 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       toast(state.lang === "en" ? "Cannot check rental code from Google Sheet." : "เช็กรหัสการเช่าจาก Google Sheet ไม่ได้");
     }
   }
+  function unicodeSafeText(value){
+    const text = String(value ?? "");
+    const wellFormed = typeof text.toWellFormed === "function"
+      ? text.toWellFormed()
+      : text
+          .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/g, "")
+          .replace(/(^|[^\uD800-\uDBFF])[\uDC00-\uDFFF]/g, "$1");
+    return typeof wellFormed.normalize === "function" ? wellFormed.normalize("NFC") : wellFormed;
+  }
+  function whatsappShareUrl(message){
+    const url = new URL("https://api.whatsapp.com/send/");
+    url.searchParams.set("phone", CONFIG.whatsappPhone);
+    url.searchParams.set("text", unicodeSafeText(message));
+    return url.toString();
+  }
   async function sendWhatsApp(){
     try{
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
-      const msg = bookingMessage(code);
+      const msg = unicodeSafeText(bookingMessage(code));
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "whatsapp");
-      open(`https://wa.me/${CONFIG.whatsappPhone}?text=${encodeURIComponent(msg)}`, "_blank");
+      window.open(whatsappShareUrl(msg), "_blank", "noopener,noreferrer");
     }catch(error){
       toast(state.lang === "en" ? "Cannot check rental code from Google Sheet." : "เช็กรหัสการเช่าจาก Google Sheet ไม่ได้");
     }
@@ -2078,10 +2107,85 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       showModal("LINE", `<p class="hint">${esc(state.lang==="en" ? "Unable to connect LINE. Please check LIFF ID in settings." : "เชื่อมต่อ LINE ไม่สำเร็จ กรุณาตรวจสอบ LIFF ID ใน settings")}</p>`);
     }
   }
+  function historyKey(value){
+    return String(value || "").toLowerCase().replace(/\s+/g, "").replace(/[()_\-:./]/g, "");
+  }
+  function historyValue(row, names){
+    const wanted = names.map(historyKey);
+    const keys = Object.keys(row || {});
+    const exact = keys.find(key => wanted.includes(historyKey(key)));
+    if(exact) return row[exact];
+    const partial = keys.find(key => {
+      const normalized = historyKey(key);
+      return wanted.some(name => normalized.includes(name) || name.includes(normalized));
+    });
+    return partial ? row[partial] : "";
+  }
+  function historyNumber(value){
+    const parsed = Number(String(value ?? "").replace(/[^\d.-]/g, ""));
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  function normalizeHistoryRow(row, index){
+    return {
+      no: historyValue(row, ["ลำดับ", "no", "number", "index"]) || index + 1,
+      rentalCode: historyValue(row, ["รหัสการเช่า", "rental code", "booking code", "rent code", "code"]),
+      status: historyValue(row, ["สถานะ", "status", "booking status"]),
+      lineId: historyValue(row, ["Line Unique ID", "LINE Unique ID", "lineuserid", "line user id", "userId", "uid", "line id", "ไลน์ไอดี"]),
+      rentDate: historyValue(row, ["วันที่เช่า", "วันเช่า", "rent date", "start date", "start", "date rent"]),
+      returnDate: historyValue(row, ["วันที่คืน", "วันคืน", "return date", "end date", "end"]),
+      days: historyValue(row, ["จำนวนวันที่เช่า", "จำนวนวัน", "days", "rental days", "duration"]),
+      machine: historyValue(row, ["เครื่องที่เช่า", "เครื่องเกม", "console", "machine", "item", "สินค้า"]),
+      amount: historyValue(row, ["ยอดค่าเช่า", "ยอดที่เช่า", "ค่าเช่า", "rental amount", "amount", "total", "price"]),
+      qty: historyValue(row, ["จำนวนเครื่องที่เช่า", "จำนวนเครื่อง", "qty", "quantity"])
+    };
+  }
+  function historyStatus(status){
+    const value = String(status || "Pending").trim().toLowerCase();
+    if(value === "confirmed") return {cls:"confirmed", label:state.lang === "en" ? "✅ Confirmed" : "✅ ยืนยันแล้ว"};
+    if(["canceled", "cancelled"].includes(value)) return {cls:"canceled", label:state.lang === "en" ? "❌ Canceled" : "❌ ยกเลิก"};
+    return {cls:"pending", label:state.lang === "en" ? "⌛ Pending" : "⌛ รอดำเนินการ"};
+  }
+  function historyStatusHtml(status){
+    const meta = historyStatus(status);
+    return `<span class="rental-history-status ${meta.cls}">${esc(meta.label)}</span>`;
+  }
+  function historyDateValue(value){
+    const parsed = parseDate(value);
+    return parsed ? parsed.getTime() : 0;
+  }
+  async function rentalHistoryRows(uid){
+    const rows = await gvizRows(CONFIG.rentalSheetId, {gid:CONFIG.rentalSheetGid, headers:1});
+    return rows.map(normalizeHistoryRow)
+      .filter(row => String(row.lineId || "").trim() === String(uid).trim())
+      .sort((a, b) => historyDateValue(a.rentDate) - historyDateValue(b.rentDate));
+  }
+  function renderRentalHistory(rows){
+    const en = state.lang === "en";
+    const totalAmount = rows.reduce((sum, row) => sum + historyNumber(row.amount), 0);
+    const totalQty = rows.reduce((sum, row) => sum + Math.max(1, historyNumber(row.qty)), 0);
+    const labels = en
+      ? {count:"Rental count", machines:"Machines rented", total:"Rental total", no:"No.", code:"Rental code", status:"Status", rent:"Rent date", returned:"Return date", days:"Days", machine:"Machine", amount:"Amount"}
+      : {count:"จำนวนครั้งที่เช่า", machines:"จำนวนเครื่องที่เช่า", total:"ยอดที่เช่า", no:"ลำดับ", code:"รหัสการเช่า", status:"สถานะ", rent:"วันที่เช่า", returned:"วันที่คืน", days:"จำนวนวันที่เช่า", machine:"เครื่องที่เช่า", amount:"ยอดค่าเช่า"};
+    return `<div class="rental-history-summary">
+      <div class="rental-history-stat"><span>${labels.count}</span><b>${rows.length.toLocaleString(en ? "en-US" : "th-TH")}</b></div>
+      <div class="rental-history-stat"><span>${labels.machines}</span><b>${totalQty.toLocaleString(en ? "en-US" : "th-TH")}</b></div>
+      <div class="rental-history-stat"><span>${labels.total}</span><b>${money(totalAmount)}</b></div>
+    </div><div class="rental-history-table-wrap"><table class="rental-history-table"><thead><tr>
+      <th>${labels.no}</th><th>${labels.code}</th><th>${labels.status}</th><th>${labels.rent}</th><th>${labels.returned}</th><th class="num">${labels.days}</th><th>${labels.machine}</th><th class="num">${labels.amount}</th>
+    </tr></thead><tbody>${rows.map((row, index) => `<tr><td>${esc(row.no || index + 1)}</td><td>${esc(row.rentalCode || "-")}</td><td>${historyStatusHtml(row.status)}</td><td>${esc(row.rentDate || "-")}</td><td>${esc(row.returnDate || "-")}</td><td class="num">${esc(row.days || "-")}</td><td>${esc(row.machine || "-")}</td><td class="num">${esc(money(historyNumber(row.amount)))}</td></tr>`).join("")}</tbody></table></div>`;
+  }
   async function showLineHistory(){
-    const uid = localStorage.getItem("aj_line_unique_id") || "";
+    const uid = lineUniqueId();
     if(!uid){ showModal(state.lang==="en" ? "Rental history" : "ประวัติการเช่า", `<p class="hint">${esc(state.lang==="en" ? "Please connect LINE before viewing rental history." : "กรุณากดเชื่อมต่อ LINE ก่อนดูประวัติการเช่า")}</p>`); return; }
-    showModal(state.lang==="en" ? "Rental history" : "ประวัติการเช่า", `<p class="hint">${esc(state.lang==="en" ? "LINE ID connected. Rental history will use the same Google Sheet customer records as the original index." : "เชื่อมต่อ LINE แล้ว ระบบประวัติจะอ้างอิงข้อมูลลูกค้าจาก Google Sheet เดิมเหมือน index เก่า")}</p><p class="hint">LINE ID: ${esc(uid)}</p>`);
+    showModal(state.lang==="en" ? "Rental history" : "ประวัติการเช่า", `<div class="rental-history-empty">${state.lang==="en" ? "Loading rental history..." : "กำลังโหลดประวัติการเช่า..."}</div>`);
+    try{
+      const rows = await rentalHistoryRows(uid);
+      byId("simpleModalBody").innerHTML = rows.length
+        ? renderRentalHistory(rows)
+        : `<div class="rental-history-empty">${state.lang==="en" ? "No rental history found." : "ไม่พบประวัติการเช่า"}</div>`;
+    }catch(error){
+      byId("simpleModalBody").innerHTML = `<div class="rental-history-empty">${state.lang==="en" ? "Unable to load rental history. Please try again." : "โหลดประวัติการเช่าไม่สำเร็จ กรุณาลองใหม่"}</div>`;
+    }
   }
   function showBoardGameDetail(id){
     const g = bgById(id);
