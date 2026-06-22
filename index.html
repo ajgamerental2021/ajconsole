@@ -287,6 +287,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .float-calc.show{display:inline-flex}
 .picker-card{background:#fff;width:min(1180px,100%);height:min(92vh,900px);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow2)}
 .picker-frame{flex:1;border:0;background:#fff}
+.game-picker-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto}
+.game-picker-attention{justify-self:start;max-width:100%;border:1px solid #f0a000;border-radius:9px;background:#fff8dd;color:#6b3900;padding:7px 10px;font-size:12px;font-weight:900;line-height:1.25;white-space:nowrap;overflow-x:auto;scrollbar-width:none}
+.game-picker-attention::-webkit-scrollbar{display:none}
 @media(max-width:900px){
   .calc-body{grid-template-columns:1fr}
   .console-grid,.home-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -507,7 +510,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
 <div class="picker-overlay" id="gamePickerOverlay">
   <div class="picker-card">
-    <div class="modal-head"><h3 id="gamePickerTitle">เลือกเกม</h3><button class="xbtn" id="gamePickerClose" type="button">&times;</button></div>
+    <div class="modal-head game-picker-head"><h3 id="gamePickerTitle">เลือกเกม</h3><div class="game-picker-attention" data-i18n="gameStorageWarning">⚠️ เครื่องมีพื้นที่จำกัด บางเกมขนาดใหญ่ อาจติดตั้งได้ไม่ครบตามจำนวนที่เลือก</div><button class="xbtn" id="gamePickerClose" type="button">&times;</button></div>
     <iframe class="picker-frame" id="gamePickerFrame" title="Game picker"></iframe>
   </div>
 </div>
@@ -545,6 +548,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
   const CONFIG = {
     version: "index2-clean-1",
+    gamePickerVersion: "20260622-1",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",
@@ -572,7 +576,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     consolePromo: "aj_console_promo",
     bundles: "aj_rental_bundles_v1",
     accessories: "aj_rental_accessories_v1",
-    draft: "aj_index2_draft_v1"
+    draft: "aj_index2_draft_v1",
+    gameHandoff: "aj_game_picker_handoff_v1"
   };
 
   const SPEC = { PS4:1, PS5:11, PS5P:18, SW1:4, SW2:12, VLP:10, VLU:16, VB:17 };
@@ -652,7 +657,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       step1:"เลือกเครื่อง/วันที่", step2:"ตัวเลือกเพิ่มเติม", step3:"เลือกเกม", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"ตัวเลือกเพิ่มเติม", step3Title:"เลือกเกม", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า",
       nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
       deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
-      gamePickHelp:"ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้", summaryHelp:"ตรวจสอบข้อมูล แล้วคัดลอกหรือส่งทาง Line / WhatsApp",
+      gamePickHelp:"ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้", gameStorageWarning:"⚠️ เครื่องมีพื้นที่จำกัด บางเกมขนาดใหญ่ อาจติดตั้งได้ไม่ครบตามจำนวนที่เลือก", summaryHelp:"ตรวจสอบข้อมูล แล้วคัดลอกหรือส่งทาง Line / WhatsApp",
       personalRateWarning:"⚠️ ราคาด้านล่างนี้ เป็นราคาเช่าในนามบุคคลเท่านั้น ไม่สามารถออกใบกำกับภาษีหรือใบเสร็จรับเงินได้ หากต้องการใบกำกับภาษี/ใบเสร็จ จะเป็นเรทบริษัท กรุณาติดต่อทาง Line: <b>@ajgame</b> หรือ โทร. <b>081-624-4715</b> 🙏",
       daily:"รายวัน", weekly:"รายสัปดาห์", day:"วัน", wk:"สัปดาห์", deposit:"ค่าประกัน", ready:"พร้อม", notReady:"ยังไม่พร้อม", readyOn:"พร้อมวันที่",
       bundle:"Bundle", accessories:"อุปกรณ์เสริม", noBundle:"ไม่เพิ่ม Bundle", noAccessory:"ไม่เพิ่มอุปกรณ์เสริม", contract:"ทำสัญญาการเช่า", contractHelp:"แนะนำสำหรับผู้เช่าครั้งแรก กรอกก่อนนัดส่งเครื่อง",
@@ -681,7 +686,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       step1:"Device / Dates", step2:"Additional options", step3:"Games", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Additional options", step3Title:"Choose games", step4Title:"Summary and send", rentalDuration:"Rental duration",
       nextStep:"Next step", backStep:"Back",
       deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", startDate:"Start date", endDate:"Return date",
-      gamePickHelp:"Choose up to 10 games when this model has a catalog, or send the list later.", summaryHelp:"Review the details, then copy or send via Line / WhatsApp.",
+      gamePickHelp:"Choose up to 10 games when this model has a catalog, or send the list later.", gameStorageWarning:"⚠️ Storage is limited. Some large games may not all fit based on the number selected.", summaryHelp:"Review the details, then copy or send via Line / WhatsApp.",
       personalRateWarning:"⚠️ The rental prices below are individual rates only. Tax invoices / receipts cannot be issued at these rates. If you need one, company rates apply. Please contact Line: <b>@ajgame</b> or call <b>081-624-4715</b> 🙏",
       daily:"Daily", weekly:"Weekly", day:"day", wk:"week", deposit:"Deposit", ready:"Ready", notReady:"Not ready", readyOn:"Ready on",
       bundle:"Bundle", accessories:"Accessories", noBundle:"No bundle", noAccessory:"No extra accessory", contract:"Rental contract", contractHelp:"Recommended for first-time renters. Complete it before delivery.",
@@ -2086,21 +2091,40 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }
   }
 
+  // Target origin for messages we send INTO the picker iframe. On file:// Chrome
+  // reports location.origin as "file://" while the iframe is an opaque "null"
+  // origin, so a strict targetOrigin would be dropped — fall back to "*" there.
+  function pickerTargetOrigin(){
+    return (location.protocol === "file:" || location.origin === "null") ? "*" : location.origin;
+  }
+  // Whether an inbound message origin is acceptable. event.source === iframe is
+  // already verified by the caller and is the real authenticity guarantee; this
+  // stays permissive for file:// / sandboxed (opaque "null") origins so the
+  // picker handoff keeps working off a local file.
+  function pickerOriginAllowed(origin){
+    return location.protocol === "file:" || location.origin === "null"
+      || origin === "null" || origin === location.origin;
+  }
+
   function openGamePicker(){
     const c = consoleById(state.calc.consoleId);
     if(!c) return;
     const frame = byId("gamePickerFrame");
+    const platformId = c.gamePlatform || guessPlatform(c);
+    const selectedIds = state.calc.games.map(g => g.id).filter(Boolean);
     byId("gamePickerOverlay").classList.add("open");
-    const src = `${CONFIG.gamePage}?embed=picker&lang=${state.lang}`;
-    if(!frame.src || !frame.src.includes(CONFIG.gamePage)) frame.src = src;
+    const params = new URLSearchParams({embed:"picker", lang:state.lang, platformId, selected:selectedIds.join(","), v:CONFIG.gamePickerVersion});
+    const src = `${CONFIG.gamePage}?${params.toString()}`;
+    const currentSrc = frame.getAttribute("src") || "";
+    if(currentSrc !== src) frame.src = src;
     const send = () => {
       frame.contentWindow?.postMessage({
         type:"AJ_PICKER_OPEN",
         requestId:"index2-" + Date.now(),
-        platformId:c.gamePlatform || guessPlatform(c),
+        platformId,
         lang:state.lang,
-        selectedGameIds:state.calc.games.map(g => g.id).filter(Boolean)
-      }, location.origin === "null" ? "*" : location.origin);
+        selectedGameIds:selectedIds
+      }, pickerTargetOrigin());
     };
     frame.onload = send;
     setTimeout(send, 500);
@@ -2901,7 +2925,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     window.addEventListener("message", event => {
       const pickerFrame = byId("gamePickerFrame");
       if(event.source !== pickerFrame.contentWindow) return;
-      if(location.origin !== "null" && event.origin !== location.origin) return;
+      if(!pickerOriginAllowed(event.origin)) return;
       const data = event.data || {};
       if(data.type === "AJ_PICKER_SELECTED"){
         state.calc.games = Array.isArray(data.games) ? data.games.slice(0,10) : [];
@@ -2913,7 +2937,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       }
       if(data.type === "AJ_GAME_READY" && byId("gamePickerOverlay").classList.contains("open")){
         const c = consoleById(state.calc.consoleId);
-        pickerFrame.contentWindow?.postMessage({type:"AJ_PICKER_OPEN",requestId:"index2-ready",platformId:c?.gamePlatform||"",lang:state.lang,selectedGameIds:state.calc.games.map(g=>g.id).filter(Boolean)}, location.origin === "null" ? "*" : location.origin);
+        pickerFrame.contentWindow?.postMessage({type:"AJ_PICKER_OPEN",requestId:"index2-ready",platformId:c?.gamePlatform||"",lang:state.lang,selectedGameIds:state.calc.games.map(g=>g.id).filter(Boolean)}, pickerTargetOrigin());
       }
     });
     document.addEventListener("change", event => {
@@ -3051,6 +3075,38 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return state.consoles.find(c => String(c.nameEn || c.name || "").trim().toLowerCase() === expectedName.toLowerCase()) || null;
   }
 
+  function consumeGamePickerHandoff(){
+    const raw = localStorage.getItem(LS.gameHandoff);
+    if(!raw) return false;
+    localStorage.removeItem(LS.gameHandoff);
+    try{
+      const handoff = JSON.parse(raw);
+      if(!handoff || Date.now() - Number(handoff.at || 0) > 30 * 60 * 1000 || !Array.isArray(handoff.games)) return false;
+      const games = handoff.games.slice(0,10).map(game => ({
+        id:String(game.id || ""),
+        name:String(game.name || ""),
+        platformId:String(game.platformId || handoff.platformId || ""),
+        platformName:String(game.platformName || "")
+      })).filter(game => game.id && game.name);
+      if(!games.length) return false;
+      if(!consoleById(state.calc.consoleId) && handoff.platformId){
+        const consoleItem = state.consoles.find(c => String(c.gamePlatform || guessPlatform(c)) === String(handoff.platformId));
+        if(consoleItem){
+          state.calc.consoleId = String(consoleItem.id);
+          state.calc.type = consoleItem.type || "";
+        }
+      }
+      state.lang = handoff.lang === "en" ? "en" : "th";
+      state.calc.games = games;
+      state.calc.later = false;
+      state.calc.step = 3;
+      saveLocal();
+      return true;
+    }catch(error){
+      return false;
+    }
+  }
+
   function applyDeepLink(){
     const consoleItem = deepLinkedConsole();
     if(!consoleItem) return false;
@@ -3073,11 +3129,17 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
   async function boot(){
     loadState();
+    const restoredGameList = consumeGamePickerHandoff();
     exposeCompatibility();
     bindEvents();
     render();
-    const openedFromLink = applyDeepLink();
-    if(!openedFromLink && (location.hash === "#calculator" || new URLSearchParams(location.search).get("go") === "calc")) setTimeout(() => byId("calculator").scrollIntoView(), 80);
+    const openedFromLink = restoredGameList ? false : applyDeepLink();
+    if(restoredGameList){
+      setGuideStage("next3", {syncStep:false});
+      setTimeout(() => byId("calculator").scrollIntoView({block:"start"}), 80);
+    }else if(!openedFromLink && (location.hash === "#calculator" || new URLSearchParams(location.search).get("go") === "calc")){
+      setTimeout(() => byId("calculator").scrollIntoView(), 80);
+    }
     fetchAvailability().catch(() => {});
     gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {});
     syncBoardGameCatalog().catch(() => {});
