@@ -535,63 +535,41 @@
     justify-content: space-between;
     margin-bottom: 16px;
   }
-  .pick-title { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600; }
-  .pick-sub { font-size: 12.5px; color: var(--text3); margin-top: 2px; }
-  .pick-warning {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin: 10px 24px 0;
-    padding: 10px 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(204,0,0,0.18);
-    background: linear-gradient(135deg, #fff8f8 0%, #fff2f2 100%);
-    box-shadow: 0 2px 10px rgba(204,0,0,0.05);
-  }
-  .pick-warning[hidden] { display: none !important; }
-  .pick-warning-icon {
-    font-size: 18px;
-    line-height: 1;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-  .pick-warning-text {
+  .pick-title-group {
     min-width: 0;
     flex: 1;
   }
-  .pick-warning-title {
-    font-size: 12.5px;
-    font-weight: 800;
-    color: var(--accent);
-    line-height: 1.35;
-    margin-bottom: 1px;
+  .pick-title-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 16px;
   }
-  .pick-warning-desc {
-    font-size: 11.5px;
-    line-height: 1.45;
-    color: #7a1f1f;
+  .pick-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
     font-weight: 600;
+    flex-shrink: 0;
   }
-  .pick-warning-dismiss {
-    width: 26px;
-    height: 26px;
-    border-radius: 999px;
-    border: 1px solid rgba(204,0,0,0.14);
-    background: rgba(255,255,255,0.75);
-    color: #9a4a4a;
-    cursor: pointer;
+  .pick-sub { font-size: 12.5px; color: var(--text3); margin-top: 2px; }
+  .pick-title-attention {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    line-height: 1;
-    flex-shrink: 0;
-    transition: var(--transition);
+    gap: 5px;
+    max-width: 620px;
+    padding: 7px 11px;
+    border: 2px solid #e00000;
+    border-radius: 10px;
+    background: #fff3a6;
+    color: #601010;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+    box-shadow: 0 3px 0 rgba(153, 0, 0, 0.14), 0 6px 16px rgba(224, 0, 0, 0.12);
   }
-  .pick-warning-dismiss:hover {
-    background: var(--surface);
-    color: var(--accent);
-    border-color: rgba(204,0,0,0.3);
+  .pick-title-attention strong {
+    color: #c40000;
+    font-weight: 900;
   }
   .pick-close {
     width: 34px; height: 34px;
@@ -922,8 +900,6 @@
     100%{opacity:0; transform:scale(1.12);}
   }
   .pick-box.pick-details-collapsed .pick-tutorial,
-  .pick-box.pick-details-collapsed .pick-warning,
-  .pick-box.pick-details-collapsed .pick-title,
   .pick-box.pick-details-collapsed .pick-sub{
     display:none !important;
   }
@@ -2295,14 +2271,18 @@
     }
     .pick-header { padding: 12px 14px 0; flex-shrink: 0; }
     .pick-header-top { margin-bottom: 8px; }
+    .pick-title-line { align-items: flex-start; gap: 6px; }
     .pick-title { font-size: 15px; }
+    .pick-title-attention {
+      width: 100%;
+      max-width: none;
+      padding: 6px 8px;
+      border-radius: 8px;
+      font-size: 10.5px;
+      line-height: 1.35;
+    }
     .pick-sub { font-size: 11.5px; }
     .pick-close { width: 30px; height: 30px; font-size: 14px; flex-shrink: 0; }
-    .pick-warning { gap: 8px; padding: 9px 10px; margin: 8px 14px 0; border-radius: 11px; }
-    .pick-warning-icon { font-size: 16px; }
-    .pick-warning-title { font-size: 11.5px; margin-bottom: 1px; }
-    .pick-warning-desc { font-size: 10.8px; line-height: 1.4; }
-    .pick-warning-dismiss { width: 24px; height: 24px; font-size: 13px; }
     .pick-tutorial { padding: 7px 11px; margin-bottom: 6px; }
     .pick-tutorial-note { font-size: 11.5px; padding: 7px 9px; }
     .pick-details-bar{margin:10px 0 12px;}
@@ -2712,8 +2692,13 @@
   <div class="pick-box">
     <div class="pick-header">
       <div class="pick-header-top">
-        <div>
-          <div class="pick-title">🎯 <span data-i18n="pick_title">เลือกเกมที่อยากเล่น</span></div>
+        <div class="pick-title-group">
+          <div class="pick-title-line">
+            <div class="pick-title">🎯 <span data-i18n="pick_title">เลือกเกมที่อยากเล่น</span></div>
+            <div class="pick-title-attention" role="note" aria-label="Important storage notice">
+              <span>⚠️ <strong data-i18n="pick_warning_title">สำคัญก่อนเลือกเกม</strong> <span data-i18n="pick_warning_desc">เครื่องมีพื้นที่จัดเก็บจำกัด บางเกมขนาดใหญ่ อาจติดตั้งได้ไม่ครบตามจำนวนที่เลือก</span></span>
+            </div>
+          </div>
           <div class="pick-sub" data-i18n="pick_sub">เลือกได้สูงสุด 10 เกม แล้ว Copy ส่งมาแจ้งทางร้านได้เลย</div>
         </div>
         <button class="pick-close" onclick="closePickModal()">✕</button>
@@ -2760,15 +2745,6 @@
         <div style="width:1px;height:18px;background:var(--border);margin:0 2px;flex-shrink:0"></div>
         <button class="pick-fsort-btn" id="pfsort-view" onclick="togglePickView()">⊞ <span id="pf-label-view">รายชื่อ</span></button>
       </div>
-    </div>
-
-    <div class="pick-warning" id="pick-storage-warning" hidden>
-      <div class="pick-warning-icon">⚠️</div>
-      <div class="pick-warning-text">
-        <div class="pick-warning-title" data-i18n="pick_warning_title">สำคัญก่อนเลือกเกม</div>
-        <div class="pick-warning-desc" data-i18n="pick_warning_desc">เครื่องมีพื้นที่จัดเก็บจำกัด บางเกมขนาดใหญ่ อาจติดตั้งได้ไม่ครบตามจำนวนที่เลือก</div>
-      </div>
-      <button class="pick-warning-dismiss" type="button" onclick="dismissPickWarning()" aria-label="Close warning">✕</button>
     </div>
 
     <!-- Genre filter row for pick modal -->
@@ -4971,20 +4947,6 @@ let pickGenreFilter = '';
 let pickSearchQuery = '';
 let pickViewMode = 'grid'; // 'grid' | 'list'
 let pickGenrePanelOpen = false;
-let pickWarningDismissed = false;
-
-function updatePickWarningVisibility() {
-  const warningEl = document.getElementById('pick-storage-warning');
-  if (!warningEl) return;
-  const shouldShow = !!pickActivePlatform && !pickWarningDismissed;
-  warningEl.hidden = !shouldShow;
-}
-
-function dismissPickWarning() {
-  pickWarningDismissed = true;
-  updatePickWarningVisibility();
-  syncPickModalScrollState();
-}
 
 const PICK_DETAILS_STATE_KEY = 'aj_pick_details_collapsed_v1';
 let pickDetailsCollapsed = false;
@@ -5033,7 +4995,6 @@ function openPickModal() {
   document.getElementById('btn-generate-copy').style.display = 'none';
   document.getElementById('pick-tutorial').style.display = '';
   try { pickDetailsCollapsed = localStorage.getItem(PICK_DETAILS_STATE_KEY) === '1'; } catch(e) { pickDetailsCollapsed = false; }
-  updatePickWarningVisibility();
   updatePickDetailsToggle();
   document.getElementById('pick-overlay').classList.add('open');
   syncPickModalScrollState();
@@ -5157,7 +5118,6 @@ function setPickPlatform(id) {
   document.getElementById('pick-genre-row').classList.remove('show');
   updatePickFilterButtons();
   renderPickPlatformTabs();
-  updatePickWarningVisibility();
   renderPickBody();
   syncPickModalScrollState();
 }
@@ -6590,6 +6550,7 @@ document.addEventListener('touchstart', function(e) {
       body.aj-embed-picker { background:#fff; }
       body.aj-embed-picker #pick-overlay { display:flex !important; position:fixed !important; inset:0 !important; padding:0 !important; background:#fff !important; }
       body.aj-embed-picker #pick-overlay .pick-box { width:100% !important; max-width:none !important; height:100vh !important; max-height:none !important; border-radius:0 !important; box-shadow:none !important; }
+      body.aj-embed-picker #pick-overlay .pick-header-top { display:none !important; }
       body.aj-embed-picker #pick-overlay .pick-close { display:none !important; }
       body.aj-embed-picker #pick-overlay .pptab-change { display:none !important; }
       body.aj-embed-picker #pick-overlay #btn-generate-copy { display:inline-flex !important; }
