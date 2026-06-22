@@ -26,7 +26,7 @@ a{color:inherit}
 .container{max-width:1180px;margin:0 auto;padding:0 22px}
 .muted{color:var(--text3)}
 .hide{display:none!important}
-nav{height:var(--nav-h);position:fixed;inset:0 0 auto;z-index:200;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.04)}
+nav{height:var(--nav-h);position:fixed;inset:0 0 auto;z-index:200;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.04)}
 .nav-inner{height:100%;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .brand{display:flex;align-items:center;gap:10px;font-family:"Space Grotesk",Sarabun,sans-serif;font-weight:800;letter-spacing:-.2px}
 .brand-mark{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#111;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.2);overflow:hidden}
@@ -112,6 +112,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .label{font-size:12px;font-weight:900;color:var(--text3);text-transform:uppercase}
 .input,.field select,.field textarea{width:100%;border:1px solid var(--border2);border-radius:11px;background:#fff;padding:11px 12px;min-height:44px}
 .input[readonly]{cursor:pointer}
+.line-select-trigger{width:100%;min-height:44px;border:1px solid var(--border2);border-radius:11px;background:#fff;padding:11px 38px 11px 12px;text-align:left;position:relative;color:#111}
+.line-select-trigger:after{content:"⌄";position:absolute;right:13px;top:50%;transform:translateY(-56%);font-size:20px;font-weight:900}
+.line-console-list{display:flex;flex-direction:column;gap:8px;max-height:min(68vh,620px);max-height:min(68dvh,620px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding:2px}
+.line-console-choice{width:100%;border:1px solid var(--border);border-radius:12px;background:#fff;padding:13px 14px;text-align:left;font-weight:800;line-height:1.4}
+.line-console-choice.active{border-color:var(--accent);background:#fff5f5;color:#8b0000}
+.line-console-choice:disabled{background:#f4f4f4;color:#999}
 .hint{font-size:12px;color:var(--text3);margin-top:5px}
 .option-row{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border);border-radius:12px;padding:11px;background:#fff;cursor:pointer}
 .option-row input{margin-top:5px;accent-color:var(--accent)}
@@ -331,16 +337,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .cal-arrow-big{display:block;font-size:22px}
   .boardgame-tools{grid-template-columns:1fr}
   .calc-tabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:8px;background:#fff;border-bottom:1px solid var(--border);box-shadow:0 4px 14px rgba(0,0,0,.06)}
-  .step-tab{position:relative;display:flex;align-items:center;min-height:46px;border:1px solid #bfe5c9!important;border-radius:14px;background:#effbf2;color:#184d2a;padding:9px 34px 9px 10px}
+  .step-tab{position:relative;display:flex;align-items:center;min-height:46px;border:1px solid #bfe5c9;border-radius:14px;background:#effbf2;color:#184d2a;padding:9px 34px 9px 10px}
   .step-tab:after{content:"→";position:absolute;right:11px;color:#39a35b;font-size:18px;font-weight:900}
-  .step-tab.active{border-color:#e10000!important;background:#fff7f7;color:#8b0000}
+  .step-tab.active{border-color:#e10000;background:#fff7f7;color:#8b0000}
   .step-tab.active .num{background:#d60000}
   .step-tab .num{flex:0 0 auto;margin-right:7px;background:#14883d}
   .calc-body{padding:14px}
   .modal-overlay,.picker-overlay,.admin-overlay{padding:0}
   .calendar-modal{padding:8px;align-items:stretch}
   .modal-card,.picker-card,.admin-modal{width:100%;height:100%;max-height:none;border-radius:0}
-  .calendar-modal .modal-card{height:calc(100dvh - 16px);border-radius:18px}
+  .calendar-modal .modal-card{height:calc(100vh - 16px);height:calc(100dvh - 16px);border-radius:18px}
   .calendar-modal .modal-head{padding:12px 14px}
   .calendar-modal .modal-head h3{font-size:17px;line-height:1.25}
   .calendar-modal .xbtn{width:40px;height:40px;border-radius:999px;background:#f1f1f1;font-size:24px}
@@ -421,7 +427,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
                 <h3 data-i18n="step1Title">เลือกเครื่องและวันที่</h3>
                 <div class="grid2 calc-selection-grid">
                   <div class="field"><label class="label" data-i18n="deviceType">ประเภทเครื่อง</label><select id="calcType"></select></div>
-                  <div class="field"><label class="label" data-i18n="device">เครื่องเกม</label><select id="calcConsole"></select></div>
+                  <div class="field"><label class="label" data-i18n="device">เครื่องเกม</label><select id="calcConsole"></select><button class="line-select-trigger" id="calcConsoleLineTrigger" type="button" hidden></button></div>
                   <div class="field"><label class="label" data-i18n="startDate">วันที่เริ่มเช่า</label><input class="input" id="startDate" readonly></div>
                   <div class="field"><label class="label" data-i18n="endDate">วันคืนเครื่อง</label><input class="input" id="endDate" readonly></div>
                   <div class="rental-days-hint" id="rentalDaysHint"></div>
@@ -706,6 +712,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   const byId = id => document.getElementById(id);
   const tr = key => (I18N[state.lang] && I18N[state.lang][key]) || key;
   const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const safeHref = (value, fallback="#") => {
+    const raw = String(value || "").trim();
+    if(!raw) return fallback;
+    try{
+      const url = new URL(raw, location.href);
+      return ["http:","https:"].includes(url.protocol) ? url.href : fallback;
+    }catch{
+      return fallback;
+    }
+  };
   const clone = value => JSON.parse(JSON.stringify(value));
   const money = value => "฿" + Number(value || 0).toLocaleString();
   const num = value => Number(String(value ?? "").replace(/,/g,"").trim()) || 0;
@@ -1026,7 +1042,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       }
     }catch(error){
       console.warn("Board game sync skipped", error);
-      if(!state.bgCatalog.length) state.bgCatalog = clone(DEFAULT_BG_CATALOG).map(normalizeBgGame);
+      if(!state.bgCatalog.length){
+        state.bgCatalog = clone(DEFAULT_BG_CATALOG).map(normalizeBgGame);
+        render();
+      }
     }
   }
 
@@ -1153,7 +1172,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const title = state.lang === "en" ? (item.titleEn || item.titleTh) : (item.titleTh || item.titleEn);
       const sub = state.lang === "en" ? (item.subtitleEn || item.subtitleTh) : (item.subtitleTh || item.subtitleEn);
       const badge = state.lang === "en" ? (item.badgeEn || item.badgeTh) : (item.badgeTh || item.badgeEn);
-      return `<a class="home-card tone-${esc(item.overlayTone)}" href="${esc(item.url || "#")}">${item.image ? `<img src="${esc(item.image)}" alt="">` : ""}<div class="home-card-content"><span class="badge">${esc(badge)}</span><h3>${esc(title || item.emojiFallback)}</h3><p>${esc(sub)}</p></div></a>`;
+      return `<a class="home-card tone-${esc(item.overlayTone)}" href="${esc(safeHref(item.url))}">${item.image ? `<img src="${esc(item.image)}" alt="">` : ""}<div class="home-card-content"><span class="badge">${esc(badge)}</span><h3>${esc(title || item.emojiFallback)}</h3><p>${esc(sub)}</p></div></a>`;
     }).join("");
   }
   function renderFilters(){
@@ -1245,13 +1264,53 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(host) host.innerHTML = buttons(step);
     });
   }
+  function isLineBrowser(){
+    return /\bLine\//i.test(navigator.userAgent) || /LIFF/i.test(navigator.userAgent);
+  }
+  function calcConsoleChoices(){
+    return state.consoles
+      .filter(c => !state.calc.type || c.type === state.calc.type)
+      .sort((a,b) => brandOrder(a.brand)-brandOrder(b.brand) || consoleRank(a)-consoleRank(b) || b.rate-a.rate);
+  }
+  function calcConsoleChoiceLabel(consoleItem){
+    const ready = isReady(consoleItem);
+    return `${ready ? "" : "⛔ "}${cName(consoleItem)} (${money(consoleItem.rate)}/${tr("day")})${ready ? "" : ` - ${tr("readyOn")} ${displayDate(consoleItem.readyDate)}`}`;
+  }
+  function selectCalcConsole(consoleId){
+    state.calc.consoleId = String(consoleId || "");
+    state.calc.bundleId = "";
+    state.calc.extras = [];
+    state.calc.games = [];
+    resetStepOneGuide();
+    setGuideStage("start", {syncStep:false});
+    fetchAvailability();
+    saveLocal();
+    render();
+  }
+  function showLineConsolePicker(){
+    const choices = calcConsoleChoices();
+    const buttons = [
+      `<button class="line-console-choice ${state.calc.consoleId ? "" : "active"}" data-console-choice="" type="button">${esc(tr("chooseConsole"))}</button>`,
+      ...choices.map(c => `<button class="line-console-choice ${String(state.calc.consoleId) === String(c.id) ? "active" : ""}" data-console-choice="${esc(String(c.id))}" type="button" ${isReady(c) ? "" : "disabled"}>${esc(calcConsoleChoiceLabel(c))}</button>`)
+    ];
+    showModal(tr("device"), `<div class="line-console-list">${buttons.join("")}</div>`);
+  }
   function renderCalcFields(){
     byId("calcType").innerHTML = [["",tr("chooseType")],["console",tr("type_console")],["vr",tr("type_vr")],["handheld",tr("type_handheld")],["racing",tr("type_racing")]].map(([id,label]) => `<option value="${id}" ${state.calc.type===id?"selected":""}>${esc(label)}</option>`).join("");
-    const list = state.consoles.filter(c => !state.calc.type || c.type === state.calc.type).sort((a,b)=>brandOrder(a.brand)-brandOrder(b.brand)||consoleRank(a)-consoleRank(b)||b.rate-a.rate);
+    const list = calcConsoleChoices();
     byId("calcConsole").innerHTML = `<option value="">${esc(tr("chooseConsole"))}</option>` + list.map(c => {
       const ready = isReady(c);
-      return `<option value="${esc(String(c.id))}" ${String(state.calc.consoleId)===String(c.id)?"selected":""} ${ready?"":"disabled"}>${ready?"":"⛔ "}${esc(cName(c))} (${money(c.rate)}/${tr("day")})${ready?"":` - ${tr("readyOn")} ${displayDate(c.readyDate)}`}</option>`;
+      return `<option value="${esc(String(c.id))}" ${String(state.calc.consoleId)===String(c.id)?"selected":""} ${ready?"":"disabled"}>${esc(calcConsoleChoiceLabel(c))}</option>`;
     }).join("");
+    const nativeSelect = byId("calcConsole");
+    const lineTrigger = byId("calcConsoleLineTrigger");
+    const useLinePicker = isLineBrowser();
+    nativeSelect.hidden = useLinePicker;
+    lineTrigger.hidden = !useLinePicker;
+    if(useLinePicker){
+      const selected = consoleById(state.calc.consoleId);
+      lineTrigger.textContent = selected ? calcConsoleChoiceLabel(selected) : tr("chooseConsole");
+    }
     byId("startDate").placeholder = "DD/MM/YYYY";
     byId("endDate").placeholder = "DD/MM/YYYY";
     byId("startDate").value = state.calc.start ? displayDate(state.calc.start) : "";
@@ -2066,7 +2125,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         platformId:c.gamePlatform || guessPlatform(c),
         lang:state.lang,
         selectedGameIds:state.calc.games.map(g => g.id).filter(Boolean)
-      }, "*");
+      }, location.origin === "null" ? "*" : location.origin);
     };
     frame.onload = send;
     setTimeout(send, 500);
@@ -2350,7 +2409,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }
     const c = consoleById(state.calc.consoleId);
     const targets = {
-      console:{el:byId("calcConsole"), text:tr("guideConsole")},
+      console:{el:isLineBrowser() ? byId("calcConsoleLineTrigger") : byId("calcConsole"), text:tr("guideConsole")},
       start:{el:byId("startDate"), text:tr("guideStart")},
       end:{el:byId("endDate"), text:tr("guideEnd")},
       accessory:{el:byId("accessoryBlock") || $("[data-extra]")?.closest(".option-row") || byId("bundleCard"), text:tr("guideAccessory"), actions:[["next",tr("guideSkip")]]},
@@ -2803,6 +2862,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
   function bindEvents(){
     document.addEventListener("click", event => {
+      if(event.target.id === "calcConsoleLineTrigger"){ showLineConsolePicker(); return; }
+      const consoleChoice = event.target.closest("[data-console-choice]");
+      if(consoleChoice){ closeModal(); selectCalcConsole(consoleChoice.dataset.consoleChoice); return; }
       const typeBtn = event.target.closest("[data-type]");
       if(typeBtn){ state.filter.type = typeBtn.dataset.type; render(); return; }
       const brandBtn = event.target.closest("[data-brand]");
@@ -2865,6 +2927,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(state.calendar.open) renderCalendar();
     });
     window.addEventListener("message", event => {
+      const pickerFrame = byId("gamePickerFrame");
+      if(event.source !== pickerFrame.contentWindow) return;
+      if(location.origin !== "null" && event.origin !== location.origin) return;
       const data = event.data || {};
       if(data.type === "AJ_PICKER_SELECTED"){
         state.calc.games = Array.isArray(data.games) ? data.games.slice(0,10) : [];
@@ -2876,22 +2941,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       }
       if(data.type === "AJ_GAME_READY" && byId("gamePickerOverlay").classList.contains("open")){
         const c = consoleById(state.calc.consoleId);
-        byId("gamePickerFrame").contentWindow?.postMessage({type:"AJ_PICKER_OPEN",requestId:"index2-ready",platformId:c?.gamePlatform||"",lang:state.lang,selectedGameIds:state.calc.games.map(g=>g.id).filter(Boolean)}, "*");
+        pickerFrame.contentWindow?.postMessage({type:"AJ_PICKER_OPEN",requestId:"index2-ready",platformId:c?.gamePlatform||"",lang:state.lang,selectedGameIds:state.calc.games.map(g=>g.id).filter(Boolean)}, location.origin === "null" ? "*" : location.origin);
       }
     });
     document.addEventListener("change", event => {
       if(event.target.id === "calcType"){ state.calc.type = event.target.value; if(consoleById(state.calc.consoleId)?.type !== state.calc.type && state.calc.type) state.calc.consoleId = ""; saveLocal(); render(); }
-      if(event.target.id === "calcConsole"){
-        state.calc.consoleId = event.target.value;
-        state.calc.bundleId = "";
-        state.calc.extras = [];
-        state.calc.games = [];
-        resetStepOneGuide();
-        setGuideStage("start", {syncStep:false});
-        fetchAvailability();
-        saveLocal();
-        render();
-      }
+      if(event.target.id === "calcConsole") selectCalcConsole(event.target.value);
       if(event.target.name === "bundle"){ state.calc.bundleId = event.target.value; advanceGuide("ps5bundle"); }
       if(event.target.matches("[data-extra]")){
         const id = event.target.dataset.extra;
