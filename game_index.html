@@ -64,6 +64,11 @@
     /* subtle warm grain texture */
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
   }
+  body.catalog-sync-loading #public-view,
+  body.catalog-sync-loading #float-search-btn,
+  body.catalog-sync-loading #float-pick-btn {
+    visibility: hidden;
+  }
 
   /* ── HEADER ── */
   header {
@@ -5515,7 +5520,6 @@ function applyLang() {
   // Float search label
   updateFloatSearchLabel();
   if (typeof renderFAQ === 'function') renderFAQ();
-setTimeout(fetchFromJSONBin, 800);
   var btnHowtoLabel = document.getElementById('btn-howto-label');
   if (btnHowtoLabel) btnHowtoLabel.textContent = (currentLang==='en') ? 'How to use' : 'วิธีใช้';
   // FAQ button label stays 'FAQ' in both langs (universal)
@@ -6204,9 +6208,12 @@ function fetchFromJSONBin(options) {
     // Extract file content from gist response
     var fileObj = gist.files && gist.files['ajgame-data.json'];
     if (!fileObj) throw new Error('ไม่พบไฟล์ ajgame-data.json ใน Gist');
-    // content may be truncated for large files — fetch raw_url if needed
-    if (fileObj.truncated && fileObj.raw_url) {
-      return fetch(fileObj.raw_url + '?_=' + Date.now()).then(function(r){ return r.json(); });
+    // Always read the raw file so every browser gets the latest full catalog.
+    if (fileObj.raw_url) {
+      return fetch(fileObj.raw_url + '?_=' + Date.now(), { cache: 'no-store' }).then(function(r){
+        if (!r.ok) throw new Error('RAW HTTP ' + r.status);
+        return r.json();
+      });
     }
     return JSON.parse(fileObj.content);
   })
@@ -6321,12 +6328,21 @@ function showSyncStatus(msg, type) {
 }
 
 
+document.body.classList.add('catalog-sync-loading');
 loadData();
-window.ajGameCatalogReady = fetchFromJSONBin({ render:false }).then(function(){
+window.ajGameCatalogReady = fetchFromJSONBin({ render:false }).then(function(loadedFromGist){
   if (typeof window.ajApplyGameCatalogFilters === 'function') window.ajApplyGameCatalogFilters();
   renderPublic();
   if (typeof renderFAQ === 'function') renderFAQ();
-  return true;
+  return loadedFromGist;
+}).catch(function(e){
+  console.warn('[AJGame] Catalog init failed:', e);
+  renderPublic();
+  if (typeof renderFAQ === 'function') renderFAQ();
+  return false;
+}).then(function(result){
+  document.body.classList.remove('catalog-sync-loading');
+  return result;
 });
 </script>
 
@@ -6498,7 +6514,6 @@ function updateFloatSearchLabel() {
 setTimeout(function() {
   updateFloatSearchLabel();
   if (typeof renderFAQ === 'function') renderFAQ();
-setTimeout(fetchFromJSONBin, 800);
   var btnHowtoLabel = document.getElementById('btn-howto-label');
   if (btnHowtoLabel) btnHowtoLabel.textContent = (currentLang==='en') ? 'How to use' : 'วิธีใช้';
   // FAQ button label stays 'FAQ' in both langs (universal)
