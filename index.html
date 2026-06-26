@@ -343,6 +343,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .modal-overlay,.picker-overlay,.admin-overlay{padding:0}
   .calendar-modal{padding:8px;align-items:stretch}
   .modal-card,.picker-card,.admin-modal{width:100%;height:100%;max-height:none;border-radius:0}
+  .game-picker-head{grid-template-columns:1fr auto;grid-template-areas:"title close" "warn warn";align-items:center;gap:6px 8px;padding:10px 12px}
+  .game-picker-head #gamePickerTitle{grid-area:title;font-size:17px}
+  .game-picker-head .xbtn{grid-area:close}
+  .game-picker-attention{grid-area:warn;justify-self:stretch;max-width:none;white-space:normal;overflow:visible;font-size:11px;line-height:1.3;padding:6px 9px}
   .calendar-modal .modal-card{height:calc(100vh - 16px);height:calc(100dvh - 16px);border-radius:18px}
   .calendar-modal .modal-head{padding:12px 14px}
   .calendar-modal .modal-head h3{font-size:17px;line-height:1.25}
@@ -510,7 +514,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
 <div class="picker-overlay" id="gamePickerOverlay">
   <div class="picker-card">
-    <div class="modal-head game-picker-head"><h3 id="gamePickerTitle">เลือกเกม</h3><div class="game-picker-attention" data-i18n="gameStorageWarning">⚠️ เครื่องมีพื้นที่จำกัด บางเกมขนาดใหญ่ อาจติดตั้งได้ไม่ครบตามจำนวนที่เลือก</div><button class="xbtn" id="gamePickerClose" type="button">&times;</button></div>
+    <div class="modal-head game-picker-head"><h3 id="gamePickerTitle" data-i18n="gamePickerTitle">เลือกเกม</h3><div class="game-picker-attention" data-i18n="gameStorageWarning">⚠️ เครื่องมีพื้นที่จำกัด บางเกมขนาดใหญ่ อาจติดตั้งได้ไม่ครบตามจำนวนที่เลือก</div><button class="xbtn" id="gamePickerClose" type="button">&times;</button></div>
     <iframe class="picker-frame" id="gamePickerFrame" title="Game picker"></iframe>
   </div>
 </div>
@@ -657,7 +661,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       step1:"เลือกเครื่อง/วันที่", step2:"ตัวเลือกเพิ่มเติม", step3:"เลือกเกม", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"ตัวเลือกเพิ่มเติม", step3Title:"เลือกเกม", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า",
       nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
       deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
-      gamePickHelp:"ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้", gameStorageWarning:"⚠️ เครื่องมีพื้นที่จำกัด บางเกมขนาดใหญ่ อาจติดตั้งได้ไม่ครบตามจำนวนที่เลือก", summaryHelp:"ตรวจสอบข้อมูล แล้วคัดลอกหรือส่งทาง Line / WhatsApp",
+      gamePickHelp:"ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้", gamePickerTitle:"เลือกเกม", gameStorageWarning:"⚠️ เครื่องมีพื้นที่จำกัด บางเกมขนาดใหญ่ อาจติดตั้งได้ไม่ครบตามจำนวนที่เลือก", summaryHelp:"ตรวจสอบข้อมูล แล้วคัดลอกหรือส่งทาง Line / WhatsApp",
       personalRateWarning:"⚠️ ราคาด้านล่างนี้ เป็นราคาเช่าในนามบุคคลเท่านั้น ไม่สามารถออกใบกำกับภาษีหรือใบเสร็จรับเงินได้ หากต้องการใบกำกับภาษี/ใบเสร็จ จะเป็นเรทบริษัท กรุณาติดต่อทาง Line: <b>@ajgame</b> หรือ โทร. <b>081-624-4715</b> 🙏",
       daily:"รายวัน", weekly:"รายสัปดาห์", day:"วัน", wk:"สัปดาห์", deposit:"ค่าประกัน", ready:"พร้อม", notReady:"ยังไม่พร้อม", readyOn:"พร้อมวันที่",
       bundle:"Bundle", accessories:"อุปกรณ์เสริม", noBundle:"ไม่เพิ่ม Bundle", noAccessory:"ไม่เพิ่มอุปกรณ์เสริม", contract:"ทำสัญญาการเช่า", contractHelp:"แนะนำสำหรับผู้เช่าครั้งแรก กรอกก่อนนัดส่งเครื่อง",
@@ -686,7 +690,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       step1:"Device / Dates", step2:"Additional options", step3:"Games", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Additional options", step3Title:"Choose games", step4Title:"Summary and send", rentalDuration:"Rental duration",
       nextStep:"Next step", backStep:"Back",
       deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", startDate:"Start date", endDate:"Return date",
-      gamePickHelp:"Choose up to 10 games when this model has a catalog, or send the list later.", gameStorageWarning:"⚠️ Storage is limited. Some large games may not all fit based on the number selected.", summaryHelp:"Review the details, then copy or send via Line / WhatsApp.",
+      gamePickHelp:"Choose up to 10 games when this model has a catalog, or send the list later.", gamePickerTitle:"Select Games", gameStorageWarning:"⚠️ Storage is limited. Some large games may not all fit based on the number selected.", summaryHelp:"Review the details, then copy or send via Line / WhatsApp.",
       personalRateWarning:"⚠️ The rental prices below are individual rates only. Tax invoices / receipts cannot be issued at these rates. If you need one, company rates apply. Please contact Line: <b>@ajgame</b> or call <b>081-624-4715</b> 🙏",
       daily:"Daily", weekly:"Weekly", day:"day", wk:"week", deposit:"Deposit", ready:"Ready", notReady:"Not ready", readyOn:"Ready on",
       bundle:"Bundle", accessories:"Accessories", noBundle:"No bundle", noAccessory:"No extra accessory", contract:"Rental contract", contractHelp:"Recommended for first-time renters. Complete it before delivery.",
@@ -3139,6 +3143,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       setTimeout(() => byId("calculator").scrollIntoView({block:"start"}), 80);
     }else if(!openedFromLink && (location.hash === "#calculator" || new URLSearchParams(location.search).get("go") === "calc")){
       setTimeout(() => byId("calculator").scrollIntoView(), 80);
+    }
+    if(new URLSearchParams(location.search).get("faq") === "1" || location.hash === "#faq"){
+      setTimeout(openFAQPopup, 120);
     }
     fetchAvailability().catch(() => {});
     gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {});
