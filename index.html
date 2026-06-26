@@ -169,6 +169,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .calendar-modal.open,.modal-overlay.open,.picker-overlay.open{display:flex}
 .modal-card{background:#fff;border-radius:20px;box-shadow:var(--shadow2);width:min(980px,100%);max-height:92vh;overflow:auto}
 .modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:2}
+.modal-head-actions{display:flex;align-items:center;gap:8px}
+.faq-lang-btn{padding:7px 12px;font-size:13px;font-weight:800}
 .modal-head h3{font-size:18px}
 .modal-title-copy{min-width:0}
 .modal-title-copy p{font-size:12px;color:var(--text2);margin-top:1px}
@@ -287,7 +289,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .float-calc.show{display:inline-flex}
 .picker-card{background:#fff;width:min(1180px,100%);height:min(92vh,900px);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow2)}
 .picker-frame{flex:1;border:0;background:#fff}
-.game-picker-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto}
+.game-picker-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px}
+.game-picker-actions{display:flex;align-items:center;gap:8px}
 .game-picker-attention{justify-self:start;max-width:100%;border:1px solid #f0a000;border-radius:9px;background:#fff8dd;color:#6b3900;padding:7px 10px;font-size:12px;font-weight:900;line-height:1.25;white-space:nowrap;overflow-x:auto;scrollbar-width:none}
 .game-picker-attention::-webkit-scrollbar{display:none}
 @media(max-width:900px){
@@ -343,10 +346,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .modal-overlay,.picker-overlay,.admin-overlay{padding:0}
   .calendar-modal{padding:8px;align-items:stretch}
   .modal-card,.picker-card,.admin-modal{width:100%;height:100%;max-height:none;border-radius:0}
-  .game-picker-head{grid-template-columns:1fr auto;grid-template-areas:"title close" "warn warn";align-items:center;gap:6px 8px;padding:10px 12px}
-  .game-picker-head #gamePickerTitle{grid-area:title;font-size:17px}
-  .game-picker-head .xbtn{grid-area:close}
-  .game-picker-attention{grid-area:warn;justify-self:stretch;max-width:none;white-space:normal;overflow:visible;font-size:11px;line-height:1.3;padding:6px 9px}
+  .game-picker-head{grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;padding:10px 12px}
+  .game-picker-head #gamePickerTitle{font-size:15px;white-space:nowrap}
+  .game-picker-actions{gap:6px}
+  .game-picker-head .faq-lang-btn{padding:6px 9px;font-size:12px}
+  .game-picker-head .xbtn{font-size:24px}
+  .game-picker-attention{max-width:none;white-space:normal;overflow:visible;font-size:10px;line-height:1.25;padding:5px 8px}
   .calendar-modal .modal-card{height:calc(100vh - 16px);height:calc(100dvh - 16px);border-radius:18px}
   .calendar-modal .modal-head{padding:12px 14px}
   .calendar-modal .modal-head h3{font-size:17px;line-height:1.25}
@@ -507,14 +512,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
 <div class="modal-overlay" id="simpleModal">
   <div class="modal-card">
-    <div class="modal-head"><h3 id="simpleModalTitle"></h3><button class="xbtn" id="simpleModalClose" type="button">&times;</button></div>
+    <div class="modal-head"><h3 id="simpleModalTitle"></h3><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="faqLangBtn" type="button" style="display:none"></button><button class="xbtn" id="simpleModalClose" type="button">&times;</button></div></div>
     <div class="calendar-body" id="simpleModalBody"></div>
   </div>
 </div>
 
 <div class="picker-overlay" id="gamePickerOverlay">
   <div class="picker-card">
-    <div class="modal-head game-picker-head"><h3 id="gamePickerTitle" data-i18n="gamePickerTitle">เลือกเกม</h3><div class="game-picker-attention" data-i18n="gameStorageWarning">⚠️ เครื่องมีพื้นที่จำกัด บางเกมขนาดใหญ่ อาจติดตั้งได้ไม่ครบตามจำนวนที่เลือก</div><button class="xbtn" id="gamePickerClose" type="button">&times;</button></div>
+    <div class="modal-head game-picker-head"><h3 id="gamePickerTitle" data-i18n="gamePickerTitle">เลือกเกม</h3><div class="game-picker-attention" data-i18n="gameStorageWarning">⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ</div><div class="game-picker-actions"><button class="btn primary faq-lang-btn" id="gamePickerLangBtn" type="button"></button><button class="xbtn" id="gamePickerClose" type="button">&times;</button></div></div>
     <iframe class="picker-frame" id="gamePickerFrame" title="Game picker"></iframe>
   </div>
 </div>
@@ -661,7 +666,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       step1:"เลือกเครื่อง/วันที่", step2:"ตัวเลือกเพิ่มเติม", step3:"เลือกเกม", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"ตัวเลือกเพิ่มเติม", step3Title:"เลือกเกม", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า",
       nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
       deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
-      gamePickHelp:"ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้", gamePickerTitle:"เลือกเกม", gameStorageWarning:"⚠️ เครื่องมีพื้นที่จำกัด บางเกมขนาดใหญ่ อาจติดตั้งได้ไม่ครบตามจำนวนที่เลือก", summaryHelp:"ตรวจสอบข้อมูล แล้วคัดลอกหรือส่งทาง Line / WhatsApp",
+      gamePickHelp:"ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้", gamePickerTitle:"เลือกเกม", gameStorageWarning:"⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ", summaryHelp:"ตรวจสอบข้อมูล แล้วคัดลอกหรือส่งทาง Line / WhatsApp",
       personalRateWarning:"⚠️ ราคาด้านล่างนี้ เป็นราคาเช่าในนามบุคคลเท่านั้น ไม่สามารถออกใบกำกับภาษีหรือใบเสร็จรับเงินได้ หากต้องการใบกำกับภาษี/ใบเสร็จ จะเป็นเรทบริษัท กรุณาติดต่อทาง Line: <b>@ajgame</b> หรือ โทร. <b>081-624-4715</b> 🙏",
       daily:"รายวัน", weekly:"รายสัปดาห์", day:"วัน", wk:"สัปดาห์", deposit:"ค่าประกัน", ready:"พร้อม", notReady:"ยังไม่พร้อม", readyOn:"พร้อมวันที่",
       bundle:"Bundle", accessories:"อุปกรณ์เสริม", noBundle:"ไม่เพิ่ม Bundle", noAccessory:"ไม่เพิ่มอุปกรณ์เสริม", contract:"ทำสัญญาการเช่า", contractHelp:"แนะนำสำหรับผู้เช่าครั้งแรก กรอกก่อนนัดส่งเครื่อง",
@@ -690,7 +695,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       step1:"Device / Dates", step2:"Additional options", step3:"Games", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Additional options", step3Title:"Choose games", step4Title:"Summary and send", rentalDuration:"Rental duration",
       nextStep:"Next step", backStep:"Back",
       deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", startDate:"Start date", endDate:"Return date",
-      gamePickHelp:"Choose up to 10 games when this model has a catalog, or send the list later.", gamePickerTitle:"Select Games", gameStorageWarning:"⚠️ Storage is limited. Some large games may not all fit based on the number selected.", summaryHelp:"Review the details, then copy or send via Line / WhatsApp.",
+      gamePickHelp:"Choose up to 10 games when this model has a catalog, or send the list later.", gamePickerTitle:"Select Games", gameStorageWarning:"⚠️ Limited device storage. Some games may not all fit.", summaryHelp:"Review the details, then copy or send via Line / WhatsApp.",
       personalRateWarning:"⚠️ The rental prices below are individual rates only. Tax invoices / receipts cannot be issued at these rates. If you need one, company rates apply. Please contact Line: <b>@ajgame</b> or call <b>081-624-4715</b> 🙏",
       daily:"Daily", weekly:"Weekly", day:"day", wk:"week", deposit:"Deposit", ready:"Ready", notReady:"Not ready", readyOn:"Ready on",
       bundle:"Bundle", accessories:"Accessories", noBundle:"No bundle", noAccessory:"No extra accessory", contract:"Rental contract", contractHelp:"Recommended for first-time renters. Complete it before delivery.",
@@ -2116,6 +2121,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const frame = byId("gamePickerFrame");
     const platformId = c.gamePlatform || guessPlatform(c);
     const selectedIds = state.calc.games.map(g => g.id).filter(Boolean);
+    refreshGamePickerLangBtn();
     byId("gamePickerOverlay").classList.add("open");
     const params = new URLSearchParams({embed:"picker", lang:state.lang, platformId, selected:selectedIds.join(","), v:CONFIG.gamePickerVersion});
     const src = `${CONFIG.gamePage}?${params.toString()}`;
@@ -2134,10 +2140,20 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     setTimeout(send, 500);
   }
   function closeGamePicker(){ byId("gamePickerOverlay").classList.remove("open"); }
+  function refreshGamePickerLangBtn(){
+    byId("gamePickerLangBtn").textContent = state.lang === "en" ? "🇹🇭 TH" : "🇬🇧 EN";
+  }
+  function toggleGamePickerLang(){
+    state.lang = state.lang === "en" ? "th" : "en";
+    render();
+    refreshGamePickerLangBtn();
+    byId("gamePickerFrame").contentWindow?.postMessage({type:"AJ_SET_LANG", lang:state.lang}, pickerTargetOrigin());
+  }
 
   function showModal(title, bodyHtml){
     byId("simpleModalTitle").textContent = title;
     byId("simpleModalBody").innerHTML = bodyHtml;
+    byId("faqLangBtn").style.display = "none";
     byId("simpleModal").classList.add("open");
   }
   function closeModal(){ byId("simpleModal").classList.remove("open"); }
@@ -2306,12 +2322,26 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       <div class="faq-item"><div class="faq-q">3. Paste</div><div class="faq-a">${state.lang==="en"?"Paste the link into the Google Maps field.":"นำลิงก์มาแปะในช่อง Google Maps ที่อยู่จัดส่ง"}</div></div>
     </div>`);
   }
-  function openFAQPopup(){
-    showModal("FAQ", state.faq.map(f => {
+  function faqModalBody(){
+    return state.faq.map(f => {
       const q = state.lang==="en" ? (f.qEn || f.qTh) : (f.qTh || f.qEn);
       const a = state.lang==="en" ? (f.aEn || f.aTh) : (f.aTh || f.aEn);
       return `<div class="faq-item"><div class="faq-q">${esc(q)}</div><div class="faq-a">${esc(a)}</div></div>`;
-    }).join(""));
+    }).join("");
+  }
+  function refreshFaqLangBtn(){
+    byId("faqLangBtn").textContent = state.lang === "en" ? "🇹🇭 TH" : "🇬🇧 EN";
+  }
+  function openFAQPopup(){
+    showModal("FAQ", faqModalBody());
+    byId("faqLangBtn").style.display = "";
+    refreshFaqLangBtn();
+  }
+  function toggleFaqLang(){
+    state.lang = state.lang === "en" ? "th" : "en";
+    render();
+    byId("simpleModalBody").innerHTML = faqModalBody();
+    refreshFaqLangBtn();
   }
 
   function toast(msg){
@@ -2907,6 +2937,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     byId("sortSelect").addEventListener("change", e => { state.filter.sort = e.target.value; renderConsoles(); });
     byId("langBtn").addEventListener("click", () => { state.lang = state.lang === "en" ? "th" : "en"; render(); });
     byId("faqBtn").addEventListener("click", openFAQPopup);
+    byId("faqLangBtn").addEventListener("click", toggleFaqLang);
+    byId("gamePickerLangBtn").addEventListener("click", toggleGamePickerLang);
     byId("adminBtn").addEventListener("click", () => openAdmin(false));
     byId("adminClose").addEventListener("click", closeAdmin);
     byId("adminLoginClose").addEventListener("click", closeAdminLogin);
