@@ -55,6 +55,7 @@
     max-width: 100%;
     width: 100%;
     position: relative;
+    padding-top: 60px;
     font-family: 'Noto Sans Thai', sans-serif;
     background: var(--bg);
     color: var(--text);
@@ -71,8 +72,10 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     padding: 0 24px;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 500;
     display: flex;
     align-items: center;
@@ -85,13 +88,24 @@
   header.scrolled {
     box-shadow: 0 1px 0 rgba(0,0,0,0.12), 0 4px 20px rgba(0,0,0,0.10);
   }
-    .header-right {
+  .header-right {
     display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 0;
   }
   @media (max-width: 640px) {
-    header { padding: 0 14px; }
+    header {
+      padding: 0 12px;
+      gap: 8px;
+    }
+    .header-right {
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .header-right::-webkit-scrollbar { display: none; }
   }
   .logo {
     display: flex;
@@ -99,6 +113,8 @@
     gap: 10px;
     text-decoration: none;
     cursor: default;
+    min-width: 0;
+    flex-shrink: 1;
   }
   .logo-text {
     font-family: 'Space Grotesk', 'Noto Sans Thai', sans-serif;
@@ -108,6 +124,8 @@
     letter-spacing: -0.8px;
     line-height: 1;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .logo-img {
     width: 42px;
@@ -141,7 +159,13 @@
     border-radius: var(--radius-sm);
     cursor: pointer;
     transition: var(--transition);
-    letter-spacing: 1px;
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-width: 62px;
+    white-space: nowrap;
   }
   .btn-lang:hover { background: var(--accent-mid); border-color: var(--accent-mid); }
 
@@ -2048,21 +2072,25 @@
     opacity: 0.12;
     pointer-events: none;
   }
-  header { position: relative; }
+  header {
+    position: fixed;
+    top: 0;
+  }
 
   /* ── Platform tabs strip ── */
   .platform-tabs {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 999px;
-    padding: 6px;
-    gap: 4px !important;
+    padding: 8px;
+    gap: 8px !important;
     margin: 28px auto 36px !important;
     width: fit-content;
-    max-width: 100%;
+    max-width: min(100%, 1180px);
     box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     flex-wrap: wrap !important;
     justify-content: center !important;
+    align-items: center;
   }
   .ptab {
     border-radius: 999px !important;
@@ -2073,6 +2101,8 @@
     font-size: 12.5px !important;
     color: var(--text2) !important;
     font-weight: 600 !important;
+    min-width: 118px;
+    justify-content: center;
   }
   .ptab:hover {
     background: var(--bg) !important;
@@ -2091,6 +2121,33 @@
     background: var(--text) !important;
     color: #fff !important;
     box-shadow: 0 2px 10px rgba(0,0,0,0.20) !important;
+  }
+  @media (max-width: 900px) {
+    .platform-tabs {
+      width: 100%;
+      border-radius: 24px;
+      justify-content: flex-start !important;
+    }
+    .ptab {
+      flex: 1 1 calc(33.333% - 8px);
+      min-width: 0;
+      padding-left: 10px !important;
+      padding-right: 10px !important;
+    }
+  }
+  @media (max-width: 640px) {
+    .platform-tabs {
+      overflow: visible !important;
+      padding: 8px !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+    .ptab {
+      flex: 1 1 calc(50% - 8px);
+      white-space: normal;
+      min-height: 42px;
+      line-height: 1.2;
+    }
   }
 
   /* ── Section header redesign ── */
@@ -2396,6 +2453,8 @@
     width: 100%;
     left: 0;
     right: 0;
+    position: fixed;
+    top: 0;
   }
   /* Platform tabs on mobile: hidden scroll, no bleed */
   @media (max-width: 640px) {
@@ -2579,7 +2638,7 @@
   <div class="header-right">
     <button class="btn-howto" id="btn-faq" onclick="scrollToFAQ()">&#x1F4AC; <span id="btn-faq-label">FAQ</span></button>
     <button class="btn-howto" id="btn-howto" onclick="openHowToModal()">❓ <span id="btn-howto-label">วิธีใช้</span></button>
-    <button class="btn-lang" id="btn-lang" onclick="toggleLang()">EN</button>
+    <button class="btn-lang" id="btn-lang" onclick="toggleLang()">🇬🇧 EN</button>
     <button class="btn-admin" onclick="showLogin()">⚙ Admin</button>
   </div>
 </header>
@@ -2696,7 +2755,7 @@
           <div class="pick-title-line">
             <div class="pick-title">🎯 <span data-i18n="pick_title">เลือกเกมที่อยากเล่น</span></div>
             <div class="pick-title-attention" role="note" aria-label="Important storage notice">
-              <span>⚠️ <strong data-i18n="pick_warning_title">สำคัญก่อนเลือกเกม</strong> <span data-i18n="pick_warning_desc">เครื่องมีพื้นที่จัดเก็บจำกัด บางเกมขนาดใหญ่ อาจติดตั้งได้ไม่ครบตามจำนวนที่เลือก</span></span>
+              <span data-i18n="pick_warning_desc">⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ</span>
             </div>
           </div>
           <div class="pick-sub" data-i18n="pick_sub">เลือกได้สูงสุด 10 เกม แล้ว Copy ส่งมาแจ้งทางร้านได้เลย</div>
@@ -3161,10 +3220,10 @@
    DEFAULT DATA
 ────────────────────────────────────── */
 const DEFAULT_PLATFORMS = [
-  { id: 'ps4',    name: 'PS4',                   icon: '🎮', color: '#003087', gamepassUrl: '' },
   { id: 'ps5',    name: 'PS5',                   icon: '🎮', color: '#003087', gamepassUrl: '' },
-  { id: 'switch1',name: 'Nintendo Switch 1',     icon: '🟥', color: '#e60012', gamepassUrl: '' },
+  { id: 'ps4',    name: 'PS4',                   icon: '🎮', color: '#003087', gamepassUrl: '' },
   { id: 'switch2',name: 'Nintendo Switch 2',     icon: '🔴', color: '#c0001a', gamepassUrl: '' },
+  { id: 'switch1',name: 'Nintendo Switch 1',     icon: '🟥', color: '#e60012', gamepassUrl: '' },
   { id: 'xbox',   name: 'XBOX',                  icon: '🟩', color: '#107c10', gamepassUrl: 'https://www.xbox.com/th-th/xbox-game-pass/games' },
   { id: 'meta',   name: 'Meta Quest 3',          icon: '🥽', color: '#0082fb', gamepassUrl: '' },
   { id: 'rog',    name: 'ROG & Legion Go2',       icon: '🔴', color: '#cc0000', gamepassUrl: 'https://www.xbox.com/th-th/xbox-game-pass/games' },
@@ -4072,10 +4131,21 @@ const AJ_PS4_GAME_NAME_KEYS = new Set([
 
 const PLAYSTATION_ADMIN_ID = 'ps45';
 const PLAYSTATION_PUBLIC_PLATFORMS = [
-  { id: 'ps4', name: 'PS4', icon: '🎮', color: '#003087', gamepassUrl: '' },
   { id: 'ps5', name: 'PS5', icon: '🎮', color: '#003087', gamepassUrl: '' },
+  { id: 'ps4', name: 'PS4', icon: '🎮', color: '#003087', gamepassUrl: '' },
 ];
 const PLAYSTATION_ADMIN_PLATFORM = { id: PLAYSTATION_ADMIN_ID, name: 'PS4 & PS5', icon: '🎮', color: '#003087', gamepassUrl: '' };
+const PLATFORM_DISPLAY_ORDER = ['ps5', 'ps4', 'switch2', 'switch1', 'xbox', 'meta', 'rog', 'p_1774941944007'];
+function normalizePlatformOrder(list) {
+  const rows = Array.isArray(list) ? list.filter(Boolean) : [];
+  const index = new Map(PLATFORM_DISPLAY_ORDER.map((id, i) => [id, i]));
+  return rows.slice().sort((a, b) => {
+    const ai = index.has(a.id) ? index.get(a.id) : Number.MAX_SAFE_INTEGER;
+    const bi = index.has(b.id) ? index.get(b.id) : Number.MAX_SAFE_INTEGER;
+    if (ai !== bi) return ai - bi;
+    return rows.indexOf(a) - rows.indexOf(b);
+  });
+}
 function ajGameNameKey(value) { return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ''); }
 function ajIsPs4GameName(value) { return AJ_PS4_GAME_NAME_KEYS.has(ajGameNameKey(value)); }
 function ajUniqueIds(ids) { return Array.from(new Set((ids || []).map(String).filter(Boolean))); }
@@ -4115,7 +4185,7 @@ function isGameUnavailable(g) {
 }
 function ensurePlayStationPlatforms() {
   const rest = (platforms || []).filter(p => p && !['ps4','ps5',PLAYSTATION_ADMIN_ID].includes(p.id));
-  platforms = PLAYSTATION_PUBLIC_PLATFORMS.map(p => Object.assign({}, p)).concat(rest);
+  platforms = normalizePlatformOrder(PLAYSTATION_PUBLIC_PLATFORMS.map(p => Object.assign({}, p)).concat(rest));
   games = (games || []).map(normalizeGameRecord);
 }
 function adminFilterPlatforms() {
@@ -5267,7 +5337,7 @@ function doCopy() {
 const TRANSLATIONS = {
   th: {
     // Header & lang toggle
-    lang_toggle: 'EN',
+    lang_toggle: '🇬🇧 EN',
     admin_btn: '⚙ Admin',
     // Hero
     eyebrow: 'AJ Game Rental · Bangkok',
@@ -5300,8 +5370,8 @@ const TRANSLATIONS = {
     // Pick modal
     pick_title: 'เลือกเกมที่อยากเล่น',
     pick_sub: 'เลือกได้สูงสุด 10 เกม แล้ว Copy ส่งมาแจ้งทางร้านได้เลย',
-    pick_warning_title: 'สำคัญก่อนเลือกเกม',
-    pick_warning_desc: 'เครื่องมีพื้นที่จัดเก็บจำกัด บางเกมขนาดใหญ่ อาจติดตั้งได้ไม่ครบตามจำนวนที่เลือก',
+    pick_warning_title: '',
+    pick_warning_desc: '⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ',
     tut_title: 'วิธีเลือกเกม',
     tut_1: 'เลือกประเภทเครื่องเกม จากนั้นเกมในประเภทนั้นจะแสดงขึ้นมา',
     tut_2: 'คลิกที่รูปเกมเพื่อเลือก ✓ — คลิกซ้ำเพื่อยกเลิก',
@@ -5322,7 +5392,7 @@ const TRANSLATIONS = {
     trailer_close_title: '',
   },
   en: {
-    lang_toggle: 'ไทย',
+    lang_toggle: '🇹🇭 TH',
     admin_btn: '⚙ Admin',
     eyebrow: 'AJ Game Rental · Bangkok',
     hero_title_html: '<span class="game-red">Game</span> <span class="catalog-black">Catalog</span>',
@@ -5350,8 +5420,8 @@ const TRANSLATIONS = {
     search_count: (n) => `${n} result${n !== 1 ? 's' : ''} found`,
     pick_title: 'Pick Games to Play',
     pick_sub: 'Select up to 10 games, then copy the list to send us on Line',
-    pick_warning_title: 'Important before you pick games',
-    pick_warning_desc: 'Storage space on each console is limited. Some large games may not be installable in full based on the number you select.',
+    pick_warning_title: '',
+    pick_warning_desc: '⚠️ Console storage is limited. Some games may not fit.',
     tut_title: 'How to Pick Games',
     tut_1: 'Select a console type — only that category\'s games will appear',
     tut_2: 'Click a game card to select ✓ — click again to deselect',
@@ -6547,7 +6617,7 @@ document.addEventListener('touchstart', function(e) {
       body.aj-embed-picker > #admin-panel,
       body.aj-embed-picker > #login-modal,
       body.aj-embed-picker > #toast-container { display:none !important; }
-      body.aj-embed-picker { background:#fff; }
+      body.aj-embed-picker { background:#fff; padding-top:0 !important; }
       body.aj-embed-picker #pick-overlay { display:flex !important; position:fixed !important; inset:0 !important; padding:0 !important; background:#fff !important; }
       body.aj-embed-picker #pick-overlay .pick-box { width:100% !important; max-width:none !important; height:100vh !important; max-height:none !important; border-radius:0 !important; box-shadow:none !important; }
       body.aj-embed-picker #pick-overlay .pick-header-top { display:none !important; }
@@ -6560,6 +6630,7 @@ document.addEventListener('touchstart', function(e) {
       body.aj-embed-admin > main,
       body.aj-embed-admin > #pick-overlay,
       body.aj-embed-admin > #login-modal { display:none !important; }
+      body.aj-embed-admin { padding-top:0 !important; }
       body.aj-embed-admin #admin-panel { display:block !important; position:static !important; inset:auto !important; background:#fff !important; }
     `;
     document.head.appendChild(style);
