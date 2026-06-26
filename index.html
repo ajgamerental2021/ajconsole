@@ -489,7 +489,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
 <div class="calendar-modal" id="calendarModal">
   <div class="modal-card">
-    <div class="modal-head"><div class="modal-title-copy"><h3 id="calendarTitle">📅 ปฏิทินเช็คคิวเครื่อง</h3><p id="calendarInstruction"></p></div><button class="xbtn" id="calendarClose" type="button">&times;</button></div>
+    <div class="modal-head"><div class="modal-title-copy"><h3 id="calendarTitle">📅 ปฏิทินเช็คคิวเครื่อง</h3><p id="calendarInstruction"></p></div><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="calendarLangBtn" type="button"></button><button class="xbtn" id="calendarClose" type="button">&times;</button></div></div>
     <div class="calendar-body">
       <div class="cal-top-picks">
         <div class="cal-pick"><small id="calStartLabel">วันที่เริ่มเช่า</small><b id="calStartValue">-</b><span id="calStartSub">เลือกแล้ว</span></div>
@@ -1612,6 +1612,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     renderCalendar();
   }
   function closeCalendar(){ state.calendar.open = false; byId("calendarModal").classList.remove("open"); }
+  function toggleCalendarLang(){
+    state.lang = state.lang === "en" ? "th" : "en";
+    render();
+    renderCalendar();
+  }
   function currentCalendarMonth(){
     const today = parseDate(todayIso());
     return new Date(today.getFullYear(), today.getMonth(), 1);
@@ -1628,6 +1633,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const selectedConsole = consoleById(state.calc.consoleId);
     byId("calendarTitle").textContent = `${tr("calTitle")}${selectedConsole ? ` - ${cName(selectedConsole)}` : ""}`;
     byId("calendarInstruction").textContent = state.calendar.mode === "start" ? tr("startDate") : tr("selectReturnDate");
+    byId("calendarLangBtn").textContent = state.lang === "en" ? "🇹🇭 TH" : "🇬🇧 EN";
     byId("calStartLabel").textContent = tr("startDate");
     byId("calEndLabel").textContent = tr("endDate");
     byId("calStartValue").textContent = calendarHeadline(state.calendar.draftStart);
@@ -2946,6 +2952,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     byId("adminPassInput").addEventListener("keydown", e => { if(e.key === "Enter") submitAdminLogin(); });
     byId("adminUserInput").addEventListener("keydown", e => { if(e.key === "Enter") byId("adminPassInput").focus(); });
     byId("calendarClose").addEventListener("click", closeCalendar);
+    byId("calendarLangBtn").addEventListener("click", toggleCalendarLang);
     byId("simpleModalClose").addEventListener("click", closeModal);
     byId("gamePickerClose").addEventListener("click", closeGamePicker);
     byId("floatCalc").addEventListener("click", () => byId("calculator").scrollIntoView({behavior:"smooth"}));
