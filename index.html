@@ -679,7 +679,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       guideDoContract:"ทำสัญญา", guideNoContract:"ไม่ทำสัญญา", guideLater:"ทำทีหลัง", guideSkip:"ข้าม", guideGameLater:"เลือกทีหลัง", guideNext:"ต่อไป", guideRetYes:"เคย", guideRetNo:"ไม่เคย",
       pickGames:"เลือก / แก้ไขรายชื่อเกม", sendLater:"แจ้งรายชื่อเกมภายหลัง", clearGames:"ล้างรายชื่อเกม", noGameList:"รุ่นนี้ไม่มีรายการเกมให้เลือกในระบบ",
       summaryTitle:"สรุปค่าเช่า", summaryEmpty:"เลือกเครื่องและวันที่เพื่อดูสรุป", rental:"ค่าเช่า", discount:"ส่วนลด", promo:"โปรโมชัน", total:"ยอดรวม", grandTotal:"ยอดรวมทั้งหมด", upfront:"โอนล่วงหน้า", upfrontConfirm:"โอนล่วงหน้า (ยืนยันการจอง)", onDelivery:"จ่ายตอนของถึง", payOnDelivery:"จ่ายตอนของถึง", delivery:"ค่าส่งแจ้งทางแชท",
-      returningDiscount:"ส่วนลดลูกค้าเก่า 10%", consoleDiscount:"ส่วนลดเครื่องเกม", boardGameDiscount:"ส่วนลดบอร์ดเกม", boardGameDeposit:"ค่าประกันบอร์ดเกม",
+      returningDiscount:"ส่วนลดลูกค้าเก่า 10%", consoleDiscount:"ส่วนลดเครื่องเกม", boardGameDiscount:"ส่วนลดบอร์ดเกม", boardGameDeposit:"ค่าประกันบอร์ดเกม", rentalDays:"จำนวนวันเช่า", boardGameRental:"ค่าเช่าบอร์ดเกม", boardGameList:"รายการบอร์ดเกม",
       equipmentDetails:"รายละเอียดอุปกรณ์", players:"จำนวนผู้เล่น", playTime:"เวลาเล่น", age:"อายุแนะนำ", packageRental:"ค่าเช่าตามแพ็ก", oneDay:"1 วัน", threeDays:"3 วัน", sevenDays:"7 วัน", howToPlay:"วิธีเล่นคร่าว ๆ", noContractDepositNote:"ค่าประกัน (ไม่ทำสัญญา)", noContractLabel:"ไม่ทำสัญญา", standardTier:"เรทมาตรฐาน", planning:"วางแผน",
       copy:"📋 Copy ข้อความจองเช่า", line:"💬 ส่งข้อความทาง Line", whatsapp:"🟢 Send via WhatsApp", copied:"คัดลอกแล้ว", minDays:"ขั้นต่ำ 3 วัน", busy:"เครื่องอาจไม่ว่างในช่วงนี้", available:"ช่วงนี้ผ่านการเช็คคิวแล้ว", checking:"กำลังเช็คคิว...", queueError:"ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่",
       faqTitle:"คำถามที่พบบ่อย", faqExpand:"ดูคำถามทั้งหมด", faqCollapse:"ย่อคำถาม", adminLogin:"เข้าสู่ระบบ Admin", adminUser:"ผู้ใช้", adminPassword:"รหัสผ่าน", adminSubmit:"เข้าสู่ระบบ", wrongPassword:"ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", rentalCode:"รหัสการเช่า", save:"บันทึก", add:"เพิ่ม", edit:"แก้ไข", delete:"ลบ", sync:"Sync", pull:"Pull", push:"Push"
@@ -708,7 +708,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       guideDoContract:"Do contract", guideNoContract:"No contract", guideLater:"Later", guideSkip:"Skip", guideGameLater:"Choose later", guideNext:"Next", guideRetYes:"Yes", guideRetNo:"No",
       pickGames:"Choose / Edit games", sendLater:"Send game list later", clearGames:"Clear games", noGameList:"This model has no game catalog in the system.",
       summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Grand total", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat",
-      returningDiscount:"Returning customer 10% discount", consoleDiscount:"Console discount", boardGameDiscount:"Board game discount", boardGameDeposit:"Board game deposit",
+      returningDiscount:"Returning customer 10% discount", consoleDiscount:"Console discount", boardGameDiscount:"Board game discount", boardGameDeposit:"Board game deposit", rentalDays:"Rental days", boardGameRental:"Board game rental", boardGameList:"Board game list",
       equipmentDetails:"Equipment details", players:"Players", playTime:"Play time", age:"Recommended age", packageRental:"Package rental", oneDay:"1 day", threeDays:"3 days", sevenDays:"7 days", howToPlay:"Quick how to play", noContractDepositNote:"Deposit (no contract)", noContractLabel:"No contract", standardTier:"Standard tier", planning:"Planning",
       copy:"📋 Copy booking message", line:"💬 Send via Line", whatsapp:"🟢 Send via WhatsApp", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", queueError:"Unable to check the queue. Please try again.",
       faqTitle:"Frequently Asked Questions", faqExpand:"Show all questions", faqCollapse:"Collapse questions", adminLogin:"Admin Login", adminUser:"User", adminPassword:"Password", adminSubmit:"Login", wrongPassword:"Wrong username or password", rentalCode:"Rental code", save:"Save", add:"Add", edit:"Edit", delete:"Delete", sync:"Sync", pull:"Pull", push:"Push"
@@ -1431,12 +1431,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       {label:tr("equipmentDetails"), value:plainSummaryList(equipmentDetails), html:true},
       {label:tr("startDate"), value:displayDate(state.calc.start)},
       {label:tr("endDate"), value:displayDate(state.calc.end)},
-      {label:tr("day"), value:`${summary.days || 0} ${tr("day")}`},
-      {label:tr("rental"), value:money(summary.rental)},
+      {label:tr("rentalDays"), value:`${summary.days || 0} ${tr("day")}`},
+      {label:`${tr("rental")} ${cName(c)}`, value:money(summary.rental)},
       ...(summary.addons ? [{label:tr("accessories"), value:money(summary.addons)}] : []),
       ...(summary.extras?.length ? [{label:tr("accessories"), value:numberedSummaryList(summary.extras.map(x => state.lang==="en"?x.en:x.th)), html:true}] : []),
-      ...(summary.bgSubtotal ? [{label:tr("boardGames"), value:money(summary.bgSubtotal)}] : []),
-      ...(summary.bgItems?.length ? [{label:tr("boardGames"), value:numberedSummaryList(summary.bgItems.map(bgName)), html:true}] : []),
+      ...(summary.bgSubtotal ? [{label:tr("boardGameRental"), value:money(summary.bgSubtotal)}] : []),
+      ...(summary.bgItems?.length ? [{label:tr("boardGameList"), value:numberedSummaryList(summary.bgItems.map(bgName)), html:true}] : []),
       ...(state.calc.games?.length ? [{label:state.lang==="en"?"Games":"เกม", value:numberedSummaryList(state.calc.games.map(g => g.name || g.title || g.id)), html:true}] : []),
       ...(summary.retDisc ? [{label:tr("returningDiscount"), value:`-${money(summary.retDisc)}`, cls:"discount"}] : []),
       ...(summary.promoDisc ? [{label:tr("consoleDiscount"), value:`-${money(summary.promoDisc)}`, cls:"discount"}] : []),
@@ -1949,29 +1949,34 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const boardgameList = (s.bgItems || []).map((g,i) => `  ${i + 1}. ${bgName(g)}`);
     const extrasListTh = (s.extras || []).map((x,i) => `  ${i + 1}. ${x.th || x.en}`);
     const extrasListEn = (s.extras || []).map((x,i) => `  ${i + 1}. ${x.en || x.th}`);
+    const isReturning = state.calc.ret && state.retEnabled;
     const costLinesTh = [
       `  - ค่าเช่า ${cName(c)}: ${money(s.rental)}`,
       s.bundleName ? `  - Bundle ${s.bundleName}: รวมในค่าเช่า` : "",
       s.addons ? `  - อุปกรณ์เสริม: ${money(s.addons)}` : "",
       s.bgSubtotal ? `  - ค่าเช่าบอร์ดเกม: ${money(s.bgSubtotal)}` : "",
-      s.discounts ? `  - ส่วนลด: -${money(s.discounts)}` : "",
+      s.retDisc ? `  - ส่วนลดลูกค้าเก่า 10%: -${money(s.retDisc)}` : "",
+      s.promoDisc ? `  - ส่วนลดเครื่องเกม: -${money(s.promoDisc)}` : "",
+      s.bgDisc ? `  - ส่วนลดบอร์ดเกม: -${money(s.bgDisc)}` : "",
       `  - ค่าประกัน ${cName(c)}: ${money(s.deposit)}${noContractSuffixTh}`
     ].filter(Boolean);
     const costLinesEn = [
       `  - ${cName(c)} rental: ${money(s.rental)}`,
       s.bundleName ? `  - Bundle ${s.bundleName}: included in rental` : "",
       s.addons ? `  - Accessories: ${money(s.addons)}` : "",
-      s.bgSubtotal ? `  - Board games: ${money(s.bgSubtotal)}` : "",
-      s.discounts ? `  - Discount: -${money(s.discounts)}` : "",
+      s.bgSubtotal ? `  - Board game rental: ${money(s.bgSubtotal)}` : "",
+      s.retDisc ? `  - Returning customer 10% discount: -${money(s.retDisc)}` : "",
+      s.promoDisc ? `  - Console discount: -${money(s.promoDisc)}` : "",
+      s.bgDisc ? `  - Board game discount: -${money(s.bgDisc)}` : "",
       `  - ${cName(c)} deposit: ${money(s.deposit)}${noContractSuffixEn}`
     ].filter(Boolean);
-    const contractLinesTh = state.calc.noContract ? [] : [
+    const contractLinesTh = (state.calc.noContract || isReturning) ? [] : [
       "",
       "📝 กรุณาทำสัญญาการเช่าก่อนนัดส่งเครื่อง",
       contractLink,
       `❌ ไม่ทำสัญญา → ค่าประกัน ${money(noContractDeposit(c.deposit)).replace("฿","")} บาท`
     ];
-    const contractLinesEn = state.calc.noContract ? [] : [
+    const contractLinesEn = (state.calc.noContract || isReturning) ? [] : [
       "",
       "📝 Please complete the rental agreement before delivery",
       contractLink,
