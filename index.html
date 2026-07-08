@@ -1491,10 +1491,15 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const total = subtotalAfterDiscount + depositTotal;
     return {days,rental,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,promoDisc,discounts:retDisc+promoDisc+bgDisc,deposit:depositTotal,total,upfront:200,onDelivery:Math.max(0,total-200),bundleName,extras,bgItems};
   }
+  const MONTHLY_RATE = {500:8500, 400:6500, 350:5000, 300:4000};
+  function monthlyRate(daily){ return MONTHLY_RATE[Number(daily) || 0] || 0; }
   function rentalCost(days, daily, weekly){
-    const d = Number(days) || 0;
-    if(d >= 7) return Math.floor(d/7)*Number(weekly||0) + (d%7)*Number(daily||0);
-    return d * Number(daily||0);
+    let d = Number(days) || 0;
+    let cost = 0;
+    const monthly = monthlyRate(daily);
+    if(monthly && d >= 30){ cost += Math.floor(d/30)*monthly; d = d % 30; }
+    if(d >= 7) return cost + Math.floor(d/7)*Number(weekly||0) + (d%7)*Number(daily||0);
+    return cost + d * Number(daily||0);
   }
 
   function renderFAQ(){
