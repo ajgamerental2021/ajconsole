@@ -171,6 +171,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:2}
 .modal-head-actions{display:flex;align-items:center;gap:8px}
 .faq-lang-btn{padding:7px 12px;font-size:13px;font-weight:800}
+.viewer-wrap{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;background:#f6f7f9}
+.viewer-card{background:#fff;width:min(680px,100%);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow2);padding:20px}
+.viewer-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.viewer-head h2{font-size:20px}
+.viewer-code{font-weight:800;color:#666;font-size:13px}
+.viewer-sub{color:#555;font-size:13px;margin-bottom:12px}
+.viewer-text{width:100%;min-height:360px;border:1px solid var(--border);border-radius:12px;padding:12px;font-size:13px;line-height:1.5;white-space:pre-wrap;resize:vertical;background:#fafafa;color:#111}
+#viewerCopy{margin-top:14px;width:100%}
 .modal-head h3{font-size:18px}
 .modal-title-copy{min-width:0}
 .modal-title-copy p{font-size:12px;color:var(--text2);margin-top:1px}
@@ -793,6 +801,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     "ค่าประกัน",
     "ยอดรวมทั้งหมด",
     "Google Maps",
+    "ข้อความจอง",
     "สถานะ"
   ];
   const SESSION_RENTAL_CODES = new Set();
@@ -821,6 +830,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     c.brand = normalizeBrand(c.brand || guessBrand(c));
     c.icon = String(c.icon || "🎮").trim() || "🎮";
     c.gamePlatform = normalizePlatform(c.gamePlatform || guessPlatform(c), c);
+    // "ROG Xbox Ally X" contains "Xbox" but is a ROG handheld. A stale/auto value
+    // of "xbox" (e.g. saved by an older guess) must not win over the device name.
+    if(c.gamePlatform === "xbox" && guessPlatform(c) === "rog") c.gamePlatform = "rog";
     c.gameUrl = String(c.gameUrl || "").trim();
     c.showGameButton = c.showGameButton !== false && !!(c.gamePlatform || c.gameUrl);
     c.detailsTh = Array.isArray(c.detailsTh) && c.detailsTh.length ? c.detailsTh : defaultDetails(c, "th");
@@ -851,13 +863,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const v = String(value || "other").toLowerCase().replace(/\s+/g,"");
     if(v.includes("playstation") || v === "ps") return "playstation";
     if(v.includes("nintendo") || v.includes("switch")) return "nintendo";
+    if(v.includes("rog") || v.includes("ally")) return "rog";
+    if(v.includes("lenovo") || v.includes("legion")) return "lenovo";
     if(v.includes("xbox")) return "xbox";
     if(v.includes("logitech")) return "logitech";
     if(v.includes("meta") || v.includes("quest")) return "meta";
     if(v.includes("viture")) return "viture";
     if(v.includes("xreal")) return "xreal";
-    if(v.includes("rog") || v.includes("ally")) return "rog";
-    if(v.includes("lenovo") || v.includes("legion")) return "lenovo";
     if(v.includes("steam")) return "steamdeck";
     return BRAND_META[v] ? v : "other";
   }
@@ -865,13 +877,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const s = `${c.name||""} ${c.nameEn||""}`.toLowerCase();
     if(/ps|playstation/.test(s)) return "playstation";
     if(/switch|nintendo/.test(s)) return "nintendo";
+    if(/rog|ally/.test(s)) return "rog";
+    if(/legion|lenovo/.test(s)) return "lenovo";
     if(/xbox/.test(s)) return "xbox";
     if(/logitech|g29/.test(s)) return "logitech";
     if(/quest|meta/.test(s)) return "meta";
     if(/viture/.test(s)) return "viture";
     if(/xreal/.test(s)) return "xreal";
-    if(/rog|ally/.test(s)) return "rog";
-    if(/legion|lenovo/.test(s)) return "lenovo";
     if(/steam/.test(s)) return "steamdeck";
     return "other";
   }
@@ -887,9 +899,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(/ps5|playstation/.test(s)) return "ps5";
     if(/switch\s*1|nintendo switch 1/.test(s)) return "switch1";
     if(/switch\s*2|nintendo switch 2/.test(s)) return "switch2";
+    if(/rog|ally|legion/.test(s)) return "rog";
     if(/xbox/.test(s)) return "xbox";
     if(/quest|meta/.test(s)) return "meta";
-    if(/rog|ally|legion/.test(s)) return "rog";
     if(/steam deck/.test(s)) return "p_1774941944007";
     return "";
   }
@@ -1923,6 +1935,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         "ค่าประกัน": summary.deposit,
         "ยอดรวมทั้งหมด": summary.total,
         "Google Maps": state.calc.maps || "",
+        "ข้อความจอง": bookingMessage(code),
         "สถานะ": "Pending"
       }
     };
@@ -1933,8 +1946,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(!endpoint) return;
     SESSION_RENTAL_CODES.add(code);
     const payload = rentalSheetPayload(summary, code, channel);
-    const url = `${endpoint}${endpoint.includes("?") ? "&" : "?"}action=appendRental&payload=${encodeURIComponent(JSON.stringify(payload))}`;
-    fetch(url, {method:"GET", mode:"no-cors", cache:"no-store"}).then(() => {
+    // POST so the full booking message (added for the shop-side viewer) is not
+    // capped by the GET URL length limit. Apps Script doPost reads the raw body.
+    fetch(endpoint, {method:"POST", mode:"no-cors", cache:"no-store", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload)}).then(() => {
       localStorage.setItem(`aj_rental_sheet_submitted_${code}`, "1");
     }).catch(error => console.warn("Rental sheet append skipped", error));
   }
@@ -2118,6 +2132,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const code = await ensureRentalCode(summary);
       const hint = byId("contractCodeHint");
       if(hint) hint.textContent = `${tr("rentalCode")}: ${code}`;
+      // Persist the booking (incl. message) when the customer opens the contract,
+      // so the shop can retrieve it later even if the customer never copies/sends.
+      submitRentalToSheet(summary, code, "contract");
       open(rentalContractLink(code), "_blank");
     }catch(error){
       toast(state.lang === "en" ? "Cannot check rental code from Google Sheet." : "เช็กรหัสการเช่าจาก Google Sheet ไม่ได้");
@@ -3188,8 +3205,59 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return true;
   }
 
+  function bookingViewerText(lang){
+    const en = String(lang).toUpperCase() === "EN";
+    return en ? {
+      title:"Booking message", sub:"Copy and paste this into the customer chat.",
+      copy:"📋 Copy message", copied:"✅ Copied", loading:"Loading...",
+      notFound:"Booking not found for this code.", error:"Cannot load booking. Please try again."
+    } : {
+      title:"ข้อความจองเช่า", sub:"คัดลอกไปวางในแชทลูกค้าได้เลย",
+      copy:"📋 คัดลอกข้อความ", copied:"✅ คัดลอกแล้ว", loading:"กำลังโหลด...",
+      notFound:"ไม่พบข้อมูลการจองของรหัสนี้", error:"โหลดข้อมูลไม่ได้ กรุณาลองใหม่"
+    };
+  }
+  // Shop-facing viewer: index2.html?viewMsg=<rentalCode> shows the stored booking
+  // message with a Copy button, in the exact language the customer used.
+  function renderBookingViewer(code){
+    const endpoint = String(localStorage.getItem("aj_rental_sheet_webapp_url") || CONFIG.rentalSheetWebApp || "").trim();
+    const t0 = bookingViewerText(state.lang === "en" ? "EN" : "TH");
+    document.title = `AJ Booking ${code}`;
+    document.body.innerHTML = `<div class="viewer-wrap"><div class="viewer-card">
+      <div class="viewer-head"><h2 id="viewerTitle">${esc(t0.title)}</h2><div class="viewer-code">${esc(code)}</div></div>
+      <p class="viewer-sub" id="viewerSub">${esc(t0.loading)}</p>
+      <textarea id="viewerText" class="viewer-text" readonly></textarea>
+      <button class="btn primary" id="viewerCopy" type="button" style="display:none"></button>
+    </div></div>`;
+    if(!endpoint){ byId("viewerSub").textContent = t0.error; return; }
+    window.__ajBookingCb = function(data){
+      const t = bookingViewerText((data && data.lang) || "TH");
+      byId("viewerTitle").textContent = t.title;
+      if(data && data.ok && data.message){
+        byId("viewerSub").textContent = t.sub;
+        byId("viewerText").value = data.message;
+        const btn = byId("viewerCopy");
+        btn.style.display = ""; btn.textContent = t.copy;
+        btn.onclick = function(){
+          const done = () => { btn.textContent = t.copied; setTimeout(() => btn.textContent = t.copy, 1600); };
+          const fallback = () => { byId("viewerText").select(); try{ document.execCommand("copy"); }catch(e){} done(); };
+          if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(data.message).then(done).catch(fallback); }
+          else fallback();
+        };
+      }else{
+        byId("viewerSub").textContent = t.notFound;
+      }
+    };
+    const script = document.createElement("script");
+    script.src = `${endpoint}${endpoint.includes("?") ? "&" : "?"}action=getBooking&code=${encodeURIComponent(code)}&callback=__ajBookingCb`;
+    script.onerror = function(){ byId("viewerSub").textContent = t0.error; };
+    document.body.appendChild(script);
+  }
+
   async function boot(){
     loadState();
+    const viewCode = new URLSearchParams(location.search).get("viewMsg");
+    if(viewCode){ renderBookingViewer(viewCode.trim()); return; }
     const restoredGameList = consumeGamePickerHandoff();
     exposeCompatibility();
     bindEvents();
