@@ -1904,8 +1904,20 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }, 250);
   }
   function rentalContractLink(code){
-    const clean = String(CONFIG.contractUrl).replace(/\/?#.*$/, "").replace(/\/$/, "");
-    return `${clean}/#${encodeURIComponent(code || "")}`;
+    const url = new URL(CONFIG.contractUrl, location.href);
+    const selected = consoleById(state.calc.consoleId);
+    const deviceName = cleanContractDeviceName(selected ? cName(selected) : "");
+    if(deviceName) url.searchParams.set("device", deviceName);
+    url.hash = encodeURIComponent(code || "");
+    return url.toString();
+  }
+  function cleanContractDeviceName(value){
+    return String(value || "")
+      .replace(/^⛔\s*/, "")
+      .replace(/\s*\([^)]*\)/g, "")
+      .replace(/\s+-\s+พร้อมวันที่.*$/i, "")
+      .replace(/\s+/g, " ")
+      .trim();
   }
   // Structured booking data (for the LINE Flex card). Stored as JSON alongside
   // the plain-text message; other channels keep using the text version.
