@@ -802,6 +802,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     "ยอดรวมทั้งหมด",
     "Google Maps",
     "ข้อความจอง",
+    "ข้อมูลจอง",
     "สถานะ"
   ];
   const SESSION_RENTAL_CODES = new Set();
@@ -1903,20 +1904,44 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }, 250);
   }
   function rentalContractLink(code){
-    const url = new URL(CONFIG.contractUrl, location.href);
-    const selected = consoleById(state.calc.consoleId);
-    const deviceName = cleanContractDeviceName(selected ? cName(selected) : "");
-    if(deviceName) url.searchParams.set("device", deviceName);
-    url.hash = encodeURIComponent(code || "");
-    return url.toString();
+    const clean = String(CONFIG.contractUrl).replace(/\/?#.*$/, "").replace(/\/$/, "");
+    return `${clean}/#${encodeURIComponent(code || "")}`;
   }
-  function cleanContractDeviceName(value){
-    return String(value || "")
-      .replace(/^⛔\s*/, "")
-      .replace(/\s*\([^)]*\)/g, "")
-      .replace(/\s+-\s+พร้อมวันที่.*$/i, "")
-      .replace(/\s+/g, " ")
-      .trim();
+  // Structured booking data (for the LINE Flex card). Stored as JSON alongside
+  // the plain-text message; other channels keep using the text version.
+  function bookingStructured(code){
+    const c = consoleById(state.calc.consoleId);
+    const s = calcSummary();
+    if(!c) return null;
+    const en = state.lang === "en";
+    const category = {console:"Console", vr:"VR & AR", handheld:"PC Handheld", racing:"Racing Simulator"}[String(c.type || "").toLowerCase()] || (c.type || "-");
+    const costs = [];
+    costs.push({label: en ? `${cName(c)} rental` : `ค่าเช่า ${cName(c)}`, value: money(s.rental)});
+    if(s.bundleName) costs.push({label:`Bundle ${s.bundleName}`, value: en ? "included" : "รวมในค่าเช่า"});
+    if(s.addons) costs.push({label: en ? "Accessories" : "อุปกรณ์เสริม", value: money(s.addons)});
+    if(s.bgSubtotal) costs.push({label: en ? "Board game rental" : "ค่าเช่าบอร์ดเกม", value: money(s.bgSubtotal)});
+    if(s.retDisc) costs.push({label: en ? "Returning customer 10% discount" : "ส่วนลดลูกค้าเก่า 10%", value:`-${money(s.retDisc)}`, discount:true});
+    if(s.promoDisc) costs.push({label: en ? "Console discount" : "ส่วนลดเครื่องเกม", value:`-${money(s.promoDisc)}`, discount:true});
+    if(s.bgDisc) costs.push({label: en ? "Board game discount" : "ส่วนลดบอร์ดเกม", value:`-${money(s.bgDisc)}`, discount:true});
+    costs.push({label: en ? `${cName(c)} deposit` : `ค่าประกัน ${cName(c)}`, value: money(s.deposit)});
+    return {
+      rentalCode: code,
+      lang: en ? "EN" : "TH",
+      deviceName: cName(c),
+      category,
+      startDate: displayDate(state.calc.start),
+      endDate: displayDate(state.calc.end),
+      days: s.days,
+      maps: state.calc.maps || "",
+      games: (state.calc.games || []).map(g => g.name || g.title || g.id),
+      later: !!state.calc.later,
+      boardgames: (s.bgItems || []).map(bgName),
+      extras: (s.extras || []).map(x => en ? (x.en || x.th) : (x.th || x.en)),
+      costs,
+      total: money(s.total),
+      upfront: money(s.upfront),
+      onDelivery: money(s.onDelivery)
+    };
   }
   function rentalSheetPayload(summary, code, channel){
     const c = consoleById(state.calc.consoleId);
@@ -1948,6 +1973,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         "ยอดรวมทั้งหมด": summary.total,
         "Google Maps": state.calc.maps || "",
         "ข้อความจอง": bookingMessage(code),
+        "ข้อมูลจอง": JSON.stringify(bookingStructured(code) || {}),
         "สถานะ": "Pending"
       }
     };
