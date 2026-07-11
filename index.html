@@ -3290,10 +3290,19 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(!select || !select.value) continue;
       var option = select.options && select.options[select.selectedIndex];
       var text = option ? option.textContent : '';
-      text = String(text || select.value || '').replace(/\s+/g, ' ').trim();
+      text = cleanDeviceName(text || select.value || '');
       if(text && !/ยังไม่ได้เลือก|no console selected|choose|select/i.test(text)) return text;
     }
     return '';
+  }
+
+  function cleanDeviceName(value){
+    return String(value || '')
+      .replace(/^⛔\s*/, '')
+      .replace(/\s*\([^)]*\)/g, '')
+      .replace(/\s+-\s+พร้อมวันที่.*$/i, '')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   function contractUrl(){
