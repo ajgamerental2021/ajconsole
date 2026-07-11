@@ -3279,5 +3279,50 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   boot();
 })();
 </script>
+<script id="aj-contract-device-link-patch">
+(function(){
+  var FORM_BASE = 'https://aj-line-oa-bot.onrender.com/liff/';
+
+  function selectedDeviceName(){
+    var selectors = ['#ajxConsole', '#calcConsole', 'select[name="console"]', 'select[name="device"]'];
+    for(var i = 0; i < selectors.length; i++){
+      var select = document.querySelector(selectors[i]);
+      if(!select || !select.value) continue;
+      var option = select.options && select.options[select.selectedIndex];
+      var text = option ? option.textContent : '';
+      text = String(text || select.value || '').replace(/\s+/g, ' ').trim();
+      if(text && !/ยังไม่ได้เลือก|no console selected|choose|select/i.test(text)) return text;
+    }
+    return '';
+  }
+
+  function contractUrl(){
+    var device = selectedDeviceName();
+    return device ? FORM_BASE + '?device=' + encodeURIComponent(device) : FORM_BASE;
+  }
+
+  function syncContractLinks(){
+    var url = contractUrl();
+    try{
+      if(window.T && window.T.th) window.T.th.contractLink = url;
+      if(window.T && window.T.en) window.T.en.contractLink = url;
+    }catch(e){}
+    document.querySelectorAll('#contractLink, .contract-wrap a, .ajx-contract a').forEach(function(anchor){
+      anchor.href = url;
+    });
+    return url;
+  }
+
+  ['change','input'].forEach(function(eventName){
+    document.addEventListener(eventName, function(event){
+      if(event.target && event.target.matches && event.target.matches('select')) syncContractLinks();
+    }, true);
+  });
+  document.addEventListener('click', syncContractLinks, true);
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncContractLinks);
+  else syncContractLinks();
+  [100, 400, 1000, 2000].forEach(function(ms){ setTimeout(syncContractLinks, ms); });
+})();
+</script>
 </body>
 </html>
