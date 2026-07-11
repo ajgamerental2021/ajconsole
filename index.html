@@ -1448,8 +1448,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     host.innerHTML = `<div class="summary-title">${tr("summaryTitle")}</div>
       ${rows.map(row => `<div class="sum-row ${esc(row.cls || "")}"><span>${esc(row.label)}</span><b>${row.html ? row.value : esc(row.value)}</b></div>`).join("")}
       <div class="sum-row grand"><span>${tr("grandTotal")}</span><b>${money(summary.total)}</b></div>
-      <div class="sum-row pay"><span>${tr("upfrontConfirm")}</span><b>${money(summary.upfront)}</b></div>
-      <div class="sum-row delivery-pay"><span>${tr("payOnDelivery")}</span><b>${money(summary.onDelivery)}</b></div>
+      ${summary.upfront > 0 ? `<div class="sum-row ${summary.onDelivery > 0 ? "pay" : "delivery-pay"}"><span>${tr("upfrontConfirm")}</span><b>${money(summary.upfront)}</b></div>` : ""}
+      ${summary.onDelivery > 0 ? `<div class="sum-row delivery-pay"><span>${tr("payOnDelivery")}</span><b>${money(summary.onDelivery)}</b></div>` : ""}
       <div class="summary-actions"><button class="btn primary" id="copyBooking" type="button" ${canSend?"":"disabled"}>${tr("copy")}</button><button class="btn ok" id="sendLine" type="button" ${canSend?"":"disabled"}>${tr("line")}</button>${state.lang==="en"?`<button class="btn" id="sendWa" type="button" ${canSend?"":"disabled"}>${tr("whatsapp")}</button>`:""}</div>`;
   }
   function renderLineCardHost(){
@@ -1489,7 +1489,15 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const subtotalAfterDiscount = Math.max(0, rental + addons - retDisc - promoDisc) + Math.max(0, bgSubtotal - bgDisc);
     const depositTotal = finalDeposit + bgDepositTotal;
     const total = subtotalAfterDiscount + depositTotal;
-    return {days,rental,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,promoDisc,discounts:retDisc+promoDisc+bgDisc,deposit:depositTotal,total,upfront:200,onDelivery:Math.max(0,total-200),bundleName,extras,bgItems};
+    // Payment split (payment option is shown only in EN). Cash = pay full on
+    // delivery; Wise = transfer full upfront; Bank (and default) = 200 upfront.
+    let upfront = 200;
+    let onDelivery = Math.max(0, total - 200);
+    if(state.lang === "en"){
+      if(state.calc.payment === "cash"){ upfront = 0; onDelivery = total; }
+      else if(state.calc.payment === "wise"){ upfront = total; onDelivery = 0; }
+    }
+    return {days,rental,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,promoDisc,discounts:retDisc+promoDisc+bgDisc,deposit:depositTotal,total,upfront,onDelivery,bundleName,extras,bgItems};
   }
   const MONTHLY_RATE = {500:8500, 400:6500, 350:5000, 300:4000};
   function monthlyRate(daily){ return MONTHLY_RATE[Number(daily) || 0] || 0; }
