@@ -1903,8 +1903,20 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }, 250);
   }
   function rentalContractLink(code){
-    const clean = String(CONFIG.contractUrl).replace(/\/?#.*$/, "").replace(/\/$/, "");
-    return `${clean}/#${encodeURIComponent(code || "")}`;
+    const url = new URL(CONFIG.contractUrl, location.href);
+    const selected = consoleById(state.calc.consoleId);
+    const deviceName = cleanContractDeviceName(selected ? cName(selected) : "");
+    if(deviceName) url.searchParams.set("device", deviceName);
+    url.hash = encodeURIComponent(code || "");
+    return url.toString();
+  }
+  function cleanContractDeviceName(value){
+    return String(value || "")
+      .replace(/^⛔\s*/, "")
+      .replace(/\s*\([^)]*\)/g, "")
+      .replace(/\s+-\s+พร้อมวันที่.*$/i, "")
+      .replace(/\s+/g, " ")
+      .trim();
   }
   function rentalSheetPayload(summary, code, channel){
     const c = consoleById(state.calc.consoleId);
@@ -3277,60 +3289,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     syncBoardGameCatalog().catch(() => {});
   }
   boot();
-})();
-</script>
-<script id="aj-contract-device-link-patch">
-(function(){
-  var FORM_BASE = 'https://aj-line-oa-bot.onrender.com/liff/';
-
-  function selectedDeviceName(){
-    var selectors = ['#ajxConsole', '#calcConsole', 'select[name="console"]', 'select[name="device"]'];
-    for(var i = 0; i < selectors.length; i++){
-      var select = document.querySelector(selectors[i]);
-      if(!select || !select.value) continue;
-      var option = select.options && select.options[select.selectedIndex];
-      var text = option ? option.textContent : '';
-      text = cleanDeviceName(text || select.value || '');
-      if(text && !/ยังไม่ได้เลือก|no console selected|choose|select/i.test(text)) return text;
-    }
-    return '';
-  }
-
-  function cleanDeviceName(value){
-    return String(value || '')
-      .replace(/^⛔\s*/, '')
-      .replace(/\s*\([^)]*\)/g, '')
-      .replace(/\s+-\s+พร้อมวันที่.*$/i, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-
-  function contractUrl(){
-    var device = selectedDeviceName();
-    return device ? FORM_BASE + '?device=' + encodeURIComponent(device) : FORM_BASE;
-  }
-
-  function syncContractLinks(){
-    var url = contractUrl();
-    try{
-      if(window.T && window.T.th) window.T.th.contractLink = url;
-      if(window.T && window.T.en) window.T.en.contractLink = url;
-    }catch(e){}
-    document.querySelectorAll('#contractLink, .contract-wrap a, .ajx-contract a').forEach(function(anchor){
-      anchor.href = url;
-    });
-    return url;
-  }
-
-  ['change','input'].forEach(function(eventName){
-    document.addEventListener(eventName, function(event){
-      if(event.target && event.target.matches && event.target.matches('select')) syncContractLinks();
-    }, true);
-  });
-  document.addEventListener('click', syncContractLinks, true);
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncContractLinks);
-  else syncContractLinks();
-  [100, 400, 1000, 2000].forEach(function(ms){ setTimeout(syncContractLinks, ms); });
 })();
 </script>
 </body>
