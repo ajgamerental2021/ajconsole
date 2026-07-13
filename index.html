@@ -171,6 +171,38 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:2}
 .modal-head-actions{display:flex;align-items:center;gap:8px}
 .faq-lang-btn{padding:7px 12px;font-size:13px;font-weight:800}
+.step1-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.step1-head h3{margin:0}
+.btn.step-guide-btn{flex:0 0 auto;background:#fff;border-color:var(--danger);color:var(--danger);white-space:nowrap}
+.btn.step-guide-btn:hover{background:#fff5f5}
+.step-images.split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start;width:100%}
+.step-imgcol{display:flex;flex-direction:column;gap:6px;align-items:center}
+.step-subcap{font-size:13px;font-weight:700;color:var(--text2);text-align:center}
+.steps-body{display:flex;flex-direction:column;gap:14px}
+.step-indicator{align-self:center;font-weight:800;color:var(--danger);font-size:13px}
+.step-topic{text-align:center;max-width:760px;margin:0 auto}
+.step-topic h4{font-size:22px;margin:0 0 8px;font-weight:900}
+.step-topic ul{margin:0 auto;padding-left:20px;text-align:left;display:inline-block;line-height:1.55;color:var(--text2);font-weight:700}
+.step-images{display:flex;flex-direction:column;gap:12px;align-items:center}
+.step-img{display:block;max-width:100%;width:100%;height:auto;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow2)}
+.step-caption{text-align:center;font-size:15px;font-weight:700;line-height:1.4;color:var(--text)}
+.step-text-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.step-text-card{border:1px solid var(--border);border-radius:14px;background:#fff;padding:16px;line-height:1.65}
+.step-text-card h4,.step-detail h4{margin:0 0 8px;font-size:18px}
+.step-kicker{display:inline-flex;margin:8px 0 0;padding:6px 10px;border-radius:999px;background:#fff0f0;border:1px solid #ffc6c6;color:var(--danger);font-weight:900;font-size:13px}
+.step-text-card ol,.step-detail ul{margin:8px 0 0;padding-left:22px}
+.step-text-card li,.step-detail li{margin:4px 0}
+.step-detail{border:1px solid #ffe0a3;background:#fff8e8;border-radius:14px;padding:16px;line-height:1.7}
+.step-detail-section + .step-detail-section{margin-top:14px}
+.step-detail strong{font-weight:900}
+.step-detail .step-mark{display:inline;padding:1px 5px;border-radius:6px;background:#fff0cf;color:#7a4700;font-weight:900}
+.step-inline-btn{margin-top:12px;width:100%;min-height:44px}
+.step-nav{display:flex;gap:10px;margin-top:6px}
+.step-nav .btn{flex:1;min-height:46px}
+#stepsModal .modal-card{display:flex;flex-direction:column;overflow:hidden}
+#stepsModal .calendar-body{flex:1;min-height:0;overflow:auto}
+#stepsNav{flex:0 0 auto;margin-top:0;padding:12px 18px 14px;background:linear-gradient(180deg,rgba(255,255,255,.68),#fff 34%);box-shadow:0 -12px 20px rgba(255,255,255,.94);border-top:1px solid rgba(0,0,0,.04)}
+#stepsNav .btn{min-height:46px}
 .viewer-wrap{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;background:#f6f7f9}
 .viewer-card{background:#fff;width:min(680px,100%);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow2);padding:20px}
 .viewer-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
@@ -340,6 +372,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .calc-head-wrap .line-actions{gap:5px;margin-top:7px}
   .calc-head-wrap .line-actions .btn{min-width:0;padding:8px 6px;font-size:11px}
   .grid2,.cal-months{grid-template-columns:1fr}
+  .step-text-grid,.step-images.split{grid-template-columns:1fr}
+  #stepsModal .calendar-body{padding-bottom:12px}
+  #stepsNav{gap:8px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(255,255,255,.45),#fff 30%)}
+  #stepsNav .btn{min-height:48px;font-size:15px}
   .calc-selection-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .cal-top-picks{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center}
   .cal-arrow-big{display:block;font-size:22px}
@@ -438,7 +474,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
           <div>
             <div class="pane active" id="pane1">
               <div class="card">
-                <h3 data-i18n="step1Title">เลือกเครื่องและวันที่</h3>
+                <div class="step1-head"><h3 data-i18n="step1Title">เลือกเครื่องและวันที่</h3><button class="btn danger step-guide-btn" id="stepsBtn" type="button" data-i18n="stepsBtn">ขั้นตอนการเช่า</button></div>
                 <div class="grid2 calc-selection-grid">
                   <div class="field"><label class="label" data-i18n="deviceType">ประเภทเครื่อง</label><select id="calcType"></select></div>
                   <div class="field"><label class="label" data-i18n="device">เครื่องเกม</label><select id="calcConsole"></select></div>
@@ -522,6 +558,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   <div class="modal-card">
     <div class="modal-head"><h3 id="simpleModalTitle"></h3><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="faqLangBtn" type="button" style="display:none"></button><button class="xbtn" id="simpleModalClose" type="button">&times;</button></div></div>
     <div class="calendar-body" id="simpleModalBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="stepsModal">
+  <div class="modal-card">
+    <div class="modal-head"><h3 id="stepsTitle">ขั้นตอนการเช่า</h3><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="stepsLangBtn" type="button"></button><button class="xbtn" id="stepsClose" type="button">&times;</button></div></div>
+    <div class="calendar-body"><div class="steps-body" id="stepsBody"></div></div>
+    <div class="step-nav" id="stepsNav"></div>
   </div>
 </div>
 
@@ -671,7 +715,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       filterType:"ประเภท", filterBrand:"แบรนด์", filterSort:"เรียง", all:"ทั้งหมด", type_console:"Console", type_vr:"VR & AR", type_handheld:"PC Handheld", type_racing:"Racing",
       sort_brand:"แยกตามแบรนด์", sort_price_desc:"ราคา สูง → ต่ำ", sort_price_asc:"ราคา ต่ำ → สูง", sort_name:"ชื่อ A → Z",
       calcTag:"คำนวณ", calcTitle:"เช็คคิว & คำนวณค่าเช่า", calcSub:"ขั้นต่ำ 3 วัน | ราคาเรทบุคคล",
-      step1:"เลือกเครื่อง/วันที่", step2:"ตัวเลือกเพิ่มเติม", step3:"เลือกเกม", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"ตัวเลือกเพิ่มเติม", step3Title:"เลือกเกม", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า",
+      step1:"เลือกเครื่อง/วันที่", step2:"ตัวเลือกเพิ่มเติม", step3:"เลือกเกม", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"ตัวเลือกเพิ่มเติม", step3Title:"เลือกเกม", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"ขั้นตอนการเช่า", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
       nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
       deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
       gamePickHelp:"ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้", gamePickerTitle:"เลือกเกม", gameStorageWarning:"⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ", summaryHelp:"ตรวจสอบข้อมูล แล้วคัดลอกหรือส่งทาง Line / WhatsApp",
@@ -700,7 +744,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       filterType:"Type", filterBrand:"Brand", filterSort:"Sort", all:"All", type_console:"Console", type_vr:"VR & AR", type_handheld:"PC Handheld", type_racing:"Racing",
       sort_brand:"Group by brand", sort_price_desc:"Price high → low", sort_price_asc:"Price low → high", sort_name:"Name A → Z",
       calcTag:"Calculator", calcTitle:"Check Queue & Calculate Rental", calcSub:"Minimum 3 days | Individual rates",
-      step1:"Device / Dates", step2:"Additional options", step3:"Games", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Additional options", step3Title:"Choose games", step4Title:"Summary and send", rentalDuration:"Rental duration",
+      step1:"Device / Dates", step2:"Additional options", step3:"Games", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Additional options", step3Title:"Choose games", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"Rental steps", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
       nextStep:"Next step", backStep:"Back",
       deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", startDate:"Start date", endDate:"Return date",
       gamePickHelp:"Choose up to 10 games when this model has a catalog, or send the list later.", gamePickerTitle:"Select Games", gameStorageWarning:"⚠️ Limited device storage. Some games may not all fit.", summaryHelp:"Review the details, then copy or send via Line / WhatsApp.",
@@ -2460,6 +2504,145 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     refreshFaqLangBtn();
   }
 
+  // Rental step-by-step guide. Save screenshots into assets/steps/ with the
+  // filenames below; each step can show one or two captioned screenshots.
+  const STEP_GUIDE = [
+    {
+      stepNo:0,
+      title:{th:"เลือกทำรายการเช่าได้ 2 วิธี", en:"Choose 1 of 2 rental request methods"},
+      textColumns:[
+        {
+          th:`<h4>1. ทำรายการผ่านแชท Line / Facebook</h4><span class="step-kicker">แจ้งรายละเอียด 4 ข้อ</span><ol><li>เครื่องที่ต้องการเช่า</li><li>วันที่เริ่มเช่า</li><li>จำนวนวันเช่า</li><li>สถานที่จัดส่ง (ลิ้งค์ Google Maps)</li></ol>`,
+          en:`<h4>1. Submit by Line / Facebook chat</h4><span class="step-kicker">Send 4 details</span><ol><li>Device you want to rent</li><li>Rental start date</li><li>Number of rental days</li><li>Delivery location (Google Maps link)</li></ol>`
+        },
+        {
+          th:`<h4>2. ทำรายการผ่านเว็บไซต์</h4><button class="btn primary step-inline-btn" type="button" data-step-next>คลิกเพื่อดูรายละเอียด</button>`,
+          en:`<h4>2. Submit through the website</h4><button class="btn primary step-inline-btn" type="button" data-step-next>Click to view details</button>`
+        }
+      ],
+      detail:{
+        th:`<div class="step-detail-section"><h4>หลังส่งข้อมูล</h4><ul><li>ทางร้านสรุปรายละเอียด ค่าใช้จ่ายพร้อมค่าจัดส่ง และลิ้งค์ทำสัญญาเช่า <span class="step-mark">ข้ามส่วนสัญญาถ้าทำรายการผ่านเว็บ</span></li><li>ทางร้านแจ้งช่องทางชำระเงินและเวลาจัดส่งโดยประมาณ</li><li>ลูกค้าชำระล่วงหน้า <span class="step-mark">฿200 เพื่อจองคิว</span> และชำระยอดที่เหลือปลายทาง</li></ul></div><div class="step-detail-section"><h4>เตรียมเครื่องและจัดส่ง</h4><ul><li>เตรียมเครื่องและติดตั้งเกมประมาณ <span class="step-mark">2-3 ชั่วโมง</span> หรือ 30 นาที - 1 ชั่วโมงสำหรับเครื่องที่ไม่ต้องติดตั้งเกม</li><li>จัดส่งประมาณ 1-2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ</li><li>เมื่อของถึง สามารถเปิดกระเป๋าเช็คของกับคนส่งของก่อน แล้วชำระยอดที่เหลือพร้อมส่งสลิปให้ร้านทางแชท</li></ul><p><strong>ไม่ทำสัญญาเช่า: เพิ่มค่าประกันจาก ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000</strong></p></div><div class="step-detail-section"><h4>การคืนเครื่อง</h4><ul><li>ทางร้านเรียกรถเข้าไปรับเครื่อง และลูกค้ายืนยันอุปกรณ์ก่อนส่งคืนถ้าสะดวก</li><li>ส่งของให้คนรับของ แล้วแจ้งยืนยันหรือส่งรูปให้ร้านทางแชท</li><li>ร้านเช็คเครื่องและอุปกรณ์ จากนั้นคืนค่าประกันเข้าบัญชีในสัญญา หรือบัญชีที่แจ้งทางแชท</li></ul><p><strong>*ร้านเรียกรถขนส่งให้ทั้งขาส่งและขารับกลับ</strong></p><p><strong>**จัดส่ง 100% ไม่มีรับหรือคืนเครื่องที่หน้าร้าน</strong></p></div>`,
+        en:`<div class="step-detail-section"><h4>After submitting details</h4><ul><li>The shop summarizes the rental details, total cost including delivery, and rental contract link. <span class="step-mark">Skip the contract part if you submitted through the website.</span></li><li>The shop sends payment details and an estimated delivery time.</li><li>Pay <span class="step-mark">฿200 in advance to reserve the queue</span>, then pay the remaining balance on delivery.</li></ul></div><div class="step-detail-section"><h4>Preparation and delivery</h4><ul><li>Device preparation and game installation takes about <span class="step-mark">2-3 hours</span>, or 30 minutes - 1 hour for devices that do not need game installation.</li><li>Delivery usually takes about 1-2 hours depending on distance, traffic, and weather.</li><li>On arrival, you can check the items with the delivery rider first, then pay the remaining balance and send the slip to the shop by chat.</li></ul><p><strong>No rental contract: deposit increases from ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000.</strong></p></div><div class="step-detail-section"><h4>Returning the device</h4><ul><li>The shop calls a rider for pickup, and you can confirm the accessories before return if convenient.</li><li>Hand the items to the pickup rider, then confirm or send a photo to the shop by chat.</li><li>The shop checks the device and accessories, then refunds the deposit to the bank account in the contract or the account sent by chat.</li></ul><p><strong>*The shop arranges transport for both delivery and return pickup.</strong></p><p><strong>**Delivery service only. Pickup or return at the shop is not available.</strong></p></div>`
+      }
+    },
+    {
+      stepNo:1,
+      title:{th:"เลือกเครื่องเกมที่ต้องการ", en:"Choose the device you want"},
+      columns:[
+        {src:"assets/steps/step1a.png", th:"คลิกตามลูกศรเพื่อเข้าไปเลือกเครื่อง", en:"Click the arrow to choose a device"},
+        {src:"assets/steps/step1b.png", th:"คลิกเลือกเครื่องที่ต้องการ", en:"Click the device you want"}
+      ]
+    },
+    {
+      stepNo:2,
+      title:{th:"เลือกวันที่ต้องการเช่า", en:"Choose rental dates"},
+      columns:[
+        {src:"assets/steps/step2a.png", th:"คลิกตามลูกศรเพื่อเลือกวันเช่า", en:"Click the arrow to choose rental dates"},
+        {src:"assets/steps/step2b.png", th:"เลือกวันที่เริ่มเช่าตามเลข 1 และวันที่คืนตามเลข 2 และกดตกลงตามเลข 3", en:"Choose the start date as number 1, the return date as number 2, then press confirm as number 3"}
+      ]
+    },
+    {
+      stepNo:3,
+      title:{th:"เลือกอุปกรณ์เสริมที่ต้องการ", en:"Choose extra accessories"},
+      columns:[
+        {src:"assets/steps/step3a.png", th:"เลือก Bundle หรือ อุปกรณ์เสริม (ถ้ามี)", en:"Choose a bundle or accessory if available"},
+        {src:"assets/steps/step3b.png", th:"เมื่อเสร็จแล้ว คลิกที่ ไปขั้นตอนถัดไป", en:"When finished, click Next step"}
+      ]
+    },
+    {
+      stepNo:4,
+      title:{th:"เลือกตัวเลือกเพิ่มเติม / ทำสัญญาเช่า / สถานที่จัดส่ง", en:"Choose extra options / rental contract / delivery location"},
+      columns:[
+        {src:"assets/steps/step4a.png", th:"เลือก บอร์ดเกม เพิ่มในการเช่าครั้งนี้ (ถ้ามี)", en:"Add board games to this rental if needed"},
+        {src:"assets/steps/step4b.png", th:"ติ๊กลูกค้าเก่าเพื่อรับส่วนลด 10% ถ้าเคยเช่าแล้ว / ติ๊กไม่ต้องการทำสัญญาการเช่า", en:"Tick returning customer for 10% off, or tick no rental contract"},
+        {src:"assets/steps/step4c.png", th:"คลิกที่ ทำสัญญาการเช่า หรือ ทำทีหลังได้ (กรณีทำสัญญาการเช่า)", en:"Click Rental contract, or choose to do it later"},
+        {src:"assets/steps/step4d.png", th:"แจ้ง Google Maps ลิ้งค์ เพื่อให้เช็คค่าจัดส่งได้ง่ายขึ้น", en:"Enter a Google Maps link so delivery cost can be checked faster"}
+      ]
+    },
+    {
+      stepNo:5,
+      title:{th:"วิธีการ Share Google Maps ลิ้งค์", en:"How to share a Google Maps link"},
+      columns:[
+        {src:"assets/steps/step5a.png", th:"ค้นหาสถานที่ใน Google Maps และกดปุ่ม Share ตามลูกศรสีแดง", en:"Search in Google Maps and tap Share"},
+        {src:"assets/steps/step5b.png", th:"กดปุ่ม Copy Link ตามลูกศรสีแดง", en:"Tap Copy Link"},
+        {src:"assets/steps/step5c.png", th:"นำลิ้งค์มาวางที่ช่องโดยกด Paste หรือ วาง", en:"Paste the link into the field"},
+        {src:"assets/steps/step5d.png", th:"จะได้รายละเอียดแบบนี้", en:"The details will appear like this"},
+        {src:"assets/steps/step5e.png", th:"เมื่อเสร็จแล้ว คลิกที่ ไปขั้นตอนถัดไป", en:"When finished, click Next step"}
+      ]
+    },
+    {
+      stepNo:6,
+      title:{th:"วิธีเลือกเกม", en:"How to choose games"},
+      columns:[
+        {src:"assets/steps/step6a.png", th:"คลิก เลือก / แก้ไขรายชื่อเกม ตามลูกศรสีแดง", en:"Click Select / edit game list"},
+        {src:"assets/steps/step6b.png", th:"กดเพื่อดูเกมได้เต็มจอ", en:"View games full screen"},
+        {src:"assets/steps/step6c.png", th:"เลือกเกม แล้วคลิก ใช้รายการเกมนี้ หรือ สร้างข้อความแจ้งภายหลัง", en:"Choose games, then use this game list or create a later message"},
+        {src:"assets/steps/step6d.png", th:"เช็ครายชื่อเกมและคลิก ไปขั้นตอนถัดไป", en:"Check the game list and click Next step"}
+      ]
+    },
+    {
+      stepNo:7,
+      title:{th:"สรุปค่าเช่า", en:"Rental summary"},
+      columns:[
+        {src:"assets/steps/step7a.png", th:"เช็คความถูกต้องของการเช่าและยอดค่าเช่า", en:"Check the rental details and total cost"},
+        {src:"assets/steps/step7b.png", th:"คลิก Copy ข้อความจองเช่า", en:"Click Copy booking message"},
+        {src:"assets/steps/step7c.png", th:"วางข้อความที่แชทของร้านแล้วกดส่ง", en:"Paste the message into the shop chat and send it"},
+        {src:"assets/steps/step7d.png", th:"หรือคลิก ส่งข้อความทาง Line เพื่อแชร์ข้อความให้ทางร้าน", en:"Or click Send via Line to share the message to the shop"}
+      ]
+    }
+  ];
+  let stepsIndex = 0;
+  function renderStepsBody(){
+    const en = state.lang === "en";
+    const step = STEP_GUIDE[stepsIndex] || STEP_GUIDE[0];
+    byId("stepsTitle").textContent = tr("stepsTitle");
+    byId("stepsLangBtn").textContent = en ? "🇹🇭 TH" : "🇬🇧 EN";
+    const columns = step.columns || [];
+    const titleText = step.title ? (en ? step.title.en : step.title.th) : "";
+    const bulletList = step.bullets ? (en ? step.bullets.en : step.bullets.th) : [];
+    const topic = titleText ? `<div class="step-topic">
+      <h4>${esc(titleText)}</h4>
+      ${bulletList.length ? `<ul>${bulletList.map(item => `<li>${esc(item)}</li>`).join("")}</ul>` : ""}
+    </div>` : "";
+    const body = step.textColumns ? `
+      <div class="step-text-grid">${step.textColumns.map(item => `<div class="step-text-card">${en ? item.en : item.th}</div>`).join("")}</div>
+      <div class="step-detail">${en ? step.detail.en : step.detail.th}</div>` : `
+      <div class="step-images ${columns.length > 1 ? "split" : ""}">${columns.map(item => `
+        <figure class="step-imgcol">
+          <img class="step-img" src="${esc(item.src)}" alt="${esc(en ? item.en : item.th)}">
+          <figcaption class="step-subcap">${esc(en ? item.en : item.th)}</figcaption>
+        </figure>`).join("")}</div>`;
+    const last = stepsIndex === STEP_GUIDE.length - 1;
+    const maxStepNo = Math.max(...STEP_GUIDE.map(item => Number(item.stepNo || 0)));
+    const stepLabel = en ? `Step ${step.stepNo} / ${maxStepNo}` : `Step ${step.stepNo} / ${maxStepNo}`;
+    byId("stepsBody").innerHTML = `
+      <div class="step-indicator">${stepLabel}</div>
+      ${topic}
+      ${body}`;
+    byId("stepsNav").innerHTML = `
+      <button class="btn" id="stepsPrev" type="button" ${stepsIndex === 0 ? "disabled" : ""}>${tr("stepsPrev")}</button>
+      <button class="btn primary" id="stepsNext" type="button">${last ? tr("stepsDone") : tr("stepsNext")}</button>`;
+    byId("stepsPrev").addEventListener("click", () => { if(stepsIndex > 0){ stepsIndex--; renderStepsBody(); } });
+    byId("stepsBody").querySelectorAll("[data-step-next]").forEach(btn => btn.addEventListener("click", () => {
+      if(stepsIndex < STEP_GUIDE.length - 1){ stepsIndex++; renderStepsBody(); }
+    }));
+    byId("stepsNext").addEventListener("click", () => {
+      if(stepsIndex < STEP_GUIDE.length - 1){ stepsIndex++; renderStepsBody(); }
+      else closeStepsPopup();
+    });
+  }
+  function openStepsPopup(){
+    stepsIndex = 0;
+    byId("stepsModal").classList.add("open");
+    renderStepsBody();
+  }
+  function closeStepsPopup(){ byId("stepsModal").classList.remove("open"); }
+  function toggleStepsLang(){
+    state.lang = state.lang === "en" ? "th" : "en";
+    render();
+    renderStepsBody();
+  }
+
   function toast(msg){
     const el = byId("toast");
     el.textContent = msg;
@@ -3054,6 +3237,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     byId("langBtn").addEventListener("click", () => { state.lang = state.lang === "en" ? "th" : "en"; render(); });
     byId("faqBtn").addEventListener("click", openFAQPopup);
     byId("faqLangBtn").addEventListener("click", toggleFaqLang);
+    byId("stepsBtn").addEventListener("click", openStepsPopup);
+    byId("stepsClose").addEventListener("click", closeStepsPopup);
+    byId("stepsLangBtn").addEventListener("click", toggleStepsLang);
+    byId("stepsModal").addEventListener("click", (e) => { if(e.target === byId("stepsModal")) closeStepsPopup(); });
     byId("gamePickerLangBtn").addEventListener("click", toggleGamePickerLang);
     byId("adminBtn").addEventListener("click", () => openAdmin(false));
     byId("adminClose").addEventListener("click", closeAdmin);
@@ -3346,6 +3533,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }
     if(new URLSearchParams(location.search).get("faq") === "1" || location.hash === "#faq"){
       setTimeout(openFAQPopup, 120);
+    }
+    if(new URLSearchParams(location.search).get("steps") === "1" || location.hash === "#steps"){
+      setTimeout(openStepsPopup, 120);
     }
     fetchAvailability().catch(() => {});
     gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {});
