@@ -1466,6 +1466,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(!list.length) return "";
     return `<span class="summary-list">${list.map(esc).map(x => `<span>${x}</span>`).join("")}</span>`;
   }
+  function paymentOptionLabelEn(){
+    return {cash:"Cash (THB)", bank:"Thai Bank Transfer", wise:"Wise"}[state.calc.payment] || "Cash (THB)";
+  }
   function renderSummary(){
     const c = consoleById(state.calc.consoleId);
     const host = byId("summaryBox");
@@ -1500,7 +1503,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ...(summary.bgDisc ? [{label:tr("boardGameDiscount"), value:`-${money(summary.bgDisc)}`, cls:"discount"}] : []),
       {label:`${tr("deposit")} ${cName(c)}`, value:depositValue(summary.consoleDeposit), html:true},
       ...(summary.bgDeposit ? [{label:tr("boardGameDeposit"), value:depositValue(summary.bgDeposit), html:true}] : []),
-      {label:tr("delivery"), value:state.lang==="en" ? "via chat" : "แจ้งทางแชท"}
+      {label:tr("delivery"), value:state.lang==="en" ? "via chat" : "แจ้งทางแชท"},
+      ...(state.lang === "en" ? [{label:tr("payment"), value:paymentOptionLabelEn()}] : [])
     ];
     host.innerHTML = `<div class="summary-title">${tr("summaryTitle")}</div>
       ${rows.map(row => `<div class="sum-row ${esc(row.cls || "")}"><span>${esc(row.label)}</span><b>${row.html ? row.value : esc(row.value)}</b></div>`).join("")}
@@ -2096,7 +2100,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const extrasListTh = (s.extras || []).map((x,i) => `  ${i + 1}. ${x.th || x.en}`);
     const extrasListEn = (s.extras || []).map((x,i) => `  ${i + 1}. ${x.en || x.th}`);
     const isReturning = state.calc.ret && state.retEnabled;
-    const paymentOptionEn = {cash:"Cash (THB)", bank:"Thai Bank Transfer", wise:"Wise"}[state.calc.payment] || "Cash (THB)";
+    const paymentOptionEn = paymentOptionLabelEn();
     const costLinesTh = [
       `  - ค่าเช่า ${cName(c)}: ${money(s.rental)}`,
       s.bundleName ? `  - Bundle ${s.bundleName}: รวมในค่าเช่า` : "",
