@@ -1540,7 +1540,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const bgSubtotal = bgItems.reduce((sum,g) => sum + bgRentalCost(g, days), 0);
     const bgDisc = promoDiscount("bg", bgSubtotal, bgItems.length);
     const bgDepositTotal = bgItems.reduce((sum,g) => sum + bgDeposit(g), 0);
-    const retDisc = state.calc.ret && state.retEnabled ? Math.round(rental * 0.1) : 0;
+    const retDisc = state.calc.ret && state.retEnabled ? Math.round((rental + addons) * 0.1) : 0;
     const promoDisc = promoDiscount("console", rental + addons);
     const finalDeposit = state.calc.noContract ? noContractDeposit(deposit) : deposit;
     const subtotalAfterDiscount = Math.max(0, rental + addons - retDisc - promoDisc) + Math.max(0, bgSubtotal - bgDisc);
