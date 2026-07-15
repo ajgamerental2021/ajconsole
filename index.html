@@ -2096,6 +2096,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const extrasListTh = (s.extras || []).map((x,i) => `  ${i + 1}. ${x.th || x.en}`);
     const extrasListEn = (s.extras || []).map((x,i) => `  ${i + 1}. ${x.en || x.th}`);
     const isReturning = state.calc.ret && state.retEnabled;
+    const paymentOptionEn = {cash:"Cash (THB)", bank:"Thai Bank Transfer", wise:"Wise"}[state.calc.payment] || "Cash (THB)";
     const costLinesTh = [
       `  - ค่าเช่า ${cName(c)}: ${money(s.rental)}`,
       s.bundleName ? `  - Bundle ${s.bundleName}: รวมในค่าเช่า` : "",
@@ -2173,8 +2174,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ...costLinesEn,
       "",
       `💰 Total: ${money(s.total)}`,
-      `💳 Transfer before delivery: ${money(s.upfront)}`,
-      `🚚 Pay on delivery: ${money(s.onDelivery)}`,
+      `💳 Payment option: ${paymentOptionEn}`,
+      ...(s.upfront > 0 ? [`💳 Transfer before delivery: ${money(s.upfront)}`] : []),
+      ...(s.onDelivery > 0 ? [`🚚 Pay on delivery: ${money(s.onDelivery)}`] : []),
       ...contractLinesEn,
       "",
       "🚫 Customer cancellation → Booking deposit of ฿200 is non-refundable",
