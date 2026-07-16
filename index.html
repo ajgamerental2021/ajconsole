@@ -1954,28 +1954,49 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function rentalContractLink(code){
     const url = new URL(CONFIG.contractUrl, location.href);
     const selected = consoleById(state.calc.consoleId);
-    const deviceName = cleanContractDeviceName(selected ? cName(selected) : "");
-    if(deviceName) url.searchParams.set("device", deviceName);
-    if(state.calc.start) url.searchParams.set("rentalStart", state.calc.start);
-    if(state.calc.end) url.searchParams.set("rentalEnd", state.calc.end);
+    const deviceId = contractDeviceId(selected);
+    if(deviceId) url.searchParams.set("deviceId", deviceId);
     const days = selectedDays();
-    if(Number.isFinite(days) && days > 0) url.searchParams.set("rentalDays", String(days));
+    if(state.calc.start) url.searchParams.set("s", state.calc.start);
+    if(state.calc.end) url.searchParams.set("e", state.calc.end);
+    if(Number.isFinite(days) && days > 0) url.searchParams.set("days", String(days));
     const addOns = selectedContractAddOns(selected);
-    if(addOns.bundle.length) url.searchParams.set("bundle", addOns.bundle.join("|"));
-    if(addOns.accessories.length) url.searchParams.set("accessories", addOns.accessories.join("|"));
+    if(addOns.bundle.length) url.searchParams.set("b", addOns.bundle.join(","));
+    if(addOns.accessories.length) url.searchParams.set("a", addOns.accessories.join(","));
     url.hash = encodeURIComponent(code || "");
     return url.toString();
+  }
+  function contractDeviceId(selected){
+    if(!selected) return "";
+    const byNumericId = {
+      1:"ps4", 2:"ps-portal", 3:"ps-vr2", 4:"switch-1", 5:"xbox-series-s",
+      8:"logitech-g29", 9:"xbox-series-x", 11:"ps5", 12:"switch-2",
+      13:"rog-xbox-ally-x", 14:"meta-quest-3", 15:"steam-deck-oled",
+      17:"viture-beast", 18:"ps5-pro", 19:"lenovo-legion-go2"
+    };
+    if(byNumericId[Number(selected.id)]) return byNumericId[Number(selected.id)];
+    const name = cleanContractDeviceName(selected.nameEn || selected.name || "");
+    const byName = {
+      "ps5":"ps5", "ps5 pro":"ps5-pro", "ps4":"ps4", "ps portal":"ps-portal",
+      "ps vr2":"ps-vr2", "nintendo switch 1":"switch-1", "nintendo switch 2":"switch-2",
+      "rog xbox ally x":"rog-xbox-ally-x", "lenovo legion go2":"lenovo-legion-go2",
+      "steam deck oled":"steam-deck-oled", "xbox series s":"xbox-series-s",
+      "xbox series x":"xbox-series-x", "meta quest 3":"meta-quest-3",
+      "meta quest 3s":"meta-quest-3s", "viture beast":"viture-beast",
+      "logitech g29":"logitech-g29"
+    };
+    return byName[name.toLowerCase()] || name;
   }
   function selectedContractAddOns(selected){
     if(!selected) return {bundle:[], accessories:[]};
     const bundle = [];
     if(Number(selected.id) === SPEC.PS5 && state.calc.bundleId){
       const item = state.bundles.find(x => String(x.id) === String(state.calc.bundleId));
-      if(item) bundle.push(item.id, item.th, item.en);
+      if(item) bundle.push(item.id);
     }
     const accessories = extrasForConsole(selected)
       .filter(item => state.calc.extras.includes(item.id))
-      .flatMap(item => [item.id, item.th, item.en]);
+      .map(item => item.id);
     return {
       bundle: uniqueCleanValues(bundle),
       accessories: uniqueCleanValues(accessories),
