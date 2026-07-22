@@ -1497,8 +1497,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function paymentOptionLabelEn(){
     return {cash:tr("cash"), bank:tr("bank"), wise:tr("wise")}[state.calc.payment] || tr("cash");
   }
+  function paymentOptionMessageLabelEn(){
+    if(state.calc.payment === "cash") return "Cash (THB)";
+    return paymentOptionLabelEn();
+  }
   function upfrontLabel(){
-    if(state.lang === "en" && state.calc.payment === "cash") return "Reservation deposit via Wise / TrueMoney / Credit Card unavailable";
+    if(state.lang === "en" && state.calc.payment === "cash") return "Reservation deposit via Wise / TrueMoney";
     return tr("upfrontConfirm");
   }
   function upfrontLabelHtml(){
@@ -1595,7 +1599,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const depositTotal = finalDeposit + bgDepositTotal;
     const total = subtotalAfterDiscount + depositTotal;
     // Payment split (payment option is shown only in EN). Cash requires a
-    // booking deposit to lock the queue; Wise transfers full upfront.
+    // reservation deposit to lock the queue; Wise transfers full upfront.
     let upfront = 200;
     let onDelivery = Math.max(0, total - 200);
     if(state.lang === "en"){
@@ -2166,8 +2170,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const extrasListTh = (s.extras || []).map((x,i) => `  ${i + 1}. ${x.th || x.en}`);
     const extrasListEn = (s.extras || []).map((x,i) => `  ${i + 1}. ${x.en || x.th}`);
     const isReturning = state.calc.ret && state.retEnabled;
-    const paymentOptionEn = paymentOptionLabelEn();
+    const paymentOptionEn = paymentOptionMessageLabelEn();
     const isThaiBankTransfer = state.calc.payment === "bank";
+    const isCashPayment = state.calc.payment === "cash";
     const costLinesTh = [
       `  - ค่าเช่า ${cName(c)}: ${money(s.rental)}`,
       s.bundleName ? `  - Bundle ${s.bundleName}: รวมในค่าเช่า` : "",
@@ -2250,10 +2255,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ...(s.onDelivery > 0 ? [`🚚 Pay on delivery: ${money(s.onDelivery)}`] : []),
       ...contractLinesEn,
       "",
-      ...(isThaiBankTransfer ? ["🚫 Customer cancellation → Booking deposit of ฿200 is non-refundable"] : []),
+      ...(isThaiBankTransfer ? ["🚫 Customer cancellation → Reservation deposit of ฿200 is non-refundable"] : []),
+      ...(isCashPayment ? ["🚫 Customer cancellation → Reservation deposit of ฿1,000 is non-refundable"] : []),
       "🚫 Early return → No refund for the unused rental period",
       "",
-      "⚠️Please read the rental details carefully before transferring the booking deposit⚠️",
+      "⚠️Please read the rental details carefully before transferring the reservation deposit⚠️",
       "",
       "Thank you! 🙏"
     ];
