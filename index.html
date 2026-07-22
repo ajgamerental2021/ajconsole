@@ -147,6 +147,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .sum-row.grand{font-size:17px;font-weight:900;color:#111}
 .sum-row.delivery-pay{background:#eaf8ef;border:1px solid #cbeed6;border-radius:12px;margin-top:8px;padding:12px}
 .sum-row.delivery-pay b{color:#111}
+.payment-unavailable{color:#666;text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:#111;text-decoration-skip-ink:auto;white-space:nowrap}
 .sum-empty{color:var(--text3);font-size:14px;padding:20px 0}
 .summary-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .summary-list{display:block;text-align:right;line-height:1.55;white-space:normal}
@@ -761,7 +762,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       daily:"Daily", weekly:"Weekly", day:"day", wk:"week", deposit:"Deposit", ready:"Ready", notReady:"Not ready", readyOn:"Ready on",
       bundle:"Bundle", accessories:"Accessories", noBundle:"No bundle", noAccessory:"No extra accessory", contract:"Rental contract", contractHelp:"Recommended for first-time renters. Complete it before delivery.",
       noContract:"No rental contract", noContractHelp:"First-time renters must complete the rental agreement and attach a copy of their ID card plus a selfie holding the card in all cases. If this is inconvenient, check this box. The deposit will increase from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the model.",
-      returning:"Returning customer: 10% off rental fee", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"Cash (THB)", bank:"Thai Bank Transfer", wise:"Wise",
+      returning:"Returning customer: 10% off rental fee", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"Cash (THB) - ฿1,000 reservation deposit", bank:"Thai Bank Transfer", wise:"Wise",
       boardGameCollapsed:"Want board games? Expand to add them to this rental.", ps5BundleCollapsed:"Want a bundle? Expand to pair PS5 with another device.",
       boardGameBundle:"Board Game Bundle", chooseBoardGame:"-- Choose board game --", addBoardGame:"Add board game", boardGames:"Board games", selectedDates:"Selected dates", confirmRange:"Confirm", selectReturnDate:"Choose return date", remove:"Remove",
       boardGameBundleHelp:"Add board games to this rental set — 3-day package rate, then extend by each game's package rules.", boardGameImageHint:"💡 Click the image to view board game details.", viewDetails:"View details",
@@ -1494,7 +1495,19 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return `<span class="summary-list">${list.map(esc).map(x => `<span>${x}</span>`).join("")}</span>`;
   }
   function paymentOptionLabelEn(){
-    return {cash:"Cash (THB)", bank:"Thai Bank Transfer", wise:"Wise"}[state.calc.payment] || "Cash (THB)";
+    return {cash:tr("cash"), bank:tr("bank"), wise:tr("wise")}[state.calc.payment] || tr("cash");
+  }
+  function upfrontLabel(){
+    if(state.lang === "en" && state.calc.payment === "cash") return "Reservation deposit via Wise / TrueMoney / Credit Card unavailable";
+    return tr("upfrontConfirm");
+  }
+  function upfrontLabelHtml(){
+    if(state.lang === "en" && state.calc.payment === "cash") return `Reservation deposit via Wise / TrueMoney / <span class="payment-unavailable">Credit Card</span>`;
+    return esc(tr("upfrontConfirm"));
+  }
+  function payOnDeliveryLabel(){
+    if(state.lang === "en" && state.calc.payment === "cash") return "Pay cash on delivery";
+    return tr("payOnDelivery");
   }
   function renderSummary(){
     const c = consoleById(state.calc.consoleId);
@@ -1540,8 +1553,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     host.innerHTML = `<div class="summary-title">${tr("summaryTitle")}</div>
       ${rows.map(row => `<div class="sum-row ${esc(row.cls || "")}"><span>${esc(row.label)}</span><b>${row.html ? row.value : esc(row.value)}</b></div>`).join("")}
       <div class="sum-row grand"><span>${tr("grandTotal")}</span><b>${money(summary.total)}</b></div>
-      ${summary.upfront > 0 ? `<div class="sum-row ${summary.onDelivery > 0 ? "pay" : "delivery-pay"}"><span>${tr("upfrontConfirm")}</span><b>${money(summary.upfront)}</b></div>` : ""}
-      ${summary.onDelivery > 0 ? `<div class="sum-row delivery-pay"><span>${tr("payOnDelivery")}</span><b>${money(summary.onDelivery)}</b></div>` : ""}
+      ${summary.upfront > 0 ? `<div class="sum-row ${summary.onDelivery > 0 ? "pay" : "delivery-pay"}"><span>${upfrontLabelHtml()}</span><b>${money(summary.upfront)}</b></div>` : ""}
+      ${summary.onDelivery > 0 ? `<div class="sum-row delivery-pay"><span>${esc(payOnDeliveryLabel())}</span><b>${money(summary.onDelivery)}</b></div>` : ""}
       <div class="summary-actions"><button class="btn primary" id="copyBooking" type="button" ${canSend?"":"disabled"}>${tr("copy")}</button><button class="btn ok" id="sendLine" type="button" ${canSend?"":"disabled"}>${tr("line")}</button>${state.lang==="en"?`<button class="btn" id="sendWa" type="button" ${canSend?"":"disabled"}>${tr("whatsapp")}</button>`:""}</div>`;
   }
   function renderLineCardHost(){
@@ -1581,12 +1594,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const subtotalAfterDiscount = Math.max(0, rental + addons - retDisc - promoDisc) + Math.max(0, bgSubtotal - bgDisc);
     const depositTotal = finalDeposit + bgDepositTotal;
     const total = subtotalAfterDiscount + depositTotal;
-    // Payment split (payment option is shown only in EN). Cash = pay full on
-    // delivery; Wise = transfer full upfront; Bank (and default) = 200 upfront.
+    // Payment split (payment option is shown only in EN). Cash requires a
+    // booking deposit to lock the queue; Wise transfers full upfront.
     let upfront = 200;
     let onDelivery = Math.max(0, total - 200);
     if(state.lang === "en"){
-      if(state.calc.payment === "cash"){ upfront = 0; onDelivery = total; }
+      if(state.calc.payment === "cash"){ upfront = Math.min(1000, total); onDelivery = Math.max(0, total - upfront); }
       else if(state.calc.payment === "wise"){ upfront = total; onDelivery = 0; }
     }
     return {days,rental,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,promoDisc,discounts:retDisc+promoDisc+bgDisc,deposit:depositTotal,total,upfront,onDelivery,bundleName,extras,bgItems};
@@ -2233,7 +2246,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       "",
       `💰 Total: ${money(s.total)}`,
       `💳 Payment option: ${paymentOptionEn}`,
-      ...(s.upfront > 0 ? [`💳 Transfer before delivery: ${money(s.upfront)}`] : []),
+      ...(s.upfront > 0 ? [`💳 ${upfrontLabel()}: ${money(s.upfront)}`] : []),
       ...(s.onDelivery > 0 ? [`🚚 Pay on delivery: ${money(s.onDelivery)}`] : []),
       ...contractLinesEn,
       "",
