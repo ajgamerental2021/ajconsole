@@ -2206,7 +2206,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       `❌ No rental contract → Deposit: ${money(noContractDeposit(c.deposit))}`
     ];
     const linesTh = [
-      "สวัสดีครับ/ค่ะ ขอจองเช่าเครื่องเกม 🎮","",
+      "รายละเอียดการจองเช่าเครื่องเกม 🎮","",
       rentalCode ? `🧾 รหัสการเช่า: ${rentalCode}` : "",
       `📱 เครื่อง: ${cName(c)}`,
       `🔥 หมวดเครื่อง: ${category}`,
@@ -2231,10 +2231,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       "",
       "⚠️รบกวนอ่านรายละเอียดการเช่าอย่างละเอียดก่อนโอนจอง⚠️",
       "",
-      "ขอบคุณครับ/ค่ะ 🙏"
+      "ขอบคุณครับ 🙏"
     ];
     const linesEn = [
-      "Hello, I would like to book a game console rental 🎮","",
+      "Game rental booking details 🎮","",
       rentalCode ? `🧾 Rental code: ${rentalCode}` : "",
       `📱 Console: ${cName(c)}`,
       `🔥 Category: ${category}`,
@@ -2261,7 +2261,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       "",
       "⚠️Please read the rental details carefully before transferring the reservation deposit⚠️",
       "",
-      "Thank you! 🙏"
+      "Thank you 🙏"
     ];
     return (state.lang === "en" ? linesEn : linesTh).filter(line => line !== undefined && line !== null && line !== false).join("\n");
   }
@@ -3563,6 +3563,40 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       notFound:"ไม่พบข้อมูลการจองของรหัสนี้", error:"โหลดข้อมูลไม่ได้ กรุณาลองใหม่"
     };
   }
+
+  function normalizeViewerBookingMessage(message, payload){
+    let text = String(message || "");
+    const lang = String((payload && (payload.lang || (payload.data && payload.data.lang))) || "TH").toUpperCase();
+    const en = lang === "EN" || /^Hello|^Game rental booking details/i.test(text);
+    const maps = String(
+      (payload && payload.maps) ||
+      (payload && payload.googleMaps) ||
+      (payload && payload.pickupMapUrl) ||
+      (payload && payload.data && (payload.data.maps || payload.data.googleMaps || payload.data.pickupMapUrl)) ||
+      new URLSearchParams(location.search).get("maps") ||
+      ""
+    ).trim();
+
+    text = text
+      .replace(/^สวัสดีครับ\/ค่ะ ขอจองเช่าเครื่องเกม 🎮/m, "รายละเอียดการจองเช่าเครื่องเกม 🎮")
+      .replace(/^ขอบคุณครับ\/ค่ะ 🙏/m, "ขอบคุณครับ 🙏")
+      .replace(/^Hello, I would like to book a game console rental 🎮/m, "Game rental booking details 🎮")
+      .replace(/^Thank you! 🙏/m, "Thank you 🙏");
+
+    if(maps && !/(Google Maps|maps\.app\.goo\.gl|google\.com\/maps)/i.test(text)){
+      const mapsLine = en
+        ? `📍 Google Maps delivery address for delivery quote: ${maps}`
+        : `📍 Google Maps ที่อยู่จัดส่งสำหรับเช็คค่าจัดส่ง: ${maps}`;
+      const lines = text.split("\n");
+      const insertAt = lines.findIndex(line => /ระยะเวลา|Duration/i.test(line));
+      if(insertAt >= 0) lines.splice(insertAt + 1, 0, "", mapsLine);
+      else lines.push("", mapsLine);
+      text = lines.join("\n");
+    }
+
+    return text;
+  }
+
   // Shop-facing viewer: index2.html?viewMsg=<rentalCode> shows the stored booking
   // message with a Copy button, in the exact language the customer used.
   function renderBookingViewer(code){
@@ -3580,14 +3614,15 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const t = bookingViewerText((data && data.lang) || "TH");
       byId("viewerTitle").textContent = t.title;
       if(data && data.ok && data.message){
+        const message = normalizeViewerBookingMessage(data.message, data);
         byId("viewerSub").textContent = t.sub;
-        byId("viewerText").value = data.message;
+        byId("viewerText").value = message;
         const btn = byId("viewerCopy");
         btn.style.display = ""; btn.textContent = t.copy;
         btn.onclick = function(){
           const done = () => { btn.textContent = t.copied; setTimeout(() => btn.textContent = t.copy, 1600); };
           const fallback = () => { byId("viewerText").select(); try{ document.execCommand("copy"); }catch(e){} done(); };
-          if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(data.message).then(done).catch(fallback); }
+          if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(message).then(done).catch(fallback); }
           else fallback();
         };
       }else{
