@@ -5303,7 +5303,7 @@ function isContractCardGamePicker() {
 }
 
 function contractCardCopyButtonLabel() {
-  return currentLang === 'en' ? 'Send selected games to AJ' : 'ส่งรายการเกมที่เลือกให้ AJ';
+  return currentLang === 'en' ? 'Send selected games' : 'ส่งรายการเกมที่เลือก';
 }
 
 function gameCopyButtonLabel(fallbackLabel) {
@@ -5314,6 +5314,12 @@ function openAjLineWithMessage(text) {
   if (!isContractCardGamePicker() || !text) return;
   const lineUrl = `https://line.me/R/oaMessage/@ajgame/?${encodeURIComponent(text)}`;
   window.open(lineUrl, '_blank', 'noopener');
+}
+
+function sendContractCardGameList() {
+  if (!pickedGames.length) return;
+  generateCopyText();
+  setTimeout(doCopy, 80);
 }
 
 function generateCopyText() {
@@ -6635,7 +6641,13 @@ document.addEventListener('touchstart', function(e) {
     const generate = document.getElementById('btn-generate-copy');
     if(generate){
       const span = generate.querySelector('[data-i18n="btn_generate"]');
-      if(span) span.textContent = isEn ? 'Create message to notify AJ' : 'สร้างข้อความเพื่อแจ้งทางร้าน';
+      if(isContractCardPicker()){
+        if(span) span.textContent = isEn ? 'Send selected games' : 'ส่งรายการเกมที่เลือก';
+        generate.onclick = function(){ sendContractCardGameList(); };
+      }else{
+        if(span) span.textContent = isEn ? 'Create message to notify AJ' : 'สร้างข้อความเพื่อแจ้งทางร้าน';
+        generate.onclick = function(){ generateCopyText(); };
+      }
     }
     const howto = document.getElementById('btn-howto-label');
     if(howto) howto.textContent = isEn ? 'How to use' : 'วิธีใช้';
@@ -6666,6 +6678,7 @@ document.addEventListener('touchstart', function(e) {
       body.aj-embed-picker #pick-overlay .pptab-change { display:none !important; }
       body.aj-embed-picker #pick-overlay #btn-generate-copy { display:inline-flex !important; }
       body.aj-contract-card-picker #pick-overlay #btn-embed-confirm { display:none !important; }
+      body.aj-contract-card-picker #pick-overlay #btn-copy-final { display:none !important; }
       body.aj-embed-picker #pick-overlay .pick-copy-panel.show { display:block !important; }
       body.aj-embed-picker #pick-overlay .pick-sub { max-width:620px; }
       body.aj-embed-admin > header,
