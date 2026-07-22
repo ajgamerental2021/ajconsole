@@ -2778,7 +2778,7 @@
             <li data-i18n="tut_2">คลิกที่รูปเกมเพื่อเลือก ✓ — คลิกซ้ำเพื่อยกเลิก</li>
             <li data-i18n="tut_3">เลือกได้สูงสุด 10 เกม จากทุกประเภท</li>
             <li data-i18n="tut_4_html">กด <strong>"ใช้รายการนี้"</strong> เพื่อแนบรายการเกมไปในข้อความแจ้งให้ทางร้านติดตั้ง</li>
-            <li data-i18n="tut_5_html">หรือ กด <strong>"สร้างข้อความเพื่อทางร้าน"</strong> และกด <strong>"Copy รายการ"</strong> แล้วส่งมาที่ Line <strong>@ajgame</strong></li>
+            <li data-i18n="tut_5_html">หรือ กด <strong>"สร้างข้อความเพื่อแจ้งทางร้าน"</strong> และกด <strong>"Copy รายการ"</strong> แล้วส่งมาที่ Line <strong>@ajgame</strong></li>
           </ol>
           <p class="pick-tutorial-note" data-i18n="tut_focus_tip_html">* กดปุ่ม <strong>"กดเพื่อดูเกมได้เต็มจอ"</strong> เพื่อซ่อนคำแนะนำด้านบนและเลือกเกมง่ายขึ้น</p>
         </div>
@@ -2839,7 +2839,7 @@
       <div class="pick-footer-actions">
         <button class="btn btn-secondary btn-pick-clear" onclick="clearAllPicked()" data-i18n="btn_clear_all">ล้างทั้งหมด</button>
         <button class="btn btn-primary" onclick="generateCopyText()" id="btn-generate-copy" style="display:none">
-          📋 <span data-i18n="btn_generate">สร้างข้อความเพื่อทางร้าน</span>
+          📋 <span data-i18n="btn_generate">สร้างข้อความเพื่อแจ้งทางร้าน</span>
         </button>
       </div>
     </div>
@@ -3238,7 +3238,7 @@ const DEFAULT_PLATFORMS = [
 const DEFAULT_HOW_TO_USE = [
   { id: 'h1', icon: '🔍', title_th: 'ดูรายการเกม', title_en: 'Browse Games', desc_th: 'เลื่อนดูรายการเกมทั้งหมดได้เลย แบ่งตามประเภทเครื่องเกม กดที่ปุ่มประเภทเครื่องเพื่อกรองให้เหลือเฉพาะที่ต้องการ', desc_en: 'Scroll through all available games organized by console type. Tap a console tab to filter the list.' },
   { id: 'h2', icon: '🎯', title_th: 'เลือกเกมที่ต้องการ', title_en: 'Pick Your Games', desc_th: 'กดปุ่ม "เลือกเกม" หรือกดปุ่มลอยด้านขวาล่าง จากนั้นคลิกรูปเกมที่ต้องการเพื่อเลือก สามารถเลือกได้สูงสุด 10 เกม จากหลายประเภทเครื่อง', desc_en: 'Tap the "Pick Games" button or the floating button at the bottom right. Click on a game cover to select it — up to 10 games across all consoles.' },
-  { id: 'h3', icon: '📋', title_th: 'สร้างข้อความเพื่อทางร้าน', title_en: 'Create Message for AJ', desc_th: 'เมื่อเลือกเกมครบแล้ว กดปุ่ม "สร้างข้อความเพื่อทางร้าน" จากนั้นกด "Copy รายการ" เพื่อคัดลอกข้อความ', desc_en: 'Once you have selected your games, tap \"Create Message for AJ\" then \"Copy List\" to copy your selection.' },
+  { id: 'h3', icon: '📋', title_th: 'สร้างข้อความเพื่อแจ้งทางร้าน', title_en: 'Create Message to Notify AJ', desc_th: 'เมื่อเลือกเกมครบแล้ว กดปุ่ม "สร้างข้อความเพื่อแจ้งทางร้าน" จากนั้นกด "Copy รายการ" เพื่อคัดลอกข้อความ', desc_en: 'Once you have selected your games, tap \"Create Message to Notify AJ\" then \"Copy List\" to copy your selection.' },
   { id: 'h4', icon: '💬', title_th: 'ส่งมาที่ Line @ajgame', title_en: 'Send via Line @ajgame', desc_th: 'วางข้อความที่คัดลอกมาแล้วส่งมาที่ Line Official ของร้าน @ajgame พร้อมแจ้งวันที่ต้องการเช่าและที่อยู่จัดส่ง', desc_en: 'Paste your copied message and send it to our Line Official @ajgame along with your rental dates and delivery address.' },
   { id: 'h5', icon: '🚚', title_th: 'รอรับเครื่องที่บ้าน', title_en: 'Receive at Your Door', desc_th: 'ทางร้านจัดส่งผ่าน Lalamove หรือ Grab ให้ถึงบ้านคุณ มาพร้อมเกม 2 จอย และอุปกรณ์ต่อทีวีครบชุด', desc_en: 'We deliver via Lalamove or Grab straight to your door, complete with games, 2 controllers, and TV connection equipment.' },
 ];
@@ -5297,6 +5297,25 @@ function clearAllPicked() {
   document.getElementById('pick-copy-panel').classList.remove('show');
 }
 
+function isContractCardGamePicker() {
+  try { return new URLSearchParams(location.search).get('source') === 'contractCard'; }
+  catch (e) { return false; }
+}
+
+function contractCardCopyButtonLabel() {
+  return currentLang === 'en' ? 'Send selected games to AJ' : 'ส่งรายการเกมที่เลือกให้ AJ';
+}
+
+function gameCopyButtonLabel(fallbackLabel) {
+  return isContractCardGamePicker() ? contractCardCopyButtonLabel() : fallbackLabel;
+}
+
+function openAjLineWithMessage(text) {
+  if (!isContractCardGamePicker() || !text) return;
+  const lineUrl = `https://line.me/R/oaMessage/@ajgame/?${encodeURIComponent(text)}`;
+  window.open(lineUrl, '_blank', 'noopener');
+}
+
 function generateCopyText() {
   if (!pickedGames.length) return;
   const lines = ['รายการเกมที่ต้องการครับ/ค่ะ 😊', ''];
@@ -5310,7 +5329,7 @@ function generateCopyText() {
   document.getElementById('copy-text-area').value = lines.join('\n');
   document.getElementById('pick-copy-panel').classList.add('show');
   const btn = document.getElementById('btn-copy-final');
-  btn.innerHTML = '<span>📋</span> Copy รายการ';
+  btn.innerHTML = '<span>📋</span> ' + gameCopyButtonLabel('Copy รายการ');
   btn.className = 'btn-copy';
   setTimeout(() => document.getElementById('pick-copy-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
 }
@@ -5322,6 +5341,7 @@ function doCopy() {
     document.getElementById('copy-text-area').select();
     document.execCommand('copy');
     showToast('✓ Copy แล้ว! วางส่งใน Line @ajgame ได้เลย 🎮');
+    openAjLineWithMessage(text);
   };
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text).then(() => {
@@ -5329,7 +5349,8 @@ function doCopy() {
       btn.innerHTML = '✓ Copied!';
       btn.className = 'btn-copy copied';
       showToast('✓ Copy แล้ว! วางส่งใน Line @ajgame ได้เลย 🎮');
-      setTimeout(() => { btn.innerHTML = '<span>📋</span> Copy รายการ'; btn.className = 'btn-copy'; }, 2500);
+      openAjLineWithMessage(text);
+      setTimeout(() => { btn.innerHTML = '<span>📋</span> ' + gameCopyButtonLabel('Copy รายการ'); btn.className = 'btn-copy'; }, 2500);
     }).catch(doFallback);
   } else {
     doFallback();
@@ -5382,13 +5403,13 @@ const TRANSLATIONS = {
     tut_2: 'คลิกที่รูปเกมเพื่อเลือก ✓ — คลิกซ้ำเพื่อยกเลิก',
     tut_3: 'เลือกได้สูงสุด 10 เกม จากทุกประเภท',
     tut_4_html: 'กด <strong>"ใช้รายการนี้"</strong> เพื่อแนบรายการเกมไปในข้อความแจ้งให้ทางร้านติดตั้ง',
-    tut_5_html: 'หรือ กด <strong>"สร้างข้อความเพื่อทางร้าน"</strong> และกด <strong>"Copy รายการ"</strong> แล้วส่งมาที่ Line <strong>@ajgame</strong>',
+    tut_5_html: 'หรือ กด <strong>"สร้างข้อความเพื่อแจ้งทางร้าน"</strong> และกด <strong>"Copy รายการ"</strong> แล้วส่งมาที่ Line <strong>@ajgame</strong>',
     tut_focus_tip_html: '* กดปุ่ม <strong>"กดเพื่อดูเกมได้เต็มจอ"</strong> เพื่อซ่อนคำแนะนำด้านบนและเลือกเกมง่ายขึ้น',
     pick_selected_label: 'เกมที่เลือก',
     copy_send_to: 'ส่งข้อความนี้ไปที่ Line:',
     btn_copy_list: 'Copy รายการ',
     btn_clear_all: 'ล้างทั้งหมด',
-    btn_generate: 'สร้างข้อความเพื่อทางร้าน',
+    btn_generate: 'สร้างข้อความเพื่อแจ้งทางร้าน',
     pick_empty: 'ยังไม่มีเกมในประเภทนี้',
     copy_toast: '✓ Copy แล้ว! วางส่งใน Line @ajgame ได้เลย 🎮',
     copy_greeting: 'รายการเกมที่ต้องการครับ/ค่ะ 😊',
@@ -5432,13 +5453,13 @@ const TRANSLATIONS = {
     tut_2: 'Click a game card to select ✓ — click again to deselect',
     tut_3: 'You can pick up to 10 games across all categories',
     tut_4_html: 'Tap <strong>"Use this list"</strong> to attach the game list to the message for the shop to install',
-    tut_5_html: 'Or tap <strong>"Create Message for AJ"</strong> then <strong>"Copy List"</strong> and send it to Line <strong>@ajgame</strong>',
+    tut_5_html: 'Or tap <strong>"Create Message to Notify AJ"</strong> then <strong>"Copy List"</strong> and send it to Line <strong>@ajgame</strong>',
     tut_focus_tip_html: '* Tap <strong>"Show more games on screen"</strong> to hide the instructions and make game selection easier.',
     pick_selected_label: 'Selected Games',
     copy_send_to: 'Send this message to Line:',
     btn_copy_list: 'Copy List',
     btn_clear_all: 'Clear All',
-    btn_generate: 'Create message for AJ',
+    btn_generate: 'Create message to notify AJ',
     pick_empty: 'No games in this category yet',
     copy_toast: '✓ Copied! Paste it into Line @ajgame 🎮',
     copy_greeting: 'Hello! 🎮 I would like to have the following games:',
@@ -5754,7 +5775,7 @@ function generateCopyText() {
   document.getElementById('copy-text-area').value = lines.join('\n');
   document.getElementById('pick-copy-panel').classList.add('show');
   const btn = document.getElementById('btn-copy-final');
-  btn.innerHTML = '<span>📋</span> ' + T.btn_copy_list;
+  btn.innerHTML = '<span>📋</span> ' + gameCopyButtonLabel(T.btn_copy_list);
   btn.className = 'btn-copy';
   setTimeout(() => document.getElementById('pick-copy-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
 }
@@ -5770,18 +5791,21 @@ function doCopy() {
     btn.innerHTML = '✓ Copied!';
     btn.className = 'btn-copy copied';
     showToast(T.copy_toast);
-    setTimeout(() => { btn.innerHTML = '<span>📋</span> ' + T.btn_copy_list; btn.className = 'btn-copy'; }, 2500);
+    openAjLineWithMessage(text);
+    setTimeout(() => { btn.innerHTML = '<span>📋</span> ' + gameCopyButtonLabel(T.btn_copy_list); btn.className = 'btn-copy'; }, 2500);
   };
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text).then(onCopied).catch(() => {
       document.getElementById('copy-text-area').select();
       document.execCommand('copy');
       showToast(T.copy_toast);
+      openAjLineWithMessage(text);
     });
   } else {
     document.getElementById('copy-text-area').select();
     document.execCommand('copy');
     showToast(T.copy_toast);
+    openAjLineWithMessage(text);
   }
 }
 
@@ -6611,7 +6635,7 @@ document.addEventListener('touchstart', function(e) {
     const generate = document.getElementById('btn-generate-copy');
     if(generate){
       const span = generate.querySelector('[data-i18n="btn_generate"]');
-      if(span) span.textContent = isEn ? 'Create message for AJ' : 'สร้างข้อความเพื่อทางร้าน';
+      if(span) span.textContent = isEn ? 'Create message to notify AJ' : 'สร้างข้อความเพื่อแจ้งทางร้าน';
     }
     const howto = document.getElementById('btn-howto-label');
     if(howto) howto.textContent = isEn ? 'How to use' : 'วิธีใช้';
