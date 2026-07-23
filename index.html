@@ -911,6 +911,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   let shareCooldownUntil = 0;
   const SHARE_UNLOCK_KEY = "aj_booking_share_unlock_until";
   const SHARE_RETURN_KEY = "aj_booking_share_return_pending";
+  const LINE_GAME_CARD_SENT_PREFIX = "aj_line_game_picker_card_sent_";
+  const LINE_GAME_CARD_TTL_MS = 24 * 60 * 60 * 1000;
   const CONSOLE_SLUGS = {
     "ps5":"PS5", "ps5-pro":"PS5 Pro", "ps4":"PS4", "switch2":"Nintendo Switch 2",
     "switch1":"Nintendo Switch 1", "meta-quest3":"Meta Quest 3", "meta-quest3s":"Meta Quest 3s",
@@ -2377,17 +2379,23 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const userId = lineUniqueId();
     const gamePickerUrl = lineGamePickerCardUrl(rentalCode);
     const endpoint = String(CONFIG.lineGamePickerCardApi || "").trim();
-    if(!userId || !gamePickerUrl || !endpoint) return;
+    const code = String(rentalCode || state.calc.rentalCode || "").trim();
+    if(!userId || !gamePickerUrl || !endpoint || !code) return;
+    const sentKey = `${LINE_GAME_CARD_SENT_PREFIX}${code}`;
+    const lastSentAt = Number(localStorage.getItem(sentKey) || 0);
+    if(lastSentAt && Date.now() - lastSentAt < LINE_GAME_CARD_TTL_MS) return;
+    localStorage.setItem(sentKey, String(Date.now()));
     fetch(endpoint, {
       method: "POST",
       mode: "no-cors",
       cache: "no-store",
+      keepalive: true,
       headers: {"Content-Type": "text/plain;charset=utf-8"},
       body: JSON.stringify({
         userId,
         gamePickerUrl,
         language: state.lang === "en" ? "en" : "th",
-        rentalCode,
+        rentalCode: code,
       }),
     }).catch(error => console.warn("LINE game picker card skipped", error));
   }
