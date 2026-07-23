@@ -115,6 +115,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .hint{font-size:12px;color:var(--text3);margin-top:5px}
 .option-row{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border);border-radius:12px;padding:11px;background:#fff;cursor:pointer}
 .option-row input{margin-top:5px;accent-color:var(--accent)}
+.review-discount-box{display:flex;flex-direction:column;gap:8px;margin:8px 0 10px 26px}
+.review-discount-box .option-row{background:#fffdfd}
+.review-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.review-actions .btn{min-height:38px;padding:8px 12px}
 .option-note-highlight{display:inline-flex;align-items:center;margin-left:6px;padding:3px 9px;border-radius:999px;background:#fff4bf;color:#8a5200;font-size:12px;font-weight:900;line-height:1.35;vertical-align:middle}
 .deposit-badge{display:inline-flex;align-items:center;margin-left:8px;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:900;line-height:1.35;vertical-align:middle;white-space:nowrap}
 .deposit-badge.ok{background:#eaf8ef;border:1px solid #bfe8cb;color:#137333}
@@ -733,6 +737,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       bundle:"Bundle", accessories:"อุปกรณ์เสริม", noBundle:"ไม่เพิ่ม Bundle", noAccessory:"ไม่เพิ่มอุปกรณ์เสริม", contract:"ทำสัญญาการเช่า", contractHelp:"แนะนำสำหรับผู้เช่าครั้งแรก กรอกก่อนนัดส่งเครื่อง",
       noContract:"ไม่ต้องการทำสัญญาการเช่า", noContractHelp:"สำหรับผู้เช่าครั้งแรก ต้องทำสัญญาและแนบสำเนาบัตรประชาชน + รูปเซลฟี่คู่บัตรทุกกรณี หากไม่สะดวก ให้ติ๊กช่องนี้ ค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น",
       returning:"ลูกค้าเก่า รับส่วนลด 10% ค่าเช่า", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"Payment Option", cash:"Cash (THB)", bank:"Thai Bank Transfer", wise:"Wise",
+      reviewGoogle:"รับส่วนลดเพิ่มจากการรีวิวบน Google Maps มูลค่า 100 บาท", reviewFacebook:"รับส่วนลดเพิ่มจากการรีวิวบน Facebook มูลค่า 100 บาท", reviewGoogleHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Google Maps ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewFacebookHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Facebook ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewGoogleBtn:"รีวิว Google Maps", reviewFacebookBtn:"รีวิว Facebook", reviewGoogleDiscount:"ส่วนลดรีวิว Google Maps", reviewFacebookDiscount:"ส่วนลดรีวิว Facebook",
       boardGameCollapsed:"ต้องการเพิ่มบอร์ดเกม? กดเพื่อขยายและเลือกเข้าชุดเช่า", ps5BundleCollapsed:"ต้องการ Bundle? กดเพื่อจับคู่ PS5 กับอุปกรณ์อื่น",
       boardGameBundle:"Bundle บอร์ดเกม", chooseBoardGame:"-- เลือกบอร์ดเกม --", addBoardGame:"เพิ่มบอร์ดเกม", boardGames:"บอร์ดเกม", selectedDates:"วันที่เลือก", confirmRange:"ตกลง", selectReturnDate:"เลือกวันคืนเครื่อง", remove:"ลบ",
       boardGameBundleHelp:"เพิ่มบอร์ดเกมเข้าชุดเช่า — ราคาเรท 3 วัน + เพิ่มตามจำนวนวันตามแพ็กของแต่ละเกม", boardGameImageHint:"💡 คลิกที่รูปเพื่อดูรายละเอียดของบอร์ดเกมนั้นๆ", viewDetails:"ดูรายละเอียด",
@@ -763,6 +768,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       bundle:"Bundle", accessories:"Accessories", noBundle:"No bundle", noAccessory:"No extra accessory", contract:"Rental contract", contractHelp:"Recommended for first-time renters. Complete it before delivery.",
       noContract:"No rental contract", noContractHelp:"First-time renters must complete the rental agreement and attach a copy of their ID card plus a selfie holding the card in all cases. If this is inconvenient, check this box. The deposit will increase from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the model.",
       returning:"Returning customer: 10% off rental fee", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"Cash (THB) - ฿1,000 reservation deposit", bank:"Thai Bank Transfer", wise:"Wise",
+      reviewGoogle:"Extra ฿100 discount for a Google Maps review", reviewFacebook:"Extra ฿100 discount for a Facebook review", reviewGoogleHelp:"To receive this discount, tap Review Google Maps below, then send a screenshot to the AJ chat you are using.", reviewFacebookHelp:"To receive this discount, tap Review Facebook below, then send a screenshot to the AJ chat you are using.", reviewGoogleBtn:"Review Google Maps", reviewFacebookBtn:"Review Facebook", reviewGoogleDiscount:"Google Maps review discount", reviewFacebookDiscount:"Facebook review discount",
       boardGameCollapsed:"Want board games? Expand to add them to this rental.", ps5BundleCollapsed:"Want a bundle? Expand to pair PS5 with another device.",
       boardGameBundle:"Board Game Bundle", chooseBoardGame:"-- Choose board game --", addBoardGame:"Add board game", boardGames:"Board games", selectedDates:"Selected dates", confirmRange:"Confirm", selectReturnDate:"Choose return date", remove:"Remove",
       boardGameBundleHelp:"Add board games to this rental set — 3-day package rate, then extend by each game's package rules.", boardGameImageHint:"💡 Click the image to view board game details.", viewDetails:"View details",
@@ -830,7 +836,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     promos: {bg:{enabled:false,mode:"percent",value:0}, console:{enabled:false,mode:"percent",value:0}},
     retEnabled: false,
     filter: {type:"all", brand:"all", sort:"brand"},
-    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,noContract:false,payment:"cash",maps:"",games:[],later:false,rentalCode:"",rentalCodeSig:"",guideDone:{},guideConsoleId:""},
+    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,reviewGoogle:false,reviewFacebook:false,noContract:false,payment:"cash",maps:"",games:[],later:false,rentalCode:"",rentalCodeSig:"",guideDone:{},guideConsoleId:""},
     availability: {rows:[],loading:false,error:"",lastSync:0,gate:{mode:"idle",pass:true}},
     calendar: {open:false,mode:"start",base:new Date(),draftStart:"",draftEnd:""},
     faqExpanded: false,
@@ -1146,6 +1152,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(!Array.isArray(state.calc.boardgames)) state.calc.boardgames = [];
     if(!Array.isArray(state.calc.extras)) state.calc.extras = [];
     if(!Array.isArray(state.calc.games)) state.calc.games = [];
+    state.calc.reviewGoogle = !!state.calc.reviewGoogle;
+    state.calc.reviewFacebook = !!state.calc.reviewFacebook;
+    if(!state.calc.ret){
+      state.calc.reviewGoogle = false;
+      state.calc.reviewFacebook = false;
+    }else{
+      state.calc.noContract = false;
+    }
     if(!state.calc.guideDone || typeof state.calc.guideDone !== "object" || Array.isArray(state.calc.guideDone)) state.calc.guideDone = {};
     if(String(state.calc.guideConsoleId || "") !== String(state.calc.consoleId || "")) resetStepOneGuide();
     if(!state.calc.datesTouched){
@@ -1422,6 +1436,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const returningHelp = state.lang === "en"
       ? "If this is checked but you have not rented with us before, the shop will update the rental price and remove this discount."
       : "หากติ๊กส่วนลดลูกค้าเก่าแต่ยังไม่เคยเช่ากับทางร้าน ทางร้านจะอัปเดตราคาใหม่โดยตัดส่วนลดนี้ออก";
+    const returningReviewHtml = state.calc.ret ? `
+      <div class="review-discount-box">
+        <label class="option-row"><input type="checkbox" id="reviewGoogleOpt" ${state.calc.reviewGoogle?"checked":""}><div><b>${tr("reviewGoogle")}</b><div class="hint">${tr("reviewGoogleHelp")}</div><div class="review-actions"><button class="btn" type="button" id="reviewGoogleBtn">${tr("reviewGoogleBtn")}</button></div></div></label>
+        <label class="option-row"><input type="checkbox" id="reviewFacebookOpt" ${state.calc.reviewFacebook?"checked":""}><div><b>${tr("reviewFacebook")}</b><div class="hint">${tr("reviewFacebookHelp")}</div><div class="review-actions"><button class="btn" type="button" id="reviewFacebookBtn">${tr("reviewFacebookBtn")}</button></div></div></label>
+      </div>` : "";
     const mapsLabel = state.lang === "en"
       ? `Google Maps delivery address <span class="maps-fee-highlight">check delivery fee before deciding</span>`
       : `GOOGLE MAPS ที่อยู่จัดส่ง <span class="maps-fee-highlight">เช็คค่าจัดส่งก่อนตัดสินใจ</span>`;
@@ -1431,8 +1450,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     byId("optionRows").innerHTML = `
       ${renderBoardGameBundle()}
       <label class="option-row"><input type="checkbox" id="retOpt" ${state.calc.ret?"checked":""} ${state.retEnabled?"":"disabled"}><div><b>${tr("returning")}</b><div class="hint">${returningHelp}</div></div></label>
-      <label class="option-row"><input type="checkbox" id="noContractOpt" ${state.calc.noContract?"checked":""}><div><b>${tr("noContract")}${state.calc.noContract && selectedConsole ? depositBadge(noContractDeposit(selectedConsole.deposit), "danger") : ""}</b><div class="hint">${tr("noContractHelp")}</div></div></label>
-      ${state.calc.noContract ? "" : `<div class="card" id="contractCard" style="margin:12px 0 0"><h3>${tr("contract")}${selectedConsole ? depositBadge(selectedConsole.deposit, "ok") : ""}</h3><p class="hint">${tr("contractHelp")}</p><button class="btn soft" id="contractBtn" type="button">${tr("contract")}</button><p class="hint" id="contractCodeHint">${state.calc.rentalCode ? `${tr("rentalCode")}: ${esc(state.calc.rentalCode)}` : ""}</p></div>`}
+      ${returningReviewHtml}
+      ${state.calc.ret ? "" : `<label class="option-row"><input type="checkbox" id="noContractOpt" ${state.calc.noContract?"checked":""}><div><b>${tr("noContract")}${state.calc.noContract && selectedConsole ? depositBadge(noContractDeposit(selectedConsole.deposit), "danger") : ""}</b><div class="hint">${tr("noContractHelp")}</div></div></label>`}
+      ${state.calc.noContract || state.calc.ret ? "" : `<div class="card" id="contractCard" style="margin:12px 0 0"><h3>${tr("contract")}${selectedConsole ? depositBadge(selectedConsole.deposit, "ok") : ""}</h3><p class="hint">${tr("contractHelp")}</p><button class="btn soft" id="contractBtn" type="button">${tr("contract")}</button><p class="hint" id="contractCodeHint">${state.calc.rentalCode ? `${tr("rentalCode")}: ${esc(state.calc.rentalCode)}` : ""}</p></div>`}
       ${paymentHtml ? `<div style="margin-top:12px">${paymentHtml}</div>` : ""}
       <div class="grid2" style="margin-top:12px">
         <div class="field"><label class="label">${mapsLabel}</label><input class="input" id="mapsInput" value="${esc(state.calc.maps)}" placeholder="https://maps.google.com/..."><div class="hint">${tr("mapsInputHelp")}</div></div>
@@ -1547,6 +1567,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ...(state.calc.games?.length ? [{label:state.lang==="en"?"Games":"เกม", value:numberedSummaryList(state.calc.games.map(g => g.name || g.title || g.id)), html:true}] : []),
       ...(state.calc.later ? [{label:state.lang==="en"?"Game list":"รายชื่อเกม", value:tr("sendLater")}] : []),
       ...(summary.retDisc ? [{label:tr("returningDiscount"), value:`-${money(summary.retDisc)}`, cls:"discount"}] : []),
+      ...(summary.reviewGoogleDisc ? [{label:tr("reviewGoogleDiscount"), value:`-${money(summary.reviewGoogleDisc)}`, cls:"discount"}] : []),
+      ...(summary.reviewFacebookDisc ? [{label:tr("reviewFacebookDiscount"), value:`-${money(summary.reviewFacebookDisc)}`, cls:"discount"}] : []),
       ...(summary.promoDisc ? [{label:tr("consoleDiscount"), value:`-${money(summary.promoDisc)}`, cls:"discount"}] : []),
       ...(summary.bgDisc ? [{label:tr("boardGameDiscount"), value:`-${money(summary.bgDisc)}`, cls:"discount"}] : []),
       {label:`${tr("deposit")} ${cName(c)}`, value:depositValue(summary.consoleDeposit), html:true},
@@ -1593,9 +1615,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const bgDisc = promoDiscount("bg", bgSubtotal, bgItems.length);
     const bgDepositTotal = bgItems.reduce((sum,g) => sum + bgDeposit(g), 0);
     const retDisc = state.calc.ret && state.retEnabled ? Math.round((rental + addons) * 0.1) : 0;
+    const reviewGoogleDisc = state.calc.ret && state.calc.reviewGoogle ? 100 : 0;
+    const reviewFacebookDisc = state.calc.ret && state.calc.reviewFacebook ? 100 : 0;
     const promoDisc = promoDiscount("console", rental + addons);
     const finalDeposit = state.calc.noContract ? noContractDeposit(deposit) : deposit;
-    const subtotalAfterDiscount = Math.max(0, rental + addons - retDisc - promoDisc) + Math.max(0, bgSubtotal - bgDisc);
+    const consoleDiscounts = retDisc + reviewGoogleDisc + reviewFacebookDisc + promoDisc;
+    const subtotalAfterDiscount = Math.max(0, rental + addons - consoleDiscounts) + Math.max(0, bgSubtotal - bgDisc);
     const depositTotal = finalDeposit + bgDepositTotal;
     const total = subtotalAfterDiscount + depositTotal;
     // Payment split (payment option is shown only in EN). Cash requires a
@@ -1606,7 +1631,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(state.calc.payment === "cash"){ upfront = Math.min(1000, total); onDelivery = Math.max(0, total - upfront); }
       else if(state.calc.payment === "wise"){ upfront = total; onDelivery = 0; }
     }
-    return {days,rental,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,promoDisc,discounts:retDisc+promoDisc+bgDisc,deposit:depositTotal,total,upfront,onDelivery,bundleName,extras,bgItems};
+    return {days,rental,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,reviewGoogleDisc,reviewFacebookDisc,promoDisc,discounts:retDisc+reviewGoogleDisc+reviewFacebookDisc+promoDisc+bgDisc,deposit:depositTotal,total,upfront,onDelivery,bundleName,extras,bgItems};
   }
   const MONTHLY_RATE = {500:8500, 400:6500, 350:5000, 300:4000};
   function monthlyRate(daily){ return MONTHLY_RATE[Number(daily) || 0] || 0; }
@@ -1930,6 +1955,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       state.calc.later ? "later" : "",
       state.calc.noContract ? "nocon" : "",
       state.calc.ret ? "ret" : "",
+      state.calc.reviewGoogle ? "reviewGoogle" : "",
+      state.calc.reviewFacebook ? "reviewFacebook" : "",
       Math.round(Number(summary.total)||0)
     ].join("|");
   }
@@ -2075,6 +2102,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(s.addons) costs.push({label: en ? "Accessories" : "อุปกรณ์เสริม", value: money(s.addons)});
     if(s.bgSubtotal) costs.push({label: en ? "Board game rental" : "ค่าเช่าบอร์ดเกม", value: money(s.bgSubtotal)});
     if(s.retDisc) costs.push({label: en ? "Returning customer 10% discount" : "ส่วนลดลูกค้าเก่า 10%", value:`-${money(s.retDisc)}`, discount:true});
+    if(s.reviewGoogleDisc) costs.push({label: en ? "Google Maps review discount" : "ส่วนลดรีวิว Google Maps", value:`-${money(s.reviewGoogleDisc)}`, discount:true});
+    if(s.reviewFacebookDisc) costs.push({label: en ? "Facebook review discount" : "ส่วนลดรีวิว Facebook", value:`-${money(s.reviewFacebookDisc)}`, discount:true});
     if(s.promoDisc) costs.push({label: en ? "Console discount" : "ส่วนลดเครื่องเกม", value:`-${money(s.promoDisc)}`, discount:true});
     if(s.bgDisc) costs.push({label: en ? "Board game discount" : "ส่วนลดบอร์ดเกม", value:`-${money(s.bgDisc)}`, discount:true});
     costs.push({label: en ? `${cName(c)} deposit` : `ค่าประกัน ${cName(c)}`, value: money(s.deposit)});
@@ -2179,6 +2208,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       s.addons ? `  - อุปกรณ์เสริม: ${money(s.addons)}` : "",
       s.bgSubtotal ? `  - ค่าเช่าบอร์ดเกม: ${money(s.bgSubtotal)}` : "",
       s.retDisc ? `  - ส่วนลดลูกค้าเก่า 10%: -${money(s.retDisc)}` : "",
+      s.reviewGoogleDisc ? `  - ส่วนลดรีวิว Google Maps: -${money(s.reviewGoogleDisc)}` : "",
+      s.reviewFacebookDisc ? `  - ส่วนลดรีวิว Facebook: -${money(s.reviewFacebookDisc)}` : "",
       s.promoDisc ? `  - ส่วนลดเครื่องเกม: -${money(s.promoDisc)}` : "",
       s.bgDisc ? `  - ส่วนลดบอร์ดเกม: -${money(s.bgDisc)}` : "",
       `  - ค่าประกัน ${cName(c)}: ${money(s.deposit)}${noContractSuffixTh}`
@@ -2189,6 +2220,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       s.addons ? `  - Accessories: ${money(s.addons)}` : "",
       s.bgSubtotal ? `  - Board game rental: ${money(s.bgSubtotal)}` : "",
       s.retDisc ? `  - Returning customer 10% discount: -${money(s.retDisc)}` : "",
+      s.reviewGoogleDisc ? `  - Google Maps review discount: -${money(s.reviewGoogleDisc)}` : "",
+      s.reviewFacebookDisc ? `  - Facebook review discount: -${money(s.reviewFacebookDisc)}` : "",
       s.promoDisc ? `  - Console discount: -${money(s.promoDisc)}` : "",
       s.bgDisc ? `  - Board game discount: -${money(s.bgDisc)}` : "",
       `  - ${cName(c)} deposit: ${money(s.deposit)}${noContractSuffixEn}`
@@ -2765,8 +2798,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(step === 2){
       if(!state.calc.boardgames.length && !guideDone("bg")) return "bg";
       if(!state.calc.ret && !guideDone("ret")) return "ret";
-      if(!guideDone("contractChoice")) return "contractChoice";
-      if(!state.calc.noContract && !guideDone("contractLink")) return "contractLink";
+      if(!state.calc.ret && !guideDone("contractChoice")) return "contractChoice";
+      if(!state.calc.ret && !state.calc.noContract && !guideDone("contractLink")) return "contractLink";
       if(guideStageAvailable("payment") && !guideDone("payment")) return "payment";
       if(!state.calc.maps && !guideDone("maps")) return "maps";
       return "next2";
@@ -2781,7 +2814,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(!c) return false;
     if(stage === "accessory") return extrasForConsole(c).length > 0;
     if(stage === "ps5bundle") return Number(c.id) === SPEC.PS5;
-    if(stage === "contractLink") return !state.calc.noContract;
+    if(stage === "contractLink") return !state.calc.noContract && !state.calc.ret;
     if(stage === "payment") return state.lang === "en";
     return true;
   }
@@ -2930,7 +2963,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(action === "ret-yes"){
       markGuideDone("ret");
       state.calc.ret = true;
-      setGuideStage("contractChoice");
+      state.calc.noContract = false;
+      markGuideDone("contractChoice");
+      markGuideDone("contractLink");
+      setGuideStage(guideStageAvailable("payment") && !guideDone("payment") ? "payment" : "maps");
       saveLocal();
       render();
       return;
@@ -2938,6 +2974,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(action === "ret-no"){
       markGuideDone("ret");
       state.calc.ret = false;
+      state.calc.reviewGoogle = false;
+      state.calc.reviewFacebook = false;
       setGuideStage("contractChoice");
       saveLocal();
       render();
@@ -3377,7 +3415,20 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         }
         advanceGuide("accessory");
       }
-      if(event.target.id === "retOpt"){ state.calc.ret = event.target.checked; advanceGuide("ret"); }
+      if(event.target.id === "retOpt"){
+        state.calc.ret = event.target.checked;
+        if(state.calc.ret){
+          state.calc.noContract = false;
+          markGuideDone("contractChoice");
+          markGuideDone("contractLink");
+        }else{
+          state.calc.reviewGoogle = false;
+          state.calc.reviewFacebook = false;
+        }
+        advanceGuide("ret");
+      }
+      if(event.target.id === "reviewGoogleOpt"){ state.calc.reviewGoogle = event.target.checked && state.calc.ret; saveLocal(); render(); }
+      if(event.target.id === "reviewFacebookOpt"){ state.calc.reviewFacebook = event.target.checked && state.calc.ret; saveLocal(); render(); }
       if(event.target.id === "noContractOpt"){
         state.calc.noContract = event.target.checked;
         markGuideDone("contractChoice");
@@ -3410,6 +3461,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(event.target.id === "copyBooking"){ copyBooking(); setGuideStage("share"); renderGuide(); }
       if(event.target.id === "sendLine"){ sendLine(); setGuideStage("share"); renderGuide(); }
       if(event.target.id === "sendWa") sendWhatsApp();
+      if(event.target.id === "reviewGoogleBtn"){ event.preventDefault(); event.stopPropagation(); open("https://maps.app.goo.gl/QoGqkWe64QRxBGjT6", "_blank"); }
+      if(event.target.id === "reviewFacebookBtn"){ event.preventDefault(); event.stopPropagation(); open("https://www.facebook.com/ajgamerental/reviews", "_blank"); }
       if(event.target.id === "lineConnectBtn") connectLine();
       if(event.target.id === "lineHistoryBtn") showLineHistory();
       if(event.target.id === "mapsOpen") open("https://www.google.com/maps", "_blank");
