@@ -2345,6 +2345,39 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     ];
     return (state.lang === "en" ? linesEn : linesTh).filter(line => line !== undefined && line !== null && line !== false).join("\n");
   }
+  function shouldAttachLineGamePickerCard(){
+    const c = consoleById(state.calc.consoleId);
+    if(!c || c.showGameButton === false) return false;
+    const platformId = c.gamePlatform || guessPlatform(c);
+    if(!platformId) return false;
+    const skipsContract = state.calc.noContract || (state.calc.ret && state.retEnabled);
+    if(!skipsContract) return false;
+    return state.calc.later || !(state.calc.games || []).length;
+  }
+  function lineGamePickerCardUrl(rentalCode=""){
+    const c = consoleById(state.calc.consoleId);
+    if(!c) return "";
+    const platformId = c.gamePlatform || guessPlatform(c);
+    if(!platformId) return "";
+    const url = new URL(CONFIG.gamePage, location.href);
+    url.searchParams.set("embed", "picker");
+    url.searchParams.set("source", "contractCard");
+    url.searchParams.set("lang", state.lang);
+    url.searchParams.set("platformId", platformId);
+    url.searchParams.set("rentalCode", rentalCode || state.calc.rentalCode || "");
+    url.searchParams.set("v", CONFIG.gamePickerVersion);
+    return url.toString();
+  }
+  function bookingMessageForLine(rentalCode=""){
+    const msg = bookingMessage(rentalCode);
+    if(!shouldAttachLineGamePickerCard()) return msg;
+    const pickerUrl = lineGamePickerCardUrl(rentalCode);
+    if(!pickerUrl) return msg;
+    const lines = state.lang === "en"
+      ? ["", "🎮 Choose your 10 games", "Tap the link below to select games and send the list back to AJ.", pickerUrl]
+      : ["", "🎮 เลือก 10 เกมที่ต้องการ", "กดลิงก์ด้านล่างเพื่อเลือกเกม แล้วส่งรายการกลับมาที่ AJ", pickerUrl];
+    return [msg, ...lines].join("\n");
+  }
   async function writeBookingClipboard(msg){
     if(!msg) return;
     try{ await navigator.clipboard.writeText(msg); toast(tr("copied")); }
@@ -2433,7 +2466,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     try{
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
-      const msg = bookingMessage(code);
+      const msg = bookingMessageForLine(code);
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "line");
       location.href = `${CONFIG.lineOaMessageUrl}?${encodeURIComponent(msg)}`;
