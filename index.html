@@ -154,6 +154,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-unavailable{color:#666;text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:#111;text-decoration-skip-ink:auto;white-space:nowrap}
 .sum-empty{color:var(--text3);font-size:14px;padding:20px 0}
 .summary-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.summary-actions .brand-icon{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:6px;background:rgba(255,255,255,.22);color:#fff;font-size:12px;font-weight:900;line-height:1;font-family:Arial,system-ui,sans-serif;flex:0 0 auto}
+.btn.line-share{background:#06c755;border-color:#06c755;color:#fff}
+.btn.line-share:hover{background:#05b84f;border-color:#05b84f;color:#fff}
+.btn.wa-share{background:#25d366;border-color:#25d366;color:#fff}
+.btn.wa-share:hover{background:#1ebe5d;border-color:#1ebe5d;color:#fff}
+.btn.fb-share{background:#1877f2;border-color:#1877f2;color:#fff}
+.btn.fb-share:hover{background:#0f66d8;border-color:#0f66d8;color:#fff}
 .summary-list{display:block;text-align:right;line-height:1.55;white-space:normal}
 .summary-list span{display:block}
 .summary-device{display:inline-flex;align-items:center;justify-content:flex-end;gap:8px}
@@ -653,7 +660,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     rentalSheetGid: "1105203002",
     rentalSheetWebApp: "https://script.google.com/macros/s/AKfycbyDvxt10gsT-GN24xmmGpa1y0cUbfDiWSc4yxfqv-AFoK32sjmpiRJPdQmo6PnU3uZh/exec",
     lineUrl: "https://line.me/R/ti/p/@ajgame",
+    lineOaMessageUrl: "https://line.me/R/oaMessage/@ajgame/",
     whatsappPhone: "66816244715",
+    facebookMessengerUrl: "https://m.me/ajgamerental",
     lineLiffId: "2010212481-16RHJsnX"
   };
 
@@ -762,13 +771,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       boardGameBundle:"Bundle บอร์ดเกม", chooseBoardGame:"-- เลือกบอร์ดเกม --", addBoardGame:"เพิ่มบอร์ดเกม", boardGames:"บอร์ดเกม", selectedDates:"วันที่เลือก", confirmRange:"ตกลง", selectReturnDate:"เลือกวันคืนเครื่อง", remove:"ลบ",
       boardGameBundleHelp:"เพิ่มบอร์ดเกมเข้าชุดเช่า — ราคาเรท 3 วัน + เพิ่มตามจำนวนวันตามแพ็กของแต่ละเกม", boardGameImageHint:"💡 คลิกที่รูปเพื่อดูรายละเอียดของบอร์ดเกมนั้นๆ", viewDetails:"ดูรายละเอียด",
       calTitle:"📅 ปฏิทินเช็คคิวเครื่อง", calStartSub:"เลือกแล้ว", calEndSub:"เลือกแล้ว", calAvailable:"ว่าง", calUnavailable:"ไม่ว่าง", calPartial:"เช่าได้สั้นกว่า", calDisabled:"ผ่านมาแล้ว / เลือกไม่ได้", calMinDisabled:"เลือกไม่ได้ ขั้นต่ำ 3 วัน", calStartDay:"เริ่มเช่า", calRangeDay:"ช่วงเช่า", calEndDay:"คืนเครื่อง",
-      guideTitle:"ขั้นตอนถัดไป", guideConsole:"เลือกเครื่องเกม", guideStart:"เลือกวันที่เริ่มเช่า", guideEnd:"เลือกวันคืนเครื่อง", guideAccessory:"เลือกอุปกรณ์เสริม ถ้าไม่ต้องการให้ข้ามได้เลย", guidePs5Bundle:"เลือก Bundle ของ PS5 ถ้าต้องการ", guideNextStep:"กดไปขั้นตอนถัดไป", guideBg:"เลือก Bundle บอร์ดเกม ถ้าต้องการเพิ่ม", guideRet:"เคยเช่ากับทางร้านไหม?", guideContractChoice:"ต้องการทำสัญญาการเช่าหรือไม่?", guideContractLink:"กดลิงก์ทำสัญญาการเช่า หรือเลือกทำทีหลัง", guidePayment:"เลือกช่องทางชำระเงิน", guideMaps:"วางลิงก์ Google Maps สำหรับเช็คค่าจัดส่ง", guideGames:"เลือกเกมจากรายการ หรือเลือกแจ้งภายหลัง", guideShare:"เช็ครายละเอียดการเช่าทางด้านบน และส่งข้อความให้ร้าน สะดวกช่องทางไหนคลิกเลย", guideCopy:"คัดลอกข้อความจองเช่า", guideLine:"ส่งข้อความทาง Line", guideWa:"Send via WhatsApp",
+      guideTitle:"ขั้นตอนถัดไป", guideConsole:"เลือกเครื่องเกม", guideStart:"เลือกวันที่เริ่มเช่า", guideEnd:"เลือกวันคืนเครื่อง", guideAccessory:"เลือกอุปกรณ์เสริม ถ้าไม่ต้องการให้ข้ามได้เลย", guidePs5Bundle:"เลือก Bundle ของ PS5 ถ้าต้องการ", guideNextStep:"กดไปขั้นตอนถัดไป", guideBg:"เลือก Bundle บอร์ดเกม ถ้าต้องการเพิ่ม", guideRet:"เคยเช่ากับทางร้านไหม?", guideContractChoice:"ต้องการทำสัญญาการเช่าหรือไม่?", guideContractLink:"กดลิงก์ทำสัญญาการเช่า หรือเลือกทำทีหลัง", guidePayment:"เลือกช่องทางชำระเงิน", guideMaps:"วางลิงก์ Google Maps สำหรับเช็คค่าจัดส่ง", guideGames:"เลือกเกมจากรายการ หรือเลือกแจ้งภายหลัง", guideShare:"เช็ครายละเอียดการเช่าทางด้านบน และส่งข้อความให้ร้าน สะดวกช่องทางไหนคลิกเลย", guideCopy:"คัดลอกข้อความจองเช่า", guideLine:"ส่งข้อความทาง Line", guideWa:"ส่งทาง WhatsApp", guideMessenger:"ส่งทาง Messenger",
       guideDoContract:"ทำสัญญา", guideNoContract:"ไม่ทำสัญญา", guideLater:"ทำทีหลัง", guideSkip:"ข้าม", guideGameLater:"เลือกทีหลัง", guideNext:"ต่อไป", guideRetYes:"เคย", guideRetNo:"ไม่เคย",
       pickGames:"เลือก / แก้ไขรายชื่อเกม", sendLater:"แจ้งรายชื่อเกมภายหลัง", clearGames:"ล้างรายชื่อเกม", noGameList:"รุ่นนี้ไม่มีรายการเกมให้เลือกในระบบ",
       summaryTitle:"สรุปค่าเช่า", summaryEmpty:"เลือกเครื่องและวันที่เพื่อดูสรุป", rental:"ค่าเช่า", discount:"ส่วนลด", promo:"โปรโมชัน", total:"ยอดรวม", grandTotal:"ยอดรวมทั้งหมด", upfront:"โอนล่วงหน้า", upfrontConfirm:"โอนล่วงหน้า (ยืนยันการจอง)", onDelivery:"จ่ายตอนของถึง", payOnDelivery:"จ่ายตอนของถึง", delivery:"ค่าส่งแจ้งทางแชท",
       returningDiscount:"ส่วนลดลูกค้าเก่า 10%", consoleDiscount:"ส่วนลดเครื่องเกม", boardGameDiscount:"ส่วนลดบอร์ดเกม", boardGameDeposit:"ค่าประกันบอร์ดเกม", rentalDays:"จำนวนวันเช่า", boardGameRental:"ค่าเช่าบอร์ดเกม", boardGameList:"รายการบอร์ดเกม",
       equipmentDetails:"รายละเอียดอุปกรณ์", players:"จำนวนผู้เล่น", playTime:"เวลาเล่น", age:"อายุแนะนำ", packageRental:"ค่าเช่าตามแพ็ก", oneDay:"1 วัน", threeDays:"3 วัน", sevenDays:"7 วัน", howToPlay:"วิธีเล่นคร่าว ๆ", noContractDepositNote:"ค่าประกัน (ไม่ทำสัญญา)", noContractLabel:"ไม่ทำสัญญา", standardTier:"เรทมาตรฐาน", planning:"วางแผน",
-      copy:"📋 Copy ข้อความจองเช่า", line:"💬 ส่งข้อความทาง Line", whatsapp:"🟢 Send via WhatsApp", copied:"คัดลอกแล้ว", minDays:"ขั้นต่ำ 3 วัน", busy:"เครื่องอาจไม่ว่างในช่วงนี้", available:"ช่วงนี้ผ่านการเช็คคิวแล้ว", checking:"กำลังเช็คคิว...", queueError:"ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่",
+      copy:"📋 Copy ข้อความจองเช่า", line:"ส่งข้อความทาง LINE", whatsapp:"ส่งทาง WhatsApp", messenger:"ส่งทาง Messenger", copied:"คัดลอกแล้ว", minDays:"ขั้นต่ำ 3 วัน", busy:"เครื่องอาจไม่ว่างในช่วงนี้", available:"ช่วงนี้ผ่านการเช็คคิวแล้ว", checking:"กำลังเช็คคิว...", queueError:"ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่",
       shareConfirmTitle:"ยืนยันส่งข้อความจอง", shareConfirmMessage:"คุณกำลังจะส่งข้อความจองเช่าผ่าน {channel}", shareConfirmNote:"เพื่อป้องกันการส่งซ้ำ ระบบจะกันการกดซ้ำชั่วคราวหลังยืนยันส่ง", shareConfirmContractNote:"ลูกค้าใหม่ควรทำสัญญาการเช่าก่อนส่งข้อความจอง เพื่อให้ข้อมูลไม่หลุดและลดการส่งซ้ำ", shareConfirmSend:"ยืนยันส่งข้อความจอง", shareContractFirst:"ทำสัญญาก่อน", shareCancel:"ยกเลิก", shareCooldown:"ส่งข้อความไปแล้ว กรุณารอสักครู่ก่อนกดซ้ำ",
       faqTitle:"คำถามที่พบบ่อย", faqExpand:"ดูคำถามทั้งหมด", faqCollapse:"ย่อคำถาม", adminLogin:"เข้าสู่ระบบ Admin", adminUser:"ผู้ใช้", adminPassword:"รหัสผ่าน", adminSubmit:"เข้าสู่ระบบ", wrongPassword:"ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", rentalCode:"รหัสการเช่า", save:"บันทึก", add:"เพิ่ม", edit:"แก้ไข", delete:"ลบ", sync:"Sync", pull:"Pull", push:"Push"
     },
@@ -794,13 +803,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       boardGameBundle:"Board Game Bundle", chooseBoardGame:"-- Choose board game --", addBoardGame:"Add board game", boardGames:"Board games", selectedDates:"Selected dates", confirmRange:"Confirm", selectReturnDate:"Choose return date", remove:"Remove",
       boardGameBundleHelp:"Add board games to this rental set — 3-day package rate, then extend by each game's package rules.", boardGameImageHint:"💡 Click the image to view board game details.", viewDetails:"View details",
       calTitle:"📅 Queue Calendar", calStartSub:"Selected", calEndSub:"Selected", calAvailable:"Available", calUnavailable:"Unavailable", calPartial:"Shorter rental only", calDisabled:"Past / unavailable", calMinDisabled:"Unavailable, minimum 3 days", calStartDay:"Start", calRangeDay:"Rental period", calEndDay:"Return",
-      guideTitle:"Next step", guideConsole:"Choose console", guideStart:"Choose start date", guideEnd:"Choose return date", guideAccessory:"Choose accessories if needed, or skip.", guidePs5Bundle:"Choose a PS5 bundle if needed.", guideNextStep:"Go to the next step.", guideBg:"Add a board game bundle if needed.", guideRet:"Have you rented with us before?", guideContractChoice:"Would you like to complete the rental contract?", guideContractLink:"Open the rental agreement link, or do it later.", guidePayment:"Choose payment option.", guideMaps:"Paste your Google Maps link for delivery check.", guideGames:"Pick games from the catalog, or send later.", guideShare:"Check the rental details above, then message the shop using whichever channel is convenient.", guideCopy:"Copy booking message", guideLine:"Send via Line", guideWa:"Send via WhatsApp",
+      guideTitle:"Next step", guideConsole:"Choose console", guideStart:"Choose start date", guideEnd:"Choose return date", guideAccessory:"Choose accessories if needed, or skip.", guidePs5Bundle:"Choose a PS5 bundle if needed.", guideNextStep:"Go to the next step.", guideBg:"Add a board game bundle if needed.", guideRet:"Have you rented with us before?", guideContractChoice:"Would you like to complete the rental contract?", guideContractLink:"Open the rental agreement link, or do it later.", guidePayment:"Choose payment option.", guideMaps:"Paste your Google Maps link for delivery check.", guideGames:"Pick games from the catalog, or send later.", guideShare:"Check the rental details above, then message the shop using whichever channel is convenient.", guideCopy:"Copy booking message", guideLine:"Send via LINE", guideWa:"Send via WhatsApp", guideMessenger:"Send via Messenger",
       guideDoContract:"Do contract", guideNoContract:"No contract", guideLater:"Later", guideSkip:"Skip", guideGameLater:"Choose later", guideNext:"Next", guideRetYes:"Yes", guideRetNo:"No",
       pickGames:"Choose / Edit games", sendLater:"Send game list later", clearGames:"Clear games", noGameList:"This model has no game catalog in the system.",
       summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Grand total", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat",
       returningDiscount:"Returning customer 10% discount", consoleDiscount:"Console discount", boardGameDiscount:"Board game discount", boardGameDeposit:"Board game deposit", rentalDays:"Rental days", boardGameRental:"Board game rental", boardGameList:"Board game list",
       equipmentDetails:"Equipment details", players:"Players", playTime:"Play time", age:"Recommended age", packageRental:"Package rental", oneDay:"1 day", threeDays:"3 days", sevenDays:"7 days", howToPlay:"Quick how to play", noContractDepositNote:"Deposit (no contract)", noContractLabel:"No contract", standardTier:"Standard tier", planning:"Planning",
-      copy:"📋 Copy booking message", line:"💬 Send via Line", whatsapp:"🟢 Send via WhatsApp", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", queueError:"Unable to check the queue. Please try again.",
+      copy:"📋 Copy booking message", line:"Send via LINE", whatsapp:"Send via WhatsApp", messenger:"Send via Messenger", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", queueError:"Unable to check the queue. Please try again.",
       shareConfirmTitle:"Confirm booking message", shareConfirmMessage:"You are about to send this booking message via {channel}.", shareConfirmNote:"To prevent duplicate messages, the buttons will be briefly locked after confirmation.", shareConfirmContractNote:"First-time customers should complete the rental contract before sending the booking message, so the details do not get missed or duplicated.", shareConfirmSend:"Confirm and send", shareContractFirst:"Do contract first", shareCancel:"Cancel", shareCooldown:"Message already sent. Please wait a moment before trying again.",
       faqTitle:"Frequently Asked Questions", faqExpand:"Show all questions", faqCollapse:"Collapse questions", adminLogin:"Admin Login", adminUser:"User", adminPassword:"Password", adminSubmit:"Login", wrongPassword:"Wrong username or password", rentalCode:"Rental code", save:"Save", add:"Add", edit:"Edit", delete:"Delete", sync:"Sync", pull:"Pull", push:"Push"
     }
@@ -1557,6 +1566,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(state.lang === "en" && state.calc.payment === "cash") return "Pay cash on delivery";
     return tr("payOnDelivery");
   }
+  function brandButtonIcon(label){
+    return `<span class="brand-icon">${label}</span>`;
+  }
   function renderSummary(){
     const c = consoleById(state.calc.consoleId);
     const host = byId("summaryBox");
@@ -1605,7 +1617,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       <div class="sum-row grand"><span>${tr("grandTotal")}</span><b>${money(summary.total)}</b></div>
       ${summary.upfront > 0 ? `<div class="sum-row ${summary.onDelivery > 0 ? "pay" : "delivery-pay"}"><span>${upfrontLabelHtml()}</span><b>${money(summary.upfront)}</b></div>` : ""}
       ${summary.onDelivery > 0 ? `<div class="sum-row delivery-pay"><span>${esc(payOnDeliveryLabel())}</span><b>${money(summary.onDelivery)}</b></div>` : ""}
-      <div class="summary-actions"><button class="btn primary" id="copyBooking" type="button" ${canSend?"":"disabled"}>${tr("copy")}</button><button class="btn ok" id="sendLine" type="button" ${canSend?"":"disabled"}>${tr("line")}</button>${state.lang==="en"?`<button class="btn" id="sendWa" type="button" ${canSend?"":"disabled"}>${tr("whatsapp")}</button>`:""}</div>`;
+      <div class="summary-actions">
+        <button class="btn primary" id="copyBooking" type="button" ${canSend?"":"disabled"}>${tr("copy")}</button>
+        <button class="btn line-share" id="sendLine" type="button" ${canSend?"":"disabled"}>${brandButtonIcon("LINE")}${tr("line")}</button>
+        <button class="btn wa-share" id="sendWa" type="button" ${canSend?"":"disabled"}>${brandButtonIcon("WA")}${tr("whatsapp")}</button>
+        <button class="btn fb-share" id="sendMessenger" type="button" ${canSend?"":"disabled"}>${brandButtonIcon("f")}${tr("messenger")}</button>
+      </div>`;
   }
   function renderLineCardHost(){
     const host = byId("calcLineCardHost");
@@ -2333,6 +2350,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function shareChannelLabel(channel){
     if(channel === "line") return "LINE";
     if(channel === "whatsapp") return "WhatsApp";
+    if(channel === "messenger") return "Messenger";
     return state.lang === "en" ? "Copy" : "Copy";
   }
   function closeShareConfirmModal(result=false){
@@ -2385,7 +2403,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const msg = bookingMessage(code);
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "line");
-      location.href = "https://line.me/R/msg/text/?" + encodeURIComponent(msg);
+      location.href = `${CONFIG.lineOaMessageUrl}?${encodeURIComponent(msg)}`;
       return true;
     }catch(error){
       toast(state.lang === "en" ? "Cannot check rental code from Google Sheet." : "เช็กรหัสการเช่าจาก Google Sheet ไม่ได้");
@@ -2407,6 +2425,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     url.searchParams.set("text", unicodeSafeText(message));
     return url.toString();
   }
+  function messengerShareUrl(){
+    return CONFIG.facebookMessengerUrl;
+  }
   async function sendWhatsApp(skipGuard=false){
     if(!skipGuard) return guardedBookingShare("whatsapp", () => sendWhatsApp(true));
     try{
@@ -2416,6 +2437,21 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "whatsapp");
       window.open(whatsappShareUrl(msg), "_blank", "noopener,noreferrer");
+      return true;
+    }catch(error){
+      toast(state.lang === "en" ? "Cannot check rental code from Google Sheet." : "เช็กรหัสการเช่าจาก Google Sheet ไม่ได้");
+      return false;
+    }
+  }
+  async function sendMessenger(skipGuard=false){
+    if(!skipGuard) return guardedBookingShare("messenger", () => sendMessenger(true));
+    try{
+      const summary = calcSummary();
+      const code = await ensureRentalCode(summary);
+      const msg = unicodeSafeText(bookingMessage(code));
+      await writeBookingClipboard(msg);
+      submitRentalToSheet(summary, code, "messenger");
+      window.open(messengerShareUrl(), "_blank", "noopener,noreferrer");
       return true;
     }catch(error){
       toast(state.lang === "en" ? "Cannot check rental code from Google Sheet." : "เช็กรหัสการเช่าจาก Google Sheet ไม่ได้");
@@ -3510,9 +3546,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(event.target.id === "mapsInput"){ state.calc.maps = event.target.value.trim(); if(state.calc.maps.length > 8){ markGuideDone("maps"); setGuideStage("next2"); } saveLocal(); renderGuide(); }
     });
     document.addEventListener("click", async event => {
-      if(event.target.id === "startDate") openCalendar("start");
-      if(event.target.id === "endDate") openCalendar("end");
-      if(event.target.id === "bgAdd"){
+      const clickedButton = event.target.closest("button");
+      const targetId = clickedButton?.id || event.target.id;
+      if(targetId === "startDate") openCalendar("start");
+      if(targetId === "endDate") openCalendar("end");
+      if(targetId === "bgAdd"){
         const id = byId("bgSelect")?.value;
         if(id) state.calc.boardgames = Array.from(new Set([...state.calc.boardgames, id]));
         state.calc.bgOpen = true;
@@ -3521,34 +3559,35 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         saveLocal();
         render();
       }
-      if(event.target.id === "contractBtn"){ openContract(); markGuideDone("contractLink"); setGuideStage(guideStageAvailable("payment") && !guideDone("payment") ? "payment" : "maps"); saveLocal(); renderGuide(); }
-      if(event.target.id === "openGamePicker") openGamePicker();
-      if(event.target.id === "clearGames"){ state.calc.games = []; state.calc.later = false; saveLocal(); render(); }
-      if(event.target.id === "copyBooking"){ if(await copyBooking()){ setGuideStage("share"); renderGuide(); } }
-      if(event.target.id === "sendLine"){ if(await sendLine()){ setGuideStage("share"); renderGuide(); } }
-      if(event.target.id === "sendWa"){ if(await sendWhatsApp()){ setGuideStage("share"); renderGuide(); } }
-      if(event.target.id === "shareConfirmSend") closeShareConfirmModal(true);
-      if(event.target.id === "shareConfirmCancel" || event.target.id === "shareConfirmClose") closeShareConfirmModal(false);
-      if(event.target.id === "shareContractFirst"){ closeShareConfirmModal(false); openContract(); }
-      if(event.target.id === "reviewGoogleBtn"){ event.preventDefault(); event.stopPropagation(); open("https://maps.app.goo.gl/QoGqkWe64QRxBGjT6", "_blank"); }
-      if(event.target.id === "reviewFacebookBtn"){ event.preventDefault(); event.stopPropagation(); open("https://www.facebook.com/ajgamerental/reviews", "_blank"); }
-      if(event.target.id === "lineConnectBtn") connectLine();
-      if(event.target.id === "lineHistoryBtn") showLineHistory();
-      if(event.target.id === "mapsOpen") open("https://www.google.com/maps", "_blank");
-      if(event.target.id === "mapsHelp") showMapsHelp();
-      if(event.target.id === "faqExpandBtn"){ state.faqExpanded = !state.faqExpanded; renderFAQ(); }
-      if(event.target.id === "addConsole") addConsoleFromAdmin();
-      if(event.target.id === "saveHome") saveHomeFromAdmin();
-      if(event.target.id === "addFaq"){ state.faq.push({qTh:"",aTh:"",qEn:"",aEn:""}); saveAndRenderAdmin("FAQ added"); }
-      if(event.target.id === "saveFaq") saveFaqFromAdmin();
-      if(event.target.id === "saveSettings") saveSettings();
-      if(event.target.id === "addBundle"){ state.bundles.push({id:`bundle_${Date.now()}`,th:"Bundle ใหม่",en:"New Bundle",rate:600,weekly:4000,deposit:4000,readyDate:""}); saveAndRenderAdmin("Bundle added"); }
-      if(event.target.id === "addAcc"){ state.accessories.push({id:`acc_${Date.now()}`,th:"อุปกรณ์ใหม่",en:"New Accessory",daily:100,weekly:500,consoleIds:[]}); saveAndRenderAdmin("Accessory added"); }
-      if(event.target.id === "saveAddons") saveAddons();
-      if(event.target.id === "saveGist"){ localStorage.setItem(LS.gistId, byId("gistId").value.trim()); localStorage.setItem(LS.gistToken, byId("gistToken").value.trim()); toast("Gist config saved"); renderAdmin(); }
-      if(event.target.id === "pullGist"){ try{ byId("syncStatus").textContent = "Pulling..."; applyRemoteData(await gistFetch()); renderAdmin(); toast("Pull success"); }catch(e){ byId("syncStatus").textContent = e.message; } }
-      if(event.target.id === "pushGist"){ try{ byId("syncStatus").textContent = "Pushing..."; await gistPush(false); renderAdmin(); toast("Push success"); }catch(e){ byId("syncStatus").textContent = e.message; } }
-      if(event.target.id === "createGist"){ try{ byId("syncStatus").textContent = "Creating..."; await gistPush(true); renderAdmin(); toast("Gist created"); }catch(e){ byId("syncStatus").textContent = e.message; } }
+      if(targetId === "contractBtn"){ openContract(); markGuideDone("contractLink"); setGuideStage(guideStageAvailable("payment") && !guideDone("payment") ? "payment" : "maps"); saveLocal(); renderGuide(); }
+      if(targetId === "openGamePicker") openGamePicker();
+      if(targetId === "clearGames"){ state.calc.games = []; state.calc.later = false; saveLocal(); render(); }
+      if(targetId === "copyBooking"){ if(await copyBooking()){ setGuideStage("share"); renderGuide(); } }
+      if(targetId === "sendLine"){ if(await sendLine()){ setGuideStage("share"); renderGuide(); } }
+      if(targetId === "sendWa"){ if(await sendWhatsApp()){ setGuideStage("share"); renderGuide(); } }
+      if(targetId === "sendMessenger"){ if(await sendMessenger()){ setGuideStage("share"); renderGuide(); } }
+      if(targetId === "shareConfirmSend") closeShareConfirmModal(true);
+      if(targetId === "shareConfirmCancel" || targetId === "shareConfirmClose") closeShareConfirmModal(false);
+      if(targetId === "shareContractFirst"){ closeShareConfirmModal(false); openContract(); }
+      if(targetId === "reviewGoogleBtn"){ event.preventDefault(); event.stopPropagation(); open("https://maps.app.goo.gl/QoGqkWe64QRxBGjT6", "_blank"); }
+      if(targetId === "reviewFacebookBtn"){ event.preventDefault(); event.stopPropagation(); open("https://www.facebook.com/ajgamerental/reviews", "_blank"); }
+      if(targetId === "lineConnectBtn") connectLine();
+      if(targetId === "lineHistoryBtn") showLineHistory();
+      if(targetId === "mapsOpen") open("https://www.google.com/maps", "_blank");
+      if(targetId === "mapsHelp") showMapsHelp();
+      if(targetId === "faqExpandBtn"){ state.faqExpanded = !state.faqExpanded; renderFAQ(); }
+      if(targetId === "addConsole") addConsoleFromAdmin();
+      if(targetId === "saveHome") saveHomeFromAdmin();
+      if(targetId === "addFaq"){ state.faq.push({qTh:"",aTh:"",qEn:"",aEn:""}); saveAndRenderAdmin("FAQ added"); }
+      if(targetId === "saveFaq") saveFaqFromAdmin();
+      if(targetId === "saveSettings") saveSettings();
+      if(targetId === "addBundle"){ state.bundles.push({id:`bundle_${Date.now()}`,th:"Bundle ใหม่",en:"New Bundle",rate:600,weekly:4000,deposit:4000,readyDate:""}); saveAndRenderAdmin("Bundle added"); }
+      if(targetId === "addAcc"){ state.accessories.push({id:`acc_${Date.now()}`,th:"อุปกรณ์ใหม่",en:"New Accessory",daily:100,weekly:500,consoleIds:[]}); saveAndRenderAdmin("Accessory added"); }
+      if(targetId === "saveAddons") saveAddons();
+      if(targetId === "saveGist"){ localStorage.setItem(LS.gistId, byId("gistId").value.trim()); localStorage.setItem(LS.gistToken, byId("gistToken").value.trim()); toast("Gist config saved"); renderAdmin(); }
+      if(targetId === "pullGist"){ try{ byId("syncStatus").textContent = "Pulling..."; applyRemoteData(await gistFetch()); renderAdmin(); toast("Pull success"); }catch(e){ byId("syncStatus").textContent = e.message; } }
+      if(targetId === "pushGist"){ try{ byId("syncStatus").textContent = "Pushing..."; await gistPush(false); renderAdmin(); toast("Push success"); }catch(e){ byId("syncStatus").textContent = e.message; } }
+      if(targetId === "createGist"){ try{ byId("syncStatus").textContent = "Creating..."; await gistPush(true); renderAdmin(); toast("Gist created"); }catch(e){ byId("syncStatus").textContent = e.message; } }
     });
   }
 
