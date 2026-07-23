@@ -666,7 +666,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     lineUrl: "https://line.me/R/ti/p/@ajgame",
     lineOaMessageUrl: "https://line.me/R/oaMessage/@ajgame/",
     whatsappPhone: "66816244715",
-    facebookMessengerUser: "ajgamerental",
+    facebookMessengerUser: "100064849841171",
     facebookMessengerUrl: "https://m.me/ajgamerental",
     lineLiffId: "2010212481-16RHJsnX"
   };
@@ -908,6 +908,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   let rentalCodePreviewBusy = false;
   let shareConfirmResolve = null;
   let shareCooldownUntil = 0;
+  const SHARE_UNLOCK_KEY = "aj_booking_share_unlock_until";
+  const SHARE_RETURN_KEY = "aj_booking_share_return_pending";
   const CONSOLE_SLUGS = {
     "ps5":"PS5", "ps5-pro":"PS5 Pro", "ps4":"PS4", "switch2":"Nintendo Switch 2",
     "switch1":"Nintendo Switch 1", "meta-quest3":"Meta Quest 3", "meta-quest3s":"Meta Quest 3s",
@@ -1582,7 +1584,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       return;
     }
     const summary = calcSummary();
-    const canSend = Boolean(state.calc.start && state.calc.end && summary.days >= 3 && evaluateAvailability().pass);
+    const canSend = shareReturnUnlocked() || Boolean(state.calc.start && state.calc.end && summary.days >= 3 && evaluateAvailability().pass);
     const depositValue = amount => state.calc.noContract
       ? `${money(amount)} <span class="no-contract-note">(${esc(tr("noContractLabel"))})</span>`
       : money(amount);
@@ -2363,6 +2365,20 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     shareConfirmResolve = null;
     if(resolve) resolve(result);
   }
+  function shareReturnUnlocked(){
+    return sessionStorage.getItem(SHARE_RETURN_KEY) === "1" || Number(sessionStorage.getItem(SHARE_UNLOCK_KEY) || 0) > Date.now();
+  }
+  function unlockShareButtons(ms=180000){
+    sessionStorage.setItem(SHARE_UNLOCK_KEY, String(Date.now() + ms));
+    sessionStorage.setItem(SHARE_RETURN_KEY, "1");
+  }
+  function clearShareButtonDisabled(){
+    if(!shareReturnUnlocked()) return;
+    ["sendLine","sendWa","sendMessenger"].forEach(id => {
+      const btn = byId(id);
+      if(btn) btn.disabled = false;
+    });
+  }
   function confirmBookingShare(channel){
     if(Date.now() < shareCooldownUntil){
       toast(tr("shareCooldown"));
@@ -2386,6 +2402,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   async function guardedBookingShare(channel, action){
     if(!(await confirmBookingShare(channel))) return false;
     shareCooldownUntil = Date.now() + 12000;
+    unlockShareButtons();
     try{
       await action();
       return true;
@@ -3792,10 +3809,21 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
 
   function resetShareUi(){
+    const shouldUnlock = shareReturnUnlocked();
     shareCooldownUntil = 0;
+    if(shouldUnlock) sessionStorage.setItem(SHARE_UNLOCK_KEY, String(Date.now() + 60000));
     closeShareConfirmModal(false);
     renderSummary();
+    clearShareButtonDisabled();
     renderGuide();
+    if(shouldUnlock){
+      window.setTimeout(() => {
+        sessionStorage.removeItem(SHARE_RETURN_KEY);
+        sessionStorage.removeItem(SHARE_UNLOCK_KEY);
+        renderSummary();
+        renderGuide();
+      }, 60000);
+    }
   }
 
   // Shop-facing viewer: index2.html?viewMsg=<rentalCode> shows the stored booking
