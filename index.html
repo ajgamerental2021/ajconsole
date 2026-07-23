@@ -239,6 +239,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .share-confirm-note{border:1px solid #ffe0a6;background:#fff8e8;color:#7b4a00;border-radius:12px;padding:12px;font-size:13px;font-weight:800;line-height:1.55}
 .share-confirm-actions{display:flex;gap:8px;flex-wrap:wrap}
 .share-confirm-actions .btn{flex:1;min-height:44px}
+#shareConfirmModal{align-items:center;justify-content:center;padding:18px}
+#shareConfirmModal .share-confirm-card{height:auto;max-height:calc(100vh - 36px);max-height:calc(100dvh - 36px);border-radius:20px}
 .xbtn{border:0;background:#fff;color:var(--text3);font-size:28px;line-height:1}
 .calendar-modal .modal-card{display:flex;flex-direction:column;overflow:hidden}
 .calendar-body{padding:18px;overflow:auto}
@@ -415,6 +417,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .modal-overlay,.picker-overlay,.admin-overlay{padding:0}
   .calendar-modal{padding:8px;align-items:stretch}
   .modal-card,.picker-card,.admin-modal{width:100%;height:100%;max-height:none;border-radius:0}
+  #shareConfirmModal{padding:18px;align-items:center;justify-content:center}
+  #shareConfirmModal .share-confirm-card{width:min(460px,100%);height:auto;max-height:calc(100vh - 36px);max-height:calc(100dvh - 36px);border-radius:20px}
   .game-picker-head{grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;padding:10px 12px}
   .game-picker-head #gamePickerTitle{font-size:15px;white-space:nowrap}
   .game-picker-actions{gap:6px}
@@ -662,6 +666,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     lineUrl: "https://line.me/R/ti/p/@ajgame",
     lineOaMessageUrl: "https://line.me/R/oaMessage/@ajgame/",
     whatsappPhone: "66816244715",
+    facebookMessengerUser: "ajgamerental",
     facebookMessengerUrl: "https://m.me/ajgamerental",
     lineLiffId: "2010212481-16RHJsnX"
   };
@@ -760,7 +765,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       step1:"เลือกเครื่อง/วันที่", step2:"ตัวเลือกเพิ่มเติม", step3:"เลือกเกม", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"ตัวเลือกเพิ่มเติม", step3Title:"เลือกเกม", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"ขั้นตอนการเช่า", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
       nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
       deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
-      gamePickHelp:"ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้", gamePickerTitle:"เลือกเกม", gameStorageWarning:"⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ", summaryHelp:"ตรวจสอบข้อมูล แล้วคัดลอกหรือส่งทาง Line / WhatsApp",
+      gamePickHelp:"ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้", gamePickerTitle:"เลือกเกม", gameStorageWarning:"⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ", summaryHelp:"ตรวจสอบข้อมูล แล้วกดจองผ่านช่องทางที่สะดวก",
       personalRateWarning:"⚠️ ราคาเช่าเป็นเรทบุคคล ไม่สามารถออกใบกำกับภาษี/ใบเสร็จได้ หากต้องการเอกสาร กรุณาติดต่อ Line: <b>@ajgame</b> หรือ โทร. <b>081-624-4715</b> 🙏",
       daily:"รายวัน", weekly:"รายสัปดาห์", day:"วัน", wk:"สัปดาห์", deposit:"ค่าประกัน", ready:"พร้อม", notReady:"ยังไม่พร้อม", readyOn:"พร้อมวันที่",
       bundle:"Bundle", accessories:"อุปกรณ์เสริม", noBundle:"ไม่เพิ่ม Bundle", noAccessory:"ไม่เพิ่มอุปกรณ์เสริม", contract:"ทำสัญญาการเช่า", contractHelp:"แนะนำสำหรับผู้เช่าครั้งแรก กรอกก่อนนัดส่งเครื่อง",
@@ -771,13 +776,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       boardGameBundle:"Bundle บอร์ดเกม", chooseBoardGame:"-- เลือกบอร์ดเกม --", addBoardGame:"เพิ่มบอร์ดเกม", boardGames:"บอร์ดเกม", selectedDates:"วันที่เลือก", confirmRange:"ตกลง", selectReturnDate:"เลือกวันคืนเครื่อง", remove:"ลบ",
       boardGameBundleHelp:"เพิ่มบอร์ดเกมเข้าชุดเช่า — ราคาเรท 3 วัน + เพิ่มตามจำนวนวันตามแพ็กของแต่ละเกม", boardGameImageHint:"💡 คลิกที่รูปเพื่อดูรายละเอียดของบอร์ดเกมนั้นๆ", viewDetails:"ดูรายละเอียด",
       calTitle:"📅 ปฏิทินเช็คคิวเครื่อง", calStartSub:"เลือกแล้ว", calEndSub:"เลือกแล้ว", calAvailable:"ว่าง", calUnavailable:"ไม่ว่าง", calPartial:"เช่าได้สั้นกว่า", calDisabled:"ผ่านมาแล้ว / เลือกไม่ได้", calMinDisabled:"เลือกไม่ได้ ขั้นต่ำ 3 วัน", calStartDay:"เริ่มเช่า", calRangeDay:"ช่วงเช่า", calEndDay:"คืนเครื่อง",
-      guideTitle:"ขั้นตอนถัดไป", guideConsole:"เลือกเครื่องเกม", guideStart:"เลือกวันที่เริ่มเช่า", guideEnd:"เลือกวันคืนเครื่อง", guideAccessory:"เลือกอุปกรณ์เสริม ถ้าไม่ต้องการให้ข้ามได้เลย", guidePs5Bundle:"เลือก Bundle ของ PS5 ถ้าต้องการ", guideNextStep:"กดไปขั้นตอนถัดไป", guideBg:"เลือก Bundle บอร์ดเกม ถ้าต้องการเพิ่ม", guideRet:"เคยเช่ากับทางร้านไหม?", guideContractChoice:"ต้องการทำสัญญาการเช่าหรือไม่?", guideContractLink:"กดลิงก์ทำสัญญาการเช่า หรือเลือกทำทีหลัง", guidePayment:"เลือกช่องทางชำระเงิน", guideMaps:"วางลิงก์ Google Maps สำหรับเช็คค่าจัดส่ง", guideGames:"เลือกเกมจากรายการ หรือเลือกแจ้งภายหลัง", guideShare:"เช็ครายละเอียดการเช่าทางด้านบน และส่งข้อความให้ร้าน สะดวกช่องทางไหนคลิกเลย", guideCopy:"คัดลอกข้อความจองเช่า", guideLine:"ส่งข้อความทาง Line", guideWa:"ส่งทาง WhatsApp", guideMessenger:"ส่งทาง Messenger",
+      guideTitle:"ขั้นตอนถัดไป", guideConsole:"เลือกเครื่องเกม", guideStart:"เลือกวันที่เริ่มเช่า", guideEnd:"เลือกวันคืนเครื่อง", guideAccessory:"เลือกอุปกรณ์เสริม ถ้าไม่ต้องการให้ข้ามได้เลย", guidePs5Bundle:"เลือก Bundle ของ PS5 ถ้าต้องการ", guideNextStep:"กดไปขั้นตอนถัดไป", guideBg:"เลือก Bundle บอร์ดเกม ถ้าต้องการเพิ่ม", guideRet:"เคยเช่ากับทางร้านไหม?", guideContractChoice:"ต้องการทำสัญญาการเช่าหรือไม่?", guideContractLink:"กดลิงก์ทำสัญญาการเช่า หรือเลือกทำทีหลัง", guidePayment:"เลือกช่องทางชำระเงิน", guideMaps:"วางลิงก์ Google Maps สำหรับเช็คค่าจัดส่ง", guideGames:"เลือกเกมจากรายการ หรือเลือกแจ้งภายหลัง", guideShare:"เช็ครายละเอียดการเช่าทางด้านบน แล้วกดจองผ่านช่องทางที่สะดวก", guideCopy:"คัดลอกข้อความจองเช่า", guideLine:"จองผ่าน Line", guideWa:"จองผ่าน WhatsApp", guideMessenger:"จองผ่าน Messenger",
       guideDoContract:"ทำสัญญา", guideNoContract:"ไม่ทำสัญญา", guideLater:"ทำทีหลัง", guideSkip:"ข้าม", guideGameLater:"เลือกทีหลัง", guideNext:"ต่อไป", guideRetYes:"เคย", guideRetNo:"ไม่เคย",
       pickGames:"เลือก / แก้ไขรายชื่อเกม", sendLater:"แจ้งรายชื่อเกมภายหลัง", clearGames:"ล้างรายชื่อเกม", noGameList:"รุ่นนี้ไม่มีรายการเกมให้เลือกในระบบ",
       summaryTitle:"สรุปค่าเช่า", summaryEmpty:"เลือกเครื่องและวันที่เพื่อดูสรุป", rental:"ค่าเช่า", discount:"ส่วนลด", promo:"โปรโมชัน", total:"ยอดรวม", grandTotal:"ยอดรวมทั้งหมด", upfront:"โอนล่วงหน้า", upfrontConfirm:"โอนล่วงหน้า (ยืนยันการจอง)", onDelivery:"จ่ายตอนของถึง", payOnDelivery:"จ่ายตอนของถึง", delivery:"ค่าส่งแจ้งทางแชท",
       returningDiscount:"ส่วนลดลูกค้าเก่า 10%", consoleDiscount:"ส่วนลดเครื่องเกม", boardGameDiscount:"ส่วนลดบอร์ดเกม", boardGameDeposit:"ค่าประกันบอร์ดเกม", rentalDays:"จำนวนวันเช่า", boardGameRental:"ค่าเช่าบอร์ดเกม", boardGameList:"รายการบอร์ดเกม",
       equipmentDetails:"รายละเอียดอุปกรณ์", players:"จำนวนผู้เล่น", playTime:"เวลาเล่น", age:"อายุแนะนำ", packageRental:"ค่าเช่าตามแพ็ก", oneDay:"1 วัน", threeDays:"3 วัน", sevenDays:"7 วัน", howToPlay:"วิธีเล่นคร่าว ๆ", noContractDepositNote:"ค่าประกัน (ไม่ทำสัญญา)", noContractLabel:"ไม่ทำสัญญา", standardTier:"เรทมาตรฐาน", planning:"วางแผน",
-      copy:"📋 Copy ข้อความจองเช่า", line:"ส่งข้อความทาง LINE", whatsapp:"ส่งทาง WhatsApp", messenger:"ส่งทาง Messenger", copied:"คัดลอกแล้ว", minDays:"ขั้นต่ำ 3 วัน", busy:"เครื่องอาจไม่ว่างในช่วงนี้", available:"ช่วงนี้ผ่านการเช็คคิวแล้ว", checking:"กำลังเช็คคิว...", queueError:"ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่",
+      copy:"📋 Copy ข้อความจองเช่า", line:"จองผ่าน Line", whatsapp:"จองผ่าน WhatsApp", messenger:"จองผ่าน Messenger", copied:"คัดลอกแล้ว", minDays:"ขั้นต่ำ 3 วัน", busy:"เครื่องอาจไม่ว่างในช่วงนี้", available:"ช่วงนี้ผ่านการเช็คคิวแล้ว", checking:"กำลังเช็คคิว...", queueError:"ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่",
       shareConfirmTitle:"ยืนยันส่งข้อความจอง", shareConfirmMessage:"คุณกำลังจะส่งข้อความจองเช่าผ่าน {channel}", shareConfirmNote:"เพื่อป้องกันการส่งซ้ำ ระบบจะกันการกดซ้ำชั่วคราวหลังยืนยันส่ง", shareConfirmContractNote:"ลูกค้าใหม่ควรทำสัญญาการเช่าก่อนส่งข้อความจอง เพื่อให้ข้อมูลไม่หลุดและลดการส่งซ้ำ", shareConfirmMessengerNote:"ระบบจะคัดลอกข้อความจองให้ก่อน แล้วเปิด Facebook Messenger ของ AJ ให้ กรุณากดวางข้อความในช่องแชทและกดส่ง", shareConfirmSend:"ยืนยันส่งข้อความจอง", shareContractFirst:"ทำสัญญาก่อน", shareCancel:"ยกเลิก", shareCooldown:"ส่งข้อความไปแล้ว กรุณารอสักครู่ก่อนกดซ้ำ",
       faqTitle:"คำถามที่พบบ่อย", faqExpand:"ดูคำถามทั้งหมด", faqCollapse:"ย่อคำถาม", adminLogin:"เข้าสู่ระบบ Admin", adminUser:"ผู้ใช้", adminPassword:"รหัสผ่าน", adminSubmit:"เข้าสู่ระบบ", wrongPassword:"ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", rentalCode:"รหัสการเช่า", save:"บันทึก", add:"เพิ่ม", edit:"แก้ไข", delete:"ลบ", sync:"Sync", pull:"Pull", push:"Push"
     },
@@ -792,7 +797,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       step1:"Device / Dates", step2:"Additional options", step3:"Games", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Additional options", step3Title:"Choose games", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"Rental steps", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
       nextStep:"Next step", backStep:"Back",
       deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", startDate:"Start date", endDate:"Return date",
-      gamePickHelp:"Choose up to 10 games when this model has a catalog, or send the list later.", gamePickerTitle:"Select Games", gameStorageWarning:"⚠️ Limited device storage. Some games may not all fit.", summaryHelp:"Review the details, then copy or send via Line / WhatsApp.",
+      gamePickHelp:"Choose up to 10 games when this model has a catalog, or send the list later.", gamePickerTitle:"Select Games", gameStorageWarning:"⚠️ Limited device storage. Some games may not all fit.", summaryHelp:"Review the details, then book through your preferred channel.",
       personalRateWarning:"⚠️ Individual rental rates only. Tax invoice / receipt is not available. For documents, contact Line: <b>@ajgame</b> or call <b>081-624-4715</b> 🙏",
       daily:"Daily", weekly:"Weekly", day:"day", wk:"week", deposit:"Deposit", ready:"Ready", notReady:"Not ready", readyOn:"Ready on",
       bundle:"Bundle", accessories:"Accessories", noBundle:"No bundle", noAccessory:"No extra accessory", contract:"Rental contract", contractHelp:"Recommended for first-time renters. Complete it before delivery.",
@@ -803,13 +808,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       boardGameBundle:"Board Game Bundle", chooseBoardGame:"-- Choose board game --", addBoardGame:"Add board game", boardGames:"Board games", selectedDates:"Selected dates", confirmRange:"Confirm", selectReturnDate:"Choose return date", remove:"Remove",
       boardGameBundleHelp:"Add board games to this rental set — 3-day package rate, then extend by each game's package rules.", boardGameImageHint:"💡 Click the image to view board game details.", viewDetails:"View details",
       calTitle:"📅 Queue Calendar", calStartSub:"Selected", calEndSub:"Selected", calAvailable:"Available", calUnavailable:"Unavailable", calPartial:"Shorter rental only", calDisabled:"Past / unavailable", calMinDisabled:"Unavailable, minimum 3 days", calStartDay:"Start", calRangeDay:"Rental period", calEndDay:"Return",
-      guideTitle:"Next step", guideConsole:"Choose console", guideStart:"Choose start date", guideEnd:"Choose return date", guideAccessory:"Choose accessories if needed, or skip.", guidePs5Bundle:"Choose a PS5 bundle if needed.", guideNextStep:"Go to the next step.", guideBg:"Add a board game bundle if needed.", guideRet:"Have you rented with us before?", guideContractChoice:"Would you like to complete the rental contract?", guideContractLink:"Open the rental agreement link, or do it later.", guidePayment:"Choose payment option.", guideMaps:"Paste your Google Maps link for delivery check.", guideGames:"Pick games from the catalog, or send later.", guideShare:"Check the rental details above, then message the shop using whichever channel is convenient.", guideCopy:"Copy booking message", guideLine:"Send via LINE", guideWa:"Send via WhatsApp", guideMessenger:"Send via Messenger",
+      guideTitle:"Next step", guideConsole:"Choose console", guideStart:"Choose start date", guideEnd:"Choose return date", guideAccessory:"Choose accessories if needed, or skip.", guidePs5Bundle:"Choose a PS5 bundle if needed.", guideNextStep:"Go to the next step.", guideBg:"Add a board game bundle if needed.", guideRet:"Have you rented with us before?", guideContractChoice:"Would you like to complete the rental contract?", guideContractLink:"Open the rental agreement link, or do it later.", guidePayment:"Choose payment option.", guideMaps:"Paste your Google Maps link for delivery check.", guideGames:"Pick games from the catalog, or send later.", guideShare:"Check the rental details above, then book through your preferred channel.", guideCopy:"Copy booking message", guideLine:"Book via LINE", guideWa:"Book via WhatsApp", guideMessenger:"Book via Messenger",
       guideDoContract:"Do contract", guideNoContract:"No contract", guideLater:"Later", guideSkip:"Skip", guideGameLater:"Choose later", guideNext:"Next", guideRetYes:"Yes", guideRetNo:"No",
       pickGames:"Choose / Edit games", sendLater:"Send game list later", clearGames:"Clear games", noGameList:"This model has no game catalog in the system.",
       summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Grand total", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat",
       returningDiscount:"Returning customer 10% discount", consoleDiscount:"Console discount", boardGameDiscount:"Board game discount", boardGameDeposit:"Board game deposit", rentalDays:"Rental days", boardGameRental:"Board game rental", boardGameList:"Board game list",
       equipmentDetails:"Equipment details", players:"Players", playTime:"Play time", age:"Recommended age", packageRental:"Package rental", oneDay:"1 day", threeDays:"3 days", sevenDays:"7 days", howToPlay:"Quick how to play", noContractDepositNote:"Deposit (no contract)", noContractLabel:"No contract", standardTier:"Standard tier", planning:"Planning",
-      copy:"📋 Copy booking message", line:"Send via LINE", whatsapp:"Send via WhatsApp", messenger:"Send via Messenger", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", queueError:"Unable to check the queue. Please try again.",
+      copy:"📋 Copy booking message", line:"Book via LINE", whatsapp:"Book via WhatsApp", messenger:"Book via Messenger", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", queueError:"Unable to check the queue. Please try again.",
       shareConfirmTitle:"Confirm booking message", shareConfirmMessage:"You are about to send this booking message via {channel}.", shareConfirmNote:"To prevent duplicate messages, the buttons will be briefly locked after confirmation.", shareConfirmContractNote:"First-time customers should complete the rental contract before sending the booking message, so the details do not get missed or duplicated.", shareConfirmMessengerNote:"The booking message will be copied first, then AJ's Facebook Messenger chat will open. Please paste the message into the chat and send it.", shareConfirmSend:"Confirm and send", shareContractFirst:"Do contract first", shareCancel:"Cancel", shareCooldown:"Message already sent. Please wait a moment before trying again.",
       faqTitle:"Frequently Asked Questions", faqExpand:"Show all questions", faqCollapse:"Collapse questions", adminLogin:"Admin Login", adminUser:"User", adminPassword:"Password", adminSubmit:"Login", wrongPassword:"Wrong username or password", rentalCode:"Rental code", save:"Save", add:"Add", edit:"Edit", delete:"Delete", sync:"Sync", pull:"Pull", push:"Push"
     }
@@ -1618,7 +1623,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ${summary.upfront > 0 ? `<div class="sum-row ${summary.onDelivery > 0 ? "pay" : "delivery-pay"}"><span>${upfrontLabelHtml()}</span><b>${money(summary.upfront)}</b></div>` : ""}
       ${summary.onDelivery > 0 ? `<div class="sum-row delivery-pay"><span>${esc(payOnDeliveryLabel())}</span><b>${money(summary.onDelivery)}</b></div>` : ""}
       <div class="summary-actions">
-        <button class="btn primary" id="copyBooking" type="button" ${canSend?"":"disabled"}>${tr("copy")}</button>
         <button class="btn line-share" id="sendLine" type="button" ${canSend?"":"disabled"}>${brandButtonIcon("LINE")}${tr("line")}</button>
         ${state.lang === "en" ? `<button class="btn wa-share" id="sendWa" type="button" ${canSend?"":"disabled"}>${brandButtonIcon("WA")}${tr("whatsapp")}</button>` : ""}
         <button class="btn fb-share" id="sendMessenger" type="button" ${canSend?"":"disabled"}>${brandButtonIcon("f")}${tr("messenger")}</button>
@@ -2382,8 +2386,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   async function guardedBookingShare(channel, action){
     if(!(await confirmBookingShare(channel))) return false;
     shareCooldownUntil = Date.now() + 12000;
-    await action();
-    return true;
+    try{
+      await action();
+      return true;
+    }finally{
+      window.setTimeout(() => {
+        shareCooldownUntil = 0;
+        renderSummary();
+        renderGuide();
+      }, 1200);
+    }
   }
   async function copyBooking(skipGuard=false){
     if(!skipGuard) return guardedBookingShare("copy", () => copyBooking(true));
@@ -2432,6 +2444,24 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function messengerShareUrl(){
     return CONFIG.facebookMessengerUrl;
   }
+  function messengerDeepLink(){
+    const user = encodeURIComponent(CONFIG.facebookMessengerUser || "ajgamerental");
+    return /Android/i.test(navigator.userAgent || "")
+      ? `intent://user-thread/${user}#Intent;scheme=fb-messenger;package=com.facebook.orca;S.browser_fallback_url=${encodeURIComponent(messengerShareUrl())};end`
+      : `fb-messenger://user-thread/${user}`;
+  }
+  function openMessengerChat(){
+    const fallback = messengerShareUrl();
+    const deepLink = messengerDeepLink();
+    if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "")){
+      location.href = deepLink;
+      window.setTimeout(() => {
+        if(document.visibilityState === "visible") location.href = fallback;
+      }, 900);
+      return;
+    }
+    window.open(fallback, "_blank", "noopener,noreferrer");
+  }
   async function sendWhatsApp(skipGuard=false){
     if(!skipGuard) return guardedBookingShare("whatsapp", () => sendWhatsApp(true));
     try{
@@ -2455,7 +2485,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const msg = unicodeSafeText(bookingMessage(code));
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "messenger");
-      window.open(messengerShareUrl(), "_blank", "noopener,noreferrer");
+      openMessengerChat();
       return true;
     }catch(error){
       toast(state.lang === "en" ? "Cannot check rental code from Google Sheet." : "เช็กรหัสการเช่าจาก Google Sheet ไม่ได้");
@@ -3566,10 +3596,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(targetId === "contractBtn"){ openContract(); markGuideDone("contractLink"); setGuideStage(guideStageAvailable("payment") && !guideDone("payment") ? "payment" : "maps"); saveLocal(); renderGuide(); }
       if(targetId === "openGamePicker") openGamePicker();
       if(targetId === "clearGames"){ state.calc.games = []; state.calc.later = false; saveLocal(); render(); }
-      if(targetId === "copyBooking"){ if(await copyBooking()){ setGuideStage("share"); renderGuide(); } }
-      if(targetId === "sendLine"){ if(await sendLine()){ setGuideStage("share"); renderGuide(); } }
-      if(targetId === "sendWa"){ if(await sendWhatsApp()){ setGuideStage("share"); renderGuide(); } }
-      if(targetId === "sendMessenger"){ if(await sendMessenger()){ setGuideStage("share"); renderGuide(); } }
+      if(targetId === "sendLine"){ if(await sendLine()){ renderSummary(); renderGuide(); } }
+      if(targetId === "sendWa"){ if(await sendWhatsApp()){ renderSummary(); renderGuide(); } }
+      if(targetId === "sendMessenger"){ if(await sendMessenger()){ renderSummary(); renderGuide(); } }
       if(targetId === "shareConfirmSend") closeShareConfirmModal(true);
       if(targetId === "shareConfirmCancel" || targetId === "shareConfirmClose") closeShareConfirmModal(false);
       if(targetId === "shareContractFirst"){ closeShareConfirmModal(false); openContract(); }
@@ -3762,6 +3791,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return text;
   }
 
+  function resetShareUi(){
+    shareCooldownUntil = 0;
+    closeShareConfirmModal(false);
+    renderSummary();
+    renderGuide();
+  }
+
   // Shop-facing viewer: index2.html?viewMsg=<rentalCode> shows the stored booking
   // message with a Copy button, in the exact language the customer used.
   function renderBookingViewer(code){
@@ -3824,6 +3860,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     fetchAvailability().catch(() => {});
     gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {});
     syncBoardGameCatalog().catch(() => {});
+    window.addEventListener("pageshow", resetShareUi);
+    document.addEventListener("visibilitychange", () => {
+      if(document.visibilityState === "visible") resetShareUi();
+    });
   }
   boot();
 })();
