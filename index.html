@@ -227,6 +227,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .modal-head h3{font-size:18px}
 .modal-title-copy{min-width:0}
 .modal-title-copy p{font-size:12px;color:var(--text2);margin-top:1px}
+.share-confirm-card{width:min(460px,100%)}
+.share-confirm-body{display:flex;flex-direction:column;gap:12px}
+.share-confirm-note{border:1px solid #ffe0a6;background:#fff8e8;color:#7b4a00;border-radius:12px;padding:12px;font-size:13px;font-weight:800;line-height:1.55}
+.share-confirm-actions{display:flex;gap:8px;flex-wrap:wrap}
+.share-confirm-actions .btn{flex:1;min-height:44px}
 .xbtn{border:0;background:#fff;color:var(--text3);font-size:28px;line-height:1}
 .calendar-modal .modal-card{display:flex;flex-direction:column;overflow:hidden}
 .calendar-body{padding:18px;overflow:auto}
@@ -574,6 +579,21 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   </div>
 </div>
 
+<div class="modal-overlay" id="shareConfirmModal">
+  <div class="modal-card share-confirm-card">
+    <div class="modal-head"><h3 id="shareConfirmTitle"></h3><button class="xbtn" id="shareConfirmClose" type="button">&times;</button></div>
+    <div class="calendar-body share-confirm-body">
+      <p id="shareConfirmMessage"></p>
+      <div class="share-confirm-note" id="shareConfirmNote"></div>
+      <div class="share-confirm-actions">
+        <button class="btn soft" id="shareContractFirst" type="button"></button>
+        <button class="btn primary" id="shareConfirmSend" type="button"></button>
+        <button class="btn" id="shareConfirmCancel" type="button"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="stepsModal">
   <div class="modal-card">
     <div class="modal-head"><h3 id="stepsTitle">ขั้นตอนการเช่า</h3><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="stepsLangBtn" type="button"></button><button class="xbtn" id="stepsClose" type="button">&times;</button></div></div>
@@ -749,6 +769,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       returningDiscount:"ส่วนลดลูกค้าเก่า 10%", consoleDiscount:"ส่วนลดเครื่องเกม", boardGameDiscount:"ส่วนลดบอร์ดเกม", boardGameDeposit:"ค่าประกันบอร์ดเกม", rentalDays:"จำนวนวันเช่า", boardGameRental:"ค่าเช่าบอร์ดเกม", boardGameList:"รายการบอร์ดเกม",
       equipmentDetails:"รายละเอียดอุปกรณ์", players:"จำนวนผู้เล่น", playTime:"เวลาเล่น", age:"อายุแนะนำ", packageRental:"ค่าเช่าตามแพ็ก", oneDay:"1 วัน", threeDays:"3 วัน", sevenDays:"7 วัน", howToPlay:"วิธีเล่นคร่าว ๆ", noContractDepositNote:"ค่าประกัน (ไม่ทำสัญญา)", noContractLabel:"ไม่ทำสัญญา", standardTier:"เรทมาตรฐาน", planning:"วางแผน",
       copy:"📋 Copy ข้อความจองเช่า", line:"💬 ส่งข้อความทาง Line", whatsapp:"🟢 Send via WhatsApp", copied:"คัดลอกแล้ว", minDays:"ขั้นต่ำ 3 วัน", busy:"เครื่องอาจไม่ว่างในช่วงนี้", available:"ช่วงนี้ผ่านการเช็คคิวแล้ว", checking:"กำลังเช็คคิว...", queueError:"ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่",
+      shareConfirmTitle:"ยืนยันส่งข้อความจอง", shareConfirmMessage:"คุณกำลังจะส่งข้อความจองเช่าผ่าน {channel}", shareConfirmNote:"เพื่อป้องกันการส่งซ้ำ ระบบจะกันการกดซ้ำชั่วคราวหลังยืนยันส่ง", shareConfirmContractNote:"ลูกค้าใหม่ควรทำสัญญาการเช่าก่อนส่งข้อความจอง เพื่อให้ข้อมูลไม่หลุดและลดการส่งซ้ำ", shareConfirmSend:"ยืนยันส่งข้อความจอง", shareContractFirst:"ทำสัญญาก่อน", shareCancel:"ยกเลิก", shareCooldown:"ส่งข้อความไปแล้ว กรุณารอสักครู่ก่อนกดซ้ำ",
       faqTitle:"คำถามที่พบบ่อย", faqExpand:"ดูคำถามทั้งหมด", faqCollapse:"ย่อคำถาม", adminLogin:"เข้าสู่ระบบ Admin", adminUser:"ผู้ใช้", adminPassword:"รหัสผ่าน", adminSubmit:"เข้าสู่ระบบ", wrongPassword:"ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", rentalCode:"รหัสการเช่า", save:"บันทึก", add:"เพิ่ม", edit:"แก้ไข", delete:"ลบ", sync:"Sync", pull:"Pull", push:"Push"
     },
     en:{
@@ -780,6 +801,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       returningDiscount:"Returning customer 10% discount", consoleDiscount:"Console discount", boardGameDiscount:"Board game discount", boardGameDeposit:"Board game deposit", rentalDays:"Rental days", boardGameRental:"Board game rental", boardGameList:"Board game list",
       equipmentDetails:"Equipment details", players:"Players", playTime:"Play time", age:"Recommended age", packageRental:"Package rental", oneDay:"1 day", threeDays:"3 days", sevenDays:"7 days", howToPlay:"Quick how to play", noContractDepositNote:"Deposit (no contract)", noContractLabel:"No contract", standardTier:"Standard tier", planning:"Planning",
       copy:"📋 Copy booking message", line:"💬 Send via Line", whatsapp:"🟢 Send via WhatsApp", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", queueError:"Unable to check the queue. Please try again.",
+      shareConfirmTitle:"Confirm booking message", shareConfirmMessage:"You are about to send this booking message via {channel}.", shareConfirmNote:"To prevent duplicate messages, the buttons will be briefly locked after confirmation.", shareConfirmContractNote:"First-time customers should complete the rental contract before sending the booking message, so the details do not get missed or duplicated.", shareConfirmSend:"Confirm and send", shareContractFirst:"Do contract first", shareCancel:"Cancel", shareCooldown:"Message already sent. Please wait a moment before trying again.",
       faqTitle:"Frequently Asked Questions", faqExpand:"Show all questions", faqCollapse:"Collapse questions", adminLogin:"Admin Login", adminUser:"User", adminPassword:"Password", adminSubmit:"Login", wrongPassword:"Wrong username or password", rentalCode:"Rental code", save:"Save", add:"Add", edit:"Edit", delete:"Delete", sync:"Sync", pull:"Pull", push:"Push"
     }
   };
@@ -870,6 +892,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   let guideLastScrollStage = "";
   let rentalCodePreviewTimer = 0;
   let rentalCodePreviewBusy = false;
+  let shareConfirmResolve = null;
+  let shareCooldownUntil = 0;
   const CONSOLE_SLUGS = {
     "ps5":"PS5", "ps5-pro":"PS5 Pro", "ps4":"PS4", "switch2":"Nintendo Switch 2",
     "switch1":"Nintendo Switch 1", "meta-quest3":"Meta Quest 3", "meta-quest3s":"Meta Quest 3s",
@@ -2306,18 +2330,55 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ta.value = msg; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); toast(tr("copied"));
     }
   }
-  async function copyBooking(){
+  function shareChannelLabel(channel){
+    if(channel === "line") return "LINE";
+    if(channel === "whatsapp") return "WhatsApp";
+    return state.lang === "en" ? "Copy" : "Copy";
+  }
+  function closeShareConfirmModal(result=false){
+    byId("shareConfirmModal")?.classList.remove("open");
+    const resolve = shareConfirmResolve;
+    shareConfirmResolve = null;
+    if(resolve) resolve(result);
+  }
+  function confirmBookingShare(channel){
+    if(Date.now() < shareCooldownUntil){
+      toast(tr("shareCooldown"));
+      return Promise.resolve(false);
+    }
+    const needsContractPrompt = !state.calc.ret && !state.calc.noContract;
+    byId("shareConfirmTitle").textContent = tr("shareConfirmTitle");
+    byId("shareConfirmMessage").textContent = tr("shareConfirmMessage").replace("{channel}", shareChannelLabel(channel));
+    byId("shareConfirmNote").textContent = needsContractPrompt ? tr("shareConfirmContractNote") : tr("shareConfirmNote");
+    byId("shareContractFirst").textContent = tr("shareContractFirst");
+    byId("shareContractFirst").style.display = needsContractPrompt ? "" : "none";
+    byId("shareConfirmSend").textContent = tr("shareConfirmSend");
+    byId("shareConfirmCancel").textContent = tr("shareCancel");
+    byId("shareConfirmModal").classList.add("open");
+    return new Promise(resolve => { shareConfirmResolve = resolve; });
+  }
+  async function guardedBookingShare(channel, action){
+    if(!(await confirmBookingShare(channel))) return false;
+    shareCooldownUntil = Date.now() + 12000;
+    await action();
+    return true;
+  }
+  async function copyBooking(skipGuard=false){
+    if(!skipGuard) return guardedBookingShare("copy", () => copyBooking(true));
     try{
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
       const msg = bookingMessage(code);
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "copy");
+      return true;
     }catch(error){
       toast(state.lang === "en" ? "Cannot check rental code from Google Sheet." : "เช็กรหัสการเช่าจาก Google Sheet ไม่ได้");
+      return false;
     }
   }
-  async function sendLine(){
+  async function sendLine(skipGuard=false){
+    if(!skipGuard) return guardedBookingShare("line", () => sendLine(true));
     try{
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
@@ -2325,8 +2386,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "line");
       location.href = "https://line.me/R/msg/text/?" + encodeURIComponent(msg);
+      return true;
     }catch(error){
       toast(state.lang === "en" ? "Cannot check rental code from Google Sheet." : "เช็กรหัสการเช่าจาก Google Sheet ไม่ได้");
+      return false;
     }
   }
   function unicodeSafeText(value){
@@ -2344,7 +2407,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     url.searchParams.set("text", unicodeSafeText(message));
     return url.toString();
   }
-  async function sendWhatsApp(){
+  async function sendWhatsApp(skipGuard=false){
+    if(!skipGuard) return guardedBookingShare("whatsapp", () => sendWhatsApp(true));
     try{
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
@@ -2352,8 +2416,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "whatsapp");
       window.open(whatsappShareUrl(msg), "_blank", "noopener,noreferrer");
+      return true;
     }catch(error){
       toast(state.lang === "en" ? "Cannot check rental code from Google Sheet." : "เช็กรหัสการเช่าจาก Google Sheet ไม่ได้");
+      return false;
     }
   }
   async function openContract(){
@@ -3458,9 +3524,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(event.target.id === "contractBtn"){ openContract(); markGuideDone("contractLink"); setGuideStage(guideStageAvailable("payment") && !guideDone("payment") ? "payment" : "maps"); saveLocal(); renderGuide(); }
       if(event.target.id === "openGamePicker") openGamePicker();
       if(event.target.id === "clearGames"){ state.calc.games = []; state.calc.later = false; saveLocal(); render(); }
-      if(event.target.id === "copyBooking"){ copyBooking(); setGuideStage("share"); renderGuide(); }
-      if(event.target.id === "sendLine"){ sendLine(); setGuideStage("share"); renderGuide(); }
-      if(event.target.id === "sendWa") sendWhatsApp();
+      if(event.target.id === "copyBooking"){ if(await copyBooking()){ setGuideStage("share"); renderGuide(); } }
+      if(event.target.id === "sendLine"){ if(await sendLine()){ setGuideStage("share"); renderGuide(); } }
+      if(event.target.id === "sendWa"){ if(await sendWhatsApp()){ setGuideStage("share"); renderGuide(); } }
+      if(event.target.id === "shareConfirmSend") closeShareConfirmModal(true);
+      if(event.target.id === "shareConfirmCancel" || event.target.id === "shareConfirmClose") closeShareConfirmModal(false);
+      if(event.target.id === "shareContractFirst"){ closeShareConfirmModal(false); openContract(); }
       if(event.target.id === "reviewGoogleBtn"){ event.preventDefault(); event.stopPropagation(); open("https://maps.app.goo.gl/QoGqkWe64QRxBGjT6", "_blank"); }
       if(event.target.id === "reviewFacebookBtn"){ event.preventDefault(); event.stopPropagation(); open("https://www.facebook.com/ajgamerental/reviews", "_blank"); }
       if(event.target.id === "lineConnectBtn") connectLine();
