@@ -679,6 +679,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     whatsappPhone: "66816244715",
     facebookMessengerUser: "100064849841171",
     facebookMessengerUrl: "https://m.me/ajgamerental",
+    beamPaymentApi: "https://aj-line-oa-bot.onrender.com/api/payments/beam-link",
     paymentLinkBase: "https://pay.ajgamerental.com/demo-checkout",
     lineLiffId: "2010212481-16RHJsnX"
   };
@@ -884,7 +885,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     promos: {bg:{enabled:false,mode:"percent",value:0}, console:{enabled:false,mode:"percent",value:0}},
     retEnabled: false,
     filter: {type:"all", brand:"all", sort:"brand"},
-    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,reviewGoogle:false,reviewFacebook:false,noContract:false,payment:"cash",maps:"",games:[],later:false,rentalCode:"",rentalCodeSig:"",guideDone:{},guideConsoleId:""},
+    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,reviewGoogle:false,reviewFacebook:false,noContract:false,payment:"cash",maps:"",games:[],later:false,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",guideDone:{},guideConsoleId:""},
     availability: {rows:[],loading:false,error:"",lastSync:0,gate:{mode:"idle",pass:true}},
     calendar: {open:false,mode:"start",base:new Date(),draftStart:"",draftEnd:""},
     faqExpanded: false,
@@ -1610,14 +1611,31 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return "";
   }
   function generatedPaymentLink(summary, rentalCode=""){
+    return state.calc.beamPaymentLink || "";
+  }
+  async function ensureBeamPaymentLink(summary, rentalCode){
     const amount = paymentLinkAmount(summary);
-    if(!amount) return "";
-    const url = new URL(CONFIG.paymentLinkBase);
-    url.searchParams.set("ref", rentalCode || state.calc.rentalCode || "");
-    url.searchParams.set("amount", String(amount));
-    url.searchParams.set("currency", "THB");
-    url.searchParams.set("method", state.calc.payment);
-    return url.toString();
+    if(state.lang !== "en" || !amount || !["cash","credit","ewallet"].includes(state.calc.payment)) return "";
+    const language = state.lang === "en" ? "EN" : "TH";
+    const key = [rentalCode, state.calc.payment, amount, language].join("|");
+    if(state.calc.beamPaymentLink && state.calc.beamPaymentKey === key) return state.calc.beamPaymentLink;
+    const response = await fetch(CONFIG.beamPaymentApi, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        amount,
+        paymentMethod: state.calc.payment,
+        rentalCode,
+        defaultLanguage: language,
+        description: `AJ Game Rental ${rentalCode}`
+      })
+    });
+    const data = await response.json().catch(() => ({}));
+    if(!response.ok || !data.url) throw new Error(data.error || "Beam payment link unavailable");
+    state.calc.beamPaymentLink = data.url;
+    state.calc.beamPaymentKey = key;
+    saveLocal();
+    return data.url;
   }
   function upfrontLabel(){
     if(state.lang === "en" && state.calc.payment === "cash") return tr("cardDeposit");
@@ -2549,6 +2567,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     try{
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
+      await ensureBeamPaymentLink(summary, code);
       const msg = bookingMessageForLine(code);
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "line");
@@ -2601,6 +2620,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     try{
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
+      await ensureBeamPaymentLink(summary, code);
       const msg = unicodeSafeText(bookingMessage(code));
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "whatsapp");
@@ -2616,6 +2636,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     try{
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
+      await ensureBeamPaymentLink(summary, code);
       const msg = unicodeSafeText(bookingMessage(code));
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "messenger");
@@ -3707,7 +3728,15 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         saveLocal();
         render();
       }
-      if(event.target.dataset.paymentChoice){ state.calc.payment = event.target.dataset.paymentChoice; markGuideDone("payment"); setGuideStage("maps"); saveLocal(); render(); }
+      if(event.target.dataset.paymentChoice){
+        state.calc.payment = event.target.dataset.paymentChoice;
+        state.calc.beamPaymentLink = "";
+        state.calc.beamPaymentKey = "";
+        markGuideDone("payment");
+        setGuideStage("maps");
+        saveLocal();
+        render();
+      }
       if(event.target.id === "laterOpt"){ state.calc.later = event.target.checked; if(state.calc.later){ markGuideDone("games"); setGuideStage("next3"); } saveLocal(); render(); }
     });
     document.addEventListener("input", event => {
