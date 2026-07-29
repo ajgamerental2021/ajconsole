@@ -19,7 +19,7 @@
     .row{display:flex;justify-content:space-between;gap:18px;padding:13px 0;border-bottom:1px solid #e3e7ef}
     dt{color:#71809d}.row dd{margin:0;text-align:right;font-weight:700;color:#172033;overflow-wrap:anywhere}
     .actions{display:flex;gap:10px;margin-top:24px}.button{flex:1;border:0;border-radius:10px;padding:13px 16px;font:inherit;font-weight:800;cursor:pointer;text-align:center;text-decoration:none}.primary{background:#0d1b56;color:#fff}.secondary{background:#f0f3f8;color:#172033}
-    .notice{margin-top:18px;padding:14px;border-radius:10px;background:#fff7d6;color:#755000;font-weight:700;line-height:1.5}.notice.auto{background:#e8f8ef;color:#087c4a}.contact-actions{display:flex;gap:10px;margin-top:10px}.line{background:#06c755;color:#fff}.whatsapp{background:#128c7e;color:#fff}
+    .notice{margin-top:18px;padding:14px;border-radius:10px;background:#fff7d6;color:#755000;font-weight:700;line-height:1.5}.notice.auto{background:#e8f8ef;color:#087c4a}.contact-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}.contact-actions .button{min-width:150px}.line{background:#06c755;color:#fff}.whatsapp{background:#128c7e;color:#fff}.facebook{background:#1877f2;color:#fff}
     .language{border:1px solid #cbd4e5;border-radius:999px;background:#fff;padding:7px 10px;font-weight:700}
     @media(max-width:480px){body{padding:14px}.card{padding:22px}.top{align-items:flex-start}.row{display:block}.row dd{text-align:left;margin-top:4px}.actions{flex-direction:column}}
   </style>
@@ -42,18 +42,18 @@
       <div class="row"><dt id="statusLabel">Status</dt><dd id="status">Paid</dd></div>
     </dl>
     <div class="notice" id="notice"></div>
-    <div class="contact-actions" id="contactActions"><a class="button line" id="lineButton" href="https://lin.ee/N4i6cb6">LINE</a><a class="button whatsapp" id="whatsappButton" href="#">WhatsApp</a></div>
+    <div class="contact-actions" id="contactActions"><a class="button line" id="lineButton" href="https://lin.ee/N4i6cb6">LINE</a><a class="button whatsapp" id="whatsappButton" href="#">WhatsApp</a><a class="button facebook" id="facebookButton" href="https://m.me/ajgamerental">Facebook</a></div>
     <div class="actions"><a class="button primary" id="backButton" href="index-demo.html">Back to AJ Game Rental</a><button class="button secondary" id="closeButton" type="button">Close</button></div>
   </main>
   <script>
     (() => {
       const params = new URLSearchParams(location.search);
-      const copy = {en:{badge:"● Payment successful",title:"Thank you for your payment!",message:"Your payment has been received. AJ will continue processing your rental booking.",rentalCode:"Rental code",amount:"Amount",method:"Payment method",paymentLink:"Payment link ID",reference:"Reference",statusLabel:"Status",status:"Paid",autoNotice:"AJ has been notified automatically through LINE. You do not need to send this screenshot again.",manualNotice:"Please screenshot this page and send it to AJ via LINE or WhatsApp, or message the shop to confirm your payment. AJ will verify the payment in the system.",line:"Notify via LINE",whatsapp:"Notify via WhatsApp",back:"Back to AJ Game Rental",close:"Close"},th:{badge:"● ชำระเงินสำเร็จ",title:"ขอบคุณสำหรับการชำระเงิน",message:"ระบบได้รับการชำระเงินแล้ว ทาง AJ จะดำเนินการจองเช่าของคุณต่อไป",rentalCode:"รหัสการเช่า",amount:"จำนวนเงิน",method:"ช่องทางชำระ",paymentLink:"รหัสลิงก์ชำระเงิน",reference:"เลขอ้างอิง",statusLabel:"สถานะ",status:"ชำระแล้ว",autoNotice:"ระบบแจ้งยอดชำระให้ทางร้านผ่าน LINE อัตโนมัติแล้ว ไม่ต้องส่งภาพหน้าจอนี้ซ้ำ",manualNotice:"กรุณาแคปหน้าจอนี้ส่งให้แชทร้านทาง LINE หรือ WhatsApp หรือแจ้งทางร้านเพื่อยืนยันยอดชำระ โดยทางร้านจะตรวจสอบยอดจากระบบอีกครั้ง",line:"แจ้งทาง LINE",whatsapp:"แจ้งทาง WhatsApp",back:"กลับไปหน้า AJ Game Rental",close:"ปิด"}};
+      const copy = {en:{badge:"● Payment successful",title:"Thank you for your payment!",message:"Your payment has been received. AJ will continue processing your rental booking.",rentalCode:"Rental code",amount:"Amount",method:"Payment method",paymentLink:"Payment link ID",reference:"Reference",statusLabel:"Status",status:"Paid",autoNotice:"AJ has been notified automatically through LINE. You do not need to send this screenshot again.",manualNotice:"Please screenshot this page and send it to AJ via LINE, WhatsApp, or Facebook. AJ will verify the payment in the system.",line:"Notify via LINE",whatsapp:"Notify via WhatsApp",facebook:"Notify via Facebook",back:"Back to AJ Game Rental",close:"Close"},th:{badge:"● ชำระเงินสำเร็จ",title:"ขอบคุณสำหรับการชำระเงิน",message:"ระบบได้รับการชำระเงินแล้ว ทาง AJ จะดำเนินการจองเช่าของคุณต่อไป",rentalCode:"รหัสการเช่า",amount:"จำนวนเงิน",method:"ช่องทางชำระ",paymentLink:"รหัสลิงก์ชำระเงิน",reference:"เลขอ้างอิง",statusLabel:"สถานะ",status:"ชำระแล้ว",autoNotice:"ระบบแจ้งยอดชำระให้ทางร้านผ่าน LINE อัตโนมัติแล้ว ไม่ต้องส่งภาพหน้าจอนี้ซ้ำ",manualNotice:"กรุณาแคปหน้าจอนี้ส่งให้แชทร้านทาง LINE, WhatsApp หรือ Facebook โดยทางร้านจะตรวจสอบยอดจากระบบอีกครั้ง",line:"แจ้งทาง LINE",whatsapp:"แจ้งทาง WhatsApp",facebook:"แจ้งทาง Facebook",back:"กลับไปหน้า AJ Game Rental",close:"ปิด"}};
       const lang = params.get("lang") === "th" ? "th" : "en";
       const t = copy[lang];
       const set = (id, value) => { document.getElementById(id).textContent = value || "-"; };
       document.documentElement.lang = lang;
-      set("badge", t.badge); set("title", t.title); set("message", t.message); set("rentalCodeLabel", t.rentalCode); set("amountLabel", t.amount); set("methodLabel", t.method); set("paymentLinkLabel", t.paymentLink); set("referenceLabel", t.reference); set("statusLabel", t.statusLabel); set("status", t.status); set("backButton", t.back); set("closeButton", t.close); set("lineButton", t.line); set("whatsappButton", t.whatsapp);
+      set("badge", t.badge); set("title", t.title); set("message", t.message); set("rentalCodeLabel", t.rentalCode); set("amountLabel", t.amount); set("methodLabel", t.method); set("paymentLinkLabel", t.paymentLink); set("referenceLabel", t.reference); set("statusLabel", t.statusLabel); set("status", t.status); set("backButton", t.back); set("closeButton", t.close); set("lineButton", t.line); set("whatsappButton", t.whatsapp); set("facebookButton", t.facebook);
       set("rentalCode", params.get("rentalCode") || params.get("orderId") || params.get("referenceId"));
       const amount = Number(params.get("amount"));
       set("amount", Number.isFinite(amount) && amount > 0 ? `฿${amount.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2})}` : "-");
@@ -69,6 +69,11 @@
       document.getElementById("contactActions").hidden = lineConnected;
       const contactMessage = lang === "th" ? `แจ้งยืนยันการชำระเงิน รหัสการเช่า ${params.get("rentalCode") || "-"}` : `Payment confirmation for rental code ${params.get("rentalCode") || "-"}`;
       document.getElementById("whatsappButton").href = `https://api.whatsapp.com/send/?phone=66816244715&text=${encodeURIComponent(contactMessage)}`;
+      document.getElementById("facebookButton").addEventListener("click", async event => {
+        event.preventDefault();
+        try { await navigator.clipboard.writeText(contactMessage); } catch {}
+        location.href = "https://m.me/ajgamerental";
+      });
       document.getElementById("language").value = lang;
       document.getElementById("language").addEventListener("change", event => { params.set("lang", event.target.value); location.search = params.toString(); });
       document.getElementById("closeButton").addEventListener("click", () => { if(history.length > 1) history.back(); else location.href = "index-demo.html"; });
