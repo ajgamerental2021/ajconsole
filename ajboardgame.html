@@ -266,8 +266,7 @@
     const LEGACY_STORAGE_KEY='aj_boardgame_rental_pro_data_v1';
     const CONFIG_KEY='aj_boardgame_rental_pro_config_v2';
     const PUBLIC_CATALOG_KEY='aj_boardgame_public_catalog_v1';
-    const ADMIN_USER='ajgame';
-    const ADMIN_PASS_HASH='fdcc621fd584df74f42ad0f9adc6ff6f118ee39bada9ec0c02b0e57639fd0f6a';
+    const ADMIN_API_BASE='https://aj-line-oa-bot.onrender.com';
     const $=(s,root=document)=>root.querySelector(s); const $$=(s,root=document)=>Array.from(root.querySelectorAll(s));
     let currentLang=localStorage.getItem('aj_boardgame_lang')||'th';
     if(!['th','en'].includes(currentLang)) currentLang='th';
@@ -287,8 +286,6 @@
     const roundTo10=n=>Math.max(0,Math.round(Number(n||0)/10)*10);
     const uid=p=>p+'_'+Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);
     const clone=o=>JSON.parse(JSON.stringify(o));
-    async function sha256(text){ const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text)); return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
-
     const defaultData={
       "version": 3,
       "updatedAt": "2026-05-12T00:00:00.000+07:00",
@@ -1838,7 +1835,7 @@
     };
 
     let data=loadData();
-    let state={selectedPackageId:firstActivePackageId(),selectedGameIds:new Set(),categoryId:'all',tierId:'all',query:'',sort:'recommended',noContract:false,bundleMode:false,adminLogged:sessionStorage.getItem('aj_boardgame_admin_logged')==='1',adminTab:'dashboard',editing:null};
+    let state={selectedPackageId:firstActivePackageId(),selectedGameIds:new Set(),categoryId:'all',tierId:'all',query:'',sort:'recommended',noContract:false,bundleMode:false,adminLogged:false,adminToken:'',adminTab:'dashboard',editing:null};
 
     function loadData(){
       try{ const raw=localStorage.getItem(STORAGE_KEY) || localStorage.getItem(OLD_STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY); if(!raw) return normalizeData(clone(defaultData)); return normalizeData(JSON.parse(raw)); }catch(e){console.warn(e); return normalizeData(clone(defaultData));}
@@ -2204,14 +2201,35 @@
     function openAdmin(){ $('#adminModal').style.display='block'; $('#adminModal').setAttribute('aria-hidden','false'); document.body.classList.add('no-scroll'); renderAdmin(); }
     const openAdminBtn=$('#openAdminBtn'); if(openAdminBtn) openAdminBtn.onclick=()=>openAdmin();
     $('#closeAdminBtn').onclick=()=>closeAdmin(); function closeAdmin(){ $('#adminModal').style.display='none'; $('#adminModal').setAttribute('aria-hidden','true'); document.body.classList.remove('no-scroll'); }
-    $('#logoutAdminBtn').onclick=()=>{ sessionStorage.removeItem('aj_boardgame_admin_logged'); state.adminLogged=false; renderAdmin(); };
+    $('#logoutAdminBtn').onclick=()=>{ state.adminLogged=false; state.adminToken=''; renderAdmin(); };
     $('#adminModal').addEventListener('click',e=>{ if(e.target.id==='adminModal') closeAdmin(); });
 
     function renderAdmin(){
       const root=$('#adminContent'); if(!state.adminLogged){ root.innerHTML=`<div class="login-box"><h2 style="margin:0 0 8px;letter-spacing:-.03em">Admin Login</h2><p class="section-sub">เข้าสู่ระบบเพื่อจัดการข้อมูลหน้าเว็บ</p><div class="form-grid" style="margin-top:16px"><input class="input" id="loginUser" placeholder="Username"><input class="input" id="loginPass" type="password" placeholder="Password"><button class="btn primary block" id="loginBtn">เข้าสู่ระบบ</button></div></div>`; $('#loginBtn').onclick=doLogin; $('#loginPass').addEventListener('keydown',e=>{if(e.key==='Enter') doLogin();}); return; }
       root.innerHTML=`<div class="tabs">${['dashboard','games','tiers','categories','packages','settings','gist'].map(t=>`<button class="tab ${state.adminTab===t?'active':''}" data-tab="${t}">${tabName(t)}</button>`).join('')}</div><div id="adminTabContent"></div>`; $$('.tab',root).forEach(b=>b.onclick=()=>{state.adminTab=b.dataset.tab;renderAdmin();}); renderAdminTab();
     }
-    async function doLogin(){ const u=$('#loginUser').value.trim(); const p=$('#loginPass').value; if(u===ADMIN_USER && await sha256(p)===ADMIN_PASS_HASH){state.adminLogged=true;sessionStorage.setItem('aj_boardgame_admin_logged','1');showToast('เข้าสู่ระบบแล้ว','ok');renderAdmin();}else showToast('Username หรือ Password ไม่ถูกต้อง','error'); }
+    async function doLogin(){
+      const button=$('#loginBtn');
+      button.disabled=true;
+      try{
+        const response=await fetch(`${ADMIN_API_BASE}/api/admin/login`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({username:$('#loginUser').value.trim(),password:$('#loginPass').value})
+        });
+        if(!response.ok) throw new Error('invalid');
+        const result=await response.json();
+        state.adminToken=String(result.token||'');
+        if(!state.adminToken) throw new Error('invalid');
+        state.adminLogged=true;
+        showToast('เข้าสู่ระบบแล้ว','ok');
+        renderAdmin();
+      }catch{
+        showToast('Username หรือ Password ไม่ถูกต้อง','error');
+      }finally{
+        button.disabled=false;
+      }
+    }
     function tabName(t){ return {dashboard:'Dashboard',games:'Board Games',tiers:'Tiers',categories:'Categories',packages:'Packages',settings:'Settings',gist:'Gist Sync'}[t]||t; }
     function renderAdminTab(){ const c=$('#adminTabContent'); const t=state.adminTab; if(t==='dashboard') return renderDashboard(c); if(t==='games') return renderGamesAdmin(c); if(t==='tiers') return renderSimpleAdmin(c,'tiers'); if(t==='categories') return renderSimpleAdmin(c,'categories'); if(t==='packages') return renderPackagesAdmin(c); if(t==='settings') return renderSettingsAdmin(c); if(t==='gist') return renderGistAdmin(c); }
     function renderDashboard(c){ c.innerHTML=`<div class="admin-grid"><div class="panel"><h3>ภาพรวม</h3><div class="form-grid"><div class="summary-section soft">เกมทั้งหมด <b>${data.games.length}</b><br><span class="tiny">เปิดใช้งาน ${data.games.filter(g=>g.isActive!==false).length} เกม</span></div><div class="summary-section soft">อัปเดตล่าสุด<br><b>${new Date(data.updatedAt||Date.now()).toLocaleString('th-TH')}</b></div><button class="btn primary" id="exportBtn">Export Full JSON</button><button class="btn soft" id="exportPublicBtn">Export Public Catalog</button><label class="btn soft" for="importFile">Import JSON</label><input class="hide" id="importFile" type="file" accept="application/json"><button class="btn danger" id="resetBtn">Reset เป็นข้อมูลตัวอย่าง</button></div></div><div class="panel"><h3>สูตรราคาที่ใช้ในเว็บ</h3><p class="section-sub">แพ็ก 1 วัน = เรทรายวัน / 3 วันแนะนำประมาณเรทรายวัน × 2.7 / 7 วันแนะนำประมาณเรทรายวัน × 5.5</p><div class="summary-section warn"><b>เช่าพร้อมเครื่องเกม</b><br><span class="tiny">หน้า Public จะแสดงเป็นปุ่มลิงก์ไปยังหน้าเช่าเครื่องเกม: ${escapeHtml(data.settings.consoleRentalUrl||'https://ajgamerental.onrender.com/')}</span></div><div class="data-note">อีก HTML สามารถอ่านข้อมูล public catalog ได้จาก localStorage key: <b>${PUBLIC_CATALOG_KEY}</b> หรือดึงไฟล์ <b>aj-boardgame-public-catalog.json</b> จาก Gist ที่กด Save<br>Database หลักตอนนี้: <b>Google Sheet</b> (${escapeHtml(data.settings.googleSheetId||GOOGLE_SHEET_CONFIG.spreadsheetId)})</div><button class="btn soft" id="reloadSheetBtn" type="button">Reload from Google Sheet</button></div></div>`; $('#exportBtn').onclick=exportJSON; $('#exportPublicBtn').onclick=exportPublicJSON; const reloadBtn=$('#reloadSheetBtn'); if(reloadBtn) reloadBtn.onclick=()=>loadFromGoogleSheetDatabase(); $('#importFile').onchange=importJSON; $('#resetBtn').onclick=()=>{ if(confirm('รีเซ็ตข้อมูลทั้งหมดเป็นตัวอย่าง?')){data=normalizeData(clone(defaultData));state.selectedPackageId=firstActivePackageId();state.selectedGameIds.clear();saveData();showToast('รีเซ็ตแล้ว','ok');}}; }
