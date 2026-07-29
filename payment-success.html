@@ -19,6 +19,7 @@
     .row{display:flex;justify-content:space-between;gap:18px;padding:13px 0;border-bottom:1px solid #e3e7ef}
     dt{color:#71809d}.row dd{margin:0;text-align:right;font-weight:700;color:#172033;overflow-wrap:anywhere}
     .actions{display:flex;gap:10px;margin-top:24px}.button{flex:1;border:0;border-radius:10px;padding:13px 16px;font:inherit;font-weight:800;cursor:pointer;text-align:center;text-decoration:none}.primary{background:#0d1b56;color:#fff}.secondary{background:#f0f3f8;color:#172033}
+    .notice{margin-top:18px;padding:14px;border-radius:10px;background:#fff7d6;color:#755000;font-weight:700;line-height:1.5}.notice.auto{background:#e8f8ef;color:#087c4a}.contact-actions{display:flex;gap:10px;margin-top:10px}.line{background:#06c755;color:#fff}.whatsapp{background:#128c7e;color:#fff}
     .language{border:1px solid #cbd4e5;border-radius:999px;background:#fff;padding:7px 10px;font-weight:700}
     @media(max-width:480px){body{padding:14px}.card{padding:22px}.top{align-items:flex-start}.row{display:block}.row dd{text-align:left;margin-top:4px}.actions{flex-direction:column}}
   </style>
@@ -34,24 +35,40 @@
     <p id="message">Your payment has been received. AJ will continue processing your rental booking.</p>
     <dl>
       <div class="row"><dt id="rentalCodeLabel">Rental code</dt><dd id="rentalCode">-</dd></div>
+      <div class="row"><dt id="amountLabel">Amount</dt><dd id="amount">-</dd></div>
+      <div class="row"><dt id="methodLabel">Payment method</dt><dd id="method">-</dd></div>
       <div class="row"><dt id="paymentLinkLabel">Payment link ID</dt><dd id="paymentLink">-</dd></div>
       <div class="row"><dt id="referenceLabel">Reference</dt><dd id="reference">-</dd></div>
       <div class="row"><dt id="statusLabel">Status</dt><dd id="status">Paid</dd></div>
     </dl>
+    <div class="notice" id="notice"></div>
+    <div class="contact-actions" id="contactActions"><a class="button line" id="lineButton" href="https://lin.ee/N4i6cb6">LINE</a><a class="button whatsapp" id="whatsappButton" href="#">WhatsApp</a></div>
     <div class="actions"><a class="button primary" id="backButton" href="index-demo.html">Back to AJ Game Rental</a><button class="button secondary" id="closeButton" type="button">Close</button></div>
   </main>
   <script>
     (() => {
       const params = new URLSearchParams(location.search);
-      const copy = {en:{badge:"● Payment successful",title:"Thank you for your payment!",message:"Your payment has been received. AJ will continue processing your rental booking.",rentalCode:"Rental code",paymentLink:"Payment link ID",reference:"Reference",status:"Paid",back:"Back to AJ Game Rental",close:"Close"},th:{badge:"● ชำระเงินสำเร็จ",title:"ขอบคุณสำหรับการชำระเงิน",message:"ระบบได้รับการชำระเงินแล้ว ทาง AJ จะดำเนินการจองเช่าของคุณต่อไป",rentalCode:"รหัสการเช่า",paymentLink:"รหัสลิงก์ชำระเงิน",reference:"เลขอ้างอิง",status:"ชำระแล้ว",back:"กลับไปหน้า AJ Game Rental",close:"ปิด"}};
+      const copy = {en:{badge:"● Payment successful",title:"Thank you for your payment!",message:"Your payment has been received. AJ will continue processing your rental booking.",rentalCode:"Rental code",amount:"Amount",method:"Payment method",paymentLink:"Payment link ID",reference:"Reference",statusLabel:"Status",status:"Paid",autoNotice:"AJ has been notified automatically through LINE. You do not need to send this screenshot again.",manualNotice:"Please screenshot this page and send it to AJ via LINE or WhatsApp, or message the shop to confirm your payment. AJ will verify the payment in the system.",line:"Notify via LINE",whatsapp:"Notify via WhatsApp",back:"Back to AJ Game Rental",close:"Close"},th:{badge:"● ชำระเงินสำเร็จ",title:"ขอบคุณสำหรับการชำระเงิน",message:"ระบบได้รับการชำระเงินแล้ว ทาง AJ จะดำเนินการจองเช่าของคุณต่อไป",rentalCode:"รหัสการเช่า",amount:"จำนวนเงิน",method:"ช่องทางชำระ",paymentLink:"รหัสลิงก์ชำระเงิน",reference:"เลขอ้างอิง",statusLabel:"สถานะ",status:"ชำระแล้ว",autoNotice:"ระบบแจ้งยอดชำระให้ทางร้านผ่าน LINE อัตโนมัติแล้ว ไม่ต้องส่งภาพหน้าจอนี้ซ้ำ",manualNotice:"กรุณาแคปหน้าจอนี้ส่งให้แชทร้านทาง LINE หรือ WhatsApp หรือแจ้งทางร้านเพื่อยืนยันยอดชำระ โดยทางร้านจะตรวจสอบยอดจากระบบอีกครั้ง",line:"แจ้งทาง LINE",whatsapp:"แจ้งทาง WhatsApp",back:"กลับไปหน้า AJ Game Rental",close:"ปิด"}};
       const lang = params.get("lang") === "th" ? "th" : "en";
       const t = copy[lang];
       const set = (id, value) => { document.getElementById(id).textContent = value || "-"; };
       document.documentElement.lang = lang;
-      set("badge", t.badge); set("title", t.title); set("message", t.message); set("rentalCodeLabel", t.rentalCode); set("paymentLinkLabel", t.paymentLink); set("referenceLabel", t.reference); set("statusLabel", t.status); set("status", t.status); set("backButton", t.back); set("closeButton", t.close);
+      set("badge", t.badge); set("title", t.title); set("message", t.message); set("rentalCodeLabel", t.rentalCode); set("amountLabel", t.amount); set("methodLabel", t.method); set("paymentLinkLabel", t.paymentLink); set("referenceLabel", t.reference); set("statusLabel", t.statusLabel); set("status", t.status); set("backButton", t.back); set("closeButton", t.close); set("lineButton", t.line); set("whatsappButton", t.whatsapp);
       set("rentalCode", params.get("rentalCode") || params.get("orderId") || params.get("referenceId"));
+      const amount = Number(params.get("amount"));
+      set("amount", Number.isFinite(amount) && amount > 0 ? `฿${amount.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2})}` : "-");
+      const methodKey = params.get("method") || "";
+      const methodLabels = {en:{cash:"Card reservation",credit:"Credit Card",ewallet:"E-Wallet"},th:{cash:"บัตรเครดิตสำหรับค่าจอง",credit:"บัตรเครดิต",ewallet:"E-Wallet"}};
+      set("method", methodLabels[lang][methodKey] || methodKey || "-");
       set("paymentLink", params.get("paymentLinkId") || params.get("paymentId") || params.get("id"));
       set("reference", params.get("referenceId") || params.get("orderId"));
+      const lineConnected = params.get("line") === "1";
+      const notice = document.getElementById("notice");
+      notice.textContent = lineConnected ? t.autoNotice : t.manualNotice;
+      notice.classList.toggle("auto", lineConnected);
+      document.getElementById("contactActions").hidden = lineConnected;
+      const contactMessage = lang === "th" ? `แจ้งยืนยันการชำระเงิน รหัสการเช่า ${params.get("rentalCode") || "-"}` : `Payment confirmation for rental code ${params.get("rentalCode") || "-"}`;
+      document.getElementById("whatsappButton").href = `https://api.whatsapp.com/send/?phone=66816244715&text=${encodeURIComponent(contactMessage)}`;
       document.getElementById("language").value = lang;
       document.getElementById("language").addEventListener("change", event => { params.set("lang", event.target.value); location.search = params.toString(); });
       document.getElementById("closeButton").addEventListener("click", () => { if(history.length > 1) history.back(); else location.href = "index-demo.html"; });

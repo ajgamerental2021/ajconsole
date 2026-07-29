@@ -681,6 +681,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     facebookMessengerUrl: "https://m.me/ajgamerental",
     beamPaymentApi: "https://aj-line-oa-bot.onrender.com/api/payments/beam-link",
     paymentSuccessUrl: "https://ajgamerental2021.github.io/ajconsole/payment-success.html",
+    paymentFailedUrl: "https://ajgamerental2021.github.io/ajconsole/payment-failed.html",
     paymentLinkBase: "https://pay.ajgamerental.com/demo-checkout",
     lineLiffId: "2010212481-16RHJsnX"
   };
@@ -1618,6 +1619,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const amount = paymentLinkAmount(summary);
     if(state.lang !== "en" || !amount || !["cash","credit","ewallet"].includes(state.calc.payment)) return "";
     const language = state.lang === "en" ? "EN" : "TH";
+    const lineUserId = lineUniqueId();
+    const redirectContext = `lang=${encodeURIComponent(state.lang)}&rentalCode=${encodeURIComponent(rentalCode)}&line=${lineUserId ? "1" : "0"}&amount=${encodeURIComponent(amount)}&method=${encodeURIComponent(state.calc.payment)}`;
     const key = [rentalCode, state.calc.payment, amount, language].join("|");
     if(state.calc.beamPaymentLink && state.calc.beamPaymentKey === key) return state.calc.beamPaymentLink;
     const response = await fetch(CONFIG.beamPaymentApi, {
@@ -1628,8 +1631,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         paymentMethod: state.calc.payment,
         rentalCode,
         defaultLanguage: language,
+        lineUserId,
         description: `AJ Game Rental ${rentalCode}`,
-        returnUrl: `${CONFIG.paymentSuccessUrl}?lang=${encodeURIComponent(state.lang)}&rentalCode=${encodeURIComponent(rentalCode)}`
+        returnUrl: `${CONFIG.paymentSuccessUrl}?${redirectContext}`,
+        cancelUrl: `${CONFIG.paymentFailedUrl}?${redirectContext}`
       })
     });
     const data = await response.json().catch(() => ({}));
