@@ -669,6 +669,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     whatsappPhone: "66816244715",
     facebookMessengerUser: "100064849841171",
     facebookMessengerUrl: "https://m.me/ajgamerental",
+    reservationAmount: 200,
+    reservationBankAccount: "8690576029",
+    reservationBankNameTh: "กรุงไทย",
+    reservationAccountName: "สมชาย เหมศิริ",
     lineLiffId: "2010212481-16RHJsnX"
   };
 
@@ -2307,6 +2311,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       `💰 ยอดรวมทั้งหมด: ${money(s.total)}`,
       `💳 โอนล่วงหน้า (ยืนยันจอง): ${money(s.upfront)}`,
       `🚚 จ่ายตอนของถึง: ${money(s.onDelivery)}`,
+      "",
+      `💳 โอนค่าจอง ${money(CONFIG.reservationAmount)}`,
+      `✅ เลขบัญชี: ${CONFIG.reservationBankAccount}`,
+      `✅ ธนาคาร: ${CONFIG.reservationBankNameTh}`,
+      `✅ ชื่อบัญชี: ${CONFIG.reservationAccountName}`,
+      "กรุณาโอนหลังทางร้านยืนยันคิวและค่าส่ง แล้วส่งรูปสลิปในแชท LINE เพื่อตรวจสอบอัตโนมัติ",
       ...contractLinesTh,
       "",
       "🚫 ยกเลิกโดยลูกค้า → ไม่คืนเงินจอง 200 บาท",

@@ -683,6 +683,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     paymentSuccessUrl: "https://ajgamerental2021.github.io/ajconsole/payment-success.html",
     paymentFailedUrl: "https://ajgamerental2021.github.io/ajconsole/payment-failed.html",
     paymentLinkBase: "https://pay.ajgamerental.com/demo-checkout",
+    reservationAmount: 200,
+    reservationBankAccount: "8690576029",
+    reservationBankNameTh: "กรุงไทย",
+    reservationAccountName: "สมชาย เหมศิริ",
     lineLiffId: "2010212481-16RHJsnX"
   };
 
@@ -1502,7 +1506,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ? `Google Maps delivery address <span class="maps-fee-highlight">check delivery fee before deciding</span>`
       : `GOOGLE MAPS ที่อยู่จัดส่ง <span class="maps-fee-highlight">เช็คค่าจัดส่งก่อนตัดสินใจ</span>`;
     const paymentHtml = state.lang === "en"
-      ? `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title">Pay ฿1,000 reservation by card, then balance in cash on delivery ${paymentCardBadgesHtml()}</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""}><span>${tr("cash")}</span></label></div><div class="payment-group"><div class="payment-group-title">Pay the full amount before delivery</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""}><span>${tr("bank")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""}><span>${tr("wise")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""}><span>${tr("credit")} ${paymentCardBadgesHtml()}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""}><span>${tr("ewallet")}</span></label></div></div></div>`
+      ? `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title">Pay ฿1,000 by card; balance in cash on delivery ${paymentCardBadgesHtml()}</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""}><span>${tr("cash")}</span></label></div><div class="payment-group"><div class="payment-group-title">Pay the full amount before delivery</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""}><span>${tr("bank")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""}><span>${tr("wise")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""}><span>${tr("credit")} ${paymentCardBadgesHtml()}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""}><span>${tr("ewallet")}</span></label></div></div></div>`
       : "";
     byId("optionRows").innerHTML = `
       ${renderBoardGameBundle()}
@@ -1573,7 +1577,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return {cash:tr("cash"), bank:tr("bank"), wise:tr("wise"), credit:tr("credit"), ewallet:tr("ewallet")}[state.calc.payment] || tr("cash");
   }
   function paymentOptionMessageLabelEn(){
-    if(state.calc.payment === "cash") return "Card reservation ฿1,000 + balance in cash on delivery";
+    if(state.calc.payment === "cash") return "฿1,000 by card + balance in cash on delivery";
     if(state.calc.payment === "credit") return "Credit Card: pay full amount before delivery (+3.50% fee)";
     if(state.calc.payment === "ewallet") return "E-Wallet: pay full amount before delivery (+2.95%)";
     return paymentOptionLabelEn();
@@ -2393,6 +2397,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       `💰 ยอดรวมทั้งหมด: ${money(s.total)}`,
       `💳 โอนล่วงหน้า (ยืนยันจอง): ${money(s.upfront)}`,
       `🚚 จ่ายตอนของถึง: ${money(s.onDelivery)}`,
+      "",
+      `💳 โอนค่าจอง ${money(CONFIG.reservationAmount)}`,
+      `✅ เลขบัญชี: ${CONFIG.reservationBankAccount}`,
+      `✅ ธนาคาร: ${CONFIG.reservationBankNameTh}`,
+      `✅ ชื่อบัญชี: ${CONFIG.reservationAccountName}`,
+      "กรุณาโอนหลังทางร้านยืนยันคิวและค่าส่ง แล้วส่งรูปสลิปในแชท LINE เพื่อตรวจสอบอัตโนมัติ",
       ...contractLinesTh,
       "",
       "🚫 ยกเลิกโดยลูกค้า → ไม่คืนเงินจอง 200 บาท",
