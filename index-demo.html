@@ -2469,7 +2469,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       `💰 Total: ${money(s.total)}`,
       `💳 Payment option: ${paymentOptionEn}`,
       ...paymentLinkLinesEn,
-      ...(s.upfront > 0 ? [`💳 ${upfrontLabel()}: ${money(s.upfront)}`] : []),
+      ...(s.upfront > 0 && !isCashPayment ? [`💳 ${upfrontLabel()}: ${money(s.upfront)}`] : []),
       ...(s.onDelivery > 0 ? [`🚚 Pay on delivery: ${money(s.onDelivery)}`] : []),
       ...contractLinesEn,
       "",
