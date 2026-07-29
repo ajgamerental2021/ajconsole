@@ -159,9 +159,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-option + .payment-option{border-top:1px solid var(--border)}
 .payment-option input{width:19px;height:19px;margin:0;accent-color:#d71920;flex:0 0 auto}
 .payment-option:has(input:checked){background:#fff4f4;box-shadow:inset 4px 0 #d71920}
-.payment-brand-badges{display:inline-flex;align-items:center;gap:5px;margin-left:4px;vertical-align:middle}
-.payment-card-badge{display:inline-grid;place-items:center;min-width:34px;height:19px;border-radius:5px;padding:0 6px;background:#fff;border:1px solid #d6d6d6;color:#1a1f71;font:900 10px/1 Arial,system-ui,sans-serif;letter-spacing:.2px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.payment-card-badge.mc{color:#111;background:linear-gradient(90deg,#ff5f00 0 50%,#f79e1b 50% 100%)}
+.payment-brand-badges{display:inline-flex;align-items:center;gap:6px;margin-left:5px;vertical-align:middle}
+.payment-card-logo{display:block;width:auto;height:20px;max-width:42px;object-fit:contain}
 .sum-empty{color:var(--text3);font-size:14px;padding:20px 0}
 .summary-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .summary-actions .brand-icon{display:inline-grid;place-items:center;width:20px;height:20px;margin-right:5px;border-radius:6px;background:rgba(255,255,255,.22);color:#fff;font-size:12px;font-weight:900;line-height:1;font-family:Arial,system-ui,sans-serif;flex:0 0 auto}
@@ -680,8 +679,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     facebookMessengerUser: "100064849841171",
     facebookMessengerUrl: "https://m.me/ajgamerental",
     beamPaymentApi: "https://aj-line-oa-bot.onrender.com/api/payments/beam-link",
-    paymentSuccessUrl: "https://ajgamerental2021.github.io/ajconsole/payment-success.html",
-    paymentFailedUrl: "https://ajgamerental2021.github.io/ajconsole/payment-failed.html",
+    paymentSuccessUrl: "https://ajgamerental.onrender.com/payment-success.html",
+    paymentFailedUrl: "https://ajgamerental.onrender.com/payment-failed.html",
     paymentLinkBase: "https://pay.ajgamerental.com/demo-checkout",
     reservationAmount: 200,
     reservationBankAccount: "8690576029",
@@ -1612,7 +1611,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return paymentOptionLabelEn();
   }
   function paymentCardBadgesHtml(){
-    return `<span class="payment-brand-badges" aria-label="Visa and Mastercard accepted"><span class="payment-card-badge">VISA</span><span class="payment-card-badge mc">MC</span></span>`;
+    return `<span class="payment-brand-badges" aria-label="Visa and Mastercard accepted"><img class="payment-card-logo" src="https://storage.googleapis.com/beam-guides/payment-method-logo/credit-card/png/visa.png" alt="Visa"><img class="payment-card-logo" src="https://storage.googleapis.com/beam-guides/payment-method-logo/credit-card/png/mastercard.png" alt="Mastercard"></span>`;
   }
   function paymentOptionSummaryHtml(){
     const label = esc(paymentOptionLabelEn());

@@ -909,7 +909,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     filter: {type:"all", brand:"all", sort:"brand"},
     calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,reviewGoogle:false,reviewFacebook:false,noContract:false,payment:"cash",maps:"",games:[],later:false,rentalCode:"",rentalCodeSig:"",guideDone:{},guideConsoleId:""},
     availability: {rows:[],loading:false,error:"",lastSync:0,gate:{mode:"idle",pass:true}},
-    queueClosures: {allClosed:false,types:{console:false,vr:false,handheld:false,racing:false},loading:false,error:"",updatedAt:""},
+    queueClosures: {allClosed:false,types:{console:false,vr:false,handheld:false,racing:false},devices:{},loading:false,error:"",updatedAt:""},
     calendar: {open:false,mode:"start",base:new Date(),draftStart:"",draftEnd:""},
     faqExpanded: false,
     adminTab: "queue",
@@ -1068,7 +1068,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function isQueueClosed(item){
     if(!item) return false;
-    return state.queueClosures.allClosed || state.queueClosures.types[item.type] === true;
+    return state.queueClosures.allClosed
+      || state.queueClosures.types[item.type] === true
+      || state.queueClosures.devices[String(item.id).toLowerCase()] === true;
   }
   function isConsoleSelectable(item){
     return isReady(item) && !isQueueClosed(item);
@@ -3332,31 +3334,42 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function tabLabel(tab){ return ({queue:state.lang==="en"?"Close queue":"ปิดคิว",consoles:"เครื่อง",home:"Home",faq:"FAQ",settings:"Settings",sync:"Gist Sync",addons:"Bundles"})[tab]; }
   function adminQueueHtml(){
     const labels = state.lang === "en"
-      ? {title:"Rental queue controls",help:"Closed device types cannot be selected and their calendar dates show as unavailable.",all:"Close all device queues",save:"Save queue status",loading:"Loading queue status..."}
-      : {title:"ควบคุมการปิดคิวเช่า",help:"ประเภทที่ปิดคิวจะเลือกไม่ได้ และทุกวันในปฏิทินจะแสดงว่าไม่ว่าง",all:"ปิดคิวทุกเครื่อง",save:"บันทึกสถานะคิว",loading:"กำลังโหลดสถานะคิว..."};
+      ? {title:"Rental queue controls",help:"Closed devices cannot be selected and their calendar dates show as unavailable.",all:"Close all device queues",byType:"Close by device type",byDevice:"Close by device name",save:"Save queue status",loading:"Loading queue status..."}
+      : {title:"ควบคุมการปิดคิวเช่า",help:"เครื่องที่ปิดคิวจะเลือกไม่ได้ และทุกวันในปฏิทินจะแสดงว่าไม่ว่าง",all:"ปิดคิวทุกเครื่อง",byType:"ปิดตามประเภทเครื่อง",byDevice:"ปิดตามชื่อเครื่อง",save:"บันทึกสถานะคิว",loading:"กำลังโหลดสถานะคิว..."};
     const types = [["console",tr("type_console")],["vr",tr("type_vr")],["handheld",tr("type_handheld")],["racing",tr("type_racing")]];
+    const devices = [...state.consoles].sort((a,b) => consoleRank(a)-consoleRank(b));
     return `<div class="card"><h3>${labels.title}</h3><p class="hint">${labels.help}</p>
       <label class="option-row" style="margin-top:12px"><input type="checkbox" id="queueCloseAll" ${state.queueClosures.allClosed?"checked":""}><div><b>${labels.all}</b></div></label>
+      <h4 style="margin:18px 0 8px">${labels.byType}</h4>
       <div class="grid2" style="margin-top:12px">${types.map(([type,label]) => `<label class="option-row"><input type="checkbox" data-queue-type="${type}" ${state.queueClosures.types[type]?"checked":""} ${state.queueClosures.allClosed?"disabled":""}><div><b>${label}</b></div></label>`).join("")}</div>
+      <h4 style="margin:18px 0 8px">${labels.byDevice}</h4>
+      <div class="grid2">${devices.map(device => {
+        const id=String(device.id).toLowerCase();
+        const disabled=state.queueClosures.allClosed || state.queueClosures.types[device.type] === true;
+        return `<label class="option-row"><input type="checkbox" data-queue-device="${esc(id)}" ${state.queueClosures.devices[id]?"checked":""} ${disabled?"disabled":""}><div><b>${esc(cName(device))}</b></div></label>`;
+      }).join("")}</div>
       <div style="display:flex;align-items:center;gap:12px;margin-top:14px"><button class="btn primary" id="saveQueueClosures" type="button">${labels.save}</button><span class="hint" id="queueAdminStatus">${state.queueClosures.loading?labels.loading:""}</span></div>
     </div>`;
   }
   function applyQueueClosures(payload={}){
     const types = payload.types && typeof payload.types === "object" ? payload.types : {};
+    const devices = payload.devices && typeof payload.devices === "object" ? payload.devices : {};
     state.queueClosures.allClosed = payload.allClosed === true;
     ["console","vr","handheld","racing"].forEach(type => { state.queueClosures.types[type] = types[type] === true; });
+    state.queueClosures.devices = Object.fromEntries(Object.entries(devices).map(([id,closed]) => [String(id).toLowerCase(),closed === true]));
     state.queueClosures.updatedAt = String(payload.updatedAt || "");
   }
   async function saveQueueClosuresFromAdmin(){
     const status = byId("queueAdminStatus");
     const allClosed = byId("queueCloseAll").checked;
     const types = Object.fromEntries(["console","vr","handheld","racing"].map(type => [type, Boolean(document.querySelector(`[data-queue-type="${type}"]`)?.checked)]));
+    const devices = Object.fromEntries([...document.querySelectorAll("[data-queue-device]")].map(input => [input.dataset.queueDevice,Boolean(input.checked)]));
     if(status) status.textContent = state.lang === "en" ? "Saving..." : "กำลังบันทึก...";
     try{
       const response = await fetch(`${CONFIG.apiBase}/api/admin/queue-closures`, {
         method:"PUT",
         headers:{"Content-Type":"application/json","Authorization":`Bearer ${state.adminToken}`},
-        body:JSON.stringify({allClosed,types})
+        body:JSON.stringify({allClosed,types,devices})
       });
       if(response.status === 401){
         state.adminToken = "";
@@ -3700,6 +3713,17 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(event.target.closest("#queueCloseAll")){
         state.queueClosures.allClosed = event.target.checked;
         renderAdmin();
+        return;
+      }
+      const queueType = event.target.closest("[data-queue-type]");
+      if(queueType){
+        state.queueClosures.types[queueType.dataset.queueType] = queueType.checked;
+        renderAdmin();
+        return;
+      }
+      const queueDevice = event.target.closest("[data-queue-device]");
+      if(queueDevice){
+        state.queueClosures.devices[queueDevice.dataset.queueDevice] = queueDevice.checked;
         return;
       }
     });
