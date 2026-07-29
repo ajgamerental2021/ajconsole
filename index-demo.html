@@ -163,6 +163,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-option-copy small{font-size:12px;font-weight:800;color:var(--text2)}
 .payment-brand-badges{display:inline-flex;align-items:center;gap:6px;margin-left:5px;vertical-align:middle}
 .payment-card-logo{display:block;width:auto;height:20px;max-width:42px;object-fit:contain}
+.payment-wallet-badges{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:6px}
+.payment-wallet-logo{display:block;width:auto;height:24px;max-width:48px;object-fit:contain;border-radius:5px}
+.sum-row .payment-option-copy{align-items:flex-end}
+.sum-row .payment-wallet-badges{justify-content:flex-end}
 .sum-empty{color:var(--text3);font-size:14px;padding:20px 0}
 .summary-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .summary-actions .brand-icon{display:inline-grid;place-items:center;width:20px;height:20px;margin-right:5px;border-radius:6px;background:rgba(255,255,255,.22);color:#fff;font-size:12px;font-weight:900;line-height:1;font-family:Arial,system-ui,sans-serif;flex:0 0 auto}
@@ -1536,7 +1540,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ? `Google Maps delivery address <span class="maps-fee-highlight">check delivery fee before deciding</span>`
       : `GOOGLE MAPS ที่อยู่จัดส่ง <span class="maps-fee-highlight">เช็คค่าจัดส่งก่อนตัดสินใจ</span>`;
     const paymentHtml = state.lang === "en"
-      ? `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title">Pay ฿1,000 by card to reserve (no fee) ${paymentCardBadgesHtml()}</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""}>${cashDeliveryOptionHtml()}</label></div><div class="payment-group"><div class="payment-group-title">Pay the full amount before delivery</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""}><span>${tr("bank")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""}><span>${tr("wise")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""}><span>${tr("credit")} ${paymentCardBadgesHtml()}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""}><span>${tr("ewallet")}</span></label></div></div></div>`
+      ? `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title">Pay ฿1,000 by card to reserve (no fee) ${paymentCardBadgesHtml()}</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""}>${cashDeliveryOptionHtml()}</label></div><div class="payment-group"><div class="payment-group-title">Pay the full amount before delivery</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""}><span>${tr("bank")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""}><span>${tr("wise")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""}><span>${tr("credit")} ${paymentCardBadgesHtml()}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""}>${ewalletOptionHtml()}</label></div></div></div>`
       : "";
     byId("optionRows").innerHTML = `
       ${renderBoardGameBundle()}
@@ -1615,11 +1619,25 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function paymentCardBadgesHtml(){
     return `<span class="payment-brand-badges" aria-label="Visa and Mastercard accepted"><img class="payment-card-logo" src="https://storage.googleapis.com/beam-guides/payment-method-logo/credit-card/png/visa.png" alt="Visa"><img class="payment-card-logo" src="https://storage.googleapis.com/beam-guides/payment-method-logo/credit-card/png/mastercard.png" alt="Mastercard"></span>`;
   }
+  function paymentEwalletBadgesHtml(){
+    const wallets = [
+      ["true-money.png", "TrueMoney"],
+      ["shopee-pay.png", "ShopeePay"],
+      ["line.png", "LINE Pay"],
+      ["alipay.png", "Alipay"],
+      ["wechat.png", "WeChat Pay"]
+    ];
+    return `<span class="payment-wallet-badges" aria-label="Supported E-Wallets">${wallets.map(([file, name]) => `<img class="payment-wallet-logo" src="https://storage.googleapis.com/beam-guides/payment-method-logo/e-wallets/png/${file}" alt="${name}">`).join("")}</span>`;
+  }
   function cashDeliveryOptionHtml(){
     return `<span class="payment-option-copy"><span>${tr("cash")}</span><small>Cash (no fee) or Card (+3.50%)</small></span>`;
   }
+  function ewalletOptionHtml(){
+    return `<span class="payment-option-copy"><span>${tr("ewallet")}</span>${paymentEwalletBadgesHtml()}</span>`;
+  }
   function paymentOptionSummaryHtml(){
     if(state.calc.payment === "cash") return `${cashDeliveryOptionHtml()} ${paymentCardBadgesHtml()}`;
+    if(state.calc.payment === "ewallet") return ewalletOptionHtml();
     const label = esc(paymentOptionLabelEn());
     return state.calc.payment === "credit" ? `${label} ${paymentCardBadgesHtml()}` : label;
   }
