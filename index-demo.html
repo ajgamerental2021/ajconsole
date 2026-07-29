@@ -674,6 +674,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",
     gamePage: "game_index.html",
     contractUrl: "https://liff.line.me/2010196202-iYu3RKIb",
+    contractWebUrl: "https://aj-line-oa-bot.onrender.com/liff/",
     availabilityUrl: "https://script.google.com/macros/s/AKfycbwQezV-pML5afGWg18P5exdH6mVVCdBJxAExvt8YiF8IRwF6Pu4u6aTnlIUqefDedD2BA/exec",
     lineGamePickerCardApi: "https://aj-line-oa-bot.onrender.com/api/line/game-picker-card",
     rentalSheetId: "13QZWpd_E-L_0G_Xd0zSL5_OcgV4sdwk9febXZSkZepc",
@@ -720,8 +721,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   ];
   const DEFAULT_SW_ROOT = [
     {id:"joy", th:"เพิ่มจอย 2 อัน (เล่นได้ 4 คน)", en:"Add 2 controllers (up to 4 players)", daily:70, weekly:350},
-    {id:"ringfit", th:"Ring Fit Adventure", en:"Ring Fit Adventure", daily:100, weekly:500},
-    {id:"taiko", th:"กลอง Taiko", en:"Taiko Drum", daily:100, weekly:500}
+    {id:"ringfit", th:"Ring Fit Adventure", en:"Ring Fit Adventure", daily:100, weekly:450},
+    {id:"taiko", th:"กลอง Taiko", en:"Taiko Drum", daily:100, weekly:450}
   ];
   const DEFAULT_SW_SUB = [
     {id:"bat", th:"ไม้แบด", en:"Badminton rackets", daily:70, weekly:350},
@@ -925,14 +926,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     promos: {bg:{enabled:false,mode:"percent",value:0}, console:{enabled:false,mode:"percent",value:0}},
     retEnabled: false,
     filter: {type:"all", brand:"all", sort:"brand"},
-    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,reviewGoogle:false,reviewFacebook:false,noContract:false,payment:"cash",maps:"",games:[],later:false,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",guideDone:{},guideConsoleId:""},
+    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,reviewGoogle:false,reviewFacebook:false,noContract:false,payment:"cash",maps:"",games:[],later:false,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",contractSignature:"",guideDone:{},guideConsoleId:""},
     availability: {rows:[],loading:false,error:"",lastSync:0,gate:{mode:"idle",pass:true}},
     calendar: {open:false,mode:"start",base:new Date(),draftStart:"",draftEnd:""},
     faqExpanded: false,
     adminTab: "consoles",
     autoPushTimer: 0
   };
-  const GUIDE_ORDER = ["console","start","end","ps5bundle","accessory","next1","bg","ret","contractChoice","contractLink","payment","maps","next2","games","next3","share"];
+  const GUIDE_ORDER = ["console","start","end","ps5bundle","accessory","next1","bg","ret","contractChoice","payment","contractLink","maps","next2","games","next3","share"];
   const GUIDE_KEY = "aj_index2_guide_stage";
   const RENTAL_SHEET_COLUMNS = [
     "รหัสการเช่า",
@@ -1110,6 +1111,22 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       }
     });
   }
+  function isPerRentalAccessory(item){
+    return String(item?.id || "").toLowerCase() === "vdock";
+  }
+  function accessoryRentalCost(item, days){
+    return isPerRentalAccessory(item)
+      ? Number(item?.daily) || 0
+      : rentalCost(days, item?.daily, item?.weekly);
+  }
+  function accessoryPriceHint(item){
+    if(isPerRentalAccessory(item)){
+      return state.lang === "en"
+        ? `${money(item.daily)}/rental`
+        : `${money(item.daily)}/การเช่า`;
+    }
+    return `${money(item.daily)}/${tr("day")} | ${money(item.weekly)}/${tr("wk")}`;
+  }
   function normalizeBgGame(input, index=0){
     const g = Object.assign({}, input || {});
     const id = String(g.id || g.game_id || g.gameId || `bg_${index}_${Date.now()}`);
@@ -1263,6 +1280,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }
     state.calc.rentalCode = "";
     state.calc.rentalCodeSig = "";
+    state.calc.contractSignature = "";
   }
   function saveLocal(){
     writeJson(LS.consoles, state.consoles);
@@ -1509,7 +1527,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const noExtra = single
         ? `<label class="option-row"><input type="radio" name="singleExtra" data-extra="" ${state.calc.extras.length ? "" : "checked"}><div><b>${tr("noAccessory")} <span class="option-note-highlight">${includedNote}</span></b></div></label>`
         : "";
-      parts.push(`<div class="option-block" id="accessoryBlock" style="margin-top:12px"><h3>${tr("accessories")}</h3><div class="bundle-list">${noExtra}${extras.map(x => `<label class="option-row"><input type="${single ? "radio" : "checkbox"}" ${single ? `name="singleExtra"` : ""} data-extra="${esc(x.id)}" ${state.calc.extras.includes(x.id)?"checked":""}><div><b>${esc(state.lang==="en"?x.en:x.th)}</b><div class="hint">${money(x.daily)}/${tr("day")} | ${money(x.weekly)}/${tr("wk")}</div></div></label>`).join("")}</div></div>`);
+      parts.push(`<div class="option-block" id="accessoryBlock" style="margin-top:12px"><h3>${tr("accessories")}</h3><div class="bundle-list">${noExtra}${extras.map(x => `<label class="option-row"><input type="${single ? "radio" : "checkbox"}" ${single ? `name="singleExtra"` : ""} data-extra="${esc(x.id)}" ${state.calc.extras.includes(x.id)?"checked":""}><div><b>${esc(state.lang==="en"?x.en:x.th)}</b><div class="hint">${esc(accessoryPriceHint(x))}</div></div></label>`).join("")}</div></div>`);
     }
     host.innerHTML = parts.join("") || "";
   }
@@ -1539,16 +1557,21 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const mapsLabel = state.lang === "en"
       ? `Google Maps delivery address <span class="maps-fee-highlight">check delivery fee before deciding</span>`
       : `GOOGLE MAPS ที่อยู่จัดส่ง <span class="maps-fee-highlight">เช็คค่าจัดส่งก่อนตัดสินใจ</span>`;
+    const paymentLocked = paymentSelectionLocked();
+    const paymentLockHint = paymentLocked
+      ? `<div class="hint"><b>Payment option locked after opening the rental contract.</b></div>`
+      : "";
+    const paymentDisabled = paymentLocked ? "disabled" : "";
     const paymentHtml = state.lang === "en"
-      ? `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title">Pay ฿1,000 by card to reserve (no fee) ${paymentCardBadgesHtml()}</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""}>${cashDeliveryOptionHtml()}</label></div><div class="payment-group"><div class="payment-group-title">Pay the full amount before delivery</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""}><span>${tr("bank")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""}><span>${tr("wise")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""}><span>${tr("credit")} ${paymentCardBadgesHtml()}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""}>${ewalletOptionHtml()}</label></div></div></div>`
+      ? `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title">Pay ฿1,000 by card to reserve (no fee) ${paymentCardBadgesHtml()}</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""} ${paymentDisabled}>${cashDeliveryOptionHtml()}</label></div><div class="payment-group"><div class="payment-group-title">Pay the full amount before delivery</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span>${tr("bank")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""} ${paymentDisabled}><span>${tr("wise")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}><span>${tr("credit")} ${paymentCardBadgesHtml()}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label></div></div>${paymentLockHint}</div>`
       : "";
     byId("optionRows").innerHTML = `
       ${renderBoardGameBundle()}
       <label class="option-row"><input type="checkbox" id="retOpt" ${state.calc.ret?"checked":""} ${state.retEnabled?"":"disabled"}><div><b>${tr("returning")}</b><div class="hint">${returningHelp}</div></div></label>
       ${returningReviewHtml}
       ${state.calc.ret ? "" : `<label class="option-row"><input type="checkbox" id="noContractOpt" ${state.calc.noContract?"checked":""}><div><b>${tr("noContract")}${state.calc.noContract && selectedConsole ? depositBadge(noContractDeposit(selectedConsole.deposit), "danger") : ""}</b><div class="hint">${tr("noContractHelp")}</div></div></label>`}
-      ${state.calc.noContract || state.calc.ret ? "" : `<div class="card" id="contractCard" style="margin:12px 0 0"><h3>${tr("contract")}${selectedConsole ? depositBadge(selectedConsole.deposit, "ok") : ""}</h3><p class="hint">${tr("contractHelp")}</p><button class="btn soft" id="contractBtn" type="button">${tr("contract")}</button><p class="hint" id="contractCodeHint">${state.calc.rentalCode ? `${tr("rentalCode")}: ${esc(state.calc.rentalCode)}` : ""}</p></div>`}
       ${paymentHtml ? `<div style="margin-top:12px">${paymentHtml}</div>` : ""}
+      ${state.calc.noContract || state.calc.ret ? "" : `<div class="card" id="contractCard" style="margin:12px 0 0"><h3>${tr("contract")}${selectedConsole ? depositBadge(selectedConsole.deposit, "ok") : ""}</h3><p class="hint">${tr("contractHelp")}</p><button class="btn soft" id="contractBtn" type="button">${tr("contract")}</button><p class="hint" id="contractCodeHint">${state.calc.rentalCode ? `${tr("rentalCode")}: ${esc(state.calc.rentalCode)}` : ""}</p></div>`}
       <div class="grid2" style="margin-top:12px">
         <div class="field"><label class="label">${mapsLabel}</label><input class="input" id="mapsInput" value="${esc(state.calc.maps)}" placeholder="https://maps.google.com/..."><div class="hint">${tr("mapsInputHelp")}</div></div>
       </div>
@@ -1641,20 +1664,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const label = esc(paymentOptionLabelEn());
     return state.calc.payment === "credit" ? `${label} ${paymentCardBadgesHtml()}` : label;
   }
-  function paymentFeeRate(){
-    if(state.lang !== "en") return 0;
-    if(state.calc.payment === "credit") return 0.035;
-    if(state.calc.payment === "ewallet") return 0.0295;
-    return 0;
-  }
   function paymentFeeLabel(){
     if(state.calc.payment === "credit") return "Credit Card fee (3.50%)";
     if(state.calc.payment === "ewallet") return "E-Wallet fee (2.95%)";
     return tr("paymentFee");
   }
   function paymentFeeAmount(amount){
-    const rate = paymentFeeRate();
-    return rate ? Math.ceil((Number(amount) || 0) * rate) : 0;
+    const basisPoints = state.calc.payment === "credit" ? 350 : (state.calc.payment === "ewallet" ? 295 : 0);
+    return basisPoints ? Math.ceil(((Number(amount) || 0) * basisPoints) / 10000) : 0;
   }
   function paymentLinkAmount(summary){
     if(state.lang !== "en") return 0;
@@ -1684,6 +1701,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify({
         amount,
+        baseAmount: Number(summary.subtotalBeforePaymentFee) || 0,
         paymentMethod: state.calc.payment,
         rentalCode,
         defaultLanguage: language,
@@ -1796,7 +1814,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }
     const rental = rentalCost(days, daily, weekly);
     const extras = extrasForConsole(c).filter(x => state.calc.extras.includes(x.id));
-    const addons = extras.reduce((sum,x) => sum + rentalCost(days, x.daily, x.weekly), 0);
+    const addons = extras.reduce((sum,x) => sum + accessoryRentalCost(x, days), 0);
     const bgItems = state.calc.boardgames.map(bgById).filter(Boolean);
     const bgSubtotal = bgItems.reduce((sum,g) => sum + bgRentalCost(g, days), 0);
     const bgDisc = promoDiscount("bg", bgSubtotal, bgItems.length);
@@ -1818,7 +1836,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     let onDelivery = Math.max(0, total - 200);
     if(state.lang === "en"){
       if(state.calc.payment === "cash"){ upfront = Math.min(1000, total); onDelivery = Math.max(0, total - upfront); }
-      else if(state.calc.payment === "wise" || state.calc.payment === "credit" || state.calc.payment === "ewallet"){ upfront = total; onDelivery = 0; }
+      else if(state.calc.payment === "bank" || state.calc.payment === "wise" || state.calc.payment === "credit" || state.calc.payment === "ewallet"){ upfront = total; onDelivery = 0; }
     }
     return {days,rental,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,reviewGoogleDisc,reviewFacebookDisc,promoDisc,discounts:retDisc+reviewGoogleDisc+reviewFacebookDisc+promoDisc+bgDisc,deposit:depositTotal,subtotalBeforePaymentFee,paymentFee,total,upfront,onDelivery,bundleName,extras,bgItems};
   }
@@ -2156,8 +2174,15 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       state.calc.ret ? "ret" : "",
       state.calc.reviewGoogle ? "reviewGoogle" : "",
       state.calc.reviewFacebook ? "reviewFacebook" : "",
+      state.calc.payment,
       Math.round(Number(summary.total)||0)
     ].join("|");
+  }
+  function paymentSelectionLocked(summary=calcSummary()){
+    return Boolean(
+      state.calc.contractSignature &&
+      state.calc.contractSignature === rentalSignature(summary)
+    );
   }
   function rowRentalCode(row){
     const keys = Object.keys(row || {});
@@ -2188,12 +2213,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   async function ensureRentalCode(summary=calcSummary()){
     const sig = rentalSignature(summary);
-    if(
-      state.calc.rentalCode &&
-      state.calc.rentalCodeSig === sig &&
-      !SESSION_RENTAL_CODES.has(state.calc.rentalCode) &&
-      localStorage.getItem(`aj_rental_sheet_submitted_${state.calc.rentalCode}`) !== "1"
-    ) return state.calc.rentalCode;
+    if(state.calc.rentalCode && state.calc.rentalCodeSig === sig) return state.calc.rentalCode;
     const used = await existingRentalCodes();
     if(!used) throw new Error("Cannot read rental code sheet");
     if(
@@ -2226,7 +2246,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }, 250);
   }
   function rentalContractLink(code){
-    const url = new URL(CONFIG.contractUrl, location.href);
+    const lineUserId = lineUniqueId();
+    const url = new URL(lineUserId ? CONFIG.contractUrl : CONFIG.contractWebUrl, location.href);
+    if(lineUserId) url.searchParams.set("lineUserId", lineUserId);
     const selected = consoleById(state.calc.consoleId);
     const deviceId = contractDeviceId(selected);
     if(deviceId) url.searchParams.set("deviceId", deviceId);
@@ -2745,6 +2767,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     try{
       const code = await ensureRentalCode(summary);
       await ensureBeamPaymentLink(summary, code);
+      state.calc.contractSignature = rentalSignature(summary);
+      saveLocal();
+      render();
       const hint = byId("contractCodeHint");
       if(hint) hint.textContent = `${tr("rentalCode")}: ${code}`;
       // Persist the booking (incl. message) when the customer opens the contract,
@@ -3183,8 +3208,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(!state.calc.boardgames.length && !guideDone("bg")) return "bg";
       if(!state.calc.ret && !guideDone("ret")) return "ret";
       if(!state.calc.ret && !guideDone("contractChoice")) return "contractChoice";
-      if(!state.calc.ret && !state.calc.noContract && !guideDone("contractLink")) return "contractLink";
       if(guideStageAvailable("payment") && !guideDone("payment")) return "payment";
+      if(!state.calc.ret && !state.calc.noContract && !guideDone("contractLink")) return "contractLink";
       if(!state.calc.maps && !guideDone("maps")) return "maps";
       return "next2";
     }
@@ -3330,7 +3355,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(action === "do-contract"){
       markGuideDone("contractChoice");
       state.calc.noContract = false;
-      setGuideStage("contractLink");
+      setGuideStage(guideStageAvailable("payment") && !guideDone("payment") ? "payment" : "contractLink");
       saveLocal();
       render();
       return;
@@ -3365,7 +3390,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       render();
       return;
     }
-    if(action === "contract-later"){ advanceGuide("contractLink"); return; }
+    if(action === "contract-later"){
+      markGuideDone("contractLink");
+      setGuideStage("maps");
+      return;
+    }
     if(action === "game-later"){
       markGuideDone("games");
       state.calc.later = true;
@@ -3822,11 +3851,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         render();
       }
       if(event.target.dataset.paymentChoice){
+        if(paymentSelectionLocked()){
+          toast("Payment option is locked after opening the rental contract.");
+          render();
+          return;
+        }
         state.calc.payment = event.target.dataset.paymentChoice;
         state.calc.beamPaymentLink = "";
         state.calc.beamPaymentKey = "";
         markGuideDone("payment");
-        setGuideStage("maps");
+        setGuideStage(!state.calc.ret && !state.calc.noContract && !guideDone("contractLink") ? "contractLink" : "maps");
         saveLocal();
         render();
       }
@@ -3849,7 +3883,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         saveLocal();
         render();
       }
-      if(targetId === "contractBtn"){ openContract(); markGuideDone("contractLink"); setGuideStage(guideStageAvailable("payment") && !guideDone("payment") ? "payment" : "maps"); saveLocal(); renderGuide(); }
+      if(targetId === "contractBtn"){ openContract(); markGuideDone("contractLink"); setGuideStage("maps"); saveLocal(); renderGuide(); }
       if(targetId === "openGamePicker") openGamePicker();
       if(targetId === "clearGames"){ state.calc.games = []; state.calc.later = false; saveLocal(); render(); }
       if(targetId === "sendLine"){ if(await sendLine()){ renderSummary(); renderGuide(); } }
