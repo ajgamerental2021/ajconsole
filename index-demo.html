@@ -1499,7 +1499,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ? `Google Maps delivery address <span class="maps-fee-highlight">check delivery fee before deciding</span>`
       : `GOOGLE MAPS ที่อยู่จัดส่ง <span class="maps-fee-highlight">เช็คค่าจัดส่งก่อนตัดสินใจ</span>`;
     const paymentHtml = state.lang === "en"
-      ? `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title">Pay ฿1,000 reservation by card, then balance on delivery ${paymentCardBadgesHtml()}</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""}><span>${tr("cash")}</span></label></div><div class="payment-group"><div class="payment-group-title">Pay the full amount before delivery</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""}><span>${tr("bank")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""}><span>${tr("wise")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""}><span>${tr("credit")} ${paymentCardBadgesHtml()}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""}><span>${tr("ewallet")}</span></label></div></div></div>`
+      ? `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title">Pay ฿1,000 reservation by card, then balance in cash on delivery ${paymentCardBadgesHtml()}</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""}><span>${tr("cash")}</span></label></div><div class="payment-group"><div class="payment-group-title">Pay the full amount before delivery</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""}><span>${tr("bank")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""}><span>${tr("wise")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""}><span>${tr("credit")} ${paymentCardBadgesHtml()}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""}><span>${tr("ewallet")}</span></label></div></div></div>`
       : "";
     byId("optionRows").innerHTML = `
       ${renderBoardGameBundle()}
@@ -1589,7 +1589,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return 0;
   }
   function paymentFeeLabel(){
-    if(state.calc.payment === "credit") return "Payment fee (3.50%)";
+    if(state.calc.payment === "credit") return "Credit Card fee (3.50%)";
     if(state.calc.payment === "ewallet") return "E-Wallet fee (2.95%)";
     return tr("paymentFee");
   }
