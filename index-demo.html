@@ -680,6 +680,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     facebookMessengerUser: "100064849841171",
     facebookMessengerUrl: "https://m.me/ajgamerental",
     beamPaymentApi: "https://aj-line-oa-bot.onrender.com/api/payments/beam-link",
+    paymentSuccessUrl: "https://ajgamerental2021.github.io/ajconsole/payment-success.html",
     paymentLinkBase: "https://pay.ajgamerental.com/demo-checkout",
     lineLiffId: "2010212481-16RHJsnX"
   };
@@ -1627,7 +1628,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         paymentMethod: state.calc.payment,
         rentalCode,
         defaultLanguage: language,
-        description: `AJ Game Rental ${rentalCode}`
+        description: `AJ Game Rental ${rentalCode}`,
+        returnUrl: `${CONFIG.paymentSuccessUrl}?lang=${encodeURIComponent(state.lang)}&rentalCode=${encodeURIComponent(rentalCode)}`
       })
     });
     const data = await response.json().catch(() => ({}));
