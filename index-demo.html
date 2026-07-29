@@ -159,6 +159,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-option + .payment-option{border-top:1px solid var(--border)}
 .payment-option input{width:19px;height:19px;margin:0;accent-color:#d71920;flex:0 0 auto}
 .payment-option:has(input:checked){background:#fff4f4;box-shadow:inset 4px 0 #d71920}
+.payment-brand-badges{display:inline-flex;align-items:center;gap:5px;margin-left:4px;vertical-align:middle}
+.payment-card-badge{display:inline-grid;place-items:center;min-width:34px;height:19px;border-radius:5px;padding:0 6px;background:#fff;border:1px solid #d6d6d6;color:#1a1f71;font:900 10px/1 Arial,system-ui,sans-serif;letter-spacing:.2px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.payment-card-badge.mc{color:#111;background:linear-gradient(90deg,#ff5f00 0 50%,#f79e1b 50% 100%)}
 .sum-empty{color:var(--text3);font-size:14px;padding:20px 0}
 .summary-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .summary-actions .brand-icon{display:inline-grid;place-items:center;width:20px;height:20px;margin-right:5px;border-radius:6px;background:rgba(255,255,255,.22);color:#fff;font-size:12px;font-weight:900;line-height:1;font-family:Arial,system-ui,sans-serif;flex:0 0 auto}
@@ -1496,7 +1499,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ? `Google Maps delivery address <span class="maps-fee-highlight">check delivery fee before deciding</span>`
       : `GOOGLE MAPS ที่อยู่จัดส่ง <span class="maps-fee-highlight">เช็คค่าจัดส่งก่อนตัดสินใจ</span>`;
     const paymentHtml = state.lang === "en"
-      ? `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title">Pay ฿1,000 reservation by card, then balance on delivery</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""}><span>${tr("cash")}</span></label></div><div class="payment-group"><div class="payment-group-title">Pay the full amount before delivery</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""}><span>${tr("bank")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""}><span>${tr("wise")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""}><span>${tr("credit")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""}><span>${tr("ewallet")}</span></label></div></div></div>`
+      ? `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title">Pay ฿1,000 reservation by card, then balance on delivery ${paymentCardBadgesHtml()}</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""}><span>${tr("cash")}</span></label></div><div class="payment-group"><div class="payment-group-title">Pay the full amount before delivery</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""}><span>${tr("bank")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""}><span>${tr("wise")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""}><span>${tr("credit")} ${paymentCardBadgesHtml()}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""}><span>${tr("ewallet")}</span></label></div></div></div>`
       : "";
     byId("optionRows").innerHTML = `
       ${renderBoardGameBundle()}
@@ -1572,8 +1575,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(state.calc.payment === "ewallet") return "E-Wallet: pay full amount before delivery (+2.95%)";
     return paymentOptionLabelEn();
   }
+  function paymentCardBadgesHtml(){
+    return `<span class="payment-brand-badges" aria-label="Visa and Mastercard accepted"><span class="payment-card-badge">VISA</span><span class="payment-card-badge mc">MC</span></span>`;
+  }
   function paymentOptionSummaryHtml(){
-    return esc(paymentOptionLabelEn());
+    const label = esc(paymentOptionLabelEn());
+    return state.calc.payment === "cash" || state.calc.payment === "credit" ? `${label} ${paymentCardBadgesHtml()}` : label;
   }
   function paymentFeeRate(){
     if(state.lang !== "en") return 0;
