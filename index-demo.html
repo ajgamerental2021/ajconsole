@@ -1681,7 +1681,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function cashDeliveryOptionHtml(){
     const balanceMethods = state.lang === "en"
       ? "Cash (no fee), Card (+3.50%) or E-Wallet (+2.95%)"
-      : "ด้วยเงินโอน (ไม่มีค่าธรรมเนียม), บัตร (+3.50%) หรือ E-Wallet (+2.95%)";
+      : "เงินโอน (ไม่มีค่าธรรมเนียม), บัตร (+3.50%) หรือ E-Wallet (+2.95%)";
     return `<span class="payment-option-copy"><span>${tr("cash")}</span><small>${balanceMethods}</small>${paymentReservationBadgesHtml()}</span>`;
   }
   function ewalletOptionHtml(){
@@ -2575,7 +2575,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       "",
       "💰 สรุปค่าใช้จ่าย:",
       ...costLinesTh,
-      "",
       `💰 ยอดรวมทั้งหมด: ${money(s.total)}`,
       "",
       ...paymentSummaryLinesTh,
@@ -2603,7 +2602,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       "",
       "💰 Cost summary:",
       ...costLinesEn,
-      "",
       `💰 Total: ${money(s.total)}`,
       "",
       ...paymentSummaryLinesEn,
@@ -4237,7 +4235,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       text = lines.join("\n");
     }
 
-    return text;
+    return text.replace(
+      /(\n\s*-\s*[^\n]*(?:deposit|ค่าประกัน)[^\n]*)\n[ \t]*\n(?=💰\s*(?:Total|ยอดรวมทั้งหมด):)/gi,
+      "$1\n"
+    );
   }
 
   function resetShareUi(){
