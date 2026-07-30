@@ -693,6 +693,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     reservationBankAccount: "8690576029",
     reservationBankNameTh: "กรุงไทย",
     reservationAccountName: "สมชาย เหมศิริ",
+    wiseBankNameEn: "Krung Thai",
+    wiseAccountNameEn: "Somchai Hemsiri",
+    wiseEmail: "ajgamerental2021@gmail.com",
     lineLiffId: "2010212481-16RHJsnX"
   };
 
@@ -2349,8 +2352,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       paymentLink: en ? generatedPaymentLink(s, code) : "",
       paymentLinkLabel: en ? paymentLinkLabel() : "",
       paymentBankAccount: CONFIG.reservationBankAccount,
-      paymentBankName: en ? "Krungthai Bank" : CONFIG.reservationBankNameTh,
-      paymentAccountName: CONFIG.reservationAccountName
+      paymentBankName: state.calc.payment === "wise" ? CONFIG.wiseBankNameEn : (en ? "Krungthai Bank" : CONFIG.reservationBankNameTh),
+      paymentAccountName: state.calc.payment === "wise" ? CONFIG.wiseAccountNameEn : CONFIG.reservationAccountName,
+      paymentEmail: state.calc.payment === "wise" ? CONFIG.wiseEmail : "",
+      paymentSwiftRequired: state.calc.payment === "wise" ? false : undefined
     };
   }
   function rentalSheetPayload(summary, code, channel){
@@ -2431,10 +2436,24 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const isCashPayment = state.calc.payment === "cash";
     const paymentLink = generatedPaymentLink(s, rentalCode);
     const paymentLinkLinesEn = paymentLink ? [`🔗 ${tr("paymentLink")} (${paymentLinkLabel()}): ${paymentLink}`] : [];
-    const bankPaymentLinesEn = !paymentLink && ["bank","wise"].includes(state.calc.payment) ? [
+    const bankPaymentLinesEn = !paymentLink && state.calc.payment === "bank" ? [
       `✅ Account number: ${CONFIG.reservationBankAccount}`,
       "✅ Bank: Krungthai Bank",
       `✅ Account name: ${CONFIG.reservationAccountName}`
+    ] : [];
+    const wisePaymentLinesEn = !paymentLink && state.calc.payment === "wise" ? [
+      `✅Bank Acc No. : ${CONFIG.reservationBankAccount}`,
+      `✅Bank Name : ${CONFIG.wiseBankNameEn}`,
+      `✅Bank Acc. Name : ${CONFIG.wiseAccountNameEn}`,
+      `✅Email : ${CONFIG.wiseEmail}`,
+      "⚠️No swift code required"
+    ] : [];
+    const wisePaymentLinesTh = state.calc.payment === "wise" ? [
+      `✅เลขบัญชี : ${CONFIG.reservationBankAccount}`,
+      `✅ชื่อธนาคาร : ${CONFIG.reservationBankNameTh}`,
+      `✅ชื่อบัญชี : ${CONFIG.reservationAccountName}`,
+      `✅อีเมล : ${CONFIG.wiseEmail}`,
+      "⚠️ไม่ต้องใช้ SWIFT Code"
     ] : [];
     const costLinesTh = [
       `  - ค่าเช่า ${cName(c)}: ${money(s.rental)}`,
@@ -2493,11 +2512,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       `💳 โอนล่วงหน้า (ยืนยันจอง): ${money(s.upfront)}`,
       `🚚 จ่ายตอนของถึง: ${money(s.onDelivery)}`,
       "",
-      `💳 โอนค่าจอง ${money(CONFIG.reservationAmount)}`,
-      `✅ เลขบัญชี: ${CONFIG.reservationBankAccount}`,
-      `✅ ธนาคาร: ${CONFIG.reservationBankNameTh}`,
-      `✅ ชื่อบัญชี: ${CONFIG.reservationAccountName}`,
-      "กรุณาโอนหลังทางร้านยืนยันค่าส่ง แล้วส่งรูปสลิปในแชท LINE เพื่อตรวจสอบอัตโนมัติ",
+      ...(state.calc.payment === "wise" ? [
+        "💳 ช่องทางชำระ: Wise",
+        ...wisePaymentLinesTh
+      ] : [
+        `💳 โอนค่าจอง ${money(CONFIG.reservationAmount)}`,
+        `✅ เลขบัญชี: ${CONFIG.reservationBankAccount}`,
+        `✅ ธนาคาร: ${CONFIG.reservationBankNameTh}`,
+        `✅ ชื่อบัญชี: ${CONFIG.reservationAccountName}`,
+        "กรุณาโอนหลังทางร้านยืนยันค่าส่ง แล้วส่งรูปสลิปในแชท LINE เพื่อตรวจสอบอัตโนมัติ"
+      ]),
       ...contractLinesTh,
       "",
       "🚫 ยกเลิกโดยลูกค้า → ไม่คืนเงินจอง 200 บาท",
@@ -2527,6 +2551,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       `💳 Payment option: ${paymentOptionEn}`,
       ...paymentLinkLinesEn,
       ...bankPaymentLinesEn,
+      ...wisePaymentLinesEn,
       ...(s.upfront > 0 && !isCashPayment ? [`💳 ${upfrontLabel()}: ${money(s.upfront)}`] : []),
       ...(s.onDelivery > 0 ? [`🚚 Pay on delivery: ${money(s.onDelivery)}`] : []),
       ...contractLinesEn,
@@ -4078,16 +4103,23 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       text = lines.join("\n");
     }
 
-    if(en && !/(Payment link:|Account number:)/i.test(text)){
+    if(en && !/(Payment link:|Account number:|Bank Acc No\.)/i.test(text)){
       const paymentLink = String(bookingData.paymentLink || "").trim();
       const paymentOption = String(bookingData.paymentOption || "").toLowerCase();
       const paymentLines = [
         bookingData.paymentOptionLabel ? `💳 Payment option: ${bookingData.paymentOptionLabel}` : "",
         paymentLink ? `🔗 Payment link: ${paymentLink}` : "",
-        ...(!paymentLink && ["bank","wise"].includes(paymentOption) ? [
+        ...(!paymentLink && paymentOption === "bank" ? [
           `✅ Account number: ${bookingData.paymentBankAccount || CONFIG.reservationBankAccount}`,
           `✅ Bank: ${bookingData.paymentBankName || "Krungthai Bank"}`,
           `✅ Account name: ${bookingData.paymentAccountName || CONFIG.reservationAccountName}`
+        ] : []),
+        ...(!paymentLink && paymentOption === "wise" ? [
+          `✅Bank Acc No. : ${bookingData.paymentBankAccount || CONFIG.reservationBankAccount}`,
+          `✅Bank Name : ${bookingData.paymentBankName || CONFIG.wiseBankNameEn}`,
+          `✅Bank Acc. Name : ${bookingData.paymentAccountName || CONFIG.wiseAccountNameEn}`,
+          `✅Email : ${bookingData.paymentEmail || CONFIG.wiseEmail}`,
+          "⚠️No swift code required"
         ] : [])
       ].filter(Boolean);
       if(paymentLines.length){
@@ -4096,6 +4128,20 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         lines.splice(insertAt >= 0 ? insertAt : lines.length, 0, ...paymentLines, "");
         text = lines.join("\n");
       }
+    }
+    if(!en && String(bookingData.paymentOption || "").toLowerCase() === "wise" && !/SWIFT Code/i.test(text)){
+      const lines = text.split("\n");
+      const insertAt = lines.findIndex(line => /^🚫/.test(line));
+      lines.splice(insertAt >= 0 ? insertAt : lines.length, 0,
+        "💳 ช่องทางชำระ: Wise",
+        `✅เลขบัญชี : ${bookingData.paymentBankAccount || CONFIG.reservationBankAccount}`,
+        `✅ชื่อธนาคาร : ${CONFIG.reservationBankNameTh}`,
+        `✅ชื่อบัญชี : ${CONFIG.reservationAccountName}`,
+        `✅อีเมล : ${bookingData.paymentEmail || CONFIG.wiseEmail}`,
+        "⚠️ไม่ต้องใช้ SWIFT Code",
+        ""
+      );
+      text = lines.join("\n");
     }
 
     return text;
