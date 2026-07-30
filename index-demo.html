@@ -1650,7 +1650,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return {cash:tr("cash"), bank:tr("bank"), credit:tr("credit"), ewallet:tr("ewallet")}[state.calc.payment] || tr("cash");
   }
   function paymentOptionMessageLabelEn(){
-    if(state.calc.payment === "cash") return "Pay ฿1,000 by card or E-Wallet to reserve (no fee) + balance on delivery: Cash (no fee), Card (+3.50%) or E-Wallet (+2.95%)";
+    if(state.calc.payment === "cash") return "Pay ฿1,000 to reserve (no fee) + balance on delivery";
     if(state.calc.payment === "credit") return "Credit Card: pay full amount before delivery (+3.50% fee)";
     if(state.calc.payment === "ewallet") return "E-Wallet: pay full amount before delivery (+2.95%)";
     return paymentOptionLabelEn();
@@ -2471,8 +2471,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const isThaiBankTransfer = state.calc.payment === "bank";
     const isCashPayment = state.calc.payment === "cash";
     const paymentLink = generatedPaymentLink(s, rentalCode);
-    const paymentLinkLinesEn = paymentLink ? [`🔗 ${tr("paymentLink")} (${paymentLinkLabel()}): ${paymentLink}`] : [];
-    const paymentLinkLinesTh = paymentLink ? [`🔗 ลิงก์ชำระเงิน (${paymentLinkLabel()}): ${paymentLink}`] : [];
+    const paymentLinkLinesEn = paymentLink ? [`🔗 Payment link: ${paymentLink}`] : [];
+    const paymentLinkLinesTh = paymentLink ? [`🔗 ลิงก์ชำระเงิน: ${paymentLink}`] : [];
     const bankPaymentLinesEn = !paymentLink && state.calc.payment === "bank" ? [
       `✅ Account number: ${CONFIG.reservationBankAccount}`,
       "✅ Bank: Krungthai Bank",
@@ -2486,12 +2486,43 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       "⚠️No swift code required"
     ] : [];
     const bankPaymentLinesTh = !paymentLink && ["cash","bank"].includes(state.calc.payment) ? [
-      "",
       `✅เลขบัญชี : ${CONFIG.reservationBankAccount}`,
       `✅ธนาคาร : ${CONFIG.reservationBankNameTh}`,
       `✅ชื่อบัญชี : ${CONFIG.reservationAccountName}`,
       ...(state.calc.payment === "cash" ? ["", "กรุณาโอนค่าจองคิว 200 บาทหลังทางร้านยืนยันค่าส่ง แล้วส่งสลิปในแชทที่ติดต่อกับทางร้าน"] : [])
     ] : [];
+    const paymentSummaryLinesTh = isCashPayment ? [
+      `💳 ช่องทางชำระ: ${paymentOptionTh}`,
+      "",
+      ...bankPaymentLinesTh,
+      ...(s.onDelivery > 0 ? [
+        "",
+        `🚚 ${payOnDeliveryLabel()}: ${money(s.onDelivery)}`,
+        "** เงินโอน (ไม่มีค่าธรรมเนียม), บัตร (+3.50%) หรือ E-Wallet (+2.95%) **"
+      ] : [])
+    ] : [
+      `💳 ช่องทางชำระ: ${paymentOptionTh}`,
+      ...paymentLinkLinesTh,
+      ...bankPaymentLinesTh,
+      ...(s.upfront > 0 ? [`💳 ${upfrontLabel()}: ${money(s.upfront)}`] : []),
+      ...(s.onDelivery > 0 ? [`🚚 ${payOnDeliveryLabel()}: ${money(s.onDelivery)}`] : [])
+    ];
+    const paymentSummaryLinesEn = isCashPayment ? [
+      "💳 Payment option: Pay ฿1,000 by card or E-Wallet to reserve (no fee)",
+      ...paymentLinkLinesEn,
+      "",
+      ...(s.onDelivery > 0 ? [
+        `🚚 Pay on delivery: ${money(s.onDelivery)}`,
+        "** Cash (no fee), Card (+3.50%) or E-Wallet (+2.95%) **"
+      ] : [])
+    ] : [
+      `💳 Payment option: ${paymentOptionEn}`,
+      ...paymentLinkLinesEn,
+      ...bankPaymentLinesEn,
+      ...wisePaymentLinesEn,
+      ...(s.upfront > 0 ? [`💳 ${upfrontLabel()}: ${money(s.upfront)}`] : []),
+      ...(s.onDelivery > 0 ? [`🚚 Pay on delivery: ${money(s.onDelivery)}`] : [])
+    ];
     const costLinesTh = [
       `  - ค่าเช่า ${cName(c)}: ${money(s.rental)}`,
       s.bundleName ? `  - Bundle ${s.bundleName}: รวมในค่าเช่า` : "",
@@ -2546,12 +2577,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ...costLinesTh,
       "",
       `💰 ยอดรวมทั้งหมด: ${money(s.total)}`,
-      `💳 ${upfrontLabel()}: ${money(s.upfront)}`,
-      ...(s.onDelivery > 0 ? [`🚚 ${payOnDeliveryLabel()}: ${money(s.onDelivery)}`] : []),
       "",
-      `💳 ช่องทางชำระ: ${paymentOptionTh}`,
-      ...paymentLinkLinesTh,
-      ...bankPaymentLinesTh,
+      ...paymentSummaryLinesTh,
       ...contractLinesTh,
       "",
       "🚫 ยกเลิกโดยลูกค้า → ไม่คืนเงินจอง 200 บาท",
@@ -2578,12 +2605,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ...costLinesEn,
       "",
       `💰 Total: ${money(s.total)}`,
-      `💳 Payment option: ${paymentOptionEn}`,
-      ...paymentLinkLinesEn,
-      ...bankPaymentLinesEn,
-      ...wisePaymentLinesEn,
-      ...(s.upfront > 0 && !isCashPayment ? [`💳 ${upfrontLabel()}: ${money(s.upfront)}`] : []),
-      ...(s.onDelivery > 0 ? [`🚚 Pay on delivery: ${money(s.onDelivery)}`] : []),
+      "",
+      ...paymentSummaryLinesEn,
       ...contractLinesEn,
       "",
       ...(isThaiBankTransfer ? ["🚫 Customer cancellation → Reservation deposit of ฿200 is non-refundable"] : []),
@@ -4102,6 +4125,44 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     };
   }
 
+  function normalizeViewerCashPaymentBlock(message, bookingData, en){
+    if(String(bookingData.paymentOption || "").toLowerCase() !== "cash") return String(message || "");
+    const source = String(message || "");
+    const paymentLink = String(bookingData.paymentLink || source.match(/https:\/\/pay\.beamcheckout\.com\/\S+/i)?.[0] || "").trim();
+    const onDelivery = String(bookingData.onDelivery || source.match(/(?:Pay on delivery|ชำระยอดที่เหลือปลายทาง|ยอดที่เหลือชำระปลายทาง):\s*([^\n]+)/i)?.[1] || "").trim();
+    const removable = en
+      ? /^(?:💳\s*(?:Payment option|Transfer before delivery)|🔗\s*Payment link|🚚\s*Pay on delivery|\*\*\s*Cash \(no fee\))/i
+      : /^(?:💳\s*(?:ช่องทางชำระ|โอนล่วงหน้า)|🔗\s*ลิงก์ชำระเงิน|🚚\s*(?:ชำระยอดที่เหลือปลายทาง|ยอดที่เหลือชำระปลายทาง)|\*\*\s*เงินโอน|✅\s*(?:เลขบัญชี|ธนาคาร|ชื่อบัญชี)|กรุณาโอนค่าจองคิว)/i;
+    const lines = source.split("\n").filter(line => !removable.test(line.trim()));
+    const compact = lines.filter((line, index) => line.trim() || (index > 0 && lines[index - 1].trim()));
+    const totalIndex = compact.findIndex(line => en ? /^💰\s*Total:/i.test(line) : /^💰\s*ยอดรวมทั้งหมด:/.test(line));
+    if(totalIndex < 0) return source;
+    const paymentBlock = en ? [
+      "",
+      "💳 Payment option: Pay ฿1,000 by card or E-Wallet to reserve (no fee)",
+      ...(paymentLink ? [`🔗 Payment link: ${paymentLink}`] : []),
+      "",
+      ...(onDelivery ? [`🚚 Pay on delivery: ${onDelivery}`] : []),
+      "** Cash (no fee), Card (+3.50%) or E-Wallet (+2.95%) **",
+      ""
+    ] : [
+      "",
+      "💳 ช่องทางชำระ: โอนจองคิว ฿200 ผ่านบัญชีธนาคาร",
+      "",
+      `✅เลขบัญชี : ${bookingData.paymentBankAccount || CONFIG.reservationBankAccount}`,
+      `✅ธนาคาร : ${bookingData.paymentBankName || CONFIG.reservationBankNameTh}`,
+      `✅ชื่อบัญชี : ${bookingData.paymentAccountName || CONFIG.reservationAccountName}`,
+      "",
+      "กรุณาโอนค่าจองคิว 200 บาทหลังทางร้านยืนยันค่าส่ง แล้วส่งสลิปในแชทที่ติดต่อกับทางร้าน",
+      "",
+      ...(onDelivery ? [`🚚 ชำระยอดที่เหลือปลายทาง: ${onDelivery}`] : []),
+      "** เงินโอน (ไม่มีค่าธรรมเนียม), บัตร (+3.50%) หรือ E-Wallet (+2.95%) **",
+      ""
+    ];
+    compact.splice(totalIndex + 1, 0, ...paymentBlock);
+    return compact.join("\n").replace(/\n{3,}/g, "\n\n");
+  }
+
   function normalizeViewerBookingMessage(message, payload){
     let text = String(message || "");
     const lang = String((payload && (payload.lang || (payload.data && payload.data.lang))) || "TH").toUpperCase();
@@ -4133,7 +4194,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       text = lines.join("\n");
     }
 
-    if(en && !/(Payment link:|Account number:|Bank Acc No\.)/i.test(text)){
+    text = normalizeViewerCashPaymentBlock(text, bookingData, en);
+
+    if(en && !/(Payment link(?:\s*\(|:)|Account number:|Bank Acc No\.)/i.test(text)){
       const paymentLink = String(bookingData.paymentLink || "").trim();
       const paymentOption = String(bookingData.paymentOption || "").toLowerCase();
       const paymentLines = [
