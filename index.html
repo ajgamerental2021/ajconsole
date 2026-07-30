@@ -1730,16 +1730,23 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(state.calc.payment === "ewallet") return state.lang === "en" ? "Pay by E-Wallet" : "ชำระด้วย E-Wallet";
     return "";
   }
-  function generatedPaymentLink(summary, rentalCode=""){
-    return state.calc.beamPaymentLink || "";
-  }
-  async function ensureBeamPaymentLink(summary, rentalCode){
+  function currentBeamPaymentKey(summary, rentalCode=""){
     const amount = paymentLinkAmount(summary);
     if(!amount || !["cash","credit","ewallet"].includes(state.calc.payment)) return "";
     const language = state.lang === "en" ? "EN" : "TH";
+    return [rentalCode, state.calc.payment, amount, language].join("|");
+  }
+  function generatedPaymentLink(summary, rentalCode=""){
+    const key = currentBeamPaymentKey(summary, rentalCode);
+    return key && state.calc.beamPaymentKey === key ? (state.calc.beamPaymentLink || "") : "";
+  }
+  async function ensureBeamPaymentLink(summary, rentalCode){
+    const amount = paymentLinkAmount(summary);
+    const key = currentBeamPaymentKey(summary, rentalCode);
+    if(!key) return "";
+    const language = state.lang === "en" ? "EN" : "TH";
     const lineUserId = lineUniqueId();
     const redirectContext = `lang=${encodeURIComponent(state.lang)}&rentalCode=${encodeURIComponent(rentalCode)}&line=${lineUserId ? "1" : "0"}&amount=${encodeURIComponent(amount)}&method=${encodeURIComponent(state.calc.payment)}`;
-    const key = [rentalCode, state.calc.payment, amount, language].join("|");
     if(state.calc.beamPaymentLink && state.calc.beamPaymentKey === key) return state.calc.beamPaymentLink;
     const response = await fetch(CONFIG.beamPaymentApi, {
       method: "POST",
@@ -2514,7 +2521,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       `✅เลขบัญชี : ${CONFIG.reservationBankAccount}`,
       `✅ธนาคาร : ${CONFIG.reservationBankNameTh}`,
       `✅ชื่อบัญชี : ${CONFIG.reservationAccountName}`,
-      ...(state.calc.payment === "cash" ? ["กรุณาโอนหลังทางร้านยืนยันค่าส่ง แล้วส่งรูปสลิปในแชท LINE เพื่อตรวจสอบอัตโนมัติ"] : [])
+      ...(state.calc.payment === "cash" ? ["กรุณาโอนค่าจองคิว 200 บาทหลังทางร้านยืนยันค่าส่ง แล้วส่งสลิปในแชทที่ติดต่อกับทางร้าน"] : [])
     ] : [];
     const costLinesTh = [
       `  - ค่าเช่า ${cName(c)}: ${money(s.rental)}`,
