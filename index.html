@@ -1694,8 +1694,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return `${paymentCardBadgesHtml()}${paymentEwalletBadgesHtml()}`;
   }
   function cashDeliveryOptionHtml(){
-    if(state.lang !== "en") return `<span class="payment-option-copy"><span>${tr("cash")}</span></span>`;
-    const balanceMethods = "Cash (no fee), Card (+3.50%) or E-Wallet (+2.95%)";
+    const balanceMethods = state.lang === "en"
+      ? "Cash (no fee), Card (+3.50%) or E-Wallet (+2.95%)"
+      : "ชำระยอดที่เหลือปลายทางด้วยเงินโอน (ไม่มีค่าธรรมเนียม), บัตร (+3.50%) หรือ E-Wallet (+2.95%)";
     return `<span class="payment-option-copy"><span>${tr("cash")}</span><small>${balanceMethods}</small>${paymentReservationBadgesHtml()}</span>`;
   }
   function ewalletOptionHtml(){
