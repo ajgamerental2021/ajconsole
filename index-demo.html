@@ -208,8 +208,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .faq-lang-btn{padding:7px 12px;font-size:13px;font-weight:800}
 .step1-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
 .step1-head h3{margin:0}
-.btn.step-guide-btn{flex:0 0 auto;background:#fff;border-color:var(--danger);color:var(--danger);white-space:nowrap}
-.btn.step-guide-btn:hover{background:#fff5f5}
+.btn.step-guide-btn{flex:0 0 auto;background:var(--danger);border-color:var(--danger);color:#fff;white-space:nowrap;font-weight:900;box-shadow:0 0 0 4px rgba(214,0,0,.12)}
+.btn.step-guide-btn:hover{background:#b90000;border-color:#b90000}
 .step-images.split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start;width:100%}
 .step-imgcol{display:flex;flex-direction:column;gap:6px;align-items:center}
 .step-subcap{font-size:13px;font-weight:700;color:var(--text2);text-align:center}
@@ -388,6 +388,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 }
 @media(max-width:640px){
   .container{padding:0 14px}
+  .step1-head{flex-direction:column;align-items:stretch}
+  .step1-head .step-guide-btn{order:-1;width:100%;white-space:normal}
   .admin-home-sections{gap:8px}
   .admin-home-sections .grid2{grid-template-columns:1fr}
   .nav-actions{gap:5px}
@@ -533,16 +535,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
             </div>
             <div class="pane" id="pane2">
               <div class="card">
-                <h3 data-i18n="step2Title">ตัวเลือกเพิ่มเติม</h3>
-                <div id="optionRows"></div>
+                <h3 data-i18n="step2Title">เลือกเกม</h3>
+                <p class="hint" data-i18n="gamePickHelp">ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้</p>
+                <div id="gamePickBox"></div>
               </div>
               <div class="step-actions" id="stepActions2"></div>
             </div>
             <div class="pane" id="pane3">
               <div class="card">
-                <h3 data-i18n="step3Title">เลือกเกม</h3>
-                <p class="hint" data-i18n="gamePickHelp">ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้</p>
-                <div id="gamePickBox"></div>
+                <h3 data-i18n="step3Title">ชำระเงิน / สัญญา / แผนที่</h3>
+                <div id="optionRows"></div>
               </div>
               <div class="step-actions" id="stepActions3"></div>
             </div>
@@ -790,7 +792,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       filterType:"ประเภท", filterBrand:"แบรนด์", filterSort:"เรียง", all:"ทั้งหมด", type_console:"Console", type_vr:"VR & AR", type_handheld:"PC Handheld", type_racing:"Racing",
       sort_brand:"แยกตามแบรนด์", sort_price_desc:"ราคา สูง → ต่ำ", sort_price_asc:"ราคา ต่ำ → สูง", sort_name:"ชื่อ A → Z",
       calcTag:"คำนวณ", calcTitle:"เช็คคิว & คำนวณค่าเช่า", calcSub:"ขั้นต่ำ 3 วัน | ราคาเรทบุคคล",
-      step1:"เลือกเครื่อง/วันที่", step2:"ชำระเงิน / สัญญา / แผนที่", step3:"เลือกเกม", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"ชำระเงิน / สัญญา / แผนที่", step3Title:"เลือกเกม", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"ขั้นตอนการเช่า", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
+      step1:"เลือกเครื่อง/วันที่", step2:"เลือกเกม", step3:"ชำระเงิน / สัญญา / แผนที่", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"เลือกเกม", step3Title:"ชำระเงิน / สัญญา / แผนที่", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"📖 อ่านขั้นตอนการเช่าก่อนเริ่ม", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
       nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
       deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
       gamePickHelp:"ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้", gamePickerTitle:"เลือกเกม", gameStorageWarning:"⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ", summaryHelp:"ตรวจสอบข้อมูล แล้วกดจองผ่านช่องทางที่สะดวก",
@@ -822,7 +824,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       filterType:"Type", filterBrand:"Brand", filterSort:"Sort", all:"All", type_console:"Console", type_vr:"VR & AR", type_handheld:"PC Handheld", type_racing:"Racing",
       sort_brand:"Group by brand", sort_price_desc:"Price high → low", sort_price_asc:"Price low → high", sort_name:"Name A → Z",
       calcTag:"Calculator", calcTitle:"Check Queue & Calculate Rental", calcSub:"Minimum 3 days | Individual rates",
-      step1:"Device / Dates", step2:"Payment / Contract / Map", step3:"Games", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Payment / Contract / Map", step3Title:"Choose games", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"Rental steps", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
+      step1:"Device / Dates", step2:"Games", step3:"Payment / Contract / Map", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Choose games", step3Title:"Payment / Contract / Map", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"📖 Read rental steps first", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
       nextStep:"Next step", backStep:"Back",
       deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", startDate:"Start date", endDate:"Return date",
       gamePickHelp:"Choose up to 10 games when this model has a catalog, or send the list later.", gamePickerTitle:"Select Games", gameStorageWarning:"⚠️ Limited device storage. Some games may not all fit.", summaryHelp:"Review the details, then book through your preferred channel.",
@@ -936,7 +938,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     adminTab: "consoles",
     autoPushTimer: 0
   };
-  const GUIDE_ORDER = ["console","start","end","ps5bundle","accessory","next1","bg","ret","contractChoice","payment","contractLink","maps","next2","games","next3","share"];
+  const GUIDE_ORDER = ["console","start","end","ps5bundle","accessory","next1","games","next2","bg","ret","contractChoice","payment","contractLink","maps","next3","share"];
   const GUIDE_KEY = "aj_index2_guide_stage";
   const RENTAL_SHEET_COLUMNS = [
     "รหัสการเช่า",
@@ -1435,7 +1437,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     document.body.dataset.calcStep = String(state.calc.step);
     const steps = [tr("step1"),tr("step2"),tr("step3"),tr("step4")];
     byId("calcTabs").innerHTML = steps.map((label,i) => {
-      const n = i+1, locked = false;
+      const n = i+1, locked = n > 1 && !stepReady(n - 1);
       return `<button class="step-tab ${state.calc.step===n?"active":""} ${stepReady(n)?"done":""} ${locked?"locked":""}" data-step="${n}" type="button"><span class="num">${n}</span><b>${esc(label)}</b></button>`;
     }).join("");
     $$(".pane").forEach((pane,i) => pane.classList.toggle("active", i+1 === state.calc.step));
@@ -1450,6 +1452,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function goCalcStep(step){
     const next = Math.min(4, Math.max(1, Number(step) || 1));
+    if(next > 1 && !stepReady(next - 1)){
+      const requiredStep = !stepReady(1) ? 1 : !stepReady(2) ? 2 : 3;
+      state.calc.step = requiredStep;
+      toast(state.lang === "en" ? "Please complete the previous step first." : "กรุณาทำขั้นตอนก่อนหน้าให้ครบก่อน");
+      renderCalc();
+      window.requestAnimationFrame(focusCurrentGuideTarget);
+      return;
+    }
     state.calc.step = next;
     setGuideStage(guideStageForStep(next), {syncStep:false});
     guideLastScrollStage = "";
@@ -1467,7 +1477,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function renderStepActions(){
     const buttons = step => {
       const back = step > 1 ? `<button class="btn" type="button" data-step-go="${step - 1}">${tr("backStep")}</button>` : `<span></span>`;
-      const next = step < 4 ? `<button class="btn primary" type="button" data-step-go="${step + 1}">${tr("nextStep")}</button>` : "";
+      const next = step < 4 ? `<button class="btn primary" type="button" data-step-go="${step + 1}" ${stepReady(step) ? "" : "disabled"}>${tr("nextStep")}</button>` : "";
       return `${back}${next}`;
     };
     [1,2,3,4].forEach(step => {
@@ -1489,6 +1499,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     state.calc.bundleId = "";
     state.calc.extras = [];
     state.calc.games = [];
+    state.calc.later = false;
     resetStepOneGuide();
     setGuideStage("start", {syncStep:false});
     fetchAvailability();
@@ -1623,12 +1634,18 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ${list.length ? `<button class="btn danger" id="clearGames" type="button" style="margin-top:12px">${tr("clearGames")}</button>` : ""}`;
   }
   function selectedDays(){ return diffDays(state.calc.start, state.calc.end); }
+  function gameSelectionReady(){
+    const c = consoleById(state.calc.consoleId);
+    if(!c) return false;
+    if(!gameUrl(c) || c.showGameButton === false) return true;
+    return !!state.calc.later || (state.calc.games || []).length > 0;
+  }
   function stepReady(step){
     if(step === 1){
       const days = selectedDays();
       return !!state.calc.consoleId && startDateAllowed(state.calc.start) && Number.isFinite(days) && days >= 3 && state.availability.gate.pass !== false;
     }
-    if(step === 2) return stepReady(1);
+    if(step === 2) return stepReady(1) && gameSelectionReady();
     if(step === 3) return stepReady(2);
     if(step === 4) return stepReady(3);
     return false;
@@ -3117,8 +3134,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         }
       ],
       detail:{
-        th:`<div class="step-detail-section"><h4>หลังส่งข้อมูล</h4><ul><li>ทางร้านสรุปรายละเอียด ค่าใช้จ่ายพร้อมค่าจัดส่ง และลิ้งค์ทำสัญญาเช่า <span class="step-mark">ข้ามส่วนสัญญาถ้าทำรายการผ่านเว็บ</span></li><li>ทางร้านแจ้งช่องทางชำระเงินและเวลาจัดส่งโดยประมาณ</li><li>ลูกค้าชำระล่วงหน้า <span class="step-mark">฿200 เพื่อจองคิว</span> และชำระยอดที่เหลือปลายทาง</li></ul></div><div class="step-detail-section"><h4>เตรียมเครื่องและจัดส่ง</h4><ul><li>เตรียมเครื่องและติดตั้งเกมประมาณ <span class="step-mark">2-3 ชั่วโมง</span> หรือ 30 นาที - 1 ชั่วโมงสำหรับเครื่องที่ไม่ต้องติดตั้งเกม</li><li>จัดส่งประมาณ 1-2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ</li><li>เมื่อของถึง สามารถเปิดกระเป๋าเช็คของกับคนส่งของก่อน แล้วชำระยอดที่เหลือพร้อมส่งสลิปให้ร้านทางแชท</li></ul><p><strong>ไม่ทำสัญญาเช่า: เพิ่มค่าประกันจาก ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000</strong></p></div><div class="step-detail-section"><h4>การคืนเครื่อง</h4><ul><li>ทางร้านเรียกรถเข้าไปรับเครื่อง และลูกค้ายืนยันอุปกรณ์ก่อนส่งคืนถ้าสะดวก</li><li>ส่งของให้คนรับของ แล้วแจ้งยืนยันหรือส่งรูปให้ร้านทางแชท</li><li>ร้านเช็คเครื่องและอุปกรณ์ จากนั้นคืนค่าประกันเข้าบัญชีในสัญญา หรือบัญชีที่แจ้งทางแชท</li></ul><p><strong>*ร้านเรียกรถขนส่งให้ทั้งขาส่งและขารับกลับ</strong></p><p><strong>**จัดส่ง 100% ไม่มีรับหรือคืนเครื่องที่หน้าร้าน</strong></p></div>`,
-        en:`<div class="step-detail-section"><h4>After submitting details</h4><ul><li>The shop summarizes the rental details, total cost including delivery, and rental contract link. <span class="step-mark">Skip the contract part if you submitted through the website.</span></li><li>The shop sends payment details and an estimated delivery time.</li><li>Pay <span class="step-mark">฿200 in advance to reserve the queue</span>, then pay the remaining balance on delivery.</li></ul></div><div class="step-detail-section"><h4>Preparation and delivery</h4><ul><li>Device preparation and game installation takes about <span class="step-mark">2-3 hours</span>, or 30 minutes - 1 hour for devices that do not need game installation.</li><li>Delivery usually takes about 1-2 hours depending on distance, traffic, and weather.</li><li>On arrival, you can check the items with the delivery rider first, then pay the remaining balance and send the slip to the shop by chat.</li></ul><p><strong>No rental contract: deposit increases from ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000.</strong></p></div><div class="step-detail-section"><h4>Returning the device</h4><ul><li>The shop calls a rider for pickup, and you can confirm the accessories before return if convenient.</li><li>Hand the items to the pickup rider, then confirm or send a photo to the shop by chat.</li><li>The shop checks the device and accessories, then refunds the deposit to the bank account in the contract or the account sent by chat.</li></ul><p><strong>*The shop arranges transport for both delivery and return pickup.</strong></p><p><strong>**Delivery service only. Pickup or return at the shop is not available.</strong></p></div>`
+        th:`<div class="step-detail-section"><h4>หลังส่งข้อมูล</h4><ul><li>ทางร้านตรวจคิว สรุปค่าใช้จ่ายพร้อมค่าจัดส่ง และแจ้งขั้นตอนถัดไป</li><li><span class="step-mark">ผู้เช่าครั้งแรกต้องทำสัญญาการเช่าก่อนนัดส่งเครื่อง</span> เว้นแต่เลือกไม่ทำสัญญาและยอมรับค่าประกันที่เพิ่มขึ้น</li><li>ชำระเงินตามช่องทางที่เลือก หลังทางร้านยืนยันคิวและค่าจัดส่ง</li></ul></div><div class="step-detail-section"><h4>เตรียมเครื่องและจัดส่ง</h4><ul><li>เตรียมเครื่องและติดตั้งเกมประมาณ <span class="step-mark">2-3 ชั่วโมง</span> หรือ 30 นาที - 1 ชั่วโมงสำหรับเครื่องที่ไม่ต้องติดตั้งเกม</li><li>จัดส่งประมาณ 1-2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ</li><li>เมื่อของถึง สามารถเปิดกระเป๋าเช็คของกับคนส่งของก่อน แล้วชำระยอดที่เหลือพร้อมส่งสลิปให้ร้านทางแชท</li></ul><p><strong>ไม่ทำสัญญาเช่า: เพิ่มค่าประกันจาก ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000</strong></p></div><div class="step-detail-section"><h4>การคืนเครื่อง</h4><ul><li>ทางร้านเรียกรถเข้าไปรับเครื่อง และลูกค้ายืนยันอุปกรณ์ก่อนส่งคืนถ้าสะดวก</li><li>ส่งของให้คนรับของ แล้วแจ้งยืนยันหรือส่งรูปให้ร้านทางแชท</li><li>ร้านเช็คเครื่องและอุปกรณ์ จากนั้นคืนค่าประกันเข้าบัญชีในสัญญา หรือบัญชีที่แจ้งทางแชท</li></ul><p><strong>*ร้านเรียกรถขนส่งให้ทั้งขาส่งและขารับกลับ</strong></p><p><strong>**จัดส่ง 100% ไม่มีรับหรือคืนเครื่องที่หน้าร้าน</strong></p></div>`,
+        en:`<div class="step-detail-section"><h4>After submitting details</h4><ul><li>The shop checks availability, confirms the total including delivery, and sends the next steps.</li><li><span class="step-mark">First-time renters must complete the rental contract before delivery</span>, unless they choose no contract and accept the higher deposit.</li><li>Pay with the selected method after the shop confirms availability and delivery cost.</li></ul></div><div class="step-detail-section"><h4>Preparation and delivery</h4><ul><li>Device preparation and game installation takes about <span class="step-mark">2-3 hours</span>, or 30 minutes - 1 hour for devices that do not need game installation.</li><li>Delivery usually takes about 1-2 hours depending on distance, traffic, and weather.</li><li>On arrival, you can check the items with the delivery rider first, then pay the remaining balance and send the slip to the shop by chat.</li></ul><p><strong>No rental contract: deposit increases from ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000.</strong></p></div><div class="step-detail-section"><h4>Returning the device</h4><ul><li>The shop calls a rider for pickup, and you can confirm the accessories before return if convenient.</li><li>Hand the items to the pickup rider, then confirm or send a photo to the shop by chat.</li><li>The shop checks the device and accessories, then refunds the deposit to the bank account in the contract or the account sent by chat.</li></ul><p><strong>*The shop arranges transport for both delivery and return pickup.</strong></p><p><strong>**Delivery service only. Pickup or return at the shop is not available.</strong></p></div>`
       }
     },
     {
@@ -3147,33 +3164,34 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     },
     {
       stepNo:4,
-      title:{th:"เลือกตัวเลือกเพิ่มเติม / ทำสัญญาเช่า / สถานที่จัดส่ง", en:"Choose extra options / rental contract / delivery location"},
+      title:{th:"วิธีเลือกเกม", en:"How to choose games"},
       columns:[
-        {src:"assets/steps/step4a.png", th:"เลือก บอร์ดเกม เพิ่มในการเช่าครั้งนี้ (ถ้ามี)", en:"Add board games to this rental if needed"},
-        {src:"assets/steps/step4b.png", th:"ติ๊กลูกค้าเก่าเพื่อรับส่วนลด 10% ถ้าเคยเช่าแล้ว / ติ๊กไม่ต้องการทำสัญญาการเช่า", en:"Tick returning customer for 10% off, or tick no rental contract"},
-        {src:"assets/steps/step4c.png", th:"คลิกที่ ทำสัญญาการเช่า หรือ ทำทีหลังได้ (กรณีทำสัญญาการเช่า)", en:"Click Rental contract, or choose to do it later"},
-        {src:"assets/steps/step4d.png", th:"แจ้ง Google Maps ลิ้งค์ เพื่อให้เช็คค่าจัดส่งได้ง่ายขึ้น", en:"Enter a Google Maps link so delivery cost can be checked faster"}
+        {src:"assets/steps/step6a.png", th:"คลิก เลือก / แก้ไขรายชื่อเกม ตามลูกศรสีแดง", en:"Click Select / edit game list"},
+        {src:"assets/steps/step6b.png", th:"กดเพื่อดูรายการเกมแบบเต็มจอ", en:"Open the game catalog full screen"},
+        {src:"assets/steps/step6c.png", th:"เลือกได้สูงสุด 10 เกม หรือเลือกแจ้งรายชื่อเกมภายหลัง", en:"Choose up to 10 games, or send the game list later"},
+        {src:"assets/steps/step6d.png", th:"ตรวจรายชื่อเกม แล้วกดไปขั้นตอนถัดไป", en:"Review the game list, then click Next step"}
       ]
     },
     {
       stepNo:5,
-      title:{th:"วิธีการ Share Google Maps ลิ้งค์", en:"How to share a Google Maps link"},
+      title:{th:"ตัวเลือกเพิ่มเติม / ชำระเงิน / สัญญา / สถานที่จัดส่ง", en:"Extra options / payment / contract / delivery"},
       columns:[
-        {src:"assets/steps/step5a.png", th:"ค้นหาสถานที่ใน Google Maps และกดปุ่ม Share ตามลูกศรสีแดง", en:"Search in Google Maps and tap Share"},
-        {src:"assets/steps/step5b.png", th:"กดปุ่ม Copy Link ตามลูกศรสีแดง", en:"Tap Copy Link"},
-        {src:"assets/steps/step5c.png", th:"นำลิ้งค์มาวางที่ช่องโดยกด Paste หรือ วาง", en:"Paste the link into the field"},
-        {src:"assets/steps/step5d.png", th:"จะได้รายละเอียดแบบนี้", en:"The details will appear like this"},
-        {src:"assets/steps/step5e.png", th:"เมื่อเสร็จแล้ว คลิกที่ ไปขั้นตอนถัดไป", en:"When finished, click Next step"}
+        {src:"assets/steps/step4a.png", th:"เลือกบอร์ดเกมเพิ่มในการเช่าครั้งนี้ (ถ้ามี)", en:"Add board games to this rental if needed"},
+        {src:"assets/steps/step4b.png", th:"เลือกลูกค้าเก่าเพื่อรับส่วนลด หรือเลือกไม่ทำสัญญาการเช่า", en:"Choose returning-customer discount or no rental contract"},
+        {src:"assets/steps/step4c.png", th:"เลือกช่องทางการชำระเงิน", en:"Choose a payment method"},
+        {src:"assets/steps/step4d.png", th:"ทำสัญญาการเช่า หรือเลือกทำภายหลัง", en:"Complete the rental contract, or choose to do it later"},
+        {src:"assets/steps/step4e.png", th:"ใส่ลิงก์ Google Maps เพื่อให้ร้านเช็คค่าจัดส่ง", en:"Enter a Google Maps link for the delivery-cost check"}
       ]
     },
     {
       stepNo:6,
-      title:{th:"วิธีเลือกเกม", en:"How to choose games"},
+      title:{th:"วิธีแชร์ลิงก์ Google Maps", en:"How to share a Google Maps link"},
       columns:[
-        {src:"assets/steps/step6a.png", th:"คลิก เลือก / แก้ไขรายชื่อเกม ตามลูกศรสีแดง", en:"Click Select / edit game list"},
-        {src:"assets/steps/step6b.png", th:"กดเพื่อดูเกมได้เต็มจอ", en:"View games full screen"},
-        {src:"assets/steps/step6c.png", th:"เลือกเกม แล้วคลิก ใช้รายการเกมนี้ หรือ สร้างข้อความแจ้งภายหลัง", en:"Choose games, then use this game list or create a later message"},
-        {src:"assets/steps/step6d.png", th:"เช็ครายชื่อเกมและคลิก ไปขั้นตอนถัดไป", en:"Check the game list and click Next step"}
+        {src:"assets/steps/step5a.png", th:"ค้นหาสถานที่ใน Google Maps แล้วกด Share", en:"Find the location in Google Maps, then tap Share"},
+        {src:"assets/steps/step5b.png", th:"กด Copy Link", en:"Tap Copy Link"},
+        {src:"assets/steps/step5c.png", th:"นำลิงก์มาวางในช่อง Google Maps", en:"Paste the link into the Google Maps field"},
+        {src:"assets/steps/step5d.png", th:"ตรวจสอบรายละเอียดสถานที่ที่แสดง", en:"Check the location details shown"},
+        {src:"assets/steps/step5e.png", th:"เมื่อเสร็จแล้ว กดไปขั้นตอนถัดไป", en:"When finished, click Next step"}
       ]
     },
     {
@@ -3181,9 +3199,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       title:{th:"สรุปค่าเช่า", en:"Rental summary"},
       columns:[
         {src:"assets/steps/step7a.png", th:"เช็คความถูกต้องของการเช่าและยอดค่าเช่า", en:"Check the rental details and total cost"},
-        {src:"assets/steps/step7b.png", th:"คลิก Copy ข้อความจองเช่า", en:"Click Copy booking message"},
-        {src:"assets/steps/step7c.png", th:"วางข้อความที่แชทของร้านแล้วกดส่ง", en:"Paste the message into the shop chat and send it"},
-        {src:"assets/steps/step7d.png", th:"หรือคลิก ส่งข้อความทาง Line เพื่อแชร์ข้อความให้ทางร้าน", en:"Or click Send via Line to share the message to the shop"}
+        {src:"assets/steps/step7b.png", th:"เลือกจองผ่านช่องทางแชทที่ติดต่อกับทางร้าน", en:"Book through the chat channel you use with the shop"},
+        {src:"assets/steps/step7c.png", th:"ยืนยันส่งรายละเอียดการจอง แล้วส่งข้อความในแชท", en:"Confirm the booking details, then send the message in chat"},
+        {src:"assets/steps/step7d.png", th:"หากต้องทำสัญญา ให้ทำสัญญาให้เสร็จก่อนนัดส่งเครื่อง", en:"If a contract is required, complete it before delivery"}
       ]
     }
   ];
@@ -3265,8 +3283,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function guideStep(stage){
     if(["console","start","end","accessory","ps5bundle","next1"].includes(stage)) return 1;
-    if(["bg","ret","contractChoice","contractLink","payment","maps","next2"].includes(stage)) return 2;
-    if(["games","next3"].includes(stage)) return 3;
+    if(["games","next2"].includes(stage)) return 2;
+    if(["bg","ret","contractChoice","contractLink","payment","maps","next3"].includes(stage)) return 3;
     if(stage === "share") return 4;
     return state.calc.step;
   }
@@ -3280,15 +3298,17 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       return "next1";
     }
     if(step === 2){
+      return state.calc.games?.length || state.calc.later || guideDone("games") ? "next2" : "games";
+    }
+    if(step === 3){
       if(!state.calc.boardgames.length && !guideDone("bg")) return "bg";
       if(!state.calc.ret && !guideDone("ret")) return "ret";
       if(!state.calc.ret && !guideDone("contractChoice")) return "contractChoice";
       if(guideStageAvailable("payment") && !guideDone("payment")) return "payment";
       if(!state.calc.ret && !state.calc.noContract && !guideDone("contractLink")) return "contractLink";
       if(!state.calc.maps && !guideDone("maps")) return "maps";
-      return "next2";
+      return "next3";
     }
-    if(step === 3) return state.calc.games?.length || state.calc.later || guideDone("games") ? "next3" : "games";
     if(step === 4) return "share";
     return "console";
   }
@@ -3349,8 +3369,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       contractLink:{el:byId("contractBtn") || byId("contractCard"), text:tr("guideContractLink"), actions:[["contract-later",tr("guideLater")]]},
       payment:{el:byId("paymentOptions"), text:tr("guidePayment"), actions:[["next",tr("guideNext")]]},
       maps:{el:byId("mapsInput"), text:tr("guideMaps"), actions:[["next",tr("guideSkip")]]},
-      next2:{el:byId("stepActions2")?.querySelector("[data-step-go='3']"), text:tr("guideNextStep")},
       games:{el:byId("openGamePicker") || byId("laterOpt") || byId("gamePickBox"), text:tr("guideGames"), actions:[["game-later",tr("guideGameLater")]]},
+      next2:{el:byId("stepActions2")?.querySelector("[data-step-go='3']"), text:tr("guideNextStep")},
       next3:{el:byId("stepActions3")?.querySelector("[data-step-go='4']"), text:tr("guideNextStep")},
       share:{el:byId("summaryBox")?.querySelector(".summary-actions"), text:tr("guideShare")}
     };
@@ -3473,7 +3493,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(action === "game-later"){
       markGuideDone("games");
       state.calc.later = true;
-      setGuideStage("next3");
+      setGuideStage("next2");
       saveLocal();
       render();
     }
@@ -3808,7 +3828,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const stepGo = event.target.closest("[data-step-go]");
       if(stepGo){ goCalcStep(stepGo.dataset.stepGo); return; }
       const cardGame = event.target.closest("[data-card-game]");
-      if(cardGame){ state.calc.consoleId = cardGame.dataset.cardGame; state.calc.step = 3; render(); openGamePicker(); return; }
+      if(cardGame){
+        state.calc.consoleId = cardGame.dataset.cardGame;
+        state.calc.games = [];
+        state.calc.later = false;
+        state.calc.step = 2;
+        saveLocal();
+        render();
+        openGamePicker();
+        return;
+      }
       const calDay = event.target.closest("[data-cal-day]");
       if(calDay){ pickCalendarDay(calDay.dataset.calDay); return; }
       const guideAction = event.target.closest("[data-guide-action]");
@@ -3879,7 +3908,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(data.type === "AJ_PICKER_SELECTED"){
         state.calc.games = Array.isArray(data.games) ? data.games.slice(0,10) : [];
         state.calc.later = false;
-        setGuideStage("next3");
+        setGuideStage("next2");
         closeGamePicker();
         saveLocal();
         render();
@@ -3890,7 +3919,18 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       }
     });
     document.addEventListener("change", event => {
-      if(event.target.id === "calcType"){ state.calc.type = event.target.value; if(consoleById(state.calc.consoleId)?.type !== state.calc.type && state.calc.type) state.calc.consoleId = ""; saveLocal(); render(); }
+      if(event.target.id === "calcType"){
+        state.calc.type = event.target.value;
+        if(consoleById(state.calc.consoleId)?.type !== state.calc.type && state.calc.type){
+          state.calc.consoleId = "";
+          state.calc.bundleId = "";
+          state.calc.extras = [];
+          state.calc.games = [];
+          state.calc.later = false;
+        }
+        saveLocal();
+        render();
+      }
       if(event.target.id === "calcConsole") selectCalcConsole(event.target.value);
       if(event.target.name === "bundle"){ state.calc.bundleId = event.target.value; state.calc.bundleOpen = true; advanceGuide("ps5bundle"); }
       if(event.target.matches("[data-extra]")){
@@ -3939,10 +3979,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         saveLocal();
         render();
       }
-      if(event.target.id === "laterOpt"){ state.calc.later = event.target.checked; if(state.calc.later){ markGuideDone("games"); setGuideStage("next3"); } saveLocal(); render(); }
+      if(event.target.id === "laterOpt"){ state.calc.later = event.target.checked; if(state.calc.later){ markGuideDone("games"); setGuideStage("next2"); } saveLocal(); render(); }
     });
     document.addEventListener("input", event => {
-      if(event.target.id === "mapsInput"){ state.calc.maps = event.target.value.trim(); if(state.calc.maps.length > 8){ markGuideDone("maps"); setGuideStage("next2"); } saveLocal(); renderGuide(); }
+      if(event.target.id === "mapsInput"){ state.calc.maps = event.target.value.trim(); if(state.calc.maps.length > 8){ markGuideDone("maps"); setGuideStage("next3"); } saveLocal(); renderGuide(); }
     });
     document.addEventListener("click", async event => {
       const clickedButton = event.target.closest("button");
@@ -4082,7 +4122,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       state.lang = handoff.lang === "en" ? "en" : "th";
       state.calc.games = games;
       state.calc.later = false;
-      state.calc.step = 3;
+      state.calc.step = 2;
       saveLocal();
       return true;
     }catch(error){
@@ -4101,6 +4141,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     state.calc.datesTouched = false;
     state.calc.bundleId = "";
     state.calc.extras = [];
+    state.calc.games = [];
+    state.calc.later = false;
     resetStepOneGuide();
     setGuideStage("start", {syncStep:false});
     saveLocal();
@@ -4307,7 +4349,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     render();
     const openedFromLink = restoredGameList ? false : applyDeepLink();
     if(restoredGameList){
-      setGuideStage("next3", {syncStep:false});
+      setGuideStage("next2", {syncStep:false});
       setTimeout(() => byId("calculator").scrollIntoView({block:"start"}), 80);
     }else if(!openedFromLink && (location.hash === "#calculator" || new URLSearchParams(location.search).get("go") === "calc")){
       setTimeout(() => byId("calculator").scrollIntoView(), 80);
