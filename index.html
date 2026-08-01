@@ -2337,6 +2337,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(lineUserId) url.searchParams.set("lineUserId", lineUserId);
     url.searchParams.set("lang", state.lang === "en" ? "en" : "th");
     url.searchParams.set("paymentOption", state.calc.payment || "cash");
+    const summary = calcSummary();
+    const paymentLink = generatedPaymentLink(summary, code);
+    if(paymentLink) url.searchParams.set("paymentLink", paymentLink);
+    url.searchParams.set("paymentOptionLabel", state.lang === "en" ? paymentOptionMessageLabelEn() : paymentOptionMessageLabelTh());
+    if(summary.upfront > 0) url.searchParams.set("upfront", money(summary.upfront));
+    if(summary.onDelivery > 0) url.searchParams.set("onDelivery", money(summary.onDelivery));
     const selected = consoleById(state.calc.consoleId);
     const deviceId = contractDeviceId(selected);
     if(deviceId) url.searchParams.set("deviceId", deviceId);
