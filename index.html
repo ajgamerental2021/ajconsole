@@ -371,6 +371,18 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .float-calc.show{display:inline-flex}
 .picker-card{background:#fff;width:min(1180px,100%);height:min(92vh,900px);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow2)}
 .picker-frame{flex:1;border:0;background:#fff}
+.line-console-trigger{display:none;width:100%;min-height:44px;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--border2);border-radius:11px;background:#fff;padding:11px 12px;color:var(--text);text-align:left;font-weight:700}
+.line-console-trigger:after{content:"⌄";flex:0 0 auto;color:var(--text2);font-size:20px;line-height:1}
+body.line-browser .line-console-trigger{display:flex}
+body.line-browser #calcConsole{display:none}
+.line-console-picker-card{display:flex;flex-direction:column;width:min(560px,100%);max-height:min(86vh,720px);overflow:hidden}
+.line-console-picker-list{min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding:10px 14px max(18px,env(safe-area-inset-bottom))}
+.line-console-picker-option{display:flex;width:100%;align-items:flex-start;gap:10px;border:1px solid var(--border);border-radius:12px;background:#fff;color:var(--text);padding:13px 14px;text-align:left;font-weight:800;line-height:1.45}
+.line-console-picker-option+.line-console-picker-option{margin-top:8px}
+.line-console-picker-option.selected{border-color:var(--accent);background:#fff3f3;box-shadow:inset 4px 0 var(--accent)}
+.line-console-picker-option:disabled{color:var(--text3);background:#f3f3f3;cursor:not-allowed}
+.line-console-picker-check{width:22px;flex:0 0 22px;color:var(--accent);font-weight:900}
+.line-console-picker-copy{overflow-wrap:anywhere}
 .game-picker-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px}
 .game-picker-actions{display:flex;align-items:center;gap:8px}
 .game-picker-attention{justify-self:start;max-width:100%;border:1px solid #f0a000;border-radius:9px;background:#fff8dd;color:#6b3900;padding:7px 10px;font-size:12px;font-weight:900;line-height:1.25;white-space:nowrap;overflow-x:auto;scrollbar-width:none}
@@ -432,6 +444,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .step-tab .num{flex:0 0 auto;margin-right:7px;background:#14883d}
   .calc-body{padding:14px}
   .modal-overlay,.picker-overlay,.admin-overlay{padding:0}
+  #lineConsolePickerModal{padding:0;align-items:stretch}
+  #lineConsolePickerModal .line-console-picker-card{height:100%;max-height:none;border-radius:0}
   .calendar-modal{padding:8px;align-items:stretch}
   .modal-card,.picker-card,.admin-modal{width:100%;height:100%;max-height:none;border-radius:0}
   #shareConfirmModal{padding:18px;align-items:center;justify-content:center}
@@ -523,7 +537,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
                 <div class="step1-head"><h3 data-i18n="step1Title">เลือกเครื่องและวันที่</h3><button class="btn danger step-guide-btn" id="stepsBtn" type="button" data-i18n="stepsBtn">ขั้นตอนการเช่า</button></div>
                 <div class="grid2 calc-selection-grid">
                   <div class="field"><label class="label" data-i18n="deviceType">ประเภทเครื่อง</label><select id="calcType"></select></div>
-                  <div class="field"><label class="label" data-i18n="device">เครื่องเกม</label><select id="calcConsole"></select></div>
+                  <div class="field"><label class="label" data-i18n="device">เครื่องเกม</label><select id="calcConsole"></select><button class="line-console-trigger" id="lineConsoleTrigger" type="button" aria-haspopup="dialog"></button></div>
                   <div class="field"><label class="label" data-i18n="startDate">วันที่เริ่มเช่า</label><input class="input" id="startDate" readonly></div>
                   <div class="field"><label class="label" data-i18n="endDate">วันคืนเครื่อง</label><input class="input" id="endDate" readonly></div>
                   <div class="rental-days-hint" id="rentalDaysHint"></div>
@@ -634,6 +648,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   <div class="picker-card">
     <div class="modal-head game-picker-head"><h3 id="gamePickerTitle" data-i18n="gamePickerTitle">เลือกเกม</h3><div class="game-picker-attention" data-i18n="gameStorageWarning">⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ</div><div class="game-picker-actions"><button class="btn primary faq-lang-btn" id="gamePickerLangBtn" type="button"></button><button class="xbtn" id="gamePickerClose" type="button">&times;</button></div></div>
     <iframe class="picker-frame" id="gamePickerFrame" title="Game picker"></iframe>
+  </div>
+</div>
+
+<div class="modal-overlay" id="lineConsolePickerModal" role="dialog" aria-modal="true" aria-labelledby="lineConsolePickerTitle">
+  <div class="modal-card line-console-picker-card">
+    <div class="modal-head"><h3 id="lineConsolePickerTitle"></h3><button class="xbtn" id="lineConsolePickerClose" type="button" aria-label="Close">&times;</button></div>
+    <div class="line-console-picker-list" id="lineConsolePickerList"></div>
   </div>
 </div>
 
@@ -795,7 +816,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       calcTag:"คำนวณ", calcTitle:"เช็คคิว & คำนวณค่าเช่า", calcSub:"ขั้นต่ำ 3 วัน | ราคาเรทบุคคล",
       step1:"เลือกเครื่อง/วันที่", step2:"เลือกเกม", step3:"ชำระเงิน / สัญญา / แผนที่", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"เลือกเกม", step3Title:"ชำระเงิน / สัญญา / แผนที่", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"📖 อ่านขั้นตอนการเช่าก่อนเริ่ม", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
       nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
-      deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
+      deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", chooseConsoleTitle:"เลือกเครื่องเกม", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
       gamePickHelp:"ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้", gamePickerTitle:"เลือกเกม", gameStorageWarning:"⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ", summaryHelp:"ตรวจสอบข้อมูล แล้วกดจองผ่านช่องทางที่สะดวก",
       personalRateWarning:"⚠️ ราคาเช่าเป็นเรทบุคคล ไม่สามารถออกใบกำกับภาษี/ใบเสร็จได้ หากต้องการเอกสาร กรุณาติดต่อ Line: <b>@ajgame</b> หรือ โทร. <b>081-624-4715</b> 🙏",
       daily:"รายวัน", weekly:"รายสัปดาห์", day:"วัน", wk:"สัปดาห์", deposit:"ค่าประกัน", ready:"พร้อม", notReady:"ยังไม่พร้อม", readyOn:"พร้อมวันที่",
@@ -827,7 +848,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       calcTag:"Calculator", calcTitle:"Check Queue & Calculate Rental", calcSub:"Minimum 3 days | Individual rates",
       step1:"Device / Dates", step2:"Games", step3:"Payment / Contract / Map", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Choose games", step3Title:"Payment / Contract / Map", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"📖 Read rental steps first", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
       nextStep:"Next step", backStep:"Back",
-      deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", startDate:"Start date", endDate:"Return date",
+      deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", chooseConsoleTitle:"Choose a console", startDate:"Start date", endDate:"Return date",
       gamePickHelp:"Choose up to 10 games when this model has a catalog, or send the list later.", gamePickerTitle:"Select Games", gameStorageWarning:"⚠️ Limited device storage. Some games may not all fit.", summaryHelp:"Review the details, then book through your preferred channel.",
       personalRateWarning:"⚠️ Individual rental rates only. Tax invoice / receipt is not available. For documents, contact Line: <b>@ajgame</b> or call <b>081-624-4715</b> 🙏",
       daily:"Daily", weekly:"Weekly", day:"day", wk:"week", deposit:"Deposit", ready:"Ready", notReady:"Not ready", readyOn:"Ready on",
@@ -855,6 +876,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
   const byId = id => document.getElementById(id);
   const tr = key => (I18N[state.lang] && I18N[state.lang][key]) || key;
+  const isLineBrowser = () => /\bLine\/[\d.]+/i.test(navigator.userAgent || "");
   const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const safeHref = (value, fallback="#") => {
     const raw = String(value || "").trim();
@@ -1521,6 +1543,34 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     saveLocal();
     render();
   }
+  function renderLineConsoleTrigger(){
+    if(!isLineBrowser()) return;
+    document.body.classList.add("line-browser");
+    const selected = consoleById(state.calc.consoleId);
+    byId("lineConsoleTrigger").textContent = selected ? calcConsoleChoiceLabel(selected) : tr("chooseConsole");
+  }
+  function openLineConsolePicker(){
+    if(!isLineBrowser()) return;
+    const list = calcConsoleChoices();
+    byId("lineConsolePickerTitle").textContent = tr("chooseConsoleTitle");
+    byId("lineConsolePickerClose").setAttribute("aria-label", state.lang === "en" ? "Close" : "ปิด");
+    byId("lineConsolePickerList").innerHTML = list.map(consoleItem => {
+      const ready = isReady(consoleItem);
+      const selected = String(state.calc.consoleId) === String(consoleItem.id);
+      return `<button class="line-console-picker-option ${selected ? "selected" : ""}" type="button" data-line-console-id="${esc(String(consoleItem.id))}" ${ready ? "" : "disabled"}><span class="line-console-picker-check">${selected ? "✓" : ""}</span><span class="line-console-picker-copy">${esc(calcConsoleChoiceLabel(consoleItem))}</span></button>`;
+    }).join("");
+    const modal = byId("lineConsolePickerModal");
+    modal.classList.add("open");
+    document.body.style.overflow = "hidden";
+    window.requestAnimationFrame(() => {
+      const selected = modal.querySelector(".line-console-picker-option.selected");
+      if(selected) selected.scrollIntoView({block:"center"});
+    });
+  }
+  function closeLineConsolePicker(){
+    byId("lineConsolePickerModal").classList.remove("open");
+    document.body.style.overflow = "";
+  }
   function renderCalcFields(){
     byId("calcType").innerHTML = [["",tr("chooseType")],["console",tr("type_console")],["vr",tr("type_vr")],["handheld",tr("type_handheld")],["racing",tr("type_racing")]].map(([id,label]) => `<option value="${id}" ${state.calc.type===id?"selected":""}>${esc(label)}</option>`).join("");
     const list = calcConsoleChoices();
@@ -1528,6 +1578,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const ready = isReady(c);
       return `<option value="${esc(String(c.id))}" ${String(state.calc.consoleId)===String(c.id)?"selected":""} ${ready?"":"disabled"}>${esc(calcConsoleChoiceLabel(c))}</option>`;
     }).join("");
+    renderLineConsoleTrigger();
     byId("startDate").placeholder = "DD/MM/YYYY";
     byId("endDate").placeholder = "DD/MM/YYYY";
     byId("startDate").value = state.calc.start ? displayDate(state.calc.start) : "";
@@ -4115,6 +4166,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const targetId = clickedButton?.id || event.target.id;
       if(targetId === "startDate") openCalendar("start");
       if(targetId === "endDate") openCalendar("end");
+      if(targetId === "lineConsoleTrigger") openLineConsolePicker();
+      if(targetId === "lineConsolePickerClose" || targetId === "lineConsolePickerModal") closeLineConsolePicker();
+      const lineConsoleOption = event.target.closest("[data-line-console-id]");
+      if(lineConsoleOption && !lineConsoleOption.disabled){
+        closeLineConsolePicker();
+        selectCalcConsole(lineConsoleOption.dataset.lineConsoleId);
+      }
       if(targetId === "bgAdd"){
         const id = byId("bgSelect")?.value;
         if(id) state.calc.boardgames = Array.from(new Set([...state.calc.boardgames, id]));
