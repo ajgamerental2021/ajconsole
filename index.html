@@ -2382,7 +2382,11 @@ body.line-browser #calcConsole{display:none}
       }
     }, 250);
   }
+  const preparedContractLinks = new Map();
   function rentalContractLink(code){
+    return preparedContractLinks.get(String(code || "")) || legacyRentalContractLink(code);
+  }
+  function legacyRentalContractLink(code){
     const lineUserId = lineUniqueId();
     const url = new URL(lineUserId ? CONFIG.contractUrl : CONFIG.contractWebUrl, location.href);
     if(lineUserId) url.searchParams.set("lineUserId", lineUserId);
@@ -2473,14 +2477,21 @@ body.line-browser #calcConsole{display:none}
     if(s.promoDisc) costs.push({label: en ? "Console discount" : "ส่วนลดเครื่องเกม", value:`-${money(s.promoDisc)}`, discount:true});
     if(s.bgDisc) costs.push({label: en ? "Board game discount" : "ส่วนลดบอร์ดเกม", value:`-${money(s.bgDisc)}`, discount:true});
     costs.push({label: en ? `${cName(c)} deposit` : `ค่าประกัน ${cName(c)}`, value: money(s.deposit)});
+    const addOns = selectedContractAddOns(c);
     return {
       rentalCode: code,
       lang: en ? "EN" : "TH",
+      lineUserId: lineUniqueId(),
+      deviceId: contractDeviceId(c),
       deviceName: cName(c),
       category,
+      rentalStart: state.calc.start,
+      rentalEnd: state.calc.end,
       startDate: displayDate(state.calc.start),
       endDate: displayDate(state.calc.end),
       days: s.days,
+      bundleIds: addOns.bundle,
+      accessoryIds: addOns.accessories,
       maps: state.calc.maps || "",
       games: (state.calc.games || []).map(g => g.name || g.title || g.id),
       later: !!state.calc.later,
@@ -2500,6 +2511,45 @@ body.line-browser #calcConsole{display:none}
       paymentEmail: state.calc.payment === "wise" ? CONFIG.wiseEmail : "",
       paymentSwiftRequired: state.calc.payment === "wise" ? false : undefined
     };
+  }
+  async function prepareContractContext(summary, code){
+    const data = bookingStructured(code);
+    if(!data) return legacyRentalContractLink(code);
+    try{
+      const endpoint = `${String(CONFIG.apiBase || "").replace(/\/$/, "")}/api/booking-context/${encodeURIComponent(code)}`;
+      const response = await fetch(endpoint, {
+        method:"POST",
+        mode:"cors",
+        cache:"no-store",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          lang: state.lang === "en" ? "EN" : "TH",
+          data,
+        }),
+      });
+      if(!response.ok) throw new Error(`booking context ${response.status}`);
+      const result = await response.json();
+      const token = String(result.contextToken || "").trim();
+      if(!token || !result.shortPath) throw new Error("booking context response is incomplete");
+      const shortLink = lineUniqueId()
+        ? `${CONFIG.contractUrl}?ctx=${encodeURIComponent(token)}#${encodeURIComponent(code)}`
+        : new URL(result.shortPath, CONFIG.apiBase).toString();
+      preparedContractLinks.set(code, shortLink);
+      const messageResponse = await fetch(`${endpoint.replace(`/${encodeURIComponent(code)}`, "")}/${encodeURIComponent(token)}/message`, {
+        method:"PATCH",
+        mode:"cors",
+        cache:"no-store",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({message: bookingMessage(code)}),
+      });
+      if(!messageResponse.ok) throw new Error(`booking message ${messageResponse.status}`);
+      return shortLink;
+    }catch(error){
+      console.warn("Short contract link unavailable; using full fallback link", error);
+      const fallback = legacyRentalContractLink(code);
+      preparedContractLinks.set(code, fallback);
+      return fallback;
+    }
   }
   function rentalSheetPayload(summary, code, channel){
     const c = consoleById(state.calc.consoleId);
@@ -2850,6 +2900,8 @@ body.line-browser #calcConsole{display:none}
     try{
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
+      await ensureBeamPaymentLink(summary, code);
+      await prepareContractContext(summary, code);
       const msg = bookingMessage(code);
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "copy");
@@ -2865,6 +2917,7 @@ body.line-browser #calcConsole{display:none}
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
       await ensureBeamPaymentLink(summary, code);
+      await prepareContractContext(summary, code);
       const msg = bookingMessageForLine(code);
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "line");
@@ -2918,6 +2971,7 @@ body.line-browser #calcConsole{display:none}
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
       await ensureBeamPaymentLink(summary, code);
+      await prepareContractContext(summary, code);
       const msg = unicodeSafeText(bookingMessage(code));
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "whatsapp");
@@ -2934,6 +2988,7 @@ body.line-browser #calcConsole{display:none}
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
       await ensureBeamPaymentLink(summary, code);
+      await prepareContractContext(summary, code);
       const msg = unicodeSafeText(bookingMessage(code));
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "messenger");
@@ -2950,6 +3005,7 @@ body.line-browser #calcConsole{display:none}
     try{
       const code = await ensureRentalCode(summary);
       await ensureBeamPaymentLink(summary, code);
+      const contractLink = await prepareContractContext(summary, code);
       state.calc.contractSignature = rentalSignature(summary);
       saveLocal();
       render();
@@ -2958,7 +3014,7 @@ body.line-browser #calcConsole{display:none}
       // Persist the booking (incl. message) when the customer opens the contract,
       // so the shop can retrieve it later even if the customer never copies/sends.
       submitRentalToSheet(summary, code, "contract");
-      open(rentalContractLink(code), "_blank");
+      open(contractLink, "_blank");
     }catch(error){
       toast(state.lang === "en" ? "Cannot check rental code from Google Sheet." : "เช็กรหัสการเช่าจาก Google Sheet ไม่ได้");
     }
