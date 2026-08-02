@@ -163,6 +163,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-option:has(input:checked){background:#fff4f4;box-shadow:inset 4px 0 #d71920}
 .payment-option-copy{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
 .payment-option-copy small{font-size:12px;font-weight:800;color:var(--text2)}
+.payment-option.is-disabled{cursor:not-allowed;background:#f3f4f6;color:#777}
+.payment-option.is-disabled .payment-option-copy{opacity:.82}
+.payment-option.is-disabled input{cursor:not-allowed}
+.wise-status{margin-top:3px;color:var(--text2)}
+.wise-status.blocked{color:#b42318;font-weight:900}
 .payment-brand-badges{display:inline-flex;align-items:center;gap:6px;margin-left:5px;vertical-align:middle}
 .payment-card-logo{display:block;width:auto;height:20px;max-width:42px;object-fit:contain}
 .payment-wallet-badges{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:6px}
@@ -725,6 +730,16 @@ body.line-browser #calcConsole{display:none}
     lineLiffId: "2010212481-16RHJsnX"
   };
 
+  // Bank of Thailand financial-institution holidays for 2026 (Bangkok).
+  // Source: https://www.bot.or.th/en/financial-institutions-holiday.html
+  const THAI_FINANCIAL_HOLIDAYS = new Set([
+    "2026-01-01", "2026-01-02", "2026-03-03", "2026-04-06",
+    "2026-04-13", "2026-04-14", "2026-04-15", "2026-05-01",
+    "2026-05-04", "2026-06-01", "2026-06-03", "2026-07-28",
+    "2026-07-29", "2026-08-12", "2026-10-13", "2026-10-16",
+    "2026-10-23", "2026-12-07", "2026-12-10", "2026-12-31"
+  ]);
+
   const LS = {
     consoles: "aj_consoles",
     images: "aj_images",
@@ -832,7 +847,7 @@ body.line-browser #calcConsole{display:none}
       calTitle:"📅 ปฏิทินเช็คคิวเครื่อง", calStartSub:"เลือกแล้ว", calEndSub:"เลือกแล้ว", calAvailable:"ว่าง", calUnavailable:"ไม่ว่าง", calPartial:"เช่าได้สั้นกว่า", calDisabled:"ผ่านมาแล้ว / เลือกไม่ได้", calMinDisabled:"เลือกไม่ได้ ขั้นต่ำ 3 วัน", calStartDay:"เริ่มเช่า", calRangeDay:"ช่วงเช่า", calEndDay:"คืนเครื่อง", cutoffStartCell:"เลยเวลา เริ่มพรุ่งนี้", cutoffStartNotice:"หลัง 20:00 เริ่มเช่าได้วันถัดไป",
       guideTitle:"ขั้นตอนถัดไป", guideConsole:"เลือกเครื่องเกม", guideStart:"เลือกวันที่เริ่มเช่า", guideEnd:"เลือกวันคืนเครื่อง", guideAccessory:"เลือกอุปกรณ์เสริม ถ้าไม่ต้องการให้ข้ามได้เลย", guidePs5Bundle:"เลือก Bundle ของ PS5 ถ้าต้องการ", guideNextStep:"กดไปขั้นตอนถัดไป", guideBg:"เลือก Bundle บอร์ดเกม ถ้าต้องการเพิ่ม", guideRet:"เคยเช่ากับทางร้านไหม?", guideContractChoice:"ต้องการทำสัญญาการเช่าหรือไม่?", guideContractLink:"กดลิงก์ทำสัญญาการเช่า หรือเลือกทำทีหลัง", guidePayment:"เลือกช่องทางชำระเงิน", guideMaps:"วางลิงก์ Google Maps สำหรับเช็คค่าจัดส่ง", guideGames:"เลือกเกมจากรายการ หรือเลือกแจ้งภายหลัง", guideShare:"เช็ครายละเอียดการเช่าทางด้านบน แล้วกดจองผ่านช่องทางที่สะดวก", guideCopy:"คัดลอกข้อความจองเช่า", guideLine:"จองผ่าน Line", guideWa:"จองผ่าน WhatsApp", guideMessenger:"จองผ่าน Messenger",
       guideDoContract:"ทำสัญญา", guideNoContract:"ไม่ทำสัญญา", guideLater:"ทำทีหลัง", guideSkip:"ข้าม", guideGameLater:"เลือกทีหลัง", guideNext:"ต่อไป", guideRetYes:"เคย", guideRetNo:"ไม่เคย",
-      pickGames:"เลือก / แก้ไขรายชื่อเกม", sendLater:"แจ้งรายชื่อเกมภายหลัง", clearGames:"ล้างรายชื่อเกม", noGameList:"รุ่นนี้ไม่มีรายการเกมให้เลือกในระบบ", gameOwnAccount:"ล็อกอินบัญชีของคุณเองได้", gameLockedAfterDispatch:"เกมที่เลือกเปลี่ยนไม่ได้หลังจัดส่งเครื่อง",
+      pickGames:"เลือก / แก้ไขรายชื่อเกม", sendLater:"แจ้งรายชื่อเกมภายหลัง", clearGames:"ล้างรายชื่อเกม", noGameList:"รุ่นนี้ไม่มีรายการเกมให้เลือกในระบบ", gameOwnAccount:"ล็อกอินบัญชีของคุณเองบนเครื่องของทางร้านได้ (รบกวนแจ้งทางร้านก่อน)", gameLockedAfterDispatch:"เกมที่เลือกแล้ว ไม่สามารถเปลี่ยนได้หลังจากจัดส่งเครื่องแล้วทุกกรณี", wiseAvailabilityNote:"ไม่สามารถชำระผ่าน Wise ในวันเสาร์-อาทิตย์หรือวันหยุดธนาคารไทยได้ เนื่องจากเงินจะเข้าในวันทำการถัดไป", wiseUnavailableWeekend:"วันนี้ไม่สามารถเลือก Wise ได้ (วันเสาร์-อาทิตย์)", wiseUnavailableHoliday:"วันนี้ไม่สามารถเลือก Wise ได้ (วันหยุดธนาคารไทย)",
       summaryTitle:"สรุปค่าเช่า", summaryEmpty:"เลือกเครื่องและวันที่เพื่อดูสรุป", rental:"ค่าเช่า", discount:"ส่วนลด", promo:"โปรโมชัน", total:"ยอดรวม", grandTotal:"ยอดรวมทั้งหมด", upfront:"โอนล่วงหน้า", upfrontConfirm:"โอนล่วงหน้า (ยืนยันการจอง)", onDelivery:"จ่ายตอนของถึง", payOnDelivery:"จ่ายตอนของถึง", delivery:"ค่าส่งแจ้งทางแชท", finalActionHelp:"ตรวจสอบข้อมูลแล้ว กดจองผ่านช่องทางแชทที่คุยกับร้านเพื่อส่งรายละเอียด",
       returningDiscount:"ส่วนลดลูกค้าเก่า 10%", consoleDiscount:"ส่วนลดเครื่องเกม", boardGameDiscount:"ส่วนลดบอร์ดเกม", boardGameDeposit:"ค่าประกันบอร์ดเกม", rentalDays:"จำนวนวันเช่า", boardGameRental:"ค่าเช่าบอร์ดเกม", boardGameList:"รายการบอร์ดเกม",
       equipmentDetails:"รายละเอียดอุปกรณ์", players:"จำนวนผู้เล่น", playTime:"เวลาเล่น", age:"อายุแนะนำ", packageRental:"ค่าเช่าตามแพ็ก", oneDay:"1 วัน", threeDays:"3 วัน", sevenDays:"7 วัน", howToPlay:"วิธีเล่นคร่าว ๆ", noContractDepositNote:"ค่าประกัน (ไม่ทำสัญญา)", noContractLabel:"ไม่ทำสัญญา", standardTier:"เรทมาตรฐาน", planning:"วางแผน",
@@ -864,7 +879,7 @@ body.line-browser #calcConsole{display:none}
       calTitle:"📅 Queue Calendar", calStartSub:"Selected", calEndSub:"Selected", calAvailable:"Available", calUnavailable:"Unavailable", calPartial:"Shorter rental only", calDisabled:"Past / unavailable", calMinDisabled:"Unavailable, minimum 3 days", calStartDay:"Start", calRangeDay:"Rental period", calEndDay:"Return", cutoffStartCell:"Start tomorrow", cutoffStartNotice:"After 8 PM, choose tomorrow or later.",
       guideTitle:"Next step", guideConsole:"Choose console", guideStart:"Choose start date", guideEnd:"Choose return date", guideAccessory:"Choose accessories if needed, or skip.", guidePs5Bundle:"Choose a PS5 bundle if needed.", guideNextStep:"Go to the next step.", guideBg:"Add a board game bundle if needed.", guideRet:"Have you rented with us before?", guideContractChoice:"Would you like to complete the rental contract?", guideContractLink:"Open the rental agreement link, or do it later.", guidePayment:"Choose payment option.", guideMaps:"Paste your Google Maps link for delivery check.", guideGames:"Pick games from the catalog, or send later.", guideShare:"Check the rental details above, then book through your preferred channel.", guideCopy:"Copy booking message", guideLine:"Book via LINE", guideWa:"Book via WhatsApp", guideMessenger:"Book via Messenger",
       guideDoContract:"Do contract", guideNoContract:"No contract", guideLater:"Later", guideSkip:"Skip", guideGameLater:"Choose later", guideNext:"Next", guideRetYes:"Yes", guideRetNo:"No",
-      pickGames:"Choose / Edit games", sendLater:"Send game list later", clearGames:"Clear games", noGameList:"This model has no game catalog in the system.", gameOwnAccount:"You can sign in to your own account.", gameLockedAfterDispatch:"Selected games cannot be changed after dispatch.",
+      pickGames:"Choose / Edit games", sendLater:"Send game list later", clearGames:"Clear games", noGameList:"This model has no game catalog in the system.", gameOwnAccount:"You may sign in to your own account on the shop's device (please inform AJ first).", gameLockedAfterDispatch:"Selected games cannot be changed after the device has been dispatched under any circumstances.", wiseAvailabilityNote:"Wise payments are unavailable on weekends and Thai bank holidays because funds arrive on the next business day.", wiseUnavailableWeekend:"Wise is unavailable today (weekend).", wiseUnavailableHoliday:"Wise is unavailable today (Thai bank holiday).",
       summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Grand total", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat", paymentFee:"Payment fee", cardDeposit:"Card / E-Wallet reservation (no fee)", paymentLink:"Payment link", finalActionHelp:"Review the details, then book via the same chat channel to send them to AJ.",
       returningDiscount:"Returning customer 10% discount", consoleDiscount:"Console discount", boardGameDiscount:"Board game discount", boardGameDeposit:"Board game deposit", rentalDays:"Rental days", boardGameRental:"Board game rental", boardGameList:"Board game list",
       equipmentDetails:"Equipment details", players:"Players", playTime:"Play time", age:"Recommended age", packageRental:"Package rental", oneDay:"1 day", threeDays:"3 days", sevenDays:"7 days", howToPlay:"Quick how to play", noContractDepositNote:"Deposit (no contract)", noContractLabel:"No contract", standardTier:"Standard tier", planning:"Planning",
@@ -909,6 +924,13 @@ body.line-browser #calcConsole{display:none}
       hour:Number(value("hour")),
       minute:Number(value("minute"))
     };
+  }
+  function wisePaymentAvailability(now = new Date()){
+    const current = bangkokNow(now);
+    const day = new Date(`${current.iso}T12:00:00+07:00`).getUTCDay();
+    if(day === 0 || day === 6) return {available:false, reason:"weekend", iso:current.iso};
+    if(THAI_FINANCIAL_HOLIDAYS.has(current.iso)) return {available:false, reason:"holiday", iso:current.iso};
+    return {available:true, reason:"", iso:current.iso};
   }
   const todayIso = () => bangkokNow().iso;
   const readJson = (key, fallback) => { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : clone(fallback); } catch { return clone(fallback); } };
@@ -1644,13 +1666,21 @@ body.line-browser #calcConsole{display:none}
     const mapsLabel = state.lang === "en"
       ? `Google Maps delivery address <span class="maps-fee-highlight">check delivery fee before deciding</span>`
       : `GOOGLE MAPS ที่อยู่จัดส่ง <span class="maps-fee-highlight">เช็คค่าจัดส่งก่อนตัดสินใจ</span>`;
+    const wiseStatus = wisePaymentAvailability();
+    if(state.calc.payment === "wise" && !wiseStatus.available){
+      state.calc.payment = "cash";
+      state.calc.beamPaymentLink = "";
+      state.calc.beamPaymentKey = "";
+      saveLocal();
+    }
     const paymentLocked = paymentSelectionLocked();
     const paymentLockHint = paymentLocked
       ? `<div class="hint"><b>${state.lang === "en" ? "Payment option locked after opening the rental contract." : "ช่องทางชำระเงินถูกล็อกหลังเปิดสัญญาการเช่า"}</b></div>`
       : "";
     const paymentDisabled = paymentLocked ? "disabled" : "";
+    const wiseDisabled = paymentLocked || !wiseStatus.available ? "disabled" : "";
     const fullPaymentOptions = state.lang === "en"
-      ? `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span>${tr("bank")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""} ${paymentDisabled}><span>${tr("wise")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}>${creditOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`
+      ? `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span>${tr("bank")}</span></label><label class="payment-option ${wiseStatus.available ? "" : "is-disabled"}"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""} ${wiseDisabled}>${wiseOptionHtml(wiseStatus)}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}>${creditOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`
       : `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span>${tr("bank")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}>${creditOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`;
     const reservationTitle = state.lang === "en"
       ? "Pay ฿1,000 by card or E-Wallet to reserve (no fee)"
@@ -1774,6 +1804,14 @@ body.line-browser #calcConsole{display:none}
   }
   function ewalletOptionHtml(){
     return `<span class="payment-option-copy"><span>${tr("ewalletTitle")}</span><small>${tr("ewalletFee")}</small>${paymentEwalletBadgesHtml()}</span>`;
+  }
+  function wiseOptionHtml(status = wisePaymentAvailability()){
+    const blocked = status.reason === "weekend"
+      ? tr("wiseUnavailableWeekend")
+      : status.reason === "holiday"
+        ? tr("wiseUnavailableHoliday")
+        : "";
+    return `<span class="payment-option-copy"><span>${tr("wise")}</span><small class="wise-status">${tr("wiseAvailabilityNote")}</small>${blocked ? `<small class="wise-status blocked">${blocked}</small>` : ""}</span>`;
   }
   function paymentOptionSummaryHtml(){
     if(state.calc.payment === "cash") return cashDeliveryOptionHtml();
@@ -4210,6 +4248,12 @@ body.line-browser #calcConsole{display:none}
           render();
           return;
         }
+        if(event.target.dataset.paymentChoice === "wise" && !wisePaymentAvailability().available){
+          const status = wisePaymentAvailability();
+          toast(status.reason === "holiday" ? tr("wiseUnavailableHoliday") : tr("wiseUnavailableWeekend"));
+          render();
+          return;
+        }
         state.calc.payment = event.target.dataset.paymentChoice;
         state.calc.beamPaymentLink = "";
         state.calc.beamPaymentKey = "";
@@ -4328,6 +4372,7 @@ body.line-browser #calcConsole{display:none}
       render,
       calcSummary,
       bookingMessage,
+      wisePaymentAvailability,
       syncBoardGameCatalog,
       saveLocal,
       pull: gistFetch,
