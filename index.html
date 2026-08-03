@@ -916,6 +916,11 @@ body.line-browser #calcConsole{display:none}
   const byId = id => document.getElementById(id);
   const tr = key => (I18N[state.lang] && I18N[state.lang][key]) || key;
   const isLineBrowser = () => /\bLine\/[\d.]+/i.test(navigator.userAgent || "");
+  const cachedLineProfile = () => {
+    const userId = localStorage.getItem("aj_line_unique_id") || "";
+    const displayName = localStorage.getItem("aj_line_display_name") || "";
+    return userId && displayName ? {userId, displayName} : null;
+  };
   let lineConnectionStatus = "idle";
   let lineConnectPromise = null;
   const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -3224,6 +3229,11 @@ body.line-browser #calcConsole{display:none}
   function connectLine(options = {}){
     if(lineConnectPromise) return lineConnectPromise;
     const automatic = options.automatic === true;
+    if(automatic && cachedLineProfile()){
+      lineConnectionStatus = "connected";
+      renderSummary();
+      return Promise.resolve(true);
+    }
     lineConnectionStatus = "connecting";
     renderSummary();
     lineConnectPromise = (async () => {
@@ -4749,7 +4759,7 @@ body.line-browser #calcConsole{display:none}
     const restoredGameList = consumeGamePickerHandoff();
     exposeCompatibility();
     bindEvents();
-    if(isLineBrowser() && !localStorage.getItem("aj_line_unique_id")) lineConnectionStatus = "connecting";
+    if(isLineBrowser()) lineConnectionStatus = cachedLineProfile() ? "connected" : "connecting";
     render();
     await autoConnectLine();
     const openedFromLink = restoredGameList ? false : applyDeepLink();
