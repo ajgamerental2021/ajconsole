@@ -3190,6 +3190,15 @@ body.line-browser #calcConsole{display:none}
       document.head.appendChild(s);
     });
   }
+  function lineLiffLaunchUrl(){
+    const liffId = String(localStorage.getItem("aj_liff_id") || CONFIG.lineLiffId);
+    const url = new URL(`https://liff.line.me/${encodeURIComponent(liffId)}`);
+    const params = new URLSearchParams(location.search);
+    ["code", "state", "error", "error_description", "liff.state", "liff.referrer"].forEach(key => params.delete(key));
+    url.search = params.toString();
+    url.hash = location.hash;
+    return url.href;
+  }
   function connectLine(options = {}){
     if(lineConnectPromise) return lineConnectPromise;
     const automatic = options.automatic === true;
@@ -3201,7 +3210,8 @@ body.line-browser #calcConsole{display:none}
         await liff.init({liffId:String(localStorage.getItem("aj_liff_id") || CONFIG.lineLiffId)});
         if(!liff.isLoggedIn()){
           if(liff.isInClient()) throw new Error("LIFF session is not logged in");
-          liff.login({redirectUri:location.href});
+          if(isLineBrowser()) location.replace(lineLiffLaunchUrl());
+          else liff.login();
           return false;
         }
         const profile = await liff.getProfile();
