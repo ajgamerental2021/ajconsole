@@ -4763,13 +4763,15 @@ body.line-browser #calcConsole{display:none}
     loadState();
     const viewCode = new URLSearchParams(location.search).get("viewMsg");
     if(viewCode){ renderBookingViewer(viewCode.trim()); return; }
-    const restoredGameList = consumeGamePickerHandoff();
+    const hasConsoleDeepLink = Boolean(deepLinkedConsole());
+    if(hasConsoleDeepLink) localStorage.removeItem(LS.gameHandoff);
+    const restoredGameList = hasConsoleDeepLink ? false : consumeGamePickerHandoff();
     exposeCompatibility();
     bindEvents();
     if(isLineBrowser()) lineConnectionStatus = cachedLineProfile() ? "connected" : "connecting";
     render();
     await autoConnectLine();
-    const openedFromLink = restoredGameList ? false : applyDeepLink();
+    const openedFromLink = applyDeepLink();
     if(restoredGameList){
       setGuideStage("next2", {syncStep:false});
       setTimeout(() => byId("calculator").scrollIntoView({block:"start"}), 80);
