@@ -286,6 +286,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .day.end{background:#f3f6ff;color:#244edb;border:3px solid #3456d9;box-shadow:0 0 0 2px #fff,0 0 0 4px #3456d9}
 .day.range{background:#edf3ff;border-color:#b7c8ff;color:#244edb}
 .day.busy{background:#fff1f1;border-color:#ffc2c2;color:#b42318}
+.day.promo small{color:#9a5a00;opacity:1;font-weight:900}
 .cal-legend{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--text2);font-weight:800;margin-bottom:14px}
 .cal-legend span{display:inline-flex;align-items:center;gap:6px}
 .cal-legend i{width:14px;height:14px;border-radius:999px;border:1px solid var(--border);display:inline-block}
@@ -844,7 +845,7 @@ body.line-browser #calcConsole{display:none}
       boardGameCollapsed:"ต้องการเพิ่มบอร์ดเกม? กดเพื่อขยายและเลือกเข้าชุดเช่า", ps5BundleCollapsed:"ต้องการ Bundle? กดเพื่อจับคู่ PS5 กับอุปกรณ์อื่น",
       boardGameBundle:"Bundle บอร์ดเกม", chooseBoardGame:"-- เลือกบอร์ดเกม --", addBoardGame:"เพิ่มบอร์ดเกม", boardGames:"บอร์ดเกม", selectedDates:"วันที่เลือก", confirmRange:"ตกลง", selectReturnDate:"เลือกวันคืนเครื่อง", remove:"ลบ",
       boardGameBundleHelp:"เพิ่มบอร์ดเกมเข้าชุดเช่า — ราคาเรท 3 วัน + เพิ่มตามจำนวนวันตามแพ็กของแต่ละเกม", boardGameImageHint:"💡 คลิกที่รูปเพื่อดูรายละเอียดของบอร์ดเกมนั้นๆ", viewDetails:"ดูรายละเอียด",
-      calTitle:"📅 ปฏิทินเช็คคิวเครื่อง", calStartSub:"เลือกแล้ว", calEndSub:"เลือกแล้ว", calAvailable:"ว่าง", calUnavailable:"ไม่ว่าง", calPartial:"เช่าได้สั้นกว่า", calDisabled:"ผ่านมาแล้ว / เลือกไม่ได้", calMinDisabled:"เลือกไม่ได้ ขั้นต่ำ 3 วัน", calStartDay:"เริ่มเช่า", calRangeDay:"ช่วงเช่า", calEndDay:"คืนเครื่อง", cutoffStartCell:"เลยเวลา เริ่มพรุ่งนี้", cutoffStartNotice:"หลัง 20:00 เริ่มเช่าได้วันถัดไป",
+      calTitle:"📅 ปฏิทินเช็คคิวเครื่อง", calStartSub:"เลือกแล้ว", calEndSub:"เลือกแล้ว", calAvailable:"ว่าง", calUnavailable:"ไม่ว่าง", calPartial:"เช่าได้สั้นกว่า", calDisabled:"ผ่านมาแล้ว / เลือกไม่ได้", calMinDisabled:"เลือกไม่ได้ ขั้นต่ำ 3 วัน", calStartDay:"เริ่มเช่า", calRangeDay:"ช่วงเช่า", calEndDay:"คืนเครื่อง", cutoffStartCell:"เลยเวลา เริ่มพรุ่งนี้", cutoffStartNotice:"หลัง 20:00 เริ่มเช่าได้วันถัดไป", afterWorkPromoCell:"โปรโมชั่น 3 วัน ฿999", afterWorkPromoDiscount:"โปรโมชั่น After Work 3 Nights",
       guideTitle:"ขั้นตอนถัดไป", guideConsole:"เลือกเครื่องเกม", guideStart:"เลือกวันที่เริ่มเช่า", guideEnd:"เลือกวันคืนเครื่อง", guideAccessory:"เลือกอุปกรณ์เสริม ถ้าไม่ต้องการให้ข้ามได้เลย", guidePs5Bundle:"เลือก Bundle ของ PS5 ถ้าต้องการ", guideNextStep:"กดไปขั้นตอนถัดไป", guideBg:"เลือก Bundle บอร์ดเกม ถ้าต้องการเพิ่ม", guideRet:"เคยเช่ากับทางร้านไหม?", guideContractChoice:"ต้องการทำสัญญาการเช่าหรือไม่?", guideContractLink:"กดลิงก์ทำสัญญาการเช่า หรือเลือกทำทีหลัง", guidePayment:"เลือกช่องทางชำระเงิน", guideMaps:"วางลิงก์ Google Maps สำหรับเช็คค่าจัดส่ง", guideGames:"เลือกเกมจากรายการ หรือเลือกแจ้งภายหลัง", guideShare:"เช็ครายละเอียดการเช่าทางด้านบน แล้วกดจองผ่านช่องทางที่สะดวก", guideCopy:"คัดลอกข้อความจองเช่า", guideLine:"จองผ่าน Line", guideWa:"จองผ่าน WhatsApp", guideMessenger:"จองผ่าน Messenger",
       guideDoContract:"ทำสัญญา", guideNoContract:"ไม่ทำสัญญา", guideLater:"ทำทีหลัง", guideSkip:"ข้าม", guideGameLater:"เลือกทีหลัง", guideNext:"ต่อไป", guideRetYes:"เคย", guideRetNo:"ไม่เคย",
       pickGames:"เลือก / แก้ไขรายชื่อเกม", sendLater:"แจ้งรายชื่อเกมภายหลัง", clearGames:"ล้างรายชื่อเกม", noGameList:"รุ่นนี้ไม่มีรายการเกมให้เลือกในระบบ", gameOwnAccount:"ล็อกอินบัญชีของคุณเองบนเครื่องของทางร้านได้ (รบกวนแจ้งทางร้านก่อน)", gameLockedAfterDispatch:"เกมที่เลือกแล้ว ไม่สามารถเปลี่ยนได้หลังจากจัดส่งเครื่องแล้วทุกกรณี", wiseAvailabilityNote:"ไม่สามารถชำระผ่าน Wise ในวันเสาร์-อาทิตย์หรือวันหยุดธนาคารไทยได้ เนื่องจากเงินจะเข้าในวันทำการถัดไป", wiseUnavailableWeekend:"วันนี้ไม่สามารถเลือก Wise ได้ (วันเสาร์-อาทิตย์)", wiseUnavailableHoliday:"วันนี้ไม่สามารถเลือก Wise ได้ (วันหยุดธนาคารไทย)",
@@ -876,7 +877,7 @@ body.line-browser #calcConsole{display:none}
       boardGameCollapsed:"Want board games? Expand to add them to this rental.", ps5BundleCollapsed:"Want a bundle? Expand to pair PS5 with another device.",
       boardGameBundle:"Board Game Bundle", chooseBoardGame:"-- Choose board game --", addBoardGame:"Add board game", boardGames:"Board games", selectedDates:"Selected dates", confirmRange:"Confirm", selectReturnDate:"Choose return date", remove:"Remove",
       boardGameBundleHelp:"Add board games to this rental set — 3-day package rate, then extend by each game's package rules.", boardGameImageHint:"💡 Click the image to view board game details.", viewDetails:"View details",
-      calTitle:"📅 Queue Calendar", calStartSub:"Selected", calEndSub:"Selected", calAvailable:"Available", calUnavailable:"Unavailable", calPartial:"Shorter rental only", calDisabled:"Past / unavailable", calMinDisabled:"Unavailable, minimum 3 days", calStartDay:"Start", calRangeDay:"Rental period", calEndDay:"Return", cutoffStartCell:"Start tomorrow", cutoffStartNotice:"After 8 PM, choose tomorrow or later.",
+      calTitle:"📅 Queue Calendar", calStartSub:"Selected", calEndSub:"Selected", calAvailable:"Available", calUnavailable:"Unavailable", calPartial:"Shorter rental only", calDisabled:"Past / unavailable", calMinDisabled:"Unavailable, minimum 3 days", calStartDay:"Start", calRangeDay:"Rental period", calEndDay:"Return", cutoffStartCell:"Start tomorrow", cutoffStartNotice:"After 8 PM, choose tomorrow or later.", afterWorkPromoCell:"3-day promo ฿999", afterWorkPromoDiscount:"After Work 3 Nights promotion",
       guideTitle:"Next step", guideConsole:"Choose console", guideStart:"Choose start date", guideEnd:"Choose return date", guideAccessory:"Choose accessories if needed, or skip.", guidePs5Bundle:"Choose a PS5 bundle if needed.", guideNextStep:"Go to the next step.", guideBg:"Add a board game bundle if needed.", guideRet:"Have you rented with us before?", guideContractChoice:"Would you like to complete the rental contract?", guideContractLink:"Open the rental agreement link, or do it later.", guidePayment:"Choose payment option.", guideMaps:"Paste your Google Maps link for delivery check.", guideGames:"Pick games from the catalog, or send later.", guideShare:"Check the rental details above, then book through your preferred channel.", guideCopy:"Copy booking message", guideLine:"Book via LINE", guideWa:"Book via WhatsApp", guideMessenger:"Book via Messenger",
       guideDoContract:"Do contract", guideNoContract:"No contract", guideLater:"Later", guideSkip:"Skip", guideGameLater:"Choose later", guideNext:"Next", guideRetYes:"Yes", guideRetNo:"No",
       pickGames:"Choose / Edit games", sendLater:"Send game list later", clearGames:"Clear games", noGameList:"This model has no game catalog in the system.", gameOwnAccount:"You can sign in to your own account (tell AJ first).", gameLockedAfterDispatch:"Games cannot be changed once the device has been sent.", wiseAvailabilityNote:"Wise payments are unavailable on weekends and Thai bank holidays because funds arrive on the next business day.", wiseUnavailableWeekend:"Wise is unavailable today (weekend).", wiseUnavailableHoliday:"Wise is unavailable today (Thai bank holiday).",
@@ -1166,6 +1167,43 @@ body.line-browser #calcConsole{display:none}
     if(value <= 0) return 0;
     if(p.mode === "fixed") return Math.min(subtotal, value * count);
     return Math.round(subtotal * value / 100);
+  }
+  const AFTER_WORK_PROMO_PRICE = 999;
+  function selectedConsoleRentalTerms(c){
+    let daily = Number(c?.rate) || 0;
+    let weekly = Number(c?.weekly) || 0;
+    let deposit = Number(c?.deposit) || 0;
+    let bundleName = "";
+    if(Number(c?.id) === SPEC.PS5 && state.calc.bundleId){
+      const bundle = state.bundles.find(item => item.id === state.calc.bundleId);
+      if(bundle){
+        daily = Number(bundle.rate) || daily;
+        weekly = Number(bundle.weekly) || weekly;
+        deposit = Number(bundle.deposit) || deposit;
+        bundleName = state.lang === "en" ? bundle.en : bundle.th;
+      }
+    }
+    return {daily, weekly, deposit, bundleName};
+  }
+  function afterWorkPromotion(startValue, endValue, regularRental){
+    const start = parseDate(startValue);
+    const end = parseDate(endValue);
+    const days = start && end ? diffDays(start, end) : NaN;
+    const eligibleStart = start && (start.getDay() === 1 || start.getDay() === 2);
+    const discount = eligibleStart && days === 3
+      ? Math.max(0, (Number(regularRental) || 0) - AFTER_WORK_PROMO_PRICE)
+      : 0;
+    return {eligible:discount > 0, discount, price:AFTER_WORK_PROMO_PRICE};
+  }
+  function afterWorkCalendarPromotion(startValue, endValue){
+    const c = consoleById(state.calc.consoleId);
+    if(!c) return {eligible:false, discount:0, price:AFTER_WORK_PROMO_PRICE};
+    const terms = selectedConsoleRentalTerms(c);
+    const days = diffDays(startValue, endValue);
+    const regularRental = Number.isFinite(days) && days > 0
+      ? rentalCost(days, terms.daily, terms.weekly)
+      : 0;
+    return afterWorkPromotion(startValue, endValue, regularRental);
   }
   function ensureCoreAccessories(){
     DEFAULT_ACCESSORIES.forEach(def => {
@@ -1932,6 +1970,7 @@ body.line-browser #calcConsole{display:none}
       ...(summary.bgItems?.length ? [{label:tr("boardGameList"), value:numberedSummaryList(summary.bgItems.map(bgName)), html:true}] : []),
       ...(state.calc.games?.length ? [{label:state.lang==="en"?"Games":"เกม", value:numberedSummaryList(state.calc.games.map(g => g.name || g.title || g.id)), html:true}] : []),
       ...(state.calc.later ? [{label:state.lang==="en"?"Game list":"รายชื่อเกม", value:tr("sendLater")}] : []),
+      ...(summary.afterWorkDisc ? [{label:tr("afterWorkPromoDiscount"), value:`-${money(summary.afterWorkDisc)}`, cls:"discount"}] : []),
       ...(summary.retDisc ? [{label:tr("returningDiscount"), value:`-${money(summary.retDisc)}`, cls:"discount"}] : []),
       ...(summary.reviewGoogleDisc ? [{label:tr("reviewGoogleDiscount"), value:`-${money(summary.reviewGoogleDisc)}`, cls:"discount"}] : []),
       ...(summary.reviewFacebookDisc ? [{label:tr("reviewFacebookDiscount"), value:`-${money(summary.reviewFacebookDisc)}`, cls:"discount"}] : []),
@@ -1973,13 +2012,11 @@ body.line-browser #calcConsole{display:none}
     const c = consoleById(state.calc.consoleId);
     const days = selectedDays();
     if(!c || !Number.isFinite(days) || days < 1) return {days:0,rental:0,addons:0,bgSubtotal:0,bgDisc:0,bgDeposit:0,consoleDeposit:0,discounts:0,deposit:0,total:0,paymentFee:0,upfront:200,onDelivery:0,bgItems:[]};
-    let daily = c.rate, weekly = c.weekly, deposit = c.deposit;
-    let bundleName = "";
-    if(Number(c.id) === SPEC.PS5 && state.calc.bundleId){
-      const b = state.bundles.find(x => x.id === state.calc.bundleId);
-      if(b){ daily = Number(b.rate)||daily; weekly = Number(b.weekly)||weekly; deposit = Number(b.deposit)||deposit; bundleName = state.lang==="en"?b.en:b.th; }
-    }
+    const terms = selectedConsoleRentalTerms(c);
+    const {daily, weekly, deposit, bundleName} = terms;
     const rental = rentalCost(days, daily, weekly);
+    const afterWorkPromo = afterWorkPromotion(state.calc.start, state.calc.end, rental);
+    const afterWorkDisc = afterWorkPromo.discount;
     const extras = extrasForConsole(c).filter(x => state.calc.extras.includes(x.id));
     const addons = extras.reduce((sum,x) => sum + accessoryRentalCost(x, days), 0);
     const bgItems = state.calc.boardgames.map(bgById).filter(Boolean);
@@ -1991,7 +2028,7 @@ body.line-browser #calcConsole{display:none}
     const reviewFacebookDisc = state.calc.ret && state.calc.reviewFacebook ? 100 : 0;
     const promoDisc = promoDiscount("console", rental + addons);
     const finalDeposit = state.calc.noContract ? noContractDeposit(deposit) : deposit;
-    const consoleDiscounts = retDisc + reviewGoogleDisc + reviewFacebookDisc + promoDisc;
+    const consoleDiscounts = retDisc + reviewGoogleDisc + reviewFacebookDisc + promoDisc + afterWorkDisc;
     const subtotalAfterDiscount = Math.max(0, rental + addons - consoleDiscounts) + Math.max(0, bgSubtotal - bgDisc);
     const depositTotal = finalDeposit + bgDepositTotal;
     const subtotalBeforePaymentFee = subtotalAfterDiscount + depositTotal;
@@ -2005,7 +2042,7 @@ body.line-browser #calcConsole{display:none}
       upfront = total;
       onDelivery = 0;
     }
-    return {days,rental,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,reviewGoogleDisc,reviewFacebookDisc,promoDisc,discounts:retDisc+reviewGoogleDisc+reviewFacebookDisc+promoDisc+bgDisc,deposit:depositTotal,subtotalBeforePaymentFee,paymentFee,total,upfront,onDelivery,bundleName,extras,bgItems};
+    return {days,rental,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,reviewGoogleDisc,reviewFacebookDisc,promoDisc,afterWorkDisc,discounts:retDisc+reviewGoogleDisc+reviewFacebookDisc+promoDisc+afterWorkDisc+bgDisc,deposit:depositTotal,subtotalBeforePaymentFee,paymentFee,total,upfront,onDelivery,bundleName,extras,bgItems};
   }
   const MONTHLY_RATE = {500:8500, 400:6500, 350:5000, 300:4000};
   function monthlyRate(daily){ return MONTHLY_RATE[Number(daily) || 0] || 0; }
@@ -2294,6 +2331,10 @@ body.line-browser #calcConsole{display:none}
       if(!disabled && start && end && date > start && date < end){ cls.push("range"); note = calendarCellText("range"); }
       if(!disabled && start && iso === fmtIso(start)) note = calendarCellText("start");
       if(!disabled && end && iso === fmtIso(end)) note = calendarCellText("end");
+      if(!disabled && start && afterWorkCalendarPromotion(state.calendar.draftStart, iso).eligible){
+        cls.push("promo");
+        note = tr("afterWorkPromoCell");
+      }
       cells.push(`<button class="${cls.join(" ")}" data-cal-day="${iso}" type="button" ${disabled?"disabled":""}><span>${d}</span><small>${esc(note)}</small></button>`);
     }
     return `<div class="month"><h4>${esc(label)}</h4><div class="week">${(state.lang==="en"?["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]:["อา","จ","อ","พ","พฤ","ศ","ส"]).map(x=>`<div>${x}</div>`).join("")}</div><div class="days">${cells.join("")}</div></div>`;
@@ -2515,6 +2556,7 @@ body.line-browser #calcConsole{display:none}
     if(s.bundleName) costs.push({label:`Bundle ${s.bundleName}`, value: en ? "included" : "รวมในค่าเช่า"});
     if(s.addons) costs.push({label: en ? "Accessories" : "อุปกรณ์เสริม", value: money(s.addons)});
     if(s.bgSubtotal) costs.push({label: en ? "Board game rental" : "ค่าเช่าบอร์ดเกม", value: money(s.bgSubtotal)});
+    if(s.afterWorkDisc) costs.push({label: en ? "After Work 3 Nights promotion" : "โปรโมชั่น After Work 3 Nights", value:`-${money(s.afterWorkDisc)}`, discount:true});
     if(s.retDisc) costs.push({label: en ? "Returning customer 10% discount" : "ส่วนลดลูกค้าเก่า 10%", value:`-${money(s.retDisc)}`, discount:true});
     if(s.reviewGoogleDisc) costs.push({label: en ? "Google Maps review discount" : "ส่วนลดรีวิว Google Maps", value:`-${money(s.reviewGoogleDisc)}`, discount:true});
     if(s.reviewFacebookDisc) costs.push({label: en ? "Facebook review discount" : "ส่วนลดรีวิว Facebook", value:`-${money(s.reviewFacebookDisc)}`, discount:true});
@@ -2695,7 +2737,6 @@ body.line-browser #calcConsole{display:none}
     ] : [];
     const paymentSummaryLinesTh = isCashPayment ? [
       `💳 ช่องทางชำระ: ${paymentOptionTh}`,
-      "",
       ...bankPaymentLinesTh,
       ...(s.onDelivery > 0 ? [
         "",
@@ -2730,6 +2771,7 @@ body.line-browser #calcConsole{display:none}
       s.bundleName ? `  - Bundle ${s.bundleName}: รวมในค่าเช่า` : "",
       s.addons ? `  - อุปกรณ์เสริม: ${money(s.addons)}` : "",
       s.bgSubtotal ? `  - ค่าเช่าบอร์ดเกม: ${money(s.bgSubtotal)}` : "",
+      s.afterWorkDisc ? `  - โปรโมชั่น After Work 3 Nights: -${money(s.afterWorkDisc)}` : "",
       s.retDisc ? `  - ส่วนลดลูกค้าเก่า 10%: -${money(s.retDisc)}` : "",
       s.reviewGoogleDisc ? `  - ส่วนลดรีวิว Google Maps: -${money(s.reviewGoogleDisc)}` : "",
       s.reviewFacebookDisc ? `  - ส่วนลดรีวิว Facebook: -${money(s.reviewFacebookDisc)}` : "",
@@ -2742,6 +2784,7 @@ body.line-browser #calcConsole{display:none}
       s.bundleName ? `  - Bundle ${s.bundleName}: included in rental` : "",
       s.addons ? `  - Accessories: ${money(s.addons)}` : "",
       s.bgSubtotal ? `  - Board game rental: ${money(s.bgSubtotal)}` : "",
+      s.afterWorkDisc ? `  - After Work 3 Nights promotion: -${money(s.afterWorkDisc)}` : "",
       s.retDisc ? `  - Returning customer 10% discount: -${money(s.retDisc)}` : "",
       s.reviewGoogleDisc ? `  - Google Maps review discount: -${money(s.reviewGoogleDisc)}` : "",
       s.reviewFacebookDisc ? `  - Facebook review discount: -${money(s.reviewFacebookDisc)}` : "",
@@ -4479,8 +4522,7 @@ body.line-browser #calcConsole{display:none}
       ""
     ] : [
       "",
-      "💳 ช่องทางชำระ: โอนจองคิว ฿200 ผ่านบัญชีธนาคาร",
-      "",
+      "💳 ช่องทางชำระ: โอนจองคิว ฿200 ผ่านบัญชีธนาคาร👇",
       `✅เลขบัญชี : ${bookingData.paymentBankAccount || CONFIG.reservationBankAccount}`,
       `✅ธนาคาร : ${bookingData.paymentBankName || CONFIG.reservationBankNameTh}`,
       `✅ชื่อบัญชี : ${bookingData.paymentAccountName || CONFIG.reservationAccountName}`,
