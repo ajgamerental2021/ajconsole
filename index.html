@@ -3241,8 +3241,15 @@ body.line-browser #calcConsole{display:none}
         const liff = await loadLineSdk();
         await liff.init({liffId:String(localStorage.getItem("aj_liff_id") || CONFIG.lineLiffId)});
         if(!liff.isLoggedIn()){
+          if(cachedLineProfile()){
+            lineConnectionStatus = "connected";
+            if(!automatic) toast(state.lang === "en" ? "LINE is already connected" : "เชื่อมต่อ LINE อยู่แล้ว");
+            renderSummary();
+            return true;
+          }
           if(liff.isInClient()) throw new Error("LIFF session is not logged in");
-          if(isLineBrowser()) location.replace(lineLiffLaunchUrl());
+          if(isLineBrowser() && new URLSearchParams(location.search).get("ajLiff") !== "1") location.replace(lineLiffLaunchUrl());
+          else if(isLineBrowser()) throw new Error("LIFF login did not complete");
           else liff.login();
           return false;
         }
