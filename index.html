@@ -895,6 +895,8 @@ body.line-browser #calcConsole{display:none}
   const byId = id => document.getElementById(id);
   const tr = key => (I18N[state.lang] && I18N[state.lang][key]) || key;
   const isLineBrowser = () => /\bLine\/[\d.]+/i.test(navigator.userAgent || "");
+  let lineConnectionStatus = "idle";
+  let lineConnectPromise = null;
   const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const safeHref = (value, fallback="#") => {
     const raw = String(value || "").trim();
@@ -2001,8 +2003,17 @@ body.line-browser #calcConsole{display:none}
   }
   function renderLineCard(){
     const uid = localStorage.getItem("aj_line_unique_id") || "";
-    const name = localStorage.getItem("aj_line_display_name") || (state.lang==="en" ? "LINE not connected" : "ยังไม่ได้เชื่อมต่อ LINE");
-    return `<div class="line-card"><div class="line-kicker">LINE / WHATSAPP</div><div class="line-name">${esc(name)}</div><div class="line-actions"><button class="btn dark" id="lineHistoryBtn" type="button">${state.lang==="en" ? "Rental history" : "ประวัติการเช่า"}</button><button class="btn line-connect" id="lineConnectBtn" type="button">${uid ? (state.lang==="en" ? "Refresh LINE" : "รีเฟรช LINE") : (state.lang==="en" ? "Connect LINE" : "เชื่อมต่อ LINE")}</button></div></div>`;
+    const storedName = localStorage.getItem("aj_line_display_name") || "";
+    const connecting = lineConnectionStatus === "connecting";
+    const name = storedName || (connecting
+      ? (state.lang === "en" ? "Connecting LINE..." : "กำลังเชื่อมต่อ LINE...")
+      : (state.lang === "en" ? "LINE not connected" : "ยังไม่ได้เชื่อมต่อ LINE"));
+    const connectLabel = connecting
+      ? (state.lang === "en" ? "Connecting..." : "กำลังเชื่อมต่อ...")
+      : uid
+        ? (state.lang === "en" ? "Refresh LINE" : "รีเฟรช LINE")
+        : (state.lang === "en" ? "Connect LINE" : "เชื่อมต่อ LINE");
+    return `<div class="line-card"><div class="line-kicker">LINE / WHATSAPP</div><div class="line-name">${esc(name)}</div><div class="line-actions"><button class="btn dark" id="lineHistoryBtn" type="button">${state.lang==="en" ? "Rental history" : "ประวัติการเช่า"}</button><button class="btn line-connect" id="lineConnectBtn" type="button" ${connecting ? "disabled" : ""}>${esc(connectLabel)}</button></div></div>`;
   }
   function summaryDeviceHtml(c){
     const img = getConsoleImage(c);
@@ -3179,19 +3190,44 @@ body.line-browser #calcConsole{display:none}
       document.head.appendChild(s);
     });
   }
-  async function connectLine(){
-    try{
-      const liff = await loadLineSdk();
-      await liff.init({liffId:String(localStorage.getItem("aj_liff_id") || CONFIG.lineLiffId)});
-      if(!liff.isLoggedIn()){ liff.login(); return; }
-      const profile = await liff.getProfile();
-      localStorage.setItem("aj_line_unique_id", profile.userId || "");
-      localStorage.setItem("aj_line_display_name", profile.displayName || "");
-      toast(state.lang==="en" ? "LINE connected" : "เชื่อมต่อ LINE แล้ว");
-      renderSummary();
-    }catch(error){
-      showModal("LINE", `<p class="hint">${esc(state.lang==="en" ? "Unable to connect LINE. Please check LIFF ID in settings." : "เชื่อมต่อ LINE ไม่สำเร็จ กรุณาตรวจสอบ LIFF ID ใน settings")}</p>`);
-    }
+  function connectLine(options = {}){
+    if(lineConnectPromise) return lineConnectPromise;
+    const automatic = options.automatic === true;
+    lineConnectionStatus = "connecting";
+    renderSummary();
+    lineConnectPromise = (async () => {
+      try{
+        const liff = await loadLineSdk();
+        await liff.init({liffId:String(localStorage.getItem("aj_liff_id") || CONFIG.lineLiffId)});
+        if(!liff.isLoggedIn()){
+          if(liff.isInClient()) throw new Error("LIFF session is not logged in");
+          liff.login({redirectUri:location.href});
+          return false;
+        }
+        const profile = await liff.getProfile();
+        localStorage.setItem("aj_line_unique_id", profile.userId || "");
+        localStorage.setItem("aj_line_display_name", profile.displayName || "");
+        lineConnectionStatus = "connected";
+        if(!automatic) toast(state.lang==="en" ? "LINE connected" : "เชื่อมต่อ LINE แล้ว");
+        renderSummary();
+        return true;
+      }catch(error){
+        console.warn("LINE connection failed", error);
+        lineConnectionStatus = "idle";
+        renderSummary();
+        if(!automatic){
+          showModal("LINE", `<p class="hint">${esc(state.lang==="en" ? "Unable to connect LINE. Please try again." : "เชื่อมต่อ LINE ไม่สำเร็จ กรุณาลองอีกครั้ง")}</p>`);
+        }
+        return false;
+      }
+    })().finally(() => {
+      lineConnectPromise = null;
+    });
+    return lineConnectPromise;
+  }
+  function autoConnectLine(){
+    if(!isLineBrowser()) return Promise.resolve(false);
+    return connectLine({automatic:true});
   }
   function historyKey(value){
     return String(value || "").toLowerCase().replace(/\s+/g, "").replace(/[()_\-:./]/g, "");
@@ -4681,7 +4717,9 @@ body.line-browser #calcConsole{display:none}
     const restoredGameList = consumeGamePickerHandoff();
     exposeCompatibility();
     bindEvents();
+    if(isLineBrowser() && !localStorage.getItem("aj_line_unique_id")) lineConnectionStatus = "connecting";
     render();
+    await autoConnectLine();
     const openedFromLink = restoredGameList ? false : applyDeepLink();
     if(restoredGameList){
       setGuideStage("next2", {syncStep:false});
