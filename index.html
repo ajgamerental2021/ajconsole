@@ -3,6 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script>
+(() => {
+  const MAIN_LIFF_ID = "2010212481-16RHJsnX";
+  const isLineBrowser = /\bLine\/[\d.]+/i.test(navigator.userAgent || "");
+  const isDirectRenderEntry = location.hostname === "ajgamerental.onrender.com";
+  const params = new URLSearchParams(location.search);
+  const isLiffReturn = params.get("ajLiff") === "1"
+    || params.has("liff.state")
+    || params.has("code")
+    || params.has("error");
+
+  if(!isLineBrowser || !isDirectRenderEntry || isLiffReturn || localStorage.getItem("aj_line_unique_id")) return;
+
+  ["code", "state", "error", "error_description", "liff.state", "liff.referrer"].forEach(key => params.delete(key));
+  params.set("ajLiff", "1");
+  const liffUrl = new URL(`https://liff.line.me/${MAIN_LIFF_ID}`);
+  liffUrl.search = params.toString();
+  liffUrl.hash = location.hash;
+  location.replace(liffUrl.href);
+})();
+</script>
 <title>AJ Game Rental - รายการเครื่อง</title>
 <meta name="description" content="บริการให้เช่าเครื่องเล่นเกม พร้อมส่งด่วน 2 ชม. ในกรุงเทพฯ และปริมณฑล🔥">
 <meta property="og:description" content="บริการให้เช่าเครื่องเล่นเกม พร้อมส่งด่วน 2 ชม. ในกรุงเทพฯ และปริมณฑล🔥">
@@ -3195,6 +3216,7 @@ body.line-browser #calcConsole{display:none}
     const url = new URL(`https://liff.line.me/${encodeURIComponent(liffId)}`);
     const params = new URLSearchParams(location.search);
     ["code", "state", "error", "error_description", "liff.state", "liff.referrer"].forEach(key => params.delete(key));
+    params.set("ajLiff", "1");
     url.search = params.toString();
     url.hash = location.hash;
     return url.href;
