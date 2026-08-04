@@ -2710,17 +2710,33 @@ body.line-browser #calcConsole{display:none}
       }
     };
   }
-  function submitRentalToSheet(summary, code, channel){
-    if(!code || localStorage.getItem(`aj_rental_sheet_submitted_${code}`) === "1") return;
-    const endpoint = String(localStorage.getItem("aj_rental_sheet_webapp_url") || CONFIG.rentalSheetWebApp || "").trim();
-    if(!endpoint) return;
+  async function submitRentalToSheet(summary, code, channel){
+    const submittedKey = `aj_rental_sheet_submitted_v2_${code}`;
+    if(!code || localStorage.getItem(submittedKey) === "1") return true;
+    const endpoint = `${String(CONFIG.apiBase || "").replace(/\/$/, "")}/api/console-pending-submissions`;
+    if(!CONFIG.apiBase) throw new Error("Console Pending API is not configured");
     SESSION_RENTAL_CODES.add(code);
     const payload = rentalSheetPayload(summary, code, channel);
-    // POST so the full booking message (added for the shop-side viewer) is not
-    // capped by the GET URL length limit. Apps Script doPost reads the raw body.
-    fetch(endpoint, {method:"POST", mode:"no-cors", cache:"no-store", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload)}).then(() => {
-      localStorage.setItem(`aj_rental_sheet_submitted_${code}`, "1");
-    }).catch(error => console.warn("Rental sheet append skipped", error));
+    let lastError;
+    for(let attempt = 0; attempt < 3; attempt += 1){
+      try{
+        const response = await fetch(endpoint, {
+          method:"POST",
+          mode:"cors",
+          cache:"no-store",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify(payload),
+        });
+        const result = await response.json().catch(() => ({}));
+        if(!response.ok || !result.ok) throw new Error(result.error || `Console Pending ${response.status}`);
+        localStorage.setItem(submittedKey, "1");
+        return true;
+      }catch(error){
+        lastError = error;
+        if(attempt < 2) await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
+      }
+    }
+    throw lastError || new Error("Console Pending submission failed");
   }
   function lineUniqueId(){
     try{
@@ -3029,7 +3045,7 @@ body.line-browser #calcConsole{display:none}
       await prepareContractContext(summary, code);
       const msg = bookingMessage(code);
       await writeBookingClipboard(msg);
-      submitRentalToSheet(summary, code, "copy");
+      await submitRentalToSheet(summary, code, "copy");
       return true;
     }catch(error){
       toast(state.lang === "en" ? "Cannot check rental code from Google Sheet." : "เช็กรหัสการเช่าจาก Google Sheet ไม่ได้");
@@ -3045,7 +3061,7 @@ body.line-browser #calcConsole{display:none}
       await prepareContractContext(summary, code);
       const msg = bookingMessageForLine(code);
       await writeBookingClipboard(msg);
-      submitRentalToSheet(summary, code, "line");
+      await submitRentalToSheet(summary, code, "line");
       pushLineGamePickerCard(code);
       location.href = `${CONFIG.lineOaMessageUrl}?${encodeURIComponent(msg)}`;
       return true;
@@ -3099,7 +3115,7 @@ body.line-browser #calcConsole{display:none}
       await prepareContractContext(summary, code);
       const msg = unicodeSafeText(bookingMessage(code));
       await writeBookingClipboard(msg);
-      submitRentalToSheet(summary, code, "whatsapp");
+      await submitRentalToSheet(summary, code, "whatsapp");
       window.open(whatsappShareUrl(msg), "_blank", "noopener,noreferrer");
       return true;
     }catch(error){
@@ -3116,7 +3132,7 @@ body.line-browser #calcConsole{display:none}
       await prepareContractContext(summary, code);
       const msg = unicodeSafeText(bookingMessage(code));
       await writeBookingClipboard(msg);
-      submitRentalToSheet(summary, code, "messenger");
+      await submitRentalToSheet(summary, code, "messenger");
       openMessengerChat();
       return true;
     }catch(error){
@@ -3138,7 +3154,7 @@ body.line-browser #calcConsole{display:none}
       if(hint) hint.textContent = `${tr("rentalCode")}: ${code}`;
       // Persist the booking (incl. message) when the customer opens the contract,
       // so the shop can retrieve it later even if the customer never copies/sends.
-      submitRentalToSheet(summary, code, "contract");
+      await submitRentalToSheet(summary, code, "contract");
       open(contractLink, "_blank");
     }catch(error){
       toast(state.lang === "en" ? "Cannot check rental code from Google Sheet." : "เช็กรหัสการเช่าจาก Google Sheet ไม่ได้");
