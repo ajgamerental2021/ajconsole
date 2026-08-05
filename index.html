@@ -902,7 +902,7 @@ body.line-browser #calcConsole{display:none}
       guideTitle:"Next step", guideConsole:"Choose console", guideStart:"Choose start date", guideEnd:"Choose return date", guideAccessory:"Choose accessories if needed, or skip.", guidePs5Bundle:"Choose a PS5 bundle if needed.", guideNextStep:"Go to the next step.", guideBg:"Add a board game bundle if needed.", guideRet:"Have you rented with us before?", guideContractChoice:"Would you like to complete the rental contract?", guideContractLink:"Open the rental agreement link, or do it later.", guidePayment:"Choose payment option.", guideMaps:"Paste your Google Maps link for delivery check.", guideGames:"Pick games from the catalog, or send later.", guideShare:"Check the rental details above, then book through your preferred channel.", guideCopy:"Copy booking message", guideLine:"Book via LINE", guideWa:"Book via WhatsApp", guideMessenger:"Book via Messenger",
       guideDoContract:"Do contract", guideNoContract:"No contract", guideLater:"Later", guideSkip:"Skip", guideGameLater:"Choose later", guideNext:"Next", guideRetYes:"Yes", guideRetNo:"No",
       pickGames:"Choose / Edit games", sendLater:"Send game list later", clearGames:"Clear games", noGameList:"This model has no game catalog in the system.", gameOwnAccount:"You can sign in to your own account (tell AJ first).", gameLockedAfterDispatch:"Games cannot be changed once the device has been sent.", wiseAvailabilityNote:"Wise payments are unavailable on weekends and Thai bank holidays because funds arrive on the next business day.", wiseUnavailableWeekend:"Wise is unavailable today (weekend).", wiseUnavailableHoliday:"Wise is unavailable today (Thai bank holiday).",
-      summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Grand total", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat", paymentFee:"Payment fee", cardDeposit:"Card / E-Wallet reservation (no fee)", paymentLink:"Payment link", finalActionHelp:"Review the details, then book via the same chat channel to send them to AJ.",
+      summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Grand total", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat", paymentFee:"Payment fee", cardDeposit:"Card / E-Wallet / Thai QR reservation (no fee)", paymentLink:"Payment link", finalActionHelp:"Review the details, then book via the same chat channel to send them to AJ.",
       returningDiscount:"Returning customer 10% discount", consoleDiscount:"Console discount", boardGameDiscount:"Board game discount", boardGameDeposit:"Board game deposit", rentalDays:"Rental days", boardGameRental:"Board game rental", boardGameList:"Board game list",
       equipmentDetails:"Equipment details", players:"Players", playTime:"Play time", age:"Recommended age", packageRental:"Package rental", oneDay:"1 day", threeDays:"3 days", sevenDays:"7 days", howToPlay:"Quick how to play", noContractDepositNote:"Deposit (no contract)", noContractLabel:"No contract", standardTier:"Standard tier", planning:"Planning",
       copy:"📋 Copy booking message", line:"Book via LINE", whatsapp:"Book via WhatsApp", messenger:"Book via Messenger", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", queueError:"Unable to check the queue. Please try again.", queueClosed:"Booking temporarily closed",
@@ -1750,7 +1750,7 @@ body.line-browser #calcConsole{display:none}
       ? `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span>${tr("bank")}</span></label><label class="payment-option ${wiseStatus.available ? "" : "is-disabled"}"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""} ${wiseDisabled}>${wiseOptionHtml(wiseStatus)}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}>${creditOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`
       : `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span>${tr("bank")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}>${creditOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`;
     const reservationTitle = state.lang === "en"
-      ? "Pay ฿1,000 by card or E-Wallet to reserve (no fee)"
+      ? "Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee)"
       : "โอนจองคิว ฿200 ผ่านบัญชีธนาคาร";
     const fullPaymentTitle = state.lang === "en" ? "Pay the full amount before delivery" : "ชำระเต็มจำนวนก่อนจัดส่ง";
     const paymentHtml = `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title">${reservationTitle}</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""} ${paymentDisabled}>${cashDeliveryOptionHtml()}</label></div><div class="payment-group"><div class="payment-group-title">${fullPaymentTitle}</div>${fullPaymentOptions}</div></div>${paymentLockHint}</div>`;
@@ -1833,7 +1833,7 @@ body.line-browser #calcConsole{display:none}
     return {cash:tr("cash"), bank:tr("bank"), credit:tr("credit"), ewallet:tr("ewallet")}[state.calc.payment] || tr("cash");
   }
   function paymentOptionMessageLabelEn(){
-    if(state.calc.payment === "cash") return "Pay ฿1,000 to reserve (no fee) + balance on delivery";
+    if(state.calc.payment === "cash") return "Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee) + balance on delivery";
     if(state.calc.payment === "credit") return "Credit Card: pay full amount before delivery (+3.50% fee)";
     if(state.calc.payment === "ewallet") return "E-Wallet: pay full amount before delivery (+2.95%)";
     return paymentOptionLabelEn();
@@ -1862,7 +1862,7 @@ body.line-browser #calcConsole{display:none}
     return `${paymentCardBadgesHtml()}${paymentEwalletBadgesHtml()}`;
   }
   function cashDeliveryOptionHtml(){
-    const transferMethod = state.lang === "en" ? "Cash (no fee)" : "เงินโอน (ไม่มีค่าธรรมเนียม)";
+    const transferMethod = state.lang === "en" ? "Cash or Thai QR scan (no fee)" : "เงินโอน (ไม่มีค่าธรรมเนียม)";
     const otherMethods = state.lang === "en" ? "Card (+3.50%) or E-Wallet (+2.95%)" : "บัตร (+3.50%) หรือ E-Wallet (+2.95%)";
     return `<span class="payment-option-copy"><span>${tr("cash")}</span><small>${transferMethod}</small><small>${otherMethods}</small>${paymentReservationBadgesHtml()}</span>`;
   }
@@ -1904,7 +1904,7 @@ body.line-browser #calcConsole{display:none}
     return 0;
   }
   function paymentLinkLabel(){
-    if(state.calc.payment === "cash") return "Pay ฿1,000 by card or E-Wallet to reserve (no fee)";
+    if(state.calc.payment === "cash") return "Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee)";
     if(state.calc.payment === "credit") return state.lang === "en" ? "Pay by Credit Card" : "ชำระด้วยบัตรเครดิต";
     if(state.calc.payment === "ewallet") return state.lang === "en" ? "Pay by E-Wallet" : "ชำระด้วย E-Wallet";
     return "";
@@ -2805,12 +2805,12 @@ body.line-browser #calcConsole{display:none}
       ...(s.onDelivery > 0 ? [`🚚 ${payOnDeliveryLabel()}: ${money(s.onDelivery)}`] : [])
     ];
     const paymentSummaryLinesEn = isCashPayment ? [
-      "💳 Payment option: Pay ฿1,000 by card or E-Wallet to reserve (no fee)",
+      "💳 Payment option: Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee)",
       ...paymentLinkLinesEn,
       "",
       ...(s.onDelivery > 0 ? [
         `🚚 Pay on delivery: ${money(s.onDelivery)}`,
-        "** Cash (no fee), Card (+3.50%) or E-Wallet (+2.95%) **"
+        "** Cash or Thai QR scan (no fee), Card (+3.50%) or E-Wallet (+2.95%) **"
       ] : [])
     ] : [
       `💳 Payment option: ${paymentOptionEn}`,
@@ -4616,11 +4616,11 @@ body.line-browser #calcConsole{display:none}
     if(totalIndex < 0) return source;
     const paymentBlock = en ? [
       "",
-      "💳 Payment option: Pay ฿1,000 by card or E-Wallet to reserve (no fee)",
+      "💳 Payment option: Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee)",
       ...(paymentLink ? [`🔗 Payment link: ${paymentLink}`] : []),
       "",
       ...(onDelivery ? [`🚚 Pay on delivery: ${onDelivery}`] : []),
-      "** Cash (no fee), Card (+3.50%) or E-Wallet (+2.95%) **",
+      "** Cash or Thai QR scan (no fee), Card (+3.50%) or E-Wallet (+2.95%) **",
       ""
     ] : [
       "",
