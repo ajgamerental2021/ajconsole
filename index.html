@@ -3846,6 +3846,8 @@ body.line-browser #calcConsole{display:none}
     if(action === "contract-later"){
       markGuideDone("contractLink");
       setGuideStage("payment");
+      saveLocal();
+      render();
       return;
     }
     if(action === "game-later"){

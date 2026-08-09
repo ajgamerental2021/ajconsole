@@ -3492,6 +3492,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(action === "contract-later"){
       markGuideDone("contractLink");
       setGuideStage("maps");
+      saveLocal();
+      render();
       return;
     }
     if(action === "game-later"){
