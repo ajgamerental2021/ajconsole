@@ -894,7 +894,7 @@ body.line-browser #calcConsole{display:none}
       personalRateWarning:"⚠️ Individual rental rates only. Tax invoice / receipt is not available. For documents, contact Line: <b>@ajgame</b> or call <b>081-624-4715</b> 🙏",
       daily:"Daily", weekly:"Weekly", day:"day", wk:"week", deposit:"Deposit", ready:"Ready", notReady:"Not ready", readyOn:"Ready on",
       bundle:"Bundle", accessories:"Accessories", noBundle:"No bundle", noAccessory:"No extra accessory", contract:"Rental contract", contractHelp:"Recommended for first-time renters. Complete it before delivery.",
-      noContract:"No rental contract", noContractHelp:"First-time renters must complete the rental agreement and attach a copy of their ID card / Passport plus a selfie holding the ID card / Passport in all cases. If this is inconvenient, check this box. The deposit will increase from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the model.", recommended:"Recommended", depositRefundPaymentNote:"Card/E-Wallet deposit refunds: cash or Thai bank transfer only.",
+      noContract:"No rental contract", noContractHelp:"First-time renters must complete the rental agreement and attach a copy of their ID card / Passport plus a selfie holding the ID card / Passport in all cases. If this is inconvenient, check this box. The deposit will increase from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the model.", recommended:"Recommended", depositRefundPaymentNote:"Card/E-Wallet deposit refunds: cash or Thai bank transfer only.", wiseDepositRefundPaymentNote:"Wise deposit refunds: cash or Thai bank transfer only.",
       returning:"Returning customers only: 10% off rental fee", returningOnly:"Returning customers only", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"💵 Balance on delivery", bank:"🏦 Thai Bank Transfer: pay full amount", wise:"🌍 Wise: pay full amount", credit:"💳 Credit Card: pay full amount + 3.50% fee", creditTitle:"💳 Credit Card: pay full amount", creditFee:"+ 3.50% fee", ewallet:"👛 E-Wallet: pay full amount + 2.95%", ewalletTitle:"👛 E-Wallet: pay full amount", ewalletFee:"+ 2.95% fee",
       reviewGoogle:"Extra ฿100 discount for a Google Maps review", reviewFacebook:"Extra ฿100 discount for a Facebook review", reviewGoogleHelp:"To receive this discount, tap Review Google Maps below, then send a screenshot to the AJ chat you are using.", reviewFacebookHelp:"To receive this discount, tap Review Facebook below, then send a screenshot to the AJ chat you are using.", reviewGoogleBtn:"Review Google Maps", reviewFacebookBtn:"Review Facebook", reviewGoogleDiscount:"Google Maps review discount", reviewFacebookDiscount:"Facebook review discount",
       boardGameCollapsed:"Want board games? Expand to add them to this rental.", ps5BundleCollapsed:"Want a bundle? Expand to pair PS5 with another device.",
@@ -1587,6 +1587,7 @@ body.line-browser #calcConsole{display:none}
       window.requestAnimationFrame(focusCurrentGuideTarget);
       return;
     }
+    if(state.calc.step === 2 && next === 3) resetStepThreeGuide();
     state.calc.step = next;
     setGuideStage(guideStageForStep(next), {syncStep:false});
     guideLastScrollStage = "";
@@ -1890,7 +1891,10 @@ body.line-browser #calcConsole{display:none}
       : status.reason === "holiday"
         ? tr("wiseUnavailableHoliday")
         : "";
-    return `<span class="payment-option-copy"><span>${tr("wise")}</span><small class="wise-status">${tr("wiseAvailabilityNote")}</small>${blocked ? `<small class="wise-status blocked">${blocked}</small>` : ""}</span>`;
+    const refundNote = state.lang === "en"
+      ? `<small class="payment-refund-note">${tr("wiseDepositRefundPaymentNote")}</small>`
+      : "";
+    return `<span class="payment-option-copy"><span>${tr("wise")}</span><small class="wise-status">${tr("wiseAvailabilityNote")}</small>${blocked ? `<small class="wise-status blocked">${blocked}</small>` : ""}${refundNote}</span>`;
   }
   function paymentOptionSummaryHtml(){
     if(state.calc.payment === "cash") return cashDeliveryOptionHtml();
@@ -3649,8 +3653,8 @@ body.line-browser #calcConsole{display:none}
     }
     if(step === 3){
       if(!state.calc.boardgames.length && !guideDone("bg")) return "bg";
-      if(!state.calc.maps && !guideDone("maps")) return "maps";
-      if(!state.calc.ret && !guideDone("ret")) return "ret";
+      if(!guideDone("maps")) return "maps";
+      if(!guideDone("ret")) return "ret";
       if(!state.calc.ret && !guideDone("contractChoice")) return "contractChoice";
       if(!state.calc.ret && !state.calc.noContract && !guideDone("contractLink")) return "contractLink";
       if(guideStageAvailable("payment") && !guideDone("payment")) return "payment";
@@ -3687,6 +3691,10 @@ body.line-browser #calcConsole{display:none}
   function resetStepOneGuide(){
     ["ps5bundle","accessory"].forEach(stage => delete state.calc.guideDone[stage]);
     state.calc.guideConsoleId = String(state.calc.consoleId || "");
+    guideLastScrollStage = "";
+  }
+  function resetStepThreeGuide(){
+    ["bg","maps","ret","contractChoice","contractLink","payment"].forEach(stage => delete state.calc.guideDone[stage]);
     guideLastScrollStage = "";
   }
   function guideTarget(){
