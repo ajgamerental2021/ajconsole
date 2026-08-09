@@ -177,7 +177,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-unavailable{color:#666;text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:#111;text-decoration-skip-ink:auto;white-space:nowrap}
 .payment-picker{display:flex;flex-direction:column;gap:10px;border:1px solid var(--border2);border-radius:12px;background:#fff;padding:10px}
 .payment-group{border:1px solid var(--border);border-radius:10px;background:#fafbfc;overflow:hidden}
-.payment-group-title{padding:9px 11px;background:#eef2f7;border-bottom:1px solid var(--border);font-size:12px;font-weight:900;color:var(--text2);line-height:1.35}
+.payment-group-title{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 11px;background:#eef2f7;border-bottom:1px solid var(--border);font-size:12px;font-weight:900;color:var(--text2);line-height:1.35}
+.payment-recommended{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;background:#fff0c2;color:#7a4b00;font-size:11px;font-weight:900;white-space:nowrap}
 .payment-option{display:flex;align-items:center;gap:10px;min-height:46px;padding:10px 11px;cursor:pointer;font-weight:800;line-height:1.35}
 .payment-option + .payment-option{border-top:1px solid var(--border)}
 .payment-option input{width:19px;height:19px;margin:0;accent-color:#d71920;flex:0 0 auto}
@@ -193,6 +194,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-card-logo{display:block;width:auto;height:20px;max-width:42px;object-fit:contain}
 .payment-wallet-badges{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:6px}
 .payment-wallet-logo{display:block;width:auto;height:24px;max-width:48px;object-fit:contain;border-radius:5px}
+.payment-refund-note{display:block;margin-top:5px;color:#8a4b08!important;font-size:11px!important;font-weight:900!important;line-height:1.4}
 .sum-row .payment-option-copy{align-items:flex-end}
 .sum-row .payment-wallet-badges{justify-content:flex-end}
 .sum-empty{color:var(--text3);font-size:14px;padding:20px 0}
@@ -860,7 +862,7 @@ body.line-browser #calcConsole{display:none}
       personalRateWarning:"⚠️ ราคาเช่าเป็นเรทบุคคล ไม่สามารถออกใบกำกับภาษี/ใบเสร็จได้ หากต้องการเอกสาร กรุณาติดต่อ Line: <b>@ajgame</b> หรือ โทร. <b>081-624-4715</b> 🙏",
       daily:"รายวัน", weekly:"รายสัปดาห์", day:"วัน", wk:"สัปดาห์", deposit:"ค่าประกัน", ready:"พร้อม", notReady:"ยังไม่พร้อม", readyOn:"พร้อมวันที่",
       bundle:"Bundle", accessories:"อุปกรณ์เสริม", noBundle:"ไม่เพิ่ม Bundle", noAccessory:"ไม่เพิ่มอุปกรณ์เสริม", contract:"ทำสัญญาการเช่า", contractHelp:"แนะนำสำหรับผู้เช่าครั้งแรก กรอกก่อนนัดส่งเครื่อง",
-      noContract:"ไม่ต้องการทำสัญญาการเช่า", noContractHelp:"สำหรับผู้เช่าครั้งแรก ต้องทำสัญญาและแนบสำเนาบัตรประชาชน / Passport + รูปเซลฟี่คู่บัตรหรือ Passport ทุกกรณี หากไม่สะดวก ให้ติ๊กช่องนี้ ค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น",
+      noContract:"ไม่ต้องการทำสัญญาการเช่า", noContractHelp:"สำหรับผู้เช่าครั้งแรก ต้องทำสัญญาและแนบสำเนาบัตรประชาชน / Passport + รูปเซลฟี่คู่บัตรหรือ Passport ทุกกรณี หากไม่สะดวก ให้ติ๊กช่องนี้ ค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น", recommended:"แนะนำ", depositRefundPaymentNote:"หากชำระด้วยบัตร/E-Wallet คืนค่าประกันเป็นเงินโอนเท่านั้น",
       returning:"ลูกค้าเก่า (เท่านั้น) รับส่วนลด 10% ค่าเช่า", returningOnly:"ลูกค้าเก่าเท่านั้น", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง", bank:"🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", creditTitle:"💳 บัตรเครดิต: ชำระเต็มจำนวน", creditFee:"+ ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%", ewalletTitle:"👛 E-Wallet: ชำระเต็มจำนวน", ewalletFee:"+ ค่าธรรมเนียม 2.95%",
       reviewGoogle:"รับส่วนลดเพิ่มจากการรีวิวบน Google Maps มูลค่า 100 บาท", reviewFacebook:"รับส่วนลดเพิ่มจากการรีวิวบน Facebook มูลค่า 100 บาท", reviewGoogleHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Google Maps ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewFacebookHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Facebook ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewGoogleBtn:"รีวิว Google Maps", reviewFacebookBtn:"รีวิว Facebook", reviewGoogleDiscount:"ส่วนลดรีวิว Google Maps", reviewFacebookDiscount:"ส่วนลดรีวิว Facebook",
       boardGameCollapsed:"ต้องการเพิ่มบอร์ดเกม? กดเพื่อขยายและเลือกเข้าชุดเช่า", ps5BundleCollapsed:"ต้องการ Bundle? กดเพื่อจับคู่ PS5 กับอุปกรณ์อื่น",
@@ -892,7 +894,7 @@ body.line-browser #calcConsole{display:none}
       personalRateWarning:"⚠️ Individual rental rates only. Tax invoice / receipt is not available. For documents, contact Line: <b>@ajgame</b> or call <b>081-624-4715</b> 🙏",
       daily:"Daily", weekly:"Weekly", day:"day", wk:"week", deposit:"Deposit", ready:"Ready", notReady:"Not ready", readyOn:"Ready on",
       bundle:"Bundle", accessories:"Accessories", noBundle:"No bundle", noAccessory:"No extra accessory", contract:"Rental contract", contractHelp:"Recommended for first-time renters. Complete it before delivery.",
-      noContract:"No rental contract", noContractHelp:"First-time renters must complete the rental agreement and attach a copy of their ID card / Passport plus a selfie holding the ID card / Passport in all cases. If this is inconvenient, check this box. The deposit will increase from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the model.",
+      noContract:"No rental contract", noContractHelp:"First-time renters must complete the rental agreement and attach a copy of their ID card / Passport plus a selfie holding the ID card / Passport in all cases. If this is inconvenient, check this box. The deposit will increase from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the model.", recommended:"Recommended", depositRefundPaymentNote:"Card/E-Wallet deposit refunds: cash or Thai bank transfer only.",
       returning:"Returning customers only: 10% off rental fee", returningOnly:"Returning customers only", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"💵 Balance on delivery", bank:"🏦 Thai Bank Transfer: pay full amount", wise:"🌍 Wise: pay full amount", credit:"💳 Credit Card: pay full amount + 3.50% fee", creditTitle:"💳 Credit Card: pay full amount", creditFee:"+ 3.50% fee", ewallet:"👛 E-Wallet: pay full amount + 2.95%", ewalletTitle:"👛 E-Wallet: pay full amount", ewalletFee:"+ 2.95% fee",
       reviewGoogle:"Extra ฿100 discount for a Google Maps review", reviewFacebook:"Extra ฿100 discount for a Facebook review", reviewGoogleHelp:"To receive this discount, tap Review Google Maps below, then send a screenshot to the AJ chat you are using.", reviewFacebookHelp:"To receive this discount, tap Review Facebook below, then send a screenshot to the AJ chat you are using.", reviewGoogleBtn:"Review Google Maps", reviewFacebookBtn:"Review Facebook", reviewGoogleDiscount:"Google Maps review discount", reviewFacebookDiscount:"Facebook review discount",
       boardGameCollapsed:"Want board games? Expand to add them to this rental.", ps5BundleCollapsed:"Want a bundle? Expand to pair PS5 with another device.",
@@ -1016,7 +1018,7 @@ body.line-browser #calcConsole{display:none}
     adminToken: "",
     autoPushTimer: 0
   };
-  const GUIDE_ORDER = ["console","start","end","ps5bundle","accessory","next1","games","next2","bg","ret","contractChoice","payment","contractLink","maps","next3","share"];
+  const GUIDE_ORDER = ["console","start","end","ps5bundle","accessory","next1","games","next2","bg","maps","ret","contractChoice","contractLink","payment","next3","share"];
   const GUIDE_KEY = "aj_index2_guide_stage";
   const RENTAL_SHEET_COLUMNS = [
     "รหัสการเช่า",
@@ -1753,19 +1755,26 @@ body.line-browser #calcConsole{display:none}
       ? "Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee)"
       : "โอนจองคิว ฿200 ผ่านบัญชีธนาคาร";
     const fullPaymentTitle = state.lang === "en" ? "Pay the full amount before delivery" : "ชำระเต็มจำนวนก่อนจัดส่ง";
-    const paymentHtml = `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title">${reservationTitle}</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""} ${paymentDisabled}>${cashDeliveryOptionHtml()}</label></div><div class="payment-group"><div class="payment-group-title">${fullPaymentTitle}</div>${fullPaymentOptions}</div></div>${paymentLockHint}</div>`;
-    byId("optionRows").innerHTML = `
-      ${renderBoardGameBundle()}
-      <label class="option-row"><input type="checkbox" id="retOpt" ${state.calc.ret?"checked":""} ${state.retEnabled?"":"disabled"}><div><b>${tr("returning")}</b><div class="hint">${returningHelp}</div></div></label>
-      ${returningReviewHtml}
-      ${state.calc.ret ? "" : `<label class="option-row"><input type="checkbox" id="noContractOpt" ${state.calc.noContract?"checked":""}><div><b>${tr("noContract")}${state.calc.noContract && selectedConsole ? depositBadge(noContractDeposit(selectedConsole.deposit), "danger") : ""}</b><div class="hint">${tr("noContractHelp")}</div></div></label>`}
-      ${paymentHtml ? `<div style="margin-top:12px">${paymentHtml}</div>` : ""}
-      ${state.calc.noContract || state.calc.ret ? "" : `<div class="card" id="contractCard" style="margin:12px 0 0"><h3>${tr("contract")}${selectedConsole ? depositBadge(selectedConsole.deposit, "ok") : ""}</h3><p class="hint">${tr("contractHelp")}</p><button class="btn soft" id="contractBtn" type="button">${tr("contract")}</button><p class="hint" id="contractCodeHint">${state.calc.rentalCode ? `${tr("rentalCode")}: ${esc(state.calc.rentalCode)}` : ""}</p></div>`}
-      <div class="grid2" style="margin-top:12px">
+    const paymentHtml = `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title"><span>${reservationTitle}</span><span class="payment-recommended">${tr("recommended")}</span></div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""} ${paymentDisabled}>${cashDeliveryOptionHtml()}</label></div><div class="payment-group"><div class="payment-group-title">${fullPaymentTitle}</div>${fullPaymentOptions}</div></div>${paymentLockHint}</div>`;
+    const mapsHtml = `<div class="grid2" style="margin-top:12px">
         <div class="field"><label class="label">${mapsLabel}</label><input class="input" id="mapsInput" value="${esc(state.calc.maps)}" placeholder="https://maps.google.com/..."><div class="hint">${tr("mapsInputHelp")}</div></div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn" type="button" id="mapsOpen">Google Maps</button><button class="btn" type="button" id="mapsHelp">${tr("mapsHelp")}</button></div>
-      <div class="hint" style="margin-top:10px"><b>${tr("mapsDeliveryArea")}</b><br>${tr("mapsDeliveryPromo")}</div>`;
+      <div class="hint" style="margin:10px 0 12px"><b>${tr("mapsDeliveryArea")}</b><br>${tr("mapsDeliveryPromo")}</div>`;
+    const contractCardHtml = state.calc.ret ? "" : `<div class="card" id="contractCard" style="margin:12px 0 0">
+      <h3>${tr("contract")}${selectedConsole ? depositBadge(state.calc.noContract ? noContractDeposit(selectedConsole.deposit) : selectedConsole.deposit, state.calc.noContract ? "danger" : "ok") : ""}</h3>
+      ${state.calc.noContract ? "" : `<p class="hint">${tr("contractHelp")}</p><button class="btn soft" id="contractBtn" type="button">${tr("contract")}</button>`}
+      <p class="hint" id="contractCodeHint">${state.calc.rentalCode ? `${tr("rentalCode")}: ${esc(state.calc.rentalCode)}` : ""}</p>
+      <label class="option-row" style="margin-top:12px"><input type="checkbox" id="noContractOpt" ${state.calc.noContract?"checked":""}><div><b>${tr("noContract")}</b><div class="hint">${tr("noContractHelp")}</div></div></label>
+    </div>`;
+    byId("optionRows").innerHTML = `
+      ${renderBoardGameBundle()}
+      ${mapsHtml}
+      <label class="option-row"><input type="checkbox" id="retOpt" ${state.calc.ret?"checked":""} ${state.retEnabled?"":"disabled"}><div><b>${tr("returning")}</b><div class="hint">${returningHelp}</div></div></label>
+      ${returningReviewHtml}
+      ${contractCardHtml}
+      ${paymentHtml ? `<div style="margin-top:12px">${paymentHtml}</div>` : ""}
+    `;
   }
   function renderBoardGameBundle(){
     const games = bgVisibleList();
@@ -1861,16 +1870,19 @@ body.line-browser #calcConsole{display:none}
   function paymentReservationBadgesHtml(){
     return `${paymentCardBadgesHtml()}${paymentEwalletBadgesHtml()}`;
   }
+  function paymentRefundNoteHtml(){
+    return `<small class="payment-refund-note">${tr("depositRefundPaymentNote")}</small>`;
+  }
   function cashDeliveryOptionHtml(){
     const transferMethod = state.lang === "en" ? "Cash or Thai QR scan (no fee)" : "เงินโอน (ไม่มีค่าธรรมเนียม)";
     const otherMethods = state.lang === "en" ? "Card (+3.50%) or E-Wallet (+2.95%)" : "บัตร (+3.50%) หรือ E-Wallet (+2.95%)";
-    return `<span class="payment-option-copy"><span>${tr("cash")}</span><small>${transferMethod}</small><small>${otherMethods}</small>${paymentReservationBadgesHtml()}</span>`;
+    return `<span class="payment-option-copy"><span>${tr("cash")}</span><small>${transferMethod}</small><small>${otherMethods}</small>${paymentReservationBadgesHtml()}${paymentRefundNoteHtml()}</span>`;
   }
   function creditOptionHtml(){
-    return `<span class="payment-option-copy"><span>${tr("creditTitle")}</span><small>${tr("creditFee")}</small>${paymentCardBadgesHtml()}</span>`;
+    return `<span class="payment-option-copy"><span>${tr("creditTitle")}</span><small>${tr("creditFee")}</small>${paymentCardBadgesHtml()}${paymentRefundNoteHtml()}</span>`;
   }
   function ewalletOptionHtml(){
-    return `<span class="payment-option-copy"><span>${tr("ewalletTitle")}</span><small>${tr("ewalletFee")}</small>${paymentEwalletBadgesHtml()}</span>`;
+    return `<span class="payment-option-copy"><span>${tr("ewalletTitle")}</span><small>${tr("ewalletFee")}</small>${paymentEwalletBadgesHtml()}${paymentRefundNoteHtml()}</span>`;
   }
   function wiseOptionHtml(status = wisePaymentAvailability()){
     const blocked = status.reason === "weekend"
@@ -3512,10 +3524,10 @@ body.line-browser #calcConsole{display:none}
       title:{th:"ตัวเลือกเพิ่มเติม / ชำระเงิน / สัญญา / สถานที่จัดส่ง", en:"Extra options / payment / contract / delivery"},
       columns:[
         {src:"assets/steps/step4a.png", th:"เลือกบอร์ดเกมเพิ่มในการเช่าครั้งนี้ (ถ้ามี)", en:"Add board games to this rental if needed"},
-        {src:"assets/steps/step4b.png", th:"เลือกลูกค้าเก่าเพื่อรับส่วนลด หรือเลือกไม่ทำสัญญาการเช่า", en:"Choose returning-customer discount or no rental contract"},
-        {src:"assets/steps/step4c.png", th:"เลือกช่องทางการชำระเงิน", en:"Choose a payment method"},
-        {src:"assets/steps/step4d.png", th:"ทำสัญญาการเช่า หรือเลือกทำภายหลัง", en:"Complete the rental contract, or choose to do it later"},
-        {src:"assets/steps/step4e.png", th:"ใส่ลิงก์ Google Maps เพื่อให้ร้านเช็คค่าจัดส่ง", en:"Enter a Google Maps link for the delivery-cost check"}
+        {src:"assets/steps/step4e.png", th:"ใส่ลิงก์ Google Maps เพื่อให้ร้านเช็คค่าจัดส่ง", en:"Enter a Google Maps link for the delivery-cost check"},
+        {src:"assets/steps/step4b.png", th:"เลือกลูกค้าเก่าเพื่อรับส่วนลด (ถ้าเคยเช่าแล้ว)", en:"Choose the returning-customer discount if eligible"},
+        {src:"assets/steps/step4d.png", th:"ทำสัญญาการเช่า หรือเลือกไม่ทำสัญญา", en:"Complete the rental contract, or choose no contract"},
+        {src:"assets/steps/step4c.png", th:"เลือกช่องทางการชำระเงิน", en:"Choose a payment method"}
       ]
     },
     {
@@ -3637,11 +3649,11 @@ body.line-browser #calcConsole{display:none}
     }
     if(step === 3){
       if(!state.calc.boardgames.length && !guideDone("bg")) return "bg";
+      if(!state.calc.maps && !guideDone("maps")) return "maps";
       if(!state.calc.ret && !guideDone("ret")) return "ret";
       if(!state.calc.ret && !guideDone("contractChoice")) return "contractChoice";
-      if(guideStageAvailable("payment") && !guideDone("payment")) return "payment";
       if(!state.calc.ret && !state.calc.noContract && !guideDone("contractLink")) return "contractLink";
-      if(!state.calc.maps && !guideDone("maps")) return "maps";
+      if(guideStageAvailable("payment") && !guideDone("payment")) return "payment";
       return "next3";
     }
     if(step === 4) return "share";
@@ -3653,6 +3665,7 @@ body.line-browser #calcConsole{display:none}
     if(!c) return false;
     if(stage === "accessory") return extrasForConsole(c).length > 0;
     if(stage === "ps5bundle") return Number(c.id) === SPEC.PS5;
+    if(stage === "contractChoice") return !state.calc.ret;
     if(stage === "contractLink") return !state.calc.noContract && !state.calc.ret;
     if(stage === "payment") return true;
     return true;
@@ -3785,7 +3798,7 @@ body.line-browser #calcConsole{display:none}
     if(action === "do-contract"){
       markGuideDone("contractChoice");
       state.calc.noContract = false;
-      setGuideStage(guideStageAvailable("payment") && !guideDone("payment") ? "payment" : "contractLink");
+      setGuideStage("contractLink");
       saveLocal();
       render();
       return;
@@ -3794,7 +3807,7 @@ body.line-browser #calcConsole{display:none}
       markGuideDone("contractChoice");
       markGuideDone("contractLink");
       state.calc.noContract = true;
-      setGuideStage(guideStageAvailable("payment") && !guideDone("payment") ? "payment" : "maps");
+      setGuideStage("payment");
       saveLocal();
       render();
       return;
@@ -3805,7 +3818,7 @@ body.line-browser #calcConsole{display:none}
       state.calc.noContract = false;
       markGuideDone("contractChoice");
       markGuideDone("contractLink");
-      setGuideStage(guideStageAvailable("payment") && !guideDone("payment") ? "payment" : "maps");
+      setGuideStage("payment");
       saveLocal();
       render();
       return;
@@ -3822,7 +3835,7 @@ body.line-browser #calcConsole{display:none}
     }
     if(action === "contract-later"){
       markGuideDone("contractLink");
-      setGuideStage("maps");
+      setGuideStage("payment");
       return;
     }
     if(action === "game-later"){
@@ -4382,7 +4395,7 @@ body.line-browser #calcConsole{display:none}
         state.calc.noContract = event.target.checked;
         markGuideDone("contractChoice");
         if(state.calc.noContract) markGuideDone("contractLink");
-        setGuideStage(state.calc.noContract ? (guideStageAvailable("payment") && !guideDone("payment") ? "payment" : "maps") : "contractLink");
+        setGuideStage(state.calc.noContract ? "payment" : "contractLink");
         saveLocal();
         render();
       }
@@ -4402,14 +4415,14 @@ body.line-browser #calcConsole{display:none}
         state.calc.beamPaymentLink = "";
         state.calc.beamPaymentKey = "";
         markGuideDone("payment");
-        setGuideStage(!state.calc.ret && !state.calc.noContract && !guideDone("contractLink") ? "contractLink" : "maps");
+        setGuideStage("next3");
         saveLocal();
         render();
       }
       if(event.target.id === "laterOpt"){ state.calc.later = event.target.checked; if(state.calc.later){ markGuideDone("games"); setGuideStage("next2"); } saveLocal(); render(); }
     });
     document.addEventListener("input", event => {
-      if(event.target.id === "mapsInput"){ state.calc.maps = event.target.value.trim(); if(state.calc.maps.length > 8){ markGuideDone("maps"); setGuideStage("next3"); } saveLocal(); renderGuide(); }
+      if(event.target.id === "mapsInput"){ state.calc.maps = event.target.value.trim(); if(state.calc.maps.length > 8){ markGuideDone("maps"); setGuideStage("ret"); } saveLocal(); renderGuide(); }
     });
     document.addEventListener("click", async event => {
       const clickedButton = event.target.closest("button");
@@ -4428,11 +4441,11 @@ body.line-browser #calcConsole{display:none}
         if(id) state.calc.boardgames = Array.from(new Set([...state.calc.boardgames, id]));
         state.calc.bgOpen = true;
         markGuideDone("bg");
-        setGuideStage("ret");
+        setGuideStage(state.calc.maps ? "ret" : "maps");
         saveLocal();
         render();
       }
-      if(targetId === "contractBtn"){ openContract(); markGuideDone("contractLink"); setGuideStage("maps"); saveLocal(); renderGuide(); }
+      if(targetId === "contractBtn"){ openContract(); markGuideDone("contractLink"); setGuideStage("payment"); saveLocal(); renderGuide(); }
       if(targetId === "openGamePicker") openGamePicker();
       if(targetId === "clearGames"){ state.calc.games = []; state.calc.later = false; saveLocal(); render(); }
       if(targetId === "sendLine"){ if(await sendLine()){ renderSummary(); renderGuide(); } }
