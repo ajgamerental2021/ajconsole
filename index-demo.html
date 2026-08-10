@@ -2860,6 +2860,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   async function openContract(){
     const summary = calcSummary();
     if(!summary.days) return toast(tr("summaryEmpty"));
+    const contractButton = byId("contractBtn");
+    if(contractButton){
+      contractButton.disabled = true;
+      contractButton.setAttribute("aria-busy", "true");
+      contractButton.textContent = state.lang === "en" ? "Opening contract..." : "กำลังเปิดสัญญา...";
+    }
     try{
       const code = await ensureRentalCode(summary);
       await ensureBeamPaymentLink(summary, code);
@@ -2871,8 +2877,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       // Persist the booking (incl. message) when the customer opens the contract,
       // so the shop can retrieve it later even if the customer never copies/sends.
       submitRentalToSheet(summary, code, "contract");
-      open(rentalContractLink(code), "_blank");
+      // In-app browsers may block a new tab after the async setup above.
+      // Same-tab navigation is not subject to popup blocking and preserves
+      // every parameter prepared in the contract URL.
+      location.assign(rentalContractLink(code));
     }catch(error){
+      if(contractButton?.isConnected){
+        contractButton.disabled = false;
+        contractButton.removeAttribute("aria-busy");
+        contractButton.textContent = tr("contract");
+      }
       toast(state.lang === "en" ? "Cannot check rental code from Google Sheet." : "เช็กรหัสการเช่าจาก Google Sheet ไม่ได้");
     }
   }
