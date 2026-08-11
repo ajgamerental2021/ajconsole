@@ -369,9 +369,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .float-calc{position:fixed;right:16px;bottom:16px;z-index:180;display:none}
 .float-calc.show{display:inline-flex}
-.picker-card{background:#fff;width:min(1180px,100%);height:min(92vh,900px);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow2)}
+.picker-card{position:relative;background:#fff;width:min(1180px,100%);height:min(92vh,900px);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow2)}
 .picker-frame{flex:1;border:0;background:#fff}
-.game-picker-platforms{display:flex;align-items:center;gap:8px;padding:10px 14px;overflow-x:auto;border-bottom:1px solid #e5e7eb;background:#fff}
+.game-picker-platforms{position:absolute;z-index:6;top:132px;left:14px;right:14px;display:flex;align-items:center;gap:8px;padding:6px 0;overflow-x:auto;background:transparent;scrollbar-width:none}
+.game-picker-platforms::-webkit-scrollbar{display:none}
 .game-picker-platform-label{flex:0 0 auto;font-weight:800;font-size:13px}
 .game-picker-platform-btn{flex:0 0 auto;border:1px solid #d0d5dd;border-radius:999px;background:#fff;padding:8px 12px;font-weight:800;cursor:pointer}
 .game-picker-platform-btn.active{border-color:#c90012;background:#fff1f2;color:#c90012}
@@ -484,12 +485,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .before-rent-copy{display:grid;min-width:0;gap:5px;overflow-wrap:anywhere}
   .before-rent-copy strong{font-size:18px}
   .before-rent-copy span{color:#667085;font-size:14px}
-  .before-rent-discovery{margin-top:26px;padding-top:24px;border-top:1px solid #e5e7eb}
+  .before-rent-discovery{margin-top:18px;padding-top:18px;border-top:1px solid #e5e7eb}
   .before-rent-discovery-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;text-align:left}
   .before-rent-discovery-head h2{margin:4px 0 0;font-size:24px}
-  .before-rent-discovery-head p{margin:0;max-width:440px;color:#667085}
-  .before-rent-mini-section{margin-top:20px}
-  .before-rent-mini-section h3{margin:0 0 10px}
+  .before-rent-mini-section{margin-top:14px}
+  .before-rent-mini-section h3{margin:0 0 8px}
   .before-rent-promos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
   .before-rent-promo{position:relative;min-height:160px;border:0;border-radius:8px;overflow:hidden;background:#111;color:#fff;text-align:left}
   .before-rent-promo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -514,7 +514,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     .before-rent-grid{grid-template-columns:1fr}
     .before-rent-action{min-height:86px}
     .before-rent-discovery-head{display:block}
-    .before-rent-discovery-head p{margin-top:8px}
+    .game-picker-platforms{top:126px;left:10px;right:10px;padding:5px 0}
+    .game-picker-platform-label{font-size:12px}
+    .game-picker-platform-btn{padding:7px 10px;font-size:12px}
     .before-rent-promos{grid-template-columns:1fr}
     .before-rent-devices{grid-template-columns:repeat(2,minmax(0,1fr))}
   }
@@ -565,7 +567,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
               <span class="before-rent-kicker" data-i18n="beforeRentExploreKicker">ดูก่อนตัดสินใจ</span>
               <h2 data-i18n="beforeRentExploreTitle">โปรเด่นและเครื่องยอดนิยม</h2>
             </div>
-            <p data-i18n="beforeRentExploreSub">ข้อมูลย่อจากรายการจริง กดเครื่องเพื่อเริ่มเช่าได้ทันที</p>
           </div>
           <section class="before-rent-mini-section">
             <h3 data-i18n="beforeRentFeatured">โปรเด่น</h3>
@@ -905,7 +906,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentBack:"← กลับเมนูก่อนเช่า",
       beforeRentExploreKicker:"ดูก่อนตัดสินใจ",
       beforeRentExploreTitle:"โปรเด่นและเครื่องยอดนิยม",
-      beforeRentExploreSub:"ข้อมูลย่อจากรายการจริง กดเครื่องเพื่อเริ่มเช่าได้ทันที",
       beforeRentFeatured:"โปรเด่น",
       beforeRentPopular:"เครื่องยอดนิยม",
       beforeRentStartDevice:"ดูคิวและราคา",
@@ -956,7 +956,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentBack:"← Back to Before rent",
       beforeRentExploreKicker:"EXPLORE",
       beforeRentExploreTitle:"Featured offers and popular consoles",
-      beforeRentExploreSub:"A quick look at live offers and devices. Tap a device to start.",
       beforeRentFeatured:"Featured offers",
       beforeRentPopular:"Popular devices",
       beforeRentStartDevice:"Check dates & price",
@@ -1540,13 +1539,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }).join("") || `<button class="before-rent-promo" type="button" data-before-start><span class="before-rent-promo-copy"><strong>${esc(tr("beforeRentRent"))}</strong><span>${esc(tr("beforeRentRentSub"))}</span></span></button>`;
 
     const ready = state.consoles.filter(item => item.active !== false && item.ready !== false);
-    const preferred = [/^ps5$/i,/ps5 pro/i,/nintendo switch 2/i,/nintendo switch 1/i,/meta quest 3$/i,/steam deck oled/i];
+    const normalizedNames = item => [item.name,item.nameEn].filter(Boolean).map(name => String(name).trim().toLowerCase());
+    const preferred = ["ps5","ps5 pro","nintendo switch 2","nintendo switch 1","meta quest 3","ps4"];
     const picked = [];
-    preferred.forEach(pattern => {
-      const item = ready.find(consoleItem => pattern.test(`${consoleItem.name || ""} ${consoleItem.nameEn || ""}`) && !picked.includes(consoleItem));
+    preferred.forEach(name => {
+      const item = ready.find(consoleItem => normalizedNames(consoleItem).includes(name) && !picked.includes(consoleItem));
       if(item) picked.push(item);
     });
-    ready.forEach(item => { if(picked.length < 6 && !picked.includes(item)) picked.push(item); });
+    ready.forEach(item => {
+      if(picked.length < 6 && !picked.includes(item) && !normalizedNames(item).includes("steam deck oled")) picked.push(item);
+    });
     deviceHost.innerHTML = picked.slice(0,6).map(item => {
       const image = getConsoleImage(item);
       return `<button class="before-rent-device" type="button" data-before-device="${esc(item.id)}"><span class="before-rent-device-media">${image ? `<img src="${esc(image)}" alt="">` : `<span aria-hidden="true">🎮</span>`}</span><strong>${esc(cName(item))}</strong><span>${esc(money(item.rate))}/${esc(tr("day"))} · ${esc(tr("beforeRentStartDevice"))}</span></button>`;
@@ -3152,12 +3154,17 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
   function gameCatalogConsoles(){
     const seen = new Set();
-    return state.consoles.filter(item => {
+    const consoles = state.consoles.filter(item => {
       const platformId = item.gamePlatform || guessPlatform(item);
       if(!gameUrl(item) || !platformId || seen.has(platformId)) return false;
       seen.add(platformId);
       return true;
     });
+    const priority = platformId => ({ps4:0,ps5:1})[String(platformId || "").toLowerCase()] ?? 2;
+    return consoles
+      .map((item,index) => ({item,index,rank:priority(item.gamePlatform || guessPlatform(item))}))
+      .sort((a,b) => a.rank - b.rank || a.index - b.index)
+      .map(entry => entry.item);
   }
   function activePickerConsole(){
     if(state.gamePickerBrowseOnly){
