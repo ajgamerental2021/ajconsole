@@ -1190,6 +1190,9 @@ body.line-browser #calcConsole{display:none}
     url.searchParams.set("focus", pid);
     return url.toString();
   }
+  function consoleHasGameCatalog(c = consoleById(state.calc.consoleId)){
+    return !!gameUrl(c);
+  }
   function promoDiscount(kind, subtotal, count=1){
     const p = state.promos[kind] || {};
     if(!p.enabled) return 0;
@@ -1561,11 +1564,20 @@ body.line-browser #calcConsole{display:none}
   }
 
   function renderCalc(){
+    const selectedConsole = consoleById(state.calc.consoleId);
+    const skipGameStep = !!selectedConsole && !consoleHasGameCatalog(selectedConsole);
+    if(skipGameStep){
+      state.calc.games = [];
+      state.calc.later = false;
+      if(state.calc.step === 2) state.calc.step = 3;
+    }
     document.body.dataset.calcStep = String(state.calc.step);
     const steps = [tr("step1"),tr("step2"),tr("step3"),tr("step4")];
     byId("calcTabs").innerHTML = steps.map((label,i) => {
-      const n = i+1, locked = n > 1 && !stepReady(n - 1);
-      return `<button class="step-tab ${state.calc.step===n?"active":""} ${stepReady(n)?"done":""} ${locked?"locked":""}" data-step="${n}" type="button"><span class="num">${n}</span><b>${esc(label)}</b></button>`;
+      const n = i+1;
+      const disabledStep = n === 2 && skipGameStep;
+      const locked = disabledStep || (n > 1 && !stepReady(n - 1));
+      return `<button class="step-tab ${state.calc.step===n?"active":""} ${stepReady(n)?"done":""} ${locked?"locked":""}" data-step="${n}" ${disabledStep?'data-step-disabled="1" disabled aria-disabled="true"':""} type="button"><span class="num">${n}</span><b>${esc(label)}</b></button>`;
     }).join("");
     $$(".pane").forEach((pane,i) => pane.classList.toggle("active", i+1 === state.calc.step));
     renderCalcFields();
@@ -1578,7 +1590,10 @@ body.line-browser #calcConsole{display:none}
     renderGuide();
   }
   function goCalcStep(step){
-    const next = Math.min(4, Math.max(1, Number(step) || 1));
+    const c = consoleById(state.calc.consoleId);
+    const skipGameStep = !!c && !consoleHasGameCatalog(c);
+    let next = Math.min(4, Math.max(1, Number(step) || 1));
+    if(skipGameStep && next === 2) next = state.calc.step >= 3 ? 1 : 3;
     if(next > 1 && !stepReady(next - 1)){
       const requiredStep = !stepReady(1) ? 1 : !stepReady(2) ? 2 : 3;
       state.calc.step = requiredStep;
@@ -1604,8 +1619,12 @@ body.line-browser #calcConsole{display:none}
   }
   function renderStepActions(){
     const buttons = step => {
-      const back = step > 1 ? `<button class="btn" type="button" data-step-go="${step - 1}">${tr("backStep")}</button>` : `<span></span>`;
-      const next = step < 4 ? `<button class="btn primary" type="button" data-step-go="${step + 1}" ${stepReady(step) ? "" : "disabled"}>${tr("nextStep")}</button>` : "";
+      const c = consoleById(state.calc.consoleId);
+      const skipGameStep = !!c && !consoleHasGameCatalog(c);
+      const backStep = skipGameStep && step === 3 ? 1 : step - 1;
+      const nextStep = skipGameStep && step === 1 ? 3 : step + 1;
+      const back = step > 1 ? `<button class="btn" type="button" data-step-go="${backStep}">${tr("backStep")}</button>` : `<span></span>`;
+      const next = step < 4 ? `<button class="btn primary" type="button" data-step-go="${nextStep}" ${stepReady(step) ? "" : "disabled"}>${tr("nextStep")}</button>` : "";
       return `${back}${next}`;
     };
     [1,2,3,4].forEach(step => {
@@ -1801,10 +1820,16 @@ body.line-browser #calcConsole{display:none}
     const c = consoleById(state.calc.consoleId);
     const url = c ? gameUrl(c) : "";
     if(!c){ byId("gamePickBox").innerHTML = `<p class="hint">${tr("chooseConsole")}</p>`; return; }
+    if(!url){
+      state.calc.games = [];
+      state.calc.later = false;
+      byId("gamePickBox").innerHTML = `<p class="hint">${tr("noGameList")}</p>`;
+      return;
+    }
     const list = state.calc.games || [];
     byId("gamePickBox").innerHTML = `
-      ${url ? `<div class="game-policy-note"><span>✓ ${tr("gameOwnAccount")}</span><span>⚠️ ${tr("gameLockedAfterDispatch")}</span></div>` : ""}
-      ${url ? `<button class="btn primary" id="openGamePicker" type="button">${tr("pickGames")}</button>` : `<p class="hint">${tr("noGameList")}</p>`}
+      <div class="game-policy-note"><span>✓ ${tr("gameOwnAccount")}</span><span>⚠️ ${tr("gameLockedAfterDispatch")}</span></div>
+      <button class="btn primary" id="openGamePicker" type="button">${tr("pickGames")}</button>
       <label class="option-row" style="margin-top:12px"><input type="checkbox" id="laterOpt" ${state.calc.later?"checked":""}><div><b>${tr("sendLater")}</b></div></label>
       ${list.length ? `<div class="faq-list" style="margin-top:12px">${list.map((g,i) => `<div class="faq-item"><div class="faq-q">${i+1}. ${esc(g.name || g.title || g.id)}</div><div class="faq-a">${esc(g.platformName || g.platformId || "")}</div></div>`).join("")}</div>` : ""}
       ${list.length ? `<button class="btn danger" id="clearGames" type="button" style="margin-top:12px">${tr("clearGames")}</button>` : ""}`;
@@ -1992,6 +2017,7 @@ body.line-browser #calcConsole{display:none}
       return;
     }
     const summary = calcSummary();
+    const hasGameCatalog = consoleHasGameCatalog(c);
     const canSend = shareReturnUnlocked() || Boolean(state.calc.start && state.calc.end && summary.days >= 3 && evaluateAvailability().pass);
     const depositValue = amount => state.calc.noContract
       ? `${money(amount)} <span class="no-contract-note">(${esc(tr("noContractLabel"))})</span>`
@@ -2015,8 +2041,8 @@ body.line-browser #calcConsole{display:none}
       ...(summary.extras?.length ? [{label:tr("accessories"), value:numberedSummaryList(summary.extras.map(x => state.lang==="en"?x.en:x.th)), html:true}] : []),
       ...(summary.bgSubtotal ? [{label:tr("boardGameRental"), value:money(summary.bgSubtotal)}] : []),
       ...(summary.bgItems?.length ? [{label:tr("boardGameList"), value:numberedSummaryList(summary.bgItems.map(bgName)), html:true}] : []),
-      ...(state.calc.games?.length ? [{label:state.lang==="en"?"Games":"เกม", value:numberedSummaryList(state.calc.games.map(g => g.name || g.title || g.id)), html:true}] : []),
-      ...(state.calc.later ? [{label:state.lang==="en"?"Game list":"รายชื่อเกม", value:tr("sendLater")}] : []),
+      ...(hasGameCatalog && state.calc.games?.length ? [{label:state.lang==="en"?"Games":"เกม", value:numberedSummaryList(state.calc.games.map(g => g.name || g.title || g.id)), html:true}] : []),
+      ...(hasGameCatalog && state.calc.later ? [{label:state.lang==="en"?"Game list":"รายชื่อเกม", value:tr("sendLater")}] : []),
       ...(summary.afterWorkDisc ? [{label:tr("afterWorkPromoDiscount"), value:`-${money(summary.afterWorkDisc)}`, cls:"discount"}] : []),
       ...(summary.retDisc ? [{label:tr("returningDiscount"), value:`-${money(summary.retDisc)}`, cls:"discount"}] : []),
       ...(summary.reviewGoogleDisc ? [{label:tr("reviewGoogleDiscount"), value:`-${money(summary.reviewGoogleDisc)}`, cls:"discount"}] : []),
@@ -2439,6 +2465,7 @@ body.line-browser #calcConsole{display:none}
     return m ? Number(m[1]) || 0 : 0;
   }
   function rentalSignature(summary=calcSummary()){
+    const hasGameCatalog = consoleHasGameCatalog();
     return [
       state.calc.consoleId,
       state.calc.start,
@@ -2446,8 +2473,8 @@ body.line-browser #calcConsole{display:none}
       state.calc.bundleId,
       state.calc.extras.join(","),
       state.calc.boardgames.join(","),
-      state.calc.games.map(g => g.id || g.name || g.title).join(","),
-      state.calc.later ? "later" : "",
+      hasGameCatalog ? state.calc.games.map(g => g.id || g.name || g.title).join(",") : "",
+      hasGameCatalog && state.calc.later ? "later" : "",
       state.calc.noContract ? "nocon" : "",
       state.calc.ret ? "ret" : "",
       state.calc.reviewGoogle ? "reviewGoogle" : "",
@@ -2605,6 +2632,7 @@ body.line-browser #calcConsole{display:none}
     const c = consoleById(state.calc.consoleId);
     const s = calcSummary();
     if(!c) return null;
+    const hasGameCatalog = consoleHasGameCatalog(c);
     const en = state.lang === "en";
     const category = {console:"Console", vr:"VR & AR", handheld:"PC Handheld", racing:"Racing Simulator"}[String(c.type || "").toLowerCase()] || (c.type || "-");
     const costs = [];
@@ -2635,8 +2663,8 @@ body.line-browser #calcConsole{display:none}
       bundleIds: addOns.bundle,
       accessoryIds: addOns.accessories,
       maps: state.calc.maps || "",
-      games: (state.calc.games || []).map(g => g.name || g.title || g.id),
-      later: !!state.calc.later,
+      games: hasGameCatalog ? (state.calc.games || []).map(g => g.name || g.title || g.id) : [],
+      later: hasGameCatalog && !!state.calc.later,
       boardgames: (s.bgItems || []).map(bgName),
       extras: (s.extras || []).map(x => en ? (x.en || x.th) : (x.th || x.en)),
       costs,
@@ -2695,6 +2723,7 @@ body.line-browser #calcConsole{display:none}
   }
   function rentalSheetPayload(summary, code, channel){
     const c = consoleById(state.calc.consoleId);
+    const hasGameCatalog = consoleHasGameCatalog(c);
     return {
       action:"appendRental",
       sheetId:CONFIG.rentalSheetId,
@@ -2715,8 +2744,8 @@ body.line-browser #calcConsole{display:none}
         "รายการเสริม / เกม": [
           ...(summary.extras || []).map(x => state.lang==="en" ? x.en : x.th),
           ...(summary.bgItems || []).map(bgName),
-          ...(state.calc.games || []).map(g => g.name || g.title || g.id),
-          state.calc.later ? (state.lang==="en" ? "Send game list later" : "แจ้งรายชื่อเกมภายหลัง") : ""
+          ...(hasGameCatalog ? (state.calc.games || []).map(g => g.name || g.title || g.id) : []),
+          hasGameCatalog && state.calc.later ? (state.lang==="en" ? "Send game list later" : "แจ้งรายชื่อเกมภายหลัง") : ""
         ].filter(Boolean).join(" | "),
         "ยอดค่าเช่า": Math.max(0, Number(summary.rental||0) + Number(summary.addons||0) + Number(summary.bgSubtotal||0) - Number(summary.discounts||0)),
         "ค่าประกัน": summary.deposit,
@@ -2774,10 +2803,11 @@ body.line-browser #calcConsole{display:none}
     const noContractSuffixTh = state.calc.noContract ? " (ไม่ทำสัญญา)" : "";
     const noContractSuffixEn = state.calc.noContract ? " (No contract)" : "";
     const mapsLink = String(state.calc.maps || "").trim();
-    const selectedGamesForMessage = state.calc.later ? [] : (state.calc.games || []);
+    const hasGameCatalog = consoleHasGameCatalog(c);
+    const selectedGamesForMessage = hasGameCatalog && !state.calc.later ? (state.calc.games || []) : [];
     const gameList = selectedGamesForMessage.map((g,i) => `  ${i + 1}. ${g.name || g.title || g.id}${g.platformName ? ` (${g.platformName})` : ""}`);
-    const gameLaterTh = state.calc.later ? ["  แจ้งรายชื่อเกมภายหลัง"] : [];
-    const gameLaterEn = state.calc.later ? ["  Send game list later"] : [];
+    const gameLaterTh = hasGameCatalog && state.calc.later ? ["  แจ้งรายชื่อเกมภายหลัง"] : [];
+    const gameLaterEn = hasGameCatalog && state.calc.later ? ["  Send game list later"] : [];
     const boardgameList = (s.bgItems || []).map((g,i) => `  ${i + 1}. ${bgName(g)}`);
     const extrasListTh = (s.extras || []).map((x,i) => `  ${i + 1}. ${x.th || x.en}`);
     const extrasListEn = (s.extras || []).map((x,i) => `  ${i + 1}. ${x.en || x.th}`);
@@ -2935,7 +2965,7 @@ body.line-browser #calcConsole{display:none}
   }
   function shouldAttachLineGamePickerCard(){
     const c = consoleById(state.calc.consoleId);
-    if(!c || c.showGameButton === false) return false;
+    if(!c || !consoleHasGameCatalog(c) || c.showGameButton === false) return false;
     const platformId = c.gamePlatform || guessPlatform(c);
     if(!platformId) return false;
     const skipsContract = state.calc.noContract || (state.calc.ret && state.retEnabled);
@@ -3665,6 +3695,8 @@ body.line-browser #calcConsole{display:none}
       return "next1";
     }
     if(step === 2){
+      const c = consoleById(state.calc.consoleId);
+      if(c && !consoleHasGameCatalog(c)) return guideStageForStep(3);
       return state.calc.games?.length || state.calc.later || guideDone("games") ? "next2" : "games";
     }
     if(step === 3){
@@ -4268,7 +4300,11 @@ body.line-browser #calcConsole{display:none}
       const brandBtn = event.target.closest("[data-brand]");
       if(brandBtn){ state.filter.brand = brandBtn.dataset.brand; render(); return; }
       const stepBtn = event.target.closest("[data-step]");
-      if(stepBtn){ goCalcStep(stepBtn.dataset.step); return; }
+      if(stepBtn){
+        if(stepBtn.disabled || stepBtn.dataset.stepDisabled === "1") return;
+        goCalcStep(stepBtn.dataset.step);
+        return;
+      }
       const stepGo = event.target.closest("[data-step-go]");
       if(stepGo){ goCalcStep(stepGo.dataset.stepGo); return; }
       const cardGame = event.target.closest("[data-card-game]");
