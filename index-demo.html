@@ -371,13 +371,21 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .float-calc.show{display:inline-flex}
 .picker-card{position:relative;background:#fff;width:min(1180px,100%);height:min(92vh,900px);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow2)}
 .picker-frame{flex:1;border:0;background:#fff}
-.game-picker-platforms{position:absolute;z-index:6;top:132px;left:14px;right:14px;display:flex;align-items:center;gap:8px;padding:6px 0;overflow-x:auto;background:transparent;scrollbar-width:none}
+.game-picker-platform-rail{position:relative;flex:0 0 auto;background:#fff;border-bottom:1px solid #eef0f2}
+.game-picker-platform-rail[hidden]{display:none}
+.game-picker-platform-rail::after{content:"";position:absolute;top:0;right:0;bottom:0;width:52px;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,0),#fff 70%);opacity:1;transition:opacity .18s}
+.game-picker-platform-rail.rail-end::after{opacity:0}
+.game-picker-platform-rail .rail-cue{position:absolute;top:50%;right:6px;transform:translateY(-50%);z-index:2;display:grid;place-items:center;width:26px;height:26px;border-radius:999px;background:#c90012;color:#fff;font-size:14px;font-weight:900;pointer-events:none;box-shadow:0 2px 8px rgba(201,0,18,.35);transition:opacity .18s}
+.game-picker-platform-rail.rail-end .rail-cue{opacity:0}
+.game-picker-platforms{display:flex;align-items:center;gap:8px;padding:8px 52px 8px 14px;overflow-x:auto;scrollbar-width:none}
 .game-picker-platforms::-webkit-scrollbar{display:none}
 .game-picker-platform-label{flex:0 0 auto;font-weight:800;font-size:13px}
 .game-picker-platform-btn{flex:0 0 auto;border:1px solid #d0d5dd;border-radius:999px;background:#fff;padding:8px 12px;font-weight:800;cursor:pointer}
 .game-picker-platform-btn.active{border-color:#c90012;background:#fff1f2;color:#c90012}
 .game-picker-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px}
 .game-picker-actions{display:flex;align-items:center;gap:8px}
+#gamePickerHowToBtn{display:inline-flex;align-items:center;gap:6px}
+#gamePickerHowToBtn .ico{width:16px;height:16px}
 .game-picker-attention{justify-self:start;max-width:100%;border:1px solid #f0a000;border-radius:9px;background:#fff8dd;color:#6b3900;padding:7px 10px;font-size:12px;font-weight:900;line-height:1.25;white-space:nowrap;overflow-x:auto;scrollbar-width:none}
 .game-picker-attention::-webkit-scrollbar{display:none}
 @media(max-width:900px){
@@ -479,31 +487,79 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .before-rent-head h1{margin:8px 0 6px;font-size:clamp(28px,4vw,46px);white-space:normal;overflow-wrap:anywhere}
   .before-rent-head p{margin:0;color:#667085;overflow-wrap:anywhere}
   .before-rent-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px}
-  .before-rent-action{display:flex;align-items:center;gap:14px;width:100%;min-width:0;min-height:100px;padding:18px;border:1px solid #dfe3e8;border-radius:10px;background:#fff;text-align:left;cursor:pointer}
+  .before-rent-action{position:relative;display:flex;align-items:center;gap:14px;width:100%;min-width:0;min-height:100px;padding:18px;border:1px solid #dfe3e8;border-radius:10px;background:#fff;text-align:left;cursor:pointer}
   .before-rent-action:hover,.before-rent-action:focus-visible{border-color:#c90012;background:#fff8f8;box-shadow:0 0 0 3px rgba(201,0,18,.1)}
-  .before-rent-icon{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;border-radius:8px;background:#f4f6f8;font-size:26px}
+  .before-rent-action.is-primary{border:0;background:linear-gradient(135deg,#d1121f,#a3000f);color:#fff;box-shadow:0 12px 26px rgba(201,0,18,.28)}
+  .before-rent-action.is-primary:hover,.before-rent-action.is-primary:focus-visible{background:linear-gradient(135deg,#e11d2b,#b40010);box-shadow:0 14px 30px rgba(201,0,18,.36)}
+  .before-rent-action.is-primary .before-rent-icon{background:rgba(255,255,255,.18)}
+  .before-rent-action.is-primary .before-rent-copy strong{font-size:19px;color:#fff}
+  .before-rent-action.is-primary .before-rent-copy span{color:rgba(255,255,255,.9)}
+  .before-rent-flag{position:absolute;top:10px;right:12px;padding:3px 10px;border-radius:999px;background:#fff;color:#c90012;font-size:11px;font-weight:900;letter-spacing:.04em}
+  .before-rent-icon{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;border-radius:10px;background:#f4f6f8;color:#c90012}
+  .before-rent-icon .ico{width:26px;height:26px}
+  .before-rent-action.is-primary .before-rent-icon{color:#fff}
+  .ico{display:block;width:1em;height:1em;flex:0 0 auto}
+  .before-rent-terms{margin:14px 0 0;color:#667085;font-size:12.5px;font-weight:700;line-height:1.6}
+  .before-rent-terms b{color:#c90012}
   .before-rent-copy{display:grid;min-width:0;gap:5px;overflow-wrap:anywhere}
   .before-rent-copy strong{font-size:18px}
   .before-rent-copy span{color:#667085;font-size:14px}
   .before-rent-discovery{margin-top:18px;padding-top:18px;border-top:1px solid #e5e7eb}
   .before-rent-discovery-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;text-align:left}
   .before-rent-discovery-head h2{margin:4px 0 0;font-size:24px}
-  .before-rent-mini-section{margin-top:14px}
-  .before-rent-mini-section h3{margin:0 0 8px}
-  .before-rent-promos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-  .before-rent-promo{position:relative;min-height:160px;border:0;border-radius:8px;overflow:hidden;background:#111;color:#fff;text-align:left}
-  .before-rent-promo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  .before-rent-promo-copy{position:absolute;inset:auto 0 0;padding:32px 14px 14px;background:linear-gradient(transparent,rgba(0,0,0,.88))}
+  .before-rent-mini-section{margin-top:18px;padding:0}
+  .before-rent-mini-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px;margin:0 0 10px}
+  .before-rent-mini-head h3{margin:0;font-size:19px}
+  .before-rent-hint{display:inline-flex;align-items:center;gap:5px;color:#667085;font-size:12.5px;font-weight:700}
+  .before-rent-hint .ico{width:15px;height:15px;color:#c90012}
+  .before-rent-typefilter{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 10px}
+  .before-rent-typechip{padding:6px 12px;border:1px solid #d0d5dd;border-radius:999px;background:#fff;color:#344054;font-size:12.5px;font-weight:800;cursor:pointer}
+  .before-rent-typechip:hover{border-color:#c90012;color:#c90012}
+  .before-rent-typechip.active{border-color:#c90012;background:#fff1f2;color:#c90012}
+  .before-rent-note{margin:8px 0 0;color:#667085;font-size:11.5px;font-weight:600;line-height:1.6}
+  .before-rent-devices:focus-visible{outline:2px solid #c90012;outline-offset:3px;border-radius:12px}
+  .before-rent-seeall{flex:0 0 150px;scroll-snap-align:start;display:grid;align-content:center;justify-items:center;gap:8px;padding:10px;border:1px dashed #c90012;border-radius:10px;background:#fff8f8;color:#c90012;font-size:13px;font-weight:900;text-align:center;cursor:pointer}
+  .before-rent-seeall .ico{width:24px;height:24px}
+  .before-rent-seeall:hover,.before-rent-seeall:focus-visible{background:#ffeef0}
+  .before-rent-empty{padding:22px 4px;color:#667085;font-size:13px;font-weight:700}
+  .before-rent-promos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:start;gap:12px}
+  .before-rent-promo{position:relative;display:block;width:100%;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;background:#fff;text-align:left;text-decoration:none;cursor:pointer}
+  .before-rent-promo:hover,.before-rent-promo:focus-visible{border-color:#c90012;box-shadow:0 0 0 3px rgba(201,0,18,.1)}
+  /* Artwork carries its own headline, so it is shown uncropped with the tap cue
+     placed underneath instead of overlaid on top of the baked-in text. */
+  .before-rent-promo img{display:block;width:100%;height:auto}
+  .before-rent-promo-cue{display:block;padding:9px 12px;border-top:1px solid #f0f1f3;background:#fff;color:#c90012;font-size:12.5px;font-weight:900}
+  .before-rent-promo.is-plain{min-height:160px;border:0;background:#111;color:#fff}
+  .before-rent-promo.is-plain .before-rent-promo-cue{position:absolute;inset:auto 0 0;border-top:0;background:transparent;color:#fff}
+  .before-rent-promo-copy{display:block;padding:16px 14px 34px}
   .before-rent-promo-copy strong,.before-rent-promo-copy span{display:block}
   .before-rent-promo-copy span{font-size:12px;color:#f2f4f7}
-  .before-rent-devices{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
-  .before-rent-device{display:grid;gap:8px;padding:10px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;text-align:left;cursor:pointer}
+  .before-rent-rail{position:relative}
+  .before-rent-rail::after{content:"";position:absolute;top:0;right:0;bottom:8px;width:56px;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,0),#fff 72%);opacity:1;transition:opacity .18s}
+  .before-rent-rail.rail-end::after{opacity:0}
+  .before-rent-rail .rail-cue{position:absolute;top:64px;right:8px;z-index:2;display:grid;place-items:center;width:30px;height:30px;border-radius:999px;background:#c90012;color:#fff;font-size:15px;font-weight:900;pointer-events:none;box-shadow:0 3px 10px rgba(201,0,18,.35);transition:opacity .18s}
+  .before-rent-rail.rail-end .rail-cue{opacity:0}
+  .before-rent-devices{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x proximity;padding:2px 56px 10px 2px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .before-rent-devices::-webkit-scrollbar{height:6px}
+  .before-rent-devices::-webkit-scrollbar-thumb{background:#d7dbe0;border-radius:999px}
+  .before-rent-device{position:relative;flex:0 0 178px;scroll-snap-align:start;display:grid;align-content:start;gap:6px;padding:10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;text-align:left;cursor:pointer}
   .before-rent-device:hover,.before-rent-device:focus-visible{border-color:#c90012;background:#fff8f8}
-  .before-rent-device-media{aspect-ratio:1.25;border-radius:6px;background:#f4f6f8;overflow:hidden}
+  .before-rent-device[disabled]{opacity:.55;cursor:not-allowed}
+  .before-rent-device[disabled]:hover{border-color:#e5e7eb;background:#fff}
+  .before-rent-device-media{position:relative;aspect-ratio:1.25;border-radius:6px;background:#f4f6f8;overflow:hidden}
   .before-rent-device-media img{width:100%;height:100%;object-fit:contain}
-  .before-rent-device-media>span{display:grid;height:100%;place-items:center;font-size:30px}
-  .before-rent-device strong{font-size:13px}
-  .before-rent-device span{font-size:11px;color:#667085}
+  .before-rent-device-media>.ico{width:38px;height:38px;margin:auto;color:#98a2b3;position:absolute;inset:0}
+  .before-rent-device-flag{position:absolute;inset:auto 0 0;padding:3px 6px;background:rgba(201,0,18,.9);color:#fff;font-size:10px;font-weight:800;text-align:center}
+  .before-rent-device-name{font-size:14px;font-weight:900;line-height:1.25}
+  .before-rent-device-price{font-size:12px;color:#101828;font-weight:800}
+  .before-rent-device-price b{font-size:17px;color:#c90012}
+  .before-rent-device-week{margin-top:-3px;color:#344054;font-size:12.5px;font-weight:800}
+  .before-rent-device-min{color:#667085;font-size:11px;font-weight:700;line-height:1.35}
+  .before-rent-device-min b{color:#101828;font-weight:900}
+  .before-rent-device-dep{display:inline-flex;align-items:center;gap:4px;justify-self:start;padding:3px 9px;border-radius:999px;background:#f4f6f8;color:#475467;font-size:11px;font-weight:800}
+  .before-rent-device-dep .ico{width:12px;height:12px;stroke-width:2.1}
+  .before-rent-device-cta{margin-top:2px;color:#c90012;font-size:11.5px;font-weight:900}
+  .before-rent-device[disabled] .before-rent-device-cta{color:#667085}
   .before-rent-back{margin:0 0 18px}
   .before-rent-hidden{display:none!important}
   @media(max-width:640px){
@@ -514,11 +570,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     .before-rent-grid{grid-template-columns:1fr}
     .before-rent-action{min-height:86px}
     .before-rent-discovery-head{display:block}
-    .game-picker-platforms{top:126px;left:10px;right:10px;padding:5px 0}
+    .game-picker-platforms{padding:7px 46px 7px 10px}
     .game-picker-platform-label{font-size:12px}
     .game-picker-platform-btn{padding:7px 10px;font-size:12px}
     .before-rent-promos{grid-template-columns:1fr}
-    .before-rent-devices{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .before-rent-device{flex:0 0 150px}
+    .before-rent-mini-head h3{font-size:17px}
+    .before-rent-hint{font-size:12px}
   }
 </style>
 </head>
@@ -544,37 +602,49 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
           <p data-i18n="beforeRentSubtitle">เริ่มเช่า ดูรายชื่อเกม หรืออ่านข้อมูลก่อนตัดสินใจ</p>
         </div>
         <div class="before-rent-grid">
-          <button class="before-rent-action" id="beforeRentStart" type="button">
-            <span class="before-rent-icon" aria-hidden="true">🎮</span>
-            <span class="before-rent-copy"><strong data-i18n="beforeRentRent">เช่าเครื่องเกม</strong><span data-i18n="beforeRentRentSub">เช็คคิว เลือกวัน และคำนวณค่าเช่า</span></span>
+          <button class="before-rent-action is-primary" id="beforeRentStart" type="button">
+            <span class="before-rent-icon" data-icon="gamepad"></span>
+            <span class="before-rent-copy"><strong data-i18n="beforeRentRent">เช่าเครื่องเกม</strong><span data-i18n="beforeRentRentSub">เลือกเครื่อง เช็ควันว่าง คำนวณราคา แล้วจองได้เลย</span></span>
+            <span class="before-rent-flag" data-i18n="beforeRentStartHere">เริ่มที่นี่</span>
           </button>
           <button class="before-rent-action" id="beforeRentGames" type="button">
-            <span class="before-rent-icon" aria-hidden="true">🕹️</span>
-            <span class="before-rent-copy"><strong data-i18n="beforeRentGames">รายชื่อเกม</strong><span data-i18n="beforeRentGamesSub">ดูเกมทั้งหมดแยกตามเครื่อง</span></span>
+            <span class="before-rent-icon" data-icon="grid"></span>
+            <span class="before-rent-copy"><strong data-i18n="beforeRentGames">ดูรายชื่อเกมก่อน</strong><span data-i18n="beforeRentGamesSub">ยังไม่จอง แค่ดูว่าเครื่องไหนมีเกมอะไรบ้าง</span></span>
           </button>
           <button class="before-rent-action" id="beforeRentSteps" type="button">
-            <span class="before-rent-icon" aria-hidden="true">📖</span>
+            <span class="before-rent-icon" data-icon="book"></span>
             <span class="before-rent-copy"><strong data-i18n="beforeRentSteps">ขั้นตอนการเช่า</strong><span data-i18n="beforeRentStepsSub">ดูขั้นตอนตั้งแต่จองจนคืนเครื่อง</span></span>
           </button>
           <button class="before-rent-action" id="beforeRentFaq" type="button">
-            <span class="before-rent-icon" aria-hidden="true">❓</span>
+            <span class="before-rent-icon" data-icon="help"></span>
             <span class="before-rent-copy"><strong data-i18n="beforeRentFaq">คำถามที่พบบ่อย</strong><span data-i18n="beforeRentFaqSub">คำตอบเรื่องเช่า จัดส่ง และค่าประกัน</span></span>
           </button>
         </div>
+        <p class="before-rent-terms" id="beforeRentTerms"></p>
         <div class="before-rent-discovery">
           <div class="before-rent-discovery-head">
             <div>
               <span class="before-rent-kicker" data-i18n="beforeRentExploreKicker">ดูก่อนตัดสินใจ</span>
-              <h2 data-i18n="beforeRentExploreTitle">โปรเด่นและเครื่องยอดนิยม</h2>
+              <h2 data-i18n="beforeRentExploreTitle">เครื่องยอดนิยมและโปรเด่น</h2>
             </div>
           </div>
           <section class="before-rent-mini-section">
-            <h3 data-i18n="beforeRentFeatured">โปรเด่น</h3>
-            <div id="beforeRentPromos" class="before-rent-promos"></div>
+            <div class="before-rent-mini-head">
+              <h3 data-i18n="beforeRentPopular">เครื่องเกมทั้งหมด</h3>
+              <span class="before-rent-hint" id="beforeRentDevicesHint"></span>
+            </div>
+            <div class="before-rent-typefilter" id="beforeRentTypeFilter" role="group"></div>
+            <div class="before-rent-rail" id="beforeRentDevicesRail">
+              <div id="beforeRentDevices" class="before-rent-devices" tabindex="0" role="group"></div>
+            </div>
+            <p class="before-rent-note" id="beforeRentDevicesNote"></p>
           </section>
           <section class="before-rent-mini-section">
-            <h3 data-i18n="beforeRentPopular">เครื่องยอดนิยม</h3>
-            <div id="beforeRentDevices" class="before-rent-devices"></div>
+            <div class="before-rent-mini-head">
+              <h3 data-i18n="beforeRentFeatured">โปรเด่น</h3>
+              <span class="before-rent-hint" id="beforeRentPromoHint"></span>
+            </div>
+            <div id="beforeRentPromos" class="before-rent-promos"></div>
           </section>
         </div>
       </div>
@@ -737,8 +807,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
 <div class="picker-overlay" id="gamePickerOverlay">
   <div class="picker-card">
-    <div class="modal-head game-picker-head"><h3 id="gamePickerTitle" data-i18n="gamePickerTitle">เลือกเกม</h3><div class="game-picker-attention" data-i18n="gameStorageWarning">⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ</div><div class="game-picker-actions"><button class="btn primary faq-lang-btn" id="gamePickerLangBtn" type="button"></button><button class="xbtn" id="gamePickerClose" type="button">&times;</button></div></div>
-    <div class="game-picker-platforms" id="gamePickerPlatforms" hidden></div>
+    <div class="modal-head game-picker-head"><h3 id="gamePickerTitle" data-i18n="gamePickerTitle">เลือกเกม</h3><div class="game-picker-attention" data-i18n="gameStorageWarning">⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ</div><div class="game-picker-actions"><button class="btn faq-lang-btn" id="gamePickerHowToBtn" type="button"></button><button class="btn primary faq-lang-btn" id="gamePickerLangBtn" type="button"></button><button class="xbtn" id="gamePickerClose" type="button">&times;</button></div></div>
+    <div class="game-picker-platform-rail" id="gamePickerPlatformRail" hidden>
+      <div class="game-picker-platforms" id="gamePickerPlatforms"></div>
+    </div>
     <iframe class="picker-frame" id="gamePickerFrame" title="Game picker"></iframe>
   </div>
 </div>
@@ -892,24 +964,39 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   const I18N = {
     th:{
       calcCta:"เช็คคิว & คำนวณค่าเช่า",
-      beforeRentKicker:"BEFORE RENT",
+      beforeRentKicker:"ก่อนเริ่มเช่า",
       beforeRentTitle:"ก่อนเช่า เลือกสิ่งที่ต้องการ",
       beforeRentSubtitle:"เริ่มเช่า ดูรายชื่อเกม หรืออ่านข้อมูลก่อนตัดสินใจ",
       beforeRentRent:"เช่าเครื่องเกม",
-      beforeRentRentSub:"เช็คคิว เลือกวัน และคำนวณค่าเช่า",
-      beforeRentGames:"รายชื่อเกม",
-      beforeRentGamesSub:"ดูเกมทั้งหมดแยกตามเครื่อง",
+      beforeRentRentSub:"เลือกเครื่อง เช็ควันว่าง คำนวณราคา แล้วจองได้เลย",
+      beforeRentStartHere:"เริ่มที่นี่",
+      beforeRentGames:"ดูรายชื่อเกมก่อน",
+      beforeRentGamesSub:"ยังไม่จอง แค่ดูว่าเครื่องไหนมีเกมอะไรบ้าง",
       beforeRentSteps:"ขั้นตอนการเช่า",
       beforeRentStepsSub:"ดูขั้นตอนตั้งแต่จองจนคืนเครื่อง",
       beforeRentFaq:"คำถามที่พบบ่อย",
       beforeRentFaqSub:"คำตอบเรื่องเช่า จัดส่ง และค่าประกัน",
       beforeRentBack:"← กลับเมนูก่อนเช่า",
       beforeRentExploreKicker:"ดูก่อนตัดสินใจ",
-      beforeRentExploreTitle:"โปรเด่นและเครื่องยอดนิยม",
+      beforeRentExploreTitle:"เครื่องยอดนิยมและโปรเด่น",
       beforeRentFeatured:"โปรเด่น",
-      beforeRentPopular:"เครื่องยอดนิยม",
+      beforeRentPopular:"เครื่องเกมทั้งหมด",
+      beforeRentDevicesHint:"เลื่อนซ้าย-ขวาดูทุกเครื่อง · กดเพื่อเช็คคิว",
+      beforeRentPromoHint:"กดที่รูปเพื่อดูรายละเอียด",
+      beforeRentPromoCue:"ดูโปรนี้ →",
+      beforeRentPromoCueDevice:"เช่า {name} →",
+      beforeRentDeviceCta:"เช็คคิวและจอง →",
+      beforeRentDeviceMin:"ขั้นต่ำ 3 วัน · เริ่มต้น {total}",
+      beforeRentDeviceSoon:"ยังไม่พร้อมให้เช่า",
+      beforeRentSeeAll:"ดูทั้งหมดแบบตาราง มีตัวกรอง",
+      beforeRentTypeAll:"ทั้งหมด",
+      beforeRentEmpty:"ไม่มีเครื่องในประเภทนี้",
+      beforeRentDevicesNote:"* ราคายังไม่รวมค่าส่ง (แจ้งในแชท · ส่งเฉพาะ กรุงเทพฯ และปริมณฑล) · ค่าประกันได้คืนเต็มเมื่อคืนเครื่องครบสภาพ · หากไม่ทำสัญญาเช่า ค่าประกันปรับเป็น ฿5,000 / ฿8,000 ตามรุ่น",
+      beforeRentTerms:"เช่าขั้นต่ำ <b>3 วัน</b> · ราคาเรทบุคคล ยังไม่รวมค่าส่ง · มีค่าประกันที่ได้คืนเมื่อคืนเครื่อง · ส่งเฉพาะ กรุงเทพฯ และปริมณฑล",
       beforeRentStartDevice:"ดูคิวและราคา",
-      gamePickerAllPlatforms:"เลือกเครื่องเพื่อดูเกม",
+      gamePickerAllPlatforms:"👉 เลื่อนซ้าย-ขวา เลือกเครื่อง",
+      gamePickerScrollHint:"เลื่อนดูเครื่องอื่น →",
+      gamePickerHowTo:"วิธีเลือก",
       homeTag:"✨ HIGHLIGHT", homeTitle:"โปรโมชั่น & ข่าวสาร", homeSub:"อัปเดตล่าสุด Exclusive และข่าวสารใหม่จากทาง AJ",
       consoleTag:"เครื่องเกม", consoleTitle:"เครื่องเกมที่มีให้เช่า", consoleSub:"กรองตามประเภท แบรนด์ และเรียงราคาได้",
       notice:"<strong>⚠️ ราคานี้เป็นราคาเช่าในนามบุคคลเท่านั้น</strong> ไม่สามารถออกใบกำกับภาษีหรือใบเสร็จรับเงินได้ หากต้องการใบกำกับภาษี/ใบเสร็จ จะเป็นเรทบริษัท กรุณาติดต่อ Line: <b>@ajgame</b>",
@@ -946,20 +1033,35 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentTitle:"Choose what you need",
       beforeRentSubtitle:"Start a rental, browse games, or review details first",
       beforeRentRent:"Rent a console",
-      beforeRentRentSub:"Check availability, dates, and price",
-      beforeRentGames:"Game list",
-      beforeRentGamesSub:"Browse games by console",
+      beforeRentRentSub:"Pick a console, check dates, get a price, and book",
+      beforeRentStartHere:"START HERE",
+      beforeRentGames:"Just browsing games",
+      beforeRentGamesSub:"No booking — just see which console has which games",
       beforeRentSteps:"Rental steps",
       beforeRentStepsSub:"See the process from booking to return",
       beforeRentFaq:"FAQ",
       beforeRentFaqSub:"Rental, delivery, and deposit answers",
       beforeRentBack:"← Back to Before rent",
       beforeRentExploreKicker:"EXPLORE",
-      beforeRentExploreTitle:"Featured offers and popular consoles",
+      beforeRentExploreTitle:"Popular consoles and featured offers",
       beforeRentFeatured:"Featured offers",
-      beforeRentPopular:"Popular devices",
+      beforeRentPopular:"All consoles",
+      beforeRentDevicesHint:"Swipe to see every console · tap to check dates",
+      beforeRentPromoHint:"Tap an image for details",
+      beforeRentPromoCue:"View offer →",
+      beforeRentPromoCueDevice:"Rent {name} →",
+      beforeRentDeviceCta:"Check dates & book →",
+      beforeRentDeviceMin:"3-day minimum · from {total}",
+      beforeRentDeviceSoon:"Not available yet",
+      beforeRentSeeAll:"See all in a table with filters",
+      beforeRentTypeAll:"All",
+      beforeRentEmpty:"No consoles in this category",
+      beforeRentDevicesNote:"* Prices exclude delivery (quoted in chat · Bangkok and Greater Bangkok only) · the deposit is fully refunded when the console is returned in good condition · without a rental contract the deposit becomes ฿5,000 / ฿8,000 depending on the model",
+      beforeRentTerms:"<b>3-day</b> minimum rental · individual rate, delivery not included · a refundable deposit applies · delivery in Bangkok and Greater Bangkok only",
       beforeRentStartDevice:"Check dates & price",
-      gamePickerAllPlatforms:"Choose a console to browse games",
+      gamePickerAllPlatforms:"👉 Swipe to pick a console",
+      gamePickerScrollHint:"Swipe for more →",
+      gamePickerHowTo:"How to",
       homeTag:"✨ HIGHLIGHT", homeTitle:"Promotions & News", homeSub:"Latest exclusive updates and new stories from AJ",
       consoleTag:"Consoles", consoleTitle:"Available Consoles", consoleSub:"Filter by type, brand, and price",
       notice:"<strong>⚠️ Individual rates only.</strong> Tax invoices / receipts cannot be issued at these rates. For tax invoice / receipt, corporate rates apply. Contact Line: <b>@ajgame</b>",
@@ -1009,6 +1111,29 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   };
   const clone = value => JSON.parse(JSON.stringify(value));
   const money = value => "฿" + Number(value || 0).toLocaleString();
+  // Minimum rental length in days; drives the "starts at" price shown up front so
+  // the per-day figure is never read as a one-day total.
+  const MIN_RENTAL_DAYS = 3;
+  // Inline line icons keep the UI free of emoji without adding any network asset.
+  // They inherit currentColor and scale with font-size.
+  const ICON_PATHS = {
+    gamepad:'<path d="M8.4 6.5h7.2a4.6 4.6 0 0 1 4.5 3.7l.8 4.4a2.5 2.5 0 0 1-4.6 1.7l-1-1.6H8.7l-1 1.6a2.5 2.5 0 0 1-4.6-1.7l.8-4.4a4.6 4.6 0 0 1 4.5-3.7Z"/><path d="M7.2 11.4h3M8.7 9.9v3"/><circle cx="15.6" cy="10.9" r=".95"/><circle cx="17.7" cy="13.1" r=".95"/>',
+    grid:'<rect x="3.5" y="4" width="7" height="7" rx="1.6"/><rect x="13.5" y="4" width="7" height="7" rx="1.6"/><rect x="3.5" y="13" width="7" height="7" rx="1.6"/><rect x="13.5" y="13" width="7" height="7" rx="1.6"/>',
+    book:'<path d="M4 5.6A1.6 1.6 0 0 1 5.6 4H10a2.4 2.4 0 0 1 2 1.1A2.4 2.4 0 0 1 14 4h4.4A1.6 1.6 0 0 1 20 5.6v10.8a1.6 1.6 0 0 1-1.6 1.6H14a2.4 2.4 0 0 0-2 1.1 2.4 2.4 0 0 0-2-1.1H5.6A1.6 1.6 0 0 1 4 16.4Z"/><path d="M12 5.1v13.9"/>',
+    help:'<circle cx="12" cy="12" r="8.6"/><path d="M9.7 9.5a2.4 2.4 0 1 1 3.2 2.3c-.6.2-.9.7-.9 1.3v.4"/><circle cx="12" cy="16.5" r=".95" fill="currentColor" stroke="none"/>',
+    vr:'<path d="M3.5 9.6A2.6 2.6 0 0 1 6.1 7h11.8a2.6 2.6 0 0 1 2.6 2.6v3.8a2.6 2.6 0 0 1-2.6 2.6h-2.1a2 2 0 0 1-1.6-.8l-.9-1.2a1.6 1.6 0 0 0-2.6 0l-.9 1.2a2 2 0 0 1-1.6.8H6.1a2.6 2.6 0 0 1-2.6-2.6Z"/>',
+    handheld:'<rect x="2.6" y="6.4" width="18.8" height="11.2" rx="3"/><rect x="8.2" y="9" width="7.6" height="6" rx="1.2"/><path d="M5.3 10.6v2.8M3.9 12h2.8"/><circle cx="18.3" cy="10.8" r=".9"/><circle cx="18.3" cy="13.3" r=".9"/>',
+    wheel:'<circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="2.7"/><path d="M3.6 10.4h16.8M12 14.7v5.9"/>',
+    swipe:'<path d="M9.2 7 5 12l4.2 5M14.8 7 19 12l-4.2 5"/>',
+    bell:'<path d="M6.6 10.4a5.4 5.4 0 0 1 10.8 0c0 3.2.9 4.7 1.6 5.5.3.4 0 1-.5 1H5.5c-.5 0-.8-.6-.5-1 .7-.8 1.6-2.3 1.6-5.5Z"/><path d="M10.2 19.4a2 2 0 0 0 3.6 0"/>',
+    table:'<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.6h17M9.4 9.6v9.9M15.1 9.6v9.9"/>',
+    tap:'<path d="M9.4 11.2V6.4a1.7 1.7 0 0 1 3.4 0v6.2"/><path d="M12.8 11.4a1.5 1.5 0 0 1 3 0v.9"/><path d="M15.8 12a1.5 1.5 0 0 1 3 0v3.1a5 5 0 0 1-5 5h-1.6a4.4 4.4 0 0 1-3.3-1.5L6 15.3a1.6 1.6 0 0 1 2.3-2.2l1.1 1.1"/>',
+    lock:'<rect x="4.8" y="10.4" width="14.4" height="9.4" rx="2.2"/><path d="M8.2 10.4V7.9a3.8 3.8 0 0 1 7.6 0v2.5"/>'
+  };
+  const icon = (name, cls = "") => ICON_PATHS[name]
+    ? `<svg class="ico${cls?" "+cls:""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICON_PATHS[name]}</svg>`
+    : "";
+  const deviceIconName = item => ({vr:"vr", handheld:"handheld", racing:"wheel"})[String(item?.type || "").toLowerCase()] || "gamepad";
   const num = value => Number(String(value ?? "").replace(/,/g,"").trim()) || 0;
   function bangkokNow(now = new Date()){
     const parts = new Intl.DateTimeFormat("en-CA", {
@@ -1079,7 +1204,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     faqExpanded: false,
     adminTab: "consoles",
     beforeRentActive: true,
+    beforeRentDeviceType: "all",
     gamePickerBrowseOnly: false,
+    gamePickerHowTo: false,
     gamePickerPlatformId: "",
     autoPushTimer: 0
   };
@@ -1531,33 +1658,124 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(!section || section.enabled === false) return;
       section.items.filter(item => item.active !== false).forEach(item => promos.push(item));
     });
+    const normalizedNames = item => [item.name,item.nameEn].filter(Boolean).map(name => String(name).trim().toLowerCase());
+    const listed = state.consoles.filter(item => item.active !== false);
+
     promoHost.innerHTML = promos.slice(0,3).map(item => {
       const title = state.lang === "en" ? (item.titleEn || item.titleTh) : (item.titleTh || item.titleEn);
       const sub = state.lang === "en" ? (item.subtitleEn || item.subtitleTh) : (item.subtitleTh || item.subtitleEn);
-      const badge = state.lang === "en" ? (item.badgeEn || item.badgeTh) : (item.badgeTh || item.badgeEn);
-      return `<a class="before-rent-promo" href="${esc(safeHref(item.url))}">${item.image ? `<img src="${esc(item.image)}" alt="">` : ""}<span class="before-rent-promo-copy"><strong>${esc(title || item.emojiFallback || "AJ")}</strong><span>${esc([badge,sub].filter(Boolean).join(" · "))}</span></span></a>`;
-    }).join("") || `<button class="before-rent-promo" type="button" data-before-start><span class="before-rent-promo-copy"><strong>${esc(tr("beforeRentRent"))}</strong><span>${esc(tr("beforeRentRentSub"))}</span></span></button>`;
+      const label = [title, sub].filter(Boolean).join(" - ") || "AJ";
+      // Promo URLs are admin-managed and usually left at the generic calculator
+      // default, which makes a "see details" promise the page cannot keep. When
+      // the artwork names a console we can at least land on that console.
+      const target = promoConsole(item, listed, normalizedNames);
+      const cueText = target ? tr("beforeRentPromoCueDevice").replace("{name}", cName(target)) : tr("beforeRentPromoCue");
+      const cue = `<span class="before-rent-promo-cue" aria-hidden="true">${esc(cueText)}</span>`;
+      // Artwork already carries its own headline text, so the caption overlay is
+      // only rendered when there is no image to avoid double-stacked copy.
+      const copy = item.image ? "" : `<span class="before-rent-promo-copy"><strong>${esc(title || "AJ")}</strong>${sub ? `<span>${esc(sub)}</span>` : ""}</span>`;
+      return `<a class="before-rent-promo ${item.image?"":"is-plain"}" href="${esc(safeHref(item.url))}" aria-label="${esc(label)}" ${target?`data-promo-device="${esc(target.id)}"`:""}>${item.image ? `<img src="${esc(item.image)}" alt="${esc(label)}" loading="lazy">` : ""}${copy}${cue}</a>`;
+    }).join("") || `<button class="before-rent-promo is-plain" type="button" data-before-start><span class="before-rent-promo-copy"><strong>${esc(tr("beforeRentRent"))}</strong><span>${esc(tr("beforeRentRentSub"))}</span></span><span class="before-rent-promo-cue" aria-hidden="true">${esc(tr("beforeRentPromoCue"))}</span></button>`;
 
-    const ready = state.consoles.filter(item => item.active !== false && item.ready !== false);
-    const normalizedNames = item => [item.name,item.nameEn].filter(Boolean).map(name => String(name).trim().toLowerCase());
-    const preferred = ["ps5","ps5 pro","nintendo switch 2","nintendo switch 1","meta quest 3","ps4"];
-    const picked = [];
-    preferred.forEach(name => {
-      const item = ready.find(consoleItem => normalizedNames(consoleItem).includes(name) && !picked.includes(consoleItem));
-      if(item) picked.push(item);
-    });
-    ready.forEach(item => {
-      if(picked.length < 6 && !picked.includes(item) && !normalizedNames(item).includes("steam deck oled")) picked.push(item);
-    });
-    deviceHost.innerHTML = picked.slice(0,6).map(item => {
+    const preferred = ["ps5","ps5 pro","nintendo switch 2","nintendo switch 1","meta quest 3","steam deck oled","xbox series x","rog xbox ally x","viture beast","lenovo legion go2","ps4"];
+    const rank = item => {
+      const index = preferred.findIndex(name => normalizedNames(item).includes(name));
+      return index === -1 ? preferred.length : index;
+    };
+    const typeFilter = state.beforeRentDeviceType || "all";
+    const ordered = listed
+      .filter(item => typeFilter === "all" || String(item.type || "").toLowerCase() === typeFilter)
+      .sort((a,b) => {
+        const readyGap = Number(isReady(b)) - Number(isReady(a));
+        if(readyGap) return readyGap;
+        const rankGap = rank(a) - rank(b);
+        if(rankGap) return rankGap;
+        return Number(a.rate || 0) - Number(b.rate || 0);
+      });
+    const cards = ordered.map(item => {
       const image = getConsoleImage(item);
-      return `<button class="before-rent-device" type="button" data-before-device="${esc(item.id)}"><span class="before-rent-device-media">${image ? `<img src="${esc(image)}" alt="">` : `<span aria-hidden="true">🎮</span>`}</span><strong>${esc(cName(item))}</strong><span>${esc(money(item.rate))}/${esc(tr("day"))} · ${esc(tr("beforeRentStartDevice"))}</span></button>`;
+      const ready = isReady(item);
+      const flag = ready ? "" : `<span class="before-rent-device-flag">${esc(tr("readyOn"))} ${esc(displayDate(item.readyDate))}</span>`;
+      const media = image ? `<img src="${esc(image)}" alt="" loading="lazy">` : icon(deviceIconName(item));
+      const minLine = tr("beforeRentDeviceMin").replace("{total}", money(Number(item.rate || 0) * MIN_RENTAL_DAYS));
+      return `<button class="before-rent-device" type="button" data-before-device="${esc(item.id)}" ${ready?"":"disabled"}>
+        <span class="before-rent-device-media">${media}${flag}</span>
+        <span class="before-rent-device-name">${esc(cName(item))}</span>
+        <span class="before-rent-device-price"><b>${esc(money(item.rate))}</b>/${esc(tr("day"))}</span>
+        <span class="before-rent-device-week">${esc(money(item.weekly))}/${esc(tr("wk"))}</span>
+        <span class="before-rent-device-min">${esc(minLine)}</span>
+        <span class="before-rent-device-dep">${icon("lock")}<span>${esc(tr("deposit"))} ${esc(money(item.deposit))}</span><em>${esc(tr("beforeRentDepositBack"))}*</em></span>
+        <span class="before-rent-device-cta">${ready ? esc(tr("beforeRentDeviceCta")) : esc(tr("beforeRentDeviceSoon"))}</span>
+      </button>`;
     }).join("");
+    const seeAll = `<button class="before-rent-seeall" type="button" data-before-seeall>${icon("table")}<span>${esc(tr("beforeRentSeeAll"))}</span></button>`;
+    deviceHost.innerHTML = cards ? cards + seeAll : `<p class="before-rent-empty">${esc(tr("beforeRentEmpty"))}</p>` + seeAll;
+
     promoHost.querySelector("[data-before-start]")?.addEventListener("click", () => setBeforeRent(false,{startGuide:true}));
+    promoHost.querySelectorAll("[data-promo-device]").forEach(link => link.addEventListener("click", event => {
+      event.preventDefault();
+      selectCalcConsole(link.dataset.promoDevice);
+      setBeforeRent(false,{startGuide:true});
+    }));
     deviceHost.querySelectorAll("[data-before-device]").forEach(button => button.addEventListener("click", () => {
       selectCalcConsole(button.dataset.beforeDevice);
       setBeforeRent(false,{startGuide:true});
     }));
+    deviceHost.querySelector("[data-before-seeall]")?.addEventListener("click", () => showAllConsoles());
+    renderBeforeRentTypeFilter();
+    byId("beforeRentDevicesHint").innerHTML = `${icon("swipe")}<span>${esc(tr("beforeRentDevicesHint"))}</span>`;
+    byId("beforeRentPromoHint").innerHTML = `${icon("tap")}<span>${esc(tr("beforeRentPromoHint"))}</span>`;
+    byId("beforeRentDevicesNote").textContent = tr("beforeRentDevicesNote");
+    byId("beforeRentTerms").innerHTML = tr("beforeRentTerms");
+    $$("[data-icon]").forEach(host => { if(!host.firstElementChild) host.innerHTML = icon(host.dataset.icon); });
+    deviceHost.scrollLeft = 0;
+    bindScrollRail(byId("beforeRentDevicesRail"), deviceHost);
+  }
+  // Matches a promo card to a console named in its copy so the tap lands somewhere
+  // specific instead of the bare calculator.
+  function promoConsole(item, listed, normalizedNames){
+    const haystack = [item.titleTh,item.titleEn,item.subtitleTh,item.subtitleEn].filter(Boolean).join(" ").toLowerCase();
+    if(!haystack) return null;
+    return listed
+      .filter(consoleItem => isReady(consoleItem) && normalizedNames(consoleItem).some(name => name.length >= 3 && haystack.includes(name)))
+      .sort((a,b) => Math.max(...normalizedNames(b).map(n => n.length)) - Math.max(...normalizedNames(a).map(n => n.length)))[0] || null;
+  }
+  function renderBeforeRentTypeFilter(){
+    const host = byId("beforeRentTypeFilter");
+    if(!host) return;
+    const available = new Set(state.consoles.filter(item => item.active !== false).map(item => String(item.type || "").toLowerCase()));
+    const types = [["all",tr("beforeRentTypeAll")],["console",tr("type_console")],["vr",tr("type_vr")],["handheld",tr("type_handheld")],["racing",tr("type_racing")]]
+      .filter(([id]) => id === "all" || available.has(id));
+    host.innerHTML = types.map(([id,label]) => `<button class="before-rent-typechip ${(state.beforeRentDeviceType||"all")===id?"active":""}" type="button" data-before-type="${esc(id)}" aria-pressed="${(state.beforeRentDeviceType||"all")===id}">${esc(label)}</button>`).join("");
+    host.querySelectorAll("[data-before-type]").forEach(chip => chip.addEventListener("click", () => {
+      state.beforeRentDeviceType = chip.dataset.beforeType;
+      renderBeforeRentDiscovery();
+    }));
+  }
+  function showAllConsoles(){
+    setBeforeRent(false, {scrollTo:false});
+    requestAnimationFrame(() => byId("consoles")?.scrollIntoView({behavior:"smooth", block:"start"}));
+  }
+  function bindScrollRail(rail, scroller){
+    if(!rail || !scroller) return;
+    if(!rail.querySelector(".rail-cue")){
+      const cue = document.createElement("span");
+      cue.className = "rail-cue";
+      cue.setAttribute("aria-hidden","true");
+      cue.textContent = "›";
+      rail.appendChild(cue);
+    }
+    const sync = () => {
+      const scrollable = scroller.scrollWidth - scroller.clientWidth;
+      rail.classList.toggle("rail-end", scrollable <= 8 || scroller.scrollLeft >= scrollable - 8);
+    };
+    if(!scroller.dataset.railBound){
+      scroller.addEventListener("scroll", sync, {passive:true});
+      window.addEventListener("resize", sync);
+      scroller.dataset.railBound = "1";
+    }
+    sync();
+    requestAnimationFrame(sync);
   }
   function renderBeforeRent(){
     const active = !!state.beforeRentActive;
@@ -1579,6 +1797,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       setGuideStage(guideStageForStep(state.calc.step), {syncStep:false});
     }
     render();
+    if(options.scrollTo === false) return;
     requestAnimationFrame(() => window.scrollTo({top:0, behavior:"smooth"}));
   }
   function applyI18n(){
@@ -1587,6 +1806,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     byId("langBtn").textContent = state.lang === "en" ? "🇹🇭 TH" : "🇬🇧 EN";
     $$("[data-i18n]").forEach(el => { el.textContent = tr(el.dataset.i18n); });
     $$("[data-i18n-html]").forEach(el => { el.innerHTML = tr(el.dataset.i18nHtml); });
+    refreshGamePickerLangBtn();
+    refreshGamePickerHowToBtn();
   }
   function renderHome(){
     const host = byId("homeGrid");
@@ -3177,12 +3398,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function renderGamePickerPlatforms(){
     const host = byId("gamePickerPlatforms");
-    if(!host) return;
-    host.hidden = !state.gamePickerBrowseOnly;
+    const rail = byId("gamePickerPlatformRail");
+    if(!host || !rail) return;
+    rail.hidden = !state.gamePickerBrowseOnly;
     if(!state.gamePickerBrowseOnly){ host.innerHTML = ""; return; }
     const consoles = gameCatalogConsoles();
     host.innerHTML = `<span class="game-picker-platform-label">${esc(tr("gamePickerAllPlatforms"))}</span>${consoles.map(item => `<button class="game-picker-platform-btn ${String(item.id) === String(state.gamePickerPlatformId) ? "active" : ""}" type="button" data-game-platform="${esc(item.id)}">${esc(cName(item))}</button>`).join("")}`;
     host.querySelectorAll("[data-game-platform]").forEach(button => button.addEventListener("click", () => switchBrowseGamePlatform(button.dataset.gamePlatform)));
+    bindScrollRail(rail, host);
   }
   function loadGamePickerPlatform(){
     const c = activePickerConsole();
@@ -3191,7 +3414,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const platformId = c.gamePlatform || guessPlatform(c);
     const selectedIds = pickerSelectedIds();
     const browseOnly = state.gamePickerBrowseOnly;
-    const params = new URLSearchParams({embed:"picker", lang:state.lang, platformId, selected:selectedIds.join(","), browse:browseOnly?"1":"0", v:CONFIG.gamePickerVersion});
+    const params = new URLSearchParams({embed:"picker", lang:state.lang, platformId, selected:selectedIds.join(","), browse:browseOnly?"1":"0", chrome:"compact", v:CONFIG.gamePickerVersion});
     const src = `${CONFIG.gamePage}?${params.toString()}`;
     const send = () => frame.contentWindow?.postMessage({
       type:"AJ_PICKER_OPEN",
@@ -3202,12 +3425,36 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       browseOnly
     }, pickerTargetOrigin());
     if((frame.getAttribute("src") || "") !== src){
-      frame.onload = send;
+      frame.onload = () => { send(); sendPickerHowTo(); };
       frame.src = src;
     }else{
       send();
     }
     setTimeout(send, 500);
+  }
+  // The picker page ships its own instructions bar and console tabs. Inside this
+  // modal both duplicate what the parent already shows and eat the vertical space
+  // the game grid needs, so `chrome=compact` hides them and the instructions move
+  // to the header button. Driven by URL param + postMessage rather than reaching
+  // into the iframe document, so it also works when the page is opened from
+  // file:// where cross-document access is blocked.
+  function sendPickerHowTo(){
+    byId("gamePickerFrame")?.contentWindow?.postMessage(
+      {type:"AJ_PICKER_HOWTO", show:!!state.gamePickerHowTo},
+      pickerTargetOrigin()
+    );
+  }
+  function refreshGamePickerHowToBtn(){
+    const button = byId("gamePickerHowToBtn");
+    if(!button) return;
+    button.innerHTML = `${icon("help")}<span>${esc(tr("gamePickerHowTo"))}</span>`;
+    button.classList.toggle("primary", !!state.gamePickerHowTo);
+    button.setAttribute("aria-pressed", String(!!state.gamePickerHowTo));
+  }
+  function toggleGamePickerHowTo(){
+    state.gamePickerHowTo = !state.gamePickerHowTo;
+    refreshGamePickerHowToBtn();
+    sendPickerHowTo();
   }
   function switchBrowseGamePlatform(consoleId){
     if(!state.gamePickerBrowseOnly) return;
@@ -3223,7 +3470,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const first = current && gameUrl(current) ? current : catalogs[0];
     if(!first) return;
     state.gamePickerPlatformId = browseOnly ? String(first.id) : "";
+    state.gamePickerHowTo = false;
     refreshGamePickerLangBtn();
+    refreshGamePickerHowToBtn();
     byId("gamePickerOverlay").classList.add("open");
     renderGamePickerPlatforms();
     loadGamePickerPlatform();
@@ -3232,6 +3481,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     byId("gamePickerOverlay").classList.remove("open");
     state.gamePickerBrowseOnly = false;
     state.gamePickerPlatformId = "";
+    state.gamePickerHowTo = false;
+    refreshGamePickerHowToBtn();
     renderGamePickerPlatforms();
   }
   function refreshGamePickerLangBtn(){
@@ -3241,6 +3492,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     state.lang = state.lang === "en" ? "th" : "en";
     render();
     refreshGamePickerLangBtn();
+    refreshGamePickerHowToBtn();
     renderGamePickerPlatforms();
     byId("gamePickerFrame").contentWindow?.postMessage({type:"AJ_SET_LANG", lang:state.lang}, pickerTargetOrigin());
   }
@@ -4219,6 +4471,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     byId("stepsLangBtn").addEventListener("click", toggleStepsLang);
     byId("stepsModal").addEventListener("click", (e) => { if(e.target === byId("stepsModal")) closeStepsPopup(); });
     byId("gamePickerLangBtn").addEventListener("click", toggleGamePickerLang);
+    byId("gamePickerHowToBtn").addEventListener("click", toggleGamePickerHowTo);
     byId("adminBtn").addEventListener("click", () => openAdmin(false));
     byId("adminClose").addEventListener("click", closeAdmin);
     byId("adminLoginClose").addEventListener("click", closeAdminLogin);
