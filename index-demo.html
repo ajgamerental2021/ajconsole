@@ -371,6 +371,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .float-calc.show{display:inline-flex}
 .picker-card{background:#fff;width:min(1180px,100%);height:min(92vh,900px);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow2)}
 .picker-frame{flex:1;border:0;background:#fff}
+.game-picker-platforms{display:flex;align-items:center;gap:8px;padding:10px 14px;overflow-x:auto;border-bottom:1px solid #e5e7eb;background:#fff}
+.game-picker-platform-label{flex:0 0 auto;font-weight:800;font-size:13px}
+.game-picker-platform-btn{flex:0 0 auto;border:1px solid #d0d5dd;border-radius:999px;background:#fff;padding:8px 12px;font-weight:800;cursor:pointer}
+.game-picker-platform-btn.active{border-color:#c90012;background:#fff1f2;color:#c90012}
 .game-picker-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px}
 .game-picker-actions{display:flex;align-items:center;gap:8px}
 .game-picker-attention{justify-self:start;max-width:100%;border:1px solid #f0a000;border-radius:9px;background:#fff8dd;color:#6b3900;padding:7px 10px;font-size:12px;font-weight:900;line-height:1.25;white-space:nowrap;overflow-x:auto;scrollbar-width:none}
@@ -480,6 +484,26 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .before-rent-copy{display:grid;min-width:0;gap:5px;overflow-wrap:anywhere}
   .before-rent-copy strong{font-size:18px}
   .before-rent-copy span{color:#667085;font-size:14px}
+  .before-rent-discovery{margin-top:26px;padding-top:24px;border-top:1px solid #e5e7eb}
+  .before-rent-discovery-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;text-align:left}
+  .before-rent-discovery-head h2{margin:4px 0 0;font-size:24px}
+  .before-rent-discovery-head p{margin:0;max-width:440px;color:#667085}
+  .before-rent-mini-section{margin-top:20px}
+  .before-rent-mini-section h3{margin:0 0 10px}
+  .before-rent-promos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .before-rent-promo{position:relative;min-height:160px;border:0;border-radius:8px;overflow:hidden;background:#111;color:#fff;text-align:left}
+  .before-rent-promo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .before-rent-promo-copy{position:absolute;inset:auto 0 0;padding:32px 14px 14px;background:linear-gradient(transparent,rgba(0,0,0,.88))}
+  .before-rent-promo-copy strong,.before-rent-promo-copy span{display:block}
+  .before-rent-promo-copy span{font-size:12px;color:#f2f4f7}
+  .before-rent-devices{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+  .before-rent-device{display:grid;gap:8px;padding:10px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;text-align:left;cursor:pointer}
+  .before-rent-device:hover,.before-rent-device:focus-visible{border-color:#c90012;background:#fff8f8}
+  .before-rent-device-media{aspect-ratio:1.25;border-radius:6px;background:#f4f6f8;overflow:hidden}
+  .before-rent-device-media img{width:100%;height:100%;object-fit:contain}
+  .before-rent-device-media>span{display:grid;height:100%;place-items:center;font-size:30px}
+  .before-rent-device strong{font-size:13px}
+  .before-rent-device span{font-size:11px;color:#667085}
   .before-rent-back{margin:0 0 18px}
   .before-rent-hidden{display:none!important}
   @media(max-width:640px){
@@ -489,6 +513,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     .before-rent-head h1{font-size:28px}
     .before-rent-grid{grid-template-columns:1fr}
     .before-rent-action{min-height:86px}
+    .before-rent-discovery-head{display:block}
+    .before-rent-discovery-head p{margin-top:8px}
+    .before-rent-promos{grid-template-columns:1fr}
+    .before-rent-devices{grid-template-columns:repeat(2,minmax(0,1fr))}
   }
 </style>
 </head>
@@ -530,6 +558,23 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
             <span class="before-rent-icon" aria-hidden="true">❓</span>
             <span class="before-rent-copy"><strong data-i18n="beforeRentFaq">คำถามที่พบบ่อย</strong><span data-i18n="beforeRentFaqSub">คำตอบเรื่องเช่า จัดส่ง และค่าประกัน</span></span>
           </button>
+        </div>
+        <div class="before-rent-discovery">
+          <div class="before-rent-discovery-head">
+            <div>
+              <span class="before-rent-kicker" data-i18n="beforeRentExploreKicker">ดูก่อนตัดสินใจ</span>
+              <h2 data-i18n="beforeRentExploreTitle">โปรเด่นและเครื่องยอดนิยม</h2>
+            </div>
+            <p data-i18n="beforeRentExploreSub">ข้อมูลย่อจากรายการจริง กดเครื่องเพื่อเริ่มเช่าได้ทันที</p>
+          </div>
+          <section class="before-rent-mini-section">
+            <h3 data-i18n="beforeRentFeatured">โปรเด่น</h3>
+            <div id="beforeRentPromos" class="before-rent-promos"></div>
+          </section>
+          <section class="before-rent-mini-section">
+            <h3 data-i18n="beforeRentPopular">เครื่องยอดนิยม</h3>
+            <div id="beforeRentDevices" class="before-rent-devices"></div>
+          </section>
         </div>
       </div>
     </div>
@@ -692,6 +737,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 <div class="picker-overlay" id="gamePickerOverlay">
   <div class="picker-card">
     <div class="modal-head game-picker-head"><h3 id="gamePickerTitle" data-i18n="gamePickerTitle">เลือกเกม</h3><div class="game-picker-attention" data-i18n="gameStorageWarning">⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ</div><div class="game-picker-actions"><button class="btn primary faq-lang-btn" id="gamePickerLangBtn" type="button"></button><button class="xbtn" id="gamePickerClose" type="button">&times;</button></div></div>
+    <div class="game-picker-platforms" id="gamePickerPlatforms" hidden></div>
     <iframe class="picker-frame" id="gamePickerFrame" title="Game picker"></iframe>
   </div>
 </div>
@@ -857,6 +903,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentFaq:"คำถามที่พบบ่อย",
       beforeRentFaqSub:"คำตอบเรื่องเช่า จัดส่ง และค่าประกัน",
       beforeRentBack:"← กลับเมนูก่อนเช่า",
+      beforeRentExploreKicker:"ดูก่อนตัดสินใจ",
+      beforeRentExploreTitle:"โปรเด่นและเครื่องยอดนิยม",
+      beforeRentExploreSub:"ข้อมูลย่อจากรายการจริง กดเครื่องเพื่อเริ่มเช่าได้ทันที",
+      beforeRentFeatured:"โปรเด่น",
+      beforeRentPopular:"เครื่องยอดนิยม",
+      beforeRentStartDevice:"ดูคิวและราคา",
+      gamePickerAllPlatforms:"เลือกเครื่องเพื่อดูเกม",
       homeTag:"✨ HIGHLIGHT", homeTitle:"โปรโมชั่น & ข่าวสาร", homeSub:"อัปเดตล่าสุด Exclusive และข่าวสารใหม่จากทาง AJ",
       consoleTag:"เครื่องเกม", consoleTitle:"เครื่องเกมที่มีให้เช่า", consoleSub:"กรองตามประเภท แบรนด์ และเรียงราคาได้",
       notice:"<strong>⚠️ ราคานี้เป็นราคาเช่าในนามบุคคลเท่านั้น</strong> ไม่สามารถออกใบกำกับภาษีหรือใบเสร็จรับเงินได้ หากต้องการใบกำกับภาษี/ใบเสร็จ จะเป็นเรทบริษัท กรุณาติดต่อ Line: <b>@ajgame</b>",
@@ -901,6 +954,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentFaq:"FAQ",
       beforeRentFaqSub:"Rental, delivery, and deposit answers",
       beforeRentBack:"← Back to Before rent",
+      beforeRentExploreKicker:"EXPLORE",
+      beforeRentExploreTitle:"Featured offers and popular consoles",
+      beforeRentExploreSub:"A quick look at live offers and devices. Tap a device to start.",
+      beforeRentFeatured:"Featured offers",
+      beforeRentPopular:"Popular devices",
+      beforeRentStartDevice:"Check dates & price",
+      gamePickerAllPlatforms:"Choose a console to browse games",
       homeTag:"✨ HIGHLIGHT", homeTitle:"Promotions & News", homeSub:"Latest exclusive updates and new stories from AJ",
       consoleTag:"Consoles", consoleTitle:"Available Consoles", consoleSub:"Filter by type, brand, and price",
       notice:"<strong>⚠️ Individual rates only.</strong> Tax invoices / receipts cannot be issued at these rates. For tax invoice / receipt, corporate rates apply. Contact Line: <b>@ajgame</b>",
@@ -1021,6 +1081,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     adminTab: "consoles",
     beforeRentActive: true,
     gamePickerBrowseOnly: false,
+    gamePickerPlatformId: "",
     autoPushTimer: 0
   };
   const GUIDE_ORDER = ["console","start","end","ps5bundle","accessory","next1","games","next2","bg","ret","contractChoice","payment","contractLink","maps","next3","share"];
@@ -1460,6 +1521,42 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function hideGuideVisuals(){
     ["guidePointer","guideBox","guideHighlight"].forEach(id => byId(id)?.classList.remove("show"));
   }
+  function renderBeforeRentDiscovery(){
+    const promoHost = byId("beforeRentPromos");
+    const deviceHost = byId("beforeRentDevices");
+    if(!promoHost || !deviceHost) return;
+
+    const promos = [];
+    ["highlight","newGames"].forEach(key => {
+      const section = state.home?.[key];
+      if(!section || section.enabled === false) return;
+      section.items.filter(item => item.active !== false).forEach(item => promos.push(item));
+    });
+    promoHost.innerHTML = promos.slice(0,3).map(item => {
+      const title = state.lang === "en" ? (item.titleEn || item.titleTh) : (item.titleTh || item.titleEn);
+      const sub = state.lang === "en" ? (item.subtitleEn || item.subtitleTh) : (item.subtitleTh || item.subtitleEn);
+      const badge = state.lang === "en" ? (item.badgeEn || item.badgeTh) : (item.badgeTh || item.badgeEn);
+      return `<a class="before-rent-promo" href="${esc(safeHref(item.url))}">${item.image ? `<img src="${esc(item.image)}" alt="">` : ""}<span class="before-rent-promo-copy"><strong>${esc(title || item.emojiFallback || "AJ")}</strong><span>${esc([badge,sub].filter(Boolean).join(" · "))}</span></span></a>`;
+    }).join("") || `<button class="before-rent-promo" type="button" data-before-start><span class="before-rent-promo-copy"><strong>${esc(tr("beforeRentRent"))}</strong><span>${esc(tr("beforeRentRentSub"))}</span></span></button>`;
+
+    const ready = state.consoles.filter(item => item.active !== false && item.ready !== false);
+    const preferred = [/^ps5$/i,/ps5 pro/i,/nintendo switch 2/i,/nintendo switch 1/i,/meta quest 3$/i,/steam deck oled/i];
+    const picked = [];
+    preferred.forEach(pattern => {
+      const item = ready.find(consoleItem => pattern.test(`${consoleItem.name || ""} ${consoleItem.nameEn || ""}`) && !picked.includes(consoleItem));
+      if(item) picked.push(item);
+    });
+    ready.forEach(item => { if(picked.length < 6 && !picked.includes(item)) picked.push(item); });
+    deviceHost.innerHTML = picked.slice(0,6).map(item => {
+      const image = getConsoleImage(item);
+      return `<button class="before-rent-device" type="button" data-before-device="${esc(item.id)}"><span class="before-rent-device-media">${image ? `<img src="${esc(image)}" alt="">` : `<span aria-hidden="true">🎮</span>`}</span><strong>${esc(cName(item))}</strong><span>${esc(money(item.rate))}/${esc(tr("day"))} · ${esc(tr("beforeRentStartDevice"))}</span></button>`;
+    }).join("");
+    promoHost.querySelector("[data-before-start]")?.addEventListener("click", () => setBeforeRent(false,{startGuide:true}));
+    deviceHost.querySelectorAll("[data-before-device]").forEach(button => button.addEventListener("click", () => {
+      selectCalcConsole(button.dataset.beforeDevice);
+      setBeforeRent(false,{startGuide:true});
+    }));
+  }
   function renderBeforeRent(){
     const active = !!state.beforeRentActive;
     byId("beforeRentSection")?.classList.toggle("before-rent-hidden", !active);
@@ -1467,7 +1564,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       byId(id)?.classList.toggle("before-rent-hidden", active);
     });
     byId("floatCalc")?.classList.toggle("before-rent-hidden", active);
-    if(active) hideGuideVisuals();
+    if(active){
+      hideGuideVisuals();
+      renderBeforeRentDiscovery();
+    }
   }
   function setBeforeRent(active, options={}){
     state.beforeRentActive = !!active;
@@ -3050,36 +3150,82 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       || origin === "null" || origin === location.origin;
   }
 
-  function openGamePicker(options={}){
-    const browseOnly = !!options.browseOnly;
-    const c = consoleById(state.calc.consoleId) || state.consoles.find(item => item.gamePlatform);
+  function gameCatalogConsoles(){
+    const seen = new Set();
+    return state.consoles.filter(item => {
+      const platformId = item.gamePlatform || guessPlatform(item);
+      if(!gameUrl(item) || !platformId || seen.has(platformId)) return false;
+      seen.add(platformId);
+      return true;
+    });
+  }
+  function activePickerConsole(){
+    if(state.gamePickerBrowseOnly){
+      return consoleById(state.gamePickerPlatformId) || gameCatalogConsoles()[0];
+    }
+    return consoleById(state.calc.consoleId) || gameCatalogConsoles()[0];
+  }
+  function pickerSelectedIds(){
+    return state.gamePickerBrowseOnly ? [] : state.calc.games.map(game => game.id).filter(Boolean);
+  }
+  function renderGamePickerPlatforms(){
+    const host = byId("gamePickerPlatforms");
+    if(!host) return;
+    host.hidden = !state.gamePickerBrowseOnly;
+    if(!state.gamePickerBrowseOnly){ host.innerHTML = ""; return; }
+    const consoles = gameCatalogConsoles();
+    host.innerHTML = `<span class="game-picker-platform-label">${esc(tr("gamePickerAllPlatforms"))}</span>${consoles.map(item => `<button class="game-picker-platform-btn ${String(item.id) === String(state.gamePickerPlatformId) ? "active" : ""}" type="button" data-game-platform="${esc(item.id)}">${esc(cName(item))}</button>`).join("")}`;
+    host.querySelectorAll("[data-game-platform]").forEach(button => button.addEventListener("click", () => switchBrowseGamePlatform(button.dataset.gamePlatform)));
+  }
+  function loadGamePickerPlatform(){
+    const c = activePickerConsole();
     if(!c) return;
-    state.gamePickerBrowseOnly = browseOnly;
     const frame = byId("gamePickerFrame");
     const platformId = c.gamePlatform || guessPlatform(c);
-    const selectedIds = browseOnly ? [] : state.calc.games.map(g => g.id).filter(Boolean);
-    refreshGamePickerLangBtn();
-    byId("gamePickerOverlay").classList.add("open");
+    const selectedIds = pickerSelectedIds();
+    const browseOnly = state.gamePickerBrowseOnly;
     const params = new URLSearchParams({embed:"picker", lang:state.lang, platformId, selected:selectedIds.join(","), browse:browseOnly?"1":"0", v:CONFIG.gamePickerVersion});
     const src = `${CONFIG.gamePage}?${params.toString()}`;
-    const currentSrc = frame.getAttribute("src") || "";
-    if(currentSrc !== src) frame.src = src;
-    const send = () => {
-      frame.contentWindow?.postMessage({
-        type:"AJ_PICKER_OPEN",
-        requestId:"index2-" + Date.now(),
-        platformId,
-        lang:state.lang,
-        selectedGameIds:selectedIds,
-        browseOnly
-      }, pickerTargetOrigin());
-    };
-    frame.onload = send;
+    const send = () => frame.contentWindow?.postMessage({
+      type:"AJ_PICKER_OPEN",
+      requestId:"index2-" + Date.now(),
+      platformId,
+      lang:state.lang,
+      selectedGameIds:selectedIds,
+      browseOnly
+    }, pickerTargetOrigin());
+    if((frame.getAttribute("src") || "") !== src){
+      frame.onload = send;
+      frame.src = src;
+    }else{
+      send();
+    }
     setTimeout(send, 500);
+  }
+  function switchBrowseGamePlatform(consoleId){
+    if(!state.gamePickerBrowseOnly) return;
+    state.gamePickerPlatformId = String(consoleId || "");
+    renderGamePickerPlatforms();
+    loadGamePickerPlatform();
+  }
+  function openGamePicker(options={}){
+    const browseOnly = !!options.browseOnly;
+    state.gamePickerBrowseOnly = browseOnly;
+    const current = consoleById(state.calc.consoleId);
+    const catalogs = gameCatalogConsoles();
+    const first = current && gameUrl(current) ? current : catalogs[0];
+    if(!first) return;
+    state.gamePickerPlatformId = browseOnly ? String(first.id) : "";
+    refreshGamePickerLangBtn();
+    byId("gamePickerOverlay").classList.add("open");
+    renderGamePickerPlatforms();
+    loadGamePickerPlatform();
   }
   function closeGamePicker(){
     byId("gamePickerOverlay").classList.remove("open");
     state.gamePickerBrowseOnly = false;
+    state.gamePickerPlatformId = "";
+    renderGamePickerPlatforms();
   }
   function refreshGamePickerLangBtn(){
     byId("gamePickerLangBtn").textContent = state.lang === "en" ? "🇹🇭 TH" : "🇬🇧 EN";
@@ -3088,6 +3234,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     state.lang = state.lang === "en" ? "th" : "en";
     render();
     refreshGamePickerLangBtn();
+    renderGamePickerPlatforms();
     byId("gamePickerFrame").contentWindow?.postMessage({type:"AJ_SET_LANG", lang:state.lang}, pickerTargetOrigin());
   }
 
@@ -4100,8 +4247,15 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         render();
       }
       if(data.type === "AJ_GAME_READY" && byId("gamePickerOverlay").classList.contains("open")){
-        const c = consoleById(state.calc.consoleId) || state.consoles.find(item => item.gamePlatform);
-        pickerFrame.contentWindow?.postMessage({type:"AJ_PICKER_OPEN",requestId:"index2-ready",platformId:c?.gamePlatform||"",lang:state.lang,selectedGameIds:state.gamePickerBrowseOnly?[]:state.calc.games.map(g=>g.id).filter(Boolean),browseOnly:state.gamePickerBrowseOnly}, pickerTargetOrigin());
+        const c = activePickerConsole();
+        pickerFrame.contentWindow?.postMessage({
+          type:"AJ_PICKER_OPEN",
+          requestId:"index2-ready",
+          platformId:c ? (c.gamePlatform || guessPlatform(c)) : "",
+          lang:state.lang,
+          selectedGameIds:pickerSelectedIds(),
+          browseOnly:state.gamePickerBrowseOnly
+        }, pickerTargetOrigin());
       }
     });
     document.addEventListener("change", event => {
