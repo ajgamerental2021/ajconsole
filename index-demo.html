@@ -387,13 +387,18 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .bg-detail-image{min-height:280px}
 }
 @media(max-width:640px){
+  html,body{width:100%;max-width:100%}
   .container{padding:0 14px}
+  .nav-inner{width:100%;min-width:0;gap:6px}
+  .brand{min-width:0;gap:6px}
+  .brand-mark{flex:0 0 34px;width:34px;height:34px}
+  #brandText{min-width:0;max-width:90px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nav-actions{min-width:0;flex:0 1 auto;gap:4px}
+  .nav-actions .btn{padding:7px;font-size:11px}
   .step1-head{flex-direction:column;align-items:stretch}
   .step1-head .step-guide-btn{order:-1;width:100%;white-space:normal}
   .admin-home-sections{gap:8px}
   .admin-home-sections .grid2{grid-template-columns:1fr}
-  .nav-actions{gap:5px}
-  .nav-actions .btn{padding:8px 9px;font-size:12px}
   .console-grid,.home-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   .con-img{min-height:112px;padding:12px}
   .con-img img{max-width:124px}
@@ -461,6 +466,30 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .day small{font-size:9px;line-height:1.05;max-width:100%;overflow-wrap:anywhere}
   .cal-footer{padding-bottom:max(12px,env(safe-area-inset-bottom))}
 }
+  .before-rent-section{width:100%;max-width:100vw;padding:34px 0 54px;overflow:hidden}
+  .before-rent-section>.container{width:100%;min-width:0}
+  .before-rent-panel{width:100%;min-width:0;border:3px solid #c90012;border-radius:16px;background:#fff;padding:26px;box-shadow:0 16px 40px rgba(15,23,42,.08)}
+  .before-rent-head{text-align:center}
+  .before-rent-kicker{display:inline-flex;align-items:center;justify-content:center;color:#c90012;font-size:12px;font-weight:900;letter-spacing:.08em}
+  .before-rent-head h1{margin:8px 0 6px;font-size:clamp(28px,4vw,46px);white-space:normal;overflow-wrap:anywhere}
+  .before-rent-head p{margin:0;color:#667085;overflow-wrap:anywhere}
+  .before-rent-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px}
+  .before-rent-action{display:flex;align-items:center;gap:14px;width:100%;min-width:0;min-height:100px;padding:18px;border:1px solid #dfe3e8;border-radius:10px;background:#fff;text-align:left;cursor:pointer}
+  .before-rent-action:hover,.before-rent-action:focus-visible{border-color:#c90012;background:#fff8f8;box-shadow:0 0 0 3px rgba(201,0,18,.1)}
+  .before-rent-icon{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;border-radius:8px;background:#f4f6f8;font-size:26px}
+  .before-rent-copy{display:grid;min-width:0;gap:5px;overflow-wrap:anywhere}
+  .before-rent-copy strong{font-size:18px}
+  .before-rent-copy span{color:#667085;font-size:14px}
+  .before-rent-back{margin:0 0 18px}
+  .before-rent-hidden{display:none!important}
+  @media(max-width:640px){
+    .before-rent-section{width:100%;max-width:100%;padding:20px 0 34px}
+    .before-rent-section>.container{width:100%;max-width:100%;margin:0;padding:0 14px}
+    .before-rent-panel{width:100%;max-width:100%;padding:18px}
+    .before-rent-head h1{font-size:28px}
+    .before-rent-grid{grid-template-columns:1fr}
+    .before-rent-action{min-height:86px}
+  }
 </style>
 </head>
 <body>
@@ -476,6 +505,35 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 </nav>
 
 <main>
+  <section class="before-rent-section" id="beforeRentSection">
+    <div class="container">
+      <div class="before-rent-panel">
+        <div class="before-rent-head">
+          <span class="before-rent-kicker" data-i18n="beforeRentKicker">BEFORE RENT</span>
+          <h1 data-i18n="beforeRentTitle">ก่อนเช่า เลือกสิ่งที่ต้องการ</h1>
+          <p data-i18n="beforeRentSubtitle">เริ่มเช่า ดูรายชื่อเกม หรืออ่านข้อมูลก่อนตัดสินใจ</p>
+        </div>
+        <div class="before-rent-grid">
+          <button class="before-rent-action" id="beforeRentStart" type="button">
+            <span class="before-rent-icon" aria-hidden="true">🎮</span>
+            <span class="before-rent-copy"><strong data-i18n="beforeRentRent">เช่าเครื่องเกม</strong><span data-i18n="beforeRentRentSub">เช็คคิว เลือกวัน และคำนวณค่าเช่า</span></span>
+          </button>
+          <button class="before-rent-action" id="beforeRentGames" type="button">
+            <span class="before-rent-icon" aria-hidden="true">🕹️</span>
+            <span class="before-rent-copy"><strong data-i18n="beforeRentGames">รายชื่อเกม</strong><span data-i18n="beforeRentGamesSub">ดูเกมทั้งหมดแยกตามเครื่อง</span></span>
+          </button>
+          <button class="before-rent-action" id="beforeRentSteps" type="button">
+            <span class="before-rent-icon" aria-hidden="true">📖</span>
+            <span class="before-rent-copy"><strong data-i18n="beforeRentSteps">ขั้นตอนการเช่า</strong><span data-i18n="beforeRentStepsSub">ดูขั้นตอนตั้งแต่จองจนคืนเครื่อง</span></span>
+          </button>
+          <button class="before-rent-action" id="beforeRentFaq" type="button">
+            <span class="before-rent-icon" aria-hidden="true">❓</span>
+            <span class="before-rent-copy"><strong data-i18n="beforeRentFaq">คำถามที่พบบ่อย</strong><span data-i18n="beforeRentFaqSub">คำตอบเรื่องเช่า จัดส่ง และค่าประกัน</span></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
   <section id="homeSections">
     <div class="container">
       <div class="section-head">
@@ -506,6 +564,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
   <section id="calculator">
     <div class="container">
+      <button class="btn before-rent-back" id="beforeRentBack" type="button" data-i18n="beforeRentBack">← กลับเมนูก่อนเช่า</button>
       <div class="calc-head-wrap">
         <div class="section-head">
           <div class="tag" data-i18n="calcTag">คำนวณ</div>
@@ -786,6 +845,18 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   const I18N = {
     th:{
       calcCta:"เช็คคิว & คำนวณค่าเช่า",
+      beforeRentKicker:"BEFORE RENT",
+      beforeRentTitle:"ก่อนเช่า เลือกสิ่งที่ต้องการ",
+      beforeRentSubtitle:"เริ่มเช่า ดูรายชื่อเกม หรืออ่านข้อมูลก่อนตัดสินใจ",
+      beforeRentRent:"เช่าเครื่องเกม",
+      beforeRentRentSub:"เช็คคิว เลือกวัน และคำนวณค่าเช่า",
+      beforeRentGames:"รายชื่อเกม",
+      beforeRentGamesSub:"ดูเกมทั้งหมดแยกตามเครื่อง",
+      beforeRentSteps:"ขั้นตอนการเช่า",
+      beforeRentStepsSub:"ดูขั้นตอนตั้งแต่จองจนคืนเครื่อง",
+      beforeRentFaq:"คำถามที่พบบ่อย",
+      beforeRentFaqSub:"คำตอบเรื่องเช่า จัดส่ง และค่าประกัน",
+      beforeRentBack:"← กลับเมนูก่อนเช่า",
       homeTag:"✨ HIGHLIGHT", homeTitle:"โปรโมชั่น & ข่าวสาร", homeSub:"อัปเดตล่าสุด Exclusive และข่าวสารใหม่จากทาง AJ",
       consoleTag:"เครื่องเกม", consoleTitle:"เครื่องเกมที่มีให้เช่า", consoleSub:"กรองตามประเภท แบรนด์ และเรียงราคาได้",
       notice:"<strong>⚠️ ราคานี้เป็นราคาเช่าในนามบุคคลเท่านั้น</strong> ไม่สามารถออกใบกำกับภาษีหรือใบเสร็จรับเงินได้ หากต้องการใบกำกับภาษี/ใบเสร็จ จะเป็นเรทบริษัท กรุณาติดต่อ Line: <b>@ajgame</b>",
@@ -818,6 +889,18 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     },
     en:{
       calcCta:"Check Queue & Calculate",
+      beforeRentKicker:"BEFORE RENT",
+      beforeRentTitle:"Choose what you need",
+      beforeRentSubtitle:"Start a rental, browse games, or review details first",
+      beforeRentRent:"Rent a console",
+      beforeRentRentSub:"Check availability, dates, and price",
+      beforeRentGames:"Game list",
+      beforeRentGamesSub:"Browse games by console",
+      beforeRentSteps:"Rental steps",
+      beforeRentStepsSub:"See the process from booking to return",
+      beforeRentFaq:"FAQ",
+      beforeRentFaqSub:"Rental, delivery, and deposit answers",
+      beforeRentBack:"← Back to Before rent",
       homeTag:"✨ HIGHLIGHT", homeTitle:"Promotions & News", homeSub:"Latest exclusive updates and new stories from AJ",
       consoleTag:"Consoles", consoleTitle:"Available Consoles", consoleSub:"Filter by type, brand, and price",
       notice:"<strong>⚠️ Individual rates only.</strong> Tax invoices / receipts cannot be issued at these rates. For tax invoice / receipt, corporate rates apply. Contact Line: <b>@ajgame</b>",
@@ -936,6 +1019,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     calendar: {open:false,mode:"start",base:new Date(),draftStart:"",draftEnd:""},
     faqExpanded: false,
     adminTab: "consoles",
+    beforeRentActive: true,
+    gamePickerBrowseOnly: false,
     autoPushTimer: 0
   };
   const GUIDE_ORDER = ["console","start","end","ps5bundle","accessory","next1","games","next2","bg","ret","contractChoice","payment","contractLink","maps","next3","share"];
@@ -1359,8 +1444,37 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     renderConsoles();
     renderCalc();
     renderFAQ();
+    renderBeforeRent();
     updateFloatButton();
     renderGuide();
+  }
+  function hasRentalContext(){
+    const query = new URLSearchParams(location.search);
+    const contextKeys = ["console","device","deviceId","s","e","rentalStart","rentalEnd","days","viewMsg","bookingCode","rentalCode","go"];
+    if(contextKeys.some(key => query.has(key))) return true;
+    return /^#AJ-/i.test(location.hash) || ["#calculator","#faq","#steps"].includes(location.hash);
+  }
+  function hideGuideVisuals(){
+    ["guidePointer","guideBox","guideHighlight"].forEach(id => byId(id)?.classList.remove("show"));
+  }
+  function renderBeforeRent(){
+    const active = !!state.beforeRentActive;
+    byId("beforeRentSection")?.classList.toggle("before-rent-hidden", !active);
+    ["homeSections","consoles","calculator","faqSection"].forEach(id => {
+      byId(id)?.classList.toggle("before-rent-hidden", active);
+    });
+    byId("floatCalc")?.classList.toggle("before-rent-hidden", active);
+    if(active) hideGuideVisuals();
+  }
+  function setBeforeRent(active, options={}){
+    state.beforeRentActive = !!active;
+    if(options.startGuide){
+      sessionStorage.removeItem(`${GUIDE_KEY}_closed`);
+      resetStepOneGuide();
+      setGuideStage(guideStageForStep(state.calc.step), {syncStep:false});
+    }
+    render();
+    requestAnimationFrame(() => window.scrollTo({top:0, behavior:"smooth"}));
   }
   function applyI18n(){
     byId("brandText").innerHTML = state.lang === "en" ? `<span class="brand-text-aj">AJ</span> Game Rental` : `<span class="brand-text-aj">AJ</span> เช่าเครื่องเกม`;
@@ -2906,15 +3020,17 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       || origin === "null" || origin === location.origin;
   }
 
-  function openGamePicker(){
-    const c = consoleById(state.calc.consoleId);
+  function openGamePicker(options={}){
+    const browseOnly = !!options.browseOnly;
+    const c = consoleById(state.calc.consoleId) || state.consoles.find(item => item.gamePlatform);
     if(!c) return;
+    state.gamePickerBrowseOnly = browseOnly;
     const frame = byId("gamePickerFrame");
     const platformId = c.gamePlatform || guessPlatform(c);
-    const selectedIds = state.calc.games.map(g => g.id).filter(Boolean);
+    const selectedIds = browseOnly ? [] : state.calc.games.map(g => g.id).filter(Boolean);
     refreshGamePickerLangBtn();
     byId("gamePickerOverlay").classList.add("open");
-    const params = new URLSearchParams({embed:"picker", lang:state.lang, platformId, selected:selectedIds.join(","), v:CONFIG.gamePickerVersion});
+    const params = new URLSearchParams({embed:"picker", lang:state.lang, platformId, selected:selectedIds.join(","), browse:browseOnly?"1":"0", v:CONFIG.gamePickerVersion});
     const src = `${CONFIG.gamePage}?${params.toString()}`;
     const currentSrc = frame.getAttribute("src") || "";
     if(currentSrc !== src) frame.src = src;
@@ -2924,13 +3040,17 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         requestId:"index2-" + Date.now(),
         platformId,
         lang:state.lang,
-        selectedGameIds:selectedIds
+        selectedGameIds:selectedIds,
+        browseOnly
       }, pickerTargetOrigin());
     };
     frame.onload = send;
     setTimeout(send, 500);
   }
-  function closeGamePicker(){ byId("gamePickerOverlay").classList.remove("open"); }
+  function closeGamePicker(){
+    byId("gamePickerOverlay").classList.remove("open");
+    state.gamePickerBrowseOnly = false;
+  }
   function refreshGamePickerLangBtn(){
     byId("gamePickerLangBtn").textContent = state.lang === "en" ? "🇹🇭 TH" : "🇬🇧 EN";
   }
@@ -3399,6 +3519,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const box = byId("guideBox");
     const hi = byId("guideHighlight");
     if(!pointer || !box || !hi) return;
+    if(state.beforeRentActive){
+      hideGuideVisuals();
+      return;
+    }
     if(sessionStorage.getItem(`${GUIDE_KEY}_closed`) === "1"){
       pointer.classList.remove("show");
       box.classList.remove("show");
@@ -3893,6 +4017,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     });
     byId("sortSelect").addEventListener("change", e => { state.filter.sort = e.target.value; renderConsoles(); });
     byId("langBtn").addEventListener("click", () => { state.lang = state.lang === "en" ? "th" : "en"; render(); });
+    byId("beforeRentStart").addEventListener("click", () => setBeforeRent(false, {startGuide:true}));
+    byId("beforeRentGames").addEventListener("click", () => openGamePicker({browseOnly:true}));
+    byId("beforeRentSteps").addEventListener("click", openStepsPopup);
+    byId("beforeRentFaq").addEventListener("click", openFAQPopup);
+    byId("beforeRentBack").addEventListener("click", () => setBeforeRent(true));
     byId("faqBtn").addEventListener("click", openFAQPopup);
     byId("faqLangBtn").addEventListener("click", toggleFaqLang);
     byId("stepsBtn").addEventListener("click", openStepsPopup);
@@ -3926,6 +4055,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(!pickerOriginAllowed(event.origin)) return;
       const data = event.data || {};
       if(data.type === "AJ_PICKER_SELECTED"){
+        if(state.gamePickerBrowseOnly) return;
         state.calc.games = Array.isArray(data.games) ? data.games.slice(0,10) : [];
         state.calc.later = false;
         setGuideStage("next2");
@@ -3934,8 +4064,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         render();
       }
       if(data.type === "AJ_GAME_READY" && byId("gamePickerOverlay").classList.contains("open")){
-        const c = consoleById(state.calc.consoleId);
-        pickerFrame.contentWindow?.postMessage({type:"AJ_PICKER_OPEN",requestId:"index2-ready",platformId:c?.gamePlatform||"",lang:state.lang,selectedGameIds:state.calc.games.map(g=>g.id).filter(Boolean)}, pickerTargetOrigin());
+        const c = consoleById(state.calc.consoleId) || state.consoles.find(item => item.gamePlatform);
+        pickerFrame.contentWindow?.postMessage({type:"AJ_PICKER_OPEN",requestId:"index2-ready",platformId:c?.gamePlatform||"",lang:state.lang,selectedGameIds:state.gamePickerBrowseOnly?[]:state.calc.games.map(g=>g.id).filter(Boolean),browseOnly:state.gamePickerBrowseOnly}, pickerTargetOrigin());
       }
     });
     document.addEventListener("change", event => {
@@ -4361,9 +4491,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
   async function boot(){
     loadState();
+    state.beforeRentActive = !hasRentalContext();
     const viewCode = new URLSearchParams(location.search).get("viewMsg");
     if(viewCode){ renderBookingViewer(viewCode.trim()); return; }
     const restoredGameList = consumeGamePickerHandoff();
+    if(restoredGameList) state.beforeRentActive = false;
     exposeCompatibility();
     bindEvents();
     render();
