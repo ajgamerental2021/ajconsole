@@ -373,8 +373,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .picker-frame{flex:1;border:0;background:#fff}
 .game-picker-platform-rail{position:relative;flex:0 0 auto;background:#fff;border-bottom:1px solid #eef0f2}
 .game-picker-platform-rail[hidden]{display:none}
-.game-picker-platforms{display:flex;align-items:center;gap:8px;padding:8px 46px;overflow-x:auto;scroll-behavior:smooth;scrollbar-width:none}
-.game-picker-platforms::-webkit-scrollbar{display:none}
+/* Every catalogue is listed at once: a scrolling row hid most of the consoles
+   behind a gesture customers did not find. */
+.game-picker-platforms{display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding:9px 14px}
 /* Carousel-style arrows: centred on the row, always solid, and darkened on
    hover so the row reads as scrollable without relying on any wording. */
 .rail-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:3;display:grid;place-items:center;width:38px;height:38px;padding:0;border:1px solid #e4e7ec;border-radius:999px;background:#fff;color:#1d2939;cursor:pointer;box-shadow:0 3px 12px rgba(16,24,40,.22);transition:background .16s,color .16s,transform .16s,opacity .16s,visibility .16s}
@@ -386,7 +387,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .rail-nav.is-off{opacity:0;visibility:hidden;pointer-events:none}
 .rail-static .rail-nav{display:none}
 @media(max-width:640px){
-  .game-picker-platforms{padding:7px 42px}
+  .game-picker-platforms{gap:6px;padding:8px 10px}
   .rail-nav{width:34px;height:34px}
   .rail-nav .ico{width:18px;height:18px}
   .rail-nav-prev{left:4px}
@@ -534,7 +535,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .before-rent-note{display:grid;gap:5px;margin:10px 0 0;color:#667085;font-size:11.5px;font-weight:600;line-height:1.55}
   .before-rent-note-row{display:flex;align-items:flex-start;gap:7px}
   .before-rent-note-row .ico{width:14px;height:14px;margin-top:1px;color:#98a2b3}
-  .before-rent-seeall{display:grid;align-content:center;justify-items:center;gap:8px;min-height:120px;padding:10px;border:1px dashed #c90012;border-radius:10px;background:#fff8f8;color:#c90012;font-size:13px;font-weight:900;text-align:center;cursor:pointer}
+  .before-rent-seeall{flex:0 0 150px;scroll-snap-align:start;display:grid;align-content:center;justify-items:center;gap:8px;padding:10px;border:1px dashed #c90012;border-radius:10px;background:#fff8f8;color:#c90012;font-size:13px;font-weight:900;text-align:center;cursor:pointer}
   .before-rent-seeall .ico{width:24px;height:24px}
   .before-rent-seeall:hover,.before-rent-seeall:focus-visible{background:#ffeef0}
   .before-rent-empty{padding:22px 4px;color:#667085;font-size:13px;font-weight:700}
@@ -550,10 +551,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .before-rent-promo-copy{display:block;padding:16px 14px 34px}
   .before-rent-promo-copy strong,.before-rent-promo-copy span{display:block}
   .before-rent-promo-copy span{font-size:12px;color:#f2f4f7}
-  /* Every console is laid out at once: a horizontal rail hid most of the list
-     behind a swipe gesture that customers did not discover. */
-  .before-rent-devices{display:grid;grid-template-columns:repeat(auto-fill,minmax(164px,1fr));gap:10px}
-  .before-rent-device{position:relative;display:grid;align-content:start;gap:6px;padding:10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;text-align:left;cursor:pointer}
+  .before-rent-rail{position:relative}
+  .before-rent-devices{display:flex;gap:10px;padding:2px 2px 10px;overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .before-rent-devices::-webkit-scrollbar{height:6px}
+  .before-rent-devices::-webkit-scrollbar-thumb{background:#d7dbe0;border-radius:999px}
+  .before-rent-devices:focus-visible{outline:2px solid #c90012;outline-offset:3px;border-radius:12px}
+  .before-rent-device{position:relative;flex:0 0 178px;scroll-snap-align:start;display:grid;align-content:start;gap:6px;padding:10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;text-align:left;cursor:pointer}
   .before-rent-device:hover,.before-rent-device:focus-visible{border-color:#c90012;background:#fff8f8}
   .before-rent-device[disabled]{opacity:.55;cursor:not-allowed}
   .before-rent-device[disabled]:hover{border-color:#e5e7eb;background:#fff}
@@ -585,7 +588,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     .game-picker-platform-label{font-size:12px}
     .game-picker-platform-btn{padding:7px 10px;font-size:12px}
     .before-rent-promos{grid-template-columns:1fr}
-    .before-rent-devices{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .before-rent-device{flex:0 0 150px}
     .before-rent-mini-head h3{font-size:17px}
     .before-rent-hint{font-size:12px}
   }
@@ -646,7 +649,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
               <span class="before-rent-hint" id="beforeRentDevicesHint"></span>
             </div>
             <div class="before-rent-typefilter" id="beforeRentTypeFilter" role="group"></div>
-            <div id="beforeRentDevices" class="before-rent-devices" role="group"></div>
+            <div class="before-rent-rail" id="beforeRentDevicesRail">
+              <div id="beforeRentDevices" class="before-rent-devices" tabindex="0" role="group"></div>
+            </div>
             <p class="before-rent-note" id="beforeRentDevicesNote"></p>
           </section>
           <section class="before-rent-mini-section">
@@ -991,7 +996,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentExploreTitle:"เครื่องยอดนิยมและโปรเด่น",
       beforeRentFeatured:"โปรเด่น",
       beforeRentPopular:"เครื่องเกมทั้งหมด",
-      beforeRentDevicesHint:"กดที่เครื่องเพื่อเช็คคิวและจอง",
+      beforeRentDevicesHint:"กดปุ่มลูกศรเพื่อดูเครื่องอื่น · กดที่เครื่องเพื่อเช็คคิว",
       beforeRentDevicesCount:"{n} เครื่อง",
       beforeRentPromoHint:"กดที่รูปเพื่อดูรายละเอียด",
       beforeRentPromoCue:"ดูโปรนี้ →",
@@ -1062,7 +1067,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentExploreTitle:"Popular consoles and featured offers",
       beforeRentFeatured:"Featured offers",
       beforeRentPopular:"All consoles",
-      beforeRentDevicesHint:"Tap a console to check dates and book",
+      beforeRentDevicesHint:"Use the arrows for more consoles · tap one to check dates",
       beforeRentDevicesCount:"{n} consoles",
       beforeRentPromoHint:"Tap an image for details",
       beforeRentPromoCue:"View offer →",
@@ -1375,6 +1380,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function cName(c){ return state.lang === "en" ? (c.nameEn || c.name) : (c.name || c.nameEn); }
   function brandLabel(key){ const b = BRAND_META[key] || BRAND_META.other; return state.lang === "en" ? b.labelEn : b.labelTh; }
   function brandOrder(key){ return (BRAND_META[key] || BRAND_META.other).order; }
+  // Console, then handheld, then VR/AR, then accessories — keeps one kind of
+  // device together in every list that shows the whole catalogue.
+  function typeOrder(item){
+    return ({console:0, handheld:1, vr:2, racing:3})[String(item?.type || "").toLowerCase()] ?? 4;
+  }
   function consoleRank(c){
     const order = ["PS5","PS5 Pro","PS4","PS Portal","PS VR2","PS FlexStrike Wireless Fight Stick","Nintendo Switch 2","Nintendo Switch 1","Logitech G29","Meta Quest 3","Meta Quest 3s","Viture Beast","Viture Luma Ultra","Viture Luma Pro","XREAL One","ROG Xbox Ally X","Xbox Series X","Xbox Series S","Lenovo Legion GO2","Steam Deck OLED"];
     const name = String(c?.nameEn || c?.name || "").trim().toLowerCase();
@@ -1708,11 +1718,17 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       return index === -1 ? preferred.length : index;
     };
     const typeFilter = state.beforeRentDeviceType || "all";
+    // Group by console type and brand first so the same kind of device — and the
+    // same family within it — always sits together while scrolling the rail.
     const ordered = listed
       .filter(item => typeFilter === "all" || String(item.type || "").toLowerCase() === typeFilter)
       .sort((a,b) => {
         const readyGap = Number(isReady(b)) - Number(isReady(a));
         if(readyGap) return readyGap;
+        const typeGap = typeOrder(a) - typeOrder(b);
+        if(typeGap) return typeGap;
+        const brandGap = brandOrder(a.brand || guessBrand(a)) - brandOrder(b.brand || guessBrand(b));
+        if(brandGap) return brandGap;
         const rankGap = rank(a) - rank(b);
         if(rankGap) return rankGap;
         return Number(a.rate || 0) - Number(b.rate || 0);
@@ -1749,7 +1765,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     deviceHost.querySelector("[data-before-seeall]")?.addEventListener("click", () => showAllConsoles());
     byId("beforeRentDevicesCount").textContent = tr("beforeRentDevicesCount").replace("{n}", String(ordered.length));
     renderBeforeRentTypeFilter();
-    byId("beforeRentDevicesHint").innerHTML = `${icon("tap")}<span>${esc(tr("beforeRentDevicesHint"))}</span>`;
+    byId("beforeRentDevicesHint").innerHTML = `${icon("swipe")}<span>${esc(tr("beforeRentDevicesHint"))}</span>`;
     byId("beforeRentPromoHint").innerHTML = `${icon("tap")}<span>${esc(tr("beforeRentPromoHint"))}</span>`;
     byId("beforeRentDevicesNote").innerHTML = [
       ["truck","beforeRentNoteDelivery"],
@@ -3429,11 +3445,32 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       seen.add(platformId);
       return true;
     });
-    const priority = platformId => ({ps4:0,ps5:1})[String(platformId || "").toLowerCase()] ?? 2;
+    // Headline consoles first, then everything else grouped so the same family
+    // and console type stay next to each other.
+    const lead = ["ps5","ps4","switch2","switch1"];
+    const leadRank = platformId => {
+      const index = lead.indexOf(String(platformId || "").toLowerCase());
+      return index === -1 ? lead.length : index;
+    };
     return consoles
-      .map((item,index) => ({item,index,rank:priority(item.gamePlatform || guessPlatform(item))}))
-      .sort((a,b) => a.rank - b.rank || a.index - b.index)
+      .map((item,index) => {
+        const platformId = item.gamePlatform || guessPlatform(item);
+        return {item, index, lead:leadRank(platformId), type:typeOrder(item), brand:brandOrder(item.brand || guessBrand(item))};
+      })
+      .sort((a,b) => a.lead - b.lead || a.type - b.type || a.brand - b.brand || a.index - b.index)
       .map(entry => entry.item);
+  }
+  // Chips stand for a whole game catalogue, not one SKU, so they carry a shorter
+  // family label than the console list does.
+  const PICKER_CHIP_LABELS = {
+    "xbox series s":"XBOX",
+    "xbox series x":"XBOX",
+    "meta quest 3s":"Meta Quest 3",
+    "rog xbox ally x":"ROG / Legion GO2"
+  };
+  function pickerChipName(item){
+    const key = String(item.nameEn || item.name || "").trim().toLowerCase();
+    return PICKER_CHIP_LABELS[key] || cName(item);
   }
   function activePickerConsole(){
     if(state.gamePickerBrowseOnly){
@@ -3451,9 +3488,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     rail.hidden = !state.gamePickerBrowseOnly;
     if(!state.gamePickerBrowseOnly){ host.innerHTML = ""; return; }
     const consoles = gameCatalogConsoles();
-    host.innerHTML = `<span class="game-picker-platform-label">${esc(tr("gamePickerAllPlatforms"))}</span>${consoles.map(item => `<button class="game-picker-platform-btn ${String(item.id) === String(state.gamePickerPlatformId) ? "active" : ""}" type="button" data-game-platform="${esc(item.id)}">${esc(cName(item))}</button>`).join("")}`;
+    host.innerHTML = `<span class="game-picker-platform-label">${esc(tr("gamePickerAllPlatforms"))}</span>${consoles.map(item => `<button class="game-picker-platform-btn ${String(item.id) === String(state.gamePickerPlatformId) ? "active" : ""}" type="button" data-game-platform="${esc(item.id)}">${esc(pickerChipName(item))}</button>`).join("")}`;
     host.querySelectorAll("[data-game-platform]").forEach(button => button.addEventListener("click", () => switchBrowseGamePlatform(button.dataset.gamePlatform)));
-    bindScrollRail(rail, host);
   }
   function loadGamePickerPlatform(){
     const c = activePickerConsole();
