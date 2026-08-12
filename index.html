@@ -195,6 +195,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-wallet-badges{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:6px}
 .payment-wallet-logo{display:block;width:auto;height:24px;max-width:48px;object-fit:contain;border-radius:5px}
 .payment-refund-note{display:block;margin-top:5px;color:#8a4b08!important;font-size:11px!important;font-weight:900!important;line-height:1.4}
+.payment-refund-links{display:block;margin-top:3px;font-size:11px!important;font-weight:800!important;line-height:1.5}
+.payment-refund-links a{color:#0b6bcb;text-decoration:underline;text-underline-offset:2px}
+.payment-refund-links a:hover{color:#c90012}
+.payment-refund-links span{color:#98a2b3}
 .sum-row .payment-option-copy{align-items:flex-end}
 .sum-row .payment-wallet-badges{justify-content:flex-end}
 .sum-empty{color:var(--text3);font-size:14px;padding:20px 0}
@@ -1102,7 +1106,7 @@ body.line-browser #calcConsole{display:none}
       personalRateWarning:"⚠️ ราคาเช่าเป็นเรทบุคคล ไม่สามารถออกใบกำกับภาษี/ใบเสร็จได้ หากต้องการเอกสาร กรุณาติดต่อ Line: <b>@ajgame</b> หรือ โทร. <b>081-624-4715</b> 🙏",
       daily:"รายวัน", weekly:"รายสัปดาห์", day:"วัน", wk:"สัปดาห์", deposit:"ค่าประกัน", ready:"พร้อม", notReady:"ยังไม่พร้อม", readyOn:"พร้อมวันที่",
       bundle:"Bundle", accessories:"อุปกรณ์เสริม", noBundle:"ไม่เพิ่ม Bundle", noAccessory:"ไม่เพิ่มอุปกรณ์เสริม", contract:"ทำสัญญาการเช่า", contractHelp:"แนะนำสำหรับผู้เช่าครั้งแรก กรอกก่อนนัดส่งเครื่อง",
-      noContract:"ไม่ต้องการทำสัญญาการเช่า", noContractHelp:"สำหรับผู้เช่าครั้งแรก ต้องทำสัญญาและแนบสำเนาบัตรประชาชน / Passport + รูปเซลฟี่คู่บัตรหรือ Passport ทุกกรณี หากไม่สะดวก ให้ติ๊กช่องนี้ ค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น", recommended:"แนะนำ", depositRefundPaymentNote:"หากชำระด้วยบัตร/E-Wallet คืนค่าประกันเป็นเงินโอนเท่านั้น",
+      noContract:"ไม่ต้องการทำสัญญาการเช่า", noContractHelp:"สำหรับผู้เช่าครั้งแรก ต้องทำสัญญาและแนบสำเนาบัตรประชาชน / Passport + รูปเซลฟี่คู่บัตรหรือ Passport ทุกกรณี หากไม่สะดวก ให้ติ๊กช่องนี้ ค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น", recommended:"แนะนำ", depositRefundPaymentNote:"คืนค่าประกัน: โอนผ่าน Wise (ปกติ 1–3 วันทำการ) สำรองเป็นเงินสด/โอนบัญชีไทย", wiseLinkTime:"เวลาโอน Wise", wiseLinkPolicy:"นโยบาย Wise", wiseLinkCoverage:"ประเทศที่ใช้ Wise ได้",
       returning:"ลูกค้าเก่า (เท่านั้น) รับส่วนลด 10% ค่าเช่า", returningOnly:"ลูกค้าเก่าเท่านั้น", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง", bank:"🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", creditTitle:"💳 บัตรเครดิต: ชำระเต็มจำนวน", creditFee:"+ ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%", ewalletTitle:"👛 E-Wallet: ชำระเต็มจำนวน", ewalletFee:"+ ค่าธรรมเนียม 2.95%",
       reviewGoogle:"รับส่วนลดเพิ่มจากการรีวิวบน Google Maps มูลค่า 100 บาท", reviewFacebook:"รับส่วนลดเพิ่มจากการรีวิวบน Facebook มูลค่า 100 บาท", reviewGoogleHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Google Maps ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewFacebookHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Facebook ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewGoogleBtn:"รีวิว Google Maps", reviewFacebookBtn:"รีวิว Facebook", reviewGoogleDiscount:"ส่วนลดรีวิว Google Maps", reviewFacebookDiscount:"ส่วนลดรีวิว Facebook",
       boardGameCollapsed:"ต้องการเพิ่มบอร์ดเกม? กดเพื่อขยายและเลือกเข้าชุดเช่า", ps5BundleCollapsed:"ต้องการ Bundle? กดเพื่อจับคู่ PS5 กับอุปกรณ์อื่น",
@@ -1173,7 +1177,7 @@ body.line-browser #calcConsole{display:none}
       personalRateWarning:"⚠️ Individual rental rates only. Tax invoice / receipt is not available. For documents, contact Line: <b>@ajgame</b> or call <b>081-624-4715</b> 🙏",
       daily:"Daily", weekly:"Weekly", day:"day", wk:"week", deposit:"Deposit", ready:"Ready", notReady:"Not ready", readyOn:"Ready on",
       bundle:"Bundle", accessories:"Accessories", noBundle:"No bundle", noAccessory:"No extra accessory", contract:"Rental contract", contractHelp:"Recommended for first-time renters. Complete it before delivery.",
-      noContract:"No rental contract", noContractHelp:"First-time renters must complete the rental agreement and attach a copy of their ID card / Passport plus a selfie holding the ID card / Passport in all cases. If this is inconvenient, check this box. The deposit will increase from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the model.", recommended:"Recommended", depositRefundPaymentNote:"Card/E-Wallet deposit refunds: cash or Thai bank transfer only.", wiseDepositRefundPaymentNote:"Wise deposit refunds: cash or Thai bank transfer only.",
+      noContract:"No rental contract", noContractHelp:"First-time renters must complete the rental agreement and attach a copy of their ID card / Passport plus a selfie holding the ID card / Passport in all cases. If this is inconvenient, check this box. The deposit will increase from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the model.", recommended:"Recommended", depositRefundPaymentNote:"Deposit refund: Wise (usually 1–3 business days). Cash/Thai bank transfer as backup.", wiseLinkTime:"Wise transfer time", wiseLinkPolicy:"Wise policy", wiseLinkCoverage:"Where Wise works", wiseDepositRefundPaymentNote:"Wise deposit refunds: cash or Thai bank transfer only.",
       returning:"Returning customers only: 10% off rental fee", returningOnly:"Returning customers only", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"💵 Balance on delivery", bank:"🏦 Thai Bank Transfer: pay full amount", wise:"🌍 Wise: pay full amount", credit:"💳 Credit Card: pay full amount + 3.50% fee", creditTitle:"💳 Credit Card: pay full amount", creditFee:"+ 3.50% fee", ewallet:"👛 E-Wallet: pay full amount + 2.95%", ewalletTitle:"👛 E-Wallet: pay full amount", ewalletFee:"+ 2.95% fee",
       reviewGoogle:"Extra ฿100 discount for a Google Maps review", reviewFacebook:"Extra ฿100 discount for a Facebook review", reviewGoogleHelp:"To receive this discount, tap Review Google Maps below, then send a screenshot to the AJ chat you are using.", reviewFacebookHelp:"To receive this discount, tap Review Facebook below, then send a screenshot to the AJ chat you are using.", reviewGoogleBtn:"Review Google Maps", reviewFacebookBtn:"Review Facebook", reviewGoogleDiscount:"Google Maps review discount", reviewFacebookDiscount:"Facebook review discount",
       boardGameCollapsed:"Want board games? Expand to add them to this rental.", ps5BundleCollapsed:"Want a bundle? Expand to pair PS5 with another device.",
@@ -2419,8 +2423,18 @@ body.line-browser #calcConsole{display:none}
   function paymentReservationBadgesHtml(){
     return `${paymentCardBadgesHtml()}${paymentEwalletBadgesHtml()}`;
   }
+  const WISE_HELP_LINKS = [
+    ["wiseLinkTime", "https://wise.com/help/articles/2524078/how-long-will-my-transfer-take"],
+    ["wiseLinkPolicy", "https://wise.com/help/articles/2971625/how-do-i-cancel-my-transfer"],
+    ["wiseLinkCoverage", "https://wise.com/gb/send-money/"]
+  ];
+  // Every payment option refunds the deposit the same way, so all of them carry
+  // the same note plus Wise's own pages for timing, cancellation and coverage.
   function paymentRefundNoteHtml(){
-    return `<small class="payment-refund-note">${tr("depositRefundPaymentNote")}</small>`;
+    const links = WISE_HELP_LINKS
+      .map(([key, href]) => `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(tr(key))}</a>`)
+      .join('<span aria-hidden="true"> · </span>');
+    return `<small class="payment-refund-note">${esc(tr("depositRefundPaymentNote"))}</small><small class="payment-refund-links">${links}</small>`;
   }
   function cashDeliveryOptionHtml(){
     const transferMethod = state.lang === "en" ? "Cash or Thai QR scan (no fee)" : "เงินโอน (ไม่มีค่าธรรมเนียม)";
@@ -2439,10 +2453,7 @@ body.line-browser #calcConsole{display:none}
       : status.reason === "holiday"
         ? tr("wiseUnavailableHoliday")
         : "";
-    const refundNote = state.lang === "en"
-      ? `<small class="payment-refund-note">${tr("wiseDepositRefundPaymentNote")}</small>`
-      : "";
-    return `<span class="payment-option-copy"><span>${tr("wise")}</span><small class="wise-status">${tr("wiseAvailabilityNote")}</small>${blocked ? `<small class="wise-status blocked">${blocked}</small>` : ""}${refundNote}</span>`;
+    return `<span class="payment-option-copy"><span>${tr("wise")}</span><small class="wise-status">${tr("wiseAvailabilityNote")}</small>${blocked ? `<small class="wise-status blocked">${blocked}</small>` : ""}${paymentRefundNoteHtml()}</span>`;
   }
   function paymentOptionSummaryHtml(){
     if(state.calc.payment === "cash") return cashDeliveryOptionHtml();
@@ -3486,13 +3497,14 @@ body.line-browser #calcConsole{display:none}
     ];
     return (state.lang === "en" ? linesEn : linesTh).filter(line => line !== undefined && line !== null && line !== false).join("\n");
   }
+  // Anyone who books without a game list needs the picker, whether or not they
+  // also sign a contract. The contract flow sends its own copy later, and both
+  // paths are de-duplicated per rental code, so the customer is not spammed.
   function shouldAttachLineGamePickerCard(){
     const c = consoleById(state.calc.consoleId);
     if(!c || !consoleHasGameCatalog(c) || c.showGameButton === false) return false;
     const platformId = c.gamePlatform || guessPlatform(c);
     if(!platformId) return false;
-    const skipsContract = state.calc.noContract || (state.calc.ret && state.retEnabled);
-    if(!skipsContract) return false;
     return state.calc.later || !(state.calc.games || []).length;
   }
   function lineGamePickerCardUrl(rentalCode=""){
