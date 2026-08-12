@@ -6681,6 +6681,16 @@ document.addEventListener('touchstart', function(e) {
       body.aj-contract-card-picker #pick-overlay #btn-copy-final { display:none !important; }
       body.aj-embed-picker #pick-overlay .pick-copy-panel.show { display:block !important; }
       body.aj-embed-picker #pick-overlay .pick-sub { max-width:620px; }
+      /* chrome=compact: the host page already shows the instructions button and
+         (in browse mode) its own console tabs, so the in-page duplicates are
+         hidden to give the game grid the vertical space instead. */
+      body.aj-embed-compact #pick-overlay .pick-details-bar,
+      body.aj-embed-compact #pick-overlay .pick-tutorial-close,
+      body.aj-embed-compact #pick-overlay .pick-tutorial-note,
+      body.aj-embed-compact #pick-overlay .pick-sub,
+      body.aj-embed-compact #pick-overlay .pick-tutorial { display:none !important; }
+      body.aj-embed-compact.aj-howto-open #pick-overlay .pick-tutorial { display:block !important; }
+      body.aj-embed-compact-tabs #pick-overlay #pick-platform-tabs { display:none !important; }
       body.aj-embed-admin > header,
       body.aj-embed-admin > main,
       body.aj-embed-admin > #pick-overlay,
@@ -6804,12 +6814,21 @@ document.addEventListener('touchstart', function(e) {
       if(typeof closePickModal === 'function') closePickModal();
       return;
     }
+    // Host page owns the instructions button while chrome=compact is active.
+    if(data.type === 'AJ_PICKER_HOWTO'){
+      document.body.classList.toggle('aj-howto-open', !!data.show);
+      return;
+    }
     if(data.type === 'AJ_ADMIN_OPEN'){
       openAdminFromParent(data);
       return;
     }
   });
   ensureEmbedStyles();
+  if(isPicker() && params.get('chrome') === 'compact'){
+    document.body.classList.add('aj-embed-compact');
+    if(params.get('browse') === '1') document.body.classList.add('aj-embed-compact-tabs');
+  }
   if(isPicker()) document.body.classList.add('aj-embed-picker');
   if(isContractCardPicker()) document.body.classList.add('aj-contract-card-picker');
   if(isAdmin()) document.body.classList.add('aj-embed-admin');
