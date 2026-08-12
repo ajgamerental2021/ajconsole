@@ -395,7 +395,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 }
 .game-picker-platforms::-webkit-scrollbar{display:none}
 .game-picker-platform-label{flex:0 0 auto;font-weight:800;font-size:13px}
-.game-picker-platform-btn{flex:0 0 auto;border:1px solid #d0d5dd;border-radius:999px;background:#fff;padding:8px 12px;font-weight:800;cursor:pointer}
+.game-picker-platform-btn{flex:0 0 auto;border:1px solid #d0d5dd;border-radius:999px;background:#fff;padding:6px 11px;font-size:12.5px;font-weight:800;cursor:pointer}
 .game-picker-platform-btn.active{border-color:#c90012;background:#fff1f2;color:#c90012}
 .game-picker-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px}
 .game-picker-actions{display:flex;align-items:center;gap:8px}
@@ -586,8 +586,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     .before-rent-action{min-height:86px}
     .before-rent-discovery-head{display:block}
     .game-picker-platform-label{font-size:12px}
-    .game-picker-platform-btn{padding:7px 10px;font-size:12px}
-    .before-rent-promos{grid-template-columns:1fr}
+    .game-picker-platform-btn{padding:6px 9px;font-size:11.5px}
+    /* Phones get the same swipeable rail as the console list rather than a
+       single stacked column that buries the later promotions. */
+    .before-rent-promos{display:flex;align-items:flex-start;gap:10px;padding:2px 2px 10px;overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+    .before-rent-promos::-webkit-scrollbar{height:6px}
+    .before-rent-promos::-webkit-scrollbar-thumb{background:#d7dbe0;border-radius:999px}
+    .before-rent-promos:focus-visible{outline:2px solid #c90012;outline-offset:3px;border-radius:12px}
+    .before-rent-promo{flex:0 0 82%;scroll-snap-align:start}
     .before-rent-device{flex:0 0 150px}
     .before-rent-mini-head h3{font-size:17px}
     .before-rent-hint{font-size:12px}
@@ -656,10 +662,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
           </section>
           <section class="before-rent-mini-section">
             <div class="before-rent-mini-head">
-              <h3 data-i18n="beforeRentFeatured">โปรเด่น</h3>
+              <h3 data-i18n="beforeRentFeatured">โปรโมชั่น</h3>
               <span class="before-rent-hint" id="beforeRentPromoHint"></span>
             </div>
-            <div id="beforeRentPromos" class="before-rent-promos"></div>
+            <div class="before-rent-rail" id="beforeRentPromosRail">
+              <div id="beforeRentPromos" class="before-rent-promos" tabindex="0" role="group"></div>
+            </div>
           </section>
         </div>
       </div>
@@ -993,10 +1001,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentFaqSub:"คำตอบเรื่องเช่า จัดส่ง และค่าประกัน",
       beforeRentBack:"← กลับเมนูก่อนเช่า",
       beforeRentExploreKicker:"ดูก่อนตัดสินใจ",
-      beforeRentExploreTitle:"เครื่องยอดนิยมและโปรเด่น",
-      beforeRentFeatured:"โปรเด่น",
+      beforeRentExploreTitle:"เครื่องยอดนิยมและโปรโมชั่น",
+      beforeRentFeatured:"โปรโมชั่น",
       beforeRentPopular:"เครื่องเกมทั้งหมด",
-      beforeRentDevicesHint:"กดปุ่มลูกศรเพื่อดูเครื่องอื่น · กดที่เครื่องเพื่อเช็คคิว",
+      beforeRentDevicesHint:"กดลูกศรหรือเลื่อนเพื่อดูรายการ · กดที่เครื่องเพื่อเช็คคิว",
       beforeRentDevicesCount:"{n} เครื่อง",
       beforeRentPromoHint:"กดที่รูปเพื่อดูรายละเอียด",
       beforeRentPromoCue:"ดูโปรนี้ →",
@@ -1013,7 +1021,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentNoteContract:"หากไม่ทำสัญญาเช่า ค่าประกันปรับเป็น ฿5,000 / ฿8,000 ตามรุ่น",
       beforeRentTerms:"เช่าขั้นต่ำ <b>3 วัน</b> · ราคาเรทบุคคล · ค่าส่งสูงสุด <b>฿100/เที่ยว</b> (เช่า 3 วันขึ้นไป ฟรีขากลับ) · ค่าประกันได้คืนเต็มเมื่อคืนเครื่อง",
       beforeRentStartDevice:"ดูคิวและราคา",
-      gamePickerAllPlatforms:"👉 เลื่อนซ้าย-ขวา เลือกเครื่อง",
+      gamePickerAllPlatforms:"👉 เลือกเครื่อง",
       gamePickerScrollHint:"เลื่อนดูเครื่องอื่น →",
       gamePickerHowTo:"วิธีเลือก",
       railPrev:"เลื่อนไปทางซ้าย",
@@ -1064,10 +1072,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentFaqSub:"Rental, delivery, and deposit answers",
       beforeRentBack:"← Back to Before rent",
       beforeRentExploreKicker:"EXPLORE",
-      beforeRentExploreTitle:"Popular consoles and featured offers",
-      beforeRentFeatured:"Featured offers",
+      beforeRentExploreTitle:"Popular consoles and promotions",
+      beforeRentFeatured:"Promotions",
       beforeRentPopular:"All consoles",
-      beforeRentDevicesHint:"Use the arrows for more consoles · tap one to check dates",
+      beforeRentDevicesHint:"Use the arrows or swipe to browse · tap a console to check dates",
       beforeRentDevicesCount:"{n} consoles",
       beforeRentPromoHint:"Tap an image for details",
       beforeRentPromoCue:"View offer →",
@@ -1084,7 +1092,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentNoteContract:"Without a rental contract the deposit becomes ฿5,000 / ฿8,000 depending on the model",
       beforeRentTerms:"<b>3-day</b> minimum rental · individual rate · delivery up to <b>฿100 per trip</b> (free return trip on 3+ day rentals) · deposit fully refunded on return",
       beforeRentStartDevice:"Check dates & price",
-      gamePickerAllPlatforms:"👉 Swipe to pick a console",
+      gamePickerAllPlatforms:"👉 Pick a console",
       gamePickerScrollHint:"Swipe for more →",
       gamePickerHowTo:"How to",
       railPrev:"Scroll left",
@@ -1776,6 +1784,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     $$("[data-icon]").forEach(host => { if(!host.firstElementChild) host.innerHTML = icon(host.dataset.icon); });
     deviceHost.scrollLeft = 0;
     bindScrollRail(byId("beforeRentDevicesRail"), deviceHost);
+    // Desktop lays the promos out in a grid that never overflows, so the arrows
+    // stay hidden there and only appear on the phone rail.
+    bindScrollRail(byId("beforeRentPromosRail"), promoHost);
   }
   // Matches a promo card to a console named in its copy so the tap lands somewhere
   // specific instead of the bare calculator.
@@ -1836,8 +1847,19 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(!scroller.dataset.railBound){
       scroller.addEventListener("scroll", sync, {passive:true});
       window.addEventListener("resize", sync);
+      // Card artwork loads after the first measurement and the breakpoint can
+      // flip the row between a grid and a rail, so track the real box instead of
+      // trusting the initial pass.
+      if(window.ResizeObserver){
+        const observer = new ResizeObserver(sync);
+        observer.observe(scroller);
+        scroller.railObserver = observer;
+      }
       scroller.dataset.railBound = "1";
     }
+    scroller.querySelectorAll("img").forEach(image => {
+      if(!image.complete) image.addEventListener("load", sync, {once:true});
+    });
     sync();
     requestAnimationFrame(sync);
   }
