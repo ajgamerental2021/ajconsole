@@ -373,11 +373,25 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .picker-frame{flex:1;border:0;background:#fff}
 .game-picker-platform-rail{position:relative;flex:0 0 auto;background:#fff;border-bottom:1px solid #eef0f2}
 .game-picker-platform-rail[hidden]{display:none}
-.game-picker-platform-rail::after{content:"";position:absolute;top:0;right:0;bottom:0;width:52px;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,0),#fff 70%);opacity:1;transition:opacity .18s}
-.game-picker-platform-rail.rail-end::after{opacity:0}
-.game-picker-platform-rail .rail-cue{position:absolute;top:50%;right:6px;transform:translateY(-50%);z-index:2;display:grid;place-items:center;width:26px;height:26px;border-radius:999px;background:#c90012;color:#fff;font-size:14px;font-weight:900;pointer-events:none;box-shadow:0 2px 8px rgba(201,0,18,.35);transition:opacity .18s}
-.game-picker-platform-rail.rail-end .rail-cue{opacity:0}
-.game-picker-platforms{display:flex;align-items:center;gap:8px;padding:8px 52px 8px 14px;overflow-x:auto;scrollbar-width:none}
+.game-picker-platforms{display:flex;align-items:center;gap:8px;padding:8px 46px;overflow-x:auto;scroll-behavior:smooth;scrollbar-width:none}
+.game-picker-platforms::-webkit-scrollbar{display:none}
+/* Carousel-style arrows: centred on the row, always solid, and darkened on
+   hover so the row reads as scrollable without relying on any wording. */
+.rail-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:3;display:grid;place-items:center;width:38px;height:38px;padding:0;border:1px solid #e4e7ec;border-radius:999px;background:#fff;color:#1d2939;cursor:pointer;box-shadow:0 3px 12px rgba(16,24,40,.22);transition:background .16s,color .16s,transform .16s,opacity .16s,visibility .16s}
+.rail-nav .ico{width:20px;height:20px}
+.rail-nav:hover,.rail-nav:focus-visible{background:#c90012;border-color:#c90012;color:#fff;transform:translateY(-50%) scale(1.08)}
+.rail-nav:active{transform:translateY(-50%) scale(.96)}
+.rail-nav-prev{left:6px}
+.rail-nav-next{right:6px}
+.rail-nav.is-off{opacity:0;visibility:hidden;pointer-events:none}
+.rail-static .rail-nav{display:none}
+@media(max-width:640px){
+  .game-picker-platforms{padding:7px 42px}
+  .rail-nav{width:34px;height:34px}
+  .rail-nav .ico{width:18px;height:18px}
+  .rail-nav-prev{left:4px}
+  .rail-nav-next{right:4px}
+}
 .game-picker-platforms::-webkit-scrollbar{display:none}
 .game-picker-platform-label{flex:0 0 auto;font-weight:800;font-size:13px}
 .game-picker-platform-btn{flex:0 0 auto;border:1px solid #d0d5dd;border-radius:999px;background:#fff;padding:8px 12px;font-weight:800;cursor:pointer}
@@ -510,6 +524,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .before-rent-mini-section{margin-top:18px;padding:0}
   .before-rent-mini-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px;margin:0 0 10px}
   .before-rent-mini-head h3{margin:0;font-size:19px}
+  .before-rent-count{padding:2px 9px;border-radius:999px;background:#fff1f2;color:#c90012;font-size:12px;font-weight:900}
   .before-rent-hint{display:inline-flex;align-items:center;gap:5px;color:#667085;font-size:12.5px;font-weight:700}
   .before-rent-hint .ico{width:15px;height:15px;color:#c90012}
   .before-rent-typefilter{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 10px}
@@ -519,8 +534,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .before-rent-note{display:grid;gap:5px;margin:10px 0 0;color:#667085;font-size:11.5px;font-weight:600;line-height:1.55}
   .before-rent-note-row{display:flex;align-items:flex-start;gap:7px}
   .before-rent-note-row .ico{width:14px;height:14px;margin-top:1px;color:#98a2b3}
-  .before-rent-devices:focus-visible{outline:2px solid #c90012;outline-offset:3px;border-radius:12px}
-  .before-rent-seeall{flex:0 0 150px;scroll-snap-align:start;display:grid;align-content:center;justify-items:center;gap:8px;padding:10px;border:1px dashed #c90012;border-radius:10px;background:#fff8f8;color:#c90012;font-size:13px;font-weight:900;text-align:center;cursor:pointer}
+  .before-rent-seeall{display:grid;align-content:center;justify-items:center;gap:8px;min-height:120px;padding:10px;border:1px dashed #c90012;border-radius:10px;background:#fff8f8;color:#c90012;font-size:13px;font-weight:900;text-align:center;cursor:pointer}
   .before-rent-seeall .ico{width:24px;height:24px}
   .before-rent-seeall:hover,.before-rent-seeall:focus-visible{background:#ffeef0}
   .before-rent-empty{padding:22px 4px;color:#667085;font-size:13px;font-weight:700}
@@ -536,15 +550,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .before-rent-promo-copy{display:block;padding:16px 14px 34px}
   .before-rent-promo-copy strong,.before-rent-promo-copy span{display:block}
   .before-rent-promo-copy span{font-size:12px;color:#f2f4f7}
-  .before-rent-rail{position:relative}
-  .before-rent-rail::after{content:"";position:absolute;top:0;right:0;bottom:8px;width:56px;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,0),#fff 72%);opacity:1;transition:opacity .18s}
-  .before-rent-rail.rail-end::after{opacity:0}
-  .before-rent-rail .rail-cue{position:absolute;top:64px;right:8px;z-index:2;display:grid;place-items:center;width:30px;height:30px;border-radius:999px;background:#c90012;color:#fff;font-size:15px;font-weight:900;pointer-events:none;box-shadow:0 3px 10px rgba(201,0,18,.35);transition:opacity .18s}
-  .before-rent-rail.rail-end .rail-cue{opacity:0}
-  .before-rent-devices{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x proximity;padding:2px 56px 10px 2px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
-  .before-rent-devices::-webkit-scrollbar{height:6px}
-  .before-rent-devices::-webkit-scrollbar-thumb{background:#d7dbe0;border-radius:999px}
-  .before-rent-device{position:relative;flex:0 0 178px;scroll-snap-align:start;display:grid;align-content:start;gap:6px;padding:10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;text-align:left;cursor:pointer}
+  /* Every console is laid out at once: a horizontal rail hid most of the list
+     behind a swipe gesture that customers did not discover. */
+  .before-rent-devices{display:grid;grid-template-columns:repeat(auto-fill,minmax(164px,1fr));gap:10px}
+  .before-rent-device{position:relative;display:grid;align-content:start;gap:6px;padding:10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;text-align:left;cursor:pointer}
   .before-rent-device:hover,.before-rent-device:focus-visible{border-color:#c90012;background:#fff8f8}
   .before-rent-device[disabled]{opacity:.55;cursor:not-allowed}
   .before-rent-device[disabled]:hover{border-color:#e5e7eb;background:#fff}
@@ -573,11 +582,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     .before-rent-grid{grid-template-columns:1fr}
     .before-rent-action{min-height:86px}
     .before-rent-discovery-head{display:block}
-    .game-picker-platforms{padding:7px 46px 7px 10px}
     .game-picker-platform-label{font-size:12px}
     .game-picker-platform-btn{padding:7px 10px;font-size:12px}
     .before-rent-promos{grid-template-columns:1fr}
-    .before-rent-device{flex:0 0 150px}
+    .before-rent-devices{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
     .before-rent-mini-head h3{font-size:17px}
     .before-rent-hint{font-size:12px}
   }
@@ -634,12 +642,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
           <section class="before-rent-mini-section">
             <div class="before-rent-mini-head">
               <h3 data-i18n="beforeRentPopular">เครื่องเกมทั้งหมด</h3>
+              <span class="before-rent-count" id="beforeRentDevicesCount"></span>
               <span class="before-rent-hint" id="beforeRentDevicesHint"></span>
             </div>
             <div class="before-rent-typefilter" id="beforeRentTypeFilter" role="group"></div>
-            <div class="before-rent-rail" id="beforeRentDevicesRail">
-              <div id="beforeRentDevices" class="before-rent-devices" tabindex="0" role="group"></div>
-            </div>
+            <div id="beforeRentDevices" class="before-rent-devices" role="group"></div>
             <p class="before-rent-note" id="beforeRentDevicesNote"></p>
           </section>
           <section class="before-rent-mini-section">
@@ -984,7 +991,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentExploreTitle:"เครื่องยอดนิยมและโปรเด่น",
       beforeRentFeatured:"โปรเด่น",
       beforeRentPopular:"เครื่องเกมทั้งหมด",
-      beforeRentDevicesHint:"เลื่อนซ้าย-ขวาดูทุกเครื่อง · กดเพื่อเช็คคิว",
+      beforeRentDevicesHint:"กดที่เครื่องเพื่อเช็คคิวและจอง",
+      beforeRentDevicesCount:"{n} เครื่อง",
       beforeRentPromoHint:"กดที่รูปเพื่อดูรายละเอียด",
       beforeRentPromoCue:"ดูโปรนี้ →",
       beforeRentPromoCueDevice:"เช่า {name} →",
@@ -1003,6 +1011,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       gamePickerAllPlatforms:"👉 เลื่อนซ้าย-ขวา เลือกเครื่อง",
       gamePickerScrollHint:"เลื่อนดูเครื่องอื่น →",
       gamePickerHowTo:"วิธีเลือก",
+      railPrev:"เลื่อนไปทางซ้าย",
+      railNext:"เลื่อนไปทางขวา",
       homeTag:"✨ HIGHLIGHT", homeTitle:"โปรโมชั่น & ข่าวสาร", homeSub:"อัปเดตล่าสุด Exclusive และข่าวสารใหม่จากทาง AJ",
       consoleTag:"เครื่องเกม", consoleTitle:"เครื่องเกมที่มีให้เช่า", consoleSub:"กรองตามประเภท แบรนด์ และเรียงราคาได้",
       notice:"<strong>⚠️ ราคานี้เป็นราคาเช่าในนามบุคคลเท่านั้น</strong> ไม่สามารถออกใบกำกับภาษีหรือใบเสร็จรับเงินได้ หากต้องการใบกำกับภาษี/ใบเสร็จ จะเป็นเรทบริษัท กรุณาติดต่อ Line: <b>@ajgame</b>",
@@ -1052,7 +1062,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentExploreTitle:"Popular consoles and featured offers",
       beforeRentFeatured:"Featured offers",
       beforeRentPopular:"All consoles",
-      beforeRentDevicesHint:"Swipe to see every console · tap to check dates",
+      beforeRentDevicesHint:"Tap a console to check dates and book",
+      beforeRentDevicesCount:"{n} consoles",
       beforeRentPromoHint:"Tap an image for details",
       beforeRentPromoCue:"View offer →",
       beforeRentPromoCueDevice:"Rent {name} →",
@@ -1071,6 +1082,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       gamePickerAllPlatforms:"👉 Swipe to pick a console",
       gamePickerScrollHint:"Swipe for more →",
       gamePickerHowTo:"How to",
+      railPrev:"Scroll left",
+      railNext:"Scroll right",
       homeTag:"✨ HIGHLIGHT", homeTitle:"Promotions & News", homeSub:"Latest exclusive updates and new stories from AJ",
       consoleTag:"Consoles", consoleTitle:"Available Consoles", consoleSub:"Filter by type, brand, and price",
       notice:"<strong>⚠️ Individual rates only.</strong> Tax invoices / receipts cannot be issued at these rates. For tax invoice / receipt, corporate rates apply. Contact Line: <b>@ajgame</b>",
@@ -1138,7 +1151,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     table:'<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.6h17M9.4 9.6v9.9M15.1 9.6v9.9"/>',
     tap:'<path d="M9.4 11.2V6.4a1.7 1.7 0 0 1 3.4 0v6.2"/><path d="M12.8 11.4a1.5 1.5 0 0 1 3 0v.9"/><path d="M15.8 12a1.5 1.5 0 0 1 3 0v3.1a5 5 0 0 1-5 5h-1.6a4.4 4.4 0 0 1-3.3-1.5L6 15.3a1.6 1.6 0 0 1 2.3-2.2l1.1 1.1"/>',
     lock:'<rect x="4.8" y="10.4" width="14.4" height="9.4" rx="2.2"/><path d="M8.2 10.4V7.9a3.8 3.8 0 0 1 7.6 0v2.5"/>',
-    truck:'<path d="M2.8 7.2a1.4 1.4 0 0 1 1.4-1.4h8.3a1.4 1.4 0 0 1 1.4 1.4v8.9H2.8Z"/><path d="M13.9 9.4h3.3a1.6 1.6 0 0 1 1.4.8l1.6 2.7v3.2h-6.3Z"/><circle cx="7" cy="18" r="1.9"/><circle cx="16.6" cy="18" r="1.9"/><path d="M8.9 18h5.8"/>'
+    truck:'<path d="M2.8 7.2a1.4 1.4 0 0 1 1.4-1.4h8.3a1.4 1.4 0 0 1 1.4 1.4v8.9H2.8Z"/><path d="M13.9 9.4h3.3a1.6 1.6 0 0 1 1.4.8l1.6 2.7v3.2h-6.3Z"/><circle cx="7" cy="18" r="1.9"/><circle cx="16.6" cy="18" r="1.9"/><path d="M8.9 18h5.8"/>',
+    chevronLeft:'<path d="M14.6 5.6 8.2 12l6.4 6.4" stroke-width="2.4"/>',
+    chevronRight:'<path d="M9.4 5.6 15.8 12l-6.4 6.4" stroke-width="2.4"/>'
   };
   const icon = (name, cls = "") => ICON_PATHS[name]
     ? `<svg class="ico${cls?" "+cls:""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICON_PATHS[name]}</svg>`
@@ -1732,8 +1747,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       setBeforeRent(false,{startGuide:true});
     }));
     deviceHost.querySelector("[data-before-seeall]")?.addEventListener("click", () => showAllConsoles());
+    byId("beforeRentDevicesCount").textContent = tr("beforeRentDevicesCount").replace("{n}", String(ordered.length));
     renderBeforeRentTypeFilter();
-    byId("beforeRentDevicesHint").innerHTML = `${icon("swipe")}<span>${esc(tr("beforeRentDevicesHint"))}</span>`;
+    byId("beforeRentDevicesHint").innerHTML = `${icon("tap")}<span>${esc(tr("beforeRentDevicesHint"))}</span>`;
     byId("beforeRentPromoHint").innerHTML = `${icon("tap")}<span>${esc(tr("beforeRentPromoHint"))}</span>`;
     byId("beforeRentDevicesNote").innerHTML = [
       ["truck","beforeRentNoteDelivery"],
@@ -1770,18 +1786,36 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     setBeforeRent(false, {scrollTo:false});
     requestAnimationFrame(() => byId("consoles")?.scrollIntoView({behavior:"smooth", block:"start"}));
   }
+  // Adds carousel-style prev/next buttons to a horizontal scroller. A fade or a
+  // single edge chevron was not read as "this scrolls", so the control is a pair
+  // of solid round buttons sitting over the middle of the row, which is where
+  // people already expect them from photo carousels.
   function bindScrollRail(rail, scroller){
     if(!rail || !scroller) return;
-    if(!rail.querySelector(".rail-cue")){
-      const cue = document.createElement("span");
-      cue.className = "rail-cue";
-      cue.setAttribute("aria-hidden","true");
-      cue.textContent = "›";
-      rail.appendChild(cue);
+    if(!rail.querySelector(".rail-nav")){
+      ["prev","next"].forEach(direction => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `rail-nav rail-nav-${direction}`;
+        button.innerHTML = icon(direction === "prev" ? "chevronLeft" : "chevronRight");
+        button.addEventListener("click", () => {
+          const step = Math.max(160, Math.round(scroller.clientWidth * 0.8));
+          scroller.scrollBy({left: direction === "prev" ? -step : step, behavior:"smooth"});
+        });
+        rail.appendChild(button);
+      });
     }
+    const prev = rail.querySelector(".rail-nav-prev");
+    const next = rail.querySelector(".rail-nav-next");
     const sync = () => {
       const scrollable = scroller.scrollWidth - scroller.clientWidth;
-      rail.classList.toggle("rail-end", scrollable <= 8 || scroller.scrollLeft >= scrollable - 8);
+      const atStart = scroller.scrollLeft <= 8;
+      const atEnd = scroller.scrollLeft >= scrollable - 8;
+      rail.classList.toggle("rail-static", scrollable <= 8);
+      prev.classList.toggle("is-off", scrollable <= 8 || atStart);
+      next.classList.toggle("is-off", scrollable <= 8 || atEnd);
+      prev.setAttribute("aria-label", tr("railPrev"));
+      next.setAttribute("aria-label", tr("railNext"));
     };
     if(!scroller.dataset.railBound){
       scroller.addEventListener("scroll", sync, {passive:true});
@@ -3439,12 +3473,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       browseOnly
     }, pickerTargetOrigin());
     if((frame.getAttribute("src") || "") !== src){
-      frame.onload = () => { send(); sendPickerHowTo(); };
+      frame.onload = () => { send(); sendPickerHowTo(); applyPickerChromeFallback(); };
       frame.src = src;
     }else{
       send();
     }
     setTimeout(send, 500);
+    applyPickerChromeFallback();
   }
   // The picker page ships its own instructions bar and console tabs. Inside this
   // modal both duplicate what the parent already shows and eat the vertical space
@@ -3457,6 +3492,40 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       {type:"AJ_PICKER_HOWTO", show:!!state.gamePickerHowTo},
       pickerTargetOrigin()
     );
+    applyPickerChromeFallback();
+  }
+  // Second path to the same result, for a picker page that predates the
+  // chrome=compact parameter: inject the equivalent rules straight into the
+  // frame. Only possible same-origin, so the parameter above stays the primary
+  // mechanism and this silently does nothing when access is denied.
+  function applyPickerChromeFallback(attempt = 0){
+    let doc = null;
+    try{
+      doc = byId("gamePickerFrame")?.contentDocument;
+      if(doc && !doc.querySelector(".pick-box")) doc = null;
+    }catch(error){
+      return;
+    }
+    if(!doc){
+      if(attempt < 10) setTimeout(() => applyPickerChromeFallback(attempt + 1), 250);
+      return;
+    }
+    if(doc.body.classList.contains("aj-embed-compact")) return;
+    let style = doc.getElementById("aj-picker-chrome");
+    if(!style){
+      style = doc.createElement("style");
+      style.id = "aj-picker-chrome";
+      doc.head.appendChild(style);
+    }
+    style.textContent = `.pick-details-bar,.pick-tutorial-close,.pick-tutorial-note,.pick-sub{display:none!important}
+      ${state.gamePickerBrowseOnly ? "#pick-platform-tabs{display:none!important}" : ""}
+      body .pick-box.pick-details-collapsed .pick-tutorial,
+      .pick-tutorial{display:${state.gamePickerHowTo ? "block" : "none"}!important}`;
+    const box = doc.querySelector(".pick-box");
+    if(box && !box.classList.contains("pick-details-collapsed")){
+      try{ byId("gamePickerFrame").contentWindow.togglePickDetails(); }
+      catch(error){ box.classList.add("pick-details-collapsed"); }
+    }
   }
   function refreshGamePickerHowToBtn(){
     const button = byId("gamePickerHowToBtn");
