@@ -1106,7 +1106,7 @@ body.line-browser #calcConsole{display:none}
       personalRateWarning:"⚠️ ราคาเช่าเป็นเรทบุคคล ไม่สามารถออกใบกำกับภาษี/ใบเสร็จได้ หากต้องการเอกสาร กรุณาติดต่อ Line: <b>@ajgame</b> หรือ โทร. <b>081-624-4715</b> 🙏",
       daily:"รายวัน", weekly:"รายสัปดาห์", day:"วัน", wk:"สัปดาห์", deposit:"ค่าประกัน", ready:"พร้อม", notReady:"ยังไม่พร้อม", readyOn:"พร้อมวันที่",
       bundle:"Bundle", accessories:"อุปกรณ์เสริม", noBundle:"ไม่เพิ่ม Bundle", noAccessory:"ไม่เพิ่มอุปกรณ์เสริม", contract:"ทำสัญญาการเช่า", contractHelp:"แนะนำสำหรับผู้เช่าครั้งแรก กรอกก่อนนัดส่งเครื่อง",
-      noContract:"ไม่ต้องการทำสัญญาการเช่า", noContractHelp:"สำหรับผู้เช่าครั้งแรก ต้องทำสัญญาและแนบสำเนาบัตรประชาชน / Passport + รูปเซลฟี่คู่บัตรหรือ Passport ทุกกรณี หากไม่สะดวก ให้ติ๊กช่องนี้ ค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น", recommended:"แนะนำ", depositRefundPaymentNote:"คืนค่าประกัน: โอนผ่าน Wise (ปกติ 1–3 วันทำการ) สำรองเป็นเงินสด/โอนบัญชีไทย", wiseLinkTime:"เวลาโอน Wise", wiseLinkPolicy:"นโยบาย Wise", wiseLinkCoverage:"ประเทศที่ใช้ Wise ได้",
+      noContract:"ไม่ต้องการทำสัญญาการเช่า", noContractHelp:"สำหรับผู้เช่าครั้งแรก ต้องทำสัญญาและแนบสำเนาบัตรประชาชน / Passport + รูปเซลฟี่คู่บัตรหรือ Passport ทุกกรณี หากไม่สะดวก ให้ติ๊กช่องนี้ ค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น", recommended:"แนะนำ", depositRefundPaymentNote:"หากชำระด้วยบัตร/E-Wallet คืนค่าประกันเป็นเงินโอนเท่านั้น",
       returning:"ลูกค้าเก่า (เท่านั้น) รับส่วนลด 10% ค่าเช่า", returningOnly:"ลูกค้าเก่าเท่านั้น", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง", bank:"🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", creditTitle:"💳 บัตรเครดิต: ชำระเต็มจำนวน", creditFee:"+ ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%", ewalletTitle:"👛 E-Wallet: ชำระเต็มจำนวน", ewalletFee:"+ ค่าธรรมเนียม 2.95%",
       reviewGoogle:"รับส่วนลดเพิ่มจากการรีวิวบน Google Maps มูลค่า 100 บาท", reviewFacebook:"รับส่วนลดเพิ่มจากการรีวิวบน Facebook มูลค่า 100 บาท", reviewGoogleHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Google Maps ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewFacebookHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Facebook ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewGoogleBtn:"รีวิว Google Maps", reviewFacebookBtn:"รีวิว Facebook", reviewGoogleDiscount:"ส่วนลดรีวิว Google Maps", reviewFacebookDiscount:"ส่วนลดรีวิว Facebook",
       boardGameCollapsed:"ต้องการเพิ่มบอร์ดเกม? กดเพื่อขยายและเลือกเข้าชุดเช่า", ps5BundleCollapsed:"ต้องการ Bundle? กดเพื่อจับคู่ PS5 กับอุปกรณ์อื่น",
@@ -2423,18 +2423,25 @@ body.line-browser #calcConsole{display:none}
   function paymentReservationBadgesHtml(){
     return `${paymentCardBadgesHtml()}${paymentEwalletBadgesHtml()}`;
   }
-  const WISE_HELP_LINKS = [
-    ["wiseLinkTime", "https://wise.com/help/articles/2524078/how-long-will-my-transfer-take"],
-    ["wiseLinkPolicy", "https://wise.com/help/articles/2971625/how-do-i-cancel-my-transfer"],
-    ["wiseLinkCoverage", "https://wise.com/gb/send-money/"]
-  ];
-  // Every payment option refunds the deposit the same way, so all of them carry
-  // the same note plus Wise's own pages for timing, cancellation and coverage.
+  // Thai customers are refunded by local bank transfer, so their note stands on
+  // its own. Refunds to everyone else go out through Wise, which is why only the
+  // English copy links to Wise's pages on timing, cancellation and coverage.
+  const DEPOSIT_REFUND_HELP_LINKS = {
+    en: [
+      ["wiseLinkTime", "https://wise.com/help/articles/2524078/how-long-will-my-transfer-take"],
+      ["wiseLinkPolicy", "https://wise.com/help/articles/2971625/how-do-i-cancel-my-transfer"],
+      ["wiseLinkCoverage", "https://wise.com/gb/send-money/"]
+    ],
+    th: []
+  };
   function paymentRefundNoteHtml(){
-    const links = WISE_HELP_LINKS
+    const note = `<small class="payment-refund-note">${esc(tr("depositRefundPaymentNote"))}</small>`;
+    const links = DEPOSIT_REFUND_HELP_LINKS[state.lang] || [];
+    if(!links.length) return note;
+    const linkHtml = links
       .map(([key, href]) => `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(tr(key))}</a>`)
       .join('<span aria-hidden="true"> · </span>');
-    return `<small class="payment-refund-note">${esc(tr("depositRefundPaymentNote"))}</small><small class="payment-refund-links">${links}</small>`;
+    return `${note}<small class="payment-refund-links">${linkHtml}</small>`;
   }
   function cashDeliveryOptionHtml(){
     const transferMethod = state.lang === "en" ? "Cash or Thai QR scan (no fee)" : "เงินโอน (ไม่มีค่าธรรมเนียม)";
