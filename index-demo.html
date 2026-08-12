@@ -516,7 +516,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .before-rent-typechip{padding:6px 12px;border:1px solid #d0d5dd;border-radius:999px;background:#fff;color:#344054;font-size:12.5px;font-weight:800;cursor:pointer}
   .before-rent-typechip:hover{border-color:#c90012;color:#c90012}
   .before-rent-typechip.active{border-color:#c90012;background:#fff1f2;color:#c90012}
-  .before-rent-note{margin:8px 0 0;color:#667085;font-size:11.5px;font-weight:600;line-height:1.6}
+  .before-rent-note{display:grid;gap:5px;margin:10px 0 0;color:#667085;font-size:11.5px;font-weight:600;line-height:1.55}
+  .before-rent-note-row{display:flex;align-items:flex-start;gap:7px}
+  .before-rent-note-row .ico{width:14px;height:14px;margin-top:1px;color:#98a2b3}
   .before-rent-devices:focus-visible{outline:2px solid #c90012;outline-offset:3px;border-radius:12px}
   .before-rent-seeall{flex:0 0 150px;scroll-snap-align:start;display:grid;align-content:center;justify-items:center;gap:8px;padding:10px;border:1px dashed #c90012;border-radius:10px;background:#fff8f8;color:#c90012;font-size:13px;font-weight:900;text-align:center;cursor:pointer}
   .before-rent-seeall .ico{width:24px;height:24px}
@@ -556,8 +558,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .before-rent-device-week{margin-top:-3px;color:#344054;font-size:12.5px;font-weight:800}
   .before-rent-device-min{color:#667085;font-size:11px;font-weight:700;line-height:1.35}
   .before-rent-device-min b{color:#101828;font-weight:900}
-  .before-rent-device-dep{display:inline-flex;align-items:center;gap:4px;justify-self:start;padding:3px 9px;border-radius:999px;background:#f4f6f8;color:#475467;font-size:11px;font-weight:800}
+  .before-rent-device-dep{display:inline-flex;align-items:center;flex-wrap:wrap;gap:2px 5px;justify-self:start;padding:3px 9px;border-radius:999px;background:#eaf8ef;border:1px solid #cdebd7;color:#1b6b39;font-size:11px;font-weight:800;line-height:1.4}
   .before-rent-device-dep .ico{width:12px;height:12px;stroke-width:2.1}
+  .before-rent-device-dep em{font-style:normal;font-weight:900;color:#137333}
   .before-rent-device-cta{margin-top:2px;color:#c90012;font-size:11.5px;font-weight:900}
   .before-rent-device[disabled] .before-rent-device-cta{color:#667085}
   .before-rent-back{margin:0 0 18px}
@@ -991,8 +994,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentSeeAll:"ดูทั้งหมดแบบตาราง มีตัวกรอง",
       beforeRentTypeAll:"ทั้งหมด",
       beforeRentEmpty:"ไม่มีเครื่องในประเภทนี้",
-      beforeRentDevicesNote:"* ราคายังไม่รวมค่าส่ง (แจ้งในแชท · ส่งเฉพาะ กรุงเทพฯ และปริมณฑล) · ค่าประกันได้คืนเต็มเมื่อคืนเครื่องครบสภาพ · หากไม่ทำสัญญาเช่า ค่าประกันปรับเป็น ฿5,000 / ฿8,000 ตามรุ่น",
-      beforeRentTerms:"เช่าขั้นต่ำ <b>3 วัน</b> · ราคาเรทบุคคล ยังไม่รวมค่าส่ง · มีค่าประกันที่ได้คืนเมื่อคืนเครื่อง · ส่งเฉพาะ กรุงเทพฯ และปริมณฑล",
+      beforeRentDepositBack:"คืนเต็ม",
+      beforeRentNoteDelivery:"ค่าส่ง สูงสุด ฿100/เที่ยว · เช่า 3–6 วัน ฟรีขากลับ · 7 วันขึ้นไป ฟรีไป-กลับ · ส่งเฉพาะ กรุงเทพฯ และปริมณฑล",
+      beforeRentNoteDeposit:"ค่าประกัน ได้คืนเต็มจำนวนเมื่อคืนเครื่องครบสภาพ ไม่ใช่ค่าเช่า",
+      beforeRentNoteContract:"หากไม่ทำสัญญาเช่า ค่าประกันปรับเป็น ฿5,000 / ฿8,000 ตามรุ่น",
+      beforeRentTerms:"เช่าขั้นต่ำ <b>3 วัน</b> · ราคาเรทบุคคล · ค่าส่งสูงสุด <b>฿100/เที่ยว</b> (เช่า 3 วันขึ้นไป ฟรีขากลับ) · ค่าประกันได้คืนเต็มเมื่อคืนเครื่อง",
       beforeRentStartDevice:"ดูคิวและราคา",
       gamePickerAllPlatforms:"👉 เลื่อนซ้าย-ขวา เลือกเครื่อง",
       gamePickerScrollHint:"เลื่อนดูเครื่องอื่น →",
@@ -1056,8 +1062,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentSeeAll:"See all in a table with filters",
       beforeRentTypeAll:"All",
       beforeRentEmpty:"No consoles in this category",
-      beforeRentDevicesNote:"* Prices exclude delivery (quoted in chat · Bangkok and Greater Bangkok only) · the deposit is fully refunded when the console is returned in good condition · without a rental contract the deposit becomes ฿5,000 / ฿8,000 depending on the model",
-      beforeRentTerms:"<b>3-day</b> minimum rental · individual rate, delivery not included · a refundable deposit applies · delivery in Bangkok and Greater Bangkok only",
+      beforeRentDepositBack:"refundable",
+      beforeRentNoteDelivery:"Delivery up to ฿100 per trip · free return trip on 3–6 day rentals · both trips free on 7 days or more · Bangkok and Greater Bangkok only",
+      beforeRentNoteDeposit:"The deposit is fully refunded when the console is returned in good condition — it is not part of the rental fee",
+      beforeRentNoteContract:"Without a rental contract the deposit becomes ฿5,000 / ฿8,000 depending on the model",
+      beforeRentTerms:"<b>3-day</b> minimum rental · individual rate · delivery up to <b>฿100 per trip</b> (free return trip on 3+ day rentals) · deposit fully refunded on return",
       beforeRentStartDevice:"Check dates & price",
       gamePickerAllPlatforms:"👉 Swipe to pick a console",
       gamePickerScrollHint:"Swipe for more →",
@@ -1128,7 +1137,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     bell:'<path d="M6.6 10.4a5.4 5.4 0 0 1 10.8 0c0 3.2.9 4.7 1.6 5.5.3.4 0 1-.5 1H5.5c-.5 0-.8-.6-.5-1 .7-.8 1.6-2.3 1.6-5.5Z"/><path d="M10.2 19.4a2 2 0 0 0 3.6 0"/>',
     table:'<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.6h17M9.4 9.6v9.9M15.1 9.6v9.9"/>',
     tap:'<path d="M9.4 11.2V6.4a1.7 1.7 0 0 1 3.4 0v6.2"/><path d="M12.8 11.4a1.5 1.5 0 0 1 3 0v.9"/><path d="M15.8 12a1.5 1.5 0 0 1 3 0v3.1a5 5 0 0 1-5 5h-1.6a4.4 4.4 0 0 1-3.3-1.5L6 15.3a1.6 1.6 0 0 1 2.3-2.2l1.1 1.1"/>',
-    lock:'<rect x="4.8" y="10.4" width="14.4" height="9.4" rx="2.2"/><path d="M8.2 10.4V7.9a3.8 3.8 0 0 1 7.6 0v2.5"/>'
+    lock:'<rect x="4.8" y="10.4" width="14.4" height="9.4" rx="2.2"/><path d="M8.2 10.4V7.9a3.8 3.8 0 0 1 7.6 0v2.5"/>',
+    truck:'<path d="M2.8 7.2a1.4 1.4 0 0 1 1.4-1.4h8.3a1.4 1.4 0 0 1 1.4 1.4v8.9H2.8Z"/><path d="M13.9 9.4h3.3a1.6 1.6 0 0 1 1.4.8l1.6 2.7v3.2h-6.3Z"/><circle cx="7" cy="18" r="1.9"/><circle cx="16.6" cy="18" r="1.9"/><path d="M8.9 18h5.8"/>'
   };
   const icon = (name, cls = "") => ICON_PATHS[name]
     ? `<svg class="ico${cls?" "+cls:""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICON_PATHS[name]}</svg>`
@@ -1725,7 +1735,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     renderBeforeRentTypeFilter();
     byId("beforeRentDevicesHint").innerHTML = `${icon("swipe")}<span>${esc(tr("beforeRentDevicesHint"))}</span>`;
     byId("beforeRentPromoHint").innerHTML = `${icon("tap")}<span>${esc(tr("beforeRentPromoHint"))}</span>`;
-    byId("beforeRentDevicesNote").textContent = tr("beforeRentDevicesNote");
+    byId("beforeRentDevicesNote").innerHTML = [
+      ["truck","beforeRentNoteDelivery"],
+      ["lock","beforeRentNoteDeposit"],
+      ["help","beforeRentNoteContract"]
+    ].map(([iconName,key]) => `<span class="before-rent-note-row">${icon(iconName)}<span>${esc(tr(key))}</span></span>`).join("");
     byId("beforeRentTerms").innerHTML = tr("beforeRentTerms");
     $$("[data-icon]").forEach(host => { if(!host.firstElementChild) host.innerHTML = icon(host.dataset.icon); });
     deviceHost.scrollLeft = 0;
