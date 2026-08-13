@@ -578,7 +578,8 @@ body.line-browser #calcConsole{display:none}
   .before-rent-hint{display:inline-flex;align-items:center;gap:5px;color:#667085;font-size:12.5px;font-weight:700}
   .before-rent-hint .ico{width:15px;height:15px;color:#c90012}
   .before-rent-typefilter{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 10px}
-  .before-rent-typechip{padding:6px 12px;border:1px solid #d0d5dd;border-radius:999px;background:#fff;color:#344054;font-size:12.5px;font-weight:800;cursor:pointer}
+  /* 44px keeps the chips inside the minimum comfortable touch target. */
+  .before-rent-typechip{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid #d0d5dd;border-radius:999px;background:#fff;color:#344054;font-size:13px;font-weight:800;cursor:pointer}
   .before-rent-typechip:hover{border-color:#c90012;color:#c90012}
   .before-rent-typechip.active{border-color:#c90012;background:#fff1f2;color:#c90012}
   .before-rent-note{display:grid;gap:5px;margin:10px 0 0;color:#667085;font-size:11.5px;font-weight:600;line-height:1.55}
@@ -927,7 +928,7 @@ body.line-browser #calcConsole{display:none}
 
   const CONFIG = {
     version: "index2-clean-1",
-    gamePickerVersion: "20260622-1",
+    gamePickerVersion: "20260813-1",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",
@@ -5097,8 +5098,22 @@ body.line-browser #calcConsole{display:none}
       if(!pickerOriginAllowed(event.origin)) return;
       const data = event.data || {};
       if(data.type === "AJ_PICKER_SELECTED"){
-        if(state.gamePickerBrowseOnly) return;
-        state.calc.games = Array.isArray(data.games) ? data.games.slice(0,10) : [];
+        const games = Array.isArray(data.games) ? data.games.slice(0,10) : [];
+        // Browsing starts without a rental, so the list used to be discarded and
+        // the button did nothing. Carry the choice into a booking for whichever
+        // console was being browsed instead.
+        if(state.gamePickerBrowseOnly){
+          const browsed = consoleById(state.gamePickerPlatformId);
+          closeGamePicker();
+          if(browsed) selectCalcConsole(browsed.id);
+          state.calc.games = games;
+          state.calc.later = false;
+          setGuideStage("next2");
+          saveLocal();
+          setBeforeRent(false);
+          return;
+        }
+        state.calc.games = games;
         state.calc.later = false;
         setGuideStage("next2");
         closeGamePicker();

@@ -104,13 +104,19 @@
       padding: 0 12px;
       gap: 8px;
     }
+    /* The row used to scroll sideways, so Admin sat permanently clipped by the
+       screen edge. Admin is the only way into the login flow, so shrink the row
+       to fit rather than hiding or scrolling it. */
     .header-right {
-      gap: 6px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
+      gap: 5px;
+      flex-shrink: 0;
+      overflow: visible;
     }
-    .header-right::-webkit-scrollbar { display: none; }
+    .header-right .btn-howto,
+    .header-right .btn-lang,
+    .header-right .btn-admin { padding: 7px 8px; letter-spacing: 0; }
+    .logo-img { width: 32px; height: 32px; }
+    .logo-text { font-size: 13px; }
   }
   .logo {
     display: flex;
@@ -677,6 +683,8 @@
   .pick-card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-light), var(--shadow); }
   .pick-card.pick-disabled { opacity: 0.4; cursor: not-allowed; }
   .pick-card.pick-disabled:hover { transform: none; box-shadow: none; }
+  /* Greyed only because the list is full: still tappable so the tap can explain. */
+  .pick-card.pick-at-max { cursor: pointer; }
   .pick-card-img {
     width: 100%; aspect-ratio: 3/4; object-fit: contain;
     background: #181818; display: block;
@@ -1179,6 +1187,22 @@
     box-shadow: 0 16px 40px rgba(0,0,0,0.13);
     border-color: var(--border2);
   }
+  .section-more-btn {
+    display: block;
+    width: 100%;
+    margin: 16px 0 4px;
+    padding: 12px 16px;
+    border: 1px dashed var(--accent);
+    border-radius: var(--radius-sm);
+    background: var(--accent-light);
+    color: var(--accent);
+    font-family: 'Space Grotesk', 'Noto Sans Thai', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .section-more-btn:hover { background: var(--accent); color: #fff; }
   .game-card-img {
     width: 100%; aspect-ratio: 3/4; object-fit: contain;
     background: #181818; display: block;
@@ -3937,6 +3961,23 @@ let confirmCallback = null;
 // Sort & filter state per platform (key = platformId)
 let platformSortMode = {}; // 'newest' | 'alpha' | 'genre'
 let platformGenreFilter = {}; // genre string or ''
+// Every platform used to paint its whole catalogue at once, which put well over
+// a thousand cards in the document on a phone. Each section starts capped and
+// grows a page at a time.
+const SECTION_PAGE_SIZE = 24;
+let platformShown = {}; // platformId -> how many cards that section renders
+
+function sectionShownCount(platformId) {
+  return platformShown[platformId] || SECTION_PAGE_SIZE;
+}
+function showMoreInSection(platformId) {
+  platformShown[platformId] = sectionShownCount(platformId) + SECTION_PAGE_SIZE;
+  renderSections();
+}
+function resetSectionPaging(platformId) {
+  if (platformId) delete platformShown[platformId];
+  else platformShown = {};
+}
 let sectionCollapsed = {}; // platformId → bool
 let platformViewMode = {}; // platformId → 'grid' | 'list'
 
@@ -5257,11 +5298,19 @@ function clearPickSearch() {
   if (si) si.focus();
 }
 
+// Once the list is full every other game greys out at once, which reads as a
+// broken screen unless we say why and what to do about it.
+function pickCapNotice() {
+  showToast(isEn()
+    ? `You already picked ${MAX_PICK} games. Remove one to swap it out.`
+    : `เลือกครบ ${MAX_PICK} เกมแล้ว เอาเกมเดิมออกก่อนถ้าอยากเปลี่ยน`);
+}
+
 function togglePick(gameId) {
   if (pickedGames.includes(gameId)) {
     pickedGames = pickedGames.filter(id => id !== gameId);
   } else {
-    if (pickedGames.length >= MAX_PICK) return;
+    if (pickedGames.length >= MAX_PICK) { pickCapNotice(); return; }
     pickedGames.push(gameId);
   }
   renderPickPlatformTabs();
@@ -5684,11 +5733,15 @@ function renderSections() {
       html += `</div>`;
     }
 
+    const shownCount = Math.min(sectionShownCount(p.id), pg.length);
+    const pgShown = pg.slice(0, shownCount);
+    const remaining = pg.length - shownCount;
+
     if (pg.length === 0) {
       html += `<div class="empty-state"><div class="icon">🎮</div><div>${T.empty_section}</div></div>`;
     } else if (viewMode === 'list') {
       html += `<div class="game-list-view">`;
-      pg.forEach((g, i) => {
+      pgShown.forEach((g, i) => {
         const genreTag = (g.genre && g.genre[0]) ? `<span class="game-list-genre">${escHtml(getGenreLabel(g.genre, currentLang))}</span>` : '';
         html += `<div class="game-list-row" onclick="openTrailer('${g.id}')">
           <span class="game-list-num">${String(i+1).padStart(2,'0')}</span>
@@ -5701,7 +5754,7 @@ function renderSections() {
       html += `</div>`;
     } else {
       html += `<div class="game-grid">`;
-      pg.forEach((g, i) => {
+      pgShown.forEach((g, i) => {
         const genreTag = (g.genre && g.genre[0]) ? `<div class="game-card-genre">${escHtml(getGenreLabel(g.genre, currentLang))}</div>` : '';
         const imgHtml = g.imgUrl
           ? `<img class="game-card-img" src="${escHtml(g.imgUrl)}" alt="${escHtml(g.name)}" loading="lazy" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
@@ -5730,6 +5783,12 @@ function renderSections() {
       });
       html += `</div>`; // close game-grid
     }
+    if (remaining > 0) {
+      const label = isEn
+        ? `Show more (${remaining} left)`
+        : `ดูเพิ่ม (เหลืออีก ${remaining} เกม)`;
+      html += `<button class="section-more-btn" onclick="showMoreInSection('${p.id}')">${label}</button>`;
+    }
     html += `</div>`; // close section-body
     html += `</div>`; // close platform-section
   }
@@ -5739,11 +5798,13 @@ function renderSections() {
 function setSectionSort(platformId, mode) {
   platformSortMode[platformId] = mode;
   if (mode !== 'genre') platformGenreFilter[platformId] = '';
+  resetSectionPaging(platformId);
   renderSections();
   if (searchQuery) applySearch();
 }
 function setSectionGenre(platformId, genre) {
   platformGenreFilter[platformId] = genre;
+  resetSectionPaging(platformId);
   renderSections();
 }
 function toggleSectionCollapse(platformId) {
@@ -5864,9 +5925,10 @@ function renderPickBody() {
         const lbl = isEn() ? ('Ready '+ds) : ('พร้อม '+ds);
         return `<span style="font-size:10px;background:#fff3cd;color:#856404;padding:2px 7px;border-radius:10px;flex-shrink:0;font-weight:700">⚠️ ${lbl}</span>`;
       })() : '';
+      const atMaxL = disabled && !isUnavailL;
       return `<div class="game-list-row ${sel ? 'selected-list-row' : ''}"
-        onclick="${disabled ? '' : `togglePick('${g.id}')`}"
-        style="${disabled ? 'opacity:0.45;cursor:not-allowed;' : ''}${sel ? 'background:var(--accent-light);' : ''}">
+        onclick="${isUnavailL ? '' : atMaxL ? 'pickCapNotice()' : `togglePick('${g.id}')`}"
+        style="${disabled ? `opacity:0.45;cursor:${atMaxL ? 'pointer' : 'not-allowed'};` : ''}${sel ? 'background:var(--accent-light);' : ''}">
         <span class="game-list-num">${String(i+1).padStart(2,'0')}</span>
         <span style="font-size:16px;flex-shrink:0">${isUnavailL ? '⚠️' : (sel ? '✓' : '○')}</span>
         <span class="game-list-name" style="${sel?'color:var(--accent)':''}">${escHtml(g.name)}</span>
@@ -5898,8 +5960,8 @@ function renderPickBody() {
           <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:88%;background:rgba(0,0,0,0.88);color:#FFD700;font-size:10px;font-weight:800;padding:6px 8px;border-radius:5px;text-align:center;line-height:1.4;white-space:pre-line">${lbl}</div>
         </div>`;
       })() : '';
-      return `<div class="pick-card ${sel ? 'selected' : ''} ${disabled || isUnavail ? 'pick-disabled' : ''}"
-        onclick="${disabled || isUnavail ? '' : `togglePick('${g.id}')`}"
+      return `<div class="pick-card ${sel ? 'selected' : ''} ${disabled || isUnavail ? 'pick-disabled' : ''} ${disabled && !isUnavail ? 'pick-at-max' : ''}"
+        onclick="${isUnavail ? '' : disabled ? 'pickCapNotice()' : `togglePick('${g.id}')`}"
         style="${isUnavail ? 'cursor:not-allowed;' : ''}"
         data-id="${g.id}">
         ${unavailPickRibbon}
