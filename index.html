@@ -5105,10 +5105,14 @@ body.line-browser #calcConsole{display:none}
         if(state.gamePickerBrowseOnly){
           const browsed = consoleById(state.gamePickerPlatformId);
           closeGamePicker();
+          // selectCalcConsole clears any previous list and puts the guide back on
+          // the date step, so the browsed list is applied after it.
           if(browsed) selectCalcConsole(browsed.id);
           state.calc.games = games;
           state.calc.later = false;
-          setGuideStage("next2");
+          // Land on step 1. No dates exist yet, so opening on the game step would
+          // strand the customer; the list is waiting when they reach step 2.
+          state.calc.step = 1;
           saveLocal();
           setBeforeRent(false);
           return;
