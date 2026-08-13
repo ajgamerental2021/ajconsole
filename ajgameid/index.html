@@ -513,6 +513,7 @@
         messageStatusBusy: '❌ ยังไม่ว่าง',
         rentNow: 'เช่าเลย',
         reserve: 'จองล่วงหน้า',
+        sharePreparing: 'กำลังเตรียมข้อความ...',
         lineToastOpen: 'เตรียมข้อความเรียบร้อย',
         lineToastCopied: 'คัดลอกข้อความเรียบร้อย',
         copyModalTitle: 'คัดลอกข้อมูลเรียบร้อย',
@@ -686,6 +687,7 @@
         messageStatusBusy: '❌ Not available yet',
         rentNow: 'Rent now',
         reserve: 'Reserve in Advance',
+        sharePreparing: 'Preparing...',
         lineToastOpen: 'Message prepared',
         lineToastCopied: 'Message copied',
         copyModalTitle: 'Information copied',
@@ -1574,6 +1576,21 @@
       setTimeout(() => el.copyModalOkBtn?.focus(), 30);
     }
 
+    function setShareButtonBusy(button, busy) {
+      if (!button) return;
+      if (busy) {
+        button.dataset.originalText = button.textContent;
+        button.textContent = tr('sharePreparing');
+        button.disabled = true;
+        button.setAttribute('aria-busy', 'true');
+        return;
+      }
+      button.textContent = button.dataset.originalText || button.textContent;
+      button.disabled = false;
+      button.removeAttribute('aria-busy');
+      delete button.dataset.originalText;
+    }
+
     function closeCopyModal() {
       el.copyModal?.classList.remove('open');
     }
@@ -1922,12 +1939,15 @@
     }
 
     
-    async function handleLineShare(itemId, offerIndex) {
+    async function handleLineShare(itemId, offerIndex, button = null) {
+      if (button?.disabled) return false;
+      setShareButtonBusy(button, true);
       try {
         const item = state.find(x => Number(x.idNo) === Number(itemId));
         const offer = item?.offers?.[Number(offerIndex)];
         if (!item || !offer) {
           alert('ไม่พบข้อมูลรายการนี้');
+          setShareButtonBusy(button, false);
           return false;
         }
 
@@ -1959,6 +1979,7 @@
         } catch (error) {
           console.error('booking save failed', error);
           alert(tr('bookingSaveFailed'));
+          setShareButtonBusy(button, false);
           return false;
         }
 
@@ -1992,10 +2013,12 @@
 
         showToast(copied ? tr('lineToastCopied') : tr('lineToastOpen'));
         showCopyModal();
+        setShareButtonBusy(button, false);
         return false;
       } catch (err) {
         console.error('LINE share failed', err);
         alert('เกิดข้อผิดพลาดตอนเตรียมข้อความสำหรับ LINE');
+        setShareButtonBusy(button, false);
         return false;
       }
     }
@@ -2030,7 +2053,7 @@
                     : `<span class="status-badge ${offerState.badgeClass}">${escapeHtml(offerState.statusLabel)}</span>`
                 }
               </div>
-              <button class="primary-btn" type="button" onclick="return handleLineShare(${item.idNo}, ${offerIndex})">${btnLabel}</button>
+              <button class="primary-btn" type="button" onclick="return handleLineShare(${item.idNo}, ${offerIndex}, this)">${btnLabel}</button>
             </div>
           </div>
         `;
