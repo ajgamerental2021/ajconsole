@@ -5,6 +5,33 @@ of a session, update at the end. Newest entry first.
 
 ---
 
+## 2026-08-15
+
+### Finished
+
+- `index.html` and `index-demo.html` now carry the same Before rent experience;
+  production was published from commit `9a33331` on 2026-08-14.
+- Shortened the two delivery-promotion lines in both languages. The stated
+  policy is: rentals of 3–6 days get free return delivery; rentals of 7+ days
+  get both trips free, up to ฿100 per trip, within Bangkok metro.
+- Renamed the social highlight section to “รีวิวจากลูกค้าและกิจกรรมที่ผ่านมา” /
+  “Customer Reviews & Past Events” so it no longer implies partnerships or
+  media endorsement.
+
+### Verification
+
+- `index.html` and `index-demo.html` are byte-identical after the copy changes.
+- Inline JavaScript syntax and `git diff --check` pass for both files.
+- Browser visual verification was unavailable because the in-app browser
+  blocked localhost navigation in this session.
+
+### Security still outstanding
+
+- Admin credentials are still recoverable from client-side JavaScript.
+- The Gist write token is still stored in browser `localStorage`.
+
+---
+
 ## 2026-08-14
 
 ### In flight
