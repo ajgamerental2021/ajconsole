@@ -960,7 +960,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     accessories: "aj_rental_accessories_v1",
     draft: "aj_index2_draft_v1",
     gameHandoff: "aj_game_picker_handoff_v1",
-    social: "aj_social_proof_v1"
+    social: "aj_social_proof_v2"
   };
 
   const SPEC = { PS4:1, PS5:11, PS5P:18, SW1:4, SW2:12, VLP:10, VLU:16, VB:17 };
@@ -1762,7 +1762,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         // A review is quoted in the language the customer wrote it in, so there
         // is one text rather than a pair keyed on the page language. Older
         // entries stored a Thai and an English copy; take whichever was filled.
-        text: text(review.text || review.textEn || review.textTh)
+        // Old records kept a Thai and an English copy without recording which one
+        // the customer actually wrote, so there is no reliable answer here; the
+        // storage key was bumped to drop them rather than guess wrong.
+        text: text(review.text || review.textTh || review.textEn)
       })).filter(review => review.name || review.text)
     };
   }
