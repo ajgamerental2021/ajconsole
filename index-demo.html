@@ -1016,13 +1016,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     googleCount: "192",
     facebookRecommend: "98",
     facebookCount: "83",
-    followers: "10,000",
+    followers: "10,766",
     verified: true,
     reviews: [
-      {id:"rv1", name:"\u0410\u0440\u0442\u0435\u043c \u0421\u043e\u043a\u043e\u043b\u043e\u0432", source:"facebook", stars:5, textTh:"เช่า PlayStation จากที่นี่เป็นประจำ ทุกอย่างราบรื่นและไว้ใจได้ บริการดี สื่อสารชัดเจน ไม่เคยมีปัญหา", textEn:"We regularly rent a PlayStation from here and everything is always smooth and reliable. Great service, clear communication, and never any issues."},
-      {id:"rv2", name:"Jason David", source:"facebook", stars:5, textTh:"ประสบการณ์เช่ากับ AJ ดีมาก ตั้งแต่ต้นจนจบ มืออาชีพและสุภาพ PS5 ส่งมาตรงตามที่หวังไว้", textEn:"It was such a great experience renting from AJ. From start to finish, professional and courteous. Our PS5 was delivered exactly as we hoped."},
-      {id:"rv3", name:"David Robinson", source:"facebook", stars:5, textTh:"เป็นคนพูดอังกฤษที่อยู่ไทย แปลกใจว่าคุยกับ AJ ง่ายมาก เขาตอบไว จริงใจ", textEn:"As an English speaker living in Bangkok, I was surprised at how easy it was to speak to AJ about the rental. He is very communicative and earnest."},
-      {id:"rv4", name:"Butter Noey", source:"google", stars:5, textTh:"ประทับใจมากค่ะ เครื่อง Meta Quest 3S สภาพดี ใช้งานลื่น เล่นสนุกมาก อุปกรณ์ครบ พร้อมใช้งาน ทางร้านให้บริการดี ตอบแชทไว จัดส่งเรียบร้อย", textEn:"Really impressed. The Meta Quest 3S was in great condition and ran smoothly. Everything was included and ready to use, quick replies and tidy delivery."}
+      {id:"rv1", name:"\u0410\u0440\u0442\u0435\u043c \u0421\u043e\u043a\u043e\u043b\u043e\u0432", source:"facebook", stars:5, text:"We regularly rent a PlayStation from here and everything is always smooth and reliable. Great service, clear communication, and never any issues. Highly recommended."},
+      {id:"rv2", name:"Jason David", source:"facebook", stars:5, text:"It was such a great experience renting from AJ. From start to finish, professional and courteous. Our PS5 was delivered exactly as we hoped. I would rent from them again."},
+      {id:"rv3", name:"David Robinson", source:"facebook", stars:5, text:"As an English speaker living in Bangkok, I was surprised at how easy it was to speak to AJ about the rental. He is very communicative and earnest."},
+      {id:"rv4", name:"Butter Noey", source:"google", stars:5, text:"\u0e1b\u0e23\u0e30\u0e17\u0e31\u0e1a\u0e43\u0e08\u0e21\u0e32\u0e01\u0e04\u0e48\u0e30 \u0e40\u0e04\u0e23\u0e37\u0e48\u0e2d\u0e07 Meta Quest 3S \u0e2a\u0e20\u0e32\u0e1e\u0e14\u0e35 \u0e43\u0e0a\u0e49\u0e07\u0e32\u0e19\u0e25\u0e37\u0e48\u0e19 \u0e40\u0e25\u0e48\u0e19\u0e2a\u0e19\u0e38\u0e01\u0e21\u0e32\u0e01 \u0e2d\u0e38\u0e1b\u0e01\u0e23\u0e13\u0e4c\u0e04\u0e23\u0e1a \u0e1e\u0e23\u0e49\u0e2d\u0e21\u0e43\u0e0a\u0e49\u0e07\u0e32\u0e19 \u0e17\u0e32\u0e07\u0e23\u0e49\u0e32\u0e19\u0e43\u0e2b\u0e49\u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23\u0e14\u0e35 \u0e15\u0e2d\u0e1a\u0e41\u0e0a\u0e17\u0e44\u0e27 \u0e08\u0e31\u0e14\u0e2a\u0e48\u0e07\u0e40\u0e23\u0e35\u0e22\u0e1a\u0e23\u0e49\u0e2d\u0e22 \u0e43\u0e04\u0e23\u0e2a\u0e19\u0e43\u0e08\u0e25\u0e2d\u0e07\u0e14\u0e39\u0e04\u0e48\u0e30"}
     ]
   };
 
@@ -1759,9 +1759,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         name: text(review.name),
         source: ["google","facebook"].includes(String(review.source)) ? String(review.source) : "google",
         stars: Math.min(5, Math.max(1, Number(review.stars) || 5)),
-        textTh: text(review.textTh || review.text),
-        textEn: text(review.textEn || review.textTh || review.text)
-      })).filter(review => review.name || review.textTh || review.textEn)
+        // A review is quoted in the language the customer wrote it in, so there
+        // is one text rather than a pair keyed on the page language. Older
+        // entries stored a Thai and an English copy; take whichever was filled.
+        text: text(review.text || review.textEn || review.textTh)
+      })).filter(review => review.name || review.text)
     };
   }
   function normalizeFaq(list){
@@ -1946,7 +1948,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(!reviews.length) return;
     const reviewHost = byId("beforeRentReviews");
     reviewHost.innerHTML = reviews.map(review => {
-      const body = state.lang === "en" ? (review.textEn || review.textTh) : (review.textTh || review.textEn);
+      const body = review.text;
       const initial = (review.name || "?").trim().charAt(0).toUpperCase();
       const source = review.source === "facebook" ? "Facebook" : "Google Maps";
       return `<article class="before-rent-review">
@@ -4594,8 +4596,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       <div class="field"><label class="label">Source</label><select class="input" data-review="${index}:source"><option value="google" ${review.source==="google"?"selected":""}>Google Maps</option><option value="facebook" ${review.source==="facebook"?"selected":""}>Facebook</option></select></div>
       <div class="field"><label class="label">Stars (1-5)</label><input class="input" type="number" min="1" max="5" data-review="${index}:stars" value="${esc(review.stars)}"></div>
       <div class="field"><label class="label">Show on page</label><select class="input" data-review="${index}:active"><option value="1" ${review.active!==false?"selected":""}>Yes</option><option value="0" ${review.active===false?"selected":""}>No</option></select></div>
-      <div class="field"><label class="label">Review TH</label><textarea class="input" rows="3" data-review="${index}:textTh">${esc(review.textTh)}</textarea></div>
-      <div class="field"><label class="label">Review EN</label><textarea class="input" rows="3" data-review="${index}:textEn">${esc(review.textEn)}</textarea></div>
+      <div class="field wide"><label class="label">Review text (exactly as the customer wrote it)</label><textarea class="input" rows="3" data-review="${index}:text">${esc(review.text)}</textarea></div>
       </div><button class="btn danger" data-delete-review="${index}" type="button">${tr("delete")}</button></div></div>`).join("");
     return `<div class="card"><h3>Trust strip</h3>
       <label class="option-row"><input type="checkbox" id="socialEnabled" ${social.enabled?"checked":""}><div><b>Show trust strip and reviews</b></div></label>
@@ -4979,7 +4980,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(targetId === "saveHome") saveHomeFromAdmin();
       if(targetId === "addFaq"){ state.faq.push({qTh:"",aTh:"",qEn:"",aEn:""}); saveAndRenderAdmin("FAQ added"); }
       if(targetId === "saveFaq") saveFaqFromAdmin();
-      if(targetId === "addReview"){ state.social.reviews.push({id:`rv_${Date.now()}`, name:"", source:"google", stars:5, textTh:"", textEn:"", active:true}); saveAndRenderAdmin("Review added"); }
+      if(targetId === "addReview"){ state.social.reviews.push({id:`rv_${Date.now()}`, name:"", source:"google", stars:5, text:"", active:true}); saveAndRenderAdmin("Review added"); }
       if(targetId === "saveReviews") saveReviewsFromAdmin();
       if(targetId === "saveSettings") saveSettings();
       if(targetId === "addBundle"){ state.bundles.push({id:`bundle_${Date.now()}`,th:"Bundle ใหม่",en:"New Bundle",rate:600,weekly:4000,deposit:4000,readyDate:""}); saveAndRenderAdmin("Bundle added"); }
