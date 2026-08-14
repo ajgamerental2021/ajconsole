@@ -3,27 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<script>
-(() => {
-  const MAIN_LIFF_ID = "2010212481-16RHJsnX";
-  const isLineBrowser = /\bLine\/[\d.]+/i.test(navigator.userAgent || "");
-  const isDirectRenderEntry = location.hostname === "ajgamerental.onrender.com";
-  const params = new URLSearchParams(location.search);
-  const isLiffReturn = params.get("ajLiff") === "1"
-    || params.has("liff.state")
-    || params.has("code")
-    || params.has("error");
-
-  if(!isLineBrowser || !isDirectRenderEntry || isLiffReturn || localStorage.getItem("aj_line_unique_id")) return;
-
-  ["code", "state", "error", "error_description", "liff.state", "liff.referrer"].forEach(key => params.delete(key));
-  params.set("ajLiff", "1");
-  const liffUrl = new URL(`https://liff.line.me/${MAIN_LIFF_ID}`);
-  liffUrl.search = params.toString();
-  liffUrl.hash = location.hash;
-  location.replace(liffUrl.href);
-})();
-</script>
 <title>AJ Game Rental - รายการเครื่อง</title>
 <meta name="description" content="บริการให้เช่าเครื่องเล่นเกม พร้อมส่งด่วน 2 ชม. ในกรุงเทพฯ และปริมณฑล🔥">
 <meta property="og:description" content="บริการให้เช่าเครื่องเล่นเกม พร้อมส่งด่วน 2 ชม. ในกรุงเทพฯ และปริมณฑล🔥">
@@ -140,8 +119,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .review-discount-box .option-row{background:#fffdfd}
 .review-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .review-actions .btn{min-height:38px;padding:8px 12px}
-.review-only-highlight{display:inline-flex;align-items:center;padding:6px 10px;border:1px solid #f1bd32;border-radius:8px;background:#fff1a8;color:#7a4300;font-size:12px;font-weight:900;line-height:1.35}
-.game-policy-note{display:grid;gap:3px;margin:0 0 12px;padding:10px 12px;border:1px solid #f2cf70;border-left:4px solid var(--danger);border-radius:9px;background:#fff8df;color:#674700;font-size:13px;font-weight:900;line-height:1.45}
 .option-note-highlight{display:inline-flex;align-items:center;margin-left:6px;padding:3px 9px;border-radius:999px;background:#fff4bf;color:#8a5200;font-size:12px;font-weight:900;line-height:1.35;vertical-align:middle}
 .deposit-badge{display:inline-flex;align-items:center;margin-left:8px;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:900;line-height:1.35;vertical-align:middle;white-space:nowrap}
 .deposit-badge.ok{background:#eaf8ef;border:1px solid #bfe8cb;color:#137333}
@@ -177,28 +154,17 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-unavailable{color:#666;text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:#111;text-decoration-skip-ink:auto;white-space:nowrap}
 .payment-picker{display:flex;flex-direction:column;gap:10px;border:1px solid var(--border2);border-radius:12px;background:#fff;padding:10px}
 .payment-group{border:1px solid var(--border);border-radius:10px;background:#fafbfc;overflow:hidden}
-.payment-group-title{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 11px;background:#eef2f7;border-bottom:1px solid var(--border);font-size:12px;font-weight:900;color:var(--text2);line-height:1.35}
-.payment-recommended{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;background:#fff0c2;color:#7a4b00;font-size:11px;font-weight:900;white-space:nowrap}
+.payment-group-title{padding:9px 11px;background:#eef2f7;border-bottom:1px solid var(--border);font-size:12px;font-weight:900;color:var(--text2);line-height:1.35}
 .payment-option{display:flex;align-items:center;gap:10px;min-height:46px;padding:10px 11px;cursor:pointer;font-weight:800;line-height:1.35}
 .payment-option + .payment-option{border-top:1px solid var(--border)}
 .payment-option input{width:19px;height:19px;margin:0;accent-color:#d71920;flex:0 0 auto}
 .payment-option:has(input:checked){background:#fff4f4;box-shadow:inset 4px 0 #d71920}
 .payment-option-copy{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
 .payment-option-copy small{font-size:12px;font-weight:800;color:var(--text2)}
-.payment-option.is-disabled{cursor:not-allowed;background:#f3f4f6;color:#777}
-.payment-option.is-disabled .payment-option-copy{opacity:.82}
-.payment-option.is-disabled input{cursor:not-allowed}
-.wise-status{margin-top:3px;color:var(--text2)}
-.wise-status.blocked{color:#b42318;font-weight:900}
 .payment-brand-badges{display:inline-flex;align-items:center;gap:6px;margin-left:5px;vertical-align:middle}
 .payment-card-logo{display:block;width:auto;height:20px;max-width:42px;object-fit:contain}
 .payment-wallet-badges{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:6px}
 .payment-wallet-logo{display:block;width:auto;height:24px;max-width:48px;object-fit:contain;border-radius:5px}
-.payment-refund-note{display:block;margin-top:5px;color:#8a4b08!important;font-size:11px!important;font-weight:900!important;line-height:1.4}
-.payment-refund-links{display:block;margin-top:3px;font-size:11px!important;font-weight:800!important;line-height:1.5}
-.payment-refund-links a{color:#0b6bcb;text-decoration:underline;text-underline-offset:2px}
-.payment-refund-links a:hover{color:#c90012}
-.payment-refund-links span{color:#98a2b3}
 .sum-row .payment-option-copy{align-items:flex-end}
 .sum-row .payment-wallet-badges{justify-content:flex-end}
 .sum-empty{color:var(--text3);font-size:14px;padding:20px 0}
@@ -313,7 +279,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .day.end{background:#f3f6ff;color:#244edb;border:3px solid #3456d9;box-shadow:0 0 0 2px #fff,0 0 0 4px #3456d9}
 .day.range{background:#edf3ff;border-color:#b7c8ff;color:#244edb}
 .day.busy{background:#fff1f1;border-color:#ffc2c2;color:#b42318}
-.day.promo small{color:#9a5a00;opacity:1;font-weight:900}
 .cal-legend{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--text2);font-weight:800;margin-bottom:14px}
 .cal-legend span{display:inline-flex;align-items:center;gap:6px}
 .cal-legend i{width:14px;height:14px;border-radius:999px;border:1px solid var(--border);display:inline-block}
@@ -406,18 +371,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .float-calc.show{display:inline-flex}
 .picker-card{position:relative;background:#fff;width:min(1180px,100%);height:min(92vh,900px);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow2)}
 .picker-frame{flex:1;border:0;background:#fff}
-.line-console-trigger{display:none;width:100%;min-height:44px;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--border2);border-radius:11px;background:#fff;padding:11px 12px;color:var(--text);text-align:left;font-weight:700}
-.line-console-trigger:after{content:"⌄";flex:0 0 auto;color:var(--text2);font-size:20px;line-height:1}
-body.line-browser .line-console-trigger{display:flex}
-body.line-browser #calcConsole{display:none}
-.line-console-picker-card{display:flex;flex-direction:column;width:min(560px,100%);max-height:min(86vh,720px);overflow:hidden}
-.line-console-picker-list{min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding:10px 14px max(18px,env(safe-area-inset-bottom))}
-.line-console-picker-option{display:flex;width:100%;align-items:flex-start;gap:10px;border:1px solid var(--border);border-radius:12px;background:#fff;color:var(--text);padding:13px 14px;text-align:left;font-weight:800;line-height:1.45}
-.line-console-picker-option+.line-console-picker-option{margin-top:8px}
-.line-console-picker-option.selected{border-color:var(--accent);background:#fff3f3;box-shadow:inset 4px 0 var(--accent)}
-.line-console-picker-option:disabled{color:var(--text3);background:#f3f3f3;cursor:not-allowed}
-.line-console-picker-check{width:22px;flex:0 0 22px;color:var(--accent);font-weight:900}
-.line-console-picker-copy{overflow-wrap:anywhere}
 .game-picker-platform-rail{position:relative;flex:0 0 auto;background:#fff;border-bottom:1px solid #eef0f2}
 .game-picker-platform-rail[hidden]{display:none}
 /* Every catalogue is listed at once: a scrolling row hid most of the consoles
@@ -512,8 +465,6 @@ body.line-browser #calcConsole{display:none}
   .step-tab .num{flex:0 0 auto;margin-right:7px;background:#14883d}
   .calc-body{padding:14px}
   .modal-overlay,.picker-overlay,.admin-overlay{padding:0}
-  #lineConsolePickerModal{padding:0;align-items:stretch}
-  #lineConsolePickerModal .line-console-picker-card{height:100%;max-height:none;border-radius:0}
   .calendar-modal{padding:8px;align-items:stretch}
   .modal-card,.picker-card,.admin-modal{width:100%;height:100%;max-height:none;border-radius:0}
   #shareConfirmModal{padding:18px;align-items:center;justify-content:center}
@@ -544,14 +495,18 @@ body.line-browser #calcConsole{display:none}
   .cal-footer{padding-bottom:max(12px,env(safe-area-inset-bottom))}
 }
   .before-rent-section{width:100%;max-width:100vw;padding:34px 0 54px;overflow:hidden}
-  .before-rent-section>.container{width:100%;min-width:0}
+  .before-rent-section>.container{width:100%;max-width:1200px;min-width:0}
   .before-rent-panel{width:100%;min-width:0;border:3px solid #c90012;border-radius:16px;background:#fff;padding:26px;box-shadow:0 16px 40px rgba(15,23,42,.08)}
   .before-rent-head{text-align:center}
   .before-rent-kicker{display:inline-flex;align-items:center;justify-content:center;color:#c90012;font-size:12px;font-weight:900;letter-spacing:.08em}
   .before-rent-head h1{margin:8px 0 6px;font-size:clamp(28px,4vw,46px);white-space:normal;overflow-wrap:anywhere}
   .before-rent-head p{margin:0;color:#667085;overflow-wrap:anywhere}
-  .before-rent-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px}
-  .before-rent-action{position:relative;display:flex;align-items:center;gap:14px;width:100%;min-width:0;min-height:100px;padding:18px;border:1px solid #dfe3e8;border-radius:10px;background:#fff;text-align:left;cursor:pointer}
+  .before-rent-grid{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:16px;margin-top:22px}
+  .before-rent-action{position:relative;display:flex;align-items:center;gap:14px;width:100%;min-width:0;min-height:100px;padding:20px;border:1px solid #dfe3e8;border-radius:12px;background:#fff;text-align:left;cursor:pointer}
+  .before-rent-action:nth-child(1){grid-column:span 6}
+  .before-rent-action:nth-child(2){grid-column:span 4}
+  .before-rent-action:nth-child(3),.before-rent-action:nth-child(4){grid-column:span 5;min-height:80px;padding:15px 20px}
+  .before-rent-action:nth-child(3) .before-rent-icon,.before-rent-action:nth-child(4) .before-rent-icon{flex-basis:44px;width:44px;height:44px}
   .before-rent-action:hover,.before-rent-action:focus-visible{border-color:#c90012;background:#fff8f8;box-shadow:0 0 0 3px rgba(201,0,18,.1)}
   .before-rent-action.is-primary{border:0;background:linear-gradient(135deg,#d1121f,#a3000f);color:#fff;box-shadow:0 12px 26px rgba(201,0,18,.28)}
   .before-rent-action.is-primary:hover,.before-rent-action.is-primary:focus-visible{background:linear-gradient(135deg,#e11d2b,#b40010);box-shadow:0 14px 30px rgba(201,0,18,.36)}
@@ -564,6 +519,42 @@ body.line-browser #calcConsole{display:none}
   .before-rent-action.is-primary .before-rent-icon{color:#fff}
   .ico{display:block;width:1em;height:1em;flex:0 0 auto}
   .before-rent-terms{margin:14px 0 0;color:#667085;font-size:12.5px;font-weight:700;line-height:1.6}
+  /* One slim row of proof under the menu: it answers "is this shop real" before
+     the customer scrolls, without pushing the consoles down a screen. */
+  .before-rent-trust{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:14px 0 0;padding:10px 12px;border:1px solid #e5e7eb;border-radius:12px;background:#fbfcfd}
+  .before-rent-trust[hidden]{display:none}
+  .before-rent-trust-item{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:#344054;text-decoration:none}
+  a.before-rent-trust-item:hover{color:#c90012}
+  .before-rent-trust-item b{color:#101828;font-size:14px}
+  .before-rent-trust-item .ico{width:15px;height:15px;color:#c90012}
+  .before-rent-trust-item .stars{color:#f5a300;letter-spacing:1px}
+  .before-rent-trust-sep{width:1px;height:18px;background:#e5e7eb}
+  .before-rent-trust-verified{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;background:#eaf2ff;color:#1a5fd0;font-size:11.5px;font-weight:900}
+  .before-rent-reviews{display:flex;gap:10px;padding:2px 2px 10px;overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .before-rent-reviews::-webkit-scrollbar{height:6px}
+  .before-rent-reviews::-webkit-scrollbar-thumb{background:#d7dbe0;border-radius:999px}
+  .before-rent-reviews:focus-visible{outline:2px solid #c90012;outline-offset:3px;border-radius:12px}
+  .before-rent-review{flex:0 0 280px;scroll-snap-align:start;display:grid;align-content:start;gap:8px;padding:14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff}
+  .before-rent-review-head{display:flex;align-items:center;gap:8px}
+  .before-rent-review-avatar{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:999px;background:#f4f6f8;color:#475467;font-size:14px;font-weight:900}
+  .before-rent-review-name{font-size:13.5px;font-weight:900;line-height:1.25}
+  .before-rent-review-src{font-size:11px;font-weight:800;color:#667085}
+  .before-rent-review-stars{color:#f5a300;font-size:13px;letter-spacing:1px}
+  .before-rent-review-text{color:#475467;font-size:12.5px;font-weight:600;line-height:1.6}
+  .before-rent-review-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .before-rent-review-link{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border:1px solid #d0d5dd;border-radius:999px;background:#fff;color:#344054;font-size:12.5px;font-weight:800;text-decoration:none}
+  .before-rent-review-link:hover{border-color:#c90012;color:#c90012}
+  .before-rent-review-link .ico{width:16px;height:16px}
+  .before-rent-highlights{display:flex;gap:12px;padding:2px 2px 10px;overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .before-rent-highlights::-webkit-scrollbar{height:6px}
+  .before-rent-highlights::-webkit-scrollbar-thumb{background:#d7dbe0;border-radius:999px}
+  .before-rent-highlights:focus-visible{outline:2px solid #c90012;outline-offset:3px;border-radius:12px}
+  .before-rent-highlight{flex:0 0 220px;scroll-snap-align:start;display:grid;overflow:hidden;border:1px solid #e5e7eb;border-radius:14px;background:#fff;color:#101828;text-decoration:none;box-shadow:0 5px 16px rgba(16,24,40,.06)}
+  .before-rent-highlight:hover{border-color:#c90012;box-shadow:0 8px 22px rgba(201,0,18,.12)}
+  .before-rent-highlight img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;background:#f2f4f7}
+  .before-rent-highlight-copy{display:grid;gap:5px;padding:11px 12px}
+  .before-rent-highlight-title{font-size:13px;font-weight:900;line-height:1.4}
+  .before-rent-highlight-cue{display:inline-flex;align-items:center;gap:5px;color:#c90012;font-size:11.5px;font-weight:900}
   .before-rent-terms b{color:#c90012}
   .before-rent-copy{display:grid;min-width:0;gap:5px;overflow-wrap:anywhere}
   .before-rent-copy strong{font-size:18px}
@@ -578,8 +569,7 @@ body.line-browser #calcConsole{display:none}
   .before-rent-hint{display:inline-flex;align-items:center;gap:5px;color:#667085;font-size:12.5px;font-weight:700}
   .before-rent-hint .ico{width:15px;height:15px;color:#c90012}
   .before-rent-typefilter{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 10px}
-  /* 44px keeps the chips inside the minimum comfortable touch target. */
-  .before-rent-typechip{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid #d0d5dd;border-radius:999px;background:#fff;color:#344054;font-size:13px;font-weight:800;cursor:pointer}
+  .before-rent-typechip{padding:6px 12px;border:1px solid #d0d5dd;border-radius:999px;background:#fff;color:#344054;font-size:12.5px;font-weight:800;cursor:pointer}
   .before-rent-typechip:hover{border-color:#c90012;color:#c90012}
   .before-rent-typechip.active{border-color:#c90012;background:#fff1f2;color:#c90012}
   .before-rent-note{display:grid;gap:5px;margin:10px 0 0;color:#667085;font-size:11.5px;font-weight:600;line-height:1.55}
@@ -626,14 +616,31 @@ body.line-browser #calcConsole{display:none}
   .before-rent-device-cta{margin-top:2px;color:#c90012;font-size:11.5px;font-weight:900}
   .before-rent-device[disabled] .before-rent-device-cta{color:#667085}
   .before-rent-back{margin:0 0 18px}
+  .before-rent-final-cta{display:grid;justify-items:center;gap:10px;margin-top:24px;padding:22px;border-radius:14px;background:#fff5f6;text-align:center}
+  .before-rent-final-cta p{margin:0;color:#475467;font-size:13px;font-weight:700}
+  .before-rent-final-cta .btn{min-width:240px}
+  #adminBtn[hidden]{display:none!important}
   .before-rent-hidden{display:none!important}
-  @media(max-width:640px){
+  @media(max-width:767px){
     .before-rent-section{width:100%;max-width:100%;padding:20px 0 34px}
-    .before-rent-section>.container{width:100%;max-width:100%;margin:0;padding:0 14px}
-    .before-rent-panel{width:100%;max-width:100%;padding:18px}
+    .before-rent-section>.container{width:100%;max-width:100%;margin:0;padding:0 12px}
+    .before-rent-panel{width:100%;max-width:100%;padding:14px;border-width:2px}
     .before-rent-head h1{font-size:28px}
-    .before-rent-grid{grid-template-columns:1fr}
-    .before-rent-action{min-height:86px}
+    .before-rent-grid{grid-template-columns:1fr;gap:12px}
+    .before-rent-action{grid-column:auto!important;border-radius:14px}
+    .before-rent-action:nth-child(1){min-height:112px;padding:22px 16px}
+    .before-rent-action:nth-child(1) .before-rent-icon{flex-basis:48px;width:48px;height:48px}
+    .before-rent-action:nth-child(1) .before-rent-copy strong{font-size:20px}
+    .before-rent-action:nth-child(1) .before-rent-copy span{font-size:14px}
+    .before-rent-action:nth-child(2){min-height:82px;padding:16px}
+    .before-rent-action:nth-child(2) .before-rent-icon{flex-basis:44px;width:44px;height:44px}
+    .before-rent-action:nth-child(2) .before-rent-copy strong{font-size:18px}
+    .before-rent-action:nth-child(2) .before-rent-copy span{font-size:13px}
+    .before-rent-action:nth-child(3),.before-rent-action:nth-child(4){min-height:72px;padding:14px 16px}
+    .before-rent-action:nth-child(3) .before-rent-icon,.before-rent-action:nth-child(4) .before-rent-icon{flex-basis:40px;width:40px;height:40px}
+    .before-rent-action:nth-child(3) .before-rent-icon .ico,.before-rent-action:nth-child(4) .before-rent-icon .ico{width:22px;height:22px}
+    .before-rent-action:nth-child(3) .before-rent-copy strong,.before-rent-action:nth-child(4) .before-rent-copy strong{font-size:16px}
+    .before-rent-action:nth-child(3) .before-rent-copy span,.before-rent-action:nth-child(4) .before-rent-copy span{font-size:12.5px}
     .before-rent-discovery-head{display:block}
     .game-picker-platform-label{font-size:12px}
     .game-picker-platform-btn{padding:6px 9px;font-size:11.5px}
@@ -645,8 +652,16 @@ body.line-browser #calcConsole{display:none}
     .before-rent-promos:focus-visible{outline:2px solid #c90012;outline-offset:3px;border-radius:12px}
     .before-rent-promo{flex:0 0 82%;scroll-snap-align:start}
     .before-rent-device{flex:0 0 150px}
+    .before-rent-review{flex:0 0 250px}
+    .before-rent-highlight{flex-basis:190px}
+    .before-rent-trust{gap:6px 8px;padding:9px 10px}
+    .before-rent-trust-sep{display:none}
     .before-rent-mini-head h3{font-size:17px}
     .before-rent-hint{font-size:12px}
+    .before-rent-devices,.before-rent-promos,.before-rent-reviews,.before-rent-highlights{scrollbar-width:none}
+    .before-rent-devices::-webkit-scrollbar,.before-rent-promos::-webkit-scrollbar,.before-rent-reviews::-webkit-scrollbar,.before-rent-highlights::-webkit-scrollbar{display:none}
+    .before-rent-final-cta{padding:18px 12px}
+    .before-rent-final-cta .btn{width:100%;min-width:0}
   }
 </style>
 </head>
@@ -656,7 +671,7 @@ body.line-browser #calcConsole{display:none}
     <div class="brand"><div class="brand-mark"><img src="data:image/png;base64,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" alt="AJ"></div><div id="brandText"><em>AJ</em> เช่าเครื่องเกม</div></div>
     <div class="nav-actions">
       <button class="btn" id="faqBtn" type="button">FAQ</button>
-      <button class="btn" id="adminBtn" type="button"><span>Admin</span></button>
+      <button class="btn" id="adminBtn" type="button" hidden><span>Admin</span></button>
       <button class="btn primary" id="langBtn" type="button">EN</button>
     </div>
   </div>
@@ -691,11 +706,12 @@ body.line-browser #calcConsole{display:none}
           </button>
         </div>
         <p class="before-rent-terms" id="beforeRentTerms"></p>
+        <div class="before-rent-trust" id="beforeRentTrust" hidden></div>
         <div class="before-rent-discovery">
           <div class="before-rent-discovery-head">
             <div>
               <span class="before-rent-kicker" data-i18n="beforeRentExploreKicker">ดูก่อนตัดสินใจ</span>
-              <h2 data-i18n="beforeRentExploreTitle">เครื่องยอดนิยมและโปรเด่น</h2>
+              <h2 data-i18n="beforeRentExploreTitle">เครื่องเกมทั้งหมดและโปรโมชั่น</h2>
             </div>
           </div>
           <section class="before-rent-mini-section">
@@ -704,9 +720,9 @@ body.line-browser #calcConsole{display:none}
               <span class="before-rent-count" id="beforeRentDevicesCount"></span>
               <span class="before-rent-hint" id="beforeRentDevicesHint"></span>
             </div>
-            <div class="before-rent-typefilter" id="beforeRentTypeFilter" role="group"></div>
+            <div class="before-rent-typefilter" id="beforeRentTypeFilter" role="group" aria-label="ประเภทเครื่องเกม"></div>
             <div class="before-rent-rail" id="beforeRentDevicesRail">
-              <div id="beforeRentDevices" class="before-rent-devices" tabindex="0" role="group"></div>
+              <div id="beforeRentDevices" class="before-rent-devices" tabindex="0" role="region" aria-label="รายการเครื่องเกมทั้งหมด"></div>
             </div>
             <p class="before-rent-note" id="beforeRentDevicesNote"></p>
           </section>
@@ -716,9 +732,36 @@ body.line-browser #calcConsole{display:none}
               <span class="before-rent-hint" id="beforeRentPromoHint"></span>
             </div>
             <div class="before-rent-rail" id="beforeRentPromosRail">
-              <div id="beforeRentPromos" class="before-rent-promos" tabindex="0" role="group"></div>
+              <div id="beforeRentPromos" class="before-rent-promos" tabindex="0" role="region" aria-label="โปรโมชั่น"></div>
             </div>
           </section>
+          <section class="before-rent-mini-section" id="beforeRentReviewsSection" hidden>
+            <div class="before-rent-mini-head">
+              <h3 data-i18n="beforeRentReviews">รีวิวจากลูกค้าจริง</h3>
+              <span class="before-rent-count" id="beforeRentReviewsCount"></span>
+              <span class="before-rent-hint" id="beforeRentReviewsHint"></span>
+            </div>
+            <div class="before-rent-rail" id="beforeRentReviewsRail">
+              <div id="beforeRentReviews" class="before-rent-reviews" tabindex="0" role="region" aria-label="รีวิวจากลูกค้าจริง"></div>
+            </div>
+            <div class="before-rent-review-links" id="beforeRentReviewLinks"></div>
+          </section>
+          <section class="before-rent-mini-section" id="beforeRentHighlightsSection" hidden>
+            <div class="before-rent-mini-head">
+              <h3 data-i18n="beforeRentHighlights">ผลงาน รีวิวจากสื่อ และกิจกรรมที่ผ่านมา</h3>
+              <span class="before-rent-count" id="beforeRentHighlightsCount"></span>
+              <span class="before-rent-hint" id="beforeRentHighlightsHint"></span>
+            </div>
+            <p class="before-rent-note" data-i18n="beforeRentHighlightsSub">ตัวอย่างผลงาน รีวิวจากสื่อ และกิจกรรมที่ AJ เคยให้บริการ</p>
+            <div class="before-rent-rail" id="beforeRentHighlightsRail">
+              <div id="beforeRentHighlights" class="before-rent-highlights" tabindex="0" role="region" aria-label="ผลงาน รีวิวจากสื่อ และกิจกรรมที่ผ่านมา"></div>
+            </div>
+            <div class="before-rent-review-links"><a class="before-rent-review-link" id="beforeRentHighlightsAll" target="_blank" rel="noopener noreferrer"></a></div>
+          </section>
+          <div class="before-rent-final-cta">
+            <p data-i18n="beforeRentFinalText">พร้อมแล้วเลือกเครื่องเพื่อเช็ควันว่างและคำนวณค่าเช่าได้เลย</p>
+            <button class="btn primary" id="beforeRentFinalCta" type="button" data-i18n="beforeRentFinalCta">เลือกเครื่องและเช็คคิว</button>
+          </div>
         </div>
       </div>
     </div>
@@ -771,7 +814,7 @@ body.line-browser #calcConsole{display:none}
                 <div class="step1-head"><h3 data-i18n="step1Title">เลือกเครื่องและวันที่</h3><button class="btn danger step-guide-btn" id="stepsBtn" type="button" data-i18n="stepsBtn">ขั้นตอนการเช่า</button></div>
                 <div class="grid2 calc-selection-grid">
                   <div class="field"><label class="label" data-i18n="deviceType">ประเภทเครื่อง</label><select id="calcType"></select></div>
-                  <div class="field"><label class="label" data-i18n="device">เครื่องเกม</label><select id="calcConsole"></select><button class="line-console-trigger" id="lineConsoleTrigger" type="button" aria-haspopup="dialog"></button></div>
+                  <div class="field"><label class="label" data-i18n="device">เครื่องเกม</label><select id="calcConsole"></select></div>
                   <div class="field"><label class="label" data-i18n="startDate">วันที่เริ่มเช่า</label><input class="input" id="startDate" readonly></div>
                   <div class="field"><label class="label" data-i18n="endDate">วันคืนเครื่อง</label><input class="input" id="endDate" readonly></div>
                   <div class="rental-days-hint" id="rentalDaysHint"></div>
@@ -888,13 +931,6 @@ body.line-browser #calcConsole{display:none}
   </div>
 </div>
 
-<div class="modal-overlay" id="lineConsolePickerModal" role="dialog" aria-modal="true" aria-labelledby="lineConsolePickerTitle">
-  <div class="modal-card line-console-picker-card">
-    <div class="modal-head"><h3 id="lineConsolePickerTitle"></h3><button class="xbtn" id="lineConsolePickerClose" type="button" aria-label="Close">&times;</button></div>
-    <div class="line-console-picker-list" id="lineConsolePickerList"></div>
-  </div>
-</div>
-
 <div class="admin-overlay" id="adminOverlay">
   <div class="admin-modal">
     <div class="modal-head"><h3>Admin - Index2 Clean 1</h3><button class="xbtn" id="adminClose" type="button">&times;</button></div>
@@ -928,7 +964,7 @@ body.line-browser #calcConsole{display:none}
 
   const CONFIG = {
     version: "index2-clean-1",
-    gamePickerVersion: "20260813-1",
+    gamePickerVersion: "20260622-1",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",
@@ -936,7 +972,6 @@ body.line-browser #calcConsole{display:none}
     contractUrl: "https://liff.line.me/2010196202-iYu3RKIb",
     contractWebUrl: "https://aj-line-oa-bot.onrender.com/liff/",
     availabilityUrl: "https://script.google.com/macros/s/AKfycbwQezV-pML5afGWg18P5exdH6mVVCdBJxAExvt8YiF8IRwF6Pu4u6aTnlIUqefDedD2BA/exec",
-    apiBase: "https://aj-line-oa-bot.onrender.com",
     lineGamePickerCardApi: "https://aj-line-oa-bot.onrender.com/api/line/game-picker-card",
     rentalSheetId: "13QZWpd_E-L_0G_Xd0zSL5_OcgV4sdwk9febXZSkZepc",
     rentalSheetGid: "1105203002",
@@ -946,7 +981,7 @@ body.line-browser #calcConsole{display:none}
     whatsappPhone: "66816244715",
     facebookMessengerUser: "100064849841171",
     facebookMessengerUrl: "https://m.me/ajgamerental",
-    beamPaymentApi: "https://aj-line-oa-bot.onrender.com/api/payments/beam-link",
+    beamPaymentApi: "https://aj-line-oa-bot.onrender.com/api/payments/beam-link-demo",
     paymentSuccessUrl: "https://ajgamerental.onrender.com/payment-success.html",
     paymentFailedUrl: "https://ajgamerental.onrender.com/payment-failed.html",
     paymentLinkBase: "https://pay.ajgamerental.com/demo-checkout",
@@ -957,18 +992,10 @@ body.line-browser #calcConsole{display:none}
     wiseBankNameEn: "Krung Thai",
     wiseAccountNameEn: "Somchai Hemsiri",
     wiseEmail: "ajgamerental2021@gmail.com",
-    lineLiffId: "2010212481-16RHJsnX"
+    lineLiffId: "2010212481-16RHJsnX",
+    facebookPageUrl: "https://www.facebook.com/ajgamerental",
+    googleMapsUrl: "https://maps.app.goo.gl/QoGqkWe64QRxBGjT6"
   };
-
-  // Bank of Thailand financial-institution holidays for 2026 (Bangkok).
-  // Source: https://www.bot.or.th/en/financial-institutions-holiday.html
-  const THAI_FINANCIAL_HOLIDAYS = new Set([
-    "2026-01-01", "2026-01-02", "2026-03-03", "2026-04-06",
-    "2026-04-13", "2026-04-14", "2026-04-15", "2026-05-01",
-    "2026-05-04", "2026-06-01", "2026-06-03", "2026-07-28",
-    "2026-07-29", "2026-08-12", "2026-10-13", "2026-10-16",
-    "2026-10-23", "2026-12-07", "2026-12-10", "2026-12-31"
-  ]);
 
   const LS = {
     consoles: "aj_consoles",
@@ -984,7 +1011,8 @@ body.line-browser #calcConsole{display:none}
     bundles: "aj_rental_bundles_v1",
     accessories: "aj_rental_accessories_v1",
     draft: "aj_index2_draft_v1",
-    gameHandoff: "aj_game_picker_handoff_v1"
+    gameHandoff: "aj_game_picker_handoff_v1",
+    social: "aj_social_proof_v2"
   };
 
   const SPEC = { PS4:1, PS5:11, PS5P:18, SW1:4, SW2:12, VLP:10, VLU:16, VB:17 };
@@ -1032,6 +1060,37 @@ body.line-browser #calcConsole{display:none}
     {id:19,name:"Lenovo Legion GO2",nameEn:"Lenovo Legion GO2",rate:500,weekly:3000,deposit:4000,type:"handheld",brand:"lenovo",icon:"💻",showGameButton:true,gamePlatform:"rog"}
   ];
 
+  // Trust numbers and the picked reviews are shop data, not code, so they live
+  // beside the other admin-managed content and travel with the Gist.
+  const DEFAULT_SOCIAL = {
+    enabled: true,
+    googleRating: "5.0",
+    googleCount: "192",
+    facebookRecommend: "98",
+    facebookCount: "83",
+    followers: "10,766",
+    verified: true,
+    highlightsUrl: "https://www.facebook.com/ajgamerental/posts/pfbid02UHWQMJBr1t324aQAGRzkZK5NQYwcH6eyHGDszNP5AHrqbRUYfxmkUESd3Gvm1Dqnl",
+    highlights: [
+      {id:"hl1", titleTh:"เช่ากับ AJ โกงไหมครับ", titleEn:"Is AJ Game Rental trustworthy?", image:"assets/social-proof/aj-scam-check.webp", url:"https://www.facebook.com/ajgamerental/posts/pfbid02XHonjzPFXsUupY38S7feuZvY5WRcYE63ZWkQeXuuR2m6779CQKPrnWPFaTRfxE9ql", active:true},
+      {id:"hl2", titleTh:"TGS 2025 บูท Viture Thailand", titleEn:"TGS 2025 — Viture Thailand booth", image:"assets/social-proof/tgs-2025-viture.webp", url:"https://www.facebook.com/ajgamerental/posts/pfbid02qcRRRwxNZsn7CX5nq7SafJAcHrDNRCaKV1fJu3tZdg1Zs9y1RHaVYR4EaSP7rMU2l", active:true},
+      {id:"hl3", titleTh:"TGS 2024 บูทเซียนเกม", titleEn:"TGS 2024 — Zian Game booth", image:"assets/social-proof/tgs-2024-zian-game.webp", url:"https://www.facebook.com/story.php?story_fbid=952298263608493&id=100064849841171", active:true},
+      {id:"hl4", titleTh:"YouTube ช่อง Ploychompoo", titleEn:"Featured on Ploychompoo YouTube", image:"assets/social-proof/ploychompoo-youtube.webp", url:"https://www.facebook.com/ajgamerental/posts/pfbid06aKKWzdfBiSjDgD7CY4iyHkuKoTbbif5FjLsvkNLU697Fya9Ho81aUeRHmsMGc2Bl", active:true},
+      {id:"hl5", titleTh:"Amway Fair 2023", titleEn:"Amway Fair 2023", image:"assets/social-proof/amway-fair-2023.webp", url:"https://www.facebook.com/ajgamerental/posts/pfbid0gQGybvSqLshbuBzVLTLoDRYPQr2Ne7XKxFt9E3ekmQB4JCV3S5uLRxJjArqeYtLVl", active:true},
+      {id:"hl6", titleTh:"งานแข่ง FC 2024", titleEn:"FC 2024 tournament", image:"assets/social-proof/fc-2024-tournament.webp", url:"https://www.facebook.com/ajgamerental/posts/pfbid0256NEM37mHXHfLdni4wch86WZ1rk1mcBuv3xxzkJEL7AfoWbC1YVoFAxMFCN5mFStl", active:true},
+      {id:"hl7", titleTh:"งานโรงเรียนย่านพระราม 9", titleEn:"School event in Rama 9", image:"assets/social-proof/rama-9-school.webp", url:"https://www.facebook.com/ajgamerental/posts/pfbid02xhAGiwseKy75Y4QbKfL7xryW43SxFiyPZY4ms8J5NKpqqZfSnRvVYNJB2b9oQRkql", active:true},
+      {id:"hl8", titleTh:"Thailand Game Show 2022", titleEn:"Thailand Game Show 2022", image:"assets/social-proof/tgs-2022.webp", url:"https://www.facebook.com/story.php?story_fbid=479474927551507&id=102009085298095", active:true},
+      {id:"hl9", titleTh:"งานเปิดตัว Tipco Soza", titleEn:"Tipco Soza launch event", image:"assets/social-proof/tipco-soza-launch.webp", url:"https://www.facebook.com/story.php?story_fbid=439940204838313&id=102009085298095", active:true},
+      {id:"hl10", titleTh:"LaLiga Event ที่ Union Mall", titleEn:"LaLiga event at Union Mall", image:"assets/social-proof/laliga-union-mall.webp", url:"https://www.facebook.com/story.php?story_fbid=468256015340065&id=102009085298095", active:true}
+    ],
+    reviews: [
+      {id:"rv1", name:"\u0410\u0440\u0442\u0435\u043c \u0421\u043e\u043a\u043e\u043b\u043e\u0432", source:"facebook", stars:5, text:"We regularly rent a PlayStation from here and everything is always smooth and reliable. Great service, clear communication, and never any issues. Highly recommended."},
+      {id:"rv2", name:"Jason David", source:"facebook", stars:5, text:"It was such a great experience renting from AJ. From start to finish, professional and courteous. Our PS5 was delivered exactly as we hoped. I would rent from them again."},
+      {id:"rv3", name:"David Robinson", source:"facebook", stars:5, text:"As an English speaker living in Bangkok, I was surprised at how easy it was to speak to AJ about the rental. He is very communicative and earnest."},
+      {id:"rv4", name:"Butter Noey", source:"google", stars:5, text:"\u0e1b\u0e23\u0e30\u0e17\u0e31\u0e1a\u0e43\u0e08\u0e21\u0e32\u0e01\u0e04\u0e48\u0e30 \u0e40\u0e04\u0e23\u0e37\u0e48\u0e2d\u0e07 Meta Quest 3S \u0e2a\u0e20\u0e32\u0e1e\u0e14\u0e35 \u0e43\u0e0a\u0e49\u0e07\u0e32\u0e19\u0e25\u0e37\u0e48\u0e19 \u0e40\u0e25\u0e48\u0e19\u0e2a\u0e19\u0e38\u0e01\u0e21\u0e32\u0e01 \u0e2d\u0e38\u0e1b\u0e01\u0e23\u0e13\u0e4c\u0e04\u0e23\u0e1a \u0e1e\u0e23\u0e49\u0e2d\u0e21\u0e43\u0e0a\u0e49\u0e07\u0e32\u0e19 \u0e17\u0e32\u0e07\u0e23\u0e49\u0e32\u0e19\u0e43\u0e2b\u0e49\u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23\u0e14\u0e35 \u0e15\u0e2d\u0e1a\u0e41\u0e0a\u0e17\u0e44\u0e27 \u0e08\u0e31\u0e14\u0e2a\u0e48\u0e07\u0e40\u0e23\u0e35\u0e22\u0e1a\u0e23\u0e49\u0e2d\u0e22 \u0e43\u0e04\u0e23\u0e2a\u0e19\u0e43\u0e08\u0e25\u0e2d\u0e07\u0e14\u0e39\u0e04\u0e48\u0e30"}
+    ]
+  };
+
   const DEFAULT_FAQ = [
     {qTh:"ขั้นต่ำเช่ากี่วัน?",aTh:"ขั้นต่ำ 3 วัน สำหรับเรทบุคคล",qEn:"What is the minimum rental period?",aEn:"The minimum rental period is 3 days for individual rates."},
     {qTh:"ส่งพื้นที่ไหนบ้าง?",aTh:"จัดส่งเฉพาะกรุงเทพฯ และปริมณฑล ค่าส่งเช็กตามลิงก์ Google Maps",qEn:"Where do you deliver?",aEn:"Delivery is available in Bangkok and Greater Bangkok. Delivery cost depends on your Google Maps location."},
@@ -1062,18 +1121,36 @@ body.line-browser #calcConsole{display:none}
       beforeRentRentSub:"เลือกเครื่อง เช็ควันว่าง คำนวณราคา แล้วจองได้เลย",
       beforeRentStartHere:"เริ่มที่นี่",
       beforeRentGames:"ดูรายชื่อเกมก่อน",
-      beforeRentGamesSub:"ยังไม่จอง แค่ดูว่าเครื่องไหนมีเกมอะไรบ้าง",
+      beforeRentGamesSub:"ดูเกมของแต่ละเครื่องก่อนตัดสินใจ",
       beforeRentSteps:"ขั้นตอนการเช่า",
       beforeRentStepsSub:"ดูขั้นตอนตั้งแต่จองจนคืนเครื่อง",
       beforeRentFaq:"คำถามที่พบบ่อย",
       beforeRentFaqSub:"คำตอบเรื่องเช่า จัดส่ง และค่าประกัน",
       beforeRentBack:"← กลับเมนูก่อนเช่า",
       beforeRentExploreKicker:"ดูก่อนตัดสินใจ",
-      beforeRentExploreTitle:"เครื่องยอดนิยมและโปรโมชั่น",
+      beforeRentExploreTitle:"เครื่องเกมทั้งหมดและโปรโมชั่น",
       beforeRentFeatured:"โปรโมชั่น",
       beforeRentPopular:"เครื่องเกมทั้งหมด",
       beforeRentDevicesHint:"กดลูกศรหรือเลื่อนเพื่อดูรายการ · กดที่เครื่องเพื่อเช็คคิว",
       beforeRentDevicesCount:"{n} เครื่อง",
+      beforeRentTrustGoogle:"Google",
+      beforeRentTrustFacebook:"แนะนำบน Facebook",
+      beforeRentTrustFollowers:"ผู้ติดตาม {n}",
+      beforeRentTrustVerified:"Facebook เพจยืนยันตัวตน",
+      beforeRentTrustReviews:"({n} รีวิว)",
+      beforeRentReviews:"รีวิวจากลูกค้าจริง",
+      beforeRentReviewsHint:"กดลูกศรหรือเลื่อนเพื่ออ่านต่อ",
+      beforeRentReviewsCount:"{n} รีวิว",
+      beforeRentReviewGoogle:"ดูรีวิวทั้งหมดบน Google Maps",
+      beforeRentReviewFacebook:"ดูรีวิวทั้งหมดบน Facebook",
+      beforeRentHighlights:"ผลงาน รีวิวจากสื่อ และกิจกรรมที่ผ่านมา",
+      beforeRentHighlightsSub:"ตัวอย่างผลงาน รีวิวจากสื่อ และกิจกรรมที่ AJ เคยให้บริการ",
+      beforeRentHighlightsHint:"กดลูกศรหรือเลื่อนเพื่อดูเพิ่มเติม",
+      beforeRentHighlightsCount:"{n} รายการ",
+      beforeRentHighlightCue:"ดูรายละเอียด →",
+      beforeRentHighlightsAll:"ดูรายละเอียดทั้งหมด",
+      beforeRentFinalText:"พร้อมแล้วเลือกเครื่องเพื่อเช็ควันว่างและคำนวณค่าเช่าได้เลย",
+      beforeRentFinalCta:"เลือกเครื่องและเช็คคิว",
       beforeRentPromoHint:"กดที่รูปเพื่อดูรายละเอียด",
       beforeRentPromoCue:"ดูโปรนี้ →",
       beforeRentPromoCueDevice:"เช่า {name} →",
@@ -1084,10 +1161,10 @@ body.line-browser #calcConsole{display:none}
       beforeRentTypeAll:"ทั้งหมด",
       beforeRentEmpty:"ไม่มีเครื่องในประเภทนี้",
       beforeRentDepositBack:"คืนเต็ม",
-      beforeRentNoteDelivery:"ฟรีค่าส่ง สูงสุด ฿100/เที่ยว · เช่า 3–6 วัน ฟรีขากลับ · 7 วันขึ้นไป ฟรีไป-กลับ · ส่งเฉพาะ กรุงเทพฯ และปริมณฑล",
+      beforeRentNoteDelivery:"ค่าส่ง สูงสุด ฿100/เที่ยว · เช่า 3–6 วัน ฟรีขากลับ · 7 วันขึ้นไป ฟรีไป-กลับ · ส่งเฉพาะ กรุงเทพฯ และปริมณฑล",
       beforeRentNoteDeposit:"ค่าประกัน ได้คืนเต็มจำนวนเมื่อคืนเครื่องครบสภาพ ไม่ใช่ค่าเช่า",
       beforeRentNoteContract:"หากไม่ทำสัญญาเช่า ค่าประกันปรับเป็น ฿5,000 / ฿8,000 ตามรุ่น",
-      beforeRentTerms:"เช่าขั้นต่ำ <b>3 วัน</b> · ราคาเรทบุคคล · <b>ฟรี</b>ค่าส่งสูงสุด <b>฿100/เที่ยว</b> (เช่า 3 วันขึ้นไป ฟรีขากลับ) · ค่าประกันได้คืนเต็มเมื่อคืนเครื่อง",
+      beforeRentTerms:"เช่าขั้นต่ำ <b>3 วัน</b> · ราคาเรทบุคคล · ค่าส่งสูงสุด <b>฿100/เที่ยว</b> (เช่า 3–6 วัน ฟรีขากลับ · 7 วันขึ้นไป ฟรีไป-กลับ) · ค่าประกันได้คืนเต็มเมื่อคืนเครื่อง",
       beforeRentStartDevice:"ดูคิวและราคา",
       gamePickerAllPlatforms:"👉 เลือกเครื่อง",
       gamePickerScrollHint:"เลื่อนดูเครื่องอื่น →",
@@ -1102,25 +1179,25 @@ body.line-browser #calcConsole{display:none}
       calcTag:"คำนวณ", calcTitle:"เช็คคิว & คำนวณค่าเช่า", calcSub:"ขั้นต่ำ 3 วัน | ราคาเรทบุคคล",
       step1:"เลือกเครื่อง/วันที่", step2:"เลือกเกม", step3:"ชำระเงิน / สัญญา / แผนที่", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"เลือกเกม", step3Title:"ชำระเงิน / สัญญา / แผนที่", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"📖 อ่านขั้นตอนการเช่าก่อนเริ่ม", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
       nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
-      deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", chooseConsoleTitle:"เลือกเครื่องเกม", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
+      deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
       gamePickHelp:"ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้", gamePickerTitle:"เลือกเกม", gameStorageWarning:"⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ", summaryHelp:"ตรวจสอบข้อมูล แล้วกดจองผ่านช่องทางที่สะดวก",
       personalRateWarning:"⚠️ ราคาเช่าเป็นเรทบุคคล ไม่สามารถออกใบกำกับภาษี/ใบเสร็จได้ หากต้องการเอกสาร กรุณาติดต่อ Line: <b>@ajgame</b> หรือ โทร. <b>081-624-4715</b> 🙏",
       daily:"รายวัน", weekly:"รายสัปดาห์", day:"วัน", wk:"สัปดาห์", deposit:"ค่าประกัน", ready:"พร้อม", notReady:"ยังไม่พร้อม", readyOn:"พร้อมวันที่",
       bundle:"Bundle", accessories:"อุปกรณ์เสริม", noBundle:"ไม่เพิ่ม Bundle", noAccessory:"ไม่เพิ่มอุปกรณ์เสริม", contract:"ทำสัญญาการเช่า", contractHelp:"แนะนำสำหรับผู้เช่าครั้งแรก กรอกก่อนนัดส่งเครื่อง",
-      noContract:"ไม่ต้องการทำสัญญาการเช่า", noContractHelp:"สำหรับผู้เช่าครั้งแรก ต้องทำสัญญาและแนบสำเนาบัตรประชาชน / Passport + รูปเซลฟี่คู่บัตรหรือ Passport ทุกกรณี หากไม่สะดวก ให้ติ๊กช่องนี้ ค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น", recommended:"แนะนำ", depositRefundPaymentNote:"หากชำระด้วยบัตร/E-Wallet คืนค่าประกันเป็นเงินโอนเท่านั้น",
-      returning:"ลูกค้าเก่า (เท่านั้น) รับส่วนลด 10% ค่าเช่า", returningOnly:"ลูกค้าเก่าเท่านั้น", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง", bank:"🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", creditTitle:"💳 บัตรเครดิต: ชำระเต็มจำนวน", creditFee:"+ ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%", ewalletTitle:"👛 E-Wallet: ชำระเต็มจำนวน", ewalletFee:"+ ค่าธรรมเนียม 2.95%",
+      noContract:"ไม่ต้องการทำสัญญาการเช่า", noContractHelp:"สำหรับผู้เช่าครั้งแรก ต้องทำสัญญาและแนบสำเนาบัตรประชาชน / Passport + รูปเซลฟี่คู่บัตรหรือ Passport ทุกกรณี หากไม่สะดวก ให้ติ๊กช่องนี้ ค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น",
+      returning:"ลูกค้าเก่า รับส่วนลด 10% ค่าเช่า", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง", bank:"🏦 โอนผ่านบัญชีธนาคารไทย", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%",
       reviewGoogle:"รับส่วนลดเพิ่มจากการรีวิวบน Google Maps มูลค่า 100 บาท", reviewFacebook:"รับส่วนลดเพิ่มจากการรีวิวบน Facebook มูลค่า 100 บาท", reviewGoogleHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Google Maps ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewFacebookHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Facebook ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewGoogleBtn:"รีวิว Google Maps", reviewFacebookBtn:"รีวิว Facebook", reviewGoogleDiscount:"ส่วนลดรีวิว Google Maps", reviewFacebookDiscount:"ส่วนลดรีวิว Facebook",
       boardGameCollapsed:"ต้องการเพิ่มบอร์ดเกม? กดเพื่อขยายและเลือกเข้าชุดเช่า", ps5BundleCollapsed:"ต้องการ Bundle? กดเพื่อจับคู่ PS5 กับอุปกรณ์อื่น",
       boardGameBundle:"Bundle บอร์ดเกม", chooseBoardGame:"-- เลือกบอร์ดเกม --", addBoardGame:"เพิ่มบอร์ดเกม", boardGames:"บอร์ดเกม", selectedDates:"วันที่เลือก", confirmRange:"ตกลง", selectReturnDate:"เลือกวันคืนเครื่อง", remove:"ลบ",
       boardGameBundleHelp:"เพิ่มบอร์ดเกมเข้าชุดเช่า — ราคาเรท 3 วัน + เพิ่มตามจำนวนวันตามแพ็กของแต่ละเกม", boardGameImageHint:"💡 คลิกที่รูปเพื่อดูรายละเอียดของบอร์ดเกมนั้นๆ", viewDetails:"ดูรายละเอียด",
-      calTitle:"📅 ปฏิทินเช็คคิวเครื่อง", calStartSub:"เลือกแล้ว", calEndSub:"เลือกแล้ว", calAvailable:"ว่าง", calUnavailable:"ไม่ว่าง", calPartial:"เช่าได้สั้นกว่า", calDisabled:"ผ่านมาแล้ว / เลือกไม่ได้", calMinDisabled:"เลือกไม่ได้ ขั้นต่ำ 3 วัน", calStartDay:"เริ่มเช่า", calRangeDay:"ช่วงเช่า", calEndDay:"คืนเครื่อง", cutoffStartCell:"เลยเวลา เริ่มพรุ่งนี้", cutoffStartNotice:"หลัง 20:00 เริ่มเช่าได้วันถัดไป", afterWorkPromoCell:"โปร 3 วัน ฿999", afterWorkPromoDiscount:"โปรโมชั่น After Work 3 Nights",
+      calTitle:"📅 ปฏิทินเช็คคิวเครื่อง", calStartSub:"เลือกแล้ว", calEndSub:"เลือกแล้ว", calAvailable:"ว่าง", calUnavailable:"ไม่ว่าง", calPartial:"เช่าได้สั้นกว่า", calDisabled:"ผ่านมาแล้ว / เลือกไม่ได้", calMinDisabled:"เลือกไม่ได้ ขั้นต่ำ 3 วัน", calStartDay:"เริ่มเช่า", calRangeDay:"ช่วงเช่า", calEndDay:"คืนเครื่อง", cutoffStartCell:"เลยเวลา เริ่มพรุ่งนี้", cutoffStartNotice:"หลัง 20:00 เริ่มเช่าได้วันถัดไป",
       guideTitle:"ขั้นตอนถัดไป", guideConsole:"เลือกเครื่องเกม", guideStart:"เลือกวันที่เริ่มเช่า", guideEnd:"เลือกวันคืนเครื่อง", guideAccessory:"เลือกอุปกรณ์เสริม ถ้าไม่ต้องการให้ข้ามได้เลย", guidePs5Bundle:"เลือก Bundle ของ PS5 ถ้าต้องการ", guideNextStep:"กดไปขั้นตอนถัดไป", guideBg:"เลือก Bundle บอร์ดเกม ถ้าต้องการเพิ่ม", guideRet:"เคยเช่ากับทางร้านไหม?", guideContractChoice:"ต้องการทำสัญญาการเช่าหรือไม่?", guideContractLink:"กดลิงก์ทำสัญญาการเช่า หรือเลือกทำทีหลัง", guidePayment:"เลือกช่องทางชำระเงิน", guideMaps:"วางลิงก์ Google Maps สำหรับเช็คค่าจัดส่ง", guideGames:"เลือกเกมจากรายการ หรือเลือกแจ้งภายหลัง", guideShare:"เช็ครายละเอียดการเช่าทางด้านบน แล้วกดจองผ่านช่องทางที่สะดวก", guideCopy:"คัดลอกข้อความจองเช่า", guideLine:"จองผ่าน Line", guideWa:"จองผ่าน WhatsApp", guideMessenger:"จองผ่าน Messenger",
       guideDoContract:"ทำสัญญา", guideNoContract:"ไม่ทำสัญญา", guideLater:"ทำทีหลัง", guideSkip:"ข้าม", guideGameLater:"เลือกทีหลัง", guideNext:"ต่อไป", guideRetYes:"เคย", guideRetNo:"ไม่เคย",
-      pickGames:"เลือก / แก้ไขรายชื่อเกม", sendLater:"แจ้งรายชื่อเกมภายหลัง", clearGames:"ล้างรายชื่อเกม", noGameList:"รุ่นนี้ไม่มีรายการเกมให้เลือกในระบบ", gameOwnAccount:"ล็อกอินบัญชีของคุณเองบนเครื่องของทางร้านได้ (รบกวนแจ้งทางร้านก่อน)", gameLockedAfterDispatch:"เกมที่เลือกแล้ว ไม่สามารถเปลี่ยนได้หลังจากจัดส่งเครื่องแล้วทุกกรณี", wiseAvailabilityNote:"ไม่สามารถชำระผ่าน Wise ในวันเสาร์-อาทิตย์หรือวันหยุดธนาคารไทยได้ เนื่องจากเงินจะเข้าในวันทำการถัดไป", wiseUnavailableWeekend:"วันนี้ไม่สามารถเลือก Wise ได้ (วันเสาร์-อาทิตย์)", wiseUnavailableHoliday:"วันนี้ไม่สามารถเลือก Wise ได้ (วันหยุดธนาคารไทย)",
+      pickGames:"เลือก / แก้ไขรายชื่อเกม", sendLater:"แจ้งรายชื่อเกมภายหลัง", clearGames:"ล้างรายชื่อเกม", noGameList:"รุ่นนี้ไม่มีรายการเกมให้เลือกในระบบ",
       summaryTitle:"สรุปค่าเช่า", summaryEmpty:"เลือกเครื่องและวันที่เพื่อดูสรุป", rental:"ค่าเช่า", discount:"ส่วนลด", promo:"โปรโมชัน", total:"ยอดรวม", grandTotal:"ยอดรวมทั้งหมด", upfront:"โอนล่วงหน้า", upfrontConfirm:"โอนล่วงหน้า (ยืนยันการจอง)", fullPaymentConfirm:"ชำระยอดเต็ม (เพื่อยืนยันการจอง)", onDelivery:"จ่ายตอนของถึง", payOnDelivery:"จ่ายตอนของถึง", delivery:"ค่าส่งแจ้งทางแชท", finalActionHelp:"ตรวจสอบข้อมูลแล้ว กดจองผ่านช่องทางแชทที่คุยกับร้านเพื่อส่งรายละเอียด",
       returningDiscount:"ส่วนลดลูกค้าเก่า 10%", consoleDiscount:"ส่วนลดเครื่องเกม", boardGameDiscount:"ส่วนลดบอร์ดเกม", boardGameDeposit:"ค่าประกันบอร์ดเกม", rentalDays:"จำนวนวันเช่า", boardGameRental:"ค่าเช่าบอร์ดเกม", boardGameList:"รายการบอร์ดเกม",
       equipmentDetails:"รายละเอียดอุปกรณ์", players:"จำนวนผู้เล่น", playTime:"เวลาเล่น", age:"อายุแนะนำ", packageRental:"ค่าเช่าตามแพ็ก", oneDay:"1 วัน", threeDays:"3 วัน", sevenDays:"7 วัน", howToPlay:"วิธีเล่นคร่าว ๆ", noContractDepositNote:"ค่าประกัน (ไม่ทำสัญญา)", noContractLabel:"ไม่ทำสัญญา", standardTier:"เรทมาตรฐาน", planning:"วางแผน",
-      copy:"📋 Copy ข้อความจองเช่า", line:"จองผ่าน Line", whatsapp:"จองผ่าน WhatsApp", messenger:"จองผ่าน Messenger", copied:"คัดลอกแล้ว", minDays:"ขั้นต่ำ 3 วัน", busy:"เครื่องอาจไม่ว่างในช่วงนี้", available:"ช่วงนี้ผ่านการเช็คคิวแล้ว", checking:"กำลังเช็คคิว...", queueError:"ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่", queueClosed:"ปิดคิวชั่วคราว",
+      copy:"📋 Copy ข้อความจองเช่า", line:"จองผ่าน Line", whatsapp:"จองผ่าน WhatsApp", messenger:"จองผ่าน Messenger", copied:"คัดลอกแล้ว", minDays:"ขั้นต่ำ 3 วัน", busy:"เครื่องอาจไม่ว่างในช่วงนี้", available:"ช่วงนี้ผ่านการเช็คคิวแล้ว", checking:"กำลังเช็คคิว...", queueError:"ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่",
       shareConfirmTitle:"ยืนยันส่งข้อความจอง", shareConfirmMessage:"คุณกำลังจะส่งข้อความจองเช่าผ่าน {channel}", shareConfirmNote:"เพื่อป้องกันการส่งซ้ำ ระบบจะกันการกดซ้ำชั่วคราวหลังยืนยันส่ง", shareConfirmContractNote:"ลูกค้าใหม่ควรทำสัญญาการเช่าก่อนส่งข้อความจอง เพื่อให้ข้อมูลไม่หลุดและลดการส่งซ้ำ", shareConfirmMessengerNote:"ระบบจะคัดลอกข้อความจองให้ก่อน แล้วเปิด Facebook Messenger ของ AJ ให้ กรุณากดวางข้อความในช่องแชทและกดส่ง", shareConfirmSend:"ยืนยันส่งข้อความจอง", shareContractFirst:"ทำสัญญาก่อน", shareCancel:"ยกเลิก", shareCooldown:"ส่งข้อความไปแล้ว กรุณารอสักครู่ก่อนกดซ้ำ",
       faqTitle:"คำถามที่พบบ่อย", faqExpand:"ดูคำถามทั้งหมด", faqCollapse:"ย่อคำถาม", adminLogin:"เข้าสู่ระบบ Admin", adminUser:"ผู้ใช้", adminPassword:"รหัสผ่าน", adminSubmit:"เข้าสู่ระบบ", wrongPassword:"ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", rentalCode:"รหัสการเช่า", save:"บันทึก", add:"เพิ่ม", edit:"แก้ไข", delete:"ลบ", sync:"Sync", pull:"Pull", push:"Push"
     },
@@ -1133,18 +1210,36 @@ body.line-browser #calcConsole{display:none}
       beforeRentRentSub:"Pick a console, check dates, get a price, and book",
       beforeRentStartHere:"START HERE",
       beforeRentGames:"Just browsing games",
-      beforeRentGamesSub:"No booking — just see which console has which games",
+      beforeRentGamesSub:"Browse games by console",
       beforeRentSteps:"Rental steps",
       beforeRentStepsSub:"See the process from booking to return",
       beforeRentFaq:"FAQ",
       beforeRentFaqSub:"Rental, delivery, and deposit answers",
       beforeRentBack:"← Back to Before rent",
       beforeRentExploreKicker:"EXPLORE",
-      beforeRentExploreTitle:"Popular consoles and promotions",
+      beforeRentExploreTitle:"All consoles and promotions",
       beforeRentFeatured:"Promotions",
       beforeRentPopular:"All consoles",
       beforeRentDevicesHint:"Use the arrows or swipe to browse · tap a console to check dates",
       beforeRentDevicesCount:"{n} consoles",
+      beforeRentTrustGoogle:"Google",
+      beforeRentTrustFacebook:"recommend on Facebook",
+      beforeRentTrustFollowers:"{n} followers",
+      beforeRentTrustVerified:"Verified Facebook Page",
+      beforeRentTrustReviews:"({n} reviews)",
+      beforeRentReviews:"Reviews from real customers",
+      beforeRentReviewsHint:"Use the arrows or swipe to read more",
+      beforeRentReviewsCount:"{n} reviews",
+      beforeRentReviewGoogle:"Read all reviews on Google Maps",
+      beforeRentReviewFacebook:"Read all reviews on Facebook",
+      beforeRentHighlights:"Past Work, Media Features & Events",
+      beforeRentHighlightsSub:"Selected work, media features, and events previously served by AJ",
+      beforeRentHighlightsHint:"Use the arrows or swipe to see more",
+      beforeRentHighlightsCount:"{n} items",
+      beforeRentHighlightCue:"View details →",
+      beforeRentHighlightsAll:"View all details",
+      beforeRentFinalText:"Choose a console to check available dates and calculate the rental price.",
+      beforeRentFinalCta:"Choose a console & check dates",
       beforeRentPromoHint:"Tap an image for details",
       beforeRentPromoCue:"View offer →",
       beforeRentPromoCueDevice:"Rent {name} →",
@@ -1155,10 +1250,10 @@ body.line-browser #calcConsole{display:none}
       beforeRentTypeAll:"All",
       beforeRentEmpty:"No consoles in this category",
       beforeRentDepositBack:"refundable",
-      beforeRentNoteDelivery:"Free delivery up to ฿100 per trip · free return trip on 3–6 day rentals · both trips free on 7 days or more · Bangkok and Greater Bangkok only",
+      beforeRentNoteDelivery:"Delivery up to ฿100 per trip · free return trip on 3–6 day rentals · both trips free on 7 days or more · Bangkok and Greater Bangkok only",
       beforeRentNoteDeposit:"The deposit is fully refunded when the console is returned in good condition — it is not part of the rental fee",
       beforeRentNoteContract:"Without a rental contract the deposit becomes ฿5,000 / ฿8,000 depending on the model",
-      beforeRentTerms:"<b>3-day</b> minimum rental · individual rate · <b>free</b> delivery up to <b>฿100 per trip</b> (free return trip on 3+ day rentals) · deposit fully refunded on return",
+      beforeRentTerms:"<b>3-day</b> minimum rental · individual rate · delivery up to <b>฿100 per trip</b> (free return trip for 3–6 days · free round trip for 7+ days) · deposit fully refunded on return",
       beforeRentStartDevice:"Check dates & price",
       gamePickerAllPlatforms:"👉 Pick a console",
       gamePickerScrollHint:"Swipe for more →",
@@ -1173,25 +1268,25 @@ body.line-browser #calcConsole{display:none}
       calcTag:"Calculator", calcTitle:"Check Queue & Calculate Rental", calcSub:"Minimum 3 days | Individual rates",
       step1:"Device / Dates", step2:"Games", step3:"Payment / Contract / Map", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Choose games", step3Title:"Payment / Contract / Map", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"📖 Read rental steps first", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
       nextStep:"Next step", backStep:"Back",
-      deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", chooseConsoleTitle:"Choose a console", startDate:"Start date", endDate:"Return date",
+      deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", startDate:"Start date", endDate:"Return date",
       gamePickHelp:"Choose up to 10 games when this model has a catalog, or send the list later.", gamePickerTitle:"Select Games", gameStorageWarning:"⚠️ Limited device storage. Some games may not all fit.", summaryHelp:"Review the details, then book through your preferred channel.",
       personalRateWarning:"⚠️ Individual rental rates only. Tax invoice / receipt is not available. For documents, contact Line: <b>@ajgame</b> or call <b>081-624-4715</b> 🙏",
       daily:"Daily", weekly:"Weekly", day:"day", wk:"week", deposit:"Deposit", ready:"Ready", notReady:"Not ready", readyOn:"Ready on",
       bundle:"Bundle", accessories:"Accessories", noBundle:"No bundle", noAccessory:"No extra accessory", contract:"Rental contract", contractHelp:"Recommended for first-time renters. Complete it before delivery.",
-      noContract:"No rental contract", noContractHelp:"First-time renters must complete the rental agreement and attach a copy of their ID card / Passport plus a selfie holding the ID card / Passport in all cases. If this is inconvenient, check this box. The deposit will increase from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the model.", recommended:"Recommended", depositRefundPaymentNote:"Deposit refund: Wise (1–3 business days) or Thai bank transfer, if available.", wiseLinkTime:"Wise transfer time", wiseLinkPolicy:"Wise policy", wiseLinkCoverage:"Where Wise works",
-      returning:"Returning customers only: 10% off rental fee", returningOnly:"Returning customers only", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"💵 Balance on delivery", bank:"🏦 Thai Bank Transfer: pay full amount", wise:"🌍 Wise: pay full amount", credit:"💳 Credit Card: pay full amount + 3.50% fee", creditTitle:"💳 Credit Card: pay full amount", creditFee:"+ 3.50% fee", ewallet:"👛 E-Wallet: pay full amount + 2.95%", ewalletTitle:"👛 E-Wallet: pay full amount", ewalletFee:"+ 2.95% fee",
+      noContract:"No rental contract", noContractHelp:"First-time renters must complete the rental agreement and attach a copy of their ID card / Passport plus a selfie holding the ID card / Passport in all cases. If this is inconvenient, check this box. The deposit will increase from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the model.",
+      returning:"Returning customer: 10% off rental fee", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"💵 Balance on delivery", bank:"🏦 Thai Bank Transfer", wise:"🌍 Wise", credit:"💳 Credit Card: pay full amount + 3.50% fee", ewallet:"👛 E-Wallet: pay full amount + 2.95%",
       reviewGoogle:"Extra ฿100 discount for a Google Maps review", reviewFacebook:"Extra ฿100 discount for a Facebook review", reviewGoogleHelp:"To receive this discount, tap Review Google Maps below, then send a screenshot to the AJ chat you are using.", reviewFacebookHelp:"To receive this discount, tap Review Facebook below, then send a screenshot to the AJ chat you are using.", reviewGoogleBtn:"Review Google Maps", reviewFacebookBtn:"Review Facebook", reviewGoogleDiscount:"Google Maps review discount", reviewFacebookDiscount:"Facebook review discount",
       boardGameCollapsed:"Want board games? Expand to add them to this rental.", ps5BundleCollapsed:"Want a bundle? Expand to pair PS5 with another device.",
       boardGameBundle:"Board Game Bundle", chooseBoardGame:"-- Choose board game --", addBoardGame:"Add board game", boardGames:"Board games", selectedDates:"Selected dates", confirmRange:"Confirm", selectReturnDate:"Choose return date", remove:"Remove",
       boardGameBundleHelp:"Add board games to this rental set — 3-day package rate, then extend by each game's package rules.", boardGameImageHint:"💡 Click the image to view board game details.", viewDetails:"View details",
-      calTitle:"📅 Queue Calendar", calStartSub:"Selected", calEndSub:"Selected", calAvailable:"Available", calUnavailable:"Unavailable", calPartial:"Shorter rental only", calDisabled:"Past / unavailable", calMinDisabled:"Unavailable, minimum 3 days", calStartDay:"Start", calRangeDay:"Rental period", calEndDay:"Return", cutoffStartCell:"Start tomorrow", cutoffStartNotice:"After 8 PM, choose tomorrow or later.", afterWorkPromoCell:"3-day promo ฿999", afterWorkPromoDiscount:"After Work 3 Nights promotion",
+      calTitle:"📅 Queue Calendar", calStartSub:"Selected", calEndSub:"Selected", calAvailable:"Available", calUnavailable:"Unavailable", calPartial:"Shorter rental only", calDisabled:"Past / unavailable", calMinDisabled:"Unavailable, minimum 3 days", calStartDay:"Start", calRangeDay:"Rental period", calEndDay:"Return", cutoffStartCell:"Start tomorrow", cutoffStartNotice:"After 8 PM, choose tomorrow or later.",
       guideTitle:"Next step", guideConsole:"Choose console", guideStart:"Choose start date", guideEnd:"Choose return date", guideAccessory:"Choose accessories if needed, or skip.", guidePs5Bundle:"Choose a PS5 bundle if needed.", guideNextStep:"Go to the next step.", guideBg:"Add a board game bundle if needed.", guideRet:"Have you rented with us before?", guideContractChoice:"Would you like to complete the rental contract?", guideContractLink:"Open the rental agreement link, or do it later.", guidePayment:"Choose payment option.", guideMaps:"Paste your Google Maps link for delivery check.", guideGames:"Pick games from the catalog, or send later.", guideShare:"Check the rental details above, then book through your preferred channel.", guideCopy:"Copy booking message", guideLine:"Book via LINE", guideWa:"Book via WhatsApp", guideMessenger:"Book via Messenger",
       guideDoContract:"Do contract", guideNoContract:"No contract", guideLater:"Later", guideSkip:"Skip", guideGameLater:"Choose later", guideNext:"Next", guideRetYes:"Yes", guideRetNo:"No",
-      pickGames:"Choose / Edit games", sendLater:"Send game list later", clearGames:"Clear games", noGameList:"This model has no game catalog in the system.", gameOwnAccount:"You can sign in to your own account (tell AJ first).", gameLockedAfterDispatch:"Games cannot be changed once the device has been sent.", wiseAvailabilityNote:"Wise payments are unavailable on weekends and Thai bank holidays because funds arrive on the next business day.", wiseUnavailableWeekend:"Wise is unavailable today (weekend).", wiseUnavailableHoliday:"Wise is unavailable today (Thai bank holiday).",
-      summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Grand total", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", fullPaymentConfirm:"Full payment (to confirm booking)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat", paymentFee:"Payment fee", cardDeposit:"Card / E-Wallet / Thai QR reservation (no fee)", paymentLink:"Payment link", finalActionHelp:"Review the details, then book via the same chat channel to send them to AJ.",
+      pickGames:"Choose / Edit games", sendLater:"Send game list later", clearGames:"Clear games", noGameList:"This model has no game catalog in the system.",
+      summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Grand total", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", fullPaymentConfirm:"Full payment (to confirm booking)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat", paymentFee:"Payment fee", cardDeposit:"Card / E-Wallet reservation (no fee)", paymentLink:"Payment link", finalActionHelp:"Review the details, then book via the same chat channel to send them to AJ.",
       returningDiscount:"Returning customer 10% discount", consoleDiscount:"Console discount", boardGameDiscount:"Board game discount", boardGameDeposit:"Board game deposit", rentalDays:"Rental days", boardGameRental:"Board game rental", boardGameList:"Board game list",
       equipmentDetails:"Equipment details", players:"Players", playTime:"Play time", age:"Recommended age", packageRental:"Package rental", oneDay:"1 day", threeDays:"3 days", sevenDays:"7 days", howToPlay:"Quick how to play", noContractDepositNote:"Deposit (no contract)", noContractLabel:"No contract", standardTier:"Standard tier", planning:"Planning",
-      copy:"📋 Copy booking message", line:"Book via LINE", whatsapp:"Book via WhatsApp", messenger:"Book via Messenger", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", queueError:"Unable to check the queue. Please try again.", queueClosed:"Booking temporarily closed",
+      copy:"📋 Copy booking message", line:"Book via LINE", whatsapp:"Book via WhatsApp", messenger:"Book via Messenger", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", queueError:"Unable to check the queue. Please try again.",
       shareConfirmTitle:"Confirm booking message", shareConfirmMessage:"You are about to send this booking message via {channel}.", shareConfirmNote:"To prevent duplicate messages, the buttons will be briefly locked after confirmation.", shareConfirmContractNote:"First-time customers should complete the rental contract before sending the booking message, so the details do not get missed or duplicated.", shareConfirmMessengerNote:"The booking message will be copied first, then AJ's Facebook Messenger chat will open. Please paste the message into the chat and send it.", shareConfirmSend:"Confirm and send", shareContractFirst:"Do contract first", shareCancel:"Cancel", shareCooldown:"Message already sent. Please wait a moment before trying again.",
       faqTitle:"Frequently Asked Questions", faqExpand:"Show all questions", faqCollapse:"Collapse questions", adminLogin:"Admin Login", adminUser:"User", adminPassword:"Password", adminSubmit:"Login", wrongPassword:"Wrong username or password", rentalCode:"Rental code", save:"Save", add:"Add", edit:"Edit", delete:"Delete", sync:"Sync", pull:"Pull", push:"Push"
     }
@@ -1201,14 +1296,6 @@ body.line-browser #calcConsole{display:none}
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
   const byId = id => document.getElementById(id);
   const tr = key => (I18N[state.lang] && I18N[state.lang][key]) || key;
-  const isLineBrowser = () => /\bLine\/[\d.]+/i.test(navigator.userAgent || "");
-  const cachedLineProfile = () => {
-    const userId = localStorage.getItem("aj_line_unique_id") || "";
-    const displayName = localStorage.getItem("aj_line_display_name") || "";
-    return userId && displayName ? {userId, displayName} : null;
-  };
-  let lineConnectionStatus = "idle";
-  let lineConnectPromise = null;
   const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const safeHref = (value, fallback="#") => {
     const raw = String(value || "").trim();
@@ -1240,6 +1327,10 @@ body.line-browser #calcConsole{display:none}
     table:'<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.6h17M9.4 9.6v9.9M15.1 9.6v9.9"/>',
     tap:'<path d="M9.4 11.2V6.4a1.7 1.7 0 0 1 3.4 0v6.2"/><path d="M12.8 11.4a1.5 1.5 0 0 1 3 0v.9"/><path d="M15.8 12a1.5 1.5 0 0 1 3 0v3.1a5 5 0 0 1-5 5h-1.6a4.4 4.4 0 0 1-3.3-1.5L6 15.3a1.6 1.6 0 0 1 2.3-2.2l1.1 1.1"/>',
     lock:'<rect x="4.8" y="10.4" width="14.4" height="9.4" rx="2.2"/><path d="M8.2 10.4V7.9a3.8 3.8 0 0 1 7.6 0v2.5"/>',
+    pin:'<path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/>',
+    thumb:'<path d="M7 10.6v9.1H4.6a1.6 1.6 0 0 1-1.6-1.6v-5.9a1.6 1.6 0 0 1 1.6-1.6Z"/><path d="M7 10.6 11.4 3a2.3 2.3 0 0 1 2.2 3l-.9 3.4h5a2 2 0 0 1 1.9 2.5l-1.7 6.4a2.4 2.4 0 0 1-2.3 1.8H7Z"/>',
+    users:'<circle cx="9.4" cy="8.4" r="3.4"/><path d="M3.4 19.6a6 6 0 0 1 12 0"/><path d="M16.2 5.4a3.2 3.2 0 0 1 0 6.1"/><path d="M17.6 14.4a5.6 5.6 0 0 1 3.2 5.2"/>',
+    verified:'<path d="M12 3.2 14 5l2.7-.3 1 2.5 2.4 1.2-.6 2.6 1.7 2.1-1.9 1.9.2 2.7-2.6.8-1.3 2.4-2.6-.8-2.6.8-1.3-2.4-2.6-.8.2-2.7L4.8 13l1.7-2.1L5.9 8.2 8.3 7l1-2.5L12 4.8Z"/><path d="M9.4 12.2l1.9 1.9 3.5-3.6"/>',
     truck:'<path d="M2.8 7.2a1.4 1.4 0 0 1 1.4-1.4h8.3a1.4 1.4 0 0 1 1.4 1.4v8.9H2.8Z"/><path d="M13.9 9.4h3.3a1.6 1.6 0 0 1 1.4.8l1.6 2.7v3.2h-6.3Z"/><circle cx="7" cy="18" r="1.9"/><circle cx="16.6" cy="18" r="1.9"/><path d="M8.9 18h5.8"/>',
     chevronLeft:'<path d="M14.6 5.6 8.2 12l6.4 6.4" stroke-width="2.4"/>',
     chevronRight:'<path d="M9.4 5.6 15.8 12l-6.4 6.4" stroke-width="2.4"/>'
@@ -1265,13 +1356,6 @@ body.line-browser #calcConsole{display:none}
       hour:Number(value("hour")),
       minute:Number(value("minute"))
     };
-  }
-  function wisePaymentAvailability(now = new Date()){
-    const current = bangkokNow(now);
-    const day = new Date(`${current.iso}T12:00:00+07:00`).getUTCDay();
-    if(day === 0 || day === 6) return {available:false, reason:"weekend", iso:current.iso};
-    if(THAI_FINANCIAL_HOLIDAYS.has(current.iso)) return {available:false, reason:"holiday", iso:current.iso};
-    return {available:true, reason:"", iso:current.iso};
   }
   const todayIso = () => bangkokNow().iso;
   const readJson = (key, fallback) => { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : clone(fallback); } catch { return clone(fallback); } };
@@ -1321,19 +1405,18 @@ body.line-browser #calcConsole{display:none}
     filter: {type:"all", brand:"all", sort:"brand"},
     calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,reviewGoogle:false,reviewFacebook:false,noContract:false,payment:"cash",maps:"",games:[],later:false,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",contractSignature:"",guideDone:{},guideConsoleId:""},
     availability: {rows:[],loading:false,error:"",lastSync:0,gate:{mode:"idle",pass:true}},
-    queueClosures: {allClosed:false,types:{console:false,vr:false,handheld:false,racing:false},devices:{},loading:false,error:"",updatedAt:""},
     calendar: {open:false,mode:"start",base:new Date(),draftStart:"",draftEnd:""},
     faqExpanded: false,
-    adminTab: "queue",
-    adminToken: "",
+    adminTab: "consoles",
     beforeRentActive: true,
     beforeRentDeviceType: "all",
+    social: clone(DEFAULT_SOCIAL),
     gamePickerBrowseOnly: false,
     gamePickerHowTo: false,
     gamePickerPlatformId: "",
     autoPushTimer: 0
   };
-  const GUIDE_ORDER = ["console","start","end","ps5bundle","accessory","next1","games","next2","bg","maps","ret","contractChoice","contractLink","payment","next3","share"];
+  const GUIDE_ORDER = ["console","start","end","ps5bundle","accessory","next1","games","next2","bg","ret","contractChoice","payment","contractLink","maps","next3","share"];
   const GUIDE_KEY = "aj_index2_guide_stage";
   const RENTAL_SHEET_COLUMNS = [
     "รหัสการเช่า",
@@ -1488,15 +1571,6 @@ body.line-browser #calcConsole{display:none}
     const ready = String(item?.readyDate || item?.unavailableUntil || "").trim();
     return !ready || todayIso() >= ready;
   }
-  function isQueueClosed(item){
-    if(!item) return false;
-    return state.queueClosures.allClosed
-      || state.queueClosures.types[item.type] === true
-      || state.queueClosures.devices[String(item.id).toLowerCase()] === true;
-  }
-  function isConsoleSelectable(item){
-    return isReady(item) && !isQueueClosed(item);
-  }
   function noContractDeposit(base){ return Number(base) >= 4000 ? 8000 : 5000; }
   function consoleById(id){ return state.consoles.find(c => String(c.id) === String(id)); }
   function getConsoleImage(c){ return state.images[String(c.id)] || ""; }
@@ -1520,44 +1594,6 @@ body.line-browser #calcConsole{display:none}
     if(value <= 0) return 0;
     if(p.mode === "fixed") return Math.min(subtotal, value * count);
     return Math.round(subtotal * value / 100);
-  }
-  const AFTER_WORK_PROMO_PRICE = 999;
-  function selectedConsoleRentalTerms(c){
-    let daily = Number(c?.rate) || 0;
-    let weekly = Number(c?.weekly) || 0;
-    let deposit = Number(c?.deposit) || 0;
-    let bundleName = "";
-    if(Number(c?.id) === SPEC.PS5 && state.calc.bundleId){
-      const bundle = state.bundles.find(item => item.id === state.calc.bundleId);
-      if(bundle){
-        daily = Number(bundle.rate) || daily;
-        weekly = Number(bundle.weekly) || weekly;
-        deposit = Number(bundle.deposit) || deposit;
-        bundleName = state.lang === "en" ? bundle.en : bundle.th;
-      }
-    }
-    return {daily, weekly, deposit, bundleName};
-  }
-  function afterWorkPromotion(startValue, endValue, regularRental, dailyRate){
-    const start = parseDate(startValue);
-    const end = parseDate(endValue);
-    const days = start && end ? diffDays(start, end) : NaN;
-    const eligibleStart = start && (start.getDay() === 1 || start.getDay() === 2);
-    const eligibleRate = Number(dailyRate) === 400;
-    const discount = eligibleRate && eligibleStart && days === 3
-      ? Math.max(0, (Number(regularRental) || 0) - AFTER_WORK_PROMO_PRICE)
-      : 0;
-    return {eligible:discount > 0, discount, price:AFTER_WORK_PROMO_PRICE};
-  }
-  function afterWorkCalendarPromotion(startValue, endValue){
-    const c = consoleById(state.calc.consoleId);
-    if(!c) return {eligible:false, discount:0, price:AFTER_WORK_PROMO_PRICE};
-    const terms = selectedConsoleRentalTerms(c);
-    const days = diffDays(startValue, endValue);
-    const regularRental = Number.isFinite(days) && days > 0
-      ? rentalCost(days, terms.daily, terms.weekly)
-      : 0;
-    return afterWorkPromotion(startValue, endValue, regularRental, terms.daily);
   }
   function ensureCoreAccessories(){
     DEFAULT_ACCESSORIES.forEach(def => {
@@ -1704,6 +1740,7 @@ body.line-browser #calcConsole{display:none}
     state.images = readJson(LS.images, {});
     state.home = normalizeHome(readJson(LS.home, null));
     state.faq = normalizeFaq(readJson(LS.faq, DEFAULT_FAQ));
+    state.social = normalizeSocial(readJson(LS.social, DEFAULT_SOCIAL));
     state.bundles = (readJson(LS.bundles, DEFAULT_BUNDLES) || []).map(normalizeBundle);
     state.accessories = (readJson(LS.accessories, DEFAULT_ACCESSORIES) || []).map(x => Object.assign({}, x, {consoleIds:Array.isArray(x.consoleIds)?x.consoleIds.map(String):[]}));
     ensureCoreAccessories();
@@ -1742,6 +1779,7 @@ body.line-browser #calcConsole{display:none}
     writeJson(LS.images, state.images);
     writeJson(LS.home, state.home);
     writeJson(LS.faq, state.faq);
+    writeJson(LS.social, state.social);
     writeJson(LS.bundles, state.bundles);
     writeJson(LS.accessories, state.accessories);
     writeJson(LS.bgPromo, state.promos.bg);
@@ -1785,6 +1823,63 @@ body.line-browser #calcConsole{display:none}
       overlayTone: tone
     };
   }
+  function normalizeSocial(data){
+    const src = data && typeof data === "object" ? data : {};
+    const text = (value, fallback = "") => String(value ?? fallback).trim();
+    // Older Gist records used Facebook share URLs. Resolve them here as well as
+    // in the defaults so existing synced content immediately gets stable post
+    // permalinks without waiting for an admin save.
+    const facebookPermalinks = {
+      "https://www.facebook.com/share/p/1EGhDpvVoG/":"https://www.facebook.com/ajgamerental/posts/pfbid02UHWQMJBr1t324aQAGRzkZK5NQYwcH6eyHGDszNP5AHrqbRUYfxmkUESd3Gvm1Dqnl",
+      "https://www.facebook.com/share/p/1TjLZZN9P5/":"https://www.facebook.com/ajgamerental/posts/pfbid02qcRRRwxNZsn7CX5nq7SafJAcHrDNRCaKV1fJu3tZdg1Zs9y1RHaVYR4EaSP7rMU2l",
+      "https://www.facebook.com/share/p/ALVCDqmj5F9fVGdH/":"https://www.facebook.com/story.php?story_fbid=952298263608493&id=100064849841171",
+      "https://www.facebook.com/share/p/186hFqDApn/":"https://www.facebook.com/ajgamerental/posts/pfbid06aKKWzdfBiSjDgD7CY4iyHkuKoTbbif5FjLsvkNLU697Fya9Ho81aUeRHmsMGc2Bl",
+      "https://www.facebook.com/share/p/17MizsKAXZ/":"https://www.facebook.com/ajgamerental/posts/pfbid0gQGybvSqLshbuBzVLTLoDRYPQr2Ne7XKxFt9E3ekmQB4JCV3S5uLRxJjArqeYtLVl",
+      "https://www.facebook.com/share/p/19N2hhAWhg/":"https://www.facebook.com/ajgamerental/posts/pfbid0256NEM37mHXHfLdni4wch86WZ1rk1mcBuv3xxzkJEL7AfoWbC1YVoFAxMFCN5mFStl",
+      "https://www.facebook.com/share/p/1KEsRUEhe1/":"https://www.facebook.com/ajgamerental/posts/pfbid02xhAGiwseKy75Y4QbKfL7xryW43SxFiyPZY4ms8J5NKpqqZfSnRvVYNJB2b9oQRkql",
+      "https://www.facebook.com/share/p/nfkK44oL1DMEcgnP/":"https://www.facebook.com/story.php?story_fbid=479474927551507&id=102009085298095",
+      "https://www.facebook.com/share/p/g1QDndJsC9wtzxEi/":"https://www.facebook.com/story.php?story_fbid=439940204838313&id=102009085298095",
+      "https://www.facebook.com/share/p/RwRSPeMmfPfmNJjp/":"https://www.facebook.com/story.php?story_fbid=468256015340065&id=102009085298095"
+    };
+    const facebookPermalink = value => facebookPermalinks[text(value)] || text(value);
+    return {
+      enabled: src.enabled !== false,
+      googleRating: text(src.googleRating, DEFAULT_SOCIAL.googleRating),
+      googleCount: text(src.googleCount, DEFAULT_SOCIAL.googleCount),
+      facebookRecommend: text(src.facebookRecommend, DEFAULT_SOCIAL.facebookRecommend),
+      facebookCount: text(src.facebookCount, DEFAULT_SOCIAL.facebookCount),
+      followers: text(src.followers, DEFAULT_SOCIAL.followers),
+      verified: src.verified !== false,
+      // Written by the daily Apps Script sync, never by the admin page.
+      googleAuto: src.googleAuto && typeof src.googleAuto === "object" ? src.googleAuto : null,
+      facebookAuto: src.facebookAuto && typeof src.facebookAuto === "object" ? src.facebookAuto : null,
+      highlightsUrl: facebookPermalink(src.highlightsUrl || DEFAULT_SOCIAL.highlightsUrl),
+      highlights: (Array.isArray(src.highlights) ? src.highlights : DEFAULT_SOCIAL.highlights).map((item, index) => ({
+        id: String(item.id || `hl_${index}_${Date.now()}`),
+        active: item.active !== false,
+        titleTh: text(item.titleTh || item.title),
+        titleEn: text(item.titleEn || item.titleTh || item.title),
+        image: text(item.image).replace(/^(assets\/social-proof\/[^.]+)\.png$/i, "$1.webp"),
+        url: facebookPermalink(item.id === "hl10" && text(item.url) === "https://www.facebook.com/share/p/g1QDndJsC9wtzxEi/"
+          ? "https://www.facebook.com/share/p/RwRSPeMmfPfmNJjp/"
+          : item.url)
+      })).filter(item => item.titleTh || item.titleEn || item.image),
+      reviews: (Array.isArray(src.reviews) ? src.reviews : DEFAULT_SOCIAL.reviews).map((review, index) => ({
+        id: String(review.id || `rv_${index}_${Date.now()}`),
+        active: review.active !== false,
+        name: text(review.name),
+        source: ["google","facebook"].includes(String(review.source)) ? String(review.source) : "google",
+        stars: Math.min(5, Math.max(1, Number(review.stars) || 5)),
+        // A review is quoted in the language the customer wrote it in, so there
+        // is one text rather than a pair keyed on the page language. Older
+        // entries stored a Thai and an English copy; take whichever was filled.
+        // Old records kept a Thai and an English copy without recording which one
+        // the customer actually wrote, so there is no reliable answer here; the
+        // storage key was bumped to drop them rather than guess wrong.
+        text: text(review.text || review.textTh || review.textEn)
+      })).filter(review => review.name || review.text)
+    };
+  }
   function normalizeFaq(list){
     const source = Array.isArray(list) ? list : DEFAULT_FAQ;
     return source.map(x => ({
@@ -1826,6 +1921,9 @@ body.line-browser #calcConsole{display:none}
     const promoHost = byId("beforeRentPromos");
     const deviceHost = byId("beforeRentDevices");
     if(!promoHost || !deviceHost) return;
+    promoHost.setAttribute("aria-label", tr("beforeRentFeatured"));
+    deviceHost.setAttribute("aria-label", tr("beforeRentPopular"));
+    byId("beforeRentTypeFilter")?.setAttribute("aria-label", state.lang === "th" ? "ประเภทเครื่องเกม" : "Console categories");
 
     const promos = [];
     ["highlight","newGames"].forEach(key => {
@@ -1919,6 +2017,7 @@ body.line-browser #calcConsole{display:none}
     // Desktop lays the promos out in a grid that never overflows, so the arrows
     // stay hidden there and only appear on the phone rail.
     bindScrollRail(byId("beforeRentPromosRail"), promoHost);
+    renderBeforeRentSocial();
   }
   // Matches a promo card to a console named in its copy so the tap lands somewhere
   // specific instead of the bare calculator.
@@ -1928,6 +2027,114 @@ body.line-browser #calcConsole{display:none}
     return listed
       .filter(consoleItem => isReady(consoleItem) && normalizedNames(consoleItem).some(name => name.length >= 3 && haystack.includes(name)))
       .sort((a,b) => Math.max(...normalizedNames(b).map(n => n.length)) - Math.max(...normalizedNames(a).map(n => n.length)))[0] || null;
+  }
+  function starRow(count){
+    const stars = Math.min(5, Math.max(1, Number(count) || 5));
+    return "\u2605".repeat(stars) + "\u2606".repeat(5 - stars);
+  }
+  // Ratings and picked reviews are two different jobs: the strip settles "is this
+  // shop real" straight away, the cards persuade the customer who is still
+  // weighing it up after seeing the prices.
+  // The daily Apps Script sync writes googleAuto into the Gist. Prefer it when it
+  // is there and fall back to the admin figures, so a failed or paused sync shows
+  // slightly old numbers rather than nothing.
+  function socialGoogleRating(social){
+    const value = Number(social.googleAuto?.rating || social.googleRating);
+    return Number.isFinite(value) ? value.toFixed(1) : "";
+  }
+  function socialGoogleCount(social){ return social.googleAuto?.count || social.googleCount; }
+  function socialFacebookFollowers(social){ return social.facebookAuto?.followers || social.followers; }
+  function formatSocialCount(value){
+    const number = Number(String(value || "").replace(/,/g, ""));
+    return Number.isFinite(number) ? new Intl.NumberFormat(state.lang === "th" ? "th-TH" : "en-US").format(number) : String(value || "");
+  }
+  function socialReviewList(social){
+    const curated = (social.reviews || []).filter(review => review.active !== false);
+    const synced = (social.googleAuto?.reviews || []).filter(review => review.active !== false);
+    const seen = new Set(curated.map(review => `${review.name}|${review.text}`.toLowerCase()));
+    const extra = synced.filter(review => !seen.has(`${review.name}|${review.text}`.toLowerCase()));
+    return curated.concat(extra).sort((a,b) => Number(/[\u0E00-\u0E7F]/.test(b.text || "")) - Number(/[\u0E00-\u0E7F]/.test(a.text || "")));
+  }
+  function renderBeforeRentSocial(){
+    const social = state.social || {};
+    const host = byId("beforeRentTrust");
+    const section = byId("beforeRentReviewsSection");
+    const highlightsSection = byId("beforeRentHighlightsSection");
+    if(!host || !section || !highlightsSection) return;
+    const show = social.enabled !== false;
+    host.hidden = !show;
+    if(!show){ section.hidden = true; highlightsSection.hidden = true; return; }
+
+    const withCount = (key, count) => count ? `${tr(key)} ${tr("beforeRentTrustReviews").replace("{n}", count)}` : tr(key);
+    const items = [];
+    const googleRating = socialGoogleRating(social);
+    const googleCount = socialGoogleCount(social);
+    if(googleRating){
+      items.push(`<a class="before-rent-trust-item" href="${esc(safeHref(CONFIG.googleMapsUrl))}" target="_blank" rel="noopener noreferrer">${icon("pin")}<span class="stars">${starRow(Math.round(Number(googleRating)))}</span><b>${esc(googleRating)}</b><span>${esc(withCount("beforeRentTrustGoogle", googleCount))}</span></a>`);
+    }
+    if(social.facebookRecommend){
+      items.push(`<a class="before-rent-trust-item" href="${esc(safeHref(CONFIG.facebookPageUrl))}" target="_blank" rel="noopener noreferrer">${icon("thumb")}<b>${esc(social.facebookRecommend)}%</b><span>${esc(withCount("beforeRentTrustFacebook", social.facebookCount))}</span></a>`);
+    }
+    const facebookFollowers = socialFacebookFollowers(social);
+    if(facebookFollowers){
+      items.push(`<span class="before-rent-trust-item">${icon("users")}<span>${esc(tr("beforeRentTrustFollowers").replace("{n}", formatSocialCount(facebookFollowers)))}</span></span>`);
+    }
+    if(social.verified){
+      items.push(`<span class="before-rent-trust-verified">${icon("verified")}<span>${esc(tr("beforeRentTrustVerified"))}</span></span>`);
+    }
+    host.innerHTML = items.join('<span class="before-rent-trust-sep" aria-hidden="true"></span>');
+
+    const reviews = socialReviewList(social);
+    section.hidden = !reviews.length;
+    const reviewHost = byId("beforeRentReviews");
+    reviewHost?.setAttribute("aria-label", tr("beforeRentReviews"));
+    if(reviews.length){
+      reviewHost.innerHTML = reviews.map(review => {
+      const body = review.text;
+      const initial = (review.name || "?").trim().charAt(0).toUpperCase();
+      const source = review.source === "facebook" ? "Facebook" : "Google Maps";
+      return `<article class="before-rent-review">
+        <span class="before-rent-review-head">
+          <span class="before-rent-review-avatar" aria-hidden="true">${esc(initial)}</span>
+          <span>
+            <span class="before-rent-review-name">${esc(review.name)}</span>
+            <span class="before-rent-review-src">${esc(source)}</span>
+          </span>
+        </span>
+        <span class="before-rent-review-stars" aria-label="${review.stars}/5">${starRow(review.stars)}</span>
+        <span class="before-rent-review-text">${esc(body)}</span>
+      </article>`;
+      }).join("");
+      byId("beforeRentReviewsCount").textContent = tr("beforeRentReviewsCount").replace("{n}", String(reviews.length));
+      byId("beforeRentReviewsHint").innerHTML = `${icon("swipe")}<span>${esc(tr("beforeRentReviewsHint"))}</span>`;
+      byId("beforeRentReviewLinks").innerHTML = [
+        ["pin", CONFIG.googleMapsUrl, "beforeRentReviewGoogle"],
+        ["thumb", CONFIG.facebookPageUrl, "beforeRentReviewFacebook"]
+      ].map(([iconName, href, key]) => `<a class="before-rent-review-link" href="${esc(safeHref(href))}" target="_blank" rel="noopener noreferrer">${icon(iconName)}<span>${esc(tr(key))}</span></a>`).join("");
+      reviewHost.scrollLeft = 0;
+      bindScrollRail(byId("beforeRentReviewsRail"), reviewHost);
+    }
+
+    const highlights = (social.highlights || []).filter(item => item.active !== false && item.image);
+    highlightsSection.hidden = !highlights.length;
+    if(highlights.length){
+      const highlightsHost = byId("beforeRentHighlights");
+      highlightsHost.setAttribute("aria-label", tr("beforeRentHighlights"));
+      highlightsHost.innerHTML = highlights.map(item => {
+        const title = state.lang === "en" ? item.titleEn : item.titleTh;
+        return `<a class="before-rent-highlight" href="${esc(safeHref(item.url))}" target="_blank" rel="noopener noreferrer">
+          <img src="${esc(safeHref(item.image))}" alt="${esc(title)}" loading="lazy">
+          <span class="before-rent-highlight-copy"><span class="before-rent-highlight-title">${esc(title)}</span><span class="before-rent-highlight-cue">${esc(tr("beforeRentHighlightCue"))}</span></span>
+        </a>`;
+      }).join("");
+      byId("beforeRentHighlightsCount").textContent = tr("beforeRentHighlightsCount").replace("{n}", String(highlights.length));
+      byId("beforeRentHighlightsHint").innerHTML = `${icon("swipe")}<span>${esc(tr("beforeRentHighlightsHint"))}</span>`;
+      const allLink = byId("beforeRentHighlightsAll");
+      allLink.href = safeHref(social.highlightsUrl);
+      allLink.innerHTML = `${icon("thumb")}<span>${esc(tr("beforeRentHighlightsAll"))}</span>`;
+      highlightsHost.scrollLeft = 0;
+      bindScrollRail(byId("beforeRentHighlightsRail"), highlightsHost);
+    }
   }
   function renderBeforeRentTypeFilter(){
     const host = byId("beforeRentTypeFilter");
@@ -2076,10 +2283,10 @@ body.line-browser #calcConsole{display:none}
   function renderConsoleGrid(list){
     return `<div class="console-grid">${list.map(c => {
       const img = getConsoleImage(c);
-      const ready = isConsoleSelectable(c);
+      const ready = isReady(c);
       const url = gameUrl(c);
       return `<article class="con-card ${ready?"":"unavailable"}">
-        <div class="con-img">${img?`<img src="${esc(img)}" alt="${esc(cName(c))}" loading="lazy">`:`<span class="emoji">${esc(c.icon)}</span>`}${ready?"":`<div class="ready-ribbon">${isQueueClosed(c)?tr("queueClosed"):`${tr("readyOn")} ${displayDate(c.readyDate)}`}</div>`}</div>
+        <div class="con-img">${img?`<img src="${esc(img)}" alt="${esc(cName(c))}" loading="lazy">`:`<span class="emoji">${esc(c.icon)}</span>`}${ready?"":`<div class="ready-ribbon">${tr("readyOn")} ${displayDate(c.readyDate)}</div>`}</div>
         <div class="con-body">
           <div class="con-name">${esc(cName(c))}</div>
           <div class="price-row"><div class="price-cell"><small>${tr("daily")}</small><b>${money(c.rate)}</b></div><div class="price-cell"><small>${tr("weekly")}</small><b>${money(c.weekly)}</b></div></div>
@@ -2130,7 +2337,6 @@ body.line-browser #calcConsole{display:none}
       window.requestAnimationFrame(focusCurrentGuideTarget);
       return;
     }
-    if(state.calc.step === 2 && next === 3) resetStepThreeGuide();
     state.calc.step = next;
     setGuideStage(guideStageForStep(next), {syncStep:false});
     guideLastScrollStage = "";
@@ -2166,11 +2372,8 @@ body.line-browser #calcConsole{display:none}
       .sort((a,b) => brandOrder(a.brand)-brandOrder(b.brand) || consoleRank(a)-consoleRank(b) || b.rate-a.rate);
   }
   function calcConsoleChoiceLabel(consoleItem){
-    const ready = isConsoleSelectable(consoleItem);
-    const unavailableReason = isQueueClosed(consoleItem)
-      ? tr("queueClosed")
-      : `${tr("readyOn")} ${displayDate(consoleItem.readyDate)}`;
-    return `${ready ? "" : "⛔ "}${cName(consoleItem)} (${money(consoleItem.rate)}/${tr("day")})${ready ? "" : ` - ${unavailableReason}`}`;
+    const ready = isReady(consoleItem);
+    return `${ready ? "" : "⛔ "}${cName(consoleItem)} (${money(consoleItem.rate)}/${tr("day")})${ready ? "" : ` - ${tr("readyOn")} ${displayDate(consoleItem.readyDate)}`}`;
   }
   function selectCalcConsole(consoleId){
     state.calc.consoleId = String(consoleId || "");
@@ -2184,34 +2387,6 @@ body.line-browser #calcConsole{display:none}
     saveLocal();
     render();
   }
-  function renderLineConsoleTrigger(){
-    if(!isLineBrowser()) return;
-    document.body.classList.add("line-browser");
-    const selected = consoleById(state.calc.consoleId);
-    byId("lineConsoleTrigger").textContent = selected ? calcConsoleChoiceLabel(selected) : tr("chooseConsole");
-  }
-  function openLineConsolePicker(){
-    if(!isLineBrowser()) return;
-    const list = calcConsoleChoices();
-    byId("lineConsolePickerTitle").textContent = tr("chooseConsoleTitle");
-    byId("lineConsolePickerClose").setAttribute("aria-label", state.lang === "en" ? "Close" : "ปิด");
-    byId("lineConsolePickerList").innerHTML = list.map(consoleItem => {
-      const ready = isReady(consoleItem);
-      const selected = String(state.calc.consoleId) === String(consoleItem.id);
-      return `<button class="line-console-picker-option ${selected ? "selected" : ""}" type="button" data-line-console-id="${esc(String(consoleItem.id))}" ${ready ? "" : "disabled"}><span class="line-console-picker-check">${selected ? "✓" : ""}</span><span class="line-console-picker-copy">${esc(calcConsoleChoiceLabel(consoleItem))}</span></button>`;
-    }).join("");
-    const modal = byId("lineConsolePickerModal");
-    modal.classList.add("open");
-    document.body.style.overflow = "hidden";
-    window.requestAnimationFrame(() => {
-      const selected = modal.querySelector(".line-console-picker-option.selected");
-      if(selected) selected.scrollIntoView({block:"center"});
-    });
-  }
-  function closeLineConsolePicker(){
-    byId("lineConsolePickerModal").classList.remove("open");
-    document.body.style.overflow = "";
-  }
   function renderCalcFields(){
     byId("calcType").innerHTML = [["",tr("chooseType")],["console",tr("type_console")],["vr",tr("type_vr")],["handheld",tr("type_handheld")],["racing",tr("type_racing")]].map(([id,label]) => `<option value="${id}" ${state.calc.type===id?"selected":""}>${esc(label)}</option>`).join("");
     const list = calcConsoleChoices();
@@ -2219,7 +2394,6 @@ body.line-browser #calcConsole{display:none}
       const ready = isReady(c);
       return `<option value="${esc(String(c.id))}" ${String(state.calc.consoleId)===String(c.id)?"selected":""} ${ready?"":"disabled"}>${esc(calcConsoleChoiceLabel(c))}</option>`;
     }).join("");
-    renderLineConsoleTrigger();
     byId("startDate").placeholder = "DD/MM/YYYY";
     byId("endDate").placeholder = "DD/MM/YYYY";
     byId("startDate").value = state.calc.start ? displayDate(state.calc.start) : "";
@@ -2277,52 +2451,37 @@ body.line-browser #calcConsole{display:none}
       : "หากติ๊กส่วนลดลูกค้าเก่าแต่ยังไม่เคยเช่ากับทางร้าน ทางร้านจะอัปเดตราคาใหม่โดยตัดส่วนลดนี้ออก";
     const returningReviewHtml = state.calc.ret ? `
       <div class="review-discount-box">
-        <label class="option-row"><input type="checkbox" id="reviewGoogleOpt" ${state.calc.reviewGoogle?"checked":""}><div><b>${tr("reviewGoogle")}</b><div class="hint">${tr("reviewGoogleHelp")}</div><div class="review-actions"><button class="btn" type="button" id="reviewGoogleBtn">${tr("reviewGoogleBtn")}</button><span class="review-only-highlight">${tr("returningOnly")}</span></div></div></label>
-        <label class="option-row"><input type="checkbox" id="reviewFacebookOpt" ${state.calc.reviewFacebook?"checked":""}><div><b>${tr("reviewFacebook")}</b><div class="hint">${tr("reviewFacebookHelp")}</div><div class="review-actions"><button class="btn" type="button" id="reviewFacebookBtn">${tr("reviewFacebookBtn")}</button><span class="review-only-highlight">${tr("returningOnly")}</span></div></div></label>
+        <label class="option-row"><input type="checkbox" id="reviewGoogleOpt" ${state.calc.reviewGoogle?"checked":""}><div><b>${tr("reviewGoogle")}</b><div class="hint">${tr("reviewGoogleHelp")}</div><div class="review-actions"><button class="btn" type="button" id="reviewGoogleBtn">${tr("reviewGoogleBtn")}</button></div></div></label>
+        <label class="option-row"><input type="checkbox" id="reviewFacebookOpt" ${state.calc.reviewFacebook?"checked":""}><div><b>${tr("reviewFacebook")}</b><div class="hint">${tr("reviewFacebookHelp")}</div><div class="review-actions"><button class="btn" type="button" id="reviewFacebookBtn">${tr("reviewFacebookBtn")}</button></div></div></label>
       </div>` : "";
     const mapsLabel = state.lang === "en"
       ? `Google Maps delivery address <span class="maps-fee-highlight">check delivery fee before deciding</span>`
       : `GOOGLE MAPS ที่อยู่จัดส่ง <span class="maps-fee-highlight">เช็คค่าจัดส่งก่อนตัดสินใจ</span>`;
-    const wiseStatus = wisePaymentAvailability();
-    if(state.calc.payment === "wise" && !wiseStatus.available){
-      state.calc.payment = "cash";
-      state.calc.beamPaymentLink = "";
-      state.calc.beamPaymentKey = "";
-      saveLocal();
-    }
     const paymentLocked = paymentSelectionLocked();
     const paymentLockHint = paymentLocked
       ? `<div class="hint"><b>${state.lang === "en" ? "Payment option locked after opening the rental contract." : "ช่องทางชำระเงินถูกล็อกหลังเปิดสัญญาการเช่า"}</b></div>`
       : "";
     const paymentDisabled = paymentLocked ? "disabled" : "";
-    const wiseDisabled = paymentLocked || !wiseStatus.available ? "disabled" : "";
     const fullPaymentOptions = state.lang === "en"
-      ? `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span>${tr("bank")}</span></label><label class="payment-option ${wiseStatus.available ? "" : "is-disabled"}"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""} ${wiseDisabled}>${wiseOptionHtml(wiseStatus)}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}>${creditOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`
-      : `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span>${tr("bank")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}>${creditOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`;
+      ? `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span>${tr("bank")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""} ${paymentDisabled}><span>${tr("wise")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}><span>${tr("credit")} ${paymentCardBadgesHtml()}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`
+      : `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span>${tr("bank")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}><span>${tr("credit")} ${paymentCardBadgesHtml()}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`;
     const reservationTitle = state.lang === "en"
-      ? "Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee)"
+      ? "Pay ฿1,000 by card or E-Wallet to reserve (no fee)"
       : "โอนจองคิว ฿200 ผ่านบัญชีธนาคาร";
     const fullPaymentTitle = state.lang === "en" ? "Pay the full amount before delivery" : "ชำระเต็มจำนวนก่อนจัดส่ง";
-    const paymentHtml = `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title"><span>${reservationTitle}</span><span class="payment-recommended">${tr("recommended")}</span></div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""} ${paymentDisabled}>${cashDeliveryOptionHtml()}</label></div><div class="payment-group"><div class="payment-group-title">${fullPaymentTitle}</div>${fullPaymentOptions}</div></div>${paymentLockHint}</div>`;
-    const mapsHtml = `<div class="grid2" style="margin-top:12px">
+    const paymentHtml = `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title">${reservationTitle}</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""} ${paymentDisabled}>${cashDeliveryOptionHtml()}</label></div><div class="payment-group"><div class="payment-group-title">${fullPaymentTitle}</div>${fullPaymentOptions}</div></div>${paymentLockHint}</div>`;
+    byId("optionRows").innerHTML = `
+      ${renderBoardGameBundle()}
+      <label class="option-row"><input type="checkbox" id="retOpt" ${state.calc.ret?"checked":""} ${state.retEnabled?"":"disabled"}><div><b>${tr("returning")}</b><div class="hint">${returningHelp}</div></div></label>
+      ${returningReviewHtml}
+      ${state.calc.ret ? "" : `<label class="option-row"><input type="checkbox" id="noContractOpt" ${state.calc.noContract?"checked":""}><div><b>${tr("noContract")}${state.calc.noContract && selectedConsole ? depositBadge(noContractDeposit(selectedConsole.deposit), "danger") : ""}</b><div class="hint">${tr("noContractHelp")}</div></div></label>`}
+      ${paymentHtml ? `<div style="margin-top:12px">${paymentHtml}</div>` : ""}
+      ${state.calc.noContract || state.calc.ret ? "" : `<div class="card" id="contractCard" style="margin:12px 0 0"><h3>${tr("contract")}${selectedConsole ? depositBadge(selectedConsole.deposit, "ok") : ""}</h3><p class="hint">${tr("contractHelp")}</p><button class="btn soft" id="contractBtn" type="button">${tr("contract")}</button><p class="hint" id="contractCodeHint">${state.calc.rentalCode ? `${tr("rentalCode")}: ${esc(state.calc.rentalCode)}` : ""}</p></div>`}
+      <div class="grid2" style="margin-top:12px">
         <div class="field"><label class="label">${mapsLabel}</label><input class="input" id="mapsInput" value="${esc(state.calc.maps)}" placeholder="https://maps.google.com/..."><div class="hint">${tr("mapsInputHelp")}</div></div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn" type="button" id="mapsOpen">Google Maps</button><button class="btn" type="button" id="mapsHelp">${tr("mapsHelp")}</button></div>
-      <div class="hint" style="margin:10px 0 12px"><b>${tr("mapsDeliveryArea")}</b><br>${tr("mapsDeliveryPromo")}</div>`;
-    const contractCardHtml = state.calc.ret ? "" : `<div class="card" id="contractCard" style="margin:12px 0 0">
-      <h3>${tr("contract")}${selectedConsole ? depositBadge(state.calc.noContract ? noContractDeposit(selectedConsole.deposit) : selectedConsole.deposit, state.calc.noContract ? "danger" : "ok") : ""}</h3>
-      ${state.calc.noContract ? "" : `<p class="hint">${tr("contractHelp")}</p><button class="btn soft" id="contractBtn" type="button">${tr("contract")}</button>`}
-      <p class="hint" id="contractCodeHint">${state.calc.rentalCode ? `${tr("rentalCode")}: ${esc(state.calc.rentalCode)}` : ""}</p>
-      <label class="option-row" style="margin-top:12px"><input type="checkbox" id="noContractOpt" ${state.calc.noContract?"checked":""}><div><b>${tr("noContract")}</b><div class="hint">${tr("noContractHelp")}</div></div></label>
-    </div>`;
-    byId("optionRows").innerHTML = `
-      ${renderBoardGameBundle()}
-      ${mapsHtml}
-      <label class="option-row"><input type="checkbox" id="retOpt" ${state.calc.ret?"checked":""} ${state.retEnabled?"":"disabled"}><div><b>${tr("returning")}</b><div class="hint">${returningHelp}</div></div></label>
-      ${returningReviewHtml}
-      ${contractCardHtml}
-      ${paymentHtml ? `<div style="margin-top:12px">${paymentHtml}</div>` : ""}
-    `;
+      <div class="hint" style="margin-top:10px"><b>${tr("mapsDeliveryArea")}</b><br>${tr("mapsDeliveryPromo")}</div>`;
   }
   function renderBoardGameBundle(){
     const games = bgVisibleList();
@@ -2356,7 +2515,6 @@ body.line-browser #calcConsole{display:none}
     }
     const list = state.calc.games || [];
     byId("gamePickBox").innerHTML = `
-      <div class="game-policy-note"><span>✓ ${tr("gameOwnAccount")}</span><span>⚠️ ${tr("gameLockedAfterDispatch")}</span></div>
       <button class="btn primary" id="openGamePicker" type="button">${tr("pickGames")}</button>
       <label class="option-row" style="margin-top:12px"><input type="checkbox" id="laterOpt" ${state.calc.later?"checked":""}><div><b>${tr("sendLater")}</b></div></label>
       ${list.length ? `<div class="faq-list" style="margin-top:12px">${list.map((g,i) => `<div class="faq-item"><div class="faq-q">${i+1}. ${esc(g.name || g.title || g.id)}</div><div class="faq-a">${esc(g.platformName || g.platformId || "")}</div></div>`).join("")}</div>` : ""}
@@ -2396,7 +2554,7 @@ body.line-browser #calcConsole{display:none}
     return {cash:tr("cash"), bank:tr("bank"), credit:tr("credit"), ewallet:tr("ewallet")}[state.calc.payment] || tr("cash");
   }
   function paymentOptionMessageLabelEn(){
-    if(state.calc.payment === "cash") return "Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee) + balance on delivery";
+    if(state.calc.payment === "cash") return "Pay ฿1,000 to reserve (no fee) + balance on delivery";
     if(state.calc.payment === "credit") return "Credit Card: pay full amount before delivery (+3.50% fee)";
     if(state.calc.payment === "ewallet") return "E-Wallet: pay full amount before delivery (+2.95%)";
     return paymentOptionLabelEn();
@@ -2424,51 +2582,20 @@ body.line-browser #calcConsole{display:none}
   function paymentReservationBadgesHtml(){
     return `${paymentCardBadgesHtml()}${paymentEwalletBadgesHtml()}`;
   }
-  // Thai customers are refunded by local bank transfer, so their note stands on
-  // its own. Refunds to everyone else go out through Wise, which is why only the
-  // English copy links to Wise's pages on timing, cancellation and coverage.
-  const DEPOSIT_REFUND_HELP_LINKS = {
-    en: [
-      ["wiseLinkTime", "https://wise.com/help/articles/2524078/how-long-will-my-transfer-take"],
-      ["wiseLinkPolicy", "https://wise.com/help/articles/2971625/how-do-i-cancel-my-transfer"],
-      ["wiseLinkCoverage", "https://wise.com/gb/send-money/"]
-    ],
-    th: []
-  };
-  function paymentRefundNoteHtml(){
-    const note = `<small class="payment-refund-note">${esc(tr("depositRefundPaymentNote"))}</small>`;
-    const links = DEPOSIT_REFUND_HELP_LINKS[state.lang] || [];
-    if(!links.length) return note;
-    const linkHtml = links
-      .map(([key, href]) => `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(tr(key))}</a>`)
-      .join('<span aria-hidden="true"> · </span>');
-    return `${note}<small class="payment-refund-links">${linkHtml}</small>`;
-  }
   function cashDeliveryOptionHtml(){
-    const transferMethod = state.lang === "en" ? "Cash or Thai QR scan (no fee)" : "เงินโอน (ไม่มีค่าธรรมเนียม)";
-    const otherMethods = state.lang === "en" ? "Card (+3.50%) or E-Wallet (+2.95%)" : "บัตร (+3.50%) หรือ E-Wallet (+2.95%)";
-    return `<span class="payment-option-copy"><span>${tr("cash")}</span><small>${transferMethod}</small><small>${otherMethods}</small>${paymentReservationBadgesHtml()}${paymentRefundNoteHtml()}</span>`;
-  }
-  function creditOptionHtml(){
-    return `<span class="payment-option-copy"><span>${tr("creditTitle")}</span><small>${tr("creditFee")}</small>${paymentCardBadgesHtml()}${paymentRefundNoteHtml()}</span>`;
+    const balanceMethods = state.lang === "en"
+      ? "Cash (no fee), Card (+3.50%) or E-Wallet (+2.95%)"
+      : "เงินโอน (ไม่มีค่าธรรมเนียม), บัตร (+3.50%) หรือ E-Wallet (+2.95%)";
+    return `<span class="payment-option-copy"><span>${tr("cash")}</span><small>${balanceMethods}</small>${paymentReservationBadgesHtml()}</span>`;
   }
   function ewalletOptionHtml(){
-    return `<span class="payment-option-copy"><span>${tr("ewalletTitle")}</span><small>${tr("ewalletFee")}</small>${paymentEwalletBadgesHtml()}${paymentRefundNoteHtml()}</span>`;
-  }
-  function wiseOptionHtml(status = wisePaymentAvailability()){
-    const blocked = status.reason === "weekend"
-      ? tr("wiseUnavailableWeekend")
-      : status.reason === "holiday"
-        ? tr("wiseUnavailableHoliday")
-        : "";
-    return `<span class="payment-option-copy"><span>${tr("wise")}</span><small class="wise-status">${tr("wiseAvailabilityNote")}</small>${blocked ? `<small class="wise-status blocked">${blocked}</small>` : ""}${paymentRefundNoteHtml()}</span>`;
+    return `<span class="payment-option-copy"><span>${tr("ewallet")}</span>${paymentEwalletBadgesHtml()}</span>`;
   }
   function paymentOptionSummaryHtml(){
     if(state.calc.payment === "cash") return cashDeliveryOptionHtml();
-    if(state.calc.payment === "credit") return creditOptionHtml();
     if(state.calc.payment === "ewallet") return ewalletOptionHtml();
     const label = esc(state.lang === "en" ? paymentOptionLabelEn() : paymentOptionLabelTh());
-    return label;
+    return state.calc.payment === "credit" ? `${label} ${paymentCardBadgesHtml()}` : label;
   }
   function paymentFeeLabel(){
     if(state.calc.payment === "credit") return state.lang === "en" ? "Credit Card fee (3.50%)" : "ค่าธรรมเนียมบัตรเครดิต (3.50%)";
@@ -2480,16 +2607,13 @@ body.line-browser #calcConsole{display:none}
     return basisPoints ? Math.ceil(((Number(amount) || 0) * basisPoints) / 10000) : 0;
   }
   function paymentLinkAmount(summary){
-    if(state.calc.payment === "cash") return state.lang === "en" ? Math.min(1000, Number(summary.total) || 0) : 0;
-    if(state.calc.payment === "credit" || state.calc.payment === "ewallet"){
-      return Number(summary.upfront || summary.total) || 0;
-    }
-    return 0;
+    if(state.calc.payment === "cash") return state.lang === "en" ? 1 : 0;
+    return ["credit","ewallet"].includes(state.calc.payment) ? 1 : 0;
   }
   function paymentLinkLabel(){
-    if(state.calc.payment === "cash") return "Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee)";
-    if(state.calc.payment === "credit") return state.lang === "en" ? "Pay by Credit Card" : "ชำระด้วยบัตรเครดิต";
-    if(state.calc.payment === "ewallet") return state.lang === "en" ? "Pay by E-Wallet" : "ชำระด้วย E-Wallet";
+    if(state.calc.payment === "cash") return "Demo test ฿1 by Card or E-Wallet";
+    if(state.calc.payment === "credit") return state.lang === "en" ? "Demo test ฿1 by Credit Card" : "ทดสอบชำระ 1 บาทด้วยบัตรเครดิต";
+    if(state.calc.payment === "ewallet") return state.lang === "en" ? "Demo test ฿1 by E-Wallet" : "ทดสอบชำระ 1 บาทด้วย E-Wallet";
     return "";
   }
   function currentBeamPaymentKey(summary, rentalCode=""){
@@ -2585,7 +2709,6 @@ body.line-browser #calcConsole{display:none}
       ...(summary.bgItems?.length ? [{label:tr("boardGameList"), value:numberedSummaryList(summary.bgItems.map(bgName)), html:true}] : []),
       ...(hasGameCatalog && state.calc.games?.length ? [{label:state.lang==="en"?"Games":"เกม", value:numberedSummaryList(state.calc.games.map(g => g.name || g.title || g.id)), html:true}] : []),
       ...(hasGameCatalog && state.calc.later ? [{label:state.lang==="en"?"Game list":"รายชื่อเกม", value:tr("sendLater")}] : []),
-      ...(summary.afterWorkDisc ? [{label:tr("afterWorkPromoDiscount"), value:`-${money(summary.afterWorkDisc)}`, cls:"discount"}] : []),
       ...(summary.retDisc ? [{label:tr("returningDiscount"), value:`-${money(summary.retDisc)}`, cls:"discount"}] : []),
       ...(summary.reviewGoogleDisc ? [{label:tr("reviewGoogleDiscount"), value:`-${money(summary.reviewGoogleDisc)}`, cls:"discount"}] : []),
       ...(summary.reviewFacebookDisc ? [{label:tr("reviewFacebookDiscount"), value:`-${money(summary.reviewFacebookDisc)}`, cls:"discount"}] : []),
@@ -2615,17 +2738,8 @@ body.line-browser #calcConsole{display:none}
   }
   function renderLineCard(){
     const uid = localStorage.getItem("aj_line_unique_id") || "";
-    const storedName = localStorage.getItem("aj_line_display_name") || "";
-    const connecting = lineConnectionStatus === "connecting";
-    const name = storedName || (connecting
-      ? (state.lang === "en" ? "Connecting LINE..." : "กำลังเชื่อมต่อ LINE...")
-      : (state.lang === "en" ? "LINE not connected" : "ยังไม่ได้เชื่อมต่อ LINE"));
-    const connectLabel = connecting
-      ? (state.lang === "en" ? "Connecting..." : "กำลังเชื่อมต่อ...")
-      : uid
-        ? (state.lang === "en" ? "Refresh LINE" : "รีเฟรช LINE")
-        : (state.lang === "en" ? "Connect LINE" : "เชื่อมต่อ LINE");
-    return `<div class="line-card"><div class="line-kicker">LINE / WHATSAPP</div><div class="line-name">${esc(name)}</div><div class="line-actions"><button class="btn dark" id="lineHistoryBtn" type="button">${state.lang==="en" ? "Rental history" : "ประวัติการเช่า"}</button><button class="btn line-connect" id="lineConnectBtn" type="button" ${connecting ? "disabled" : ""}>${esc(connectLabel)}</button></div></div>`;
+    const name = localStorage.getItem("aj_line_display_name") || (state.lang==="en" ? "LINE not connected" : "ยังไม่ได้เชื่อมต่อ LINE");
+    return `<div class="line-card"><div class="line-kicker">LINE / WHATSAPP</div><div class="line-name">${esc(name)}</div><div class="line-actions"><button class="btn dark" id="lineHistoryBtn" type="button">${state.lang==="en" ? "Rental history" : "ประวัติการเช่า"}</button><button class="btn line-connect" id="lineConnectBtn" type="button">${uid ? (state.lang==="en" ? "Refresh LINE" : "รีเฟรช LINE") : (state.lang==="en" ? "Connect LINE" : "เชื่อมต่อ LINE")}</button></div></div>`;
   }
   function summaryDeviceHtml(c){
     const img = getConsoleImage(c);
@@ -2636,11 +2750,13 @@ body.line-browser #calcConsole{display:none}
     const c = consoleById(state.calc.consoleId);
     const days = selectedDays();
     if(!c || !Number.isFinite(days) || days < 1) return {days:0,rental:0,addons:0,bgSubtotal:0,bgDisc:0,bgDeposit:0,consoleDeposit:0,discounts:0,deposit:0,total:0,paymentFee:0,upfront:200,onDelivery:0,bgItems:[]};
-    const terms = selectedConsoleRentalTerms(c);
-    const {daily, weekly, deposit, bundleName} = terms;
+    let daily = c.rate, weekly = c.weekly, deposit = c.deposit;
+    let bundleName = "";
+    if(Number(c.id) === SPEC.PS5 && state.calc.bundleId){
+      const b = state.bundles.find(x => x.id === state.calc.bundleId);
+      if(b){ daily = Number(b.rate)||daily; weekly = Number(b.weekly)||weekly; deposit = Number(b.deposit)||deposit; bundleName = state.lang==="en"?b.en:b.th; }
+    }
     const rental = rentalCost(days, daily, weekly);
-    const afterWorkPromo = afterWorkPromotion(state.calc.start, state.calc.end, rental, daily);
-    const afterWorkDisc = afterWorkPromo.discount;
     const extras = extrasForConsole(c).filter(x => state.calc.extras.includes(x.id));
     const addons = extras.reduce((sum,x) => sum + accessoryRentalCost(x, days), 0);
     const bgItems = state.calc.boardgames.map(bgById).filter(Boolean);
@@ -2652,7 +2768,7 @@ body.line-browser #calcConsole{display:none}
     const reviewFacebookDisc = state.calc.ret && state.calc.reviewFacebook ? 100 : 0;
     const promoDisc = promoDiscount("console", rental + addons);
     const finalDeposit = state.calc.noContract ? noContractDeposit(deposit) : deposit;
-    const consoleDiscounts = retDisc + reviewGoogleDisc + reviewFacebookDisc + promoDisc + afterWorkDisc;
+    const consoleDiscounts = retDisc + reviewGoogleDisc + reviewFacebookDisc + promoDisc;
     const subtotalAfterDiscount = Math.max(0, rental + addons - consoleDiscounts) + Math.max(0, bgSubtotal - bgDisc);
     const depositTotal = finalDeposit + bgDepositTotal;
     const subtotalBeforePaymentFee = subtotalAfterDiscount + depositTotal;
@@ -2666,7 +2782,7 @@ body.line-browser #calcConsole{display:none}
       upfront = total;
       onDelivery = 0;
     }
-    return {days,rental,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,reviewGoogleDisc,reviewFacebookDisc,promoDisc,afterWorkDisc,discounts:retDisc+reviewGoogleDisc+reviewFacebookDisc+promoDisc+afterWorkDisc+bgDisc,deposit:depositTotal,subtotalBeforePaymentFee,paymentFee,total,upfront,onDelivery,bundleName,extras,bgItems};
+    return {days,rental,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,reviewGoogleDisc,reviewFacebookDisc,promoDisc,discounts:retDisc+reviewGoogleDisc+reviewFacebookDisc+promoDisc+bgDisc,deposit:depositTotal,subtotalBeforePaymentFee,paymentFee,total,upfront,onDelivery,bundleName,extras,bgItems};
   }
   const MONTHLY_RATE = {500:8500, 400:6500, 350:5000, 300:4000};
   function monthlyRate(daily){ return MONTHLY_RATE[Number(daily) || 0] || 0; }
@@ -2736,7 +2852,6 @@ body.line-browser #calcConsole{display:none}
     const c = consoleById(state.calc.consoleId);
     const start = parseDate(state.calc.start), end = parseDate(state.calc.end);
     if(!c || !start || !end) return {mode:"idle",pass:true};
-    if(isQueueClosed(c)) return {mode:"closed",pass:false,message:tr("queueClosed")};
     if(!startDateAllowed(start)) return {mode:"cutoff",pass:false,message:tr("cutoffStartNotice")};
     if(diffDays(start,end) < 3) return {mode:"min",pass:false,message:tr("minDays")};
     if(!state.availability.rows.length) return {mode:"fallback",pass:true,message:""};
@@ -2757,21 +2872,10 @@ body.line-browser #calcConsole{display:none}
     const ctl = new AbortController();
     const timer = setTimeout(() => ctl.abort(), 12000);
     try{
-      const [availabilityResult, closuresResult] = await Promise.allSettled([
-        fetch(`${CONFIG.availabilityUrl}${CONFIG.availabilityUrl.includes("?")?"&":"?"}_ts=${Date.now()}`, {cache:"no-store", signal:ctl.signal}),
-        fetch(`${CONFIG.apiBase}/api/queue-closures?_ts=${Date.now()}`, {cache:"no-store", signal:ctl.signal})
-      ]);
-      if(closuresResult.status === "fulfilled" && closuresResult.value.ok){
-        applyQueueClosures(await closuresResult.value.json());
-        state.queueClosures.error = "";
-      }else{
-        state.queueClosures.error = closuresResult.status === "fulfilled" ? `HTTP ${closuresResult.value.status}` : String(closuresResult.reason?.message || "");
-      }
-      if(availabilityResult.status !== "fulfilled" || !availabilityResult.value.ok){
-        const status = availabilityResult.status === "fulfilled" ? `HTTP ${availabilityResult.value.status}` : availabilityResult.reason?.message;
-        throw new Error(status || "Availability request failed");
-      }
-      state.availability.rows = normalizeAvailabilityRows(await availabilityResult.value.json());
+      const res = await fetch(`${CONFIG.availabilityUrl}${CONFIG.availabilityUrl.includes("?")?"&":"?"}_ts=${Date.now()}`, {cache:"no-store", signal:ctl.signal});
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      state.availability.rows = normalizeAvailabilityRows(json);
       state.availability.error = "";
       state.availability.lastSync = Date.now();
     }catch(error){
@@ -2870,7 +2974,6 @@ body.line-browser #calcConsole{display:none}
   function calendarDayStatus(date){
     const c = consoleById(state.calc.consoleId);
     if(!c) return {cls:"disabled", note:tr("chooseConsole")};
-    if(isQueueClosed(c)) return {cls:"busy", note:calendarCellText("unavailable")};
     if(!state.availability.rows.length){
       if(state.availability.loading || !state.availability.lastSync) return {cls:"disabled", note:tr("checking")};
       if(state.availability.error) return {cls:"disabled", note:tr("queueError")};
@@ -2896,7 +2999,6 @@ body.line-browser #calcConsole{display:none}
     const c = consoleById(state.calc.consoleId);
     const start = parseDate(startValue), end = parseDate(endValue);
     if(start && !startDateAllowed(start)) return false;
-    if(isQueueClosed(c)) return false;
     if(!c || !start || !end || !state.availability.rows.length) return true;
     const aliases = availabilityAliases(c);
     const matches = state.availability.rows.filter(row => aliases.has(norm(row.deviceName)));
@@ -2955,10 +3057,6 @@ body.line-browser #calcConsole{display:none}
       if(!disabled && start && end && date > start && date < end){ cls.push("range"); note = calendarCellText("range"); }
       if(!disabled && start && iso === fmtIso(start)) note = calendarCellText("start");
       if(!disabled && end && iso === fmtIso(end)) note = calendarCellText("end");
-      if(!disabled && start && afterWorkCalendarPromotion(state.calendar.draftStart, iso).eligible){
-        cls.push("promo");
-        note = tr("afterWorkPromoCell");
-      }
       cells.push(`<button class="${cls.join(" ")}" data-cal-day="${iso}" type="button" ${disabled?"disabled":""}><span>${d}</span><small>${esc(note)}</small></button>`);
     }
     return `<div class="month"><h4>${esc(label)}</h4><div class="week">${(state.lang==="en"?["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]:["อา","จ","อ","พ","พฤ","ศ","ส"]).map(x=>`<div>${x}</div>`).join("")}</div><div class="days">${cells.join("")}</div></div>`;
@@ -3092,22 +3190,12 @@ body.line-browser #calcConsole{display:none}
       }
     }, 250);
   }
-  const preparedContractLinks = new Map();
   function rentalContractLink(code){
-    return preparedContractLinks.get(String(code || "")) || legacyRentalContractLink(code);
-  }
-  function legacyRentalContractLink(code){
     const lineUserId = lineUniqueId();
     const url = new URL(lineUserId ? CONFIG.contractUrl : CONFIG.contractWebUrl, location.href);
     if(lineUserId) url.searchParams.set("lineUserId", lineUserId);
     url.searchParams.set("lang", state.lang === "en" ? "en" : "th");
     url.searchParams.set("paymentOption", state.calc.payment || "cash");
-    const summary = calcSummary();
-    const paymentLink = generatedPaymentLink(summary, code);
-    if(paymentLink) url.searchParams.set("paymentLink", paymentLink);
-    url.searchParams.set("paymentOptionLabel", state.lang === "en" ? paymentOptionMessageLabelEn() : paymentOptionMessageLabelTh());
-    if(summary.upfront > 0) url.searchParams.set("upfront", money(summary.upfront));
-    if(summary.onDelivery > 0) url.searchParams.set("onDelivery", money(summary.onDelivery));
     const selected = consoleById(state.calc.consoleId);
     const deviceId = contractDeviceId(selected);
     if(deviceId) url.searchParams.set("deviceId", deviceId);
@@ -3182,28 +3270,20 @@ body.line-browser #calcConsole{display:none}
     if(s.bundleName) costs.push({label:`Bundle ${s.bundleName}`, value: en ? "included" : "รวมในค่าเช่า"});
     if(s.addons) costs.push({label: en ? "Accessories" : "อุปกรณ์เสริม", value: money(s.addons)});
     if(s.bgSubtotal) costs.push({label: en ? "Board game rental" : "ค่าเช่าบอร์ดเกม", value: money(s.bgSubtotal)});
-    if(s.afterWorkDisc) costs.push({label: en ? "After Work 3 Nights promotion" : "โปรโมชั่น After Work 3 Nights", value:`-${money(s.afterWorkDisc)}`, discount:true});
     if(s.retDisc) costs.push({label: en ? "Returning customer 10% discount" : "ส่วนลดลูกค้าเก่า 10%", value:`-${money(s.retDisc)}`, discount:true});
     if(s.reviewGoogleDisc) costs.push({label: en ? "Google Maps review discount" : "ส่วนลดรีวิว Google Maps", value:`-${money(s.reviewGoogleDisc)}`, discount:true});
     if(s.reviewFacebookDisc) costs.push({label: en ? "Facebook review discount" : "ส่วนลดรีวิว Facebook", value:`-${money(s.reviewFacebookDisc)}`, discount:true});
     if(s.promoDisc) costs.push({label: en ? "Console discount" : "ส่วนลดเครื่องเกม", value:`-${money(s.promoDisc)}`, discount:true});
     if(s.bgDisc) costs.push({label: en ? "Board game discount" : "ส่วนลดบอร์ดเกม", value:`-${money(s.bgDisc)}`, discount:true});
     costs.push({label: en ? `${cName(c)} deposit` : `ค่าประกัน ${cName(c)}`, value: money(s.deposit)});
-    const addOns = selectedContractAddOns(c);
     return {
       rentalCode: code,
       lang: en ? "EN" : "TH",
-      lineUserId: lineUniqueId(),
-      deviceId: contractDeviceId(c),
       deviceName: cName(c),
       category,
-      rentalStart: state.calc.start,
-      rentalEnd: state.calc.end,
       startDate: displayDate(state.calc.start),
       endDate: displayDate(state.calc.end),
       days: s.days,
-      bundleIds: addOns.bundle,
-      accessoryIds: addOns.accessories,
       maps: state.calc.maps || "",
       games: hasGameCatalog ? (state.calc.games || []).map(g => g.name || g.title || g.id) : [],
       later: hasGameCatalog && !!state.calc.later,
@@ -3223,45 +3303,6 @@ body.line-browser #calcConsole{display:none}
       paymentEmail: state.calc.payment === "wise" ? CONFIG.wiseEmail : "",
       paymentSwiftRequired: state.calc.payment === "wise" ? false : undefined
     };
-  }
-  async function prepareContractContext(summary, code){
-    const data = bookingStructured(code);
-    if(!data) return legacyRentalContractLink(code);
-    try{
-      const endpoint = `${String(CONFIG.apiBase || "").replace(/\/$/, "")}/api/booking-context/${encodeURIComponent(code)}`;
-      const response = await fetch(endpoint, {
-        method:"POST",
-        mode:"cors",
-        cache:"no-store",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-          lang: state.lang === "en" ? "EN" : "TH",
-          data,
-        }),
-      });
-      if(!response.ok) throw new Error(`booking context ${response.status}`);
-      const result = await response.json();
-      const token = String(result.contextToken || "").trim();
-      if(!token || !result.shortPath) throw new Error("booking context response is incomplete");
-      const shortLink = lineUniqueId()
-        ? `${CONFIG.contractUrl}?ctx=${encodeURIComponent(token)}#${encodeURIComponent(code)}`
-        : new URL(result.shortPath, CONFIG.apiBase).toString();
-      preparedContractLinks.set(code, shortLink);
-      const messageResponse = await fetch(`${endpoint.replace(`/${encodeURIComponent(code)}`, "")}/${encodeURIComponent(token)}/message`, {
-        method:"PATCH",
-        mode:"cors",
-        cache:"no-store",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({message: bookingMessage(code)}),
-      });
-      if(!messageResponse.ok) throw new Error(`booking message ${messageResponse.status}`);
-      return shortLink;
-    }catch(error){
-      console.warn("Short contract link unavailable; using full fallback link", error);
-      const fallback = legacyRentalContractLink(code);
-      preparedContractLinks.set(code, fallback);
-      return fallback;
-    }
   }
   function rentalSheetPayload(summary, code, channel){
     const c = consoleById(state.calc.consoleId);
@@ -3299,33 +3340,17 @@ body.line-browser #calcConsole{display:none}
       }
     };
   }
-  async function submitRentalToSheet(summary, code, channel){
-    const submittedKey = `aj_rental_sheet_submitted_v2_${code}`;
-    if(!code || localStorage.getItem(submittedKey) === "1") return true;
-    const endpoint = `${String(CONFIG.apiBase || "").replace(/\/$/, "")}/api/console-pending-submissions`;
-    if(!CONFIG.apiBase) throw new Error("Console Pending API is not configured");
+  function submitRentalToSheet(summary, code, channel){
+    if(!code || localStorage.getItem(`aj_rental_sheet_submitted_${code}`) === "1") return;
+    const endpoint = String(localStorage.getItem("aj_rental_sheet_webapp_url") || CONFIG.rentalSheetWebApp || "").trim();
+    if(!endpoint) return;
     SESSION_RENTAL_CODES.add(code);
     const payload = rentalSheetPayload(summary, code, channel);
-    let lastError;
-    for(let attempt = 0; attempt < 3; attempt += 1){
-      try{
-        const response = await fetch(endpoint, {
-          method:"POST",
-          mode:"cors",
-          cache:"no-store",
-          headers:{"Content-Type":"application/json"},
-          body:JSON.stringify(payload),
-        });
-        const result = await response.json().catch(() => ({}));
-        if(!response.ok || !result.ok) throw new Error(result.error || `Console Pending ${response.status}`);
-        localStorage.setItem(submittedKey, "1");
-        return true;
-      }catch(error){
-        lastError = error;
-        if(attempt < 2) await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
-      }
-    }
-    throw lastError || new Error("Console Pending submission failed");
+    // POST so the full booking message (added for the shop-side viewer) is not
+    // capped by the GET URL length limit. Apps Script doPost reads the raw body.
+    fetch(endpoint, {method:"POST", mode:"no-cors", cache:"no-store", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload)}).then(() => {
+      localStorage.setItem(`aj_rental_sheet_submitted_${code}`, "1");
+    }).catch(error => console.warn("Rental sheet append skipped", error));
   }
   function lineUniqueId(){
     try{
@@ -3381,6 +3406,7 @@ body.line-browser #calcConsole{display:none}
     ] : [];
     const paymentSummaryLinesTh = isCashPayment ? [
       `💳 ช่องทางชำระ: ${paymentOptionTh}`,
+      "",
       ...bankPaymentLinesTh,
       ...(s.onDelivery > 0 ? [
         "",
@@ -3395,12 +3421,12 @@ body.line-browser #calcConsole{display:none}
       ...(s.onDelivery > 0 ? [`🚚 ${payOnDeliveryLabel()}: ${money(s.onDelivery)}`] : [])
     ];
     const paymentSummaryLinesEn = isCashPayment ? [
-      "💳 Payment option: Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee)",
+      "💳 Payment option: Pay ฿1,000 by card or E-Wallet to reserve (no fee)",
       ...paymentLinkLinesEn,
       "",
       ...(s.onDelivery > 0 ? [
         `🚚 Pay on delivery: ${money(s.onDelivery)}`,
-        "** Cash or Thai QR scan (no fee), Card (+3.50%) or E-Wallet (+2.95%) **"
+        "** Cash (no fee), Card (+3.50%) or E-Wallet (+2.95%) **"
       ] : [])
     ] : [
       `💳 Payment option: ${paymentOptionEn}`,
@@ -3415,7 +3441,6 @@ body.line-browser #calcConsole{display:none}
       s.bundleName ? `  - Bundle ${s.bundleName}: รวมในค่าเช่า` : "",
       s.addons ? `  - อุปกรณ์เสริม: ${money(s.addons)}` : "",
       s.bgSubtotal ? `  - ค่าเช่าบอร์ดเกม: ${money(s.bgSubtotal)}` : "",
-      s.afterWorkDisc ? `  - โปรโมชั่น After Work 3 Nights: -${money(s.afterWorkDisc)}` : "",
       s.retDisc ? `  - ส่วนลดลูกค้าเก่า 10%: -${money(s.retDisc)}` : "",
       s.reviewGoogleDisc ? `  - ส่วนลดรีวิว Google Maps: -${money(s.reviewGoogleDisc)}` : "",
       s.reviewFacebookDisc ? `  - ส่วนลดรีวิว Facebook: -${money(s.reviewFacebookDisc)}` : "",
@@ -3428,7 +3453,6 @@ body.line-browser #calcConsole{display:none}
       s.bundleName ? `  - Bundle ${s.bundleName}: included in rental` : "",
       s.addons ? `  - Accessories: ${money(s.addons)}` : "",
       s.bgSubtotal ? `  - Board game rental: ${money(s.bgSubtotal)}` : "",
-      s.afterWorkDisc ? `  - After Work 3 Nights promotion: -${money(s.afterWorkDisc)}` : "",
       s.retDisc ? `  - Returning customer 10% discount: -${money(s.retDisc)}` : "",
       s.reviewGoogleDisc ? `  - Google Maps review discount: -${money(s.reviewGoogleDisc)}` : "",
       s.reviewFacebookDisc ? `  - Facebook review discount: -${money(s.reviewFacebookDisc)}` : "",
@@ -3496,6 +3520,7 @@ body.line-browser #calcConsole{display:none}
       ...paymentSummaryLinesEn,
       ...contractLinesEn,
       "",
+      ...(isThaiBankTransfer ? ["🚫 Customer cancellation → Reservation deposit of ฿200 is non-refundable"] : []),
       ...(isCashPayment ? ["🚫 Customer cancellation → Reservation deposit of ฿1,000 is non-refundable"] : []),
       "🚫 Early return → No refund for the unused rental period",
       "",
@@ -3505,14 +3530,13 @@ body.line-browser #calcConsole{display:none}
     ];
     return (state.lang === "en" ? linesEn : linesTh).filter(line => line !== undefined && line !== null && line !== false).join("\n");
   }
-  // Anyone who books without a game list needs the picker, whether or not they
-  // also sign a contract. The contract flow sends its own copy later, and both
-  // paths are de-duplicated per rental code, so the customer is not spammed.
   function shouldAttachLineGamePickerCard(){
     const c = consoleById(state.calc.consoleId);
     if(!c || !consoleHasGameCatalog(c) || c.showGameButton === false) return false;
     const platformId = c.gamePlatform || guessPlatform(c);
     if(!platformId) return false;
+    const skipsContract = state.calc.noContract || (state.calc.ret && state.retEnabled);
+    if(!skipsContract) return false;
     return state.calc.later || !(state.calc.games || []).length;
   }
   function lineGamePickerCardUrl(rentalCode=""){
@@ -3631,11 +3655,9 @@ body.line-browser #calcConsole{display:none}
     try{
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
-      await ensureBeamPaymentLink(summary, code);
-      await prepareContractContext(summary, code);
       const msg = bookingMessage(code);
       await writeBookingClipboard(msg);
-      await submitRentalToSheet(summary, code, "copy");
+      submitRentalToSheet(summary, code, "copy");
       return true;
     }catch(error){
       toast(state.lang === "en" ? "Cannot check rental code from Google Sheet." : "เช็กรหัสการเช่าจาก Google Sheet ไม่ได้");
@@ -3648,10 +3670,9 @@ body.line-browser #calcConsole{display:none}
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
       await ensureBeamPaymentLink(summary, code);
-      await prepareContractContext(summary, code);
       const msg = bookingMessageForLine(code);
       await writeBookingClipboard(msg);
-      await submitRentalToSheet(summary, code, "line");
+      submitRentalToSheet(summary, code, "line");
       pushLineGamePickerCard(code);
       location.href = `${CONFIG.lineOaMessageUrl}?${encodeURIComponent(msg)}`;
       return true;
@@ -3702,10 +3723,9 @@ body.line-browser #calcConsole{display:none}
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
       await ensureBeamPaymentLink(summary, code);
-      await prepareContractContext(summary, code);
       const msg = unicodeSafeText(bookingMessage(code));
       await writeBookingClipboard(msg);
-      await submitRentalToSheet(summary, code, "whatsapp");
+      submitRentalToSheet(summary, code, "whatsapp");
       window.open(whatsappShareUrl(msg), "_blank", "noopener,noreferrer");
       return true;
     }catch(error){
@@ -3719,10 +3739,9 @@ body.line-browser #calcConsole{display:none}
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
       await ensureBeamPaymentLink(summary, code);
-      await prepareContractContext(summary, code);
       const msg = unicodeSafeText(bookingMessage(code));
       await writeBookingClipboard(msg);
-      await submitRentalToSheet(summary, code, "messenger");
+      submitRentalToSheet(summary, code, "messenger");
       openMessengerChat();
       return true;
     }catch(error){
@@ -3742,7 +3761,6 @@ body.line-browser #calcConsole{display:none}
     try{
       const code = await ensureRentalCode(summary);
       await ensureBeamPaymentLink(summary, code);
-      const contractLink = await prepareContractContext(summary, code);
       state.calc.contractSignature = rentalSignature(summary);
       saveLocal();
       render();
@@ -3750,11 +3768,11 @@ body.line-browser #calcConsole{display:none}
       if(hint) hint.textContent = `${tr("rentalCode")}: ${code}`;
       // Persist the booking (incl. message) when the customer opens the contract,
       // so the shop can retrieve it later even if the customer never copies/sends.
-      await submitRentalToSheet(summary, code, "contract");
+      submitRentalToSheet(summary, code, "contract");
       // In-app browsers may block a new tab after the async setup above.
       // Same-tab navigation is not subject to popup blocking and preserves
       // every parameter prepared in the contract URL.
-      location.assign(contractLink);
+      location.assign(rentalContractLink(code));
     }catch(error){
       if(contractButton?.isConnected){
         contractButton.disabled = false;
@@ -3980,67 +3998,19 @@ body.line-browser #calcConsole{display:none}
       document.head.appendChild(s);
     });
   }
-  function lineLiffLaunchUrl(){
-    const liffId = String(localStorage.getItem("aj_liff_id") || CONFIG.lineLiffId);
-    const url = new URL(`https://liff.line.me/${encodeURIComponent(liffId)}`);
-    const params = new URLSearchParams(location.search);
-    ["code", "state", "error", "error_description", "liff.state", "liff.referrer"].forEach(key => params.delete(key));
-    params.set("ajLiff", "1");
-    url.search = params.toString();
-    url.hash = location.hash;
-    return url.href;
-  }
-  function connectLine(options = {}){
-    if(lineConnectPromise) return lineConnectPromise;
-    const automatic = options.automatic === true;
-    if(automatic && cachedLineProfile()){
-      lineConnectionStatus = "connected";
+  async function connectLine(){
+    try{
+      const liff = await loadLineSdk();
+      await liff.init({liffId:String(localStorage.getItem("aj_liff_id") || CONFIG.lineLiffId)});
+      if(!liff.isLoggedIn()){ liff.login(); return; }
+      const profile = await liff.getProfile();
+      localStorage.setItem("aj_line_unique_id", profile.userId || "");
+      localStorage.setItem("aj_line_display_name", profile.displayName || "");
+      toast(state.lang==="en" ? "LINE connected" : "เชื่อมต่อ LINE แล้ว");
       renderSummary();
-      return Promise.resolve(true);
+    }catch(error){
+      showModal("LINE", `<p class="hint">${esc(state.lang==="en" ? "Unable to connect LINE. Please check LIFF ID in settings." : "เชื่อมต่อ LINE ไม่สำเร็จ กรุณาตรวจสอบ LIFF ID ใน settings")}</p>`);
     }
-    lineConnectionStatus = "connecting";
-    renderSummary();
-    lineConnectPromise = (async () => {
-      try{
-        const liff = await loadLineSdk();
-        await liff.init({liffId:String(localStorage.getItem("aj_liff_id") || CONFIG.lineLiffId)});
-        if(!liff.isLoggedIn()){
-          if(cachedLineProfile()){
-            lineConnectionStatus = "connected";
-            if(!automatic) toast(state.lang === "en" ? "LINE is already connected" : "เชื่อมต่อ LINE อยู่แล้ว");
-            renderSummary();
-            return true;
-          }
-          if(liff.isInClient()) throw new Error("LIFF session is not logged in");
-          if(isLineBrowser() && new URLSearchParams(location.search).get("ajLiff") !== "1") location.replace(lineLiffLaunchUrl());
-          else if(isLineBrowser()) throw new Error("LIFF login did not complete");
-          else liff.login();
-          return false;
-        }
-        const profile = await liff.getProfile();
-        localStorage.setItem("aj_line_unique_id", profile.userId || "");
-        localStorage.setItem("aj_line_display_name", profile.displayName || "");
-        lineConnectionStatus = "connected";
-        if(!automatic) toast(state.lang==="en" ? "LINE connected" : "เชื่อมต่อ LINE แล้ว");
-        renderSummary();
-        return true;
-      }catch(error){
-        console.warn("LINE connection failed", error);
-        lineConnectionStatus = "idle";
-        renderSummary();
-        if(!automatic){
-          showModal("LINE", `<p class="hint">${esc(state.lang==="en" ? "Unable to connect LINE. Please try again." : "เชื่อมต่อ LINE ไม่สำเร็จ กรุณาลองอีกครั้ง")}</p>`);
-        }
-        return false;
-      }
-    })().finally(() => {
-      lineConnectPromise = null;
-    });
-    return lineConnectPromise;
-  }
-  function autoConnectLine(){
-    if(!isLineBrowser()) return Promise.resolve(false);
-    return connectLine({automatic:true});
   }
   function historyKey(value){
     return String(value || "").toLowerCase().replace(/\s+/g, "").replace(/[()_\-:./]/g, "");
@@ -4261,10 +4231,10 @@ body.line-browser #calcConsole{display:none}
       title:{th:"ตัวเลือกเพิ่มเติม / ชำระเงิน / สัญญา / สถานที่จัดส่ง", en:"Extra options / payment / contract / delivery"},
       columns:[
         {src:"assets/steps/step4a.png", th:"เลือกบอร์ดเกมเพิ่มในการเช่าครั้งนี้ (ถ้ามี)", en:"Add board games to this rental if needed"},
-        {src:"assets/steps/step4e.png", th:"ใส่ลิงก์ Google Maps เพื่อให้ร้านเช็คค่าจัดส่ง", en:"Enter a Google Maps link for the delivery-cost check"},
-        {src:"assets/steps/step4b.png", th:"เลือกลูกค้าเก่าเพื่อรับส่วนลด (ถ้าเคยเช่าแล้ว)", en:"Choose the returning-customer discount if eligible"},
-        {src:"assets/steps/step4d.png", th:"ทำสัญญาการเช่า หรือเลือกไม่ทำสัญญา", en:"Complete the rental contract, or choose no contract"},
-        {src:"assets/steps/step4c.png", th:"เลือกช่องทางการชำระเงิน", en:"Choose a payment method"}
+        {src:"assets/steps/step4b.png", th:"เลือกลูกค้าเก่าเพื่อรับส่วนลด หรือเลือกไม่ทำสัญญาการเช่า", en:"Choose returning-customer discount or no rental contract"},
+        {src:"assets/steps/step4c.png", th:"เลือกช่องทางการชำระเงิน", en:"Choose a payment method"},
+        {src:"assets/steps/step4d.png", th:"ทำสัญญาการเช่า หรือเลือกทำภายหลัง", en:"Complete the rental contract, or choose to do it later"},
+        {src:"assets/steps/step4e.png", th:"ใส่ลิงก์ Google Maps เพื่อให้ร้านเช็คค่าจัดส่ง", en:"Enter a Google Maps link for the delivery-cost check"}
       ]
     },
     {
@@ -4388,10 +4358,11 @@ body.line-browser #calcConsole{display:none}
     }
     if(step === 3){
       if(!state.calc.boardgames.length && !guideDone("bg")) return "bg";
-      if(!guideDone("maps")) return "maps";
-      if(!guideDone("ret")) return "ret";
+      if(!state.calc.ret && !guideDone("ret")) return "ret";
       if(!state.calc.ret && !guideDone("contractChoice")) return "contractChoice";
       if(guideStageAvailable("payment") && !guideDone("payment")) return "payment";
+      if(!state.calc.ret && !state.calc.noContract && !guideDone("contractLink")) return "contractLink";
+      if(!state.calc.maps && !guideDone("maps")) return "maps";
       return "next3";
     }
     if(step === 4) return "share";
@@ -4403,7 +4374,6 @@ body.line-browser #calcConsole{display:none}
     if(!c) return false;
     if(stage === "accessory") return extrasForConsole(c).length > 0;
     if(stage === "ps5bundle") return Number(c.id) === SPEC.PS5;
-    if(stage === "contractChoice") return !state.calc.ret;
     if(stage === "contractLink") return !state.calc.noContract && !state.calc.ret;
     if(stage === "payment") return true;
     return true;
@@ -4425,10 +4395,6 @@ body.line-browser #calcConsole{display:none}
   function resetStepOneGuide(){
     ["ps5bundle","accessory"].forEach(stage => delete state.calc.guideDone[stage]);
     state.calc.guideConsoleId = String(state.calc.consoleId || "");
-    guideLastScrollStage = "";
-  }
-  function resetStepThreeGuide(){
-    ["bg","maps","ret","contractChoice","contractLink","payment"].forEach(stage => delete state.calc.guideDone[stage]);
     guideLastScrollStage = "";
   }
   function guideTarget(){
@@ -4553,7 +4519,7 @@ body.line-browser #calcConsole{display:none}
       markGuideDone("contractChoice");
       markGuideDone("contractLink");
       state.calc.noContract = true;
-      setGuideStage("payment");
+      setGuideStage(guideStageAvailable("payment") && !guideDone("payment") ? "payment" : "maps");
       saveLocal();
       render();
       return;
@@ -4564,7 +4530,7 @@ body.line-browser #calcConsole{display:none}
       state.calc.noContract = false;
       markGuideDone("contractChoice");
       markGuideDone("contractLink");
-      setGuideStage("payment");
+      setGuideStage(guideStageAvailable("payment") && !guideDone("payment") ? "payment" : "maps");
       saveLocal();
       render();
       return;
@@ -4581,7 +4547,7 @@ body.line-browser #calcConsole{display:none}
     }
     if(action === "contract-later"){
       markGuideDone("contractLink");
-      setGuideStage("payment");
+      setGuideStage("maps");
       saveLocal();
       render();
       return;
@@ -4595,6 +4561,8 @@ body.line-browser #calcConsole{display:none}
     }
   }
 
+  const ADMIN_AUTH = {user:[97,106,103,97,109,101], pass:[84,64,110,111,115,101,64,50,48,50,54]};
+  const decodeAuth = list => list.map(n => String.fromCharCode(n)).join("");
   function openAdminLogin(){
     byId("adminLoginError").textContent = "";
     byId("adminUserInput").value = "";
@@ -4603,107 +4571,36 @@ body.line-browser #calcConsole{display:none}
     setTimeout(() => byId("adminUserInput").focus(), 60);
   }
   function closeAdminLogin(){ byId("adminLoginOverlay").classList.remove("open"); }
-  async function submitAdminLogin(){
+  function submitAdminLogin(){
     const user = byId("adminUserInput").value.trim();
     const pass = byId("adminPassInput").value;
-    const submit = byId("adminLoginSubmit");
-    submit.disabled = true;
-    byId("adminLoginError").textContent = state.lang === "en" ? "Signing in..." : "กำลังเข้าสู่ระบบ...";
-    try{
-      const response = await fetch(`${CONFIG.apiBase}/api/admin/login`, {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({username:user,password:pass})
-      });
-      if(!response.ok) throw new Error("invalid");
-      const result = await response.json();
-      state.adminToken = String(result.token || "");
-      if(!state.adminToken) throw new Error("invalid");
+    if(user === decodeAuth(ADMIN_AUTH.user) && pass === decodeAuth(ADMIN_AUTH.pass)){
       closeAdminLogin();
       openAdmin(true);
       return;
-    }catch{
-      byId("adminLoginError").textContent = tr("wrongPassword");
-    }finally{
-      submit.disabled = false;
     }
+    byId("adminLoginError").textContent = tr("wrongPassword");
   }
   function openAdmin(force=false){
     if(!force){ openAdminLogin(); return; }
     byId("adminOverlay").classList.add("open");
     renderAdmin();
-    fetchAvailability().catch(() => {});
   }
   function closeAdmin(){ byId("adminOverlay").classList.remove("open"); }
   function renderAdmin(){
     byId("adminBody").innerHTML = `
       <div class="admin-tabs">
-        ${["queue","consoles","home","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
+        ${["consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
       </div>
-      <div class="admin-panel ${state.adminTab==="queue"?"active":""}" id="adminQueue">${adminQueueHtml()}</div>
       <div class="admin-panel ${state.adminTab==="consoles"?"active":""}" id="adminConsoles">${adminConsolesHtml()}</div>
       <div class="admin-panel ${state.adminTab==="home"?"active":""}" id="adminHome">${adminHomeHtml()}</div>
+      <div class="admin-panel ${state.adminTab==="reviews"?"active":""}" id="adminReviews">${adminReviewsHtml()}</div>
       <div class="admin-panel ${state.adminTab==="faq"?"active":""}" id="adminFaq">${adminFaqHtml()}</div>
       <div class="admin-panel ${state.adminTab==="settings"?"active":""}" id="adminSettings">${adminSettingsHtml()}</div>
       <div class="admin-panel ${state.adminTab==="sync"?"active":""}" id="adminSync">${adminSyncHtml()}</div>
       <div class="admin-panel ${state.adminTab==="addons"?"active":""}" id="adminAddons">${adminAddonsHtml()}</div>`;
   }
-  function tabLabel(tab){ return ({queue:state.lang==="en"?"Close queue":"ปิดคิว",consoles:"เครื่อง",home:"Home",faq:"FAQ",settings:"Settings",sync:"Gist Sync",addons:"Bundles"})[tab]; }
-  function adminQueueHtml(){
-    const labels = state.lang === "en"
-      ? {title:"Rental queue controls",help:"Closed devices cannot be selected and their calendar dates show as unavailable.",all:"Close all device queues",byType:"Close by device type",byDevice:"Close by device name",save:"Save queue status",loading:"Loading queue status..."}
-      : {title:"ควบคุมการปิดคิวเช่า",help:"เครื่องที่ปิดคิวจะเลือกไม่ได้ และทุกวันในปฏิทินจะแสดงว่าไม่ว่าง",all:"ปิดคิวทุกเครื่อง",byType:"ปิดตามประเภทเครื่อง",byDevice:"ปิดตามชื่อเครื่อง",save:"บันทึกสถานะคิว",loading:"กำลังโหลดสถานะคิว..."};
-    const types = [["console",tr("type_console")],["vr",tr("type_vr")],["handheld",tr("type_handheld")],["racing",tr("type_racing")]];
-    const devices = [...state.consoles].sort((a,b) => consoleRank(a)-consoleRank(b));
-    return `<div class="card"><h3>${labels.title}</h3><p class="hint">${labels.help}</p>
-      <label class="option-row" style="margin-top:12px"><input type="checkbox" id="queueCloseAll" ${state.queueClosures.allClosed?"checked":""}><div><b>${labels.all}</b></div></label>
-      <h4 style="margin:18px 0 8px">${labels.byType}</h4>
-      <div class="grid2" style="margin-top:12px">${types.map(([type,label]) => `<label class="option-row"><input type="checkbox" data-queue-type="${type}" ${state.queueClosures.types[type]?"checked":""} ${state.queueClosures.allClosed?"disabled":""}><div><b>${label}</b></div></label>`).join("")}</div>
-      <h4 style="margin:18px 0 8px">${labels.byDevice}</h4>
-      <div class="grid2">${devices.map(device => {
-        const id=String(device.id).toLowerCase();
-        const disabled=state.queueClosures.allClosed || state.queueClosures.types[device.type] === true;
-        return `<label class="option-row"><input type="checkbox" data-queue-device="${esc(id)}" ${state.queueClosures.devices[id]?"checked":""} ${disabled?"disabled":""}><div><b>${esc(cName(device))}</b></div></label>`;
-      }).join("")}</div>
-      <div style="display:flex;align-items:center;gap:12px;margin-top:14px"><button class="btn primary" id="saveQueueClosures" type="button">${labels.save}</button><span class="hint" id="queueAdminStatus">${state.queueClosures.loading?labels.loading:""}</span></div>
-    </div>`;
-  }
-  function applyQueueClosures(payload={}){
-    const types = payload.types && typeof payload.types === "object" ? payload.types : {};
-    const devices = payload.devices && typeof payload.devices === "object" ? payload.devices : {};
-    state.queueClosures.allClosed = payload.allClosed === true;
-    ["console","vr","handheld","racing"].forEach(type => { state.queueClosures.types[type] = types[type] === true; });
-    state.queueClosures.devices = Object.fromEntries(Object.entries(devices).map(([id,closed]) => [String(id).toLowerCase(),closed === true]));
-    state.queueClosures.updatedAt = String(payload.updatedAt || "");
-  }
-  async function saveQueueClosuresFromAdmin(){
-    const status = byId("queueAdminStatus");
-    const allClosed = byId("queueCloseAll").checked;
-    const types = Object.fromEntries(["console","vr","handheld","racing"].map(type => [type, Boolean(document.querySelector(`[data-queue-type="${type}"]`)?.checked)]));
-    const devices = Object.fromEntries([...document.querySelectorAll("[data-queue-device]")].map(input => [input.dataset.queueDevice,Boolean(input.checked)]));
-    if(status) status.textContent = state.lang === "en" ? "Saving..." : "กำลังบันทึก...";
-    try{
-      const response = await fetch(`${CONFIG.apiBase}/api/admin/queue-closures`, {
-        method:"PUT",
-        headers:{"Content-Type":"application/json","Authorization":`Bearer ${state.adminToken}`},
-        body:JSON.stringify({allClosed,types,devices})
-      });
-      if(response.status === 401){
-        state.adminToken = "";
-        closeAdmin();
-        openAdminLogin();
-        throw new Error(state.lang === "en" ? "Session expired. Please sign in again." : "เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่");
-      }
-      if(!response.ok) throw new Error(`HTTP ${response.status}`);
-      applyQueueClosures(await response.json());
-      state.availability.gate = evaluateAvailability();
-      render();
-      renderAdmin();
-      toast(state.lang === "en" ? "Queue status saved" : "บันทึกสถานะคิวแล้ว");
-    }catch(error){
-      if(status) status.textContent = error.message;
-    }
-  }
+  function tabLabel(tab){ return ({consoles:"เครื่อง",home:"Home",reviews:"รีวิว",faq:"FAQ",settings:"Settings",sync:"Gist Sync",addons:"Bundles"})[tab]; }
   function adminConsolesHtml(){
     return `<div class="card"><h3>${tr("add")} Console</h3><div class="grid2">
       <div class="field"><label class="label">Name TH</label><input class="input" id="newName"></div>
@@ -4855,6 +4752,73 @@ body.line-browser #calcConsole{display:none}
     state.faq = normalizeFaq(state.faq);
     saveAndRenderAdmin("FAQ saved");
   }
+  function adminReviewsHtml(){
+    const social = state.social;
+    const field = (key, label, type = "text") => `<div class="field"><label class="label">${label}</label><input class="input" type="${type}" data-social="${key}" value="${esc(social[key])}"></div>`;
+    const rows = social.reviews.map((review, index) => `<div class="admin-item"><div class="admin-edit open"><div class="grid2">
+      <div class="field"><label class="label">Name</label><input class="input" data-review="${index}:name" value="${esc(review.name)}"></div>
+      <div class="field"><label class="label">Source</label><select class="input" data-review="${index}:source"><option value="google" ${review.source==="google"?"selected":""}>Google Maps</option><option value="facebook" ${review.source==="facebook"?"selected":""}>Facebook</option></select></div>
+      <div class="field"><label class="label">Stars (1-5)</label><input class="input" type="number" min="1" max="5" data-review="${index}:stars" value="${esc(review.stars)}"></div>
+      <div class="field"><label class="label">Show on page</label><select class="input" data-review="${index}:active"><option value="1" ${review.active!==false?"selected":""}>Yes</option><option value="0" ${review.active===false?"selected":""}>No</option></select></div>
+      <div class="field wide"><label class="label">Review text (exactly as the customer wrote it)</label><textarea class="input" rows="3" data-review="${index}:text">${esc(review.text)}</textarea></div>
+      </div><button class="btn danger" data-delete-review="${index}" type="button">${tr("delete")}</button></div></div>`).join("");
+    const highlightRows = social.highlights.map((item, index) => `<div class="admin-item"><div class="admin-edit open"><div class="grid2">
+      <div class="field"><label class="label">Title TH</label><input class="input" data-highlight="${index}:titleTh" value="${esc(item.titleTh)}"></div>
+      <div class="field"><label class="label">Title EN</label><input class="input" data-highlight="${index}:titleEn" value="${esc(item.titleEn)}"></div>
+      <div class="field wide"><label class="label">Image path or URL</label><input class="input" data-highlight="${index}:image" value="${esc(item.image)}"></div>
+      <div class="field wide"><label class="label">Facebook detail URL</label><input class="input" data-highlight="${index}:url" value="${esc(item.url)}"></div>
+      <div class="field"><label class="label">Show on page</label><select class="input" data-highlight="${index}:active"><option value="1" ${item.active!==false?"selected":""}>Yes</option><option value="0" ${item.active===false?"selected":""}>No</option></select></div>
+      </div><button class="btn danger" data-delete-highlight="${index}" type="button">${tr("delete")}</button></div></div>`).join("");
+    return `<div class="card"><h3>Trust strip</h3>
+      <label class="option-row"><input type="checkbox" id="socialEnabled" ${social.enabled?"checked":""}><div><b>Show trust strip and reviews</b></div></label>
+      <div class="grid2">
+        ${field("googleRating","Google rating")}
+        ${field("googleCount","Google review count")}
+        ${field("facebookRecommend","Facebook recommend %")}
+        ${field("facebookCount","Facebook review count")}
+        ${field("followers","Facebook followers")}
+      </div>
+      <label class="option-row"><input type="checkbox" id="socialVerified" ${social.verified?"checked":""}><div><b>Verified page badge</b></div></label>
+      <p class="hint">Google: ${esc(CONFIG.googleMapsUrl)}<br>Facebook: ${esc(CONFIG.facebookPageUrl)}</p>
+      <p class="hint">${social.googleAuto
+        ? `Google sync: rating ${esc(social.googleAuto.rating || "-")} from ${esc(social.googleAuto.count || "-")} ratings, ${(social.googleAuto.reviews || []).length} reviews, last run ${esc(displayDate((social.googleAuto.syncedAt || "").slice(0,10)))}. These override the Google fields above.`
+        : "Google sync has not run yet, so the Google fields above are used."}</p>
+      <p class="hint">${social.facebookAuto
+        ? `Facebook sync: ${esc(social.facebookAuto.followers || "-")} followers, last run ${esc(displayDate((social.facebookAuto.syncedAt || "").slice(0,10)))}. This overrides the Facebook followers field above.`
+        : "Facebook sync has not run yet, so the Facebook followers field above is used."}</p>
+    </div>
+    <div class="admin-list">${rows}</div>
+    <button class="btn" id="addReview" type="button">${tr("add")}</button>
+    <div class="card" style="margin-top:18px"><h3>Past Work, Media Features &amp; Events</h3>
+      <div class="field"><label class="label">View all details URL</label><input class="input" data-social="highlightsUrl" value="${esc(social.highlightsUrl)}"></div>
+      <p class="hint">Images are displayed in a square 1:1 frame. Changes are included in socialProof when pushing to Gist.</p>
+    </div>
+    <div class="admin-list">${highlightRows}</div>
+    <button class="btn" id="addHighlight" type="button">${tr("add")}</button>
+    <button class="btn primary" id="saveReviews" type="button">${tr("save")}</button>`;
+  }
+  function saveReviewsFromAdmin(){
+    $$("[data-social]").forEach(el => { state.social[el.dataset.social] = el.value.trim(); });
+    state.social.enabled = byId("socialEnabled").checked;
+    state.social.verified = byId("socialVerified").checked;
+    $$("[data-review]").forEach(el => {
+      const [index, key] = el.dataset.review.split(":");
+      const review = state.social.reviews[Number(index)];
+      if(!review) return;
+      if(key === "active") review.active = el.value === "1";
+      else if(key === "stars") review.stars = Number(el.value) || 5;
+      else review[key] = el.value.trim();
+    });
+    $$("[data-highlight]").forEach(el => {
+      const [index, key] = el.dataset.highlight.split(":");
+      const item = state.social.highlights[Number(index)];
+      if(!item) return;
+      if(key === "active") item.active = el.value === "1";
+      else item[key] = el.value.trim();
+    });
+    state.social = normalizeSocial(state.social);
+    saveAndRenderAdmin("Reviews saved");
+  }
   function adminSettingsHtml(){
     return `<div class="card"><h3>Feature Settings</h3>
       <label class="option-row"><input type="checkbox" id="setRet" ${state.retEnabled?"checked":""}><div><b>Returning customer discount 10%</b></div></label>
@@ -4915,6 +4879,7 @@ body.line-browser #calcConsole{display:none}
       images: state.images,
       homeData: state.home,
       faqData: state.faq,
+      socialProof: state.social,
       retEnabled: state.retEnabled,
       featureSettings: {returningDiscountEnabled: state.retEnabled, stepGuideEnabled: true},
       bgPromo: state.promos.bg,
@@ -4930,6 +4895,7 @@ body.line-browser #calcConsole{display:none}
     if(data.images) state.images = data.images;
     if(data.homeData) state.home = normalizeHome(data.homeData);
     if(data.faqData) state.faq = normalizeFaq(data.faqData);
+    if(data.socialProof) state.social = normalizeSocial(data.socialProof);
     if(Object.prototype.hasOwnProperty.call(data,"retEnabled")) state.retEnabled = !!data.retEnabled;
     if(data.featureSettings && Object.prototype.hasOwnProperty.call(data.featureSettings,"returningDiscountEnabled")) state.retEnabled = !!data.featureSettings.returningDiscountEnabled;
     if(data.bgPromo) state.promos.bg = Object.assign({enabled:false,mode:"percent",value:0}, data.bgPromo);
@@ -5034,32 +5000,21 @@ body.line-browser #calcConsole{display:none}
       if(addHome){ addHomeItem(addHome.dataset.addHome); return; }
       const delHome = event.target.closest("[data-delete-home]");
       if(delHome){ deleteHomeItem(delHome.dataset.deleteHome); return; }
+      const delReview = event.target.closest("[data-delete-review]");
+      if(delReview){ state.social.reviews.splice(Number(delReview.dataset.deleteReview),1); saveAndRenderAdmin("Review deleted"); return; }
+      const delHighlight = event.target.closest("[data-delete-highlight]");
+      if(delHighlight){ state.social.highlights.splice(Number(delHighlight.dataset.deleteHighlight),1); saveAndRenderAdmin("Highlight deleted"); return; }
       const delFaq = event.target.closest("[data-delete-faq]");
       if(delFaq){ state.faq.splice(Number(delFaq.dataset.deleteFaq),1); saveAndRenderAdmin("FAQ deleted"); return; }
       const delBundle = event.target.closest("[data-delete-bundle]");
       if(delBundle){ state.bundles.splice(Number(delBundle.dataset.deleteBundle),1); saveAndRenderAdmin("Bundle deleted"); return; }
       const delAcc = event.target.closest("[data-delete-acc]");
       if(delAcc){ state.accessories.splice(Number(delAcc.dataset.deleteAcc),1); saveAndRenderAdmin("Accessory deleted"); return; }
-      if(event.target.closest("#queueCloseAll")){
-        state.queueClosures.allClosed = event.target.checked;
-        renderAdmin();
-        return;
-      }
-      const queueType = event.target.closest("[data-queue-type]");
-      if(queueType){
-        state.queueClosures.types[queueType.dataset.queueType] = queueType.checked;
-        renderAdmin();
-        return;
-      }
-      const queueDevice = event.target.closest("[data-queue-device]");
-      if(queueDevice){
-        state.queueClosures.devices[queueDevice.dataset.queueDevice] = queueDevice.checked;
-        return;
-      }
     });
     byId("sortSelect").addEventListener("change", e => { state.filter.sort = e.target.value; renderConsoles(); });
     byId("langBtn").addEventListener("click", () => { state.lang = state.lang === "en" ? "th" : "en"; render(); });
     byId("beforeRentStart").addEventListener("click", () => setBeforeRent(false, {startGuide:true}));
+    byId("beforeRentFinalCta").addEventListener("click", () => setBeforeRent(false, {startGuide:true}));
     byId("beforeRentGames").addEventListener("click", () => openGamePicker({browseOnly:true}));
     byId("beforeRentSteps").addEventListener("click", openStepsPopup);
     byId("beforeRentFaq").addEventListener("click", openFAQPopup);
@@ -5098,26 +5053,24 @@ body.line-browser #calcConsole{display:none}
       if(!pickerOriginAllowed(event.origin)) return;
       const data = event.data || {};
       if(data.type === "AJ_PICKER_SELECTED"){
-        const games = Array.isArray(data.games) ? data.games.slice(0,10) : [];
-        // Browsing starts without a rental, so the list used to be discarded and
-        // the button did nothing. Carry the choice into a booking for whichever
-        // console was being browsed instead.
+        const pickedGames = Array.isArray(data.games) ? data.games.slice(0,10) : [];
         if(state.gamePickerBrowseOnly){
-          const browsed = consoleById(state.gamePickerPlatformId);
-          closeGamePicker();
-          // selectCalcConsole clears any previous list and puts the guide back on
-          // the date step, so the browsed list is applied after it.
-          if(browsed) selectCalcConsole(browsed.id);
-          state.calc.games = games;
+          const pickedConsole = activePickerConsole();
+          if(!pickedConsole || !pickedGames.length) return;
+          state.calc.type = pickedConsole.type || "";
+          state.calc.consoleId = String(pickedConsole.id);
+          state.calc.bundleId = "";
+          state.calc.extras = [];
+          state.calc.games = pickedGames;
           state.calc.later = false;
-          // Land on step 1. No dates exist yet, so opening on the game step would
-          // strand the customer; the list is waiting when they reach step 2.
           state.calc.step = 1;
+          closeGamePicker();
+          fetchAvailability();
           saveLocal();
-          setBeforeRent(false);
+          setBeforeRent(false, {startGuide:true});
           return;
         }
-        state.calc.games = games;
+        state.calc.games = pickedGames;
         state.calc.later = false;
         setGuideStage("next2");
         closeGamePicker();
@@ -5179,7 +5132,7 @@ body.line-browser #calcConsole{display:none}
         state.calc.noContract = event.target.checked;
         markGuideDone("contractChoice");
         if(state.calc.noContract) markGuideDone("contractLink");
-        setGuideStage(state.calc.noContract ? "payment" : "contractLink");
+        setGuideStage(state.calc.noContract ? (guideStageAvailable("payment") && !guideDone("payment") ? "payment" : "maps") : "contractLink");
         saveLocal();
         render();
       }
@@ -5189,47 +5142,34 @@ body.line-browser #calcConsole{display:none}
           render();
           return;
         }
-        if(event.target.dataset.paymentChoice === "wise" && !wisePaymentAvailability().available){
-          const status = wisePaymentAvailability();
-          toast(status.reason === "holiday" ? tr("wiseUnavailableHoliday") : tr("wiseUnavailableWeekend"));
-          render();
-          return;
-        }
         state.calc.payment = event.target.dataset.paymentChoice;
         state.calc.beamPaymentLink = "";
         state.calc.beamPaymentKey = "";
         markGuideDone("payment");
-        setGuideStage("next3");
+        setGuideStage(!state.calc.ret && !state.calc.noContract && !guideDone("contractLink") ? "contractLink" : "maps");
         saveLocal();
         render();
       }
       if(event.target.id === "laterOpt"){ state.calc.later = event.target.checked; if(state.calc.later){ markGuideDone("games"); setGuideStage("next2"); } saveLocal(); render(); }
     });
     document.addEventListener("input", event => {
-      if(event.target.id === "mapsInput"){ state.calc.maps = event.target.value.trim(); if(state.calc.maps.length > 8){ markGuideDone("maps"); setGuideStage("ret"); } saveLocal(); renderGuide(); }
+      if(event.target.id === "mapsInput"){ state.calc.maps = event.target.value.trim(); if(state.calc.maps.length > 8){ markGuideDone("maps"); setGuideStage("next3"); } saveLocal(); renderGuide(); }
     });
     document.addEventListener("click", async event => {
       const clickedButton = event.target.closest("button");
       const targetId = clickedButton?.id || event.target.id;
       if(targetId === "startDate") openCalendar("start");
       if(targetId === "endDate") openCalendar("end");
-      if(targetId === "lineConsoleTrigger") openLineConsolePicker();
-      if(targetId === "lineConsolePickerClose" || targetId === "lineConsolePickerModal") closeLineConsolePicker();
-      const lineConsoleOption = event.target.closest("[data-line-console-id]");
-      if(lineConsoleOption && !lineConsoleOption.disabled){
-        closeLineConsolePicker();
-        selectCalcConsole(lineConsoleOption.dataset.lineConsoleId);
-      }
       if(targetId === "bgAdd"){
         const id = byId("bgSelect")?.value;
         if(id) state.calc.boardgames = Array.from(new Set([...state.calc.boardgames, id]));
         state.calc.bgOpen = true;
         markGuideDone("bg");
-        setGuideStage(state.calc.maps ? "ret" : "maps");
+        setGuideStage("ret");
         saveLocal();
         render();
       }
-      if(targetId === "contractBtn"){ openContract(); markGuideDone("contractLink"); setGuideStage("payment"); saveLocal(); renderGuide(); }
+      if(targetId === "contractBtn"){ openContract(); markGuideDone("contractLink"); setGuideStage("maps"); saveLocal(); renderGuide(); }
       if(targetId === "openGamePicker") openGamePicker();
       if(targetId === "clearGames"){ state.calc.games = []; state.calc.later = false; saveLocal(); render(); }
       if(targetId === "sendLine"){ if(await sendLine()){ renderSummary(); renderGuide(); } }
@@ -5249,11 +5189,13 @@ body.line-browser #calcConsole{display:none}
       if(targetId === "saveHome") saveHomeFromAdmin();
       if(targetId === "addFaq"){ state.faq.push({qTh:"",aTh:"",qEn:"",aEn:""}); saveAndRenderAdmin("FAQ added"); }
       if(targetId === "saveFaq") saveFaqFromAdmin();
+      if(targetId === "addReview"){ state.social.reviews.push({id:`rv_${Date.now()}`, name:"", source:"google", stars:5, text:"", active:true}); saveAndRenderAdmin("Review added"); }
+      if(targetId === "addHighlight"){ state.social.highlights.push({id:`hl_${Date.now()}`, titleTh:"", titleEn:"", image:"", url:"", active:true}); saveAndRenderAdmin("Highlight added"); }
+      if(targetId === "saveReviews") saveReviewsFromAdmin();
       if(targetId === "saveSettings") saveSettings();
       if(targetId === "addBundle"){ state.bundles.push({id:`bundle_${Date.now()}`,th:"Bundle ใหม่",en:"New Bundle",rate:600,weekly:4000,deposit:4000,readyDate:""}); saveAndRenderAdmin("Bundle added"); }
       if(targetId === "addAcc"){ state.accessories.push({id:`acc_${Date.now()}`,th:"อุปกรณ์ใหม่",en:"New Accessory",daily:100,weekly:500,consoleIds:[]}); saveAndRenderAdmin("Accessory added"); }
       if(targetId === "saveAddons") saveAddons();
-      if(targetId === "saveQueueClosures") await saveQueueClosuresFromAdmin();
       if(targetId === "saveGist"){ localStorage.setItem(LS.gistId, byId("gistId").value.trim()); localStorage.setItem(LS.gistToken, byId("gistToken").value.trim()); toast("Gist config saved"); renderAdmin(); }
       if(targetId === "pullGist"){ try{ byId("syncStatus").textContent = "Pulling..."; applyRemoteData(await gistFetch()); renderAdmin(); toast("Pull success"); }catch(e){ byId("syncStatus").textContent = e.message; } }
       if(targetId === "pushGist"){ try{ byId("syncStatus").textContent = "Pushing..."; await gistPush(false); renderAdmin(); toast("Push success"); }catch(e){ byId("syncStatus").textContent = e.message; } }
@@ -5313,7 +5255,6 @@ body.line-browser #calcConsole{display:none}
       render,
       calcSummary,
       bookingMessage,
-      wisePaymentAvailability,
       syncBoardGameCatalog,
       saveLocal,
       pull: gistFetch,
@@ -5412,15 +5353,16 @@ body.line-browser #calcConsole{display:none}
     if(totalIndex < 0) return source;
     const paymentBlock = en ? [
       "",
-      "💳 Payment option: Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee)",
+      "💳 Payment option: Pay ฿1,000 by card or E-Wallet to reserve (no fee)",
       ...(paymentLink ? [`🔗 Payment link: ${paymentLink}`] : []),
       "",
       ...(onDelivery ? [`🚚 Pay on delivery: ${onDelivery}`] : []),
-      "** Cash or Thai QR scan (no fee), Card (+3.50%) or E-Wallet (+2.95%) **",
+      "** Cash (no fee), Card (+3.50%) or E-Wallet (+2.95%) **",
       ""
     ] : [
       "",
-      "💳 ช่องทางชำระ: โอนจองคิว ฿200 ผ่านบัญชีธนาคาร👇",
+      "💳 ช่องทางชำระ: โอนจองคิว ฿200 ผ่านบัญชีธนาคาร",
+      "",
       `✅เลขบัญชี : ${bookingData.paymentBankAccount || CONFIG.reservationBankAccount}`,
       `✅ธนาคาร : ${bookingData.paymentBankName || CONFIG.reservationBankNameTh}`,
       `✅ชื่อบัญชี : ${bookingData.paymentAccountName || CONFIG.reservationAccountName}`,
@@ -5574,18 +5516,15 @@ body.line-browser #calcConsole{display:none}
   async function boot(){
     loadState();
     state.beforeRentActive = !hasRentalContext();
+    if(new URLSearchParams(location.search).get("admin") === "1") byId("adminBtn").hidden = false;
     const viewCode = new URLSearchParams(location.search).get("viewMsg");
     if(viewCode){ renderBookingViewer(viewCode.trim()); return; }
-    const hasConsoleDeepLink = Boolean(deepLinkedConsole());
-    if(hasConsoleDeepLink) localStorage.removeItem(LS.gameHandoff);
-    const restoredGameList = hasConsoleDeepLink ? false : consumeGamePickerHandoff();
+    const restoredGameList = consumeGamePickerHandoff();
     if(restoredGameList) state.beforeRentActive = false;
     exposeCompatibility();
     bindEvents();
-    if(isLineBrowser()) lineConnectionStatus = cachedLineProfile() ? "connected" : "connecting";
     render();
-    await autoConnectLine();
-    const openedFromLink = applyDeepLink();
+    const openedFromLink = restoredGameList ? false : applyDeepLink();
     if(restoredGameList){
       setGuideStage("next2", {syncStep:false});
       setTimeout(() => byId("calculator").scrollIntoView({block:"start"}), 80);

@@ -161,7 +161,7 @@ function syncSocialProof() {
   var social = data.socialProof && typeof data.socialProof === 'object' ? data.socialProof : {};
 
   social.googleAuto = {
-    rating: place.rating != null ? String(place.rating) : '',
+    rating: place.rating != null ? Number(place.rating).toFixed(1) : '',
     count: place.user_ratings_total != null ? String(place.user_ratings_total) : '',
     reviews: mapReviews_(place.reviews),
     syncedAt: new Date().toISOString()

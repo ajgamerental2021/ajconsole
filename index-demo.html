@@ -495,14 +495,18 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .cal-footer{padding-bottom:max(12px,env(safe-area-inset-bottom))}
 }
   .before-rent-section{width:100%;max-width:100vw;padding:34px 0 54px;overflow:hidden}
-  .before-rent-section>.container{width:100%;min-width:0}
+  .before-rent-section>.container{width:100%;max-width:1200px;min-width:0}
   .before-rent-panel{width:100%;min-width:0;border:3px solid #c90012;border-radius:16px;background:#fff;padding:26px;box-shadow:0 16px 40px rgba(15,23,42,.08)}
   .before-rent-head{text-align:center}
   .before-rent-kicker{display:inline-flex;align-items:center;justify-content:center;color:#c90012;font-size:12px;font-weight:900;letter-spacing:.08em}
   .before-rent-head h1{margin:8px 0 6px;font-size:clamp(28px,4vw,46px);white-space:normal;overflow-wrap:anywhere}
   .before-rent-head p{margin:0;color:#667085;overflow-wrap:anywhere}
-  .before-rent-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px}
-  .before-rent-action{position:relative;display:flex;align-items:center;gap:14px;width:100%;min-width:0;min-height:100px;padding:18px;border:1px solid #dfe3e8;border-radius:10px;background:#fff;text-align:left;cursor:pointer}
+  .before-rent-grid{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:16px;margin-top:22px}
+  .before-rent-action{position:relative;display:flex;align-items:center;gap:14px;width:100%;min-width:0;min-height:100px;padding:20px;border:1px solid #dfe3e8;border-radius:12px;background:#fff;text-align:left;cursor:pointer}
+  .before-rent-action:nth-child(1){grid-column:span 6}
+  .before-rent-action:nth-child(2){grid-column:span 4}
+  .before-rent-action:nth-child(3),.before-rent-action:nth-child(4){grid-column:span 5;min-height:80px;padding:15px 20px}
+  .before-rent-action:nth-child(3) .before-rent-icon,.before-rent-action:nth-child(4) .before-rent-icon{flex-basis:44px;width:44px;height:44px}
   .before-rent-action:hover,.before-rent-action:focus-visible{border-color:#c90012;background:#fff8f8;box-shadow:0 0 0 3px rgba(201,0,18,.1)}
   .before-rent-action.is-primary{border:0;background:linear-gradient(135deg,#d1121f,#a3000f);color:#fff;box-shadow:0 12px 26px rgba(201,0,18,.28)}
   .before-rent-action.is-primary:hover,.before-rent-action.is-primary:focus-visible{background:linear-gradient(135deg,#e11d2b,#b40010);box-shadow:0 14px 30px rgba(201,0,18,.36)}
@@ -612,14 +616,31 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .before-rent-device-cta{margin-top:2px;color:#c90012;font-size:11.5px;font-weight:900}
   .before-rent-device[disabled] .before-rent-device-cta{color:#667085}
   .before-rent-back{margin:0 0 18px}
+  .before-rent-final-cta{display:grid;justify-items:center;gap:10px;margin-top:24px;padding:22px;border-radius:14px;background:#fff5f6;text-align:center}
+  .before-rent-final-cta p{margin:0;color:#475467;font-size:13px;font-weight:700}
+  .before-rent-final-cta .btn{min-width:240px}
+  #adminBtn[hidden]{display:none!important}
   .before-rent-hidden{display:none!important}
-  @media(max-width:640px){
+  @media(max-width:767px){
     .before-rent-section{width:100%;max-width:100%;padding:20px 0 34px}
-    .before-rent-section>.container{width:100%;max-width:100%;margin:0;padding:0 14px}
-    .before-rent-panel{width:100%;max-width:100%;padding:18px}
+    .before-rent-section>.container{width:100%;max-width:100%;margin:0;padding:0 12px}
+    .before-rent-panel{width:100%;max-width:100%;padding:14px;border-width:2px}
     .before-rent-head h1{font-size:28px}
-    .before-rent-grid{grid-template-columns:1fr}
-    .before-rent-action{min-height:86px}
+    .before-rent-grid{grid-template-columns:1fr;gap:12px}
+    .before-rent-action{grid-column:auto!important;border-radius:14px}
+    .before-rent-action:nth-child(1){min-height:112px;padding:22px 16px}
+    .before-rent-action:nth-child(1) .before-rent-icon{flex-basis:48px;width:48px;height:48px}
+    .before-rent-action:nth-child(1) .before-rent-copy strong{font-size:20px}
+    .before-rent-action:nth-child(1) .before-rent-copy span{font-size:14px}
+    .before-rent-action:nth-child(2){min-height:82px;padding:16px}
+    .before-rent-action:nth-child(2) .before-rent-icon{flex-basis:44px;width:44px;height:44px}
+    .before-rent-action:nth-child(2) .before-rent-copy strong{font-size:18px}
+    .before-rent-action:nth-child(2) .before-rent-copy span{font-size:13px}
+    .before-rent-action:nth-child(3),.before-rent-action:nth-child(4){min-height:72px;padding:14px 16px}
+    .before-rent-action:nth-child(3) .before-rent-icon,.before-rent-action:nth-child(4) .before-rent-icon{flex-basis:40px;width:40px;height:40px}
+    .before-rent-action:nth-child(3) .before-rent-icon .ico,.before-rent-action:nth-child(4) .before-rent-icon .ico{width:22px;height:22px}
+    .before-rent-action:nth-child(3) .before-rent-copy strong,.before-rent-action:nth-child(4) .before-rent-copy strong{font-size:16px}
+    .before-rent-action:nth-child(3) .before-rent-copy span,.before-rent-action:nth-child(4) .before-rent-copy span{font-size:12.5px}
     .before-rent-discovery-head{display:block}
     .game-picker-platform-label{font-size:12px}
     .game-picker-platform-btn{padding:6px 9px;font-size:11.5px}
@@ -637,6 +658,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     .before-rent-trust-sep{display:none}
     .before-rent-mini-head h3{font-size:17px}
     .before-rent-hint{font-size:12px}
+    .before-rent-devices,.before-rent-promos,.before-rent-reviews,.before-rent-highlights{scrollbar-width:none}
+    .before-rent-devices::-webkit-scrollbar,.before-rent-promos::-webkit-scrollbar,.before-rent-reviews::-webkit-scrollbar,.before-rent-highlights::-webkit-scrollbar{display:none}
+    .before-rent-final-cta{padding:18px 12px}
+    .before-rent-final-cta .btn{width:100%;min-width:0}
   }
 </style>
 </head>
@@ -646,7 +671,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     <div class="brand"><div class="brand-mark"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAAAXNSR0IArs4c6QAAAHhlWElmTU0AKgAAAAgABAEaAAUAAAABAAAAPgEbAAUAAAABAAAARgEoAAMAAAABAAIAAIdpAAQAAAABAAAATgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAAAQABAACgAgAEAAAAAQAAAFCgAwAEAAAAAQAAAFAAAAAAAm94eAAAAAlwSFlzAAALEwAACxMBAJqcGAAALi5JREFUeAHlnQd8Xdd9388D8B42QBAAQSwOiaRISlwiRYva05Ls2JIsx3G8Vxs7qfOx3SR12rT9eHTYid2PkyZuE38+zvBo4qW4jmNZsq1BLYqUKEukRIoLJMENAsR+D8B7/X7PxSVBLUu2ZLefHuqPe++5Z/7Of51xnzLhVx/Ka2pq5kxMTHRmMpnOUiYzlyatKoVwcyaEDpvH/SHu/5HbxzOl0pFSqdSbzWZ7R0dHjxE3ZZpfVaBdv/SQo/PLQlnZJaFU2hAymRVc53FtAqgMFMogUSmHipCNfFZDS+TpJ89+rk9wfTAUiw8wCE+RtAD90sKz2vWq1VteUV29vqxYvBWAbqCWZVA2rc1GCFxVJhNymbIwXJwKreUV4fjUZKgrKwvjpVKYhEwnoFPcl5PWPDPCBPdPkeaOYlnZdybHxjbx/Kpzp4P96oX6+pZsZeUHs1VVGzPF4kY6/PtUtpJOZq1YkssiMICyIFsZrq6pj8DcUt8UCqViuKl2VmgoKw/LctVhdVUN6TPxihiHGkCsID/syN+QpZyV1mFd1mndgTb48tUKrw6AdXVzclVVf5QtFLbQ8C8iZhfTOXjpDGB2yG7LUbH7JCgASiUcGAE1AXeVgDQGkHMrsvF9W0VFWJStiqwluObvqsgBchn3CZdST5l18uqLtsG2BNpkia90eKUBrGbUfzc7MfEIHPIpGjtPMMoApjgxEYpTU2cAI953ZygTRovFkDctiA6QltswxsPoVBFuKwvHJidDe3k2HJwshNmIuMDnAfeSqrp4v6CiMnQD5gQZ7ZhE+fNsi22ybURVQ69YUIJekVBRVXV1eVnZV1DoH6DAxtPAAUSusjKsv/jikMvlwsm+PlgRBiGRAE1JgKT1mCDtsUI+VPF8vDAe6mGvkzyX85znXd/kRKjPlIe9E4XQBpDDAD4GKfpb8iPh6uqGsHtiPILbCZCHpyZCBRxsWwiN0E3l5eXXl2Wzu4uTk/uM/EXDdNm/UDE1iMh/YJQ/Sik5S0IHxUYz4uHaa68N7e3tAVclbN68Ody7cWMog3sqAMwetU1TE1dZwxGVc3gNwHAjV0FIxDODiS2FMUovwJEH4b4AkHkG5DAG5wr053dH+8MbamaFLYXROEBt1PXTwthpIC2PUMBl+m+F8fFPcj8aY37OP78QgHDUMvy2v6Tuy6w/dhxOqa2vD+ece264/LLLwsDAQNixY0fY/vSOMD46Fpomp8Iiau0mfQ2k6RyCBiF7koeM09JiCCKQk+Pj0epqMCoh89VPkyM2QtoRgNrH/QnAXFFZHe4cPRVurGkMT06MRdUgx+6cpJxpfnSACBvxK/9loVDQ/fm5ws8NYHll5evgli/RkHY5RT1XBcctWbYsrF61KlQirgd7e8NdP747jA8NhXXl5eF3suXh0cliOERTj0P90Bg0CelvRK6bvhbh4sUrV6APS2HXE08G1EPsug2WHCwBlWtnQc1QNyVcnc2GP0Nn7iTFglxVuC8/FK5DtJ8BvBO4R42ogBPFyViG3Eidh6EPTOXz3+fxZYefSwfCGR+gE39NbU2C14B4VlVXh+te+9pwzsKFYWxsLAyNjIZvf+ubYQmAXQ94CxDDsrJMeIRMT9LiAa5ynF6vHCeIKZATgNfU2hqmSD+J3svAXUMjIwFuj0ALtmR6OVbuPQrh/0Xnspz8S4DmIHkr4bwc8dvgxItztWEUsT8F5YDQASPU05fbyrPZo+jFR5Ool/7XwXxZoaKy8mNk+hMyoZiKoaGuLvzGW98a8oVCGAe44ydOhN17e8LEnt3hEjpcS7J9JO6FauiIbskBxPxsjkuaYYekCgBfceGqcPBAbxTd9q6O8PijW7HiiW5NGy0E3ktyQjf5xgFnFKPjfHABpFt0N3ETGBWd800TI2FdtiYcgwsPFicAPAGSemGF8HuT+fznyfaSg1LwksM0eJ8zA7ojZGmwYjAFkKNwyN9/81uhAh23AZCW8m4/756AFFO5TDeluaI8lPE+L1KE6cvpqyJbga936OixkEEcLd97IkNxMo+RT+BL/ybXxDMf46FPs06wbtVEJ+BdSekj1P29ydGwEFdHuyx488tyob80Ff1MklrU5+hjeDkgpvWT98WDYssY/U9S4bEWEY3yUD97dqikY/0YivGJqTALLryeDlrodkgxjQaBqxwnGA3kK5FgANE2xAGgg3ZbbqiCKnnQdUlHN4o24pwn3zgpJ2NquQ61EEtBl1ToO2OQ4G7jJPM7X2yAlkBV0D4A3MhAdOKYz4Ujt04bFltgWygCNs/81sT4+Jd4/JnhJQGIwbiJBn2H0iqncGavueKK0NbRETbed19gAh8OH+uLOucqwDtIoj3QTONgwxQ+rznS1NLZE3CqrW2mq3NQ7Cp33/Ff0hGuaeNIFv3ECBYPOsoDcNax0mQ4YWoStsDZwwxK6kQrmKZXtAVR670AmgdtpZLJiqrw5NR4aEKttGeyYXsxH9NbF5Sn1FsxLP/M44uGdJBfMFFlZeV5FPZlElQ6k1i8cGHoXrAAiSoPtei/7du3h7Xol/X04kkS9UCpfku47rSOicAM0/GmUnlYW1YZ6kp0kf+mIPgSxc4iAa0Hj9gLuUKuMugH0o7I0WZrRLe1lhBH3mNeQi9gjlB2RZKbv2m9CXebdzc0DF1EoVsxKrUM2vxMLmwrjgMwCxnQSKwpVFLFlxHnK/P5/A6yvGD4WVa4pqy8/NuwxVJLqGS0xuG4WbNmhaeeejpse2pHWI8YrOPdZkgQLqFxct8JWWm6E0nHsdagtSZTGTrLsjjTmVANNVJmOrfC3kbwzWf2qAy4KXI/ybVAjJwsRzlbKaeuvAgi3p2ZCgxHRRgEREHQ6YkDwV/HwDZo8bXaJ6CVUCuD8CCzlXLyL0Yfap3HSC0o5KnDw1gL03ydRzXR84YXBZAp2KfpyVvNCTuHiy66KFx3/fXhu7ffHg4eORoupPOC9zDURJXr8LNmc10KPUMXhum0XGglqwFuMZxaxppJM3pwFo1Xn43zzlWVVtLPguQCdZ7xDoQdjqChOOshfT4tu57cUIJQqMdwTGAMCgBxDkDMhsOPUrPlpCA6OBcD+A2AdID7PdSpq6NoZ+FC/AbcqhIruOURRKJ1m7oxaNmpqam7fH6+8IIAMre9ggx/AZXjH4ULli0Pa9atCz379oVncFMW05jLaYTLLU7lLwC8rwPKVpaeXksjN/Ouj9Z3wBUXl1UBHCKXrQgtiM1xINFgzIdrqshzmOceunuKTleWTcFN+HHQBWWlsBw6F2qBlO8BrscoV26cDWvOBtRh5G2E+pqcM1NWCR27DFAU6X6e5cb3APDbeJZ7L6W9jxF3kDwX8nyEd0cofhGSMcw7KQWG6IuYO98LBj0kfU5IBug50aEaq3sfCmjtJCK7lGnZOhYDBk6eDN+/44ehhVJvoXItrdOwt+NTfQEgTgGOIzwB/ZD7NXBDOyKeAbxFOLT7XCAl3wKA20ee47gSiwHtMspYSYecTRjkOrkvlRs7rZg7hfPeOp+G7mEQHwVA+h+auR4HXLmoGXk9jnpoYvB6EdHtpUK4Fs9Bt4Zl8HABpIfwp7SxmfYozo9w/wzxY5TRDgcPM4CWpegjhVuwypdzZ7POCs9rRFgE0GVZ63RqQXd3GMc96Qe8TZs2hwrE5fpyJvIUI7VTifPRqwC1yD89/R/QmCvgumo4obUyR8cRGQC7sLySedNUeHxyLNwIcDcT3ygnkF9N7RA7zcPri7OLdG1e0Jz7tkId0DxIt+QP6LyuzQ/p9LfgvuxUhrWrTNjLcxM9H2MImnGz1k+WhX8qw4ckz3Hau4G2KDmCKEB7oRW0ay8p5hUrwijgpVwIczudXCsmE/n8n/F4VnguB7KCmysUtoJHp/7e3OaWcOlVV4begwfDffc/EK6BozopQqMxAqlnLgG0i6Gf0IC7AO/asuqo65ZXVYdTiDb9CYvLc+GhidFw8VQhvI9atXqW8Si0D7Iz+4k7wDXRe1GR85ToMRuqvmqHFgKCunA+tBpaDwny14n/DiC20qhj9JwVxZhnDJ1bRtyPS+NRD96Gxf407XRqaJlyt+UI8Z1ekd9WTD3NDv2AKcjc907mcqvD0JA26HR4DoAVudwf4e1/yhR2sgAAWcRTbuiA+24khx3vg4wTQBW0c+Jx3l2RqQpZRPbC6tooPu1lFaGa/Dvzg+GjDMhqGr2JPPdCuhUnoVHyO5/tgQw2SsImxE7YEQNVxM44gIp7NRGzSLGQ+8ugS6F95Pkvct9kYsD6GT3XFUdwuyYn0X2AmI1t1WAlnoPgu5x2EXQfNIQGhGkjeLZD0hjSx38/WSh8mtvTAazPCrOxOl8ipkHW1adylLwvAt5rKUnx6oUmIMFLZqO6GVraXKinoatrawMz83AOVlcLemr8VPgMKesp65vkuQPaSTyTNQwHvhd5XSkpAHCAk0vTVI2Vtw023k6QPdIE1yyrPRNM9YaYH2us9vLyGJy2MlcZbkEcnwS4ExgZLfcAHajR7aFtVXDWfkrUiM0M1mE4H9pKW7Xws+l5PelHcZXiIGYyS3Br/oYkp3VhhZnSgJy/hYRdJrYCp0wmGGPEllNgLfdPQIJnhYJjWoHU2jo1ml9bE9fnujEaU3Rqaqw/fJb3+0jrVGYb1Me9Dq0ca1n6lhtuvDG8/yO/yxv+Eb9n1+7wyY98LDrK6Q6cdfGKHbpiKFDPze97b7jp5jfGODnh+JEj4Quf/k/h5sd/Gj5JIX+cLYXNoD0LIB2kEkasi3b1MQvSzUk67wA5PUz0bxfX5dD+IjNWgD+GV2CITAQ2YoQu/B8xcjo+vWewM+/1wcRSDLS6HMZYxcNeaBRKwJP7EpFSBC7A4tZUseKByMo1jTT01OhA+ATv5Lavcn0MOsK9+m6YDjmM7nnkGhrDhVdcHpZccEG4BH274corw6+/8x1hzrxulvmTtTuSn25XBpVw5NDh8OSjj4WlF14YzoMWQX1w8BO7doXbGXDr+n1AXAGIAqVGq4EbTwLVaoyZcbY/7YMA6nvugQRwiF7qAjXBgXOK6FDiYkgwSrAn4nR8trp6LbKz1gIFxFFxVNVva1BGddxrIa1oJvdNkG4FolvAQX4Nem8vGz5r2H58fKQ//Ec6Iud9gzxPQSe4HwSJUUhDoS83ho957ooVYW53V9i3x+Ynwf2TtRs2BN0oV2BcwUn+Je+LiKt7xTPDFGlH8EN3EvktSG7/OPmaALEVLlQfzkEVnSorsreKCqDtCYjJPF1pOAqJjktxzbgzvj8OF9rnCJYWWaymw2kA2ce4jTi8p0T3wXQxg1X8K2K7cV2q1eoE36XUBMyzaPQq5sW72Oy5uro+/Gh0MHwEH2+CRnybtDugk3RfveIoC5wD42CoYy+97to4rx5i5XpmuOL66yJwDqRk9SmYM9PNvFdCrGs319shdfa/pY5BUJkfQWRBgzl9C+rGmU/aDwEiWahF77bhfn2QPp/KTEHFMAsubEWek96DUYIVOc5wYA6kb5oZYWKMVpjNiD3GKsd9jLbW1PW8ekY/S23qyKWsZFRXZcN8lomaiD+CMViVH4Yr8b0oQ2fbDimyZ8Cb5mQ60saG0/rLLwuNjY1x947Ju82I4fKrrwqdnZ34nskMIoLIG0c9cqQ9flYoEKV+tU4H7ntQK/RWZjEOYBViXE+/FNHlqB37YF8a6ZdTTBd870et3E2fO7i2TCVceAKuFWxrnMZKI55wJeLiYsF5vIji68qHbFygADeADnL/DPf76fBJOmMpdYxSN2tq9XDmERrjlOxyuO+nIwPhfSR4hDyJu+MKRyKyarNUBdiQqYnJ8BrA6144n33vujCb9UWXx9LQOmdOuOzaa0JVvoAKSVa35QMBtH2WMTPYfuvQubZOQdzKdSN0C/cNgNgBF2ogD8NdnniwD/bFvH30zdXyffaV54XQYUocggsb4EI5cTqcN41ZAiBidCkvVH1x+y+Vd5N3Q8ch0Td+jJpcDNWSdZcqsFLF8Hh+LOq+rezJXsNipduQ95BWgzHT2s4ET31WmcuGG2+9hS3P2tA0qykCuOPpp8l5Jtz067exdKY7kzTQRmqkEh/uTLr0znZaTwricdIKoMrhLXToGHpQt+YoIB913o2ec23SPo3TN/MLpn2eCzlTasWIkDwCycWQncYsARDjcYmxJlJMvDIIoJ7MP/t5FjwLPh14qCdlL2/aGMUN1XVh28ip8Ebi5L7dkI1OXRU5wzIsWz1WZMNn6fLliO/lIct0a1bTrDA2Ohq+8bWvhXG2MdNwIVujVYsXx4NGGiD9TVeWXZGJI54mnL4mAKpjk7ptQw/0EHSleeDCNrjQth+iRY1CMKNj3trOU5CD5EJJL9wqF2rFVQEx+TRmMpnuywquETyvRqr/2misDdHdSEfGzN67kqxD6wLpuqpaKiyFLk8TAI7TM2cY5jP/FI1NByAaAeJKiOp1b/i10ABwWtwanO/tT24LD/7oJ2Hnk0+SIgn1iPbVr7uJfYoCNVIh1MClmTuBfHZIAbDOCCIJBrhXlA0X0TkNzVxAVMwdEPvy7P6piU3XBjWSVldGzp/CqbYV05hVlNXW1rbwMM+K5T4L8qqLYGZHUJFIKohZAYNdL1ZU+hBfgycCfjo+Gq4gTw/P+yBPDyhG6XTP8s0diXRN+H433vamuAPHqnfc9914992hH/9uy70K3Zlw45tuCblqlsTIZznnUMoaCqrF7+OQZRgcHIxc63aD5acgCqBGxYE8CD0DXU4KRbgTUExrH9qYF9sng/Ck+Z1eisEgvT+EuA/AheVwoAyGCM8TuzJ25bsQ4Ubiop5xTiuABueHFpJyj3EWLjVhNHQ0G1HEizl6doCzKSvgvsRlUfkmemSEBtkR88h9BuoMyy9aF85dpu1Kwv6enrB96+OhBKc9fC8raekLrit1lPEVNTrqQut4lPqPIOo95PPkw1NsLRzYv5+BSFpvnc6xT3BVn+m8q10XQRn0oLrNDSz7MNuFBeJnkqxh3xsg1wTmwoGSqsPArmSj2OENZDp5FtSo/C3EBxtaA8nGMwvmMVoxN4CGqXwuqywMSshM5FllzkTr1UMlOqQCn4akWtIRUcLa3YDxyOBzpeFHP7gjDLB9WcCNOf7I5jBy2CFIAkdaw7U3vyEU0JuKkTp5LwM9mc2FpqamMAdrPaetLVRxFCRp7XQ9PCk9R6BD5DvA1RTNiKGhjov7KbouM+fGvhVAOdf0ngPTmZYL++DC6b5E7MpKZWVzSBODY2dmE6hAVdKqc/dq5cyUHDkkIO7tdmBAjqHPmjH/aWN1XoVmuqLpayIyHjzqaGGJ7LprSJEEyz24rycsXLwo3MixkM93tIfs3n3p63i96Y1vCG2NDXQskRAHWF8QMYo+pH6k+pKizqrXNpAsOtRyoqB08OzVhQZVjAxgn+z7TPKd+SuhWjrcDgd2QKfTgh3gltbwPgYBNIMDpGftg8clKitziHWyoTOOnqliDzjRiziaePRH4IxWqlZc5Y5YsQURpi+xE4JaKkyE1Re/JrTiILtg61E3RfsPP/WJeHWjyOAMZWZYsGRxeNeFa8Jf3Xd/KLDiYuCoWuS6tBw35Kdt5MyssQ0ygmKsTpdjnqF4fUs5TXEXFBeDy/FrK1ADRdTMJG2zNa4XHgOUMayxaU8zB9h5yuyWtKkpgCZw2mTDalqaw2xWpYeHWSUDrAyNPPnE01ivRKHXoYs8t6ceSB3mBAIipkNavo+We9lNN0ZunmQwtMAGOz8zzMxjvOdjVmONF959b9g+/VLgObB+OlsEMFaecHvywvtSVCdynW1U4WtcBMagJa5g4Oo4VbZgwTxi2BoYOBWGDxyMA2kNGdi0gZLwgqL3cRJRJtxif9q90+q6Ke25ZEUWPRvRZ1szHGOZaBfbmLt37gpTrI7oKNtO++EIjDJ9kyccHePTgXCHbSYsJQakBV21DAOiIZFM/3yBnbCzo2lTIz5jdfNsRzbWbf0zg4Aa0ngZweHx2Xpsn9IhIJYuvxpkBe87uzvDXlTH0z/dFmoaGkIO9eAxO8sxuPgwBOOMTOtBcrfH/lnAssrqsJKTnq697cmPh/1jbqmcCVaVVJc0JnmDXwTgifOQxFuZAEbdkiQ6/deVlQvWrw816DKnbHb42NGjcb9FGZ/CqsqVns7ytGpXV1fohvsN6rvq9rlsXrAlhBi/1CCf2I+UzGdc2p+ZffRdPC4y3dHUtfHR/Wd2C2Je+5cGGUhz1+6EehBOOgqHnWBJyg7Fs810ZA7HOJyrliNmJXRE+smBhXhgKIvOUDwcWUfEq9bbEdP5TRur1T0PPabvVs1xuBy69Quf+Wx48M67Ql9/f1gxPBLeT733kGMn1vgCLO+/+/pXKSkJ6rwOzgyWNj4AIokKSd8931Uui4LG1TbYNjlSMVaKzgCUzNF7EdkFzMuVr4H+gTBBezyXOBNwy0mD2FUQcTvFf+hp5rN5LOosdE0nnLibDSAV/MjJ/nCEgjwZYEF5OMQDdRXoBNRfGAD0eSyiOnHX7VGUBfDZwWMhrXPnhsa2OWFkeDjUIR4eibsP96Wxti6cHDwQl+UbAeZWMt9LmaObtoRhjsvVYbUN1bgpc7o6QzUnI4zXej87GJNAm3Y1eZJrbJ+kb+hOYT8pBUsuUg8ODw2Hp7c9hXNP3zB2npuxFKUpDWmpPnN/uybwMV2DxZzmvKa2EfBy8eR7njiDhxX5aCUU4Jo8R3SLFOw7QbJRnvas5XqE0rzWQ4502re0i1P4fl2LzsUIlUfuG6G8jffcw4gUQg3K23JHGaRPQLbsZhYQLscXLO3aTWlJaMBVaUWHNnXMjUfq1JMzdWUCXpr6zNV4/blZkAAegJwLDyOWQmRfPCWhmoiczeJCBeDZP2KiK+f1OQHsKvDLjplxOwexd+ZHmVlUBH07Tbkb5HKU7y3Av0mBjByt0kgcoxNas8M0RaMvr9jQY1AKnldPp1Y31AenW57UP4rue+SBB8Ot731PtGq7t21H7sfCflTEh0l/FQN3xcrzw3bSZR58kJgk1HMatm3hwvAUy/mqBA2RulQnWo70rGIarFeyrR1cW72HDiI955NnkLeC53sBTPqYpPFecTe/LhDJk7Km47h4mP4Y1rvUi89VrKU1b21ojl75YXRgD5yhHnPEZhZsRnWb33PoR3lAUaXvUnqfhxaJc7PdPdY+0sr+sUvorwfv/FF46K4fMxNhhJH/anTqVtTAAlrZDh0AZN0J/cnbAee7u/eG0rveG9Nbb+wFALdR15vnzw/Xv+ddoYAxkmtUN72cyc5jAAXUoEETBOw2c9pS3JB3YIco33cC6NTMD3zskwxhSPsrY9h+FxaSN9wQBJWAs1LqZRs4d7AwNXWKQpq+NtgXuc5lbbcUBxA7RdLK0gLSwk8CXBNv+rDBhzA8s1hc2FKaiN9x6WcpzlauLXcJX8fbjpo/S9l2rBogm9D05xHZy5u9xCk2NjE68nBXDABm3E3veFuYv3xZmM9CxLLF57JY2R1G0c+VVZXhCK7WA/fcyyGoQlweM4fH5WQA2+Ocdin0AHFNtPUkV7/B8zBRP5KW9iu92mf77nxY90dOFTjfx5DJnBK7spGREbXxfi3SPPTf+xtbw2/AiV3cH6YCK1anJSAm2GvqjwJgM/sExjzFaYMFTMjv5F6nYx5kwwXBjqQDYFpJ62ijtNwuez1C5DO8Ma3cahqvp4lWmyewAFtZXxfGGurCHjjPszqjuFtuA3ztq18NTzz8SLSadtKyokdAYXJSF9QB3QEtBsB90QZ7joZFCU4q2CeDRiXNL/ByrLOi5G0CoO0TM7GzDrYFSk/A9qtOYlH/9/AAHMWnVAAiJ+YA0QZEPcDVggSkj+5pvRTjvYjuZRyY9IDOYRq2jrgdNERRkf0dnHQPWT1VpEEJiDZlWtTjbWxanAGpl3TiDUkqwMby9uzZG5pxpsf5CqCEPu3rOxnuu/ee8O2/+2rInxqMBz9tn+srco3Go5H7tVx3Qhxbj6tGPfRVS8yGXexLOshp/9T9StFhKO60cTUkLfSGz2zBTgDpQ+YBMr7jBCeZVuZqsMYNcfR+MHiKTXLEkySu0KajYBYfTgGLIrCDMXgGELs5HvYVGvZRXj8A9UMuk7vwmnKWsx2/m8swhVOsdTJslAugDkg1Fn/p6pXxs4nezVtCBVM10ynM48dPhF5A7QfI3pqDYeyh8bCLLQC/I8kPDkXwOCAeuTDLUTrPWiuG86ALoT+kJvev9yI9tn0JvRyyfjtmIwjeOmxKnvWqx52u+VqQ7UcMYOY1Asja1v2w6QRsnBXtjaNDoQdDUk9RR0mk9ToARbHgfQ5FrqLupSHnF3Ocz2NdkD0AlfudVPNOqruS9MwkEdNE/00wX9aVaWxuDmvZRP/eP3wj+nW6EX4Pok9YgdpYsnpVuOTNt4WH7r479CKelUX4n7o0VAM/fSLkWfezkzrjzmYK43mW6V0T4UNF9N/rb7s1DOOU77hvI2exK1htLoWrSI+NZ7O9PLwDL8Odw3lISxs7btszhXi+WsmYoH1sQsby7bN9V83IjQIngNM4T4gZjxETfal+Zhm38Tyn14UB3JirahrCfDq0jY/91vNiUjcEgLJc1V8j1OR5ljlsyvipqaN9lGrmoF8eZuw+QDOOkE4dMkbD5p9/fmg/Z2FoR/G3zZ8Xzl2yJC7jN7bMjgsF1/za60MVxzWWvmZ9WL5+XdjKmuD5TPvqWdqqwE9cyr2qwKX/ciz4lewZjyHGXQvmhwlEedF5S8LCc88Jt7zrneGprVvDKHPaOQy0bXcwPwZAfh9yiEF31qXlHWUjaVsR3qbtrm820rdmym5lhJYS9zD5ThEnU/EYAYy6GLU/USj8Z6KmEhFGQkjzz6B8QS0g+aXjQ2PDnOcqMDMp57sPlC2pb4fLTsIJimUUOUDy8OJrStWIK+4MsrCcMdkEfYeln1t57ygOIlY33nprGKIx7bgfA3DIHbf/Y3jTu98Z8sx/o0NMh1Zfegkf64yGvbt2x3lnFm5dx8KDoD8AR77ldTdGgyFH9uzZE972od+KCx/f+buvhFvf+fawYxuLAHW1oWtOWziFhV+EFryZ+v+C7k+x8NtO37YCtrOqLEhsxWtwEUG1MghDOEFopo1X8P5y5mhfpr8zwUvFV6woVq0SQfUaWFj9Fi+m/NLnDk4W5Hi4pa6Jr8Nrw3+Hg3oZLT9Woa6YSXaWBuC6PtyY9IjtkzTqYhr+ecCUA98CLYZycGtbV2c4sGtX9PIfBRCOivGxJdNHgDo10B/B0RVp4fnN73l3OOc8c4aw6f774/FiLa6OsurjkY33R9+vib3kizZcHOqZpay/9LJY/mxAXEBDrfthQPk2A3oz3LdlKh/mIe5HALEfgB30tB/Joj6qAdCO098/B1C3BFRbz+K+KbGyXQZgOh0qONZ7P7pgfT0ieTkfMT/G/PgIxzWa0Rc3AMA+ku6HtKwqWC2ro2Ih15bXcJ5ukuO/OALkb0EUnkLY/5aXJ2jsnRcwq0BHLVh/UdjK3sdedNnCNasjJ6P1w66dz7Cc1B2ndR2ck3n0oYfZC1kThvkCavM994WrXn9TeByjMgvAXNQ4ygp21/zu+IFj17x5YSfvFnAto721Bw6E23r2h2Gk53do27uqGsNeDKRO8x48jHK+AvlJkWkp7xIAk4MEOZ47IP3Fb0AeWue/0wCquhi9TRz3vZQ7ITgLwMDRrQ8S90URd8VlPrpwXWVtHLEhDMuFjPwm3rlZbmEuY9kIS2pjrFZxvGMcDnRS14K46D8dgtO/xHWQDaFv0JhtKP5Byh2H84bRt8qB+fNwxiRARzeHq+f/3PqU28q5H0cNuHjqIq++Wj3pM3C+hyU5Rs/RjGxo5LqId78JwH2A92HKfTPgeRzuOAzgnL9vvBCeRDV5mkL9JYCpy6Pbsg7aCz1IWz0LZNuimJNXXAgfmnm8TQ49HVgx2cOq7ttJ2FAHAOsBbzMfLu9gv7cKHdJNQ8ygS6MyTQpMnEzdgmqOPtTSsRydjEfD4MJajMqXeXcDXHYVnFkAhHHuHTt30FwKy9FZDyJNEu+SVTkuiPNcN9wldZaHIzN0KEOaKtI0Eqe+buS+BfA6eLeBNG8n/WbuP075v8mH17a3B+5rIu0+LLa/BPIMw++07dnc10ladf2PIVmPKkhlSPxW7g8CnuOicY7hLACJGcuUl9cy6td46GYHRzWYI8cTV3LCNsRjLVd9I8VYAFMQ9d8PMF4elSiyklIHiB7obiB/ByrgLwFxLsboLaRzbprmdwZgI+zMEOSipcFy5e50oHz2Xge7jau+qTMF92LO4/oGSIv7pwzy33I28bdrm6PO3gd4ehWPoz8L6PFHSvnoQFuNZcqFOtz6fSshLe9hXvpR0UzuI1rp+GOY7A7v0/BsAEOxpmZ7xdTU20nQ4KLjWrjQr76fhtr4tYwqRGYuVQti2jkt8jLiOWCIiE+FjhKf4QOiG986qnxfj/jnWHgshS0sh99A+qvI3wQJnI1w6ldNfBq8k3xvJ/XFBGw+1Ek5grgMugG6DtpJ/b/HNU97P1w3mzaPhyHAbIXzHh1l83KiGO4FPHXc23Bl1vLuadplHdWQZTmAD0KVmF7BtW6vceCYxEz49UIBkZwRngOgCcoqKlRxN5l5N/u96oArq5Lfc3kILvSHX+yUE21HaTHVXEaDzodnLP2HXBfAia79abadE/cA3FqOwg3DjX/N+6PmodxrSC8H6bhKXTNoHvfzoYWQac6H5JINkMCtgXZT/qcp60fo37fVN/NRdXW4Y2yI/eosgoqfh6+Yh/ME7xzSrUEX3oVUONit5N3FveUL7A8g/d1ktTrRfero6fBHxdHRu9OH9OoAPF84/aGNzuuKbHUYouI9nLxaU1GD0p4Mq7BmzgkOkvt1jGgXjVnOvch/i0b9E7QKruugI6eAeS7WuY8hbQLAc5nyHQDQ/Uz/FjK+15LHqRZnTOJoj3DvQKSNV8TkEq2kor+Lun5CuzaSPstC8Bv4bYSlOP0Pj49El+o8VtS3cD80Vog/RvE4vqoDcyl9+A7t8ojw9bS5h3Im4NCLePcjaA9o+FG4W13xCwWuch8ZXvBDmxcCMPipF9OVO8meUx8qXhsq6yKQWzgHs45GrIHrtpDgKOQO/1t4fh2N2svzJzEenszieGRYxZnkQaZ7fL0X9U8/o6yVns+0Ko8Y7aMz/cy5q+hgG1wzF45VT1ZOd0BO16c8SNqT5OPHacLKyprwGqiK+MdYCD6MRV9E/AAr5I+xZVBemApPMECe71NQ11L366jjf5FfH5FfMOPIb3n8POJxyngEqkV0lSj1sjZ3egALeBPX88MX9/LqOeEFATQlHxt+hr78gcpcKyb3+OMNq+DIMnbqs6iDlXTqMd7bQb+Ruwj6BxqwFXDUDzZIcZcb/bEcP6FS93na1VOrrnZ7ur+N9DnqEHQHw9UfqmAmwF4L8S1YV3+9qBVyq3EfU8y9qBf1lEbCDbGtI8PMbCaYLQEeXJfWnXbyWgZqGe27nfblKfMS8jrY90B+OWqwr6osv9o0EPtZjpv8m/jwPH/Ssp/nVYyqwR+7CxbeYHFy4tqK6jiX1L2Zi/1aRYPm0rCtvHd1sM+RBRzPmphHslGu+HqeehniW0/jx+BIl5NmITJlpHe0XeZyri24gqYlVB9RfwTD+vUGPGLsYBh6cLF2s7BQyHOSFOCexg91dmT9dk4SZNvmfZbrLO4U2/3QT6AqwHNRwzYqui4C227094PMea/j7izD4as0WOaLhukPru8hkYYvcmI/YtLFslAnXLMJ8dlApcuoUhBdPHDkJfXH6XXAeJ8MgsdqOzndKoD+x5pmqAIsf6nNNUh/KMJNHcHzK6kKQJUTBdKpZr/rgGxCjUCTTrnwbY5w8OcAYiz3CBipIwmcz8KtDnXPZhW0C7oXEjzLdnEhHu8gvQNOOEq+n/nBtfX8zHDWJ/+k1rdbhl7bzEeDrYh1C80r4TZcQml7ed8DKYJnQJQTk1mLKyGeSZ75yb/n8/zk359fEyRHn0sUb271vzTm8eqpiTj553qMITppd0n7Yp/8C14l1AUtgVQ5nt9W5zE28ZCU3yz7Az622ShKfUmf/JP2pYWZPzphJkfJM4JLANKvL3Ow0Tk0YjmK2w2lHbxX+WuVE05Mrv7ohC18sR+dkBP80Qn3TgyuBepeuHPmiomiZhtU9kkKHGsGReQHWQhwama8OlgLXgcthtS990C7oUbAwzGA87C8tHv4DHiuVrzkH52wjpcU/FEa/EP1vi6YbWWDnSV8LJsALcUP247Xf4Cmd/Bsgw26HWmwM7OYirmqg+RFEFIgBMN7OUAF3tjVHo5h7UfoaH1HWzg+5DnRJI9pU1EVKPPhMaBPk4VX46xL57wT0nd0/v596jxBmtmA7cBa3rPAs1/+dsyf8+olhZcMoKUxjXkQEP3c4rVQxgOW45C/N3AIIMfRRQuYMz+MMndrUu9eMG2oRsIFS7nrFADGThOXXM9W+MprFQsIC1gsbeF0mMcs8hgKdVWaT5BS/ZZ2YjYS4cKoIj+X9zrezm0fhh6Acg4GJLfFQ5WkPcX99MBw9/J/eCetm+JfWhBE1vB6SS2IjCVnjrHCWq5FuCrHuc9ztKuOWcfD3Msp6p0F0Bq47xjNHKSlVnw2GMlzAgyciIFo7+6MR+oO9fTgNmmBE4tq3pTUbyk18/4qBqmFtBqLZ6AfQyfJ6Oq0xmqUul2IcLVJFTMd3Ez+7ZfDeWnGlw2gGRVnzgk+Rnuu4dEPfyIY6iZdiC66NIi/5yFzNdIj/LXRN9O5MWRX5zetOAXM5/Rezuo+95xwqPcQ5/QG+I2a9jDEFqYGKAVLEdUwKKaCtRA6j4YI4N1cFVc36uW4Gq5+gS53+pMDcp2zHZonHYYD3wF4f8/jyw6W8XMHNpbP+vk7RcEOtgCPFnIu82H1mUuX/lZMP8v83STqJk4R063QwZITpDFIUVcPejLW9UFBZYUIDvQ3YZI81VzrIRcXXMMzvY78LohzKnH5yx/O00n3BIVgO4CWf5LndMB5/NX9/B2Vp+E5P8CYAtkKaMcArYV1Qq2nVnQ2Z4wPs3LdTJyfY7dTSivkcpIcJWB2ULIcr3LnNLfEZw2TKyf6nIchV4ZcT/Soma6QeQTVfBoJy1HvOTiWT2CB6P+CH2BM2pL89SdAOWzzX9El69N4O2KDW1A+fo8xm2sBQ6OxaYlAJqcb+uDW2piyGMVbIOW2VMy18lpNfUvBk1xCA5sIGkx3FuBynE64wMWfUOZKkiSUSpvYcvg4c9ufpFG/yPV0ub9IITPy+iO0/4Lnfw3NmxEfb2fDdenno4LiUVmBdBbh6Xe/Dm8E5BEA9iyyQb0aZwjE+cGfixI22tfTSUwG/PiO8U7uSxxiAZzRwf08fo4V5b/iqjS/IiGt8xUpjEImsdIPF6urv8YpK9XaIkhVFYNTLjslV3rvt2f2UK70d7QGpkEaifNkrKav4SRdDrlWAD2jbBAYQZP8536HXCo5OAbTEPZTxp/w+wofLI6N/ZhnpfsVC9N1vGLlnV2QP8RdKLwZFN6Nc6ZoRxWUco5i6n3UVYA5CDht05yo3nRVxndO8P3Myu/V5FaD+VKKEWf/cTaxiTr/ZiKX++azf6rk7KS/2NOrC+CZtr3oT8GbTDASrko4qBJA/ZRCxJ15aISqiZNzX6DRMt8v/afgX6AtNOXVCy/4PyOgytPtSQG1Gel9eo1R/5/9zwjE4YXC/9P/O4z/A2v7tEWVbw/JAAAAAElFTkSuQmCC" alt="AJ"></div><div id="brandText"><em>AJ</em> เช่าเครื่องเกม</div></div>
     <div class="nav-actions">
       <button class="btn" id="faqBtn" type="button">FAQ</button>
-      <button class="btn" id="adminBtn" type="button"><span>Admin</span></button>
+      <button class="btn" id="adminBtn" type="button" hidden><span>Admin</span></button>
       <button class="btn primary" id="langBtn" type="button">EN</button>
     </div>
   </div>
@@ -686,7 +711,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
           <div class="before-rent-discovery-head">
             <div>
               <span class="before-rent-kicker" data-i18n="beforeRentExploreKicker">ดูก่อนตัดสินใจ</span>
-              <h2 data-i18n="beforeRentExploreTitle">เครื่องยอดนิยมและโปรเด่น</h2>
+              <h2 data-i18n="beforeRentExploreTitle">เครื่องเกมทั้งหมดและโปรโมชั่น</h2>
             </div>
           </div>
           <section class="before-rent-mini-section">
@@ -695,9 +720,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
               <span class="before-rent-count" id="beforeRentDevicesCount"></span>
               <span class="before-rent-hint" id="beforeRentDevicesHint"></span>
             </div>
-            <div class="before-rent-typefilter" id="beforeRentTypeFilter" role="group"></div>
+            <div class="before-rent-typefilter" id="beforeRentTypeFilter" role="group" aria-label="ประเภทเครื่องเกม"></div>
             <div class="before-rent-rail" id="beforeRentDevicesRail">
-              <div id="beforeRentDevices" class="before-rent-devices" tabindex="0" role="group"></div>
+              <div id="beforeRentDevices" class="before-rent-devices" tabindex="0" role="region" aria-label="รายการเครื่องเกมทั้งหมด"></div>
             </div>
             <p class="before-rent-note" id="beforeRentDevicesNote"></p>
           </section>
@@ -707,7 +732,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
               <span class="before-rent-hint" id="beforeRentPromoHint"></span>
             </div>
             <div class="before-rent-rail" id="beforeRentPromosRail">
-              <div id="beforeRentPromos" class="before-rent-promos" tabindex="0" role="group"></div>
+              <div id="beforeRentPromos" class="before-rent-promos" tabindex="0" role="region" aria-label="โปรโมชั่น"></div>
             </div>
           </section>
           <section class="before-rent-mini-section" id="beforeRentReviewsSection" hidden>
@@ -717,22 +742,26 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
               <span class="before-rent-hint" id="beforeRentReviewsHint"></span>
             </div>
             <div class="before-rent-rail" id="beforeRentReviewsRail">
-              <div id="beforeRentReviews" class="before-rent-reviews" tabindex="0" role="group"></div>
+              <div id="beforeRentReviews" class="before-rent-reviews" tabindex="0" role="region" aria-label="รีวิวจากลูกค้าจริง"></div>
             </div>
             <div class="before-rent-review-links" id="beforeRentReviewLinks"></div>
           </section>
           <section class="before-rent-mini-section" id="beforeRentHighlightsSection" hidden>
             <div class="before-rent-mini-head">
-              <h3 data-i18n="beforeRentHighlights">ผลงานและกิจกรรมที่ผ่านมา</h3>
+              <h3 data-i18n="beforeRentHighlights">ผลงาน รีวิวจากสื่อ และกิจกรรมที่ผ่านมา</h3>
               <span class="before-rent-count" id="beforeRentHighlightsCount"></span>
               <span class="before-rent-hint" id="beforeRentHighlightsHint"></span>
             </div>
-            <p class="before-rent-note" data-i18n="beforeRentHighlightsSub">ส่วนหนึ่งของงานอีเวนต์ พาร์ตเนอร์ และสื่อที่ไว้วางใจ AJ</p>
+            <p class="before-rent-note" data-i18n="beforeRentHighlightsSub">ตัวอย่างผลงาน รีวิวจากสื่อ และกิจกรรมที่ AJ เคยให้บริการ</p>
             <div class="before-rent-rail" id="beforeRentHighlightsRail">
-              <div id="beforeRentHighlights" class="before-rent-highlights" tabindex="0" role="group"></div>
+              <div id="beforeRentHighlights" class="before-rent-highlights" tabindex="0" role="region" aria-label="ผลงาน รีวิวจากสื่อ และกิจกรรมที่ผ่านมา"></div>
             </div>
             <div class="before-rent-review-links"><a class="before-rent-review-link" id="beforeRentHighlightsAll" target="_blank" rel="noopener noreferrer"></a></div>
           </section>
+          <div class="before-rent-final-cta">
+            <p data-i18n="beforeRentFinalText">พร้อมแล้วเลือกเครื่องเพื่อเช็ควันว่างและคำนวณค่าเช่าได้เลย</p>
+            <button class="btn primary" id="beforeRentFinalCta" type="button" data-i18n="beforeRentFinalCta">เลือกเครื่องและเช็คคิว</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1041,18 +1070,18 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     facebookCount: "83",
     followers: "10,766",
     verified: true,
-    highlightsUrl: "https://www.facebook.com/share/p/1EGhDpvVoG/",
+    highlightsUrl: "https://www.facebook.com/ajgamerental/posts/pfbid02UHWQMJBr1t324aQAGRzkZK5NQYwcH6eyHGDszNP5AHrqbRUYfxmkUESd3Gvm1Dqnl",
     highlights: [
-      {id:"hl1", titleTh:"เช่ากับ AJ โกงไหมครับ", titleEn:"Is AJ Game Rental trustworthy?", image:"assets/social-proof/aj-scam-check.png", url:"https://www.facebook.com/ajgamerental/posts/pfbid02XHonjzPFXsUupY38S7feuZvY5WRcYE63ZWkQeXuuR2m6779CQKPrnWPFaTRfxE9ql", active:true},
-      {id:"hl2", titleTh:"TGS 2025 บูท Viture Thailand", titleEn:"TGS 2025 — Viture Thailand booth", image:"assets/social-proof/tgs-2025-viture.png", url:"https://www.facebook.com/share/p/1TjLZZN9P5/", active:true},
-      {id:"hl3", titleTh:"TGS 2024 บูทเซียนเกม", titleEn:"TGS 2024 — Zian Game booth", image:"assets/social-proof/tgs-2024-zian-game.png", url:"https://www.facebook.com/share/p/ALVCDqmj5F9fVGdH/", active:true},
-      {id:"hl4", titleTh:"YouTube ช่อง Ploychompoo", titleEn:"Featured on Ploychompoo YouTube", image:"assets/social-proof/ploychompoo-youtube.png", url:"https://www.facebook.com/share/p/186hFqDApn/", active:true},
-      {id:"hl5", titleTh:"Amway Fair 2023", titleEn:"Amway Fair 2023", image:"assets/social-proof/amway-fair-2023.png", url:"https://www.facebook.com/share/p/17MizsKAXZ/", active:true},
-      {id:"hl6", titleTh:"งานแข่ง FC 2024", titleEn:"FC 2024 tournament", image:"assets/social-proof/fc-2024-tournament.png", url:"https://www.facebook.com/share/p/19N2hhAWhg/", active:true},
-      {id:"hl7", titleTh:"งานโรงเรียนย่านพระราม 9", titleEn:"School event in Rama 9", image:"assets/social-proof/rama-9-school.png", url:"https://www.facebook.com/share/p/1KEsRUEhe1/", active:true},
-      {id:"hl8", titleTh:"Thailand Game Show 2022", titleEn:"Thailand Game Show 2022", image:"assets/social-proof/tgs-2022.png", url:"https://www.facebook.com/share/p/nfkK44oL1DMEcgnP/", active:true},
-      {id:"hl9", titleTh:"งานเปิดตัว Tipco Soza", titleEn:"Tipco Soza launch event", image:"assets/social-proof/tipco-soza-launch.png", url:"https://www.facebook.com/share/p/g1QDndJsC9wtzxEi/", active:true},
-      {id:"hl10", titleTh:"LaLiga Event ที่ Union Mall", titleEn:"LaLiga event at Union Mall", image:"assets/social-proof/laliga-union-mall.png", url:"https://www.facebook.com/share/p/g1QDndJsC9wtzxEi/", active:true}
+      {id:"hl1", titleTh:"เช่ากับ AJ โกงไหมครับ", titleEn:"Is AJ Game Rental trustworthy?", image:"assets/social-proof/aj-scam-check.webp", url:"https://www.facebook.com/ajgamerental/posts/pfbid02XHonjzPFXsUupY38S7feuZvY5WRcYE63ZWkQeXuuR2m6779CQKPrnWPFaTRfxE9ql", active:true},
+      {id:"hl2", titleTh:"TGS 2025 บูท Viture Thailand", titleEn:"TGS 2025 — Viture Thailand booth", image:"assets/social-proof/tgs-2025-viture.webp", url:"https://www.facebook.com/ajgamerental/posts/pfbid02qcRRRwxNZsn7CX5nq7SafJAcHrDNRCaKV1fJu3tZdg1Zs9y1RHaVYR4EaSP7rMU2l", active:true},
+      {id:"hl3", titleTh:"TGS 2024 บูทเซียนเกม", titleEn:"TGS 2024 — Zian Game booth", image:"assets/social-proof/tgs-2024-zian-game.webp", url:"https://www.facebook.com/story.php?story_fbid=952298263608493&id=100064849841171", active:true},
+      {id:"hl4", titleTh:"YouTube ช่อง Ploychompoo", titleEn:"Featured on Ploychompoo YouTube", image:"assets/social-proof/ploychompoo-youtube.webp", url:"https://www.facebook.com/ajgamerental/posts/pfbid06aKKWzdfBiSjDgD7CY4iyHkuKoTbbif5FjLsvkNLU697Fya9Ho81aUeRHmsMGc2Bl", active:true},
+      {id:"hl5", titleTh:"Amway Fair 2023", titleEn:"Amway Fair 2023", image:"assets/social-proof/amway-fair-2023.webp", url:"https://www.facebook.com/ajgamerental/posts/pfbid0gQGybvSqLshbuBzVLTLoDRYPQr2Ne7XKxFt9E3ekmQB4JCV3S5uLRxJjArqeYtLVl", active:true},
+      {id:"hl6", titleTh:"งานแข่ง FC 2024", titleEn:"FC 2024 tournament", image:"assets/social-proof/fc-2024-tournament.webp", url:"https://www.facebook.com/ajgamerental/posts/pfbid0256NEM37mHXHfLdni4wch86WZ1rk1mcBuv3xxzkJEL7AfoWbC1YVoFAxMFCN5mFStl", active:true},
+      {id:"hl7", titleTh:"งานโรงเรียนย่านพระราม 9", titleEn:"School event in Rama 9", image:"assets/social-proof/rama-9-school.webp", url:"https://www.facebook.com/ajgamerental/posts/pfbid02xhAGiwseKy75Y4QbKfL7xryW43SxFiyPZY4ms8J5NKpqqZfSnRvVYNJB2b9oQRkql", active:true},
+      {id:"hl8", titleTh:"Thailand Game Show 2022", titleEn:"Thailand Game Show 2022", image:"assets/social-proof/tgs-2022.webp", url:"https://www.facebook.com/story.php?story_fbid=479474927551507&id=102009085298095", active:true},
+      {id:"hl9", titleTh:"งานเปิดตัว Tipco Soza", titleEn:"Tipco Soza launch event", image:"assets/social-proof/tipco-soza-launch.webp", url:"https://www.facebook.com/story.php?story_fbid=439940204838313&id=102009085298095", active:true},
+      {id:"hl10", titleTh:"LaLiga Event ที่ Union Mall", titleEn:"LaLiga event at Union Mall", image:"assets/social-proof/laliga-union-mall.webp", url:"https://www.facebook.com/story.php?story_fbid=468256015340065&id=102009085298095", active:true}
     ],
     reviews: [
       {id:"rv1", name:"\u0410\u0440\u0442\u0435\u043c \u0421\u043e\u043a\u043e\u043b\u043e\u0432", source:"facebook", stars:5, text:"We regularly rent a PlayStation from here and everything is always smooth and reliable. Great service, clear communication, and never any issues. Highly recommended."},
@@ -1092,14 +1121,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentRentSub:"เลือกเครื่อง เช็ควันว่าง คำนวณราคา แล้วจองได้เลย",
       beforeRentStartHere:"เริ่มที่นี่",
       beforeRentGames:"ดูรายชื่อเกมก่อน",
-      beforeRentGamesSub:"ยังไม่จอง แค่ดูว่าเครื่องไหนมีเกมอะไรบ้าง",
+      beforeRentGamesSub:"ดูเกมของแต่ละเครื่องก่อนตัดสินใจ",
       beforeRentSteps:"ขั้นตอนการเช่า",
       beforeRentStepsSub:"ดูขั้นตอนตั้งแต่จองจนคืนเครื่อง",
       beforeRentFaq:"คำถามที่พบบ่อย",
       beforeRentFaqSub:"คำตอบเรื่องเช่า จัดส่ง และค่าประกัน",
       beforeRentBack:"← กลับเมนูก่อนเช่า",
       beforeRentExploreKicker:"ดูก่อนตัดสินใจ",
-      beforeRentExploreTitle:"เครื่องยอดนิยมและโปรโมชั่น",
+      beforeRentExploreTitle:"เครื่องเกมทั้งหมดและโปรโมชั่น",
       beforeRentFeatured:"โปรโมชั่น",
       beforeRentPopular:"เครื่องเกมทั้งหมด",
       beforeRentDevicesHint:"กดลูกศรหรือเลื่อนเพื่อดูรายการ · กดที่เครื่องเพื่อเช็คคิว",
@@ -1114,12 +1143,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentReviewsCount:"{n} รีวิว",
       beforeRentReviewGoogle:"ดูรีวิวทั้งหมดบน Google Maps",
       beforeRentReviewFacebook:"ดูรีวิวทั้งหมดบน Facebook",
-      beforeRentHighlights:"ผลงานและกิจกรรมที่ผ่านมา",
-      beforeRentHighlightsSub:"ส่วนหนึ่งของงานอีเวนต์ พาร์ตเนอร์ และสื่อที่ไว้วางใจ AJ",
+      beforeRentHighlights:"ผลงาน รีวิวจากสื่อ และกิจกรรมที่ผ่านมา",
+      beforeRentHighlightsSub:"ตัวอย่างผลงาน รีวิวจากสื่อ และกิจกรรมที่ AJ เคยให้บริการ",
       beforeRentHighlightsHint:"กดลูกศรหรือเลื่อนเพื่อดูเพิ่มเติม",
       beforeRentHighlightsCount:"{n} รายการ",
       beforeRentHighlightCue:"ดูรายละเอียด →",
       beforeRentHighlightsAll:"ดูรายละเอียดทั้งหมด",
+      beforeRentFinalText:"พร้อมแล้วเลือกเครื่องเพื่อเช็ควันว่างและคำนวณค่าเช่าได้เลย",
+      beforeRentFinalCta:"เลือกเครื่องและเช็คคิว",
       beforeRentPromoHint:"กดที่รูปเพื่อดูรายละเอียด",
       beforeRentPromoCue:"ดูโปรนี้ →",
       beforeRentPromoCueDevice:"เช่า {name} →",
@@ -1133,7 +1164,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentNoteDelivery:"ค่าส่ง สูงสุด ฿100/เที่ยว · เช่า 3–6 วัน ฟรีขากลับ · 7 วันขึ้นไป ฟรีไป-กลับ · ส่งเฉพาะ กรุงเทพฯ และปริมณฑล",
       beforeRentNoteDeposit:"ค่าประกัน ได้คืนเต็มจำนวนเมื่อคืนเครื่องครบสภาพ ไม่ใช่ค่าเช่า",
       beforeRentNoteContract:"หากไม่ทำสัญญาเช่า ค่าประกันปรับเป็น ฿5,000 / ฿8,000 ตามรุ่น",
-      beforeRentTerms:"เช่าขั้นต่ำ <b>3 วัน</b> · ราคาเรทบุคคล · ค่าส่งสูงสุด <b>฿100/เที่ยว</b> (เช่า 3 วันขึ้นไป ฟรีขากลับ) · ค่าประกันได้คืนเต็มเมื่อคืนเครื่อง",
+      beforeRentTerms:"เช่าขั้นต่ำ <b>3 วัน</b> · ราคาเรทบุคคล · ค่าส่งสูงสุด <b>฿100/เที่ยว</b> (เช่า 3–6 วัน ฟรีขากลับ · 7 วันขึ้นไป ฟรีไป-กลับ) · ค่าประกันได้คืนเต็มเมื่อคืนเครื่อง",
       beforeRentStartDevice:"ดูคิวและราคา",
       gamePickerAllPlatforms:"👉 เลือกเครื่อง",
       gamePickerScrollHint:"เลื่อนดูเครื่องอื่น →",
@@ -1179,14 +1210,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentRentSub:"Pick a console, check dates, get a price, and book",
       beforeRentStartHere:"START HERE",
       beforeRentGames:"Just browsing games",
-      beforeRentGamesSub:"No booking — just see which console has which games",
+      beforeRentGamesSub:"Browse games by console",
       beforeRentSteps:"Rental steps",
       beforeRentStepsSub:"See the process from booking to return",
       beforeRentFaq:"FAQ",
       beforeRentFaqSub:"Rental, delivery, and deposit answers",
       beforeRentBack:"← Back to Before rent",
       beforeRentExploreKicker:"EXPLORE",
-      beforeRentExploreTitle:"Popular consoles and promotions",
+      beforeRentExploreTitle:"All consoles and promotions",
       beforeRentFeatured:"Promotions",
       beforeRentPopular:"All consoles",
       beforeRentDevicesHint:"Use the arrows or swipe to browse · tap a console to check dates",
@@ -1201,12 +1232,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentReviewsCount:"{n} reviews",
       beforeRentReviewGoogle:"Read all reviews on Google Maps",
       beforeRentReviewFacebook:"Read all reviews on Facebook",
-      beforeRentHighlights:"Events, Collaborations & Media",
-      beforeRentHighlightsSub:"A selection of events, partners, and media that have worked with AJ",
+      beforeRentHighlights:"Past Work, Media Features & Events",
+      beforeRentHighlightsSub:"Selected work, media features, and events previously served by AJ",
       beforeRentHighlightsHint:"Use the arrows or swipe to see more",
       beforeRentHighlightsCount:"{n} items",
       beforeRentHighlightCue:"View details →",
       beforeRentHighlightsAll:"View all details",
+      beforeRentFinalText:"Choose a console to check available dates and calculate the rental price.",
+      beforeRentFinalCta:"Choose a console & check dates",
       beforeRentPromoHint:"Tap an image for details",
       beforeRentPromoCue:"View offer →",
       beforeRentPromoCueDevice:"Rent {name} →",
@@ -1220,7 +1253,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentNoteDelivery:"Delivery up to ฿100 per trip · free return trip on 3–6 day rentals · both trips free on 7 days or more · Bangkok and Greater Bangkok only",
       beforeRentNoteDeposit:"The deposit is fully refunded when the console is returned in good condition — it is not part of the rental fee",
       beforeRentNoteContract:"Without a rental contract the deposit becomes ฿5,000 / ฿8,000 depending on the model",
-      beforeRentTerms:"<b>3-day</b> minimum rental · individual rate · delivery up to <b>฿100 per trip</b> (free return trip on 3+ day rentals) · deposit fully refunded on return",
+      beforeRentTerms:"<b>3-day</b> minimum rental · individual rate · delivery up to <b>฿100 per trip</b> (free return trip for 3–6 days · free round trip for 7+ days) · deposit fully refunded on return",
       beforeRentStartDevice:"Check dates & price",
       gamePickerAllPlatforms:"👉 Pick a console",
       gamePickerScrollHint:"Swipe for more →",
@@ -1793,6 +1826,22 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function normalizeSocial(data){
     const src = data && typeof data === "object" ? data : {};
     const text = (value, fallback = "") => String(value ?? fallback).trim();
+    // Older Gist records used Facebook share URLs. Resolve them here as well as
+    // in the defaults so existing synced content immediately gets stable post
+    // permalinks without waiting for an admin save.
+    const facebookPermalinks = {
+      "https://www.facebook.com/share/p/1EGhDpvVoG/":"https://www.facebook.com/ajgamerental/posts/pfbid02UHWQMJBr1t324aQAGRzkZK5NQYwcH6eyHGDszNP5AHrqbRUYfxmkUESd3Gvm1Dqnl",
+      "https://www.facebook.com/share/p/1TjLZZN9P5/":"https://www.facebook.com/ajgamerental/posts/pfbid02qcRRRwxNZsn7CX5nq7SafJAcHrDNRCaKV1fJu3tZdg1Zs9y1RHaVYR4EaSP7rMU2l",
+      "https://www.facebook.com/share/p/ALVCDqmj5F9fVGdH/":"https://www.facebook.com/story.php?story_fbid=952298263608493&id=100064849841171",
+      "https://www.facebook.com/share/p/186hFqDApn/":"https://www.facebook.com/ajgamerental/posts/pfbid06aKKWzdfBiSjDgD7CY4iyHkuKoTbbif5FjLsvkNLU697Fya9Ho81aUeRHmsMGc2Bl",
+      "https://www.facebook.com/share/p/17MizsKAXZ/":"https://www.facebook.com/ajgamerental/posts/pfbid0gQGybvSqLshbuBzVLTLoDRYPQr2Ne7XKxFt9E3ekmQB4JCV3S5uLRxJjArqeYtLVl",
+      "https://www.facebook.com/share/p/19N2hhAWhg/":"https://www.facebook.com/ajgamerental/posts/pfbid0256NEM37mHXHfLdni4wch86WZ1rk1mcBuv3xxzkJEL7AfoWbC1YVoFAxMFCN5mFStl",
+      "https://www.facebook.com/share/p/1KEsRUEhe1/":"https://www.facebook.com/ajgamerental/posts/pfbid02xhAGiwseKy75Y4QbKfL7xryW43SxFiyPZY4ms8J5NKpqqZfSnRvVYNJB2b9oQRkql",
+      "https://www.facebook.com/share/p/nfkK44oL1DMEcgnP/":"https://www.facebook.com/story.php?story_fbid=479474927551507&id=102009085298095",
+      "https://www.facebook.com/share/p/g1QDndJsC9wtzxEi/":"https://www.facebook.com/story.php?story_fbid=439940204838313&id=102009085298095",
+      "https://www.facebook.com/share/p/RwRSPeMmfPfmNJjp/":"https://www.facebook.com/story.php?story_fbid=468256015340065&id=102009085298095"
+    };
+    const facebookPermalink = value => facebookPermalinks[text(value)] || text(value);
     return {
       enabled: src.enabled !== false,
       googleRating: text(src.googleRating, DEFAULT_SOCIAL.googleRating),
@@ -1804,14 +1853,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       // Written by the daily Apps Script sync, never by the admin page.
       googleAuto: src.googleAuto && typeof src.googleAuto === "object" ? src.googleAuto : null,
       facebookAuto: src.facebookAuto && typeof src.facebookAuto === "object" ? src.facebookAuto : null,
-      highlightsUrl: text(src.highlightsUrl, DEFAULT_SOCIAL.highlightsUrl),
+      highlightsUrl: facebookPermalink(src.highlightsUrl || DEFAULT_SOCIAL.highlightsUrl),
       highlights: (Array.isArray(src.highlights) ? src.highlights : DEFAULT_SOCIAL.highlights).map((item, index) => ({
         id: String(item.id || `hl_${index}_${Date.now()}`),
         active: item.active !== false,
         titleTh: text(item.titleTh || item.title),
         titleEn: text(item.titleEn || item.titleTh || item.title),
-        image: text(item.image),
-        url: text(item.url)
+        image: text(item.image).replace(/^(assets\/social-proof\/[^.]+)\.png$/i, "$1.webp"),
+        url: facebookPermalink(item.id === "hl10" && text(item.url) === "https://www.facebook.com/share/p/g1QDndJsC9wtzxEi/"
+          ? "https://www.facebook.com/share/p/RwRSPeMmfPfmNJjp/"
+          : item.url)
       })).filter(item => item.titleTh || item.titleEn || item.image),
       reviews: (Array.isArray(src.reviews) ? src.reviews : DEFAULT_SOCIAL.reviews).map((review, index) => ({
         id: String(review.id || `rv_${index}_${Date.now()}`),
@@ -1870,6 +1921,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const promoHost = byId("beforeRentPromos");
     const deviceHost = byId("beforeRentDevices");
     if(!promoHost || !deviceHost) return;
+    promoHost.setAttribute("aria-label", tr("beforeRentFeatured"));
+    deviceHost.setAttribute("aria-label", tr("beforeRentPopular"));
+    byId("beforeRentTypeFilter")?.setAttribute("aria-label", state.lang === "th" ? "ประเภทเครื่องเกม" : "Console categories");
 
     const promos = [];
     ["highlight","newGames"].forEach(key => {
@@ -1984,7 +2038,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   // The daily Apps Script sync writes googleAuto into the Gist. Prefer it when it
   // is there and fall back to the admin figures, so a failed or paused sync shows
   // slightly old numbers rather than nothing.
-  function socialGoogleRating(social){ return social.googleAuto?.rating || social.googleRating; }
+  function socialGoogleRating(social){
+    const value = Number(social.googleAuto?.rating || social.googleRating);
+    return Number.isFinite(value) ? value.toFixed(1) : "";
+  }
   function socialGoogleCount(social){ return social.googleAuto?.count || social.googleCount; }
   function socialFacebookFollowers(social){ return social.facebookAuto?.followers || social.followers; }
   function formatSocialCount(value){
@@ -1996,7 +2053,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const synced = (social.googleAuto?.reviews || []).filter(review => review.active !== false);
     const seen = new Set(curated.map(review => `${review.name}|${review.text}`.toLowerCase()));
     const extra = synced.filter(review => !seen.has(`${review.name}|${review.text}`.toLowerCase()));
-    return curated.concat(extra);
+    return curated.concat(extra).sort((a,b) => Number(/[\u0E00-\u0E7F]/.test(b.text || "")) - Number(/[\u0E00-\u0E7F]/.test(a.text || "")));
   }
   function renderBeforeRentSocial(){
     const social = state.social || {};
@@ -2030,6 +2087,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const reviews = socialReviewList(social);
     section.hidden = !reviews.length;
     const reviewHost = byId("beforeRentReviews");
+    reviewHost?.setAttribute("aria-label", tr("beforeRentReviews"));
     if(reviews.length){
       reviewHost.innerHTML = reviews.map(review => {
       const body = review.text;
@@ -2061,6 +2119,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     highlightsSection.hidden = !highlights.length;
     if(highlights.length){
       const highlightsHost = byId("beforeRentHighlights");
+      highlightsHost.setAttribute("aria-label", tr("beforeRentHighlights"));
       highlightsHost.innerHTML = highlights.map(item => {
         const title = state.lang === "en" ? item.titleEn : item.titleTh;
         return `<a class="before-rent-highlight" href="${esc(safeHref(item.url))}" target="_blank" rel="noopener noreferrer">
@@ -4730,7 +4789,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     </div>
     <div class="admin-list">${rows}</div>
     <button class="btn" id="addReview" type="button">${tr("add")}</button>
-    <div class="card" style="margin-top:18px"><h3>Events, Collaborations &amp; Media</h3>
+    <div class="card" style="margin-top:18px"><h3>Past Work, Media Features &amp; Events</h3>
       <div class="field"><label class="label">View all details URL</label><input class="input" data-social="highlightsUrl" value="${esc(social.highlightsUrl)}"></div>
       <p class="hint">Images are displayed in a square 1:1 frame. Changes are included in socialProof when pushing to Gist.</p>
     </div>
@@ -4955,6 +5014,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     byId("sortSelect").addEventListener("change", e => { state.filter.sort = e.target.value; renderConsoles(); });
     byId("langBtn").addEventListener("click", () => { state.lang = state.lang === "en" ? "th" : "en"; render(); });
     byId("beforeRentStart").addEventListener("click", () => setBeforeRent(false, {startGuide:true}));
+    byId("beforeRentFinalCta").addEventListener("click", () => setBeforeRent(false, {startGuide:true}));
     byId("beforeRentGames").addEventListener("click", () => openGamePicker({browseOnly:true}));
     byId("beforeRentSteps").addEventListener("click", openStepsPopup);
     byId("beforeRentFaq").addEventListener("click", openFAQPopup);
@@ -4993,8 +5053,24 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(!pickerOriginAllowed(event.origin)) return;
       const data = event.data || {};
       if(data.type === "AJ_PICKER_SELECTED"){
-        if(state.gamePickerBrowseOnly) return;
-        state.calc.games = Array.isArray(data.games) ? data.games.slice(0,10) : [];
+        const pickedGames = Array.isArray(data.games) ? data.games.slice(0,10) : [];
+        if(state.gamePickerBrowseOnly){
+          const pickedConsole = activePickerConsole();
+          if(!pickedConsole || !pickedGames.length) return;
+          state.calc.type = pickedConsole.type || "";
+          state.calc.consoleId = String(pickedConsole.id);
+          state.calc.bundleId = "";
+          state.calc.extras = [];
+          state.calc.games = pickedGames;
+          state.calc.later = false;
+          state.calc.step = 1;
+          closeGamePicker();
+          fetchAvailability();
+          saveLocal();
+          setBeforeRent(false, {startGuide:true});
+          return;
+        }
+        state.calc.games = pickedGames;
         state.calc.later = false;
         setGuideStage("next2");
         closeGamePicker();
@@ -5440,6 +5516,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   async function boot(){
     loadState();
     state.beforeRentActive = !hasRentalContext();
+    if(new URLSearchParams(location.search).get("admin") === "1") byId("adminBtn").hidden = false;
     const viewCode = new URLSearchParams(location.search).get("viewMsg");
     if(viewCode){ renderBookingViewer(viewCode.trim()); return; }
     const restoredGameList = consumeGamePickerHandoff();
