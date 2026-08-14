@@ -2,17 +2,22 @@
  * Daily social proof sync for the AJ rental site.
  *
  * Google publishes a shop's rating, review count and a handful of reviews
- * through the Places API. This script reads them once a day and writes them
- * into the same Gist the website already loads, so the page needs no API key
- * of its own and keeps working when this script is not running.
+ * through the Places API. Meta publishes the owned Facebook Page's follower
+ * count through the Graph API. This script reads them once a day and writes
+ * them into the same Gist the website already loads, so the page needs no API
+ * key of its own and keeps working when this script is not running.
  *
  * What it does NOT do: scrape facebook.com or maps.google.com. Both serve an
  * empty JavaScript shell to a fetcher, block non-browser clients outright, and
- * forbid scraping in their terms. Facebook numbers stay under admin control.
+ * forbid scraping in their terms. Facebook recommendations, review count and
+ * hand-picked reviews stay under admin control.
  *
  * Setup (Project Settings -> Script Properties):
  *   GOOGLE_MAPS_API_KEY  key with "Places API" enabled
  *   GOOGLE_PLACE_ID      the shop's place id (run findPlaceId() once to get it)
+ *   FACEBOOK_PAGE_ID     the numeric id of the owned Facebook Page
+ *   FACEBOOK_PAGE_ACCESS_TOKEN  Page token with pages_read_engagement
+ *   FACEBOOK_GRAPH_VERSION      optional, defaults to v25.0
  *   GIST_ID              the gist the website reads
  *   GITHUB_TOKEN         a token with gist scope
  *
@@ -66,6 +71,26 @@ function fetchGooglePlace_() {
   var body = JSON.parse(response.getContentText());
   if (body.status !== 'OK') throw new Error('Place details failed: ' + body.status + ' ' + (body.error_message || ''));
   return body.result || {};
+}
+
+function fetchFacebookPage_() {
+  var pageId = requireProp_('FACEBOOK_PAGE_ID');
+  var token = requireProp_('FACEBOOK_PAGE_ACCESS_TOKEN');
+  var version = props_().getProperty('FACEBOOK_GRAPH_VERSION') || 'v25.0';
+  var url = 'https://graph.facebook.com/' + encodeURIComponent(version)
+    + '/' + encodeURIComponent(pageId)
+    + '?fields=followers_count';
+  var response = UrlFetchApp.fetch(url, {
+    headers: { Authorization: 'Bearer ' + token },
+    muteHttpExceptions: true
+  });
+  var body = JSON.parse(response.getContentText() || '{}');
+  if (response.getResponseCode() !== 200 || body.error) {
+    var message = body.error && body.error.message ? body.error.message : response.getContentText();
+    throw new Error('Facebook Page read failed: ' + response.getResponseCode() + ' ' + message);
+  }
+  if (body.followers_count == null) throw new Error('Facebook Page response has no followers_count');
+  return body;
 }
 
 function gistHeaders_() {
@@ -123,17 +148,30 @@ function mapReviews_(reviews) {
 
 function syncSocialProof() {
   var place = fetchGooglePlace_();
+  var facebookPage = null;
+  try {
+    facebookPage = fetchFacebookPage_();
+  } catch (error) {
+    // Google and Facebook are independent. Keep the last Facebook value and
+    // still publish fresh Google data if Meta is unavailable or its token has
+    // expired.
+    Logger.log('Facebook follower sync skipped: ' + error.message);
+  }
   var data = readGist_();
   var social = data.socialProof && typeof data.socialProof === 'object' ? data.socialProof : {};
 
-  // Only the Google side is machine-readable. Facebook figures and the shop's
-  // own hand-picked reviews are left exactly as the admin page saved them.
   social.googleAuto = {
     rating: place.rating != null ? String(place.rating) : '',
     count: place.user_ratings_total != null ? String(place.user_ratings_total) : '',
     reviews: mapReviews_(place.reviews),
     syncedAt: new Date().toISOString()
   };
+  if (facebookPage) {
+    social.facebookAuto = {
+      followers: String(facebookPage.followers_count),
+      syncedAt: new Date().toISOString()
+    };
+  }
 
   data.socialProof = social;
   data.savedAt = new Date().toISOString();
@@ -141,8 +179,9 @@ function syncSocialProof() {
 
   Logger.log('Synced rating ' + social.googleAuto.rating
     + ' from ' + social.googleAuto.count + ' ratings, '
-    + social.googleAuto.reviews.length + ' reviews');
-  return social.googleAuto;
+    + social.googleAuto.reviews.length + ' reviews; Facebook followers '
+    + (social.facebookAuto ? social.facebookAuto.followers : 'unchanged'));
+  return { google: social.googleAuto, facebook: social.facebookAuto || null };
 }
 
 /** Adds the daily trigger. Safe to run twice; it clears its own duplicates. */

@@ -1071,7 +1071,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentTrustGoogle:"Google",
       beforeRentTrustFacebook:"แนะนำบน Facebook",
       beforeRentTrustFollowers:"ผู้ติดตาม {n}",
-      beforeRentTrustVerified:"เพจยืนยันตัวตน",
+      beforeRentTrustVerified:"Facebook เพจยืนยันตัวตน",
       beforeRentTrustReviews:"({n} รีวิว)",
       beforeRentReviews:"รีวิวจากลูกค้าจริง",
       beforeRentReviewsHint:"กดลูกศรหรือเลื่อนเพื่ออ่านต่อ",
@@ -1152,7 +1152,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentTrustGoogle:"Google",
       beforeRentTrustFacebook:"recommend on Facebook",
       beforeRentTrustFollowers:"{n} followers",
-      beforeRentTrustVerified:"Verified page",
+      beforeRentTrustVerified:"Verified Facebook Page",
       beforeRentTrustReviews:"({n} reviews)",
       beforeRentReviews:"Reviews from real customers",
       beforeRentReviewsHint:"Use the arrows or swipe to read more",
@@ -1755,6 +1755,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       verified: src.verified !== false,
       // Written by the daily Apps Script sync, never by the admin page.
       googleAuto: src.googleAuto && typeof src.googleAuto === "object" ? src.googleAuto : null,
+      facebookAuto: src.facebookAuto && typeof src.facebookAuto === "object" ? src.facebookAuto : null,
       reviews: (Array.isArray(src.reviews) ? src.reviews : DEFAULT_SOCIAL.reviews).map((review, index) => ({
         id: String(review.id || `rv_${index}_${Date.now()}`),
         active: review.active !== false,
@@ -1928,6 +1929,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   // slightly old numbers rather than nothing.
   function socialGoogleRating(social){ return social.googleAuto?.rating || social.googleRating; }
   function socialGoogleCount(social){ return social.googleAuto?.count || social.googleCount; }
+  function socialFacebookFollowers(social){ return social.facebookAuto?.followers || social.followers; }
+  function formatSocialCount(value){
+    const number = Number(String(value || "").replace(/,/g, ""));
+    return Number.isFinite(number) ? new Intl.NumberFormat(state.lang === "th" ? "th-TH" : "en-US").format(number) : String(value || "");
+  }
   function socialReviewList(social){
     const curated = (social.reviews || []).filter(review => review.active !== false);
     const synced = (social.googleAuto?.reviews || []).filter(review => review.active !== false);
@@ -1954,8 +1960,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(social.facebookRecommend){
       items.push(`<a class="before-rent-trust-item" href="${esc(safeHref(CONFIG.facebookPageUrl))}" target="_blank" rel="noopener noreferrer">${icon("thumb")}<b>${esc(social.facebookRecommend)}%</b><span>${esc(withCount("beforeRentTrustFacebook", social.facebookCount))}</span></a>`);
     }
-    if(social.followers){
-      items.push(`<span class="before-rent-trust-item">${icon("users")}<span>${esc(tr("beforeRentTrustFollowers").replace("{n}", social.followers))}</span></span>`);
+    const facebookFollowers = socialFacebookFollowers(social);
+    if(facebookFollowers){
+      items.push(`<span class="before-rent-trust-item">${icon("users")}<span>${esc(tr("beforeRentTrustFollowers").replace("{n}", formatSocialCount(facebookFollowers)))}</span></span>`);
     }
     if(social.verified){
       items.push(`<span class="before-rent-trust-verified">${icon("verified")}<span>${esc(tr("beforeRentTrustVerified"))}</span></span>`);
@@ -4631,6 +4638,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       <p class="hint">${social.googleAuto
         ? `Google sync: rating ${esc(social.googleAuto.rating || "-")} from ${esc(social.googleAuto.count || "-")} ratings, ${(social.googleAuto.reviews || []).length} reviews, last run ${esc(displayDate((social.googleAuto.syncedAt || "").slice(0,10)))}. These override the Google fields above.`
         : "Google sync has not run yet, so the Google fields above are used."}</p>
+      <p class="hint">${social.facebookAuto
+        ? `Facebook sync: ${esc(social.facebookAuto.followers || "-")} followers, last run ${esc(displayDate((social.facebookAuto.syncedAt || "").slice(0,10)))}. This overrides the Facebook followers field above.`
+        : "Facebook sync has not run yet, so the Facebook followers field above is used."}</p>
     </div>
     <div class="admin-list">${rows}</div>
     <button class="btn" id="addReview" type="button">${tr("add")}</button>
