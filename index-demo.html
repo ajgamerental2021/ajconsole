@@ -541,6 +541,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .before-rent-review-link{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border:1px solid #d0d5dd;border-radius:999px;background:#fff;color:#344054;font-size:12.5px;font-weight:800;text-decoration:none}
   .before-rent-review-link:hover{border-color:#c90012;color:#c90012}
   .before-rent-review-link .ico{width:16px;height:16px}
+  .before-rent-highlights{display:flex;gap:12px;padding:2px 2px 10px;overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .before-rent-highlights::-webkit-scrollbar{height:6px}
+  .before-rent-highlights::-webkit-scrollbar-thumb{background:#d7dbe0;border-radius:999px}
+  .before-rent-highlights:focus-visible{outline:2px solid #c90012;outline-offset:3px;border-radius:12px}
+  .before-rent-highlight{flex:0 0 220px;scroll-snap-align:start;display:grid;overflow:hidden;border:1px solid #e5e7eb;border-radius:14px;background:#fff;color:#101828;text-decoration:none;box-shadow:0 5px 16px rgba(16,24,40,.06)}
+  .before-rent-highlight:hover{border-color:#c90012;box-shadow:0 8px 22px rgba(201,0,18,.12)}
+  .before-rent-highlight img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;background:#f2f4f7}
+  .before-rent-highlight-copy{display:grid;gap:5px;padding:11px 12px}
+  .before-rent-highlight-title{font-size:13px;font-weight:900;line-height:1.4}
+  .before-rent-highlight-cue{display:inline-flex;align-items:center;gap:5px;color:#c90012;font-size:11.5px;font-weight:900}
   .before-rent-terms b{color:#c90012}
   .before-rent-copy{display:grid;min-width:0;gap:5px;overflow-wrap:anywhere}
   .before-rent-copy strong{font-size:18px}
@@ -622,6 +632,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     .before-rent-promo{flex:0 0 82%;scroll-snap-align:start}
     .before-rent-device{flex:0 0 150px}
     .before-rent-review{flex:0 0 250px}
+    .before-rent-highlight{flex-basis:190px}
     .before-rent-trust{gap:6px 8px;padding:9px 10px}
     .before-rent-trust-sep{display:none}
     .before-rent-mini-head h3{font-size:17px}
@@ -709,6 +720,18 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
               <div id="beforeRentReviews" class="before-rent-reviews" tabindex="0" role="group"></div>
             </div>
             <div class="before-rent-review-links" id="beforeRentReviewLinks"></div>
+          </section>
+          <section class="before-rent-mini-section" id="beforeRentHighlightsSection" hidden>
+            <div class="before-rent-mini-head">
+              <h3 data-i18n="beforeRentHighlights">ผลงานและกิจกรรมที่ผ่านมา</h3>
+              <span class="before-rent-count" id="beforeRentHighlightsCount"></span>
+              <span class="before-rent-hint" id="beforeRentHighlightsHint"></span>
+            </div>
+            <p class="before-rent-note" data-i18n="beforeRentHighlightsSub">ส่วนหนึ่งของงานอีเวนต์ พาร์ตเนอร์ และสื่อที่ไว้วางใจ AJ</p>
+            <div class="before-rent-rail" id="beforeRentHighlightsRail">
+              <div id="beforeRentHighlights" class="before-rent-highlights" tabindex="0" role="group"></div>
+            </div>
+            <div class="before-rent-review-links"><a class="before-rent-review-link" id="beforeRentHighlightsAll" target="_blank" rel="noopener noreferrer"></a></div>
           </section>
         </div>
       </div>
@@ -942,7 +965,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     wiseEmail: "ajgamerental2021@gmail.com",
     lineLiffId: "2010212481-16RHJsnX",
     facebookPageUrl: "https://www.facebook.com/ajgamerental",
-    googleMapsUrl: "https://maps.app.goo.gl/TpFbp9UfCtQPr9yw5"
+    googleMapsUrl: "https://maps.app.goo.gl/QoGqkWe64QRxBGjT6"
   };
 
   const LS = {
@@ -1018,6 +1041,19 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     facebookCount: "83",
     followers: "10,766",
     verified: true,
+    highlightsUrl: "https://www.facebook.com/share/p/1EGhDpvVoG/",
+    highlights: [
+      {id:"hl1", titleTh:"เช่ากับ AJ โกงไหมครับ", titleEn:"Is AJ Game Rental trustworthy?", image:"assets/social-proof/aj-scam-check.png", url:"https://www.facebook.com/ajgamerental/posts/pfbid02XHonjzPFXsUupY38S7feuZvY5WRcYE63ZWkQeXuuR2m6779CQKPrnWPFaTRfxE9ql", active:true},
+      {id:"hl2", titleTh:"TGS 2025 บูท Viture Thailand", titleEn:"TGS 2025 — Viture Thailand booth", image:"assets/social-proof/tgs-2025-viture.png", url:"https://www.facebook.com/share/p/1TjLZZN9P5/", active:true},
+      {id:"hl3", titleTh:"TGS 2024 บูทเซียนเกม", titleEn:"TGS 2024 — Zian Game booth", image:"assets/social-proof/tgs-2024-zian-game.png", url:"https://www.facebook.com/share/p/ALVCDqmj5F9fVGdH/", active:true},
+      {id:"hl4", titleTh:"YouTube ช่อง Ploychompoo", titleEn:"Featured on Ploychompoo YouTube", image:"assets/social-proof/ploychompoo-youtube.png", url:"https://www.facebook.com/share/p/186hFqDApn/", active:true},
+      {id:"hl5", titleTh:"Amway Fair 2023", titleEn:"Amway Fair 2023", image:"assets/social-proof/amway-fair-2023.png", url:"https://www.facebook.com/share/p/17MizsKAXZ/", active:true},
+      {id:"hl6", titleTh:"งานแข่ง FC 2024", titleEn:"FC 2024 tournament", image:"assets/social-proof/fc-2024-tournament.png", url:"https://www.facebook.com/share/p/19N2hhAWhg/", active:true},
+      {id:"hl7", titleTh:"งานโรงเรียนย่านพระราม 9", titleEn:"School event in Rama 9", image:"assets/social-proof/rama-9-school.png", url:"https://www.facebook.com/share/p/1KEsRUEhe1/", active:true},
+      {id:"hl8", titleTh:"Thailand Game Show 2022", titleEn:"Thailand Game Show 2022", image:"assets/social-proof/tgs-2022.png", url:"https://www.facebook.com/share/p/nfkK44oL1DMEcgnP/", active:true},
+      {id:"hl9", titleTh:"งานเปิดตัว Tipco Soza", titleEn:"Tipco Soza launch event", image:"assets/social-proof/tipco-soza-launch.png", url:"https://www.facebook.com/share/p/g1QDndJsC9wtzxEi/", active:true},
+      {id:"hl10", titleTh:"LaLiga Event ที่ Union Mall", titleEn:"LaLiga event at Union Mall", image:"assets/social-proof/laliga-union-mall.png", url:"https://www.facebook.com/share/p/g1QDndJsC9wtzxEi/", active:true}
+    ],
     reviews: [
       {id:"rv1", name:"\u0410\u0440\u0442\u0435\u043c \u0421\u043e\u043a\u043e\u043b\u043e\u0432", source:"facebook", stars:5, text:"We regularly rent a PlayStation from here and everything is always smooth and reliable. Great service, clear communication, and never any issues. Highly recommended."},
       {id:"rv2", name:"Jason David", source:"facebook", stars:5, text:"It was such a great experience renting from AJ. From start to finish, professional and courteous. Our PS5 was delivered exactly as we hoped. I would rent from them again."},
@@ -1078,6 +1114,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentReviewsCount:"{n} รีวิว",
       beforeRentReviewGoogle:"ดูรีวิวทั้งหมดบน Google Maps",
       beforeRentReviewFacebook:"ดูรีวิวทั้งหมดบน Facebook",
+      beforeRentHighlights:"ผลงานและกิจกรรมที่ผ่านมา",
+      beforeRentHighlightsSub:"ส่วนหนึ่งของงานอีเวนต์ พาร์ตเนอร์ และสื่อที่ไว้วางใจ AJ",
+      beforeRentHighlightsHint:"กดลูกศรหรือเลื่อนเพื่อดูเพิ่มเติม",
+      beforeRentHighlightsCount:"{n} รายการ",
+      beforeRentHighlightCue:"ดูรายละเอียด →",
+      beforeRentHighlightsAll:"ดูรายละเอียดทั้งหมด",
       beforeRentPromoHint:"กดที่รูปเพื่อดูรายละเอียด",
       beforeRentPromoCue:"ดูโปรนี้ →",
       beforeRentPromoCueDevice:"เช่า {name} →",
@@ -1159,6 +1201,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentReviewsCount:"{n} reviews",
       beforeRentReviewGoogle:"Read all reviews on Google Maps",
       beforeRentReviewFacebook:"Read all reviews on Facebook",
+      beforeRentHighlights:"Events, Collaborations & Media",
+      beforeRentHighlightsSub:"A selection of events, partners, and media that have worked with AJ",
+      beforeRentHighlightsHint:"Use the arrows or swipe to see more",
+      beforeRentHighlightsCount:"{n} items",
+      beforeRentHighlightCue:"View details →",
+      beforeRentHighlightsAll:"View all details",
       beforeRentPromoHint:"Tap an image for details",
       beforeRentPromoCue:"View offer →",
       beforeRentPromoCueDevice:"Rent {name} →",
@@ -1756,6 +1804,15 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       // Written by the daily Apps Script sync, never by the admin page.
       googleAuto: src.googleAuto && typeof src.googleAuto === "object" ? src.googleAuto : null,
       facebookAuto: src.facebookAuto && typeof src.facebookAuto === "object" ? src.facebookAuto : null,
+      highlightsUrl: text(src.highlightsUrl, DEFAULT_SOCIAL.highlightsUrl),
+      highlights: (Array.isArray(src.highlights) ? src.highlights : DEFAULT_SOCIAL.highlights).map((item, index) => ({
+        id: String(item.id || `hl_${index}_${Date.now()}`),
+        active: item.active !== false,
+        titleTh: text(item.titleTh || item.title),
+        titleEn: text(item.titleEn || item.titleTh || item.title),
+        image: text(item.image),
+        url: text(item.url)
+      })).filter(item => item.titleTh || item.titleEn || item.image),
       reviews: (Array.isArray(src.reviews) ? src.reviews : DEFAULT_SOCIAL.reviews).map((review, index) => ({
         id: String(review.id || `rv_${index}_${Date.now()}`),
         active: review.active !== false,
@@ -1945,10 +2002,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const social = state.social || {};
     const host = byId("beforeRentTrust");
     const section = byId("beforeRentReviewsSection");
-    if(!host || !section) return;
+    const highlightsSection = byId("beforeRentHighlightsSection");
+    if(!host || !section || !highlightsSection) return;
     const show = social.enabled !== false;
     host.hidden = !show;
-    if(!show){ section.hidden = true; return; }
+    if(!show){ section.hidden = true; highlightsSection.hidden = true; return; }
 
     const withCount = (key, count) => count ? `${tr(key)} ${tr("beforeRentTrustReviews").replace("{n}", count)}` : tr(key);
     const items = [];
@@ -1971,9 +2029,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
     const reviews = socialReviewList(social);
     section.hidden = !reviews.length;
-    if(!reviews.length) return;
     const reviewHost = byId("beforeRentReviews");
-    reviewHost.innerHTML = reviews.map(review => {
+    if(reviews.length){
+      reviewHost.innerHTML = reviews.map(review => {
       const body = review.text;
       const initial = (review.name || "?").trim().charAt(0).toUpperCase();
       const source = review.source === "facebook" ? "Facebook" : "Google Maps";
@@ -1988,15 +2046,36 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         <span class="before-rent-review-stars" aria-label="${review.stars}/5">${starRow(review.stars)}</span>
         <span class="before-rent-review-text">${esc(body)}</span>
       </article>`;
-    }).join("");
-    byId("beforeRentReviewsCount").textContent = tr("beforeRentReviewsCount").replace("{n}", String(reviews.length));
-    byId("beforeRentReviewsHint").innerHTML = `${icon("swipe")}<span>${esc(tr("beforeRentReviewsHint"))}</span>`;
-    byId("beforeRentReviewLinks").innerHTML = [
-      ["pin", CONFIG.googleMapsUrl, "beforeRentReviewGoogle"],
-      ["thumb", CONFIG.facebookPageUrl, "beforeRentReviewFacebook"]
-    ].map(([iconName, href, key]) => `<a class="before-rent-review-link" href="${esc(safeHref(href))}" target="_blank" rel="noopener noreferrer">${icon(iconName)}<span>${esc(tr(key))}</span></a>`).join("");
-    reviewHost.scrollLeft = 0;
-    bindScrollRail(byId("beforeRentReviewsRail"), reviewHost);
+      }).join("");
+      byId("beforeRentReviewsCount").textContent = tr("beforeRentReviewsCount").replace("{n}", String(reviews.length));
+      byId("beforeRentReviewsHint").innerHTML = `${icon("swipe")}<span>${esc(tr("beforeRentReviewsHint"))}</span>`;
+      byId("beforeRentReviewLinks").innerHTML = [
+        ["pin", CONFIG.googleMapsUrl, "beforeRentReviewGoogle"],
+        ["thumb", CONFIG.facebookPageUrl, "beforeRentReviewFacebook"]
+      ].map(([iconName, href, key]) => `<a class="before-rent-review-link" href="${esc(safeHref(href))}" target="_blank" rel="noopener noreferrer">${icon(iconName)}<span>${esc(tr(key))}</span></a>`).join("");
+      reviewHost.scrollLeft = 0;
+      bindScrollRail(byId("beforeRentReviewsRail"), reviewHost);
+    }
+
+    const highlights = (social.highlights || []).filter(item => item.active !== false && item.image);
+    highlightsSection.hidden = !highlights.length;
+    if(highlights.length){
+      const highlightsHost = byId("beforeRentHighlights");
+      highlightsHost.innerHTML = highlights.map(item => {
+        const title = state.lang === "en" ? item.titleEn : item.titleTh;
+        return `<a class="before-rent-highlight" href="${esc(safeHref(item.url))}" target="_blank" rel="noopener noreferrer">
+          <img src="${esc(safeHref(item.image))}" alt="${esc(title)}" loading="lazy">
+          <span class="before-rent-highlight-copy"><span class="before-rent-highlight-title">${esc(title)}</span><span class="before-rent-highlight-cue">${esc(tr("beforeRentHighlightCue"))}</span></span>
+        </a>`;
+      }).join("");
+      byId("beforeRentHighlightsCount").textContent = tr("beforeRentHighlightsCount").replace("{n}", String(highlights.length));
+      byId("beforeRentHighlightsHint").innerHTML = `${icon("swipe")}<span>${esc(tr("beforeRentHighlightsHint"))}</span>`;
+      const allLink = byId("beforeRentHighlightsAll");
+      allLink.href = safeHref(social.highlightsUrl);
+      allLink.innerHTML = `${icon("thumb")}<span>${esc(tr("beforeRentHighlightsAll"))}</span>`;
+      highlightsHost.scrollLeft = 0;
+      bindScrollRail(byId("beforeRentHighlightsRail"), highlightsHost);
+    }
   }
   function renderBeforeRentTypeFilter(){
     const host = byId("beforeRentTypeFilter");
@@ -4624,6 +4703,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       <div class="field"><label class="label">Show on page</label><select class="input" data-review="${index}:active"><option value="1" ${review.active!==false?"selected":""}>Yes</option><option value="0" ${review.active===false?"selected":""}>No</option></select></div>
       <div class="field wide"><label class="label">Review text (exactly as the customer wrote it)</label><textarea class="input" rows="3" data-review="${index}:text">${esc(review.text)}</textarea></div>
       </div><button class="btn danger" data-delete-review="${index}" type="button">${tr("delete")}</button></div></div>`).join("");
+    const highlightRows = social.highlights.map((item, index) => `<div class="admin-item"><div class="admin-edit open"><div class="grid2">
+      <div class="field"><label class="label">Title TH</label><input class="input" data-highlight="${index}:titleTh" value="${esc(item.titleTh)}"></div>
+      <div class="field"><label class="label">Title EN</label><input class="input" data-highlight="${index}:titleEn" value="${esc(item.titleEn)}"></div>
+      <div class="field wide"><label class="label">Image path or URL</label><input class="input" data-highlight="${index}:image" value="${esc(item.image)}"></div>
+      <div class="field wide"><label class="label">Facebook detail URL</label><input class="input" data-highlight="${index}:url" value="${esc(item.url)}"></div>
+      <div class="field"><label class="label">Show on page</label><select class="input" data-highlight="${index}:active"><option value="1" ${item.active!==false?"selected":""}>Yes</option><option value="0" ${item.active===false?"selected":""}>No</option></select></div>
+      </div><button class="btn danger" data-delete-highlight="${index}" type="button">${tr("delete")}</button></div></div>`).join("");
     return `<div class="card"><h3>Trust strip</h3>
       <label class="option-row"><input type="checkbox" id="socialEnabled" ${social.enabled?"checked":""}><div><b>Show trust strip and reviews</b></div></label>
       <div class="grid2">
@@ -4644,6 +4730,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     </div>
     <div class="admin-list">${rows}</div>
     <button class="btn" id="addReview" type="button">${tr("add")}</button>
+    <div class="card" style="margin-top:18px"><h3>Events, Collaborations &amp; Media</h3>
+      <div class="field"><label class="label">View all details URL</label><input class="input" data-social="highlightsUrl" value="${esc(social.highlightsUrl)}"></div>
+      <p class="hint">Images are displayed in a square 1:1 frame. Changes are included in socialProof when pushing to Gist.</p>
+    </div>
+    <div class="admin-list">${highlightRows}</div>
+    <button class="btn" id="addHighlight" type="button">${tr("add")}</button>
     <button class="btn primary" id="saveReviews" type="button">${tr("save")}</button>`;
   }
   function saveReviewsFromAdmin(){
@@ -4657,6 +4749,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(key === "active") review.active = el.value === "1";
       else if(key === "stars") review.stars = Number(el.value) || 5;
       else review[key] = el.value.trim();
+    });
+    $$("[data-highlight]").forEach(el => {
+      const [index, key] = el.dataset.highlight.split(":");
+      const item = state.social.highlights[Number(index)];
+      if(!item) return;
+      if(key === "active") item.active = el.value === "1";
+      else item[key] = el.value.trim();
     });
     state.social = normalizeSocial(state.social);
     saveAndRenderAdmin("Reviews saved");
@@ -4844,6 +4943,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(delHome){ deleteHomeItem(delHome.dataset.deleteHome); return; }
       const delReview = event.target.closest("[data-delete-review]");
       if(delReview){ state.social.reviews.splice(Number(delReview.dataset.deleteReview),1); saveAndRenderAdmin("Review deleted"); return; }
+      const delHighlight = event.target.closest("[data-delete-highlight]");
+      if(delHighlight){ state.social.highlights.splice(Number(delHighlight.dataset.deleteHighlight),1); saveAndRenderAdmin("Highlight deleted"); return; }
       const delFaq = event.target.closest("[data-delete-faq]");
       if(delFaq){ state.faq.splice(Number(delFaq.dataset.deleteFaq),1); saveAndRenderAdmin("FAQ deleted"); return; }
       const delBundle = event.target.closest("[data-delete-bundle]");
@@ -5013,6 +5114,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(targetId === "addFaq"){ state.faq.push({qTh:"",aTh:"",qEn:"",aEn:""}); saveAndRenderAdmin("FAQ added"); }
       if(targetId === "saveFaq") saveFaqFromAdmin();
       if(targetId === "addReview"){ state.social.reviews.push({id:`rv_${Date.now()}`, name:"", source:"google", stars:5, text:"", active:true}); saveAndRenderAdmin("Review added"); }
+      if(targetId === "addHighlight"){ state.social.highlights.push({id:`hl_${Date.now()}`, titleTh:"", titleEn:"", image:"", url:"", active:true}); saveAndRenderAdmin("Highlight added"); }
       if(targetId === "saveReviews") saveReviewsFromAdmin();
       if(targetId === "saveSettings") saveSettings();
       if(targetId === "addBundle"){ state.bundles.push({id:`bundle_${Date.now()}`,th:"Bundle ใหม่",en:"New Bundle",rate:600,weekly:4000,deposit:4000,readyDate:""}); saveAndRenderAdmin("Bundle added"); }

@@ -17,7 +17,7 @@
  *   GOOGLE_PLACE_ID      the shop's place id (run findPlaceId() once to get it)
  *   FACEBOOK_PAGE_ID     the numeric id of the owned Facebook Page
  *   FACEBOOK_PAGE_ACCESS_TOKEN  Page token with pages_read_engagement
- *   FACEBOOK_GRAPH_VERSION      optional, defaults to v25.0
+ *   FACEBOOK_GRAPH_VERSION      optional, defaults to v26.0
  *   GIST_ID              the gist the website reads
  *   GITHUB_TOKEN         a token with gist scope
  *
@@ -76,7 +76,7 @@ function fetchGooglePlace_() {
 function fetchFacebookPage_() {
   var pageId = requireProp_('FACEBOOK_PAGE_ID');
   var token = requireProp_('FACEBOOK_PAGE_ACCESS_TOKEN');
-  var version = props_().getProperty('FACEBOOK_GRAPH_VERSION') || 'v25.0';
+  var version = props_().getProperty('FACEBOOK_GRAPH_VERSION') || 'v26.0';
   var url = 'https://graph.facebook.com/' + encodeURIComponent(version)
     + '/' + encodeURIComponent(pageId)
     + '?fields=followers_count';
