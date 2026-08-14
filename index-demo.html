@@ -1753,6 +1753,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       facebookCount: text(src.facebookCount, DEFAULT_SOCIAL.facebookCount),
       followers: text(src.followers, DEFAULT_SOCIAL.followers),
       verified: src.verified !== false,
+      // Written by the daily Apps Script sync, never by the admin page.
+      googleAuto: src.googleAuto && typeof src.googleAuto === "object" ? src.googleAuto : null,
       reviews: (Array.isArray(src.reviews) ? src.reviews : DEFAULT_SOCIAL.reviews).map((review, index) => ({
         id: String(review.id || `rv_${index}_${Date.now()}`),
         active: review.active !== false,
@@ -1921,6 +1923,18 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   // Ratings and picked reviews are two different jobs: the strip settles "is this
   // shop real" straight away, the cards persuade the customer who is still
   // weighing it up after seeing the prices.
+  // The daily Apps Script sync writes googleAuto into the Gist. Prefer it when it
+  // is there and fall back to the admin figures, so a failed or paused sync shows
+  // slightly old numbers rather than nothing.
+  function socialGoogleRating(social){ return social.googleAuto?.rating || social.googleRating; }
+  function socialGoogleCount(social){ return social.googleAuto?.count || social.googleCount; }
+  function socialReviewList(social){
+    const curated = (social.reviews || []).filter(review => review.active !== false);
+    const synced = (social.googleAuto?.reviews || []).filter(review => review.active !== false);
+    const seen = new Set(curated.map(review => `${review.name}|${review.text}`.toLowerCase()));
+    const extra = synced.filter(review => !seen.has(`${review.name}|${review.text}`.toLowerCase()));
+    return curated.concat(extra);
+  }
   function renderBeforeRentSocial(){
     const social = state.social || {};
     const host = byId("beforeRentTrust");
@@ -1932,8 +1946,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
     const withCount = (key, count) => count ? `${tr(key)} ${tr("beforeRentTrustReviews").replace("{n}", count)}` : tr(key);
     const items = [];
-    if(social.googleRating){
-      items.push(`<a class="before-rent-trust-item" href="${esc(safeHref(CONFIG.googleMapsUrl))}" target="_blank" rel="noopener noreferrer">${icon("pin")}<span class="stars">${starRow(Math.round(Number(social.googleRating)))}</span><b>${esc(social.googleRating)}</b><span>${esc(withCount("beforeRentTrustGoogle", social.googleCount))}</span></a>`);
+    const googleRating = socialGoogleRating(social);
+    const googleCount = socialGoogleCount(social);
+    if(googleRating){
+      items.push(`<a class="before-rent-trust-item" href="${esc(safeHref(CONFIG.googleMapsUrl))}" target="_blank" rel="noopener noreferrer">${icon("pin")}<span class="stars">${starRow(Math.round(Number(googleRating)))}</span><b>${esc(googleRating)}</b><span>${esc(withCount("beforeRentTrustGoogle", googleCount))}</span></a>`);
     }
     if(social.facebookRecommend){
       items.push(`<a class="before-rent-trust-item" href="${esc(safeHref(CONFIG.facebookPageUrl))}" target="_blank" rel="noopener noreferrer">${icon("thumb")}<b>${esc(social.facebookRecommend)}%</b><span>${esc(withCount("beforeRentTrustFacebook", social.facebookCount))}</span></a>`);
@@ -1946,7 +1962,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }
     host.innerHTML = items.join('<span class="before-rent-trust-sep" aria-hidden="true"></span>');
 
-    const reviews = (social.reviews || []).filter(review => review.active !== false);
+    const reviews = socialReviewList(social);
     section.hidden = !reviews.length;
     if(!reviews.length) return;
     const reviewHost = byId("beforeRentReviews");
@@ -4612,6 +4628,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       </div>
       <label class="option-row"><input type="checkbox" id="socialVerified" ${social.verified?"checked":""}><div><b>Verified page badge</b></div></label>
       <p class="hint">Google: ${esc(CONFIG.googleMapsUrl)}<br>Facebook: ${esc(CONFIG.facebookPageUrl)}</p>
+      <p class="hint">${social.googleAuto
+        ? `Google sync: rating ${esc(social.googleAuto.rating || "-")} from ${esc(social.googleAuto.count || "-")} ratings, ${(social.googleAuto.reviews || []).length} reviews, last run ${esc(displayDate((social.googleAuto.syncedAt || "").slice(0,10)))}. These override the Google fields above.`
+        : "Google sync has not run yet, so the Google fields above are used."}</p>
     </div>
     <div class="admin-list">${rows}</div>
     <button class="btn" id="addReview" type="button">${tr("add")}</button>
