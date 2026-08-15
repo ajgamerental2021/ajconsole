@@ -5,6 +5,30 @@ of a session, update at the end. Newest entry first.
 
 ---
 
+## 2026-08-16
+
+### Fixed
+
+- Restored the production-only After Work promotion in `index.html`: a
+  ฿400/day console rented for exactly 3 days starting on Monday or Tuesday is
+  discounted from ฿1,200 to ฿999.
+- Restored the calendar marker (`โปร 3 วัน ฿999` / `3-day promo ฿999`) and the
+  discount line in the rental summary, structured booking data, and Thai and
+  English booking messages.
+- Kept `index-demo.html` unchanged. This was a selective restoration from the
+  former production implementation, not another production/demo file copy.
+
+### Verification
+
+- Browser test: PS5, 24–27 August 2026, showed the promotion, a ฿201 discount,
+  and a ฿2,999 total including the ฿2,000 refundable deposit.
+- Browser exclusion test: PS5 Pro at ฿500/day for the same dates did not receive
+  the promotion.
+- Browser console had no warnings or errors; inline JavaScript syntax and
+  `git diff --check` pass.
+
+---
+
 ## 2026-08-15
 
 ### Finished
