@@ -1189,7 +1189,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       daily:"รายวัน", weekly:"รายสัปดาห์", day:"วัน", wk:"สัปดาห์", deposit:"ค่าประกัน", ready:"พร้อม", notReady:"ยังไม่พร้อม", readyOn:"พร้อมวันที่",
       bundle:"Bundle", accessories:"อุปกรณ์เสริม", noBundle:"ไม่เพิ่ม Bundle", noAccessory:"ไม่เพิ่มอุปกรณ์เสริม", contract:"ทำสัญญาการเช่า", contractHelp:"แนะนำสำหรับผู้เช่าครั้งแรก กรอกก่อนนัดส่งเครื่อง",
       noContract:"ไม่ต้องการทำสัญญาการเช่า", noContractHelp:"สำหรับผู้เช่าครั้งแรก ต้องทำสัญญาและแนบสำเนาบัตรประชาชน / Passport + รูปเซลฟี่คู่บัตรหรือ Passport ทุกกรณี หากไม่สะดวก ให้ติ๊กช่องนี้ ค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น",
-      returning:"ลูกค้าเก่า รับส่วนลด 10% ค่าเช่า", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 จองคิว ฿200 ผ่าน Beam QR PromptPay และชำระยอดที่เหลือปลายทาง", bank:"🏦 Beam QR PromptPay: ชำระเต็มจำนวน", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%",
+      returning:"ลูกค้าเก่า รับส่วนลด 10% ค่าเช่า", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง", bank:"🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%",
       reviewGoogle:"รับส่วนลดเพิ่มจากการรีวิวบน Google Maps มูลค่า 100 บาท", reviewFacebook:"รับส่วนลดเพิ่มจากการรีวิวบน Facebook มูลค่า 100 บาท", reviewGoogleHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Google Maps ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewFacebookHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Facebook ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewGoogleBtn:"รีวิว Google Maps", reviewFacebookBtn:"รีวิว Facebook", reviewGoogleDiscount:"ส่วนลดรีวิว Google Maps", reviewFacebookDiscount:"ส่วนลดรีวิว Facebook",
       boardGameCollapsed:"ต้องการเพิ่มบอร์ดเกม? กดเพื่อขยายและเลือกเข้าชุดเช่า", ps5BundleCollapsed:"ต้องการ Bundle? กดเพื่อจับคู่ PS5 กับอุปกรณ์อื่น",
       boardGameBundle:"Bundle บอร์ดเกม", chooseBoardGame:"-- เลือกบอร์ดเกม --", addBoardGame:"เพิ่มบอร์ดเกม", boardGames:"บอร์ดเกม", selectedDates:"วันที่เลือก", confirmRange:"ตกลง", selectReturnDate:"เลือกวันคืนเครื่อง", remove:"ลบ",
@@ -2506,11 +2506,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       : "";
     const paymentDisabled = paymentLocked ? "disabled" : "";
     const fullPaymentOptions = state.lang === "en"
-      ? `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span class="payment-option-copy"><span>🏦 Thai QR PromptPay: pay full amount</span></span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""} ${paymentDisabled}>${wiseOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}>${creditOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`
-      : `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span class="payment-option-copy"><span>🏦 QR PromptPay : ชำระเต็มจำนวน</span></span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}>${creditOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`;
+      ? `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span class="payment-option-copy"><span>🏦 Thai Bank Transfer: pay full amount</span></span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""} ${paymentDisabled}>${wiseOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}>${creditOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`
+      : `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span class="payment-option-copy"><span>🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน</span></span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}>${creditOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`;
     const reservationTitle = state.lang === "en"
-      ? "Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee)"
-      : "จองคิว ฿200 ผ่าน QR PromptPay";
+      ? "Pay ฿1,000 by Thai bank transfer to reserve"
+      : "จองคิว ฿200 ด้วยเงินโอน";
     const fullPaymentTitle = state.lang === "en" ? "Pay the full amount before delivery" : "ชำระเต็มจำนวนก่อนจัดส่ง";
     const recommended = state.lang === "en" ? "Recommended" : "แนะนำ";
     const paymentHtml = `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title"><span>${reservationTitle}</span><span class="payment-recommended">${recommended}</span></div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""} ${paymentDisabled}>${cashDeliveryOptionHtml()}</label></div><div class="payment-group"><div class="payment-group-title"><span>${fullPaymentTitle}</span></div>${fullPaymentOptions}</div></div>${paymentLockHint}</div>`;
@@ -2592,21 +2592,21 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return `<span class="summary-list">${list.map(esc).map(x => `<span>${x}</span>`).join("")}</span>`;
   }
   function paymentOptionLabelEn(){
-    return {cash:"💵 Pay ฿1,000 by card, E-Wallet or Thai QR to reserve; pay the balance on delivery", bank:"🏦 Thai QR PromptPay: pay full amount", wise:"🌍 Wise: pay full amount", credit:tr("credit"), ewallet:tr("ewallet")}[state.calc.payment] || tr("cash");
+    return {cash:"💵 Pay ฿1,000 by Thai bank transfer to reserve; pay the balance on delivery", bank:"🏦 Thai Bank Transfer: pay full amount", wise:"🌍 Wise: pay full amount", credit:tr("credit"), ewallet:tr("ewallet")}[state.calc.payment] || tr("cash");
   }
   function paymentOptionLabelTh(){
     return {cash:tr("cash"), bank:tr("bank"), credit:tr("credit"), ewallet:tr("ewallet")}[state.calc.payment] || tr("cash");
   }
   function paymentOptionMessageLabelEn(){
-    if(state.calc.payment === "cash") return "Pay ฿1,000 by card, E-Wallet or Thai QR to reserve (no fee) + balance on delivery";
-    if(state.calc.payment === "bank") return "Thai QR PromptPay: pay full amount before delivery (no fee)";
+    if(state.calc.payment === "cash") return "Pay ฿1,000 by Thai bank transfer to reserve + balance on delivery";
+    if(state.calc.payment === "bank") return "Thai Bank Transfer: pay full amount before delivery (no fee)";
     if(state.calc.payment === "credit") return "Credit Card: pay full amount before delivery (+3.50% fee)";
     if(state.calc.payment === "ewallet") return "E-Wallet: pay full amount before delivery (+2.95%)";
     return paymentOptionLabelEn();
   }
   function paymentOptionMessageLabelTh(){
-    if(state.calc.payment === "cash") return "จองคิว ฿200 ผ่าน Beam QR PromptPay (ไม่มีค่าธรรมเนียม)";
-    if(state.calc.payment === "bank") return "Beam QR PromptPay: ชำระเต็มจำนวนก่อนจัดส่ง (ไม่มีค่าธรรมเนียม)";
+    if(state.calc.payment === "cash") return "จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง";
+    if(state.calc.payment === "bank") return "โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน";
     if(state.calc.payment === "credit") return "บัตรเครดิต: ชำระเต็มจำนวนก่อนจัดส่ง (+ค่าธรรมเนียม 3.50%)";
     if(state.calc.payment === "ewallet") return "E-Wallet: ชำระเต็มจำนวนก่อนจัดส่ง (+ค่าธรรมเนียม 2.95%)";
     return paymentOptionLabelTh();
@@ -2630,8 +2630,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function cashDeliveryOptionHtml(){
     const title = state.lang === "en"
       ? "💵 Balance on delivery"
-      : "💸 จองคิว ฿200 ผ่าน QR PromptPay และชำระยอดที่เหลือปลายทาง";
-    const firstLine = state.lang === "en" ? "Cash or Thai QR scan (no fee)" : "เงินโอน (ไม่มีค่าธรรมเนียม)";
+      : "💸 จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง";
+    const firstLine = state.lang === "en" ? "Thai bank transfer (no fee)" : "เงินโอน (ไม่มีค่าธรรมเนียม)";
     const secondLine = state.lang === "en" ? "Card (+3.50%) or E-Wallet (+2.95%)" : "บัตร (+3.50%) หรือ E-Wallet (+2.95%)";
     return `<span class="payment-option-copy"><span>${title}</span><small>${firstLine}</small><small>${secondLine}</small>${paymentReservationBadgesHtml()}${paymentRefundNoteHtml()}</span>`;
   }
@@ -2670,19 +2670,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return basisPoints ? Math.ceil(((Number(amount) || 0) * basisPoints) / 10000) : 0;
   }
   function paymentLinkAmount(summary){
-    if(state.calc.payment === "cash") return state.lang === "en" ? Math.min(1000, Number(summary.total) || 0) : Math.min(CONFIG.reservationAmount, Number(summary.total) || 0);
-    return ["bank","credit","ewallet"].includes(state.calc.payment) ? Number(summary.total) || 0 : 0;
+    return ["credit","ewallet"].includes(state.calc.payment) ? Number(summary.total) || 0 : 0;
   }
   function paymentLinkLabel(){
-    if(state.calc.payment === "cash") return state.lang === "en" ? "Reservation payment by Card, E-Wallet or Thai QR" : "ค่าจองคิวผ่าน Beam QR PromptPay";
-    if(state.calc.payment === "bank") return state.lang === "en" ? "Full payment by Thai QR PromptPay" : "ชำระเต็มจำนวนผ่าน Beam QR PromptPay";
     if(state.calc.payment === "credit") return state.lang === "en" ? "Full payment by Credit Card" : "ชำระเต็มจำนวนด้วยบัตรเครดิต";
     if(state.calc.payment === "ewallet") return state.lang === "en" ? "Full payment by E-Wallet" : "ชำระเต็มจำนวนด้วย E-Wallet";
     return "";
   }
   function currentBeamPaymentKey(summary, rentalCode=""){
     const amount = paymentLinkAmount(summary);
-    if(!amount || !["cash","bank","credit","ewallet"].includes(state.calc.payment)) return "";
+    if(!amount || !["credit","ewallet"].includes(state.calc.payment)) return "";
     const language = state.lang === "en" ? "EN" : "TH";
     return [rentalCode, state.calc.payment, amount, language].join("|");
   }
@@ -2731,7 +2728,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function upfrontLabelHtml(){
     if(state.lang === "en" && state.calc.payment === "cash") return `${esc(tr("cardDeposit"))}${paymentReservationBadgesHtml()}`;
-    if(state.lang === "th" && state.calc.payment === "cash") return "ค่าจองคิว (Beam QR PromptPay)";
+    if(state.lang === "th" && state.calc.payment === "cash") return "ค่าจองคิว (เงินโอน)";
     if(["bank", "credit", "ewallet", "wise"].includes(state.calc.payment)) return esc(tr("fullPaymentConfirm"));
     return esc(tr("upfrontConfirm"));
   }
@@ -3372,7 +3369,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       paymentLinkLabel: paymentLinkLabel(),
       paymentBankAccount: CONFIG.reservationBankAccount,
       paymentBankName: state.calc.payment === "wise" ? CONFIG.wiseBankNameEn : (en ? "Krungthai Bank" : CONFIG.reservationBankNameTh),
-      paymentAccountName: state.calc.payment === "wise" ? CONFIG.wiseAccountNameEn : CONFIG.reservationAccountName,
+      paymentAccountName: en ? CONFIG.wiseAccountNameEn : CONFIG.reservationAccountName,
       paymentEmail: state.calc.payment === "wise" ? CONFIG.wiseEmail : "",
       paymentSwiftRequired: state.calc.payment === "wise" ? false : undefined
     };
@@ -3489,10 +3486,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const paymentLink = generatedPaymentLink(s, rentalCode);
     const paymentLinkLinesEn = paymentLink ? [`🔗 Payment link: ${paymentLink}`, "⏳ This payment link expires in 12 hours"] : [];
     const paymentLinkLinesTh = paymentLink ? [`🔗 ลิงก์ชำระเงิน: ${paymentLink}`, "⏳ ลิงก์ชำระเงินหมดอายุภายใน 12 ชั่วโมง"] : [];
-    const bankPaymentLinesEn = !paymentLink && state.calc.payment === "bank" ? [
-      `✅ Account number: ${CONFIG.reservationBankAccount}`,
-      "✅ Bank: Krungthai Bank",
-      `✅ Account name: ${CONFIG.reservationAccountName}`
+    const bankPaymentLinesEn = !paymentLink && ["cash","bank"].includes(state.calc.payment) ? [
+      `✅Bank Acc No. : ${CONFIG.reservationBankAccount}`,
+      "✅Bank Name : Krung Thai",
+      `✅Bank Acc Name : ${CONFIG.wiseAccountNameEn}`
     ] : [];
     const wisePaymentLinesEn = !paymentLink && state.calc.payment === "wise" ? [
       `✅Bank Acc No. : ${CONFIG.reservationBankAccount}`,
@@ -3509,7 +3506,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     ] : [];
     const paymentSummaryLinesTh = isCashPayment ? [
       `💳 ช่องทางชำระ: ${paymentOptionTh}`,
-      ...paymentLinkLinesTh,
+      ...bankPaymentLinesTh,
       "",
       ...(s.onDelivery > 0 ? [
         "",
@@ -3524,8 +3521,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ...(s.onDelivery > 0 ? [`🚚 ${payOnDeliveryLabel()}: ${money(s.onDelivery)}`] : [])
     ];
     const paymentSummaryLinesEn = isCashPayment ? [
-      "💳 Payment option: Pay ฿1,000 by card, E-Wallet or Thai QR to reserve (no fee)",
-      ...paymentLinkLinesEn,
+      "💳 Payment option: Pay ฿1,000 by Thai bank transfer to reserve",
+      ...bankPaymentLinesEn,
       "",
       ...(s.onDelivery > 0 ? [
         `🚚 Pay on delivery: ${money(s.onDelivery)}`,
@@ -5455,7 +5452,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function normalizeViewerCashPaymentBlock(message, bookingData, en){
     if(String(bookingData.paymentOption || "").toLowerCase() !== "cash") return String(message || "");
     const source = String(message || "");
-    const paymentLink = String(bookingData.paymentLink || source.match(/https:\/\/pay\.beamcheckout\.com\/\S+/i)?.[0] || "").trim();
     const onDelivery = String(bookingData.onDelivery || source.match(/(?:Pay on delivery|ชำระยอดที่เหลือปลายทาง|ยอดที่เหลือชำระปลายทาง):\s*([^\n]+)/i)?.[1] || "").trim();
     const removable = en
       ? /^(?:💳\s*(?:Payment option|Transfer before delivery)|🔗\s*Payment link|🚚\s*Pay on delivery|\*\*\s*Cash \(no fee\))/i
@@ -5466,17 +5462,20 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(totalIndex < 0) return source;
     const paymentBlock = en ? [
       "",
-      "💳 Payment option: Pay ฿1,000 by card, E-Wallet or Thai QR to reserve (no fee)",
-      ...(paymentLink ? [`🔗 Payment link: ${paymentLink}`] : []),
-      ...(paymentLink ? ["⏳ This payment link expires in 12 hours"] : []),
+      "💳 Payment option: Pay ฿1,000 by Thai bank transfer to reserve",
+      `✅Bank Acc No. : ${CONFIG.reservationBankAccount}`,
+      "✅Bank Name : Krung Thai",
+      `✅Bank Acc Name : ${CONFIG.wiseAccountNameEn}`,
       "",
       ...(onDelivery ? [`🚚 Pay on delivery: ${onDelivery}`] : []),
       "** Cash or Thai QR (no fee), Card (+3.50%) or E-Wallet (+2.95%) **",
       ""
     ] : [
       "",
-      "💳 ช่องทางชำระ: จองคิว ฿200 ผ่าน Beam QR PromptPay (ไม่มีค่าธรรมเนียม)",
-      ...(paymentLink ? [`🔗 ลิงก์ชำระเงิน: ${paymentLink}`, "⏳ ลิงก์ชำระเงินหมดอายุภายใน 12 ชั่วโมง"] : []),
+      "💳 ช่องทางชำระ: จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง",
+      `✅เลขบัญชี : ${CONFIG.reservationBankAccount}`,
+      `✅ธนาคาร : ${CONFIG.reservationBankNameTh}`,
+      `✅ชื่อบัญชี : ${CONFIG.reservationAccountName}`,
       "",
       ...(onDelivery ? [`🚚 ชำระยอดที่เหลือปลายทาง: ${onDelivery}`] : []),
       "** เงินสดหรือ QR พร้อมเพย์ (ไม่มีค่าธรรมเนียม), บัตร (+3.50%) หรือ E-Wallet (+2.95%) **",

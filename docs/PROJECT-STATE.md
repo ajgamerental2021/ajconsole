@@ -9,6 +9,14 @@ of a session, update at the end. Newest entry first.
 
 ### Fixed
 
+- Thai reservation and full-payment bank-transfer options have temporarily
+  reverted from Beam QR PromptPay to the AJ Krungthai account because SlipOK
+  rejects Beam's settlement account as a different receiver. Cash/reservation
+  and `bank` bookings no longer create, store, display, or forward Beam links;
+  their Thai and English booking text, contract completion text, Flex cards,
+  and shop notifications show account `8690576029` instead. Credit Card and
+  E-Wallet continue to use Beam normally. Restore Beam for these two options
+  only after the receiver-account verification path is solved.
 - The production `index.html?viewMsg=<Rental ID>` viewer now reads the bot's
   `/api/bookings/:code` endpoint first. This lets a just-created booking use the
   server-side handoff cache instead of waiting for Google Sheets propagation.
