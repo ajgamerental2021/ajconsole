@@ -9,6 +9,18 @@ of a session, update at the end. Newest entry first.
 
 ### Fixed
 
+- Production checkout now creates real Beam links instead of the ฿1 demo
+  endpoint. Thai ฿200 reservations use Beam QR PromptPay only; full Thai bank
+  payments use Beam QR PromptPay in Thai and English. Card and E-Wallet links
+  retain their configured fees, while English reservations retain the existing
+  ฿1,000 card/E-Wallet/Thai-QR choice.
+- Every Beam link expires after 12 hours. The booking page stores the expiry and
+  refuses to reuse an expired cached link. Booking text, contract-completion
+  text, LINE Flex cards, and shop notifications now identify Beam consistently
+  and include the 12-hour notice.
+- Successful Beam webhooks update the booking to “ชำระค่าจองแล้ว” for a
+  reservation or “ชำระเต็มจำนวนแล้ว” for a full payment, with the amount,
+  transaction reference, and payment timestamp stored against the Rental ID.
 - Booking-to-contract handoff now stores a short-lived structured booking
   context before opening the LIFF contract. The context carries the exact cost
   rows and total from the booking page, including After Work, returning-customer,
@@ -34,6 +46,11 @@ of a session, update at the end. Newest entry first.
 
 ### Verification
 
+- Browser-checked the Thai payment summary and confirmed the full-payment
+  option is shown as Beam QR PromptPay with the exact discounted ฿2,999 total.
+- Bot regression suite passes all 93 tests, including Thai PromptPay-only
+  reservation links, full-payment QR links, 12-hour expiry, LINE/Flex copy, and
+  webhook booking-status mapping.
 - Browser-tested a PS5 contract context containing the ฿1,200 rental, -฿201
   After Work promotion, -฿80 returning-customer discount, -฿100 Google Maps
   review discount, -฿100 Facebook review discount, and ฿2,000 deposit. The form
@@ -41,8 +58,8 @@ of a session, update at the end. Newest entry first.
 - Browser-tested the production page locally through the full booking flow:
   selecting Thai bank transfer shows the full amount due and no amount due on
   delivery.
-- Bot regression suite passes all 90 tests, including the booking-cost handoff,
-  admin-device submit
+- The booking-cost handoff and admin-device submit regression coverage remains
+  green.
   lock/reset behavior, Thai/English post-contract
   text and Thai/English full-payment Flex cards.
 - Inline production JavaScript syntax and `git diff --check` pass.
