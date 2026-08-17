@@ -5346,6 +5346,85 @@ function clearAllPicked() {
   document.getElementById('pick-copy-panel').classList.remove('show');
 }
 
+/* ──────────────────────────────────────
+   TOKEN MODE (Delivery App "แจ้งเลือกเกม")
+   The link carries only an opaque token: ?t=<token>. The backend resolves it
+   to the booking + platform and stores the submitted list, so no rental id,
+   booking id or personal data ever appears in this URL.
+────────────────────────────────────── */
+const GAME_API_BASE = 'https://delivery-app-backend-68pm.onrender.com';
+let selectionToken = null;      // opaque token from the URL
+let selectionContext = null;    // { gamePlatform, deviceName, startDate, maxGames }
+
+function getSelectionToken() {
+  try { return new URLSearchParams(location.search).get('t') || null; }
+  catch (e) { return null; }
+}
+
+function isTokenGamePicker() { return !!getSelectionToken(); }
+
+/** Resolve the token and lock the picker to the booking's platform. */
+async function initSelectionToken() {
+  const token = getSelectionToken();
+  if (!token) return;
+  selectionToken = token;
+  try {
+    const res = await fetch(`${GAME_API_BASE}/api/game-selection/resolve/${encodeURIComponent(token)}`);
+    const data = await res.json();
+    if (!res.ok || !data.ok) {
+      showToast(currentLang === 'en'
+        ? 'This link has expired — please ask the shop for a new one.'
+        : 'ลิงก์นี้หมดอายุแล้ว รบกวนขอลิงก์ใหม่จากทางร้านครับ');
+      selectionToken = null;
+      return;
+    }
+    selectionContext = data;
+    // The platform comes from the token, never from the query string.
+    if (data.gamePlatform) {
+      currentPlatform = data.gamePlatform;
+      try { renderPickPlatformTabs(); renderPickBody(); renderPickFooter(); } catch (e) {}
+    }
+    if (Array.isArray(data.selectedGames) && data.selectedGames.length) {
+      showToast(currentLang === 'en'
+        ? 'You already chose games — submitting again replaces the list.'
+        : 'เคยเลือกเกมไว้แล้ว — ส่งใหม่จะแทนที่รายการเดิม');
+    }
+  } catch (e) {
+    console.warn('resolve token failed', e);
+  }
+}
+
+/** Submit the selection straight to the backend (no copy/paste needed). */
+async function submitSelectionToken() {
+  if (!selectionToken || !pickedGames.length) return;
+  const names = pickedGames
+    .map(id => (games.find(x => x.id === id) || {}).name)
+    .filter(Boolean);
+  const btn = document.getElementById('btn-generate-copy');
+  if (btn) { btn.disabled = true; btn.textContent = currentLang === 'en' ? 'Sending…' : 'กำลังส่ง...'; }
+  try {
+    const res = await fetch(`${GAME_API_BASE}/api/game-selection/submit/${encodeURIComponent(selectionToken)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ games: names }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) {
+      const msg = data.status === 'too_many_games'
+        ? (currentLang === 'en' ? `Please pick at most ${data.maxGames} games.` : `เลือกได้ไม่เกิน ${data.maxGames} เกมครับ`)
+        : (currentLang === 'en' ? 'Could not save — please try again.' : 'บันทึกไม่สำเร็จ ลองใหม่อีกครั้งครับ');
+      showToast(msg);
+      if (btn) { btn.disabled = false; btn.textContent = currentLang === 'en' ? 'Send selected games' : 'ส่งรายการเกมที่เลือก'; }
+      return;
+    }
+    showToast(currentLang === 'en' ? '✓ Your game selection has been saved' : '✓ บันทึกรายการเกมเรียบร้อยแล้ว');
+    if (btn) { btn.disabled = true; btn.textContent = currentLang === 'en' ? '✓ Saved' : '✓ บันทึกแล้ว'; }
+  } catch (e) {
+    showToast(currentLang === 'en' ? 'Network error — please try again.' : 'เชื่อมต่อไม่ได้ ลองใหม่อีกครั้งครับ');
+    if (btn) { btn.disabled = false; btn.textContent = currentLang === 'en' ? 'Send selected games' : 'ส่งรายการเกมที่เลือก'; }
+  }
+}
+
 function isContractCardGamePicker() {
   try { return new URLSearchParams(location.search).get('source') === 'contractCard'; }
   catch (e) { return false; }
@@ -5356,7 +5435,7 @@ function contractCardCopyButtonLabel() {
 }
 
 function gameCopyButtonLabel(fallbackLabel) {
-  return isContractCardGamePicker() ? contractCardCopyButtonLabel() : fallbackLabel;
+  return (isContractCardGamePicker() || isTokenGamePicker()) ? contractCardCopyButtonLabel() : fallbackLabel;
 }
 
 function openAjLineWithMessage(text) {
@@ -5367,6 +5446,7 @@ function openAjLineWithMessage(text) {
 
 function sendContractCardGameList() {
   if (!pickedGames.length) return;
+  if (isTokenGamePicker()) { submitSelectionToken(); return; }
   generateCopyText();
   setTimeout(doCopy, 80);
 }
@@ -6661,7 +6741,11 @@ document.addEventListener('touchstart', function(e) {
   let bridgePlatformId = '';
   function isPicker(){ return embedMode === 'picker'; }
   function isAdmin(){ return embedMode === 'admin'; }
-  function isContractCardPicker(){ return isPicker() && embedSource === 'contractCard'; }
+  function isContractCardPicker(){
+    // A ?t=<token> link (Delivery App "แจ้งเลือกเกม") uses the same send-flow.
+    const hasToken = (function(){ try { return !!new URLSearchParams(location.search).get('t'); } catch(e){ return false; } })();
+    return isPicker() && (embedSource === 'contractCard' || hasToken);
+  }
   function bridgeText(){
     const isEn = (typeof currentLang !== 'undefined' && currentLang === 'en');
     return {
@@ -7043,6 +7127,10 @@ document.addEventListener('touchstart', function(e) {
     }, 180);
   }
   window.addEventListener('load', () => setTimeout(() => scrollToFocusedSection(0), 250));
+  // Resolve a ?t=<token> game-selection link once the picker data is ready.
+  window.addEventListener('load', () => {
+    if (typeof initSelectionToken === 'function') setTimeout(initSelectionToken, 300);
+  });
 })();
 </script>
 
