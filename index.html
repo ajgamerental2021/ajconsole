@@ -1169,7 +1169,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentNoteDelivery:"ฟรีค่าส่งสูงสุด ฿100/เที่ยว · 3–6 วัน ฟรีขากลับ · 7+ วัน ฟรีไป-กลับ · ส่งเฉพาะกรุงเทพฯ–ปริมณฑล",
       beforeRentNoteDeposit:"ค่าประกัน ได้คืนเต็มจำนวนเมื่อคืนเครื่องครบสภาพ ไม่ใช่ค่าเช่า",
       beforeRentNoteContract:"หากไม่ทำสัญญาเช่า ค่าประกันปรับเป็น ฿5,000 / ฿8,000 ตามรุ่น",
-      beforeRentTerms:"เช่าขั้นต่ำ <b>3 วัน</b> · ฟรีค่าส่งสูงสุด <b>฿100/เที่ยว</b> (3–6 วัน ฟรีขากลับ · 7+ วัน ฟรีไป-กลับ) · คืนค่าประกันเต็มเมื่อคืนเครื่อง",
+      beforeRentTerms:"เช่าขั้นต่ำ <b>3 วัน</b> · ฟรีค่าส่งสูงสุด <b>฿100/เที่ยว</b> (3–6 วัน ฟรีขากลับ · 7+ วัน ฟรีไป-กลับ)",
       beforeRentStartDevice:"ดูคิวและราคา",
       gamePickerAllPlatforms:"👉 เลือกเครื่อง",
       gamePickerScrollHint:"เลื่อนดูเครื่องอื่น →",
@@ -1258,7 +1258,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentNoteDelivery:"Free delivery up to ฿100/trip · 3–6 days: free return · 7+ days: both trips free · Bangkok metro only",
       beforeRentNoteDeposit:"The deposit is fully refunded when the console is returned in good condition — it is not part of the rental fee",
       beforeRentNoteContract:"Without a rental contract the deposit becomes ฿5,000 / ฿8,000 depending on the model",
-      beforeRentTerms:"<b>3-day</b> minimum · free delivery up to <b>฿100/trip</b> (3–6 days: free return · 7+ days: both trips free) · full deposit refund on return",
+      beforeRentTerms:"<b>3-day</b> minimum · free delivery up to <b>฿100/trip</b> (3–6 days: free return · 7+ days: both trips free)",
       beforeRentStartDevice:"Check dates & price",
       gamePickerAllPlatforms:"👉 Pick a console",
       gamePickerScrollHint:"Swipe for more →",
@@ -2523,8 +2523,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ? `<span class="deposit-badge ${tone}">${tr("deposit")} ${money(amount)}</span>`
       : "";
     const returningHelp = state.lang === "en"
-      ? "If this is checked but you have not rented with us before, the shop will update the rental price and remove this discount."
-      : "หากติ๊กส่วนลดลูกค้าเก่าแต่ยังไม่เคยเช่ากับทางร้าน ทางร้านจะอัปเดตราคาใหม่โดยตัดส่วนลดนี้ออก";
+      ? "If this is checked but you have not rented with us before, the shop will update the rental price and remove this discount. **If the existing contract is over 1 year old, a new contract is required in all cases."
+      : "หากติ๊กส่วนลดลูกค้าเก่าแต่ยังไม่เคยเช่ากับทางร้าน ทางร้านจะอัปเดตราคาใหม่โดยตัดส่วนลดนี้ออก **หากสัญญาเช่าเดิมมีอายุเกิน 1 ปี ต้องทำสัญญาใหม่ทุกกรณี";
     const returningReviewHtml = state.calc.ret ? `
       <div class="review-discount-box">
         <label class="option-row"><input type="checkbox" id="reviewGoogleOpt" ${state.calc.reviewGoogle?"checked":""}><div><b>${tr("reviewGoogle")}</b><div class="hint">${tr("reviewGoogleHelp")}</div><div class="review-actions"><button class="btn" type="button" id="reviewGoogleBtn">${tr("reviewGoogleBtn")}</button></div></div></label>
@@ -3561,9 +3561,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ...bankPaymentLinesTh,
       "",
       ...(s.onDelivery > 0 ? [
-        "",
         `🚚 ${payOnDeliveryLabel()}: ${money(s.onDelivery)}`,
-        "** เงินสดหรือ QR พร้อมเพย์ (ไม่มีค่าธรรมเนียม), บัตร (+3.50%) หรือ E-Wallet (+2.95%) **"
+        "** เงินโอน (ไม่มีค่าธรรมเนียม), บัตร (+3.50%) หรือ E-Wallet (+2.95%) **"
       ] : [])
     ] : [
       `💳 ช่องทางชำระ: ${paymentOptionTh}`,
@@ -3648,9 +3647,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       "",
       ...(isCashPayment ? ["🚫 ยกเลิกโดยลูกค้า → ไม่คืนเงินจอง 200 บาท"] : []),
       "🚫 คืนก่อนกำหนด → ไม่คืนเงินส่วนต่าง",
+      "✅ ค่าประกัน คืน 100% เมื่อได้รับเครื่องกับอุปกรณ์ครบถ้วนและใช้งานได้ปกติ",
       "",
       isCashPayment
-        ? "⚠️รบกวนอ่านรายละเอียดการเช่าอย่างละเอียดก่อนโอนจอง⚠️"
+        ? "⚠️ รบกวนอ่านรายละเอียดการเช่าอย่างด้านบนละเอียดก่อนโอนจอง ☝️"
         : "⚠️รบกวนอ่านรายละเอียดการเช่าอย่างละเอียดก่อนชำระเงิน⚠️",
       "",
       "ขอบคุณครับ 🙏"
@@ -3677,9 +3677,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       "",
       ...(isCashPayment ? ["🚫 Customer cancellation → Reservation deposit of ฿1,000 is non-refundable"] : []),
       "🚫 Early return → No refund for the unused rental period",
+      "✅ Deposit refunded 100% when the console and accessories are returned complete and in working order",
       "",
       isCashPayment
-        ? "⚠️Please read the rental details carefully before transferring the reservation deposit⚠️"
+        ? "⚠️ Please read the rental details above carefully before transferring the reservation deposit ☝️"
         : "⚠️Please read the rental details carefully before making payment⚠️",
       "",
       "Thank you 🙏"
@@ -4346,8 +4347,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         }
       ],
       detail:{
-        th:`<div class="step-detail-section"><h4>หลังส่งข้อมูล</h4><ul><li>ทางร้านตรวจคิว สรุปค่าใช้จ่ายพร้อมค่าจัดส่ง และแจ้งขั้นตอนถัดไป</li><li><span class="step-mark">ผู้เช่าครั้งแรกต้องทำสัญญาการเช่าก่อนนัดส่งเครื่อง</span> เว้นแต่เลือกไม่ทำสัญญาและยอมรับค่าประกันที่เพิ่มขึ้น</li><li>ชำระเงินตามช่องทางที่เลือก หลังทางร้านยืนยันคิวและค่าจัดส่ง</li></ul></div><div class="step-detail-section"><h4>เตรียมเครื่องและจัดส่ง</h4><ul><li>เตรียมเครื่องและติดตั้งเกมประมาณ <span class="step-mark">2-3 ชั่วโมง</span> หรือ 30 นาที - 1 ชั่วโมงสำหรับเครื่องที่ไม่ต้องติดตั้งเกม</li><li>จัดส่งประมาณ 1-2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ</li><li>เมื่อของถึง สามารถเปิดกระเป๋าเช็คของกับคนส่งของก่อน แล้วชำระยอดที่เหลือพร้อมส่งสลิปให้ร้านทางแชท</li></ul><p><strong>ไม่ทำสัญญาเช่า: เพิ่มค่าประกันจาก ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000</strong></p></div><div class="step-detail-section"><h4>การคืนเครื่อง</h4><ul><li>ทางร้านเรียกรถเข้าไปรับเครื่อง และลูกค้ายืนยันอุปกรณ์ก่อนส่งคืนถ้าสะดวก</li><li>ส่งของให้คนรับของ แล้วแจ้งยืนยันหรือส่งรูปให้ร้านทางแชท</li><li>ร้านเช็คเครื่องและอุปกรณ์ จากนั้นคืนค่าประกันเข้าบัญชีในสัญญา หรือบัญชีที่แจ้งทางแชท</li></ul><p><strong>*ร้านเรียกรถขนส่งให้ทั้งขาส่งและขารับกลับ</strong></p><p><strong>**จัดส่ง 100% ไม่มีรับหรือคืนเครื่องที่หน้าร้าน</strong></p></div>`,
-        en:`<div class="step-detail-section"><h4>After submitting details</h4><ul><li>The shop checks availability, confirms the total including delivery, and sends the next steps.</li><li><span class="step-mark">First-time renters must complete the rental contract before delivery</span>, unless they choose no contract and accept the higher deposit.</li><li>Pay with the selected method after the shop confirms availability and delivery cost.</li></ul></div><div class="step-detail-section"><h4>Preparation and delivery</h4><ul><li>Device preparation and game installation takes about <span class="step-mark">2-3 hours</span>, or 30 minutes - 1 hour for devices that do not need game installation.</li><li>Delivery usually takes about 1-2 hours depending on distance, traffic, and weather.</li><li>On arrival, you can check the items with the delivery rider first, then pay the remaining balance and send the slip to the shop by chat.</li></ul><p><strong>No rental contract: deposit increases from ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000.</strong></p></div><div class="step-detail-section"><h4>Returning the device</h4><ul><li>The shop calls a rider for pickup, and you can confirm the accessories before return if convenient.</li><li>Hand the items to the pickup rider, then confirm or send a photo to the shop by chat.</li><li>The shop checks the device and accessories, then refunds the deposit to the bank account in the contract or the account sent by chat.</li></ul><p><strong>*The shop arranges transport for both delivery and return pickup.</strong></p><p><strong>**Delivery service only. Pickup or return at the shop is not available.</strong></p></div>`
+        th:`<div class="step-detail-section"><h4>หลังส่งข้อมูล</h4><ul><li>ทางร้านตรวจคิว สรุปค่าใช้จ่ายพร้อมค่าจัดส่ง และแจ้งขั้นตอนถัดไป</li><li><span class="step-mark">ผู้เช่าครั้งแรกต้องทำสัญญาการเช่าก่อนนัดส่งเครื่อง</span> เว้นแต่เลือกไม่ทำสัญญาและยอมรับค่าประกันที่เพิ่มขึ้น</li><li>สัญญาเช่ามีอายุ 1 ปี สามารถใช้เช่าครั้งถัดไปได้โดยไม่ต้องทำสัญญาใหม่ เมื่อครบ 1 ปี ต้องทำสัญญาใหม่ทุกกรณี</li><li>ชำระเงินตามช่องทางที่เลือก หลังทางร้านยืนยันคิวและค่าจัดส่ง</li></ul></div><div class="step-detail-section"><h4>เตรียมเครื่องและจัดส่ง</h4><ul><li>เตรียมเครื่องและติดตั้งเกมประมาณ <span class="step-mark">2-3 ชั่วโมง</span> หรือ 30 นาที - 1 ชั่วโมงสำหรับเครื่องที่ไม่ต้องติดตั้งเกม</li><li>จัดส่งประมาณ 1-2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ</li><li>เมื่อของถึง สามารถเปิดกระเป๋าเช็คของกับคนส่งของก่อน แล้วชำระยอดที่เหลือพร้อมส่งสลิปให้ร้านทางแชท</li></ul><p><strong>ไม่ทำสัญญาเช่า: เพิ่มค่าประกันจาก ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000</strong></p></div><div class="step-detail-section"><h4>การคืนเครื่อง</h4><ul><li>ทางร้านเรียกรถเข้าไปรับเครื่อง และลูกค้ายืนยันอุปกรณ์ก่อนส่งคืน</li><li>ส่งของให้คนรับของ แล้วแจ้งยืนยันหรือส่งรูปให้ร้านทางแชท</li><li>ร้านเช็คเครื่องและอุปกรณ์ จากนั้นคืนค่าประกันเข้าบัญชีในสัญญา หรือบัญชีที่แจ้งทางแชท</li></ul><p><strong>*ทางร้านเรียกรถขนส่งให้ทั้งขาส่งและขารับกลับเท่านั้น</strong></p><p><strong>**ทางร้านให้บริการแบบออนไลน์เท่านั้น ไม่มีรับหรือคืนเครื่องที่หน้าร้าน</strong></p></div>`,
+        en:`<div class="step-detail-section"><h4>After submitting details</h4><ul><li>The shop checks availability, confirms the total including delivery, and sends the next steps.</li><li><span class="step-mark">First-time renters must complete the rental contract before delivery</span>, unless they choose no contract and accept the higher deposit.</li><li>The rental contract is valid for 1 year and can be reused for future rentals without signing again; after 1 year a new contract is required in all cases.</li><li>Pay with the selected method after the shop confirms availability and delivery cost.</li></ul></div><div class="step-detail-section"><h4>Preparation and delivery</h4><ul><li>Device preparation and game installation takes about <span class="step-mark">2-3 hours</span>, or 30 minutes - 1 hour for devices that do not need game installation.</li><li>Delivery usually takes about 1-2 hours depending on distance, traffic, and weather.</li><li>On arrival, you can check the items with the delivery rider first, then pay the remaining balance and send the slip to the shop by chat.</li></ul><p><strong>No rental contract: deposit increases from ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000.</strong></p></div><div class="step-detail-section"><h4>Returning the device</h4><ul><li>The shop calls a rider for pickup, and you can confirm the accessories before return.</li><li>Hand the items to the pickup rider, then confirm or send a photo to the shop by chat.</li><li>The shop checks the device and accessories, then refunds the deposit to the bank account in the contract or the account sent by chat.</li></ul><p><strong>*The shop arranges transport for both delivery and return pickup only.</strong></p><p><strong>**Online service only. Pickup or return at the shop is not available.</strong></p></div>`
       }
     },
     {
@@ -5639,7 +5640,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       `✅ชื่อบัญชี : ${CONFIG.reservationAccountName}`,
       "",
       ...(onDelivery ? [`🚚 ชำระยอดที่เหลือปลายทาง: ${onDelivery}`] : []),
-      "** เงินสดหรือ QR พร้อมเพย์ (ไม่มีค่าธรรมเนียม), บัตร (+3.50%) หรือ E-Wallet (+2.95%) **",
+      "** เงินโอน (ไม่มีค่าธรรมเนียม), บัตร (+3.50%) หรือ E-Wallet (+2.95%) **",
       ""
     ];
     compact.splice(totalIndex + 1, 0, ...paymentBlock);
