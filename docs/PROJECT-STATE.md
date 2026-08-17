@@ -9,6 +9,14 @@ of a session, update at the end. Newest entry first.
 
 ### Fixed
 
+- The production `index.html?viewMsg=<Rental ID>` viewer now reads the bot's
+  `/api/bookings/:code` endpoint first. This lets a just-created booking use the
+  server-side handoff cache instead of waiting for Google Sheets propagation.
+- Missing records are retried for a bounded period, then the existing Apps
+  Script JSONP lookup is used as a fallback. A visible retry button replaces the
+  former one-shot empty/not-found state.
+- The bot's public booking lookup now permits cross-origin GET requests from the
+  static booking site. No booking data is cached by the browser.
 - Payment-option cards now match the supplied Thai and English reference layout:
   grouped headers, Recommended badge, stronger selected state, payment logos,
   separate fee lines, and card/E-Wallet deposit-refund notices. English Wise

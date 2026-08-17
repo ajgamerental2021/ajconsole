@@ -5442,11 +5442,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return en ? {
       title:"Booking message", sub:"Copy and paste this into the customer chat.",
       copy:"📋 Copy message", copied:"✅ Copied", loading:"Loading...",
-      notFound:"Booking not found for this code.", error:"Cannot load booking. Please try again."
+      notFound:"Booking not found for this code.", error:"Cannot load booking. Please try again.",
+      waiting:"Waiting for the booking data to finish saving...", retry:"Retry"
     } : {
       title:"ข้อความจองเช่า", sub:"คัดลอกไปวางในแชทลูกค้าได้เลย",
       copy:"📋 คัดลอกข้อความ", copied:"✅ คัดลอกแล้ว", loading:"กำลังโหลด...",
-      notFound:"ไม่พบข้อมูลการจองของรหัสนี้", error:"โหลดข้อมูลไม่ได้ กรุณาลองใหม่"
+      notFound:"ไม่พบข้อมูลการจองของรหัสนี้", error:"โหลดข้อมูลไม่ได้ กรุณาลองใหม่",
+      waiting:"กำลังรอระบบบันทึกข้อมูลการจอง...", retry:"ลองโหลดอีกครั้ง"
     };
   }
 
@@ -5585,7 +5587,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   // Shop-facing viewer: index2.html?viewMsg=<rentalCode> shows the stored booking
   // message with a Copy button, in the exact language the customer used.
   function renderBookingViewer(code){
-    const endpoint = String(localStorage.getItem("aj_rental_sheet_webapp_url") || CONFIG.rentalSheetWebApp || "").trim();
+    const sheetEndpoint = String(localStorage.getItem("aj_rental_sheet_webapp_url") || CONFIG.rentalSheetWebApp || "").trim();
+    const bookingEndpoint = new URL(`/api/bookings/${encodeURIComponent(code)}`, CONFIG.contractWebUrl).toString();
     const t0 = bookingViewerText(state.lang === "en" ? "EN" : "TH");
     document.title = `AJ Booking ${code}`;
     document.body.innerHTML = `<div class="viewer-wrap"><div class="viewer-card">
@@ -5593,9 +5596,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       <p class="viewer-sub" id="viewerSub">${esc(t0.loading)}</p>
       <textarea id="viewerText" class="viewer-text" readonly></textarea>
       <button class="btn primary" id="viewerCopy" type="button" style="display:none"></button>
+      <button class="btn" id="viewerRetry" type="button" style="display:none"></button>
     </div></div>`;
-    if(!endpoint){ byId("viewerSub").textContent = t0.error; return; }
-    window.__ajBookingCb = function(data){
+    let loadGeneration = 0;
+    const retryDelays = [0, 1200, 1800, 2500, 3500];
+    function showBooking(data){
       const t = bookingViewerText((data && data.lang) || "TH");
       byId("viewerTitle").textContent = t.title;
       if(data && data.ok && data.message){
@@ -5610,14 +5615,56 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
           if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(message).then(done).catch(fallback); }
           else fallback();
         };
-      }else{
-        byId("viewerSub").textContent = t.notFound;
+        byId("viewerRetry").style.display = "none";
+        return true;
       }
-    };
-    const script = document.createElement("script");
-    script.src = `${endpoint}${endpoint.includes("?") ? "&" : "?"}action=getBooking&code=${encodeURIComponent(code)}&callback=__ajBookingCb`;
-    script.onerror = function(){ byId("viewerSub").textContent = t0.error; };
-    document.body.appendChild(script);
+      return false;
+    }
+    function loadFromSheet(generation){
+      return new Promise(resolve => {
+        if(!sheetEndpoint || generation !== loadGeneration){ resolve(false); return; }
+        const callback = `__ajBookingCb_${Date.now()}_${generation}`;
+        const script = document.createElement("script");
+        const cleanup = () => { delete window[callback]; script.remove(); };
+        const timeout = window.setTimeout(() => { cleanup(); resolve(false); }, 8000);
+        window[callback] = data => {
+          window.clearTimeout(timeout);
+          const loaded = generation === loadGeneration && showBooking(data);
+          cleanup(); resolve(loaded);
+        };
+        script.onerror = () => { window.clearTimeout(timeout); cleanup(); resolve(false); };
+        script.src = `${sheetEndpoint}${sheetEndpoint.includes("?") ? "&" : "?"}action=getBooking&code=${encodeURIComponent(code)}&callback=${encodeURIComponent(callback)}&_=${Date.now()}`;
+        document.body.appendChild(script);
+      });
+    }
+    async function loadBooking(){
+      const generation = ++loadGeneration;
+      const retryBtn = byId("viewerRetry");
+      retryBtn.style.display = "none";
+      byId("viewerText").value = "";
+      byId("viewerCopy").style.display = "none";
+      for(let i = 0; i < retryDelays.length; i += 1){
+        if(retryDelays[i]) await new Promise(resolve => window.setTimeout(resolve, retryDelays[i]));
+        if(generation !== loadGeneration) return;
+        byId("viewerSub").textContent = i ? t0.waiting : t0.loading;
+        try{
+          const response = await fetch(bookingEndpoint, {cache:"no-store"});
+          if(response.ok && showBooking(await response.json())) return;
+          if(response.status !== 404) break;
+        }catch(error){
+          // The Apps Script fallback below still works if the bot is waking up.
+        }
+      }
+      if(generation !== loadGeneration) return;
+      byId("viewerSub").textContent = t0.waiting;
+      if(await loadFromSheet(generation)) return;
+      if(generation !== loadGeneration) return;
+      byId("viewerSub").textContent = t0.notFound;
+      retryBtn.textContent = t0.retry;
+      retryBtn.style.display = "";
+      retryBtn.onclick = loadBooking;
+    }
+    loadBooking();
   }
 
   async function boot(){
