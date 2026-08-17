@@ -1288,7 +1288,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       guideTitle:"Next step", guideConsole:"Choose console", guideStart:"Choose start date", guideEnd:"Choose return date", guideAccessory:"Choose accessories if needed, or skip.", guidePs5Bundle:"Choose a PS5 bundle if needed.", guideNextStep:"Go to the next step.", guideBg:"Add a board game bundle if needed.", guideRet:"Have you rented with us before?", guideContractChoice:"Would you like to complete the rental contract?", guideContractLink:"Open the rental agreement link, or do it later.", guidePayment:"Choose payment option.", guideMaps:"Paste your Google Maps link for delivery check.", guideGames:"Pick games from the catalog, or send later.", guideShare:"Check the rental details above, then book through your preferred channel.", guideCopy:"Copy booking message", guideLine:"Book via LINE", guideWa:"Book via WhatsApp", guideMessenger:"Book via Messenger",
       guideDoContract:"Do contract", guideNoContract:"No contract", guideLater:"Later", guideSkip:"Skip", guideGameLater:"Choose later", guideNext:"Next", guideRetYes:"Yes", guideRetNo:"No",
       pickGames:"Choose / Edit games", sendLater:"Send game list later", clearGames:"Clear games", noGameList:"This model has no game catalog in the system.",
-      summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Grand total", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", fullPaymentConfirm:"Full payment (to confirm booking)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat", paymentFee:"Payment fee", cardDeposit:"Card / E-Wallet reservation (no fee)", paymentLink:"Payment link", finalActionHelp:"Review the details, then book via the same chat channel to send them to AJ.",
+      summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Grand total", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", fullPaymentConfirm:"Full payment (to confirm booking)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat", paymentFee:"Payment fee", cardDeposit:"Card / E-Wallet / Thai QR reservation (no fee)", paymentLink:"Payment link", finalActionHelp:"Review the details, then book via the same chat channel to send them to AJ.",
       returningDiscount:"Returning customer 10% discount", consoleDiscount:"Console discount", boardGameDiscount:"Board game discount", boardGameDeposit:"Board game deposit", rentalDays:"Rental days", boardGameRental:"Board game rental", boardGameList:"Board game list",
       equipmentDetails:"Equipment details", players:"Players", playTime:"Play time", age:"Recommended age", packageRental:"Package rental", oneDay:"1 day", threeDays:"3 days", sevenDays:"7 days", howToPlay:"Quick how to play", noContractDepositNote:"Deposit (no contract)", noContractLabel:"No contract", standardTier:"Standard tier", planning:"Planning",
       copy:"📋 Copy booking message", line:"Book via LINE", whatsapp:"Book via WhatsApp", messenger:"Book via Messenger", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", queueError:"Unable to check the queue. Please try again.", queueClosed:"Queue closed during this period",
@@ -3534,8 +3534,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const paymentOptionTh = paymentOptionMessageLabelTh();
     const isCashPayment = state.calc.payment === "cash";
     const paymentLink = generatedPaymentLink(s, rentalCode);
-    const paymentLinkLinesEn = paymentLink ? [`🔗 Payment link: ${paymentLink}`, "⏳ This payment link expires in 12 hours"] : [];
-    const paymentLinkLinesTh = paymentLink ? [`🔗 ลิงก์ชำระเงิน: ${paymentLink}`, "⏳ ลิงก์ชำระเงินหมดอายุภายใน 12 ชั่วโมง"] : [];
+    // A blank line after the link keeps the long URL from running into the
+    // amount due on delivery when a chat app wraps it.
+    const paymentLinkLinesEn = paymentLink ? [`🔗 Payment link: ${paymentLink}`, ""] : [];
+    const paymentLinkLinesTh = paymentLink ? [`🔗 ลิงก์ชำระเงิน: ${paymentLink}`, ""] : [];
     const bankPaymentLinesEn = !paymentLink && state.calc.payment === "bank" ? [
       `✅Bank Acc No. : ${CONFIG.reservationBankAccount}`,
       "✅Bank Name : Krung Thai",
@@ -5624,7 +5626,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const paymentBlock = en ? [
       "",
       "💳 Payment option: Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee)",
-      ...(paymentLink ? [`🔗 Payment link: ${paymentLink}`, "⏳ This payment link expires in 12 hours"] : []),
+      ...(paymentLink ? [`🔗 Payment link: ${paymentLink}`] : []),
       "",
       ...(onDelivery ? [`🚚 Pay on delivery: ${onDelivery}`] : []),
       "** Cash or Thai QR (no fee), Card (+3.50%) or E-Wallet (+2.95%) **",
