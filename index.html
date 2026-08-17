@@ -3899,6 +3899,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         sessionStorage.removeItem(SHARE_STATUS_KEY);
         return null;
       }
+      value.locked = Number(value.lockedUntil || 0) > Date.now();
       return value;
     }catch{
       sessionStorage.removeItem(SHARE_STATUS_KEY);
@@ -3915,16 +3916,15 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function setShareStatus(channel, phase){
     const opened = phase === "opened";
     const expiresAt = Date.now() + (opened ? 60000 : 30000);
-    sessionStorage.setItem(SHARE_STATUS_KEY, JSON.stringify({channel, phase, expiresAt, locked:true}));
-    shareCooldownUntil = opened ? Date.now() + 12000 : expiresAt;
+    const lockedUntil = opened ? Date.now() + 12000 : expiresAt;
+    sessionStorage.setItem(SHARE_STATUS_KEY, JSON.stringify({channel, phase, expiresAt, lockedUntil}));
+    shareCooldownUntil = lockedUntil;
     renderSummary();
     renderGuide();
     if(opened){
       window.setTimeout(() => {
         const current = activeShareStatus();
         if(current?.channel !== channel || current?.phase !== "opened") return;
-        current.locked = false;
-        sessionStorage.setItem(SHARE_STATUS_KEY, JSON.stringify(current));
         shareCooldownUntil = 0;
         renderSummary();
         renderGuide();
@@ -3945,7 +3945,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     sessionStorage.setItem(SHARE_RETURN_KEY, "1");
   }
   function clearShareButtonDisabled(){
-    if(!shareReturnUnlocked()) return;
+    if(!shareReturnUnlocked() || activeShareStatus()?.locked) return;
     ["sendLine","sendWa","sendMessenger"].forEach(id => {
       const btn = byId(id);
       if(btn) btn.disabled = false;
@@ -5924,12 +5924,20 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function resetShareUi(){
     const shouldUnlock = shareReturnUnlocked();
     const status = activeShareStatus();
-    shareCooldownUntil = status?.locked ? Math.min(Number(status.expiresAt || 0), Date.now() + 12000) : 0;
+    shareCooldownUntil = status?.locked ? Number(status.lockedUntil || 0) : 0;
     if(shouldUnlock) sessionStorage.setItem(SHARE_UNLOCK_KEY, String(Date.now() + 60000));
     closeShareConfirmModal(false);
     renderSummary();
     clearShareButtonDisabled();
     renderGuide();
+    if(status?.locked){
+      window.setTimeout(() => {
+        shareCooldownUntil = 0;
+        renderSummary();
+        clearShareButtonDisabled();
+        renderGuide();
+      }, Math.max(0, Number(status.lockedUntil || 0) - Date.now()) + 50);
+    }
     if(shouldUnlock){
       window.setTimeout(() => {
         sessionStorage.removeItem(SHARE_RETURN_KEY);
