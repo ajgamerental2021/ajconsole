@@ -6,6 +6,7 @@
 - Calendar hold rendering now takes priority over the generic unavailable state for the current browser's hold and for capacity-blocking holds from other customers. Cells show `กำลังจอง · เช็คใหม่ใน N นาที` / `In progress · retry in N min`, calculated from the real hold expiry.
 - Verified the production page at a 375×812 viewport in Thai and English with no browser console errors; inline JavaScript passes `node --check`.
 - Follow-up review fixed the return-from-chat lock lifecycle: `lockedUntil` is persisted separately from the 60-second visible status, so Safari bfcache cannot unlock immediately or accidentally keep buttons locked for the full status duration.
+- A production follow-up fixed two calendar regressions seen on iOS: failed first-load availability no longer remains labelled “checking” forever, concurrent callers now await the same in-flight refresh, and the customer's own 10-minute hold is persisted locally and merged back after Safari reload/bfcache or a backend instance change. The last successful availability payload is cached for display while the slow Apps Script refreshes; creating a new hold still requires a successful fresh refresh.
 
 Running handover log between sessions and between assistants. Read at the start
 of a session, update at the end. Newest entry first.

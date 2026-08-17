@@ -1458,9 +1458,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   let rentalCodePreviewBusy = false;
   let shareConfirmResolve = null;
   let shareCooldownUntil = 0;
+  let availabilityRequest = null;
   const SHARE_UNLOCK_KEY = "aj_booking_share_unlock_until";
   const SHARE_RETURN_KEY = "aj_booking_share_return_pending";
   const SHARE_STATUS_KEY = "aj_booking_share_status";
+  const OWN_BOOKING_HOLD_KEY = "aj_booking_own_hold";
+  const AVAILABILITY_CACHE_KEY = "aj_booking_availability_cache";
   const LINE_GAME_CARD_SENT_PREFIX = "aj_line_game_picker_card_sent_";
   const LINE_GAME_CARD_TTL_MS = 24 * 60 * 60 * 1000;
   const CONSOLE_SLUGS = {
@@ -2737,6 +2740,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const start = parseDate(state.calc.start), end = parseDate(state.calc.end);
     if(!c || !start || !end) throw new Error("booking_hold_invalid");
     await fetchAvailability();
+    if(state.availability.error || !state.availability.lastSync){
+      throw new Error("booking_availability_refresh_failed");
+    }
     const gate = evaluateAvailability();
     if(!gate.pass){
       const error = new Error(gate.message || "booking_hold_conflict");
@@ -2770,6 +2776,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ...(state.availability.holds || []).filter(hold => !hold.mine),
       {...result.hold, mine:true}
     ];
+    localStorage.setItem(OWN_BOOKING_HOLD_KEY, JSON.stringify({...result.hold, mine:true}));
     return result.hold;
   }
   async function ensureBeamPaymentLink(summary, rentalCode){
@@ -2984,6 +2991,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       return {index,deviceName,status,availableDate,bookingRanges};
     }).filter(x => x.deviceName);
   }
+  function restoreAvailabilityCache(){
+    try{
+      const cached = JSON.parse(localStorage.getItem(AVAILABILITY_CACHE_KEY) || "null");
+      if(!cached || !cached.payload || Date.now() - Number(cached.savedAt || 0) > 6 * 60 * 60 * 1000) return;
+      state.availability.rows = normalizeAvailabilityRows(cached.payload);
+      state.availability.lastSync = Number(cached.savedAt || 0);
+    }catch{
+      localStorage.removeItem(AVAILABILITY_CACHE_KEY);
+    }
+  }
   function pick(obj, keys){
     if(!obj || typeof obj !== "object") return "";
     const lookup = {};
@@ -3005,6 +3022,25 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       localStorage.setItem(key, value);
     }
     return value;
+  }
+  function savedOwnBookingHold(){
+    try{
+      const hold = JSON.parse(localStorage.getItem(OWN_BOOKING_HOLD_KEY) || "null");
+      if(!hold || Date.parse(hold.expiresAt || "") <= Date.now()){
+        localStorage.removeItem(OWN_BOOKING_HOLD_KEY);
+        return null;
+      }
+      return {...hold, mine:true};
+    }catch{
+      localStorage.removeItem(OWN_BOOKING_HOLD_KEY);
+      return null;
+    }
+  }
+  function mergeBookingHolds(apiHolds=[]){
+    const own = savedOwnBookingHold();
+    const holds = Array.isArray(apiHolds) ? apiHolds : [];
+    if(!own) return holds;
+    return [...holds.filter(hold => hold.id !== own.id && !hold.mine), own];
   }
   function matchingBookingHolds(c, start, end, includeMine=false){
     if(!c || !start || !end) return [];
@@ -3057,8 +3093,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(nextReturn) return {mode:"busy",pass:false,message:`${tr("busy")} (${tr("readyOn")} ${displayDate(nextReturn)})`};
     return {mode:"ok",pass:true,message:tr("available")};
   }
-  async function fetchAvailability(){
-    if(state.availability.loading) return;
+  function fetchAvailability(){
+    if(availabilityRequest) return availabilityRequest;
+    availabilityRequest = (async () => {
     state.availability.loading = true;
     renderAvailabilityHint();
     const ctl = new AbortController();
@@ -3075,26 +3112,37 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       }else{
         state.queueClosures.error = closuresResult.status === "fulfilled" ? `HTTP ${closuresResult.value.status}` : String(closuresResult.reason?.message || "");
       }
+      if(holdsResult.status === "fulfilled" && holdsResult.value.ok){
+        const holdPayload = await holdsResult.value.json();
+        state.availability.holds = mergeBookingHolds(holdPayload.holds);
+      }else{
+        state.availability.holds = mergeBookingHolds(state.availability.holds);
+      }
       if(availabilityResult.status !== "fulfilled" || !availabilityResult.value.ok){
         const detail = availabilityResult.status === "fulfilled" ? `HTTP ${availabilityResult.value.status}` : availabilityResult.reason?.message;
         throw new Error(detail || "Availability request failed");
       }
-      state.availability.rows = normalizeAvailabilityRows(await availabilityResult.value.json());
-      if(holdsResult.status === "fulfilled" && holdsResult.value.ok){
-        const holdPayload = await holdsResult.value.json();
-        state.availability.holds = Array.isArray(holdPayload.holds) ? holdPayload.holds : [];
-      }
+      const availabilityPayload = await availabilityResult.value.json();
+      state.availability.rows = normalizeAvailabilityRows(availabilityPayload);
       state.availability.error = "";
       state.availability.lastSync = Date.now();
+      try{
+        localStorage.setItem(AVAILABILITY_CACHE_KEY, JSON.stringify({savedAt:state.availability.lastSync,payload:availabilityPayload}));
+      }catch(error){
+        console.warn("Availability cache skipped", error);
+      }
     }catch(error){
       state.availability.error = error.name === "AbortError" ? "timeout" : String(error.message || error);
     }finally{
       clearTimeout(timer);
       state.availability.loading = false;
+      availabilityRequest = null;
       state.availability.gate = evaluateAvailability();
       render();
       if(state.calendar.open) renderCalendar();
     }
+    })();
+    return availabilityRequest;
   }
   function renderAvailabilityHint(){
     const host = byId("availabilityHint");
@@ -3187,17 +3235,17 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const start = isReturnCandidate ? selectedStart : date;
     const end = isReturnCandidate ? date : addDays(date, 3);
     if(isQueueClosed(c, start, end)) return {cls:"busy", note:calendarCellText("unavailable")};
+    const allHolds = matchingBookingHolds(c, start, end, true);
+    if(allHolds.some(hold => hold.mine)) return {cls:"busy", note:holdMessage("bookingHoldCell", allHolds.filter(hold => hold.mine))};
     if(!state.availability.rows.length){
-      if(state.availability.loading || !state.availability.lastSync) return {cls:"disabled", note:tr("checking")};
-      if(state.availability.error) return {cls:"disabled", note:tr("queueError")};
+      if(state.availability.loading) return {cls:"disabled", note:tr("checking")};
+      if(state.availability.error || !state.availability.lastSync) return {cls:"disabled", note:tr("queueError")};
       return {cls:"available", note:calendarCellText("available")};
     }
     const aliases = availabilityAliases(c);
     const matches = state.availability.rows.filter(row => aliases.has(norm(row.deviceName)));
     if(!matches.length) return {cls:"available", note:calendarCellText("available")};
     const holds = activeBookingHolds(c, start, end);
-    const allHolds = matchingBookingHolds(c, start, end, true);
-    if(allHolds.some(hold => hold.mine)) return {cls:"busy", note:holdMessage("bookingHoldCell", allHolds.filter(hold => hold.mine))};
     if(availableUnitsForRange(matches, start, end) > holds.length) return {cls:"available", note:calendarCellText("available")};
     if(holds.length) return {cls:"busy", note:holdMessage("bookingHoldCell", holds)};
     return {cls:"busy", note:calendarCellText("unavailable")};
@@ -6033,6 +6081,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
   async function boot(){
     loadState();
+    restoreAvailabilityCache();
+    state.availability.holds = mergeBookingHolds(state.availability.holds);
     state.beforeRentActive = !hasRentalContext();
     if(new URLSearchParams(location.search).get("admin") === "1") byId("adminBtn").hidden = false;
     const viewCode = new URLSearchParams(location.search).get("viewMsg");
