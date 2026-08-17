@@ -3314,7 +3314,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       else if(cutoffBlocked) note = calendarCellText("cutoff");
       else if(beforeStart && !queueUnavailable) note = calendarCellText("before");
       else if(minBlocked) note = calendarCellText("min");
-      else if(queueUnavailable) note = calendarCellText("unavailable");
       if(!disabled && start && iso === fmtIso(start)) cls.push("start");
       if(!disabled && end && iso === fmtIso(end)) cls.push("end");
       if(!disabled && start && end && date > start && date < end){ cls.push("range"); note = calendarCellText("range"); }
