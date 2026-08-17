@@ -172,6 +172,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .sum-row .payment-wallet-badges{justify-content:flex-end}
 .sum-empty{color:var(--text3);font-size:14px;padding:20px 0}
 .summary-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.share-send-status{width:100%;margin-top:10px;padding:12px 14px;border:1px solid #f2c96d;border-radius:12px;background:#fff8df;color:#754b00;font-size:13px;font-weight:900;line-height:1.45}
+.share-send-status.is-ready{border-color:#a9dfb9;background:#ecf9f0;color:#12612d}
+.share-send-status[hidden]{display:none}
 .summary-actions .brand-icon{display:inline-grid;place-items:center;width:20px;height:20px;margin-right:5px;border-radius:6px;background:rgba(255,255,255,.22);color:#fff;font-size:12px;font-weight:900;line-height:1;font-family:Arial,system-ui,sans-serif;flex:0 0 auto}
 .btn.line-share{background:#06c755;border-color:#06c755;color:#fff}
 .btn.line-share:hover{background:#05b84f;border-color:#05b84f;color:#fff}
@@ -1205,8 +1208,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       summaryTitle:"สรุปค่าเช่า", summaryEmpty:"เลือกเครื่องและวันที่เพื่อดูสรุป", rental:"ค่าเช่า", discount:"ส่วนลด", promo:"โปรโมชัน", total:"ยอดรวม", grandTotal:"ยอดรวมทั้งหมด", upfront:"โอนล่วงหน้า", upfrontConfirm:"โอนล่วงหน้า (ยืนยันการจอง)", fullPaymentConfirm:"ชำระยอดเต็ม (เพื่อยืนยันการจอง)", onDelivery:"จ่ายตอนของถึง", payOnDelivery:"จ่ายตอนของถึง", delivery:"ค่าส่งแจ้งทางแชท", finalActionHelp:"ตรวจสอบข้อมูลแล้ว กดจองผ่านช่องทางแชทที่คุยกับร้านเพื่อส่งรายละเอียด",
       returningDiscount:"ส่วนลดลูกค้าเก่า 10%", consoleDiscount:"ส่วนลดเครื่องเกม", boardGameDiscount:"ส่วนลดบอร์ดเกม", boardGameDeposit:"ค่าประกันบอร์ดเกม", rentalDays:"จำนวนวันเช่า", boardGameRental:"ค่าเช่าบอร์ดเกม", boardGameList:"รายการบอร์ดเกม",
       equipmentDetails:"รายละเอียดอุปกรณ์", players:"จำนวนผู้เล่น", playTime:"เวลาเล่น", age:"อายุแนะนำ", packageRental:"ค่าเช่าตามแพ็ก", oneDay:"1 วัน", threeDays:"3 วัน", sevenDays:"7 วัน", howToPlay:"วิธีเล่นคร่าว ๆ", noContractDepositNote:"ค่าประกัน (ไม่ทำสัญญา)", noContractLabel:"ไม่ทำสัญญา", standardTier:"เรทมาตรฐาน", planning:"วางแผน",
-      copy:"📋 Copy ข้อความจองเช่า", line:"จองผ่าน Line", whatsapp:"จองผ่าน WhatsApp", messenger:"จองผ่าน Messenger", copied:"คัดลอกแล้ว", minDays:"ขั้นต่ำ 3 วัน", busy:"เครื่องอาจไม่ว่างในช่วงนี้", available:"ช่วงนี้ผ่านการเช็คคิวแล้ว", checking:"กำลังเช็คคิว...", queueError:"ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่", queueClosed:"ปิดคิวในช่วงเวลานี้", bookingHold:"มี 1 คิวกำลังทำรายการ กรุณาเช็คคิวใหม่ใน {minutes} นาที", bookingHoldCell:"กำลังจอง", bookingHoldLost:"มีลูกค้ารายอื่นกำลังจองเครื่องนี้ กรุณาเช็คคิวใหม่ใน {minutes} นาที",
-      shareConfirmTitle:"ยืนยันส่งข้อความจอง", shareConfirmMessage:"คุณกำลังจะส่งข้อความจองเช่าผ่าน {channel}", shareConfirmNote:"เพื่อป้องกันการส่งซ้ำ ระบบจะกันการกดซ้ำชั่วคราวหลังยืนยันส่ง", shareConfirmContractNote:"ลูกค้าใหม่ควรทำสัญญาการเช่าก่อนส่งข้อความจอง เพื่อให้ข้อมูลไม่หลุดและลดการส่งซ้ำ", shareConfirmMessengerNote:"ระบบจะคัดลอกข้อความจองให้ก่อน แล้วเปิด Facebook Messenger ของ AJ ให้ กรุณากดวางข้อความในช่องแชทและกดส่ง", shareConfirmSend:"ยืนยันส่งข้อความจอง", shareContractFirst:"ทำสัญญาก่อน", shareCancel:"ยกเลิก", shareCooldown:"ส่งข้อความไปแล้ว กรุณารอสักครู่ก่อนกดซ้ำ",
+      copy:"📋 Copy ข้อความจองเช่า", line:"จองผ่าน Line", whatsapp:"จองผ่าน WhatsApp", messenger:"จองผ่าน Messenger", copied:"คัดลอกแล้ว", minDays:"ขั้นต่ำ 3 วัน", busy:"เครื่องอาจไม่ว่างในช่วงนี้", available:"ช่วงนี้ผ่านการเช็คคิวแล้ว", checking:"กำลังเช็คคิว...", queueError:"ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่", queueClosed:"ปิดคิวในช่วงเวลานี้", bookingHold:"มี 1 คิวกำลังทำรายการ กรุณาเช็คคิวใหม่ใน {minutes} นาที", bookingHoldCell:"กำลังจอง · เช็คใหม่ใน {minutes} นาที", bookingHoldLost:"มีลูกค้ารายอื่นกำลังจองเครื่องนี้ กรุณาเช็คคิวใหม่ใน {minutes} นาที",
+      shareConfirmTitle:"ยืนยันส่งข้อความจอง", shareConfirmMessage:"คุณกำลังจะส่งข้อความจองเช่าผ่าน {channel}", shareConfirmNote:"เพื่อป้องกันการส่งซ้ำ ระบบจะกันการกดซ้ำชั่วคราวหลังยืนยันส่ง", shareConfirmContractNote:"ลูกค้าใหม่ควรทำสัญญาการเช่าก่อนส่งข้อความจอง เพื่อให้ข้อมูลไม่หลุดและลดการส่งซ้ำ", shareConfirmMessengerNote:"ระบบจะคัดลอกข้อความจองให้ก่อน แล้วเปิด Facebook Messenger ของ AJ ให้ กรุณากดวางข้อความในช่องแชทและกดส่ง", shareConfirmSend:"ยืนยันส่งข้อความจอง", shareContractFirst:"ทำสัญญาก่อน", shareCancel:"ยกเลิก", shareCooldown:"กำลังเตรียมหรือเพิ่งเปิดข้อความจอง กรุณารอสักครู่ก่อนกดซ้ำ", sharePreparing:"กำลังเตรียมข้อความจองสำหรับ {channel} กรุณาอย่ากดซ้ำ", shareOpened:"เปิด {channel} แล้ว กรุณากดส่งข้อความในแชท และรอสักครู่ก่อนกดซ้ำ",
       faqTitle:"คำถามที่พบบ่อย", faqExpand:"ดูคำถามทั้งหมด", faqCollapse:"ย่อคำถาม", adminLogin:"เข้าสู่ระบบ Admin", adminUser:"ผู้ใช้", adminPassword:"รหัสผ่าน", adminSubmit:"เข้าสู่ระบบ", wrongPassword:"ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", rentalCode:"รหัสการเช่า", save:"บันทึก", add:"เพิ่ม", edit:"แก้ไข", delete:"ลบ", sync:"Sync", pull:"Pull", push:"Push"
     },
     en:{
@@ -1294,8 +1297,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Grand total", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", fullPaymentConfirm:"Full payment (to confirm booking)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat", paymentFee:"Payment fee", cardDeposit:"Card / E-Wallet / Thai QR reservation (no fee)", paymentLink:"Payment link", finalActionHelp:"Review the details, then book via the same chat channel to send them to AJ.",
       returningDiscount:"Returning customer 10% discount", consoleDiscount:"Console discount", boardGameDiscount:"Board game discount", boardGameDeposit:"Board game deposit", rentalDays:"Rental days", boardGameRental:"Board game rental", boardGameList:"Board game list",
       equipmentDetails:"Equipment details", players:"Players", playTime:"Play time", age:"Recommended age", packageRental:"Package rental", oneDay:"1 day", threeDays:"3 days", sevenDays:"7 days", howToPlay:"Quick how to play", noContractDepositNote:"Deposit (no contract)", noContractLabel:"No contract", standardTier:"Standard tier", planning:"Planning",
-      copy:"📋 Copy booking message", line:"Book via LINE", whatsapp:"Book via WhatsApp", messenger:"Book via Messenger", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", queueError:"Unable to check the queue. Please try again.", queueClosed:"Queue closed during this period", bookingHold:"1 customer is completing this booking. Check again in {minutes} minutes.", bookingHoldCell:"In progress", bookingHoldLost:"Another customer is booking this console. Check again in {minutes} minutes.",
-      shareConfirmTitle:"Confirm booking message", shareConfirmMessage:"You are about to send this booking message via {channel}.", shareConfirmNote:"To prevent duplicate messages, the buttons will be briefly locked after confirmation.", shareConfirmContractNote:"First-time customers should complete the rental contract before sending the booking message, so the details do not get missed or duplicated.", shareConfirmMessengerNote:"The booking message will be copied first, then AJ's Facebook Messenger chat will open. Please paste the message into the chat and send it.", shareConfirmSend:"Confirm and send", shareContractFirst:"Do contract first", shareCancel:"Cancel", shareCooldown:"Message already sent. Please wait a moment before trying again.",
+      copy:"📋 Copy booking message", line:"Book via LINE", whatsapp:"Book via WhatsApp", messenger:"Book via Messenger", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", queueError:"Unable to check the queue. Please try again.", queueClosed:"Queue closed during this period", bookingHold:"1 customer is completing this booking. Check again in {minutes} minutes.", bookingHoldCell:"In progress · retry in {minutes} min", bookingHoldLost:"Another customer is booking this console. Check again in {minutes} minutes.",
+      shareConfirmTitle:"Confirm booking message", shareConfirmMessage:"You are about to send this booking message via {channel}.", shareConfirmNote:"To prevent duplicate messages, the buttons will be briefly locked after confirmation.", shareConfirmContractNote:"First-time customers should complete the rental contract before sending the booking message, so the details do not get missed or duplicated.", shareConfirmMessengerNote:"The booking message will be copied first, then AJ's Facebook Messenger chat will open. Please paste the message into the chat and send it.", shareConfirmSend:"Confirm and send", shareContractFirst:"Do contract first", shareCancel:"Cancel", shareCooldown:"Your booking message is being prepared or was just opened. Please wait before trying again.", sharePreparing:"Preparing your booking message for {channel}. Please do not tap again.", shareOpened:"{channel} opened. Please send the message in the chat and wait before trying again.",
       faqTitle:"Frequently Asked Questions", faqExpand:"Show all questions", faqCollapse:"Collapse questions", adminLogin:"Admin Login", adminUser:"User", adminPassword:"Password", adminSubmit:"Login", wrongPassword:"Wrong username or password", rentalCode:"Rental code", save:"Save", add:"Add", edit:"Edit", delete:"Delete", sync:"Sync", pull:"Pull", push:"Push"
     }
   };
@@ -1457,6 +1460,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   let shareCooldownUntil = 0;
   const SHARE_UNLOCK_KEY = "aj_booking_share_unlock_until";
   const SHARE_RETURN_KEY = "aj_booking_share_return_pending";
+  const SHARE_STATUS_KEY = "aj_booking_share_status";
   const LINE_GAME_CARD_SENT_PREFIX = "aj_line_game_picker_card_sent_";
   const LINE_GAME_CARD_TTL_MS = 24 * 60 * 60 * 1000;
   const CONSOLE_SLUGS = {
@@ -2833,7 +2837,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }
     const summary = calcSummary();
     const hasGameCatalog = consoleHasGameCatalog(c);
-    const canSend = shareReturnUnlocked() || Boolean(state.calc.start && state.calc.end && summary.days >= 3 && evaluateAvailability().pass);
+    const shareLocked = activeShareStatus()?.locked === true;
+    const canSend = !shareLocked && (shareReturnUnlocked() || Boolean(state.calc.start && state.calc.end && summary.days >= 3 && evaluateAvailability().pass));
     const depositValue = amount => state.calc.noContract
       ? `${money(amount)} <span class="no-contract-note">(${esc(tr("noContractLabel"))})</span>`
       : money(amount);
@@ -2880,7 +2885,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         <button class="btn line-share" id="sendLine" type="button" ${canSend?"":"disabled"}>${brandButtonIcon("LINE")}${tr("line")}</button>
         ${state.lang === "en" ? `<button class="btn wa-share" id="sendWa" type="button" ${canSend?"":"disabled"}>${brandButtonIcon("WA")}${tr("whatsapp")}</button>` : ""}
         <button class="btn fb-share" id="sendMessenger" type="button" ${canSend?"":"disabled"}>${brandButtonIcon("f")}${tr("messenger")}</button>
-      </div>`;
+      </div>
+      ${shareStatusHtml()}`;
   }
   function renderLineCardHost(){
     const host = byId("calcLineCardHost");
@@ -3000,21 +3006,27 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }
     return value;
   }
-  function activeBookingHolds(c, start, end){
+  function matchingBookingHolds(c, start, end, includeMine=false){
     if(!c || !start || !end) return [];
     const aliases = availabilityAliases(c);
     const now = Date.now();
     return (state.availability.holds || []).filter(hold => {
       const holdStart = parseDate(hold.startDate), holdEnd = parseDate(hold.endDate);
       const expiresAt = Date.parse(hold.expiresAt || "");
-      return !hold.mine && aliases.has(norm(hold.deviceName)) && holdStart && holdEnd && expiresAt > now && start <= holdEnd && end >= holdStart;
+      return (includeMine || !hold.mine) && aliases.has(norm(hold.deviceName)) && holdStart && holdEnd && expiresAt > now && start <= holdEnd && end >= holdStart;
     });
   }
+  function activeBookingHolds(c, start, end){ return matchingBookingHolds(c, start, end, false); }
   function availableUnitsForRange(matches, start, end){
     return matches.filter(row => rowAvailableForRange(row, start, end)).length;
   }
   function holdMinutes(holds){
-    const seconds = Math.max(1, Math.min(...holds.map(hold => Number(hold.remainingSeconds) || 600)));
+    const seconds = Math.max(1, Math.min(...holds.map(hold => {
+      const fromApi = Number(hold.remainingSeconds);
+      if(Number.isFinite(fromApi) && fromApi > 0) return fromApi;
+      const expiresAt = Date.parse(hold.expiresAt || "");
+      return Number.isFinite(expiresAt) ? Math.max(1, Math.ceil((expiresAt - Date.now()) / 1000)) : 600;
+    })));
     return Math.max(1, Math.ceil(seconds / 60));
   }
   function holdMessage(key, holds){
@@ -3184,8 +3196,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const matches = state.availability.rows.filter(row => aliases.has(norm(row.deviceName)));
     if(!matches.length) return {cls:"available", note:calendarCellText("available")};
     const holds = activeBookingHolds(c, start, end);
+    const allHolds = matchingBookingHolds(c, start, end, true);
+    if(allHolds.some(hold => hold.mine)) return {cls:"busy", note:holdMessage("bookingHoldCell", allHolds.filter(hold => hold.mine))};
     if(availableUnitsForRange(matches, start, end) > holds.length) return {cls:"available", note:calendarCellText("available")};
-    if(holds.length) return {cls:"busy", note:tr("bookingHoldCell")};
+    if(holds.length) return {cls:"busy", note:holdMessage("bookingHoldCell", holds)};
     return {cls:"busy", note:calendarCellText("unavailable")};
   }
   function calendarCellText(kind){
@@ -3878,6 +3892,45 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(channel === "messenger") return "Messenger";
     return state.lang === "en" ? "Copy" : "Copy";
   }
+  function activeShareStatus(){
+    try{
+      const value = JSON.parse(sessionStorage.getItem(SHARE_STATUS_KEY) || "null");
+      if(!value || Number(value.expiresAt || 0) <= Date.now()){
+        sessionStorage.removeItem(SHARE_STATUS_KEY);
+        return null;
+      }
+      return value;
+    }catch{
+      sessionStorage.removeItem(SHARE_STATUS_KEY);
+      return null;
+    }
+  }
+  function shareStatusHtml(){
+    const status = activeShareStatus();
+    if(!status) return `<div id="shareSendStatus" class="share-send-status" role="status" aria-live="assertive" hidden></div>`;
+    const key = status.phase === "opened" ? "shareOpened" : "sharePreparing";
+    const message = tr(key).replace("{channel}", shareChannelLabel(status.channel));
+    return `<div id="shareSendStatus" class="share-send-status ${status.phase === "opened" ? "is-ready" : ""}" role="status" aria-live="assertive">${esc(message)}</div>`;
+  }
+  function setShareStatus(channel, phase){
+    const opened = phase === "opened";
+    const expiresAt = Date.now() + (opened ? 60000 : 30000);
+    sessionStorage.setItem(SHARE_STATUS_KEY, JSON.stringify({channel, phase, expiresAt, locked:true}));
+    shareCooldownUntil = opened ? Date.now() + 12000 : expiresAt;
+    renderSummary();
+    renderGuide();
+    if(opened){
+      window.setTimeout(() => {
+        const current = activeShareStatus();
+        if(current?.channel !== channel || current?.phase !== "opened") return;
+        current.locked = false;
+        sessionStorage.setItem(SHARE_STATUS_KEY, JSON.stringify(current));
+        shareCooldownUntil = 0;
+        renderSummary();
+        renderGuide();
+      }, 12000);
+    }
+  }
   function closeShareConfirmModal(result=false){
     byId("shareConfirmModal")?.classList.remove("open");
     const resolve = shareConfirmResolve;
@@ -3920,17 +3973,24 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   async function guardedBookingShare(channel, action){
     if(!(await confirmBookingShare(channel))) return false;
-    shareCooldownUntil = Date.now() + 12000;
+    setShareStatus(channel, "preparing");
     unlockShareButtons();
     try{
-      await action();
-      return true;
-    }finally{
-      window.setTimeout(() => {
+      const result = await action();
+      if(result === false){
+        sessionStorage.removeItem(SHARE_STATUS_KEY);
         shareCooldownUntil = 0;
         renderSummary();
         renderGuide();
-      }, 1200);
+        return false;
+      }
+      return true;
+    }catch(error){
+      sessionStorage.removeItem(SHARE_STATUS_KEY);
+      shareCooldownUntil = 0;
+      renderSummary();
+      renderGuide();
+      throw error;
     }
   }
   async function copyBooking(skipGuard=false){
@@ -3960,6 +4020,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "line", msg, handoff.data);
       pushLineGamePickerCard(code);
+      setShareStatus("line", "opened");
+      await new Promise(resolve => window.setTimeout(resolve, 450));
       location.href = `${CONFIG.lineOaMessageUrl}?${encodeURIComponent(msg)}`;
       return true;
     }catch(error){
@@ -4013,6 +4075,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const msg = unicodeSafeText(handoff.message);
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "whatsapp", msg, handoff.data);
+      setShareStatus("whatsapp", "opened");
       window.open(whatsappShareUrl(msg), "_blank", "noopener,noreferrer");
       return true;
     }catch(error){
@@ -4030,6 +4093,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const msg = unicodeSafeText(handoff.message);
       await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "messenger", msg, handoff.data);
+      setShareStatus("messenger", "opened");
       openMessengerChat();
       return true;
     }catch(error){
@@ -5859,7 +5923,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
   function resetShareUi(){
     const shouldUnlock = shareReturnUnlocked();
-    shareCooldownUntil = 0;
+    const status = activeShareStatus();
+    shareCooldownUntil = status?.locked ? Math.min(Number(status.expiresAt || 0), Date.now() + 12000) : 0;
     if(shouldUnlock) sessionStorage.setItem(SHARE_UNLOCK_KEY, String(Date.now() + 60000));
     closeShareConfirmModal(false);
     renderSummary();
