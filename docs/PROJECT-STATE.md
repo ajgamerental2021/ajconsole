@@ -9,6 +9,14 @@ of a session, update at the end. Newest entry first.
 
 ### Fixed
 
+- Restored the production Admin “Close queue” tab and the public queue-closure
+  checks that were lost during the Before Rent merge. Admin authentication now
+  uses the bot API again instead of credentials embedded in the static page.
+- Queue closures can be permanent or scheduled with Bangkok start/end times at
+  three scopes: all devices, one device type, or one device. The booking gate
+  and calendar reject any rental range that overlaps an applicable closure.
+  Existing boolean closures remain readable. The `Queue Closures` sheet now
+  adds `Start At` and `End At` columns while preserving old rows.
 - Thai reservation and full-payment bank-transfer options have temporarily
   reverted from Beam QR PromptPay to the AJ Krungthai account because SlipOK
   rejects Beam's settlement account as a different receiver. Cash/reservation
