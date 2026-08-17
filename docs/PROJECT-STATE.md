@@ -9,6 +9,14 @@ of a session, update at the end. Newest entry first.
 
 ### Fixed
 
+- Restored Beam only for the English “Balance on delivery” reservation option.
+  It creates an exact ฿1,000 link with Card, E-Wallet, and Thai QR scan enabled;
+  the English booking message, contract-completion Flex card, and shop
+  notification include that link and its 12-hour expiry. Thai reservation and
+  both Thai/English full bank-transfer options remain on the AJ Krungthai
+  account and do not receive Beam links.
+- The booking calendar now blocks the current Bangkok date from exactly 20:00
+  onward (previously it remained selectable during the 20:00 minute).
 - Restored the production Admin “Close queue” tab and the public queue-closure
   checks that were lost during the Before Rent merge. Admin authentication now
   uses the bot API again instead of credentials embedded in the static page.
@@ -21,10 +29,10 @@ of a session, update at the end. Newest entry first.
   reverted from Beam QR PromptPay to the AJ Krungthai account because SlipOK
   rejects Beam's settlement account as a different receiver. Cash/reservation
   and `bank` bookings no longer create, store, display, or forward Beam links;
-  their Thai and English booking text, contract completion text, Flex cards,
-  and shop notifications show account `8690576029` instead. Credit Card and
-  E-Wallet continue to use Beam normally. Restore Beam for these two options
-  only after the receiver-account verification path is solved.
+  Thai booking text, contract completion text, Flex cards, and shop
+  notifications show account `8690576029` instead. English ฿1,000 reservations,
+  Credit Card, and E-Wallet use Beam. Restore Beam for Thai reservation and full
+  bank-transfer options only after the receiver-account verification path is solved.
 - The production `index.html?viewMsg=<Rental ID>` viewer now reads the bot's
   `/api/bookings/:code` endpoint first. This lets a just-created booking use the
   server-side handoff cache instead of waiting for Google Sheets propagation.
