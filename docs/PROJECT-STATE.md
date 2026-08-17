@@ -5,6 +5,48 @@ of a session, update at the end. Newest entry first.
 
 ---
 
+## 2026-08-17b — booking/steps/terms wording (both repos)
+
+### Fixed
+
+- Booking message (web `index.html` + bot `line.js`): added a "deposit
+  refunded 100% when returned complete" line under the early-return line;
+  reworded the reservation warning to point at the details above and end with
+  a pointing hand (reservation variant only, both languages); Thai reservation
+  footnote now says bank transfer; removed a doubled blank line before the
+  amount due on delivery in the web Thai cash message (bot already collapses
+  blank runs).
+- Rental steps (web): transport both ways only, online service only with no
+  shop pickup/return, dropped "if convenient" on the return confirmation, added
+  a one-year-contract note. Removed "full deposit refund on return" from the
+  Before rent terms line. Returning-customer hint notes a contract over a year
+  old must be redone.
+- Contract terms (bot LIFF `app.js`): cancellation clause now withholds the
+  reservation fee too; new clause: contract valid one year, redo after.
+- Contract PDF (`pdf.js`): 100% refund note under the refund account and the
+  one-year term. Added a page-break guard — flowing content that reaches the
+  signature zone starts a new page; normal contracts stay one page, a
+  worst-case foreigner contract now flows to two instead of overlapping the
+  signatures.
+
+### Watch out for
+
+- The rental clauses now live in two places: bot LIFF `termsCopy` (numbered
+  list) and, for the one-year clause only, `pdf.js`. Update both if the terms
+  change again.
+- The full-payment warning ("before making payment") was left in the old
+  `⚠️…⚠️` form; only the reservation warning was restyled, per the request.
+- The Thai reservation warning reads "อ่าน…อย่างด้านบนละเอียด" verbatim as
+  requested; the phrasing is slightly awkward if a future edit wants to smooth it.
+
+### Verification
+
+- Bot suite 97/97. Web: TH/EN booking footer, single-blank spacing, steps
+  footnotes, terms line, returning hint all confirmed in-browser. PDF: normal
+  1 page, worst-case foreigner 2 pages, Thai strings render.
+
+---
+
 ## 2026-08-17
 
 ### Fixed
