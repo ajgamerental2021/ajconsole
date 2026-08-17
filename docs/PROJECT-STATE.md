@@ -5,6 +5,39 @@ of a session, update at the end. Newest entry first.
 
 ---
 
+## 2026-08-18 — discounted contract totals and booking holds
+
+### Fixed
+
+- Contract pricing from the booking context is no longer overwritten by the
+  catalog's undiscounted total in the bot backend. The LIFF form and local PDF
+  independently sum the signed booking-cost rows, so PS5 ฿1,200 − After Work
+  ฿201 + deposit ฿2,000 is stored and printed as ฿2,999 rather than ฿3,200.
+- Added a server-side booking hold API and integrated it into every production
+  booking action. Holds are atomic within the running bot service, scoped by
+  physical model and overlapping dates, capacity-aware, and expire
+  automatically after 10 minutes. `BOOKING_HOLD_MINUTES` can change the TTL.
+- The booking page reads active holds with availability. A held last unit is
+  unavailable in the calendar and the selected range explains that one booking
+  is in progress with the remaining wait in minutes. The same browser can
+  refresh its own hold without blocking itself.
+
+### Verification
+
+- Bot test suite: 102/102, including overlapping, refresh and expiry hold cases
+  plus signed PDF booking-total calculation.
+- Local API returned 201 for the first PS5 hold and 409 for a second overlapping
+  hold; hold listing returned a 600-second TTL.
+- Production booking page loaded in-browser, calculator rendered, and browser
+  console had no errors. Inline JavaScript syntax and both repos' diff checks
+  pass.
+
+### Operational note
+
+- Holds live in the bot process, which is sufficient for the current single
+  Render instance. If the service is scaled to multiple instances, move the
+  hold store to Redis/Postgres so all instances share the same atomic lock.
+
 ## 2026-08-17b — booking/steps/terms wording (both repos)
 
 ### Fixed
