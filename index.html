@@ -981,6 +981,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     rentalSheetId: "13QZWpd_E-L_0G_Xd0zSL5_OcgV4sdwk9febXZSkZepc",
     rentalSheetGid: "1105203002",
     rentalSheetWebApp: "https://script.google.com/macros/s/AKfycbyDvxt10gsT-GN24xmmGpa1y0cUbfDiWSc4yxfqv-AFoK32sjmpiRJPdQmo6PnU3uZh/exec",
+    // Allocates rental codes under a lock (google-apps-script/rental-code-allocator.gs).
+    // Paste the deployed /exec URL here; empty falls back to allocating in the browser.
+    rentalCodeWebApp: "",
     lineUrl: "https://line.me/R/ti/p/@ajgame",
     lineOaMessageUrl: "https://line.me/R/oaMessage/@ajgame/",
     whatsappPhone: "66816244715",
@@ -3219,7 +3222,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function formatRentalCode(ymd, n){ return `AJ-${ymd}-R${String(n).padStart(4,"0")}`; }
   function rentalCodeNumber(code, ymd){
-    const m = String(code || "").match(new RegExp(`^AJ-${ymd}-R(\\d+)$`, "i"));
+    // Offline-allocated codes carry a "-XYZ" suffix; they still count towards the
+    // day's highest number so a later allocation cannot land on the same one.
+    const m = String(code || "").match(new RegExp(`^AJ-${ymd}-R(\\d+)(?:-[A-Z0-9]+)?$`, "i"));
     return m ? Number(m[1]) || 0 : 0;
   }
   function rentalSignature(summary=calcSummary()){
@@ -3261,10 +3266,50 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       return null;
     }
   }
+  function offlineCodeSuffix(){
+    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let out = "";
+    const bytes = new Uint8Array(4);
+    (window.crypto || window.msCrypto).getRandomValues(bytes);
+    bytes.forEach(b => { out += alphabet[b % alphabet.length]; });
+    return out;
+  }
+  /**
+   * Ask the allocator web app for the next code. It reserves the number under a
+   * lock before answering, so two customers checking out at the same moment can
+   * never be handed the same code.
+   */
+  async function reserveRentalCode(ymd){
+    const endpoint = String(localStorage.getItem("aj_rental_code_webapp_url") || CONFIG.rentalCodeWebApp || "").trim();
+    if(!endpoint) return "";
+    const url = new URL(endpoint);
+    url.searchParams.set("action", "allocateRentalCode");
+    url.searchParams.set("ymd", ymd);
+    const res = await fetch(url.toString(), {cache:"no-store"});
+    if(!res.ok) throw new Error(`Rental code allocator ${res.status}`);
+    const data = await res.json();
+    if(!data || data.ok !== true || !data.code) throw new Error(String((data && data.error) || "allocator refused"));
+    const code = String(data.code).trim();
+    if(!/^AJ-\d{8}-R\d{4,}$/.test(code)) throw new Error("allocator returned a malformed code");
+    return code;
+  }
   async function nextRentalCode(used){
-    if(!used) throw new Error("Cannot read rental code sheet");
     const ymd = rentalCodeDate();
     const key = `aj_rental_code_counter_${ymd}`;
+    try{
+      const reserved = await reserveRentalCode(ymd);
+      if(reserved){
+        localStorage.setItem(key, String(rentalCodeNumber(reserved, ymd) || 1));
+        return reserved;
+      }
+    }catch(error){
+      console.warn("Rental code allocator unavailable, allocating offline", error);
+    }
+
+    // Offline path: the sheet read is cached and other browsers are invisible to
+    // us, so the sequential number alone is not safe. A random suffix keeps the
+    // code readable and still unique.
+    if(!used) throw new Error("Cannot read rental code sheet");
     let next = 1;
     used.forEach(code => {
       const n = rentalCodeNumber(code, ymd);
@@ -3272,7 +3317,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     });
     while(used.has(formatRentalCode(ymd, next))) next++;
     localStorage.setItem(key, String(next));
-    return formatRentalCode(ymd, next);
+    return `${formatRentalCode(ymd, next)}-${offlineCodeSuffix()}`;
   }
   async function ensureRentalCode(summary=calcSummary()){
     const sig = rentalSignature(summary);
