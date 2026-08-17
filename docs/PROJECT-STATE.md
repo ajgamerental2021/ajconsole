@@ -9,6 +9,12 @@ of a session, update at the end. Newest entry first.
 
 ### Fixed
 
+- Payment-option cards now match the supplied Thai and English reference layout:
+  grouped headers, Recommended badge, stronger selected state, payment logos,
+  separate fee lines, and card/E-Wallet deposit-refund notices. English Wise
+  now warns that weekend and Thai-holiday payments arrive on the next business
+  day. Labels use “Thai QR PromptPay” / “QR PromptPay” as requested; Beam link
+  amounts and creation logic were not changed.
 - Production checkout now creates real Beam links instead of the ฿1 demo
   endpoint. Thai ฿200 reservations use Beam QR PromptPay only; full Thai bank
   payments use Beam QR PromptPay in Thai and English. Card and E-Wallet links

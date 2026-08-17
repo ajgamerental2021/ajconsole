@@ -154,13 +154,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-unavailable{color:#666;text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:#111;text-decoration-skip-ink:auto;white-space:nowrap}
 .payment-picker{display:flex;flex-direction:column;gap:10px;border:1px solid var(--border2);border-radius:12px;background:#fff;padding:10px}
 .payment-group{border:1px solid var(--border);border-radius:10px;background:#fafbfc;overflow:hidden}
-.payment-group-title{padding:9px 11px;background:#eef2f7;border-bottom:1px solid var(--border);font-size:12px;font-weight:900;color:var(--text2);line-height:1.35}
+.payment-group-title{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;background:#eef2f7;border-bottom:1px solid var(--border);font-size:12px;font-weight:900;color:var(--text2);line-height:1.35}
+.payment-recommended{flex:0 0 auto;padding:4px 9px;border-radius:999px;background:#ffedb3;color:#8a5a00;font-size:11px;font-weight:900}
 .payment-option{display:flex;align-items:center;gap:10px;min-height:46px;padding:10px 11px;cursor:pointer;font-weight:800;line-height:1.35}
 .payment-option + .payment-option{border-top:1px solid var(--border)}
 .payment-option input{width:19px;height:19px;margin:0;accent-color:#d71920;flex:0 0 auto}
 .payment-option:has(input:checked){background:#fff4f4;box-shadow:inset 4px 0 #d71920}
 .payment-option-copy{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
 .payment-option-copy small{font-size:12px;font-weight:800;color:var(--text2)}
+.payment-option-note{display:block;margin-top:7px;color:#8a4b00!important;font-size:11px!important;font-weight:900!important;line-height:1.4}
+.payment-wise-note{max-width:560px;line-height:1.4}
 .payment-brand-badges{display:inline-flex;align-items:center;gap:6px;margin-left:5px;vertical-align:middle}
 .payment-card-logo{display:block;width:auto;height:20px;max-width:42px;object-fit:contain}
 .payment-wallet-badges{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:6px}
@@ -2503,13 +2506,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       : "";
     const paymentDisabled = paymentLocked ? "disabled" : "";
     const fullPaymentOptions = state.lang === "en"
-      ? `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span>🏦 Thai QR PromptPay: pay full amount</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""} ${paymentDisabled}><span>🌍 Wise: pay full amount</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}><span>${tr("credit")} ${paymentCardBadgesHtml()}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`
-      : `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span>${tr("bank")}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}><span>${tr("credit")} ${paymentCardBadgesHtml()}</span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`;
+      ? `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span class="payment-option-copy"><span>🏦 Thai QR PromptPay: pay full amount</span></span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""} ${paymentDisabled}>${wiseOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}>${creditOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`
+      : `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span class="payment-option-copy"><span>🏦 QR PromptPay : ชำระเต็มจำนวน</span></span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}>${creditOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`;
     const reservationTitle = state.lang === "en"
-      ? "Pay ฿1,000 by card, E-Wallet or Thai QR to reserve (no fee)"
-      : "จองคิว ฿200 ผ่าน Beam QR PromptPay (ไม่มีค่าธรรมเนียม)";
+      ? "Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee)"
+      : "จองคิว ฿200 ผ่าน QR PromptPay";
     const fullPaymentTitle = state.lang === "en" ? "Pay the full amount before delivery" : "ชำระเต็มจำนวนก่อนจัดส่ง";
-    const paymentHtml = `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title">${reservationTitle}</div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""} ${paymentDisabled}>${cashDeliveryOptionHtml()}</label></div><div class="payment-group"><div class="payment-group-title">${fullPaymentTitle}</div>${fullPaymentOptions}</div></div>${paymentLockHint}</div>`;
+    const recommended = state.lang === "en" ? "Recommended" : "แนะนำ";
+    const paymentHtml = `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title"><span>${reservationTitle}</span><span class="payment-recommended">${recommended}</span></div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""} ${paymentDisabled}>${cashDeliveryOptionHtml()}</label></div><div class="payment-group"><div class="payment-group-title"><span>${fullPaymentTitle}</span></div>${fullPaymentOptions}</div></div>${paymentLockHint}</div>`;
     byId("optionRows").innerHTML = `
       ${renderBoardGameBundle()}
       <label class="option-row"><input type="checkbox" id="retOpt" ${state.calc.ret?"checked":""} ${state.retEnabled?"":"disabled"}><div><b>${tr("returning")}</b><div class="hint">${returningHelp}</div></div></label>
@@ -2624,15 +2628,31 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return `${paymentCardBadgesHtml()}${paymentEwalletBadgesHtml()}`;
   }
   function cashDeliveryOptionHtml(){
-    const balanceMethods = state.lang === "en"
-      ? "Cash or Thai QR (no fee), Card (+3.50%) or E-Wallet (+2.95%)"
-      : "เงินสดหรือ QR พร้อมเพย์ (ไม่มีค่าธรรมเนียม), บัตร (+3.50%) หรือ E-Wallet (+2.95%)";
-    const title = state.lang === "en" ? paymentOptionLabelEn() : tr("cash");
-    const badges = state.lang === "en" ? paymentReservationBadgesHtml() : "";
-    return `<span class="payment-option-copy"><span>${title}</span><small>${balanceMethods}</small>${badges}</span>`;
+    const title = state.lang === "en"
+      ? "💵 Balance on delivery"
+      : "💸 จองคิว ฿200 ผ่าน QR PromptPay และชำระยอดที่เหลือปลายทาง";
+    const firstLine = state.lang === "en" ? "Cash or Thai QR scan (no fee)" : "เงินโอน (ไม่มีค่าธรรมเนียม)";
+    const secondLine = state.lang === "en" ? "Card (+3.50%) or E-Wallet (+2.95%)" : "บัตร (+3.50%) หรือ E-Wallet (+2.95%)";
+    return `<span class="payment-option-copy"><span>${title}</span><small>${firstLine}</small><small>${secondLine}</small>${paymentReservationBadgesHtml()}${paymentRefundNoteHtml()}</span>`;
+  }
+  function paymentRefundNoteHtml(){
+    const text = state.lang === "en"
+      ? "Card/E-Wallet deposit refunds: cash or Thai bank transfer only."
+      : "หากชำระด้วยบัตร/E-Wallet คืนค่าประกันเป็นเงินโอนเท่านั้น";
+    return `<small class="payment-option-note">${text}</small>`;
+  }
+  function wiseOptionHtml(){
+    return `<span class="payment-option-copy"><span>🌍 Wise: pay full amount</span><small class="payment-wise-note">Wise payments are unavailable on weekends and Thai bank holidays because funds arrive on the next business day.</small><small class="payment-option-note">Wise deposit refunds: cash or Thai bank transfer only.</small></span>`;
+  }
+  function creditOptionHtml(){
+    const title = state.lang === "en" ? "💳 Credit Card: pay full amount" : "💳 บัตรเครดิต: ชำระเต็มจำนวน";
+    const fee = state.lang === "en" ? "+ 3.50% fee" : "+ ค่าธรรมเนียม 3.50%";
+    return `<span class="payment-option-copy"><span>${title}</span><small>${fee}</small>${paymentCardBadgesHtml()}${paymentRefundNoteHtml()}</span>`;
   }
   function ewalletOptionHtml(){
-    return `<span class="payment-option-copy"><span>${tr("ewallet")}</span>${paymentEwalletBadgesHtml()}</span>`;
+    const title = state.lang === "en" ? "👛 E-Wallet: pay full amount" : "👛 E-Wallet: ชำระเต็มจำนวน";
+    const fee = state.lang === "en" ? "+ 2.95% fee" : "+ ค่าธรรมเนียม 2.95%";
+    return `<span class="payment-option-copy"><span>${title}</span><small>${fee}</small>${paymentEwalletBadgesHtml()}${paymentRefundNoteHtml()}</span>`;
   }
   function paymentOptionSummaryHtml(){
     if(state.calc.payment === "cash") return cashDeliveryOptionHtml();
