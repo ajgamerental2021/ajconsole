@@ -9,6 +9,13 @@ of a session, update at the end. Newest entry first.
 
 ### Fixed
 
+- Contract-admin device creation now locks the Save button and changes its text
+  to “กำลังทำรายการ...” / “Processing...” while the API request is pending. A
+  submit guard prevents fast repeated clicks from creating duplicate rows.
+- Successful device creation restores the Save button, clears the add-device
+  form, keeps it open for another entry, and shows a Thai/English success popup.
+  Failed requests restore the button without clearing the entered data. The LIFF
+  `app.js` cache-buster was updated so admins receive the fix immediately.
 - Full-payment bookings no longer show reservation-deposit cancellation text.
   The booking page, post-contract LINE text, and automatic Flex summary now all
   derive this from `paymentOption` instead of hard-coded Thai copy.
@@ -22,7 +29,8 @@ of a session, update at the end. Newest entry first.
 - Browser-tested the production page locally through the full booking flow:
   selecting Thai bank transfer shows the full amount due and no amount due on
   delivery.
-- Bot regression suite passes all 85 tests, including Thai/English post-contract
+- Bot regression suite passes all 88 tests, including the admin-device submit
+  lock/reset behavior, Thai/English post-contract
   text and Thai/English full-payment Flex cards.
 - Inline production JavaScript syntax and `git diff --check` pass.
 
