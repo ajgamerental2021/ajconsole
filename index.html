@@ -3424,7 +3424,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const isReturning = state.calc.ret && state.retEnabled;
     const paymentOptionEn = paymentOptionMessageLabelEn();
     const paymentOptionTh = paymentOptionMessageLabelTh();
-    const isThaiBankTransfer = state.calc.payment === "bank";
     const isCashPayment = state.calc.payment === "cash";
     const paymentLink = generatedPaymentLink(s, rentalCode);
     const paymentLinkLinesEn = paymentLink ? [`🔗 Payment link: ${paymentLink}`] : [];
@@ -3538,10 +3537,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ...paymentSummaryLinesTh,
       ...contractLinesTh,
       "",
-      "🚫 ยกเลิกโดยลูกค้า → ไม่คืนเงินจอง 200 บาท",
+      ...(isCashPayment ? ["🚫 ยกเลิกโดยลูกค้า → ไม่คืนเงินจอง 200 บาท"] : []),
       "🚫 คืนก่อนกำหนด → ไม่คืนเงินส่วนต่าง",
       "",
-      "⚠️รบกวนอ่านรายละเอียดการเช่าอย่างละเอียดก่อนโอนจอง⚠️",
+      isCashPayment
+        ? "⚠️รบกวนอ่านรายละเอียดการเช่าอย่างละเอียดก่อนโอนจอง⚠️"
+        : "⚠️รบกวนอ่านรายละเอียดการเช่าอย่างละเอียดก่อนชำระเงิน⚠️",
       "",
       "ขอบคุณครับ 🙏"
     ];
@@ -3565,11 +3566,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ...paymentSummaryLinesEn,
       ...contractLinesEn,
       "",
-      ...(isThaiBankTransfer ? ["🚫 Customer cancellation → Reservation deposit of ฿200 is non-refundable"] : []),
       ...(isCashPayment ? ["🚫 Customer cancellation → Reservation deposit of ฿1,000 is non-refundable"] : []),
       "🚫 Early return → No refund for the unused rental period",
       "",
-      "⚠️Please read the rental details carefully before transferring the reservation deposit⚠️",
+      isCashPayment
+        ? "⚠️Please read the rental details carefully before transferring the reservation deposit⚠️"
+        : "⚠️Please read the rental details carefully before making payment⚠️",
       "",
       "Thank you 🙏"
     ];

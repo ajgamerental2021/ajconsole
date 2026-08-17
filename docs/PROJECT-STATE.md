@@ -5,6 +5,29 @@ of a session, update at the end. Newest entry first.
 
 ---
 
+## 2026-08-17
+
+### Fixed
+
+- Full-payment bookings no longer show reservation-deposit cancellation text.
+  The booking page, post-contract LINE text, and automatic Flex summary now all
+  derive this from `paymentOption` instead of hard-coded Thai copy.
+- Thai and English full Thai-bank-transfer messages keep the full-payment amount
+  and bank account instructions, but omit every reference to a ฿200 reservation
+  deposit. Reservation-only wording remains for payment choices that actually
+  collect a reservation amount.
+
+### Verification
+
+- Browser-tested the production page locally through the full booking flow:
+  selecting Thai bank transfer shows the full amount due and no amount due on
+  delivery.
+- Bot regression suite passes all 85 tests, including Thai/English post-contract
+  text and Thai/English full-payment Flex cards.
+- Inline production JavaScript syntax and `git diff --check` pass.
+
+---
+
 ## 2026-08-16
 
 ### Fixed
