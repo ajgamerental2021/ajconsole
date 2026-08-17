@@ -3318,6 +3318,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(s.reviewFacebookDisc) costs.push({label: en ? "Facebook review discount" : "ส่วนลดรีวิว Facebook", value:`-${money(s.reviewFacebookDisc)}`, discount:true});
     if(s.promoDisc) costs.push({label: en ? "Console discount" : "ส่วนลดเครื่องเกม", value:`-${money(s.promoDisc)}`, discount:true});
     if(s.bgDisc) costs.push({label: en ? "Board game discount" : "ส่วนลดบอร์ดเกม", value:`-${money(s.bgDisc)}`, discount:true});
+    if(s.paymentFee) costs.push({label: en ? "Payment fee" : "ค่าธรรมเนียมการชำระเงิน", value:money(s.paymentFee)});
     costs.push({label: en ? `${cName(c)} deposit` : `ค่าประกัน ${cName(c)}`, value: money(s.deposit)});
     return {
       rentalCode: code,
@@ -3347,7 +3348,38 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       paymentSwiftRequired: state.calc.payment === "wise" ? false : undefined
     };
   }
-  function rentalSheetPayload(summary, code, channel){
+  async function prepareContractHandoff(code){
+    const data = bookingStructured(code);
+    const fallbackUrl = rentalContractLink(code);
+    const fallbackMessage = bookingMessage(code, fallbackUrl);
+    if(!code || !data) return {url:fallbackUrl, message:fallbackMessage, data};
+    try{
+      const endpoint = new URL(`/api/booking-context/${encodeURIComponent(code)}`, CONFIG.contractWebUrl);
+      const response = await fetch(endpoint, {
+        method:"POST",
+        cache:"no-store",
+        headers:{"Content-Type":"text/plain;charset=utf-8"},
+        body:JSON.stringify({lang:data.lang, data, message:fallbackMessage})
+      });
+      if(!response.ok) throw new Error(`Contract context ${response.status}`);
+      const result = await response.json();
+      if(!result?.contextToken || !result?.shortPath) throw new Error("Contract context response invalid");
+      const url = new URL(result.shortPath, CONFIG.contractWebUrl).toString();
+      const message = bookingMessage(code, url);
+      const updateEndpoint = new URL(`/api/booking-context/${encodeURIComponent(result.contextToken)}/message`, CONFIG.contractWebUrl);
+      await fetch(updateEndpoint, {
+        method:"PATCH",
+        cache:"no-store",
+        headers:{"Content-Type":"text/plain;charset=utf-8"},
+        body:JSON.stringify({message})
+      });
+      return {url, message, data};
+    }catch(error){
+      console.warn("Contract context fallback", error);
+      return {url:fallbackUrl, message:fallbackMessage, data};
+    }
+  }
+  function rentalSheetPayload(summary, code, channel, preparedMessage="", preparedData=null){
     const c = consoleById(state.calc.consoleId);
     const hasGameCatalog = consoleHasGameCatalog(c);
     return {
@@ -3377,18 +3409,18 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         "ค่าประกัน": summary.deposit,
         "ยอดรวมทั้งหมด": summary.total,
         "Google Maps": state.calc.maps || "",
-        "ข้อความจอง": bookingMessage(code),
-        "ข้อมูลจอง": JSON.stringify(bookingStructured(code) || {}),
+        "ข้อความจอง": preparedMessage || bookingMessage(code),
+        "ข้อมูลจอง": JSON.stringify(preparedData || bookingStructured(code) || {}),
         "สถานะ": "Pending"
       }
     };
   }
-  function submitRentalToSheet(summary, code, channel){
+  function submitRentalToSheet(summary, code, channel, preparedMessage="", preparedData=null){
     if(!code || localStorage.getItem(`aj_rental_sheet_submitted_${code}`) === "1") return;
     const endpoint = String(localStorage.getItem("aj_rental_sheet_webapp_url") || CONFIG.rentalSheetWebApp || "").trim();
     if(!endpoint) return;
     SESSION_RENTAL_CODES.add(code);
-    const payload = rentalSheetPayload(summary, code, channel);
+    const payload = rentalSheetPayload(summary, code, channel, preparedMessage, preparedData);
     // POST so the full booking message (added for the shop-side viewer) is not
     // capped by the GET URL length limit. Apps Script doPost reads the raw body.
     fetch(endpoint, {method:"POST", mode:"no-cors", cache:"no-store", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload)}).then(() => {
@@ -3404,11 +3436,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }
   }
 
-  function bookingMessage(rentalCode=""){
+  function bookingMessage(rentalCode="", preparedContractLink=""){
     const c = consoleById(state.calc.consoleId);
     const s = calcSummary();
     if(!c) return "";
-    const contractLink = rentalContractLink(rentalCode);
+    const contractLink = preparedContractLink || rentalContractLink(rentalCode);
     const category = {console:"Console", vr:"VR & AR", handheld:"PC Handheld", racing:"Racing Simulator"}[String(c.type || "").toLowerCase()] || (c.type || "-");
     const noContractSuffixTh = state.calc.noContract ? " (ไม่ทำสัญญา)" : "";
     const noContractSuffixEn = state.calc.noContract ? " (No contract)" : "";
@@ -3600,9 +3632,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     url.searchParams.set("v", CONFIG.gamePickerVersion);
     return url.toString();
   }
-  function bookingMessageForLine(rentalCode=""){
-    return bookingMessage(rentalCode);
-  }
   function pushLineGamePickerCard(rentalCode=""){
     if(!shouldAttachLineGamePickerCard()) return;
     const userId = lineUniqueId();
@@ -3702,9 +3731,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     try{
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
-      const msg = bookingMessage(code);
+      const handoff = await prepareContractHandoff(code);
+      const msg = handoff.message;
       await writeBookingClipboard(msg);
-      submitRentalToSheet(summary, code, "copy");
+      submitRentalToSheet(summary, code, "copy", msg, handoff.data);
       return true;
     }catch(error){
       toast(state.lang === "en" ? "Cannot check rental code from Google Sheet." : "เช็กรหัสการเช่าจาก Google Sheet ไม่ได้");
@@ -3717,9 +3747,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
       await ensureBeamPaymentLink(summary, code);
-      const msg = bookingMessageForLine(code);
+      const handoff = await prepareContractHandoff(code);
+      const msg = handoff.message;
       await writeBookingClipboard(msg);
-      submitRentalToSheet(summary, code, "line");
+      submitRentalToSheet(summary, code, "line", msg, handoff.data);
       pushLineGamePickerCard(code);
       location.href = `${CONFIG.lineOaMessageUrl}?${encodeURIComponent(msg)}`;
       return true;
@@ -3770,9 +3801,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
       await ensureBeamPaymentLink(summary, code);
-      const msg = unicodeSafeText(bookingMessage(code));
+      const handoff = await prepareContractHandoff(code);
+      const msg = unicodeSafeText(handoff.message);
       await writeBookingClipboard(msg);
-      submitRentalToSheet(summary, code, "whatsapp");
+      submitRentalToSheet(summary, code, "whatsapp", msg, handoff.data);
       window.open(whatsappShareUrl(msg), "_blank", "noopener,noreferrer");
       return true;
     }catch(error){
@@ -3786,9 +3818,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
       await ensureBeamPaymentLink(summary, code);
-      const msg = unicodeSafeText(bookingMessage(code));
+      const handoff = await prepareContractHandoff(code);
+      const msg = unicodeSafeText(handoff.message);
       await writeBookingClipboard(msg);
-      submitRentalToSheet(summary, code, "messenger");
+      submitRentalToSheet(summary, code, "messenger", msg, handoff.data);
       openMessengerChat();
       return true;
     }catch(error){
@@ -3808,6 +3841,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     try{
       const code = await ensureRentalCode(summary);
       await ensureBeamPaymentLink(summary, code);
+      const handoff = await prepareContractHandoff(code);
       state.calc.contractSignature = rentalSignature(summary);
       saveLocal();
       render();
@@ -3815,11 +3849,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(hint) hint.textContent = `${tr("rentalCode")}: ${code}`;
       // Persist the booking (incl. message) when the customer opens the contract,
       // so the shop can retrieve it later even if the customer never copies/sends.
-      submitRentalToSheet(summary, code, "contract");
+      submitRentalToSheet(summary, code, "contract", handoff.message, handoff.data);
       // In-app browsers may block a new tab after the async setup above.
       // Same-tab navigation is not subject to popup blocking and preserves
       // every parameter prepared in the contract URL.
-      location.assign(rentalContractLink(code));
+      location.assign(handoff.url);
     }catch(error){
       if(contractButton?.isConnected){
         contractButton.disabled = false;

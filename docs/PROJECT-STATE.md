@@ -9,6 +9,14 @@ of a session, update at the end. Newest entry first.
 
 ### Fixed
 
+- Booking-to-contract handoff now stores a short-lived structured booking
+  context before opening the LIFF contract. The context carries the exact cost
+  rows and total from the booking page, including After Work, returning-customer,
+  Google Maps review, and Facebook review discounts.
+- The contract form, saved Google Sheet row, PDF, and post-contract LINE/Flex
+  summary now preserve that exact breakdown instead of recalculating a gross
+  device rate. The obsolete instruction telling staff to trust a separate chat
+  total was removed in both languages.
 - Contract-admin device creation now locks the Save button and changes its text
   to “กำลังทำรายการ...” / “Processing...” while the API request is pending. A
   submit guard prevents fast repeated clicks from creating duplicate rows.
@@ -26,10 +34,15 @@ of a session, update at the end. Newest entry first.
 
 ### Verification
 
+- Browser-tested a PS5 contract context containing the ฿1,200 rental, -฿201
+  After Work promotion, -฿80 returning-customer discount, -฿100 Google Maps
+  review discount, -฿100 Facebook review discount, and ฿2,000 deposit. The form
+  showed every row and the exact ฿2,619 total.
 - Browser-tested the production page locally through the full booking flow:
   selecting Thai bank transfer shows the full amount due and no amount due on
   delivery.
-- Bot regression suite passes all 88 tests, including the admin-device submit
+- Bot regression suite passes all 90 tests, including the booking-cost handoff,
+  admin-device submit
   lock/reset behavior, Thai/English post-contract
   text and Thai/English full-payment Flex cards.
 - Inline production JavaScript syntax and `git diff --check` pass.
