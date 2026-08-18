@@ -258,6 +258,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .share-confirm-card{width:min(460px,100%)}
 .share-confirm-body{display:flex;flex-direction:column;gap:12px}
 .share-confirm-note{border:1px solid #ffe0a6;background:#fff8e8;color:#7b4a00;border-radius:12px;padding:12px;font-size:13px;font-weight:800;line-height:1.55}
+.messenger-handoff-message{width:100%;min-height:180px;margin-top:10px;padding:11px;border:1px solid #d7dce3;border-radius:10px;background:#fff;color:#172033;font:500 13px/1.45 system-ui,-apple-system,sans-serif;resize:vertical}
 .share-confirm-actions{display:flex;gap:8px;flex-wrap:wrap}
 .share-confirm-actions .btn{flex:1;min-height:44px}
 #shareConfirmModal{align-items:center;justify-content:center;padding:18px}
@@ -990,9 +991,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     rentalCodeApi: "https://delivery-app-backend-68pm.onrender.com/api/public/rental-code/allocate",
     rentalCodeWebApp: "",
     lineUrl: "https://line.me/R/ti/p/@ajgame",
-    lineOaMessageUrl: "https://line.me/R/oaMessage/@ajgame/",
+    lineOaMessageUrl: "https://line.me/R/oaMessage/%40ajgame/",
     whatsappPhone: "66816244715",
-    facebookMessengerUser: "100064849841171",
     facebookMessengerUrl: "https://m.me/ajgamerental",
     beamPaymentApi: "https://aj-line-oa-bot.onrender.com/api/payments/beam-link",
     paymentSuccessUrl: "https://ajgamerental.onrender.com/payment-success.html",
@@ -1211,7 +1211,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       returningDiscount:"ส่วนลดลูกค้าเก่า 10%", consoleDiscount:"ส่วนลดเครื่องเกม", boardGameDiscount:"ส่วนลดบอร์ดเกม", boardGameDeposit:"ค่าประกันบอร์ดเกม", rentalDays:"จำนวนวันเช่า", boardGameRental:"ค่าเช่าบอร์ดเกม", boardGameList:"รายการบอร์ดเกม",
       equipmentDetails:"รายละเอียดอุปกรณ์", players:"จำนวนผู้เล่น", playTime:"เวลาเล่น", age:"อายุแนะนำ", packageRental:"ค่าเช่าตามแพ็ก", oneDay:"1 วัน", threeDays:"3 วัน", sevenDays:"7 วัน", howToPlay:"วิธีเล่นคร่าว ๆ", noContractDepositNote:"ค่าประกัน (ไม่ทำสัญญา)", noContractLabel:"ไม่ทำสัญญา", standardTier:"เรทมาตรฐาน", planning:"วางแผน",
       copy:"📋 Copy ข้อความจองเช่า", line:"จองผ่าน Line", whatsapp:"จองผ่าน WhatsApp", messenger:"จองผ่าน Messenger", copied:"คัดลอกแล้ว", minDays:"ขั้นต่ำ 3 วัน", busy:"เครื่องอาจไม่ว่างในช่วงนี้", available:"ช่วงนี้ผ่านการเช็คคิวแล้ว", checking:"กำลังเช็คคิว...", queueError:"ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่", queueClosed:"ปิดคิวในช่วงเวลานี้", bookingHold:"มี 1 คิวกำลังทำรายการ กรุณาเช็คคิวใหม่ใน {minutes} นาที", bookingHoldCell:"กำลังจอง · เช็คใหม่ใน {minutes} นาที", bookingHoldLost:"มีลูกค้ารายอื่นกำลังจองเครื่องนี้ กรุณาเช็คคิวใหม่ใน {minutes} นาที",
-      shareConfirmTitle:"ยืนยันส่งข้อความจอง", shareConfirmMessage:"คุณกำลังจะส่งข้อความจองเช่าผ่าน {channel}", shareConfirmNote:"เพื่อป้องกันการส่งซ้ำ ระบบจะกันการกดซ้ำชั่วคราวหลังยืนยันส่ง", shareConfirmContractNote:"ลูกค้าใหม่ควรทำสัญญาการเช่าก่อนส่งข้อความจอง เพื่อให้ข้อมูลไม่หลุดและลดการส่งซ้ำ", shareConfirmMessengerNote:"ระบบจะคัดลอกข้อความจองให้ก่อน แล้วเปิด Facebook Messenger ของ AJ ให้ กรุณากดวางข้อความในช่องแชทและกดส่ง", shareConfirmSend:"ยืนยันส่งข้อความจอง", shareContractFirst:"ทำสัญญาก่อน", shareCancel:"ยกเลิก", shareCooldown:"กำลังเตรียมหรือเพิ่งเปิดข้อความจอง กรุณารอสักครู่ก่อนกดซ้ำ", sharePreparing:"กำลังเตรียมข้อความจองสำหรับ {channel} กรุณาอย่ากดซ้ำ", shareOpened:"เปิด {channel} แล้ว กรุณากดส่งข้อความในแชท และรอสักครู่ก่อนกดซ้ำ",
+      shareConfirmTitle:"ยืนยันส่งข้อความจอง", shareConfirmMessage:"คุณกำลังจะส่งข้อความจองเช่าผ่าน {channel}", shareConfirmNote:"เพื่อป้องกันการส่งซ้ำ ระบบจะกันการกดซ้ำชั่วคราวหลังยืนยันส่ง", shareConfirmContractNote:"ลูกค้าใหม่ควรทำสัญญาการเช่าก่อนส่งข้อความจอง เพื่อให้ข้อมูลไม่หลุดและลดการส่งซ้ำ", shareConfirmMessengerNote:"Messenger ไม่สามารถใส่ข้อความให้อัตโนมัติ กรุณาคัดลอกข้อความ แล้วเปิดแชท AJ เพื่อวางและกดส่ง", shareConfirmSend:"ยืนยันส่งข้อความจอง", shareContractFirst:"ทำสัญญาก่อน", shareCancel:"ยกเลิก", shareCooldown:"กำลังเตรียมหรือเพิ่งเปิดข้อความจอง กรุณารอสักครู่ก่อนกดซ้ำ", sharePreparing:"กำลังเตรียมข้อความจองสำหรับ {channel} กรุณาอย่ากดซ้ำ", shareReady:"ข้อความพร้อมแล้ว กรุณาคัดลอกและเปิด Messenger", shareOpened:"เปิด {channel} แล้ว กรุณากดส่งข้อความในแชท และรอสักครู่ก่อนกดซ้ำ", messengerHandoffTitle:"ส่งข้อความผ่าน Messenger", messengerHandoffHelp:"1. กดคัดลอกข้อความ  2. เปิด Messenger  3. วางข้อความในแชทและกดส่ง", messengerCopy:"คัดลอกข้อความ", messengerOpen:"เปิด Messenger", messengerCopied:"คัดลอกข้อความแล้ว กรุณาเปิด Messenger และวางในแชท",
       faqTitle:"คำถามที่พบบ่อย", faqExpand:"ดูคำถามทั้งหมด", faqCollapse:"ย่อคำถาม", adminLogin:"เข้าสู่ระบบ Admin", adminUser:"ผู้ใช้", adminPassword:"รหัสผ่าน", adminSubmit:"เข้าสู่ระบบ", wrongPassword:"ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", rentalCode:"รหัสการเช่า", save:"บันทึก", add:"เพิ่ม", edit:"แก้ไข", delete:"ลบ", sync:"Sync", pull:"Pull", push:"Push"
     },
     en:{
@@ -1300,7 +1300,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       returningDiscount:"Returning customer 10% discount", consoleDiscount:"Console discount", boardGameDiscount:"Board game discount", boardGameDeposit:"Board game deposit", rentalDays:"Rental days", boardGameRental:"Board game rental", boardGameList:"Board game list",
       equipmentDetails:"Equipment details", players:"Players", playTime:"Play time", age:"Recommended age", packageRental:"Package rental", oneDay:"1 day", threeDays:"3 days", sevenDays:"7 days", howToPlay:"Quick how to play", noContractDepositNote:"Deposit (no contract)", noContractLabel:"No contract", standardTier:"Standard tier", planning:"Planning",
       copy:"📋 Copy booking message", line:"Book via LINE", whatsapp:"Book via WhatsApp", messenger:"Book via Messenger", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", queueError:"Unable to check the queue. Please try again.", queueClosed:"Queue closed during this period", bookingHold:"1 customer is completing this booking. Check again in {minutes} minutes.", bookingHoldCell:"In progress · retry in {minutes} min", bookingHoldLost:"Another customer is booking this console. Check again in {minutes} minutes.",
-      shareConfirmTitle:"Confirm booking message", shareConfirmMessage:"You are about to send this booking message via {channel}.", shareConfirmNote:"To prevent duplicate messages, the buttons will be briefly locked after confirmation.", shareConfirmContractNote:"First-time customers should complete the rental contract before sending the booking message, so the details do not get missed or duplicated.", shareConfirmMessengerNote:"The booking message will be copied first, then AJ's Facebook Messenger chat will open. Please paste the message into the chat and send it.", shareConfirmSend:"Confirm and send", shareContractFirst:"Do contract first", shareCancel:"Cancel", shareCooldown:"Your booking message is being prepared or was just opened. Please wait before trying again.", sharePreparing:"Preparing your booking message for {channel}. Please do not tap again.", shareOpened:"{channel} opened. Please send the message in the chat and wait before trying again.",
+      shareConfirmTitle:"Confirm booking message", shareConfirmMessage:"You are about to send this booking message via {channel}.", shareConfirmNote:"To prevent duplicate messages, the buttons will be briefly locked after confirmation.", shareConfirmContractNote:"First-time customers should complete the rental contract before sending the booking message, so the details do not get missed or duplicated.", shareConfirmMessengerNote:"Messenger cannot prefill this message. Please copy it, open AJ's chat, paste it, and tap Send.", shareConfirmSend:"Confirm and send", shareContractFirst:"Do contract first", shareCancel:"Cancel", shareCooldown:"Your booking message is being prepared or was just opened. Please wait before trying again.", sharePreparing:"Preparing your booking message for {channel}. Please do not tap again.", shareReady:"Your message is ready. Copy it and open Messenger.", shareOpened:"{channel} opened. Please send the message in the chat and wait before trying again.", messengerHandoffTitle:"Send via Messenger", messengerHandoffHelp:"1. Copy the message  2. Open Messenger  3. Paste it into the chat and tap Send", messengerCopy:"Copy message", messengerOpen:"Open Messenger", messengerCopied:"Message copied. Open Messenger and paste it into the chat.",
       faqTitle:"Frequently Asked Questions", faqExpand:"Show all questions", faqCollapse:"Collapse questions", adminLogin:"Admin Login", adminUser:"User", adminPassword:"Password", adminSubmit:"Login", wrongPassword:"Wrong username or password", rentalCode:"Rental code", save:"Save", add:"Add", edit:"Edit", delete:"Delete", sync:"Sync", pull:"Pull", push:"Push"
     }
   };
@@ -3990,11 +3990,15 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }).catch(error => console.warn("LINE game picker card skipped", error));
   }
   async function writeBookingClipboard(msg){
-    if(!msg) return;
-    try{ await navigator.clipboard.writeText(msg); toast(tr("copied")); }
+    if(!msg) return false;
+    try{ await navigator.clipboard.writeText(msg); toast(tr("copied")); return true; }
     catch{
       const ta = document.createElement("textarea");
-      ta.value = msg; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); toast(tr("copied"));
+      ta.value = msg; document.body.appendChild(ta); ta.select();
+      const copied = document.execCommand("copy");
+      ta.remove();
+      if(copied) toast(tr("copied"));
+      return copied;
     }
   }
   function shareChannelLabel(channel){
@@ -4020,7 +4024,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function shareStatusHtml(){
     const status = activeShareStatus();
     if(!status) return `<div id="shareSendStatus" class="share-send-status" role="status" aria-live="assertive" hidden></div>`;
-    const key = status.phase === "opened" ? "shareOpened" : "sharePreparing";
+    const key = status.phase === "opened" ? "shareOpened" : status.phase === "ready" ? "shareReady" : "sharePreparing";
     const message = tr(key).replace("{channel}", shareChannelLabel(status.channel));
     return `<div id="shareSendStatus" class="share-send-status ${status.phase === "opened" ? "is-ready" : ""}" role="status" aria-live="assertive">${esc(message)}</div>`;
   }
@@ -4079,8 +4083,34 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     byId("shareContractFirst").style.display = needsContractPrompt ? "" : "none";
     byId("shareConfirmSend").textContent = tr("shareConfirmSend");
     byId("shareConfirmCancel").textContent = tr("shareCancel");
+    byId("shareConfirmModal").dataset.mode = "confirm";
     byId("shareConfirmModal").classList.add("open");
     return new Promise(resolve => { shareConfirmResolve = resolve; });
+  }
+  let messengerHandoffMessage = "";
+  function showMessengerBookingHandoff(message){
+    messengerHandoffMessage = unicodeSafeText(message);
+    const modal = byId("shareConfirmModal");
+    modal.dataset.mode = "messenger-handoff";
+    byId("shareConfirmTitle").textContent = tr("messengerHandoffTitle");
+    byId("shareConfirmMessage").textContent = tr("messengerHandoffHelp");
+    byId("shareConfirmNote").innerHTML = `<textarea id="messengerHandoffText" class="messenger-handoff-message" readonly>${esc(messengerHandoffMessage)}</textarea><div id="messengerHandoffStatus" role="status" aria-live="polite"></div>`;
+    byId("shareContractFirst").style.display = "";
+    byId("shareContractFirst").textContent = tr("messengerCopy");
+    byId("shareConfirmSend").textContent = tr("messengerOpen");
+    byId("shareConfirmCancel").textContent = tr("shareCancel");
+    modal.classList.add("open");
+    setShareStatus("messenger", "ready");
+  }
+  async function copyMessengerHandoff(){
+    const copied = await writeBookingClipboard(messengerHandoffMessage);
+    const status = byId("messengerHandoffStatus");
+    if(status) status.textContent = copied ? tr("messengerCopied") : tr("messengerHandoffHelp");
+  }
+  async function openMessengerFromHandoff(){
+    await copyMessengerHandoff().catch(() => false);
+    setShareStatus("messenger", "opened");
+    location.href = CONFIG.facebookMessengerUrl;
   }
   async function guardedBookingShare(channel, action){
     if(!(await confirmBookingShare(channel))) return false;
@@ -4136,7 +4166,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       await ensureBeamPaymentLink(summary, code);
       const handoff = await prepareContractHandoff(code);
       const msg = handoff.message;
-      await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "line", msg, handoff.data);
       pushLineGamePickerCard(code);
       setShareStatus("line", "opened");
@@ -4163,27 +4192,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     url.searchParams.set("text", unicodeSafeText(message));
     return url.toString();
   }
-  function messengerShareUrl(){
-    return CONFIG.facebookMessengerUrl;
-  }
-  function messengerDeepLink(){
-    const user = encodeURIComponent(CONFIG.facebookMessengerUser || "ajgamerental");
-    return /Android/i.test(navigator.userAgent || "")
-      ? `intent://user-thread/${user}#Intent;scheme=fb-messenger;package=com.facebook.orca;S.browser_fallback_url=${encodeURIComponent(messengerShareUrl())};end`
-      : `fb-messenger://user-thread/${user}`;
-  }
-  function openMessengerChat(){
-    const fallback = messengerShareUrl();
-    const deepLink = messengerDeepLink();
-    if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "")){
-      location.href = deepLink;
-      window.setTimeout(() => {
-        if(document.visibilityState === "visible") location.href = fallback;
-      }, 900);
-      return;
-    }
-    window.open(fallback, "_blank", "noopener,noreferrer");
-  }
   async function sendWhatsApp(skipGuard=false){
     if(!skipGuard) return guardedBookingShare("whatsapp", () => sendWhatsApp(true));
     try{
@@ -4192,10 +4200,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       await ensureBeamPaymentLink(summary, code);
       const handoff = await prepareContractHandoff(code);
       const msg = unicodeSafeText(handoff.message);
-      await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "whatsapp", msg, handoff.data);
       setShareStatus("whatsapp", "opened");
-      window.open(whatsappShareUrl(msg), "_blank", "noopener,noreferrer");
+      location.href = whatsappShareUrl(msg);
       return true;
     }catch(error){
       showBookingActionError(error);
@@ -4210,10 +4217,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       await ensureBeamPaymentLink(summary, code);
       const handoff = await prepareContractHandoff(code);
       const msg = unicodeSafeText(handoff.message);
-      await writeBookingClipboard(msg);
       submitRentalToSheet(summary, code, "messenger", msg, handoff.data);
-      setShareStatus("messenger", "opened");
-      openMessengerChat();
+      showMessengerBookingHandoff(msg);
       return true;
     }catch(error){
       showBookingActionError(error);
@@ -5741,6 +5746,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     document.addEventListener("click", async event => {
       const clickedButton = event.target.closest("button");
       const targetId = clickedButton?.id || event.target.id;
+      if(byId("shareConfirmModal")?.dataset.mode === "messenger-handoff"){
+        if(targetId === "shareContractFirst"){ await copyMessengerHandoff(); return; }
+        if(targetId === "shareConfirmSend"){ await openMessengerFromHandoff(); return; }
+        if(targetId === "shareConfirmCancel" || targetId === "shareConfirmClose"){
+          messengerHandoffMessage = "";
+          byId("shareConfirmModal").classList.remove("open");
+          byId("shareConfirmModal").dataset.mode = "";
+          return;
+        }
+      }
       if(targetId === "startDate") openCalendar("start");
       if(targetId === "endDate") openCalendar("end");
       if(targetId === "bgAdd"){

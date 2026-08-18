@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-08-18 — reliable LINE, WhatsApp, and Messenger booking handoff
+
+- Both the booking page and post-contract completion flow now use the current percent-encoded LINE OA URL (`%40ajgame`) and same-page universal navigation for LINE/WhatsApp, avoiding popup blockers after asynchronous booking work.
+- Messenger no longer uses the stale numeric deep-link id. Both flows use `https://m.me/ajgamerental`, which resolves to the current AJ Page conversation.
+- Messenger now has a dedicated bilingual handoff screen showing the complete booking message, a user-initiated Copy button, an Open Messenger button, and instructions to paste and tap Send. Opening retries the copy but still opens the universal fallback if clipboard permission is denied.
+- LINE and WhatsApp carry their message in the supported URL and no longer depend on clipboard permission. WhatsApp remains English-only by product design.
+- Verification: bot test suite 112/112; website inline syntax, diff check, and static regression checks for all three channel URLs pass.
+
 ## 2026-08-18 — LINE verified-slip Thai wrapping
 
 - Corrected the target after screenshot clarification: the payment-purpose value remains `รอร้านตรวจสอบประเภทยอด`. The explanatory sentence below the rows now forces a break after `และจะตรวจสอบว่า`, keeping `ยอดนี้` together at the start of the next line instead of letting LINE strand `ย` at the end of the previous line. English copy is unchanged.
