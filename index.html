@@ -984,8 +984,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     rentalSheetId: "13QZWpd_E-L_0G_Xd0zSL5_OcgV4sdwk9febXZSkZepc",
     rentalSheetGid: "1105203002",
     rentalSheetWebApp: "https://script.google.com/macros/s/AKfycbyDvxt10gsT-GN24xmmGpa1y0cUbfDiWSc4yxfqv-AFoK32sjmpiRJPdQmo6PnU3uZh/exec",
-    // Allocates rental codes under a lock (google-apps-script/rental-code-allocator.gs).
-    // Paste the deployed /exec URL here; empty falls back to allocating in the browser.
+    // Rental codes are allocated by the delivery app backend, which reserves the
+    // number before answering. google-apps-script/rental-code-allocator.gs is an
+    // equivalent Apps Script implementation, kept for the standalone case.
+    rentalCodeApi: "https://delivery-app-backend-68pm.onrender.com/api/public/rental-code/allocate",
     rentalCodeWebApp: "",
     lineUrl: "https://line.me/R/ti/p/@ajgame",
     lineOaMessageUrl: "https://line.me/R/oaMessage/@ajgame/",
@@ -3483,11 +3485,15 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
    * never be handed the same code.
    */
   async function reserveRentalCode(ymd){
-    const endpoint = String(localStorage.getItem("aj_rental_code_webapp_url") || CONFIG.rentalCodeWebApp || "").trim();
+    const api = String(localStorage.getItem("aj_rental_code_api_url") || CONFIG.rentalCodeApi || "").trim();
+    const script = String(localStorage.getItem("aj_rental_code_webapp_url") || CONFIG.rentalCodeWebApp || "").trim();
+    const endpoint = api || script;
     if(!endpoint) return "";
     const url = new URL(endpoint);
-    url.searchParams.set("action", "allocateRentalCode");
+    // The Apps Script build routes on ?action=; the backend has its own path.
+    if(!api) url.searchParams.set("action", "allocateRentalCode");
     url.searchParams.set("ymd", ymd);
+    url.searchParams.set("source", "booking-web");
     const res = await fetch(url.toString(), {cache:"no-store"});
     if(!res.ok) throw new Error(`Rental code allocator ${res.status}`);
     const data = await res.json();
