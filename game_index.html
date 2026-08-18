@@ -5367,6 +5367,7 @@ function isTokenGamePicker() { return !!getSelectionToken(); }
 async function initSelectionToken() {
   const token = getSelectionToken();
   if (!token) return;
+  if (selectionContext) return;   // already resolved
   selectionToken = token;
   try {
     const res = await fetch(`${GAME_API_BASE}/api/game-selection/resolve/${encodeURIComponent(token)}`);
@@ -5393,6 +5394,24 @@ async function initSelectionToken() {
     console.warn('resolve token failed', e);
   }
 }
+
+/**
+ * Resolve the token as soon as the page parses.
+ *
+ * This used to be kicked off from the "scoped platform" script, which returns
+ * early unless the URL names a platform (?platform=, ?console=, ...). A
+ * delivery-app link carries only ?t=, so that script bailed out and the token
+ * was never resolved: the picker opened with every console listed instead of
+ * the one on the booking, and the send button had no token to submit with.
+ *
+ * The promise is what the picker waits on before it opens.
+ */
+window.ajSelectionReady = (function () {
+  if (!getSelectionToken()) return Promise.resolve('');
+  return Promise.resolve(initSelectionToken())
+    .then(function () { return (selectionContext && selectionContext.gamePlatform) || ''; })
+    .catch(function () { return ''; });
+})();
 
 /** Submit the selection straight to the backend (no copy/paste needed). */
 async function submitSelectionToken() {
@@ -6981,14 +7000,16 @@ document.addEventListener('touchstart', function(e) {
   if(isPicker()){
     setLangSafe(params.get('lang') || 'th');
     if(isContractCardPicker()){
-      setTimeout(function(){
+      // A ?t= link knows its console only after the token resolves, so wait for
+      // it — otherwise the picker opens on every platform at once.
+      Promise.resolve(window.ajSelectionReady || '').then(function(tokenPlatform){
         openPickerFromParent({
           requestId: params.get('rentalCode') || 'contract-card',
-          platformId: params.get('platformId') || params.get('platform') || '',
+          platformId: params.get('platformId') || params.get('platform') || tokenPlatform || '',
           lang: params.get('lang') || 'th',
           selectedGameIds: []
         });
-      }, 0);
+      });
     }else{
       setTimeout(refreshEmbedPicker, 0);
     }
