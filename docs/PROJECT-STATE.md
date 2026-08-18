@@ -2,8 +2,8 @@
 
 ## 2026-08-18 — LINE verified-slip Thai wrapping
 
-- The unallocated-payment value in the verified-slip Flex Card now forces a line break before `ยอด`, rendering as `รอร้านตรวจสอบประเภท` / `ยอด` instead of allowing LINE to split the Thai word at an arbitrary character. English copy is unchanged.
-- Bot test suite: 111/111, including an exact assertion for the Flex text and newline.
+- Corrected the target after screenshot clarification: the payment-purpose value remains `รอร้านตรวจสอบประเภทยอด`. The explanatory sentence below the rows now forces a break after `และจะตรวจสอบว่า`, keeping `ยอดนี้` together at the start of the next line instead of letting LINE strand `ย` at the end of the previous line. English copy is unchanged.
+- Bot test suite: 111/111, including exact assertions for the unchanged purpose value and corrected explanatory newline.
 
 ## 2026-08-18 — net-balance loyalty discount and real 30-minute hold configuration
 
