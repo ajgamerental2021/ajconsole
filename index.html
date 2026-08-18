@@ -1459,6 +1459,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   let shareConfirmResolve = null;
   let shareCooldownUntil = 0;
   let availabilityRequest = null;
+  let bookingHoldPollTimer = 0;
   const SHARE_UNLOCK_KEY = "aj_booking_share_unlock_until";
   const SHARE_RETURN_KEY = "aj_booking_share_return_pending";
   const SHARE_STATUS_KEY = "aj_booking_share_status";
@@ -2735,20 +2736,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const active = Number.isFinite(expiresAt) && expiresAt > Date.now();
     return key && active && state.calc.beamPaymentKey === key ? (state.calc.beamPaymentLink || "") : "";
   }
-  async function ensureBookingHold(rentalCode){
+  function provisionalBookingHoldCode(){
+    if(/^AJ-[A-Z0-9-]{6,40}$/i.test(String(state.calc.rentalCode || ""))) return state.calc.rentalCode;
+    return `AJ-${rentalCodeDate()}-R0000-${offlineCodeSuffix()}`;
+  }
+  async function acquireBookingHold(rentalCode){
     const c = consoleById(state.calc.consoleId);
     const start = parseDate(state.calc.start), end = parseDate(state.calc.end);
     if(!c || !start || !end) throw new Error("booking_hold_invalid");
-    await fetchAvailability();
-    if(state.availability.error || !state.availability.lastSync){
-      throw new Error("booking_availability_refresh_failed");
-    }
-    const gate = evaluateAvailability();
-    if(!gate.pass){
-      const error = new Error(gate.message || "booking_hold_conflict");
-      error.code = "booking_hold_conflict";
-      throw error;
-    }
     const aliases = availabilityAliases(c);
     const capacity = Math.max(1, state.availability.rows.filter(row => aliases.has(norm(row.deviceName))).length);
     const response = await fetch(`${CONFIG.apiBase}/api/booking-holds`, {
@@ -2778,6 +2773,42 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     ];
     localStorage.setItem(OWN_BOOKING_HOLD_KEY, JSON.stringify({...result.hold, mine:true}));
     return result.hold;
+  }
+  async function releaseBookingHold(rentalCode=""){
+    localStorage.removeItem(OWN_BOOKING_HOLD_KEY);
+    state.availability.holds = (state.availability.holds || []).filter(hold => !hold.mine);
+    try{
+      await fetch(`${CONFIG.apiBase}/api/booking-holds`, {
+        method:"DELETE",
+        cache:"no-store",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({holderId:bookingHoldHolderId(),rentalCode})
+      });
+    }catch(error){
+      console.warn("Booking hold release skipped", error);
+    }
+  }
+  async function ensureBookingHold(rentalCode){
+    const initialGate = evaluateAvailability();
+    if(!initialGate.pass){
+      const error = new Error(initialGate.message || "booking_hold_conflict");
+      error.code = "booking_hold_conflict";
+      throw error;
+    }
+    const hold = await acquireBookingHold(rentalCode);
+    await fetchAvailability();
+    if(state.availability.error || !state.availability.lastSync){
+      await releaseBookingHold(rentalCode);
+      throw new Error("booking_availability_refresh_failed");
+    }
+    const freshGate = evaluateAvailability();
+    if(!freshGate.pass){
+      await releaseBookingHold(rentalCode);
+      const error = new Error(freshGate.message || "booking_hold_conflict");
+      error.code = "booking_hold_conflict";
+      throw error;
+    }
+    return hold;
   }
   async function ensureBeamPaymentLink(summary, rentalCode){
     await ensureBookingHold(rentalCode);
@@ -3042,6 +3073,26 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(!own) return holds;
     return [...holds.filter(hold => hold.id !== own.id && !hold.mine), own];
   }
+  async function refreshBookingHolds(signal){
+    const response = await fetch(`${CONFIG.apiBase}/api/booking-holds?holderId=${encodeURIComponent(bookingHoldHolderId())}&_ts=${Date.now()}`, {cache:"no-store", signal});
+    if(!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    state.availability.holds = mergeBookingHolds(payload.holds);
+    state.availability.gate = evaluateAvailability();
+    renderAvailabilityHint();
+    if(state.calendar.open) renderCalendar();
+    return payload;
+  }
+  function startBookingHoldPolling(){
+    window.clearInterval(bookingHoldPollTimer);
+    bookingHoldPollTimer = window.setInterval(() => {
+      if(state.calendar.open) refreshBookingHolds().catch(() => {});
+    }, 3000);
+  }
+  function stopBookingHoldPolling(){
+    window.clearInterval(bookingHoldPollTimer);
+    bookingHoldPollTimer = 0;
+  }
   function matchingBookingHolds(c, start, end, includeMine=false){
     if(!c || !start || !end) return [];
     const aliases = availabilityAliases(c);
@@ -3061,7 +3112,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const fromApi = Number(hold.remainingSeconds);
       if(Number.isFinite(fromApi) && fromApi > 0) return fromApi;
       const expiresAt = Date.parse(hold.expiresAt || "");
-      return Number.isFinite(expiresAt) ? Math.max(1, Math.ceil((expiresAt - Date.now()) / 1000)) : 600;
+      return Number.isFinite(expiresAt) ? Math.max(1, Math.ceil((expiresAt - Date.now()) / 1000)) : 1800;
     })));
     return Math.max(1, Math.ceil(seconds / 60));
   }
@@ -3101,10 +3152,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const ctl = new AbortController();
     const timer = setTimeout(() => ctl.abort(), 12000);
     try{
+      const holdsRequest = refreshBookingHolds(ctl.signal);
       const [availabilityResult, closuresResult, holdsResult] = await Promise.allSettled([
         fetch(`${CONFIG.availabilityUrl}${CONFIG.availabilityUrl.includes("?")?"&":"?"}_ts=${Date.now()}`, {cache:"no-store", signal:ctl.signal}),
         fetch(`${CONFIG.apiBase}/api/queue-closures?_ts=${Date.now()}`, {cache:"no-store", signal:ctl.signal}),
-        fetch(`${CONFIG.apiBase}/api/booking-holds?holderId=${encodeURIComponent(bookingHoldHolderId())}&_ts=${Date.now()}`, {cache:"no-store", signal:ctl.signal})
+        holdsRequest
       ]);
       if(closuresResult.status === "fulfilled" && closuresResult.value.ok){
         applyQueueClosures(await closuresResult.value.json());
@@ -3112,10 +3164,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       }else{
         state.queueClosures.error = closuresResult.status === "fulfilled" ? `HTTP ${closuresResult.value.status}` : String(closuresResult.reason?.message || "");
       }
-      if(holdsResult.status === "fulfilled" && holdsResult.value.ok){
-        const holdPayload = await holdsResult.value.json();
-        state.availability.holds = mergeBookingHolds(holdPayload.holds);
-      }else{
+      if(holdsResult.status !== "fulfilled"){
         state.availability.holds = mergeBookingHolds(state.availability.holds);
       }
       if(availabilityResult.status !== "fulfilled" || !availabilityResult.value.ok){
@@ -3167,9 +3216,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     state.calendar.base = selectedMonth < currentMonth ? currentMonth : selectedMonth;
     byId("calendarModal").classList.add("open");
     fetchAvailability().catch(() => {});
+    refreshBookingHolds().catch(() => {});
+    startBookingHoldPolling();
     renderCalendar();
   }
-  function closeCalendar(){ state.calendar.open = false; byId("calendarModal").classList.remove("open"); }
+  function closeCalendar(){ state.calendar.open = false; stopBookingHoldPolling(); byId("calendarModal").classList.remove("open"); }
   function toggleCalendarLang(){
     state.lang = state.lang === "en" ? "th" : "en";
     render();
@@ -4022,9 +4073,15 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(!(await confirmBookingShare(channel))) return false;
     setShareStatus(channel, "preparing");
     unlockShareButtons();
+    let immediateHoldCode = "";
     try{
+      if(["line","whatsapp","messenger"].includes(channel)){
+        immediateHoldCode = provisionalBookingHoldCode();
+        await acquireBookingHold(immediateHoldCode);
+      }
       const result = await action();
       if(result === false){
+        if(immediateHoldCode) await releaseBookingHold(immediateHoldCode);
         sessionStorage.removeItem(SHARE_STATUS_KEY);
         shareCooldownUntil = 0;
         renderSummary();
@@ -4033,11 +4090,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       }
       return true;
     }catch(error){
+      if(immediateHoldCode) await releaseBookingHold(immediateHoldCode);
       sessionStorage.removeItem(SHARE_STATUS_KEY);
       shareCooldownUntil = 0;
       renderSummary();
       renderGuide();
-      throw error;
+      showBookingActionError(error);
+      return false;
     }
   }
   async function copyBooking(skipGuard=false){
