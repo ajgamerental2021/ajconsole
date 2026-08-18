@@ -5406,6 +5406,46 @@ async function initSelectionToken() {
  *
  * The promise is what the picker waits on before it opens.
  */
+/**
+ * Language toggle for ?t= links. The picker opens as a bare overlay inside the
+ * LINE browser, without the site header that normally carries the switch, so a
+ * customer who got an English card had no way back to Thai (or the reverse).
+ */
+function mountSelectionLangSwitch() {
+  if (!getSelectionToken() || document.getElementById('aj-token-lang')) return;
+  const btn = document.createElement('button');
+  btn.id = 'aj-token-lang';
+  btn.type = 'button';
+  btn.style.cssText = [
+    'position:fixed', 'top:10px', 'right:12px', 'z-index:100000',
+    'padding:8px 14px', 'border-radius:999px', 'border:1px solid #e11d2e',
+    'background:#fff', 'color:#e11d2e', 'font-size:13px', 'font-weight:800',
+    'font-family:inherit', 'box-shadow:0 2px 10px rgba(0,0,0,.12)',
+  ].join(';');
+  const label = function () { btn.textContent = (currentLang === 'en') ? 'ภาษาไทย' : 'English'; };
+  label();
+  btn.addEventListener('click', function () {
+    const next = (currentLang === 'en') ? 'th' : 'en';
+    try {
+      // setLangSafe re-renders the picker too; toggleLang is the plain site one.
+      if (typeof window.ajSetLangSafe === 'function') window.ajSetLangSafe(next);
+      else if (typeof toggleLang === 'function') toggleLang();
+      else currentLang = next;
+      if (typeof renderPickPlatformTabs === 'function') renderPickPlatformTabs();
+      if (typeof renderPickBody === 'function') renderPickBody();
+      if (typeof renderPickFooter === 'function') renderPickFooter();
+    } catch (e) { currentLang = next; }
+    try {
+      const url = new URL(location.href);
+      url.searchParams.set('lang', next);
+      history.replaceState(null, '', url.toString());
+    } catch (e) {}
+    label();
+  });
+  document.body.appendChild(btn);
+}
+window.addEventListener('load', function () { setTimeout(mountSelectionLangSwitch, 400); });
+
 window.ajSelectionReady = (function () {
   if (!getSelectionToken()) return Promise.resolve('');
   return Promise.resolve(initSelectionToken())
@@ -5425,7 +5465,7 @@ async function submitSelectionToken() {
     const res = await fetch(`${GAME_API_BASE}/api/game-selection/submit/${encodeURIComponent(selectionToken)}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ games: names }),
+      body: JSON.stringify({ games: names, lang: currentLang === 'en' ? 'en' : 'th' }),
     });
     const data = await res.json();
     if (!res.ok || !data.ok) {
@@ -6774,6 +6814,7 @@ document.addEventListener('touchstart', function(e) {
       adminReady: isEn ? 'Game admin is ready' : 'หน้าแก้ไขเกมพร้อมแล้ว'
     };
   }
+  window.ajSetLangSafe = function(next){ setLangSafe(next); };
   function setLangSafe(nextLang){
     if(!nextLang || typeof currentLang === 'undefined' || currentLang === nextLang) return;
     if(typeof toggleLang === 'function'){
