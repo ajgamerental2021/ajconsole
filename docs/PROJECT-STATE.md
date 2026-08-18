@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-08-18 — LINE verified-slip Thai wrapping
+
+- The unallocated-payment value in the verified-slip Flex Card now forces a line break before `ยอด`, rendering as `รอร้านตรวจสอบประเภท` / `ยอด` instead of allowing LINE to split the Thai word at an arbitrary character. English copy is unchanged.
+- Bot test suite: 111/111, including an exact assertion for the Flex text and newline.
+
 ## 2026-08-18 — net-balance loyalty discount and real 30-minute hold configuration
 
 - Returning-customer 10% now applies last to the remaining eligible console rental balance: regular rental/accessories, less After Work, console promotions, and fixed Google/Facebook review discounts. Example: PS5 ฿1,200 − After Work ฿201 − reviews ฿200 = ฿799; loyalty rounds 10% to ฿80.
