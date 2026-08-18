@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-08-18 — net-balance loyalty discount and real 30-minute hold configuration
+
+- Returning-customer 10% now applies last to the remaining eligible console rental balance: regular rental/accessories, less After Work, console promotions, and fixed Google/Facebook review discounts. Example: PS5 ฿1,200 − After Work ฿201 − reviews ฿200 = ฿799; loyalty rounds 10% to ฿80.
+- Summary UI, structured contract handoff, and Thai/English booking messages list discounts in that same calculation order. The bot does not recalculate them: LIFF and PDF sum the signed booking-cost rows received from the website.
+- Root cause of production still showing 10 minutes: `src/config/env.js` supplied its own 10-minute fallback to the 30-minute hold store. The server fallback is now 30, `render.yaml` explicitly sets `BOOKING_HOLD_MINUTES=30`, and a regression test asserts the server configuration—not only the standalone store.
+- Bot verification: 111/111 tests pass. Production must report `ttlSeconds: 1800` before the 30-minute rollout is considered live.
+
 ## 2026-08-18 — Visible booking-share feedback and hold countdown
 
 - Production `index.html` now shows an inline, accessible status directly below the LINE / Messenger / WhatsApp buttons as soon as the customer confirms. All share buttons are locked while the message is being prepared and for 12 seconds after the chat opens; the status survives returning from the chat app for 60 seconds. Thai and English copy explicitly tells the customer to send the prepared message in the chat, avoiding a false “sent automatically” claim.

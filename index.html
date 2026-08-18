@@ -2902,10 +2902,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ...(hasGameCatalog && state.calc.games?.length ? [{label:state.lang==="en"?"Games":"เกม", value:numberedSummaryList(state.calc.games.map(g => g.name || g.title || g.id)), html:true}] : []),
       ...(hasGameCatalog && state.calc.later ? [{label:state.lang==="en"?"Game list":"รายชื่อเกม", value:tr("sendLater")}] : []),
       ...(summary.afterWorkDisc ? [{label:tr("afterWorkPromoDiscount"), value:`-${money(summary.afterWorkDisc)}`, cls:"discount"}] : []),
-      ...(summary.retDisc ? [{label:tr("returningDiscount"), value:`-${money(summary.retDisc)}`, cls:"discount"}] : []),
+      ...(summary.promoDisc ? [{label:tr("consoleDiscount"), value:`-${money(summary.promoDisc)}`, cls:"discount"}] : []),
       ...(summary.reviewGoogleDisc ? [{label:tr("reviewGoogleDiscount"), value:`-${money(summary.reviewGoogleDisc)}`, cls:"discount"}] : []),
       ...(summary.reviewFacebookDisc ? [{label:tr("reviewFacebookDiscount"), value:`-${money(summary.reviewFacebookDisc)}`, cls:"discount"}] : []),
-      ...(summary.promoDisc ? [{label:tr("consoleDiscount"), value:`-${money(summary.promoDisc)}`, cls:"discount"}] : []),
+      ...(summary.retDisc ? [{label:tr("returningDiscount"), value:`-${money(summary.retDisc)}`, cls:"discount"}] : []),
       ...(summary.bgDisc ? [{label:tr("boardGameDiscount"), value:`-${money(summary.bgDisc)}`, cls:"discount"}] : []),
       {label:`${tr("deposit")} ${cName(c)}`, value:depositValue(summary.consoleDeposit), html:true},
       ...(summary.bgDeposit ? [{label:tr("boardGameDeposit"), value:depositValue(summary.bgDeposit), html:true}] : []),
@@ -2955,10 +2955,17 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const bgSubtotal = bgItems.reduce((sum,g) => sum + bgRentalCost(g, days), 0);
     const bgDisc = promoDiscount("bg", bgSubtotal, bgItems.length);
     const bgDepositTotal = bgItems.reduce((sum,g) => sum + bgDeposit(g), 0);
-    const retDisc = state.calc.ret && state.retEnabled ? Math.round((rental + addons) * 0.1) : 0;
     const reviewGoogleDisc = state.calc.ret && state.calc.reviewGoogle ? 100 : 0;
     const reviewFacebookDisc = state.calc.ret && state.calc.reviewFacebook ? 100 : 0;
     const promoDisc = promoDiscount("console", rental + addons);
+    // Loyalty is applied last, to the eligible rental balance after every
+    // fixed promotion and review discount. This avoids discounting money the
+    // customer has already saved and keeps the summary, booking and contract
+    // handoff on the same total.
+    const returningDiscountBase = Math.max(0,
+      rental + addons - afterWorkDisc - promoDisc - reviewGoogleDisc - reviewFacebookDisc
+    );
+    const retDisc = state.calc.ret && state.retEnabled ? Math.round(returningDiscountBase * 0.1) : 0;
     const finalDeposit = state.calc.noContract ? noContractDeposit(deposit) : deposit;
     const consoleDiscounts = retDisc + reviewGoogleDisc + reviewFacebookDisc + promoDisc + afterWorkDisc;
     const subtotalAfterDiscount = Math.max(0, rental + addons - consoleDiscounts) + Math.max(0, bgSubtotal - bgDisc);
@@ -3630,10 +3637,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(s.addons) costs.push({label: en ? "Accessories" : "อุปกรณ์เสริม", value: money(s.addons)});
     if(s.bgSubtotal) costs.push({label: en ? "Board game rental" : "ค่าเช่าบอร์ดเกม", value: money(s.bgSubtotal)});
     if(s.afterWorkDisc) costs.push({label: en ? "After Work 3 Nights promotion" : "โปรโมชั่น After Work 3 Nights", value:`-${money(s.afterWorkDisc)}`, discount:true});
-    if(s.retDisc) costs.push({label: en ? "Returning customer 10% discount" : "ส่วนลดลูกค้าเก่า 10%", value:`-${money(s.retDisc)}`, discount:true});
+    if(s.promoDisc) costs.push({label: en ? "Console discount" : "ส่วนลดเครื่องเกม", value:`-${money(s.promoDisc)}`, discount:true});
     if(s.reviewGoogleDisc) costs.push({label: en ? "Google Maps review discount" : "ส่วนลดรีวิว Google Maps", value:`-${money(s.reviewGoogleDisc)}`, discount:true});
     if(s.reviewFacebookDisc) costs.push({label: en ? "Facebook review discount" : "ส่วนลดรีวิว Facebook", value:`-${money(s.reviewFacebookDisc)}`, discount:true});
-    if(s.promoDisc) costs.push({label: en ? "Console discount" : "ส่วนลดเครื่องเกม", value:`-${money(s.promoDisc)}`, discount:true});
+    if(s.retDisc) costs.push({label: en ? "Returning customer 10% discount" : "ส่วนลดลูกค้าเก่า 10%", value:`-${money(s.retDisc)}`, discount:true});
     if(s.bgDisc) costs.push({label: en ? "Board game discount" : "ส่วนลดบอร์ดเกม", value:`-${money(s.bgDisc)}`, discount:true});
     if(s.paymentFee) costs.push({label: en ? "Payment fee" : "ค่าธรรมเนียมการชำระเงิน", value:money(s.paymentFee)});
     costs.push({label: en ? `${cName(c)} deposit` : `ค่าประกัน ${cName(c)}`, value: money(s.deposit)});
@@ -3833,10 +3840,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       s.addons ? `  - อุปกรณ์เสริม: ${money(s.addons)}` : "",
       s.bgSubtotal ? `  - ค่าเช่าบอร์ดเกม: ${money(s.bgSubtotal)}` : "",
       s.afterWorkDisc ? `  - โปรโมชั่น After Work 3 Nights: -${money(s.afterWorkDisc)}` : "",
-      s.retDisc ? `  - ส่วนลดลูกค้าเก่า 10%: -${money(s.retDisc)}` : "",
+      s.promoDisc ? `  - ส่วนลดเครื่องเกม: -${money(s.promoDisc)}` : "",
       s.reviewGoogleDisc ? `  - ส่วนลดรีวิว Google Maps: -${money(s.reviewGoogleDisc)}` : "",
       s.reviewFacebookDisc ? `  - ส่วนลดรีวิว Facebook: -${money(s.reviewFacebookDisc)}` : "",
-      s.promoDisc ? `  - ส่วนลดเครื่องเกม: -${money(s.promoDisc)}` : "",
+      s.retDisc ? `  - ส่วนลดลูกค้าเก่า 10%: -${money(s.retDisc)}` : "",
       s.bgDisc ? `  - ส่วนลดบอร์ดเกม: -${money(s.bgDisc)}` : "",
       `  - ค่าประกัน ${cName(c)}: ${money(s.deposit)}${noContractSuffixTh}`
     ].filter(Boolean);
@@ -3846,10 +3853,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       s.addons ? `  - Accessories: ${money(s.addons)}` : "",
       s.bgSubtotal ? `  - Board game rental: ${money(s.bgSubtotal)}` : "",
       s.afterWorkDisc ? `  - After Work 3 Nights promotion: -${money(s.afterWorkDisc)}` : "",
-      s.retDisc ? `  - Returning customer 10% discount: -${money(s.retDisc)}` : "",
+      s.promoDisc ? `  - Console discount: -${money(s.promoDisc)}` : "",
       s.reviewGoogleDisc ? `  - Google Maps review discount: -${money(s.reviewGoogleDisc)}` : "",
       s.reviewFacebookDisc ? `  - Facebook review discount: -${money(s.reviewFacebookDisc)}` : "",
-      s.promoDisc ? `  - Console discount: -${money(s.promoDisc)}` : "",
+      s.retDisc ? `  - Returning customer 10% discount: -${money(s.retDisc)}` : "",
       s.bgDisc ? `  - Board game discount: -${money(s.bgDisc)}` : "",
       `  - ${cName(c)} deposit: ${money(s.deposit)}${noContractSuffixEn}`,
       s.paymentFee ? `  - ${paymentFeeLabel()}: ${money(s.paymentFee)}` : ""
