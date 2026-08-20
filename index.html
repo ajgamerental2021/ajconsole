@@ -164,6 +164,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-option-copy small{font-size:12px;font-weight:800;color:var(--text2)}
 .payment-option-note{display:block;margin-top:7px;color:#8a4b00!important;font-size:11px!important;font-weight:900!important;line-height:1.4}
 .payment-wise-note{max-width:560px;line-height:1.4}
+.payment-refund-links{display:block;margin-top:3px;font-size:11px!important;font-weight:800!important;line-height:1.5}
+.payment-refund-links a{color:#0b6bcb;text-decoration:underline;text-underline-offset:2px}
+.payment-refund-links a:hover{color:#c90012}
+.payment-refund-links span{color:#98a2b3}
 .payment-brand-badges{display:inline-flex;align-items:center;gap:6px;margin-left:5px;vertical-align:middle}
 .payment-card-logo{display:block;width:auto;height:20px;max-width:42px;object-fit:contain}
 .payment-wallet-badges{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:6px}
@@ -1286,7 +1290,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       personalRateWarning:"⚠️ Individual rental rates only. Tax invoice / receipt is not available. For documents, contact Line: <b>@ajgame</b> or call <b>081-624-4715</b> 🙏",
       daily:"Daily", weekly:"Weekly", day:"day", wk:"week", deposit:"Deposit", ready:"Ready", notReady:"Not ready", readyOn:"Ready on",
       bundle:"Bundle", accessories:"Accessories", noBundle:"No bundle", noAccessory:"No extra accessory", contract:"Rental contract", contractHelp:"Recommended for first-time renters. Complete it before delivery.",
-      noContract:"No rental contract", noContractHelp:"First-time renters must complete the rental agreement and attach a copy of their ID card / Passport plus a selfie holding the ID card / Passport in all cases. If this is inconvenient, check this box. The deposit will increase from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the model.",
+      noContract:"No rental contract", noContractHelp:"First-time renters must complete the rental agreement and attach a copy of their ID card / Passport plus a selfie holding the ID card / Passport in all cases. If this is inconvenient, check this box. The deposit will increase from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the model.", wiseLinkTime:"Wise transfer time", wiseLinkPolicy:"Wise policy", wiseLinkCoverage:"Where Wise works",
       returning:"Returning customer: 10% off rental fee", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"💵 Balance on delivery", bank:"🏦 Thai Bank Transfer", wise:"🌍 Wise", credit:"💳 Credit Card: pay full amount + 3.50% fee", ewallet:"👛 E-Wallet: pay full amount + 2.95%",
       reviewGoogle:"Extra ฿100 discount for a Google Maps review", reviewFacebook:"Extra ฿100 discount for a Facebook review", reviewGoogleHelp:"To receive this discount, tap Review Google Maps below, then send a screenshot to the AJ chat you are using.", reviewFacebookHelp:"To receive this discount, tap Review Facebook below, then send a screenshot to the AJ chat you are using.", reviewGoogleBtn:"Review Google Maps", reviewFacebookBtn:"Review Facebook", reviewGoogleDiscount:"Google Maps review discount", reviewFacebookDiscount:"Facebook review discount",
       boardGameCollapsed:"Want board games? Expand to add them to this rental.", ps5BundleCollapsed:"Want a bundle? Expand to pair PS5 with another device.",
@@ -2673,6 +2677,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function paymentReservationBadgesHtml(){
     return `${paymentCardBadgesHtml()}${paymentEwalletBadgesHtml()}`;
   }
+  const DEPOSIT_REFUND_HELP_LINKS = [
+    ["wiseLinkTime", "https://wise.com/help/articles/2524078/how-long-will-my-transfer-take"],
+    ["wiseLinkPolicy", "https://wise.com/help/articles/2971625/how-do-i-cancel-my-transfer"],
+    ["wiseLinkCoverage", "https://wise.com/gb/send-money/"]
+  ];
   function cashDeliveryOptionHtml(){
     const title = state.lang === "en"
       ? "💵 Balance on delivery"
@@ -2683,12 +2692,17 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function paymentRefundNoteHtml(){
     const text = state.lang === "en"
-      ? "Card/E-Wallet deposit refunds: cash or Thai bank transfer only."
+      ? "Deposit refund: Wise (1–3 business days) or Thai bank transfer, if available."
       : "หากชำระด้วยบัตร/E-Wallet คืนค่าประกันเป็นเงินโอนเท่านั้น";
-    return `<small class="payment-option-note">${text}</small>`;
+    const note = `<small class="payment-option-note">${text}</small>`;
+    if(state.lang !== "en") return note;
+    const links = DEPOSIT_REFUND_HELP_LINKS
+      .map(([key, href]) => `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(tr(key))}</a>`)
+      .join('<span aria-hidden="true"> · </span>');
+    return `${note}<small class="payment-refund-links">${links}</small>`;
   }
   function wiseOptionHtml(){
-    return `<span class="payment-option-copy"><span>🌍 Wise: pay full amount</span><small class="payment-wise-note">Wise payments are unavailable on weekends and Thai bank holidays because funds arrive on the next business day.</small><small class="payment-option-note">Wise deposit refunds: cash or Thai bank transfer only.</small></span>`;
+    return `<span class="payment-option-copy"><span>🌍 Wise: pay full amount</span><small class="payment-wise-note">Wise payments are unavailable on weekends and Thai bank holidays because funds arrive on the next business day.</small>${paymentRefundNoteHtml()}</span>`;
   }
   function creditOptionHtml(){
     const title = state.lang === "en" ? "💳 Credit Card: pay full amount" : "💳 บัตรเครดิต: ชำระเต็มจำนวน";

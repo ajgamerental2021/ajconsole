@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-08-20 — English deposit-refund guidance restored
+
+- Production payment options again state: “Deposit refund: Wise (1–3 business days) or Thai bank transfer, if available.”
+- The English note includes links to Wise transfer timing, transfer policy, and country coverage. Thai wording is unchanged.
+
 ## 2026-08-20 — PS5 bundles hold every physical device
 
 - A PS5 bundle booking now sends an atomic multi-device hold containing PS5 plus the selected physical bundle device: PS Portal, PS VR2, Logitech G29, or PS FlexStrike Wireless Fight Stick.
