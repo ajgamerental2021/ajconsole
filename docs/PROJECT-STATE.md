@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-08-20 — PS5 bundles hold every physical device
+
+- A PS5 bundle booking now sends an atomic multi-device hold containing PS5 plus the selected physical bundle device: PS Portal, PS VR2, Logitech G29, or PS FlexStrike Wireless Fight Stick.
+- The booking-hold API exposes each held device to availability polling, so a bundled peripheral is blocked from standalone and other bundle bookings for the same dates.
+- Multi-device holds are stored and restored together in the customer's browser while remaining compatible with older single-device hold data.
+
 ## 2026-08-20 — LINE booking message fallback on desktop
 
 - LINE booking handoffs still use the official message URL so mobile opens LINE with the complete booking message prefilled.

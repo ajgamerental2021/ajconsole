@@ -2742,12 +2742,34 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(/^AJ-[A-Z0-9-]{6,40}$/i.test(String(state.calc.rentalCode || ""))) return state.calc.rentalCode;
     return `AJ-${rentalCodeDate()}-R0000-${offlineCodeSuffix()}`;
   }
+  function selectedBundleHoldDevice(){
+    if(Number(state.calc.consoleId) !== SPEC.PS5 || !state.calc.bundleId) return null;
+    const bundle = state.bundles.find(item => String(item.id) === String(state.calc.bundleId));
+    if(!bundle) return null;
+    const identity = norm([bundle.id, bundle.th, bundle.en].join(" "));
+    const targetName = identity.includes("portal") ? "PS Portal"
+      : (identity.includes("vr2") ? "PS VR2"
+        : (identity.includes("g29") || identity.includes("logitech") ? "Logitech G29"
+          : (identity.includes("flexstrike") ? "PS FlexStrike Wireless Fight Stick" : "")));
+    if(!targetName) return null;
+    return state.consoles.find(item => availabilityAliases(item).has(norm(targetName)))
+      || {name:targetName, nameEn:targetName};
+  }
+  function bookingHoldDevicePayload(){
+    const primary = consoleById(state.calc.consoleId);
+    if(!primary) return [];
+    const devices = [primary, selectedBundleHoldDevice()].filter(Boolean);
+    return devices.map(device => {
+      const aliases = availabilityAliases(device);
+      const capacity = Math.max(1, state.availability.rows.filter(row => aliases.has(norm(row.deviceName))).length);
+      return {deviceName:cName(device), capacity};
+    });
+  }
   async function acquireBookingHold(rentalCode){
     const c = consoleById(state.calc.consoleId);
     const start = parseDate(state.calc.start), end = parseDate(state.calc.end);
     if(!c || !start || !end) throw new Error("booking_hold_invalid");
-    const aliases = availabilityAliases(c);
-    const capacity = Math.max(1, state.availability.rows.filter(row => aliases.has(norm(row.deviceName))).length);
+    const devices = bookingHoldDevicePayload();
     const response = await fetch(`${CONFIG.apiBase}/api/booking-holds`, {
       method:"POST",
       cache:"no-store",
@@ -2758,7 +2780,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         deviceName:cName(c),
         startDate:fmtIso(start),
         endDate:fmtIso(end),
-        capacity
+        capacity:devices[0]?.capacity || 1,
+        devices
       })
     });
     const result = await response.json().catch(() => ({}));
@@ -2769,11 +2792,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       throw error;
     }
     if(!response.ok || !result?.hold) throw new Error("booking_hold_unavailable");
+    const acquiredHolds = Array.isArray(result.holds) && result.holds.length ? result.holds : [result.hold];
     state.availability.holds = [
       ...(state.availability.holds || []).filter(hold => !hold.mine),
-      {...result.hold, mine:true}
+      ...acquiredHolds.map(hold => ({...hold, mine:true}))
     ];
-    localStorage.setItem(OWN_BOOKING_HOLD_KEY, JSON.stringify({...result.hold, mine:true}));
+    localStorage.setItem(OWN_BOOKING_HOLD_KEY, JSON.stringify(acquiredHolds.map(hold => ({...hold, mine:true}))));
     return result.hold;
   }
   async function releaseBookingHold(rentalCode=""){
@@ -3065,12 +3089,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function savedOwnBookingHold(){
     try{
-      const hold = JSON.parse(localStorage.getItem(OWN_BOOKING_HOLD_KEY) || "null");
-      if(!hold || Date.parse(hold.expiresAt || "") <= Date.now()){
+      const stored = JSON.parse(localStorage.getItem(OWN_BOOKING_HOLD_KEY) || "null");
+      const holds = (Array.isArray(stored) ? stored : [stored]).filter(Boolean);
+      const active = holds.filter(hold => Date.parse(hold.expiresAt || "") > Date.now());
+      if(!active.length){
         localStorage.removeItem(OWN_BOOKING_HOLD_KEY);
         return null;
       }
-      return {...hold, mine:true};
+      return active.map(hold => ({...hold, mine:true}));
     }catch{
       localStorage.removeItem(OWN_BOOKING_HOLD_KEY);
       return null;
@@ -3080,7 +3106,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const own = savedOwnBookingHold();
     const holds = Array.isArray(apiHolds) ? apiHolds : [];
     if(!own) return holds;
-    return [...holds.filter(hold => hold.id !== own.id && !hold.mine), own];
+    const ownIds = new Set(own.map(hold => hold.id));
+    return [...holds.filter(hold => !ownIds.has(hold.id) && !hold.mine), ...own];
   }
   async function refreshBookingHolds(signal){
     const response = await fetch(`${CONFIG.apiBase}/api/booking-holds?holderId=${encodeURIComponent(bookingHoldHolderId())}&_ts=${Date.now()}`, {cache:"no-store", signal});
@@ -3116,6 +3143,17 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function availableUnitsForRange(matches, start, end){
     return matches.filter(row => rowAvailableForRange(row, start, end)).length;
   }
+  function selectedBundleAvailabilityGate(start, end){
+    const device = selectedBundleHoldDevice();
+    if(!device) return {pass:true};
+    if(isQueueClosed(device, start, end)) return {pass:false, message:tr("queueClosed")};
+    const aliases = availabilityAliases(device);
+    const matches = state.availability.rows.filter(row => aliases.has(norm(row.deviceName)));
+    if(!matches.length) return {pass:true};
+    const holds = activeBookingHolds(device, start, end);
+    if(availableUnitsForRange(matches, start, end) > holds.length) return {pass:true};
+    return {pass:false, message:holds.length ? holdMessage("bookingHold", holds) : tr("busy"), holds};
+  }
   function holdMinutes(holds){
     const seconds = Math.max(1, Math.min(...holds.map(hold => {
       const fromApi = Number(hold.remainingSeconds);
@@ -3141,6 +3179,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(!startDateAllowed(start)) return {mode:"cutoff",pass:false,message:tr("cutoffStartNotice")};
     if(diffDays(start,end) < 3) return {mode:"min",pass:false,message:tr("minDays")};
     if(!state.availability.rows.length) return {mode:"fallback",pass:true,message:""};
+    const bundleGate = selectedBundleAvailabilityGate(start, end);
+    if(!bundleGate.pass) return {mode:bundleGate.holds?.length ? "hold" : "busy",pass:false,message:bundleGate.message};
     const aliases = availabilityAliases(c);
     const matches = state.availability.rows.filter(row => aliases.has(norm(row.deviceName)));
     if(!matches.length) return {mode:"fallback",pass:true,message:""};
@@ -3302,6 +3342,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(state.availability.error || !state.availability.lastSync) return {cls:"disabled", note:tr("queueError")};
       return {cls:"available", note:calendarCellText("available")};
     }
+    const bundleGate = selectedBundleAvailabilityGate(start, end);
+    if(!bundleGate.pass) return {cls:"busy", note:bundleGate.holds?.length ? holdMessage("bookingHoldCell", bundleGate.holds) : calendarCellText("unavailable")};
     const aliases = availabilityAliases(c);
     const matches = state.availability.rows.filter(row => aliases.has(norm(row.deviceName)));
     if(!matches.length) return {cls:"available", note:calendarCellText("available")};
@@ -3322,6 +3364,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(start && !startDateAllowed(start)) return false;
     if(c && start && end && isQueueClosed(c, start, end)) return false;
     if(!c || !start || !end || !state.availability.rows.length) return true;
+    if(!selectedBundleAvailabilityGate(start, end).pass) return false;
     const aliases = availabilityAliases(c);
     const matches = state.availability.rows.filter(row => aliases.has(norm(row.deviceName)));
     if(!matches.length) return true;
