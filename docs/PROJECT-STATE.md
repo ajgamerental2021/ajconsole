@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-08-20 — LINE booking message fallback on desktop
+
+- LINE booking handoffs still use the official message URL so mobile opens LINE with the complete booking message prefilled.
+- On desktop devices with a fine pointer, the booking message is also copied to the clipboard before opening LINE. This gives PC customers a paste-ready fallback when LINE cannot open automatically.
+- Mobile user agents are explicitly excluded from the extra copy step, preserving the existing working mobile flow.
+
 ## 2026-08-18 — reliable LINE, WhatsApp, and Messenger booking handoff
 
 - Both the booking page and post-contract completion flow now use the current percent-encoded LINE OA URL (`%40ajgame`) and same-page universal navigation for LINE/WhatsApp, avoiding popup blockers after asynchronous booking work.

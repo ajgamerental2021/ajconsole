@@ -4001,6 +4001,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       return copied;
     }
   }
+  function shouldCopyLineMessageForDesktop(){
+    const mobileUserAgent = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "");
+    const desktopPointer = typeof window.matchMedia === "function"
+      && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    return !mobileUserAgent && desktopPointer;
+  }
   function shareChannelLabel(channel){
     if(channel === "line") return "LINE";
     if(channel === "whatsapp") return "WhatsApp";
@@ -4168,6 +4174,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const msg = handoff.message;
       submitRentalToSheet(summary, code, "line", msg, handoff.data);
       pushLineGamePickerCard(code);
+      if(shouldCopyLineMessageForDesktop()) await writeBookingClipboard(msg).catch(() => false);
       setShareStatus("line", "opened");
       await new Promise(resolve => window.setTimeout(resolve, 450));
       location.href = `${CONFIG.lineOaMessageUrl}?${encodeURIComponent(msg)}`;
