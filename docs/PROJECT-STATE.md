@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-08-21 — All rental-agreement handoffs use LIFF
+
+- Booking messages shared through LINE, Messenger, and WhatsApp now carry a `liff.line.me` agreement URL even before a LINE user ID is known, allowing LIFF to capture the customer's LINE profile when opened.
+- Structured booking context tokens now travel in the LIFF URL instead of a direct Render `/c/` URL, preserving device, dates, duration, delivery map, games, add-ons, and every applicable discount.
+- LIFF Admin booking corrections now return and copy the same LIFF agreement URL in Thai and English; the Rental ID still reloads the corrected structured booking.
+
 ## 2026-08-21 — English booking copy says Thai QR Scan
 
 - The generated and rebuilt English booking message now labels the balance-on-delivery method “Thai QR Scan”; payment-page and Thai copy are unchanged.

@@ -3621,7 +3621,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function rentalContractLink(code){
     const lineUserId = lineUniqueId();
-    const url = new URL(lineUserId ? CONFIG.contractUrl : CONFIG.contractWebUrl, location.href);
+    const url = new URL(CONFIG.contractUrl, location.href);
     if(lineUserId) url.searchParams.set("lineUserId", lineUserId);
     url.searchParams.set("lang", state.lang === "en" ? "en" : "th");
     url.searchParams.set("paymentOption", state.calc.payment || "cash");
@@ -3750,8 +3750,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       });
       if(!response.ok) throw new Error(`Contract context ${response.status}`);
       const result = await response.json();
-      if(!result?.contextToken || !result?.shortPath) throw new Error("Contract context response invalid");
-      const url = new URL(result.shortPath, CONFIG.contractWebUrl).toString();
+      if(!result?.contextToken) throw new Error("Contract context response invalid");
+      const contractUrl = new URL(CONFIG.contractUrl);
+      contractUrl.searchParams.set("ctx", result.contextToken);
+      contractUrl.searchParams.set("lang", data.lang === "EN" ? "en" : "th");
+      contractUrl.hash = encodeURIComponent(code);
+      const url = contractUrl.toString();
       const message = bookingMessage(code, url);
       const updateEndpoint = new URL(`/api/booking-context/${encodeURIComponent(result.contextToken)}/message`, CONFIG.contractWebUrl);
       await fetch(updateEndpoint, {
