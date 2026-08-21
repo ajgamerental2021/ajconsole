@@ -1,5 +1,9 @@
 # Project state
 
+## 2026-08-21 — English booking copy says Thai QR Scan
+
+- The generated and rebuilt English booking message now labels the balance-on-delivery method “Thai QR Scan”; payment-page and Thai copy are unchanged.
+
 ## 2026-08-21 — Removed cash from English payment copy
 
 - English payment options and generated/rebuilt booking messages now list Thai QR, Card, and E-Wallet for the balance due on delivery without offering cash.
