@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-08-21 — Complete corrected booking copy and faster Admin save
+
+- Corrected booking copy now includes a non-zero delivery fee even when a legacy dedicated field still contains `0`; the Admin form also derives that field from an existing Thai or English delivery cost row and stores one canonical row on save.
+- Successful Admin corrections append the reusable rental-agreement link to the copied Thai/English booking details unless No contract is selected.
+- Reservation cancellation copy now names the exact deposit: Thai bank-transfer reservations are ฿200; English card/E-Wallet/Thai QR bank-transfer reservations are ฿1,000.
+- Removed the redundant post-write Apps Script read from Admin booking saves. It could return stale data and made mobile requests time out after the write had already succeeded. Save progress/failure labels are now specific to saving rather than sending.
+- Bot verification: 118/118 tests pass, including a regression for `deliveryFee: 0` plus a `Delivery fee = ฿300` cost row.
+
 ## 2026-08-21 — Bilingual Admin booking correction and delivery fee
 
 - LIFF Admin > Bookings now includes an explicit TH/EN output-language selector and a dedicated delivery-fee field.
