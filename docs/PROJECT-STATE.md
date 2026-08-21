@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-08-21 — Bilingual Admin booking correction and delivery fee
+
+- LIFF Admin > Bookings now includes an explicit TH/EN output-language selector and a dedicated delivery-fee field.
+- The delivery fee is stored with the structured booking and appears exactly once in rebuilt Thai or English booking details.
+- The edit screen can copy the untouched original customer booking message before any correction. After saving, the result screen can copy the newly rebuilt booking message as well as copy/open the rental-agreement link.
+- The selected language controls both the rebuilt booking message and the generated agreement URL.
+- Bot verification: 117/117 tests pass.
+
 ## 2026-08-21 — Admin booking correction now returns a contract link
 
 - Saving LIFF Admin > Bookings now refreshes any seven-day in-memory booking context so the contract does not reload stale pre-edit pricing.
