@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-08-21 — Admin booking correction now returns a contract link
+
+- Saving LIFF Admin > Bookings now refreshes any seven-day in-memory booking context so the contract does not reload stale pre-edit pricing.
+- A successful save shows a reusable rental-agreement URL for the same Rental ID, with Copy and Open actions. No replacement Rental ID is created.
+- For an accidental returning-customer discount, remove the discount row, restore total/upfront/on-delivery values, leave No contract unchecked, save, and send the generated link.
+- Bot test suite: 116/116.
+
 ## 2026-08-20 — English deposit-refund guidance restored
 
 - Production payment options again state: “Deposit refund: Wise (1–3 business days) or Thai bank transfer, if available.”
