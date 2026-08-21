@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-08-21 — Removed cash from English payment copy
+
+- English payment options and generated/rebuilt booking messages now list Thai QR, Card, and E-Wallet for the balance due on delivery without offering cash.
+- Removed the obsolete English cash-payment sentence from the admin-managed FAQ in the production Gist.
+- Thai payment copy and behavior are unchanged.
+
 ## 2026-08-21 — Complete corrected booking copy and faster Admin save
 
 - Corrected booking copy now includes a non-zero delivery fee even when a legacy dedicated field still contains `0`; the Admin form also derives that field from an existing Thai or English delivery cost row and stores one canonical row on save.

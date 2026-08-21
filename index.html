@@ -2686,7 +2686,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const title = state.lang === "en"
       ? "💵 Balance on delivery"
       : "💸 จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง";
-    const firstLine = state.lang === "en" ? "Cash or Thai QR scan (no fee)" : "เงินโอน (ไม่มีค่าธรรมเนียม)";
+    const firstLine = state.lang === "en" ? "Thai QR scan (no fee)" : "เงินโอน (ไม่มีค่าธรรมเนียม)";
     const secondLine = state.lang === "en" ? "Card (+3.50%) or E-Wallet (+2.95%)" : "บัตร (+3.50%) หรือ E-Wallet (+2.95%)";
     return `<span class="payment-option-copy"><span>${title}</span><small>${firstLine}</small><small>${secondLine}</small>${paymentReservationBadgesHtml()}${paymentRefundNoteHtml()}</span>`;
   }
@@ -3887,7 +3887,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ...paymentLinkLinesEn,
       ...(s.onDelivery > 0 ? [
         `🚚 Pay on delivery: ${money(s.onDelivery)}`,
-        "** Cash or Thai QR (no fee), Card (+3.50%) or E-Wallet (+2.95%) **"
+        "** Thai QR (no fee), Card (+3.50%) or E-Wallet (+2.95%) **"
       ] : [])
     ] : [
       `💳 Payment option: ${paymentOptionEn}`,
@@ -6022,7 +6022,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ...(paymentLink ? [`🔗 Payment link: ${paymentLink}`] : []),
       "",
       ...(onDelivery ? [`🚚 Pay on delivery: ${onDelivery}`] : []),
-      "** Cash or Thai QR (no fee), Card (+3.50%) or E-Wallet (+2.95%) **",
+      "** Thai QR (no fee), Card (+3.50%) or E-Wallet (+2.95%) **",
       ""
     ] : [
       "",
