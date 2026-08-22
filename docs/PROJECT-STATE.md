@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-08-22 — Returning-customer eligibility and newest-first event cards
+
+- The 10% returning-customer checkbox now opens a bilingual eligibility dialog before it can affect pricing. Thai customers enter their prior-rental phone number plus the last four Thai-ID digits; English customers enter their agreement name plus the last four Passport characters.
+- The bot checks those two values against prior contract rows server-side, returns only `eligible: true/false`, rate-limits attempts, and never returns identity or contract details to the booking page. Invalid, unavailable, and no-match states leave the discount unchecked.
+- Customer Reviews & Past Events now places newly added Admin entries first. Added “TILOG-LogistiX 2026 at BITEC Bangna” as the first current card, with a 1000×1000 optimized image and the supplied Facebook detail link.
+- Bot verification: 119/119 tests pass, including Thai/English partial-identity validation and renter-type matching.
+
 ## 2026-08-22 — Wise business-day guard and restored Step 3 order
 
 - English Wise full payment is disabled on Saturdays, Sundays, and the 2026 Bank of Thailand financial-institution holidays. The card explains why it is unavailable and any previously selected Wise value falls back safely to balance on delivery.
