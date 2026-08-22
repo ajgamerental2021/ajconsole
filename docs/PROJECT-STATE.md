@@ -5,7 +5,7 @@
 - On page startup, an existing LIFF login is detected without forcing a login. The LINE access token is verified with LINE server-side before any customer-history lookup; a raw browser-supplied LINE User ID is never trusted for eligibility.
 - A verified LINE User ID qualifies through either an `AJ Contract` row or a `Line / WhatsApp LOGs` Rental History row whose status is exactly `Confirmed`. Merely submitted `Pending` records and `Canceled` records never qualify.
 - Customers without a LIFF session, without a linked LINE User ID, or without matching history retain the existing bilingual partial-identity verification fallback.
-- Step 3 shows a prominent bilingual green confirmation above the discount checkbox when LINE eligibility is found. The manual partial-identity check continues to search contract rows only.
+- When LINE eligibility is found, the page automatically selects the 10% returning-customer discount, keeps the contract branch consistent, and skips the corresponding Finger Guide questions. Step 3 shows a prominent bilingual green confirmation above the already-checked discount box. The manual partial-identity check continues to search contract rows only.
 
 ## 2026-08-22 — Returning-customer eligibility and newest-first event cards
 
