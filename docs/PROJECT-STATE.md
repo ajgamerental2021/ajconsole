@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-08-22 — Wise business-day guard and restored Step 3 order
+
+- English Wise full payment is disabled on Saturdays, Sundays, and the 2026 Bank of Thailand financial-institution holidays. The card explains why it is unavailable and any previously selected Wise value falls back safely to balance on delivery.
+- Production Step 3 is again ordered as Board Game Bundle → Google Maps → returning-customer discount (and its review discounts) → rental contract choice/link → payment.
+- Thai and English returning-customer labels now state that the 10% discount is for returning customers only; review cards carry the same eligibility badge, while the one-year agreement warning remains intact.
+- The finger guide follows the same visual order in both languages, including the returning-customer and no-contract branches.
+- Returning-customer identity verification was intentionally not enabled yet. Recommended next step is a server-side eligibility endpoint with rate limiting and a short-lived signed eligibility token; do not expose or query Thai ID/passport records directly from the browser.
+
 ## 2026-08-21 — All rental-agreement handoffs use LIFF
 
 - Booking messages shared through LINE, Messenger, and WhatsApp now carry a `liff.line.me` agreement URL even before a LINE user ID is known, allowing LIFF to capture the customer's LINE profile when opened.
