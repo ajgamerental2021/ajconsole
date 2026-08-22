@@ -2,7 +2,7 @@
 
 ## 2026-08-22 — Automatic LINE returning-customer verification
 
-- On page startup, an existing LIFF login is detected without forcing a login. The LINE access token is verified with LINE server-side before any customer-history lookup; a raw browser-supplied LINE User ID is never trusted for eligibility.
+- On page startup, an existing LIFF login is detected without forcing a login. The LINE access token is verified with LINE server-side when available. LINE's in-app browser can retain the known LINE User ID while exposing no LIFF access token on the direct production URL, so that validated opaque `U` identifier is now a rate-limited fallback for the same server-side history lookup.
 - A verified LINE User ID qualifies through either an `AJ Contract` row or a `Line / WhatsApp LOGs` Rental History row whose status is exactly `Confirmed`. Merely submitted `Pending` records and `Canceled` records never qualify.
 - Customers without a LIFF session, without a linked LINE User ID, or without matching history retain the existing bilingual partial-identity verification fallback.
 - When LINE eligibility is found, the page automatically selects the 10% returning-customer discount, keeps the contract branch consistent, and skips the corresponding Finger Guide questions. Step 3 shows a prominent bilingual green confirmation above the already-checked discount box. The manual partial-identity check continues to search contract rows only.
