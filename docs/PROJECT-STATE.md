@@ -3,9 +3,9 @@
 ## 2026-08-22 — Automatic LINE returning-customer verification
 
 - On page startup, an existing LIFF login is detected without forcing a login. The LINE access token is verified with LINE server-side before any customer-history lookup; a raw browser-supplied LINE User ID is never trusted for eligibility.
-- A verified LINE User ID is searched in both `AJ Contract` and `Line / WhatsApp LOGs`. Matching non-cancelled rental history pre-verifies the returning-customer discount before Step 3, so selecting 10% no longer opens the phone/ID or name/Passport dialog.
+- A verified LINE User ID is searched only in `AJ Contract`, because `Line / WhatsApp LOGs` records submitted booking details and does not prove that the customer has rented before. Matching contract history pre-verifies the returning-customer discount before Step 3, so selecting 10% no longer opens the phone/ID or name/Passport dialog.
 - Customers without a LIFF session, without a linked LINE User ID, or without matching history retain the existing bilingual partial-identity verification fallback.
-- The page shows a bilingual “verified through LINE” note but does not display the LINE User ID. Bot coverage is now 121/121 tests, including dynamic log-column order and cancelled/incomplete rows.
+- The page shows a bilingual “verified through LINE” note but does not display the LINE User ID. The manual partial-identity check also continues to search contract rows only.
 
 ## 2026-08-22 — Returning-customer eligibility and newest-first event cards
 
