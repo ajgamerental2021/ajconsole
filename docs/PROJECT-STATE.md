@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-08-22 — Rental-agreement minimum-age notice
+
+- The production Step 3 rental-agreement card now states in Thai and English that the person entering into the rental agreement must be at least 20 years old.
+- The warning appears only in the branch where the customer will complete a rental agreement; no-contract behavior and pricing are unchanged.
+
 ## 2026-08-22 — Dedicated LIFF endpoint for the production booking site
 
 - Production `index.html` now uses LIFF ID `2010212481-IXO3gDQp` for the main booking website. The former ID belongs to the Delivery App and is no longer used by production booking-page LINE initialization.
