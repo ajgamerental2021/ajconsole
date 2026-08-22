@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-08-22 — Dedicated LIFF endpoint for the production booking site
+
+- Production `index.html` now uses LIFF ID `2010212481-IXO3gDQp` for the main booking website. The former ID belongs to the Delivery App and is no longer used by production booking-page LINE initialization.
+- Browsers that retained the former Delivery App LIFF ID in `aj_liff_id` automatically remove only that obsolete value and migrate to the new production ID. Custom/non-matching values remain untouched.
+- The rental-contract LIFF ID and `index-demo.html` are unchanged.
+
 ## 2026-08-22 — Automatic LINE returning-customer verification
 
 - On page startup, an existing LIFF login is detected without forcing a login. The LINE access token is verified with LINE server-side when available. LINE's in-app browser can retain the known LINE User ID while exposing no LIFF access token on the direct production URL, so that validated opaque `U` identifier is now a rate-limited fallback for the same server-side history lookup.

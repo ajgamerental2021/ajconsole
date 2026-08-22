@@ -1027,7 +1027,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     wiseBankNameEn: "Krung Thai",
     wiseAccountNameEn: "Somchai Hemsiri",
     wiseEmail: "ajgamerental2021@gmail.com",
-    lineLiffId: "2010212481-16RHJsnX",
+    lineLiffId: "2010212481-IXO3gDQp",
     facebookPageUrl: "https://www.facebook.com/ajgamerental",
     googleMapsUrl: "https://maps.app.goo.gl/QoGqkWe64QRxBGjT6"
   };
@@ -4686,10 +4686,18 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       document.head.appendChild(s);
     });
   }
+  function activeLineLiffId(){
+    const stored = String(localStorage.getItem("aj_liff_id") || "").trim();
+    if(stored === "2010212481-16RHJsnX"){
+      localStorage.removeItem("aj_liff_id");
+      return CONFIG.lineLiffId;
+    }
+    return stored || CONFIG.lineLiffId;
+  }
   async function connectLine(){
     try{
       const liff = await loadLineSdk();
-      await liff.init({liffId:String(localStorage.getItem("aj_liff_id") || CONFIG.lineLiffId)});
+      await liff.init({liffId:activeLineLiffId()});
       if(!liff.isLoggedIn()){ liff.login(); return; }
       const profile = await liff.getProfile();
       localStorage.setItem("aj_line_unique_id", profile.userId || "");
@@ -4708,7 +4716,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       let profile = existingProfile;
       try{
         const liff = existingLiff || await loadLineSdk();
-        if(!existingLiff) await liff.init({liffId:String(localStorage.getItem("aj_liff_id") || CONFIG.lineLiffId)});
+        if(!existingLiff) await liff.init({liffId:activeLineLiffId()});
         if(liff.isLoggedIn()){
           accessToken = String(liff.getAccessToken?.() || "").trim();
           profile = existingProfile || await liff.getProfile();
