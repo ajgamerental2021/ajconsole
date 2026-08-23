@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-08-23 — First-name matching and resilient availability loading
+
+- Manual returning-customer checks now require the customer's first name only; surname is explicitly not required in Thai and English. The Rental ID suffix or phone must match a `Confirmed` row with the same normalized first name.
+- A repeated five-character Rental ID suffix is therefore safe when the first names differ. Multiple confirmed rows with both the same suffix and first name still fail closed.
+- English Passport verification also uses first name only, while Thai ID verification keeps phone plus the last four Thai-ID digits.
+- Availability now races the existing Apps Script request against a same-origin bot proxy with a 30-second server cache. The first valid response wins, and the calendar no longer waits for queue-closure or booking-hold refreshes before showing dates.
+- Local UI verification showed available calendar cells after 4.5 seconds with no stuck checking or queue-error state. Bot tests pass 126/126 and frontend syntax/diff checks pass.
+
 ## 2026-08-23 — Returning-customer verification without an ID/Passport record
 
 - The bilingual returning-customer dialog keeps the existing contract-based verification and adds an explicit branch for customers whose Thai ID or Passport was not recorded.
