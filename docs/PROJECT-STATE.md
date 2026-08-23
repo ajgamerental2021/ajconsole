@@ -1,5 +1,14 @@
 # Project state
 
+## 2026-08-23 — Returning-customer verification without an ID/Passport record
+
+- The bilingual returning-customer dialog keeps the existing contract-based verification and adds an explicit branch for customers whose Thai ID or Passport was not recorded.
+- That branch verifies either the last five characters of a previous Rental ID or a previously supplied phone number against `Line / WhatsApp LOGs`. Only rows whose status is exactly `Confirmed` qualify.
+- Five-character Rental ID suffixes can repeat across dates, so the API fails closed unless exactly one confirmed row matches. Phone lookup accepts 8–15 digits and ignores formatting.
+- A switch beside the Rental ID field changes the lookup to phone, and a “How to find Rental ID” control reveals the supplied Thai or English example image in the dialog.
+- LINE Unique ID auto-verification remains the first choice and bypasses this dialog when a confirmed rental is already linked.
+- Bot verification: 125/125 tests pass, including pending/cancelled rejection, ambiguous Rental ID rejection, and confirmed phone matching.
+
 ## 2026-08-23 — Review discounts during After Work promotion
 
 - When After Work 3 Nights sets the rental price to ฿999, the Google Maps and Facebook review discounts are now ฿50 each instead of ฿100 each.

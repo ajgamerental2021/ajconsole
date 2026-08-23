@@ -171,6 +171,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .returning-verify-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
 .returning-verify-status{min-height:20px;font-size:13px;font-weight:900}
 .returning-verify-status.error{color:#c00000}
+.returning-verify-alt{padding:12px;border:1px solid var(--border);border-radius:12px;background:#fafafa}
+.returning-verify-alt>label{display:flex;align-items:flex-start;gap:9px;font-size:13px;font-weight:900;cursor:pointer}
+.returning-verify-alt input[type="checkbox"]{width:18px;height:18px;margin:1px 0 0;accent-color:#d71920;flex:0 0 auto}
+.returning-history-label{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:7px}
+.returning-history-switch{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:900;cursor:pointer}
+.returning-history-example{display:none;margin-top:10px;padding:9px;border:1px solid var(--border);border-radius:10px;background:#eafff4}
+.returning-history-example.open{display:block}
+.returning-history-example img{display:block;width:100%;height:auto;border-radius:6px}
 .returning-line-confirmed{margin:0 0 10px;padding:12px 14px;border:1px solid #9fd9b0;border-radius:12px;background:#effaf2;color:#126b31;display:flex;gap:10px;align-items:flex-start}
 .returning-line-confirmed strong{display:block;font-size:14px;line-height:1.35}
 .returning-line-confirmed span{display:block;margin-top:2px;font-size:12px;font-weight:800;line-height:1.4}
@@ -1222,7 +1230,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       bundle:"Bundle", accessories:"อุปกรณ์เสริม", noBundle:"ไม่เพิ่ม Bundle", noAccessory:"ไม่เพิ่มอุปกรณ์เสริม", contract:"ทำสัญญาการเช่า", contractHelp:"แนะนำสำหรับผู้เช่าครั้งแรก กรอกก่อนนัดส่งเครื่อง", contractAge:"*ผู้ทำสัญญาการเช่าต้องมีอายุ 20 ปีขึ้นไปเท่านั้น*",
       noContract:"ไม่ต้องการทำสัญญาการเช่า", noContractHelp:"สำหรับผู้เช่าครั้งแรก ต้องทำสัญญาและแนบสำเนาบัตรประชาชน / Passport + รูปเซลฟี่คู่บัตรหรือ Passport ทุกกรณี หากไม่สะดวก ให้ติ๊กช่องนี้ ค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น",
       returning:"ลูกค้าเก่า (เท่านั้น) รับส่วนลด 10% ค่าเช่า", returningOnly:"ลูกค้าเก่าเท่านั้น", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง", bank:"🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%",
-      wiseAvailabilityNote:"ไม่สามารถชำระผ่าน Wise ในวันเสาร์-อาทิตย์หรือวันหยุดธนาคารไทยได้ เนื่องจากเงินจะเข้าในวันทำการถัดไป", wiseUnavailableWeekend:"วันนี้ไม่สามารถเลือก Wise ได้ (วันเสาร์-อาทิตย์)", wiseUnavailableHoliday:"วันนี้ไม่สามารถเลือก Wise ได้ (วันหยุดธนาคารไทย)", returningVerifyTitle:"ยืนยันสิทธิ์ส่วนลดลูกค้าเก่า", returningVerifyHelp:"กรอกเบอร์โทรที่เคยใช้เช่า และเลขบัตรประชาชน 4 ตัวท้าย", returningVerifyPhone:"เบอร์โทรศัพท์", returningVerifyLast4:"เลขบัตรประชาชน 4 ตัวท้าย", returningVerifySubmit:"ตรวจสอบสิทธิ์", returningVerifyCancel:"ยกเลิก", returningVerifyChecking:"กำลังตรวจสอบ...", returningVerifySuccess:"ยืนยันสิทธิ์ลูกค้าเก่าเรียบร้อย", returningVerifyNotFound:"ไม่พบประวัติที่ตรงกัน กรุณาตรวจสอบข้อมูลหรือติดต่อ AJ", returningVerifyError:"ตรวจสอบสิทธิ์ไม่ได้ในขณะนี้ กรุณาลองใหม่ภายหลัง", returningVerifyInvalid:"กรุณากรอกเบอร์โทร 10 หลัก และเลขบัตร 4 ตัวท้าย", returningLineVerifiedTitle:"ตรวจพบประวัติลูกค้าเก่า ใช้ส่วนลดค่าเช่า 10% แล้ว", returningLineVerifiedDetail:"ยืนยันสิทธิ์ผ่านบัญชี LINE และเลือกส่วนลดให้อัตโนมัติแล้ว",
+      wiseAvailabilityNote:"ไม่สามารถชำระผ่าน Wise ในวันเสาร์-อาทิตย์หรือวันหยุดธนาคารไทยได้ เนื่องจากเงินจะเข้าในวันทำการถัดไป", wiseUnavailableWeekend:"วันนี้ไม่สามารถเลือก Wise ได้ (วันเสาร์-อาทิตย์)", wiseUnavailableHoliday:"วันนี้ไม่สามารถเลือก Wise ได้ (วันหยุดธนาคารไทย)", returningVerifyTitle:"ยืนยันสิทธิ์ส่วนลดลูกค้าเก่า", returningVerifyHelp:"กรอกเบอร์โทรที่เคยใช้เช่า และเลขบัตรประชาชน 4 ตัวท้าย", returningVerifyPhone:"เบอร์โทรศัพท์", returningVerifyLast4:"เลขบัตรประชาชน 4 ตัวท้าย", returningVerifyNoIdentity:"ไม่มีเลขบัตรประชาชนในประวัติการเช่า", returningVerifyHistoryHelp:"ใช้สำหรับลูกค้าเก่าที่ไม่มีเลขบัตรประชาชนในประวัติ กรุณาใช้รหัสการเช่าครั้งก่อนหรือเบอร์โทรศัพท์เพื่อยืนยัน", returningVerifyRentalSuffix:"Rental ID 5 ตัวท้าย", returningVerifyUsePhone:"ใช้เบอร์โทรแทน", returningVerifyHistoryPhone:"เบอร์โทรศัพท์ที่เคยส่งให้ทางร้าน", returningVerifyFindRentalId:"วิธีการหา Rental ID", returningVerifySubmit:"ตรวจสอบสิทธิ์", returningVerifyCancel:"ยกเลิก", returningVerifyChecking:"กำลังตรวจสอบ...", returningVerifySuccess:"ยืนยันสิทธิ์ลูกค้าเก่าเรียบร้อย", returningVerifyNotFound:"ไม่พบประวัติ Confirmed ที่ตรงกัน หรือข้อมูลซ้ำ กรุณาตรวจสอบข้อมูลหรือติดต่อ AJ", returningVerifyError:"ตรวจสอบสิทธิ์ไม่ได้ในขณะนี้ กรุณาลองใหม่ภายหลัง", returningVerifyInvalid:"กรุณากรอกเบอร์โทร 10 หลัก และเลขบัตร 4 ตัวท้าย", returningVerifyHistoryInvalid:"กรุณากรอก Rental ID 5 ตัวท้าย หรือเบอร์โทรศัพท์ที่ถูกต้อง", returningLineVerifiedTitle:"ตรวจพบประวัติลูกค้าเก่า ใช้ส่วนลดค่าเช่า 10% แล้ว", returningLineVerifiedDetail:"ยืนยันสิทธิ์ผ่านบัญชี LINE และเลือกส่วนลดให้อัตโนมัติแล้ว",
       reviewGoogle:"รับส่วนลดเพิ่มจากการรีวิวบน Google Maps มูลค่า 100 บาท", reviewFacebook:"รับส่วนลดเพิ่มจากการรีวิวบน Facebook มูลค่า 100 บาท", reviewGoogleAfterWork:"รับส่วนลดเพิ่มจากการรีวิวบน Google Maps มูลค่า 50 บาท", reviewFacebookAfterWork:"รับส่วนลดเพิ่มจากการรีวิวบน Facebook มูลค่า 50 บาท", reviewGoogleHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Google Maps ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewFacebookHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Facebook ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewGoogleBtn:"รีวิว Google Maps", reviewFacebookBtn:"รีวิว Facebook", reviewGoogleDiscount:"ส่วนลดรีวิว Google Maps", reviewFacebookDiscount:"ส่วนลดรีวิว Facebook",
       boardGameCollapsed:"ต้องการเพิ่มบอร์ดเกม? กดเพื่อขยายและเลือกเข้าชุดเช่า", ps5BundleCollapsed:"ต้องการ Bundle? กดเพื่อจับคู่ PS5 กับอุปกรณ์อื่น",
       boardGameBundle:"Bundle บอร์ดเกม", chooseBoardGame:"-- เลือกบอร์ดเกม --", addBoardGame:"เพิ่มบอร์ดเกม", boardGames:"บอร์ดเกม", selectedDates:"วันที่เลือก", confirmRange:"ตกลง", selectReturnDate:"เลือกวันคืนเครื่อง", remove:"ลบ",
@@ -1312,7 +1320,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       bundle:"Bundle", accessories:"Accessories", noBundle:"No bundle", noAccessory:"No extra accessory", contract:"Rental contract", contractHelp:"Recommended for first-time renters. Complete it before delivery.", contractAge:"*The person entering into the rental agreement must be at least 20 years old.*",
       noContract:"No rental contract", noContractHelp:"First-time renters must complete the rental agreement and attach a copy of their ID card / Passport plus a selfie holding the ID card / Passport in all cases. If this is inconvenient, check this box. The deposit will increase from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the model.", wiseLinkTime:"Wise transfer time", wiseLinkPolicy:"Wise policy", wiseLinkCoverage:"Where Wise works",
       returning:"Returning customers only: 10% off rental fee", returningOnly:"Returning customers only", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"💵 Balance on delivery", bank:"🏦 Thai Bank Transfer", wise:"🌍 Wise", credit:"💳 Credit Card: pay full amount + 3.50% fee", ewallet:"👛 E-Wallet: pay full amount + 2.95%",
-      wiseAvailabilityNote:"Wise payments are unavailable on weekends and Thai bank holidays because funds arrive on the next business day.", wiseUnavailableWeekend:"Wise is unavailable today (weekend).", wiseUnavailableHoliday:"Wise is unavailable today (Thai bank holiday).", returningVerifyTitle:"Verify returning-customer discount", returningVerifyHelp:"Enter the name used on your previous rental agreement and the last 4 characters of your Passport.", returningVerifyName:"Full name", returningVerifyLast4:"Last 4 Passport characters", returningVerifySubmit:"Check eligibility", returningVerifyCancel:"Cancel", returningVerifyChecking:"Checking...", returningVerifySuccess:"Returning-customer eligibility confirmed.", returningVerifyNotFound:"No matching rental history was found. Check the details or contact AJ.", returningVerifyError:"Eligibility cannot be checked right now. Please try again later.", returningVerifyInvalid:"Enter your full name and the last 4 Passport characters.", returningLineVerifiedTitle:"Returning customer found: 10% rental discount applied", returningLineVerifiedDetail:"Verified through your LINE account and selected automatically.",
+      wiseAvailabilityNote:"Wise payments are unavailable on weekends and Thai bank holidays because funds arrive on the next business day.", wiseUnavailableWeekend:"Wise is unavailable today (weekend).", wiseUnavailableHoliday:"Wise is unavailable today (Thai bank holiday).", returningVerifyTitle:"Verify returning-customer discount", returningVerifyHelp:"Enter the name used on your previous rental agreement and the last 4 characters of your Passport.", returningVerifyName:"Full name", returningVerifyLast4:"Last 4 Passport characters", returningVerifyNoIdentity:"My Passport was not recorded in my rental history", returningVerifyHistoryHelp:"For returning customers whose Passport was not recorded. Please use your previous Rental ID or Phone number to verify eligibility.", returningVerifyRentalSuffix:"Last 5 characters of Rental ID", returningVerifyUsePhone:"Use phone number instead", returningVerifyHistoryPhone:"Phone number previously provided to AJ", returningVerifyFindRentalId:"How to find your Rental ID", returningVerifySubmit:"Check eligibility", returningVerifyCancel:"Cancel", returningVerifyChecking:"Checking...", returningVerifySuccess:"Returning-customer eligibility confirmed.", returningVerifyNotFound:"No unique matching Confirmed rental was found. Check the details or contact AJ.", returningVerifyError:"Eligibility cannot be checked right now. Please try again later.", returningVerifyInvalid:"Enter your full name and the last 4 Passport characters.", returningVerifyHistoryInvalid:"Enter the last 5 characters of your Rental ID or a valid phone number.", returningLineVerifiedTitle:"Returning customer found: 10% rental discount applied", returningLineVerifiedDetail:"Verified through your LINE account and selected automatically.",
       reviewGoogle:"Extra ฿100 discount for a Google Maps review", reviewFacebook:"Extra ฿100 discount for a Facebook review", reviewGoogleAfterWork:"Extra ฿50 discount for a Google Maps review", reviewFacebookAfterWork:"Extra ฿50 discount for a Facebook review", reviewGoogleHelp:"To receive this discount, tap Review Google Maps below, then send a screenshot to the AJ chat you are using.", reviewFacebookHelp:"To receive this discount, tap Review Facebook below, then send a screenshot to the AJ chat you are using.", reviewGoogleBtn:"Review Google Maps", reviewFacebookBtn:"Review Facebook", reviewGoogleDiscount:"Google Maps review discount", reviewFacebookDiscount:"Facebook review discount",
       boardGameCollapsed:"Want board games? Expand to add them to this rental.", ps5BundleCollapsed:"Want a bundle? Expand to pair PS5 with another device.",
       boardGameBundle:"Board Game Bundle", chooseBoardGame:"-- Choose board game --", addBoardGame:"Add board game", boardGames:"Board games", selectedDates:"Selected dates", confirmRange:"Confirm", selectReturnDate:"Choose return date", remove:"Remove",
@@ -2599,28 +2607,44 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return items;
   }
   function closeReturningEligibility(){ byId("returningVerifyModal")?.classList.remove("open"); }
-  function openReturningEligibility(){
+  function renderReturningEligibilityForm(useHistory=false, usePhone=false){
     const body = byId("returningVerifyBody");
     if(!body) return;
     byId("returningVerifyTitle").textContent = tr("returningVerifyTitle");
-    const identityField = state.lang === "en"
-      ? `<div class="field"><label class="label" for="returningVerifyName">${tr("returningVerifyName")}</label><input class="input" id="returningVerifyName" autocomplete="name" maxlength="120"></div>`
-      : `<div class="field"><label class="label" for="returningVerifyPhone">${tr("returningVerifyPhone")}</label><input class="input" id="returningVerifyPhone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="10"></div>`;
-    body.innerHTML = `<p class="hint">${tr("returningVerifyHelp")}</p>${identityField}
-      <div class="field"><label class="label" for="returningVerifyLast4">${tr("returningVerifyLast4")}</label><input class="input" id="returningVerifyLast4" inputmode="${state.lang === "en" ? "text" : "numeric"}" autocomplete="off" maxlength="4"></div>
+    const standardFields = state.lang === "en"
+      ? `<p class="hint">${tr("returningVerifyHelp")}</p><div class="field"><label class="label" for="returningVerifyName">${tr("returningVerifyName")}</label><input class="input" id="returningVerifyName" autocomplete="name" maxlength="120"></div><div class="field"><label class="label" for="returningVerifyLast4">${tr("returningVerifyLast4")}</label><input class="input" id="returningVerifyLast4" autocomplete="off" maxlength="4"></div>`
+      : `<p class="hint">${tr("returningVerifyHelp")}</p><div class="field"><label class="label" for="returningVerifyPhone">${tr("returningVerifyPhone")}</label><input class="input" id="returningVerifyPhone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="10"></div><div class="field"><label class="label" for="returningVerifyLast4">${tr("returningVerifyLast4")}</label><input class="input" id="returningVerifyLast4" inputmode="numeric" autocomplete="off" maxlength="4"></div>`;
+    const historyInput = usePhone
+      ? `<input class="input" id="returningVerifyHistoryValue" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="${state.lang === "en" ? "+66 81 234 5678" : "0812345678"}">`
+      : `<input class="input" id="returningVerifyHistoryValue" inputmode="text" autocomplete="off" maxlength="5" placeholder="R0023">`;
+    const historyFields = `<p class="hint">${tr("returningVerifyHistoryHelp")}</p>
+      <div class="field"><div class="returning-history-label"><label class="label" for="returningVerifyHistoryValue">${tr(usePhone ? "returningVerifyHistoryPhone" : "returningVerifyRentalSuffix")}</label><label class="returning-history-switch"><input type="checkbox" id="returningVerifyUsePhone" ${usePhone ? "checked" : ""}>${tr("returningVerifyUsePhone")}</label></div>${historyInput}</div>
+      <button class="btn" id="returningVerifyFindRentalId" type="button">${tr("returningVerifyFindRentalId")}</button>
+      <div class="returning-history-example" id="returningVerifyExample"><img src="assets/returning-verification/rental-id-${state.lang === "en" ? "en" : "th"}.png" alt="${esc(tr("returningVerifyFindRentalId"))}"></div>`;
+    body.innerHTML = `${useHistory ? historyFields : standardFields}
+      <div class="returning-verify-alt"><label><input type="checkbox" id="returningVerifyNoIdentity" ${useHistory ? "checked" : ""}><span>${tr("returningVerifyNoIdentity")}</span></label></div>
       <div class="returning-verify-status" id="returningVerifyStatus" role="status" aria-live="polite"></div>
       <div class="returning-verify-actions"><button class="btn" id="returningVerifyCancel" type="button">${tr("returningVerifyCancel")}</button><button class="btn primary" id="returningVerifySubmit" type="button">${tr("returningVerifySubmit")}</button></div>`;
+    setTimeout(() => byId(useHistory ? "returningVerifyHistoryValue" : (state.lang === "en" ? "returningVerifyName" : "returningVerifyPhone"))?.focus(), 50);
+  }
+  function openReturningEligibility(){
+    renderReturningEligibilityForm(false, false);
     byId("returningVerifyModal").classList.add("open");
-    setTimeout(() => byId(state.lang === "en" ? "returningVerifyName" : "returningVerifyPhone")?.focus(), 50);
   }
   async function verifyReturningEligibility(){
     const button = byId("returningVerifySubmit");
     const status = byId("returningVerifyStatus");
+    const useHistory = !!byId("returningVerifyNoIdentity")?.checked;
+    const useHistoryPhone = !!byId("returningVerifyUsePhone")?.checked;
     const last4 = String(byId("returningVerifyLast4")?.value || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(-4);
     const phone = String(byId("returningVerifyPhone")?.value || "").replace(/\D/g, "");
     const fullName = String(byId("returningVerifyName")?.value || "").trim().replace(/\s+/g, " ");
-    const valid = state.lang === "en" ? fullName.length >= 2 && /^[A-Z0-9]{4}$/.test(last4) : /^0\d{9}$/.test(phone) && /^\d{4}$/.test(last4);
-    if(!valid){ status.textContent = tr("returningVerifyInvalid"); status.className = "returning-verify-status error"; return; }
+    const rawHistoryValue = String(byId("returningVerifyHistoryValue")?.value || "");
+    const historyValue = useHistoryPhone ? rawHistoryValue.replace(/\D/g, "").slice(0, 15) : rawHistoryValue.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(-5);
+    const valid = useHistory
+      ? (useHistoryPhone ? /^\d{8,15}$/.test(historyValue) : /^[A-Z0-9]{5}$/.test(historyValue))
+      : (state.lang === "en" ? fullName.length >= 2 && /^[A-Z0-9]{4}$/.test(last4) : /^0\d{9}$/.test(phone) && /^\d{4}$/.test(last4));
+    if(!valid){ status.textContent = tr(useHistory ? "returningVerifyHistoryInvalid" : "returningVerifyInvalid"); status.className = "returning-verify-status error"; return; }
     button.disabled = true;
     status.textContent = tr("returningVerifyChecking");
     status.className = "returning-verify-status";
@@ -2628,7 +2652,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const response = await fetch(CONFIG.returningEligibilityApi, {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({language:state.lang, phone, fullName, last4})
+        body:JSON.stringify(useHistory
+          ? {historyMethod:useHistoryPhone ? "phone" : "rentalSuffix", historyValue}
+          : {language:state.lang, phone, fullName, last4})
       });
       const result = await response.json().catch(() => ({}));
       if(!response.ok && response.status !== 400) throw new Error(result.error || `Eligibility ${response.status}`);
@@ -5970,6 +5996,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       }
     });
     document.addEventListener("change", async event => {
+      if(event.target.id === "returningVerifyNoIdentity"){
+        renderReturningEligibilityForm(event.target.checked, false);
+        return;
+      }
+      if(event.target.id === "returningVerifyUsePhone"){
+        renderReturningEligibilityForm(true, event.target.checked);
+        return;
+      }
       if(event.target.id === "calcType"){
         state.calc.type = event.target.value;
         if(consoleById(state.calc.consoleId)?.type !== state.calc.type && state.calc.type){
@@ -6064,6 +6098,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(targetId === "startDate") openCalendar("start");
       if(targetId === "returningVerifySubmit") await verifyReturningEligibility();
       if(targetId === "returningVerifyCancel" || targetId === "returningVerifyClose") closeReturningEligibility();
+      if(targetId === "returningVerifyFindRentalId") byId("returningVerifyExample")?.classList.toggle("open");
       if(targetId === "endDate") openCalendar("end");
       if(targetId === "bgAdd"){
         const id = byId("bgSelect")?.value;
