@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-08-23 — Review discounts during After Work promotion
+
+- When After Work 3 Nights sets the rental price to ฿999, the Google Maps and Facebook review discounts are now ฿50 each instead of ฿100 each.
+- Step 3 labels switch dynamically between ฿50 for eligible After Work dates and the normal ฿100 for all other rentals in both Thai and English.
+- Summary, booking messages, and rental-contract handoff use the same calculated ฿50 amounts; the returning-customer 10% discount continues to apply last to the remaining eligible balance.
+
 ## 2026-08-22 — Rental-agreement minimum-age notice
 
 - The production Step 3 rental-agreement card now states in Thai and English that the person entering into the rental agreement must be at least 20 years old.
