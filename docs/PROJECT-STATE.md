@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-08-23 — One-page rental agreement and note notifications
+
+- The local A4 agreement generator now uses a compact bottom signature area so a normal completed contract, including a renter note, stays on one page without shrinking the existing body text.
+- Exceptionally long content can still flow safely to another page instead of overlapping the signatures.
+- A rendered Thai contract matching the reported Nintendo Switch 2 case was visually checked: all sections, the note, and both signatures fit cleanly on one A4 page.
+- Contract notes are now included in the single shared notification message sent to Discord, Telegram, and email.
+- Bot tests pass 129/129, including regressions for one-page signed PDF layout and note propagation.
+
 ## 2026-08-23 — After Work 3 Nights promo across four daily rates
 
 - The Monday/Tuesday-start, exactly-three-night After Work promotion now supports every requested daily-rate tier: ฿300/day → ฿777, ฿350/day → ฿888, ฿400/day → ฿999, and ฿500/day → ฿1,299.
