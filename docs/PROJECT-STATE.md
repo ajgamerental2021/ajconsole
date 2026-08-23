@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-08-23 — After Work 3 Nights promo across four daily rates
+
+- The Monday/Tuesday-start, exactly-three-night After Work promotion now supports every requested daily-rate tier: ฿300/day → ฿777, ฿350/day → ฿888, ฿400/day → ฿999, and ฿500/day → ฿1,299.
+- Thai and English calendar cells, booking summaries, and share messages display the rate-specific promo price instead of a fixed ฿999 label.
+- Structured booking costs carry the same rate-specific promo label and discount into the LIFF rental agreement; PDF totals continue to calculate from those rows without recomputing or losing the discount.
+- Review discounts remain ฿50 each whenever any After Work tier applies, and the returning-customer 10% discount continues to apply last.
+- Frontend syntax and eligibility checks pass for all four tiers and invalid weekday/duration/rate cases. Bot tests pass 127/127, including a PDF regression covering all four promo tiers.
+
 ## 2026-08-23 — First-name matching and resilient availability loading
 
 - Manual returning-customer checks now require the customer's first name only; surname is explicitly not required in Thai and English. The Rental ID suffix or phone must match a `Confirmed` row with the same normalized first name.
