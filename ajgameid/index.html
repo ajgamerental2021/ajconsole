@@ -243,8 +243,11 @@
     }
     @media (max-width: 720px) {
       .container { width:min(var(--max), calc(100% - 18px)); }
-      .topbar-inner { align-items:flex-start; }
-      .top-actions { width:100%; justify-content:flex-start; }
+      .topbar-inner { display:grid; grid-template-columns:minmax(0, 1fr) auto; align-items:center; gap:10px; }
+      .brand { min-width:0; }
+      .brand > div:last-child { min-width:0; }
+      .brand h1, .brand p { overflow-wrap:anywhere; }
+      .top-actions { width:auto; justify-content:flex-end; }
       .hero-card { padding:18px; }
       .hero-top { display:grid; }
       .help-actions { justify-content:flex-start; }
@@ -286,7 +289,6 @@
           <button class="lang-btn active" id="langThBtn" type="button">ไทย</button>
           <button class="lang-btn" id="langEnBtn" type="button">EN</button>
         </div>
-        <button class="ghost-btn" id="openAdminBtn" type="button">Admin</button>
       </div>
     </div>
   </div>
@@ -861,7 +863,9 @@
     };
 
     function tr(key, vars = {}) {
-      let out = (I18N[currentLang] && I18N[currentLang][key]) || (I18N.th && I18N.th[key]) || key;
+      const localized = I18N[currentLang]?.[key];
+      const fallback = I18N.th?.[key];
+      let out = localized !== undefined ? localized : (fallback !== undefined ? fallback : key);
       Object.entries(vars).forEach(([k, v]) => {
         out = out.replaceAll(`{{${k}}}`, String(v));
       });
@@ -2532,6 +2536,8 @@
       setText('lineLabel', 'lineLabel');
       setText('lineBrandText', 'brandName');
       setText('resultsHintText', 'resultsHint');
+      const resultsHint = document.getElementById('resultsHintText');
+      if (resultsHint) resultsHint.hidden = !I18N[currentLang]?.resultsHint;
       setText('footerText', 'footer');
       const footerNode = document.getElementById('footerText'); if (footerNode && !footerNode.textContent.trim()) footerNode.closest('.footer')?.remove?.();
 
@@ -2622,7 +2628,7 @@
         if (e.key === 'Escape') closeInfoModal();
       });
 
-      document.getElementById('openAdminBtn').addEventListener('click', openAdmin);
+      document.getElementById('openAdminBtn')?.addEventListener('click', openAdmin);
       document.getElementById('closeAdminBtn').addEventListener('click', closeAdmin);
       document.getElementById('cancelAdminLoginBtn').addEventListener('click', closeAdmin);
       document.getElementById('submitAdminLoginBtn').addEventListener('click', submitAdminLogin);
@@ -2691,6 +2697,7 @@
     bindEvents();
     applyLanguage();
     openInfoModalFromUrl();
+    if (new URLSearchParams(window.location.search).get('admin') === '1') openAdmin();
     bootSync();
   </script>
 </body>

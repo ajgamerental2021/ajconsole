@@ -2661,14 +2661,13 @@
 <!-- HEADER -->
 <header>
   <div class="logo">
-    <span class="logo-text" id="logo-text">AJ เช่าเครื่องเกมส์</span>
+    <span class="logo-text" id="logo-text">AJ เช่าเครื่องเกม</span>
     <img src="assets/game-images/90e6bbf19e58b46d.png" class="logo-img" alt="AJ Logo">
   </div>
   <div class="header-right">
     <button class="btn-howto" id="btn-faq" onclick="scrollToFAQ()">&#x1F4AC; <span id="btn-faq-label">FAQ</span></button>
     <button class="btn-howto" id="btn-howto" onclick="openHowToModal()">❓ <span id="btn-howto-label">วิธีใช้</span></button>
     <button class="btn-lang" id="btn-lang" onclick="toggleLang()">🇬🇧 EN</button>
-    <button class="btn-admin" onclick="showLogin()">⚙ Admin</button>
   </div>
 </header>
 
@@ -2677,7 +2676,7 @@
   <div class="hero">
     <p class="hero-eyebrow" data-i18n="eyebrow">AJ Game Rental · Bangkok</p>
     <h1 class="hero-title" data-i18n="hero_title_html">รายการ<em>เกม</em></h1>
-    <p class="hero-sub" data-i18n="hero_sub">เลือกเกมที่ชอบ สั่งผ่าน Line ได้เลย</p>
+    <p class="hero-sub" data-i18n="hero_sub">เลือกเกมและส่งรายการให้ร้านได้ทันที</p>
 
     <div class="hero-actions" style="margin-top:32px;">
       <button class="btn-pick-games" onclick="document.getElementById('platform-tabs').scrollIntoView({behavior:'smooth'})">
@@ -5562,7 +5561,7 @@ const TRANSLATIONS = {
     // Hero
     eyebrow: 'AJ Game Rental · Bangkok',
     hero_title_html: 'รายการ<em>เกม</em>',
-    hero_sub: 'เลือกเกมที่ชอบ สั่งผ่าน Line ได้เลย 🎮',
+    hero_sub: 'เลือกเกมและส่งรายการให้ร้านได้ทันที 🎮',
     search_placeholder: 'ค้นหาชื่อเกม...',
     btn_pick: 'เลือกเกม',
     btn_browse: 'ดูรายการเกม',
@@ -5616,7 +5615,7 @@ const TRANSLATIONS = {
     admin_btn: '⚙ Admin',
     eyebrow: 'AJ Game Rental · Bangkok',
     hero_title_html: '<span class="game-red">Game</span> <span class="catalog-black">Catalog</span>',
-    hero_sub: 'Browse and rent games — delivered to your door 🎮',
+    hero_sub: 'Choose games and send your list to the shop 🎮',
     search_placeholder: 'Search games...',
     btn_pick: 'Pick Games',
     btn_browse: 'Browse Games',
@@ -5696,7 +5695,7 @@ function applyLang() {
 
   // Switch logo text
   const logoText = document.getElementById('logo-text');
-  if (logoText) logoText.textContent = currentLang === 'th' ? 'AJ เช่าเครื่องเกมส์' : 'AJ Game Rental';
+  if (logoText) logoText.textContent = currentLang === 'th' ? 'AJ เช่าเครื่องเกม' : 'AJ Game Rental';
 
   // data-i18n text nodes (simple text)
   document.querySelectorAll('[data-i18n]').forEach(el => {

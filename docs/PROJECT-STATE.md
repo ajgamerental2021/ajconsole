@@ -474,3 +474,18 @@ paused job shows slightly old numbers rather than an empty section.
   DOM rather than trusting a screenshot when that happens.
 - The console keeps errors from previous page loads. Check the `?v=` in an error
   before believing it came from the current build.
+
+### Quick Trust preview (2026-08-24)
+
+Work is isolated on `codex/quick-trust-fixes` in both repositories; production
+`main` is unchanged. The first trust pass removes public Admin buttons while
+retaining owner-only URL entry points, removes the leaked `resultsHint` key,
+stabilizes the rental-ID header at mobile widths, corrects the Thai game-rental
+wordmark, and makes game-list copy channel-neutral instead of implying LINE is
+required. The contract preview also hides an empty LINE/WhatsApp identity badge.
+
+The matching bot branch includes the already-tested language default: English
+contracts start with Foreigner selected and Thai contracts start with Thai
+citizen selected. Mobile browser QA at 390 px confirmed no horizontal overflow,
+the correct language defaults, hidden public Admin controls, and zero browser
+console errors. The bot suite passes 134/134.
