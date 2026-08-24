@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>รายการไอดีเกม PS5</title>
   <style>
     :root {
@@ -371,10 +372,7 @@
               <label id="syncFileLabel" for="syncFileInput">Filename in Gist</label>
               <input id="syncFileInput" type="text" placeholder="aj-ps5-game-id-data.json" />
             </div>
-            <div class="field">
-              <label id="syncTokenLabel" for="syncTokenInput">GitHub Token (สำหรับอัปเดต)</label>
-              <input id="syncTokenInput" type="password" placeholder="ghp_xxx" />
-            </div>
+            <div class="muted" id="syncCredentialNote" style="font-size:.85rem;">ข้อมูลรับรอง GitHub เก็บไว้ที่เซิร์ฟเวอร์ที่ปลอดภัย และจะไม่ถูกบันทึกในเบราว์เซอร์</div>
             <div class="field">
               <label id="bookingBackendUrlLabel" for="bookingBackendUrlInput">Booking Google Sheet Web App URL</label>
               <input id="bookingBackendUrlInput" type="url" placeholder="https://script.google.com/macros/s/..." />
@@ -384,11 +382,11 @@
               <span id="syncAutoText">เปิด Auto Sync ตอนโหลดหน้าและหลังบันทึก</span>
             </label>
             <div class="sync-row">
-              <button class="ghost-btn" id="createGistBtn" type="button">Create Gist</button><button class="ghost-btn" id="saveSyncBtn" type="button">Save Gist ID & Token</button>
+              <button class="ghost-btn" id="saveSyncBtn" type="button">Save Gist settings</button>
               <button class="ghost-btn" id="pullSyncBtn" type="button">Pull Gist</button>
               <button class="primary-btn" id="pushSyncBtn" type="button">Push Gist</button>
             </div>
-            <div class="muted" id="syncHintText" style="font-size:.85rem;">ไฟล์นี้ฝัง Gist ID 802f3a4e9b999023127241fd8a85da57 ไว้แล้ว และจะดึงข้อมูลอัตโนมัติเมื่อเปิดหน้า รีเฟรชหน้า หรือกลับมาเปิดแท็บอีกครั้ง ถ้าต้องการ push การอัปเดตขึ้น Gist ให้ใส่ GitHub token</div>
+            <div class="muted" id="syncHintText" style="font-size:.85rem;">ระบบจะดึงข้อมูลสาธารณะอัตโนมัติ และส่งการแก้ไขผ่านเซิร์ฟเวอร์หลังผู้ดูแลเข้าสู่ระบบ</div>
           </div>
         </div>
 
@@ -458,6 +456,7 @@
   <script>
     const SOURCE_DATA = {"config":{"siteTitle":"รายการเช่าไอดีเกม PS5","siteSubtitle":"ค้นหาชื่อเกม เช็กคิวว่าง และกดเช่า/จอง ได้ทันที","lineUrl":"https://lin.ee/P2mp0RK","brandName":"AJ เช่าเครื่องเกม","storageKey":"aj_ps5_game_id_rental_v1","adminHint":"การแก้ไขจากหน้า Admin จะบันทึกในเครื่องนี้ทันที และเมื่อเครื่องนี้มี GitHub token ระบบจะพยายามอัปเดตขึ้น Gist ให้อัตโนมัติ","bookingBackendUrl":""},"ids":[{"idNo":1,"title":"Saros","platform":"PS5","images":["assets/image1.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":200,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":500,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Saros"],"sourceRows":[4]},{"idNo":2,"title":"Pragmata","platform":"PS5","images":["assets/image2.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":200,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":500,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Pragmata"],"sourceRows":[6]},{"idNo":3,"title":"Crimson Desert","platform":"PS5","images":["assets/image3.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":200,"statusText":"คิวเต็ม\nจะว่าง 30/04/2026","available":false,"availableDate":"30/04/2026","bookedCount":1},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":500,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Crimson Desert"],"sourceRows":[8]},{"idNo":4,"title":"Crimson Desert","platform":"PS5","images":["assets/image3.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":200,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":500,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Crimson Desert"],"sourceRows":[10]},{"idNo":5,"title":"Resident Evil Requiem","platform":"PS5","images":["assets/image4.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":200,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":500,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Resident Evil Requiem"],"sourceRows":[12]},{"idNo":6,"title":"REANIMAL","platform":"PS5","images":["assets/image5.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":180,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["REANIMAL"],"sourceRows":[14]},{"idNo":7,"title":"Nioh 3","platform":"PS5","images":["assets/image6.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":200,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":500,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Nioh 3"],"sourceRows":[16]},{"idNo":8,"title":"ARC Raiders / Hollow Knight: Silksong / Shinobi: Art of Vengeance / Baby Steps","platform":"PS5","images":["assets/image7.webp"],"note":"☝️ ไอดีนี้ได้ทุกเกมในรูปด้านบนของลำดับที่ 8 ☝️","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":250,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":500,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["ARC Raiders","Hollow Knight Silksong","Silksong","Shinobi Art of Vengeance","Baby Steps","ARC Raiders / Hollow Knight: Silksong / Shinobi: Art of Vengeance / Baby Steps"],"sourceRows":[18]},{"idNo":9,"title":"Call of Duty / Black Ops 7","platform":"PS5","images":["assets/image8.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":200,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":500,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Call of Duty","Black Ops 7","Call of Duty / Black Ops 7"],"sourceRows":[21]},{"idNo":10,"title":"Battlefield 6","platform":"PS5","images":["assets/image9.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":200,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":500,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Battlefield 6"],"sourceRows":[23]},{"idNo":11,"title":"Little Nightmares 3","platform":"PS5","images":["assets/image10.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":300,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Little Nightmares 3"],"sourceRows":[25]},{"idNo":12,"title":"PSN Plus Extra","platform":"PS5 / PS4","images":["assets/image11.webp"],"note":"","offers":[{"days":15,"typeLabel":"ไอดีร้าน","capacity":1,"price":180,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":300,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["PSN Plus Extra"],"sourceRows":[27]},{"idNo":13,"title":"Ghos of Yotei / (ID no. 1)","platform":"PS5","images":["assets/image12.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":200,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":500,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Ghos of Yotei","(ID no. 1)","Ghos of Yotei / (ID no. 1)"],"sourceRows":[29]},{"idNo":14,"title":"Ghos of Yotei / (ID no. 2)","platform":"PS5","images":["assets/image12.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":200,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":500,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Ghos of Yotei","(ID no. 2)","Ghos of Yotei / (ID no. 2)"],"sourceRows":[31]},{"idNo":15,"title":"Silent Hill f","platform":"PS5","images":["assets/image13.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Silent Hill f"],"sourceRows":[33]},{"idNo":16,"title":"NBA2K26","platform":"PS5","images":["assets/image14.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["NBA2K26"],"sourceRows":[35]},{"idNo":17,"title":"Dying Light / The Beast","platform":"PS5","images":["assets/image15.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Dying Light","The Beast","Dying Light / The Beast"],"sourceRows":[37]},{"idNo":18,"title":"EA Sports FC 26","platform":"PS5","images":["assets/image16.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["EA Sports FC 26"],"sourceRows":[39]},{"idNo":19,"title":"Doom / The Dark Ages","platform":"PS5","images":["assets/image17.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Doom","The Dark Ages","Doom / The Dark Ages"],"sourceRows":[41]},{"idNo":20,"title":"Borderlands 4","platform":"PS5","images":["assets/image18.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Borderlands 4"],"sourceRows":[43]},{"idNo":21,"title":"Lost Soul Aside","platform":"PS5","images":["assets/image19.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Lost Soul Aside"],"sourceRows":[45]},{"idNo":22,"title":"Metal Gear Solid / Delta Snake Eater","platform":"PS5","images":["assets/image20.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Metal Gear Solid","Delta Snake Eater","Metal Gear Solid / Delta Snake Eater"],"sourceRows":[47]},{"idNo":23,"title":"Mafia The Old Country","platform":"PS5","images":["assets/image21.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Mafia The Old Country"],"sourceRows":[49]},{"idNo":24,"title":"Wuchang: / Fallen Feathers","platform":"PS5","images":["assets/image22.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Wuchang:","Fallen Feathers","Wuchang: / Fallen Feathers"],"sourceRows":[51]},{"idNo":25,"title":"Ready or Not","platform":"PS5","images":["assets/image23.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Ready or Not"],"sourceRows":[53]},{"idNo":26,"title":"Elden Ring Nightreign / Death Stranding 2 / The First Berserker: Khazan","platform":"PS5","images":["assets/image24.webp"],"note":"☝️ ไอดีนี้ได้ทุกเกมในรูปด้านบนของลำดับที่ 26 ☝️","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Elden Ring Nightreign","Death Stranding 2","The First Berserker Khazan","Khazan","Elden Ring Nightreign / Death Stranding 2 / The First Berserker: Khazan"],"sourceRows":[55]},{"idNo":27,"title":"Death Stranding 2: / On The Beach","platform":"PS5","images":["assets/image25.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Death Stranding 2:","On The Beach","Death Stranding 2: / On The Beach"],"sourceRows":[59]},{"idNo":28,"title":"Rematch","platform":"PS5","images":["assets/image26.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":100,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":200,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Rematch"],"sourceRows":[61]},{"idNo":29,"title":"Elden Ring / Nightreign","platform":"PS5","images":["assets/image27.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Elden Ring","Nightreign","Elden Ring / Nightreign"],"sourceRows":[63]},{"idNo":30,"title":"Fantasy Life I","platform":"PS5","images":["assets/image28.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Fantasy Life I"],"sourceRows":[65]},{"idNo":31,"title":"Clair Obscur: / Expedition 33","platform":"PS5","images":["assets/image29.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Clair Obscur:","Expedition 33","Clair Obscur: / Expedition 33"],"sourceRows":[67]},{"idNo":32,"title":"Assassin's Creed Shadows","platform":"PS5","images":["assets/image30.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Assassin's Creed Shadows"],"sourceRows":[69]},{"idNo":33,"title":"The First Berserker / Khazan","platform":"PS5","images":["assets/image31.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["The First Berserker","Khazan","The First Berserker / Khazan"],"sourceRows":[71]},{"idNo":34,"title":"Monster Hunter Wilds","platform":"PS5","images":["assets/image32.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Monster Hunter Wilds"],"sourceRows":[73]},{"idNo":35,"title":"Split Fiction","platform":"PS5","images":["assets/image33.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Split Fiction"],"sourceRows":[75]},{"idNo":36,"title":"Kingdom Come / Deliverance 2","platform":"PS5","images":["assets/image34.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Kingdom Come","Deliverance 2","Kingdom Come / Deliverance 2"],"sourceRows":[77]},{"idNo":37,"title":"Stellar Blade / + / Devil May Cry 5 / (มี 2 เกม)","platform":"PS5","images":["assets/image35.webp","assets/image36.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Stellar Blade","+","Devil May Cry 5","(มี 2 เกม)","Stellar Blade / + / Devil May Cry 5 / (มี 2 เกม)"],"sourceRows":[79]},{"idNo":38,"title":"Black Myth Wukong","platform":"PS5","images":["assets/image37.webp"],"note":"","offers":[{"days":30,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Black Myth Wukong"],"sourceRows":[81]},{"idNo":39,"title":"Dynasty Warrior Origins","platform":"PS5","images":["assets/image38.webp"],"note":"","offers":[{"days":10,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Dynasty Warrior Origins"],"sourceRows":[83]},{"idNo":40,"title":"Call of Duty / Black Ops 6","platform":"PS5","images":["assets/image39.webp"],"note":"","offers":[{"days":30,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Call of Duty","Black Ops 6","Call of Duty / Black Ops 6"],"sourceRows":[85]},{"idNo":41,"title":"1.Path of Exile 2 / 2.Party Animal / (มี 2 เกม)","platform":"PS5","images":["assets/image40.webp","assets/image41.webp"],"note":"","offers":[{"days":30,"typeLabel":"ไอดีร้าน","capacity":1,"price":100,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":200,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["1.Path of Exile 2","2.Party Animal","(มี 2 เกม)","1.Path of Exile 2 / 2.Party Animal / (มี 2 เกม)"],"sourceRows":[87]},{"idNo":42,"title":"รวมหลายเกม: Astro Bot / UFC 5 / Spider-Man 2 / Hogwarts Legacy / CoD MW3 / GTA V / EA FC 24 / NBA 2K24","platform":"PS5","images":["assets/image42.webp"],"note":"☝️ ไอดีนี้ได้ทุกเกมในรูปด้านบนของลำดับที่ 42 ☝️","offers":[{"days":30,"typeLabel":"ไอดีร้าน","capacity":1,"price":200,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":400,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Astro Bot","UFC 5","Spider-Man 2","Marvel Spider-Man 2","Hogwarts Legacy","Call of Duty Modern Warfare III","Modern Warfare III","Battlefield V","Spider-Man Miles Morales","Star Wars Jedi Survivor","GTA V","Grand Theft Auto V","EA Sports FC 24","FC24","NBA 2K24","MotoGP 23","Madden 24","รวมหลายเกม: Astro Bot / UFC 5 / Spider-Man 2 / Hogwarts Legacy / CoD MW3 / GTA V / EA FC 24 / NBA 2K24"],"sourceRows":[89]},{"idNo":43,"title":"NBA2K25","platform":"PS5","images":["assets/image43.webp"],"note":"","offers":[{"days":30,"typeLabel":"ไอดีร้าน","capacity":1,"price":100,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["NBA2K25"],"sourceRows":[94]},{"idNo":44,"title":"Metaphor : Refantazio","platform":"PS5","images":["assets/image44.webp"],"note":"","offers":[{"days":30,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Metaphor : Refantazio"],"sourceRows":[96]},{"idNo":45,"title":"Dragonball Sparking Zero","platform":"PS5","images":["assets/image45.webp"],"note":"","offers":[{"days":30,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Dragonball Sparking Zero"],"sourceRows":[98]},{"idNo":46,"title":"Persona 3 Reload","platform":"PS5","images":["assets/image46.webp"],"note":"","offers":[{"days":30,"typeLabel":"ไอดีร้าน","capacity":1,"price":100,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Persona 3 Reload"],"sourceRows":[100]},{"idNo":47,"title":"รวมหลายเกม: Naruto Storm 4 / Overcooked! 2 / Red Dead Redemption 2 / The Sims 4 / Resident Evil 4 / Ghost of Tsushima","platform":"PS5","images":["assets/image47.webp"],"note":"☝️ ไอดีนี้ได้ทุกเกมในรูปด้านบนของลำดับที่ 47 ☝️","offers":[{"days":30,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":300,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Naruto Shippuden Ultimate Ninja Storm 4","Overcooked 2","Red Dead Redemption 2","The Sims 4","Resident Evil 4","Doraemon Story of Seasons","Ghost of Tsushima","รวมหลายเกม: Naruto Storm 4 / Overcooked! 2 / Red Dead Redemption 2 / The Sims 4 / Resident Evil 4 / Ghost of Tsushima"],"sourceRows":[102]},{"idNo":48,"title":"รวมหลายเกม: Hogwarts Legacy / Path of Exile 2 / Spider-Man 2 / DBZ Kakarot / Granblue Fantasy: Relink / Like a Dragon: Infinite Wealth","platform":"PS5","images":["assets/image48.webp"],"note":"☝️ ไอดีนี้ได้ทุกเกมในรูปด้านบนของลำดับที่ 48 ☝️","offers":[{"days":30,"typeLabel":"ไอดีร้าน","capacity":1,"price":200,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0},{"days":30,"typeLabel":"ไอดีลูกค้า","capacity":1,"price":350,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Hogwarts Legacy","Path of Exile 2","Spider-Man 2","Dragon Ball Z Kakarot","DragonBall Z Kakarot","Granblue Fantasy Relink","Like a Dragon Infinite Wealth","รวมหลายเกม: Hogwarts Legacy / Path of Exile 2 / Spider-Man 2 / DBZ Kakarot / Granblue Fantasy: Relink / Like a Dragon: Infinite Wealth"],"sourceRows":[106]},{"idNo":49,"title":"รวมหลายเกมจากภาพคอลลาจ","platform":"PS5","images":["assets/image49.webp"],"note":"☝️ ไอดีนี้ได้ทุกเกมในรูปด้านบนของลำดับที่ 49 ☝️","offers":[{"days":30,"typeLabel":"ไอดีร้าน","capacity":1,"price":150,"statusText":"ว่าง","available":true,"availableDate":null,"bookedCount":0}],"searchTerms":["Rise of the Ronin","Ratchet & Clank","Persona 5 Tactica","MediEvil","Horizon Forbidden West","Ghost of Tsushima","Elden Ring","Demon's Souls","Chrono Cross","Bloodborne","The Last of Us Part II","Visions of Mana","รวมหลายเกมจากภาพคอลลาจ"],"sourceRows":[110]}]};
     const CONFIG = SOURCE_DATA.config;
+    CONFIG.adminHint = 'การแก้ไขจากหน้า Admin จะบันทึกในเครื่องนี้ทันที และอัปเดต Gist ผ่านเซิร์ฟเวอร์เมื่อผู้ดูแลเข้าสู่ระบบแล้ว';
     const INITIAL_IDS = structuredClone(SOURCE_DATA.ids);
     const STORAGE_KEY = CONFIG.storageKey || 'aj_ps5_game_id_rental_v2';
     const SYNC_SETTINGS_KEY = STORAGE_KEY + '_gist_sync';
@@ -466,10 +465,9 @@
     const BOOKING_SHEET_ID = '13QZWpd_E-L_0G_Xd0zSL5_OcgV4sdwk9febXZSkZepc';
     const BOOKING_SHEET_GID = '879687466';
     const DEFAULT_BOOKING_BACKEND_URL = 'https://aj-line-oa-bot.onrender.com/api/id-pending';
+    const ADMIN_API_BASE = new URL(DEFAULT_BOOKING_BACKEND_URL).origin;
     const BUSINESS_TIME_ZONE = 'Asia/Bangkok';
-    const ADMIN_AUTH_KEY = 'aj_ps5_game_admin_auth_v1';
-    const ADMIN_USER_HASH = 'a99a9002ea854fe9230d1501710fb35fc151238a0c8de2e50442952b6b3e86fc';
-    const ADMIN_PASS_HASH = 'fdcc621fd584df74f42ad0f9adc6ff6f118ee39bada9ec0c02b0e57639fd0f6a';
+    let adminToken = '';
 
     const I18N = {
       th: {
@@ -541,14 +539,14 @@
         syncSave: 'Save Gist ID & Token',
         syncPull: 'Pull Gist',
         syncPush: 'Push Gist',
-        syncHint: 'This file already embeds Gist ID 802f3a4e9b999023127241fd8a85da57 and auto-pulls on refresh. Add a GitHub token if this device should push updates back to the Gist.',
+        syncHint: 'Public data is pulled automatically. Admin updates are sent securely through the server after login.',
         syncSaved: 'Saved Gist ID and token',
         syncCreated: 'Gist created successfully',
         syncPulled: 'Pulled data from Gist',
         syncPushed: 'Pushed data to Gist',
         syncNeedGist: 'Please enter a Gist ID',
-        syncNeedToken: 'Please enter a GitHub token to update the Gist',
-        syncNeedTokenCreate: 'Please enter a GitHub token to create a Gist',
+        syncNeedToken: 'Please sign in as an administrator before updating the Gist',
+        syncNeedTokenCreate: 'Please sign in as an administrator before creating a Gist',
         syncFailed: 'Sync failed',
         syncLoading: 'Loading data from Gist...',
         syncTitle: 'Gist Sync',
@@ -560,14 +558,14 @@
         syncSave: 'บันทึก Gist ID และ Token',
         syncPull: 'ดึงจาก Gist',
         syncPush: 'อัปเดตขึ้น Gist',
-        syncHint: 'ไฟล์นี้ฝัง Gist ID 802f3a4e9b999023127241fd8a85da57 ไว้แล้ว และจะดึงข้อมูลอัตโนมัติเมื่อเปิดหน้า รีเฟรชหน้า หรือกลับมาเปิดแท็บอีกครั้ง ถ้าต้องการ push การอัปเดตขึ้น Gist ให้ใส่ GitHub token',
+        syncHint: 'ระบบจะดึงข้อมูลสาธารณะอัตโนมัติ และส่งการแก้ไขผ่านเซิร์ฟเวอร์หลังผู้ดูแลเข้าสู่ระบบ',
         syncSaved: 'บันทึก Gist ID และ Token แล้ว',
         syncCreated: 'สร้าง Gist สำเร็จแล้ว',
         syncPulled: 'ดึงข้อมูลจาก Gist แล้ว',
         syncPushed: 'อัปเดตข้อมูลขึ้น Gist แล้ว',
         syncNeedGist: 'กรุณาใส่ Gist ID',
-        syncNeedToken: 'กรุณาใส่ GitHub token เพื่ออัปเดต Gist',
-        syncNeedTokenCreate: 'กรุณาใส่ GitHub token เพื่อสร้าง Gist',
+        syncNeedToken: 'กรุณาเข้าสู่ระบบผู้ดูแลก่อนอัปเดต Gist',
+        syncNeedTokenCreate: 'กรุณาเข้าสู่ระบบผู้ดูแลก่อนสร้าง Gist',
         syncFailed: 'Sync ไม่สำเร็จ',
         syncLoading: 'กำลังดึงข้อมูลจาก Gist...',
         adminFormTitle: 'ฟอร์มแก้ไขข้อมูล',
@@ -715,14 +713,14 @@
         syncSave: 'บันทึก Gist ID และ Token',
         syncPull: 'ดึงจาก Gist',
         syncPush: 'อัปเดตขึ้น Gist',
-        syncHint: 'ไฟล์นี้ฝัง Gist ID 802f3a4e9b999023127241fd8a85da57 ไว้แล้ว และจะดึงข้อมูลอัตโนมัติเมื่อเปิดหน้า รีเฟรชหน้า หรือกลับมาเปิดแท็บอีกครั้ง ถ้าต้องการ push การอัปเดตขึ้น Gist ให้ใส่ GitHub token',
+        syncHint: 'ระบบจะดึงข้อมูลสาธารณะอัตโนมัติ และส่งการแก้ไขผ่านเซิร์ฟเวอร์หลังผู้ดูแลเข้าสู่ระบบ',
         syncSaved: 'บันทึก Gist ID และ Token แล้ว',
         syncCreated: 'สร้าง Gist สำเร็จแล้ว',
         syncPulled: 'ดึงข้อมูลจาก Gist แล้ว',
         syncPushed: 'อัปเดตข้อมูลขึ้น Gist แล้ว',
         syncNeedGist: 'กรุณาใส่ Gist ID',
-        syncNeedToken: 'กรุณาใส่ GitHub token เพื่ออัปเดต Gist',
-        syncNeedTokenCreate: 'กรุณาใส่ GitHub token เพื่อสร้าง Gist',
+        syncNeedToken: 'กรุณาเข้าสู่ระบบผู้ดูแลก่อนอัปเดต Gist',
+        syncNeedTokenCreate: 'กรุณาเข้าสู่ระบบผู้ดูแลก่อนสร้าง Gist',
         syncFailed: 'Sync ไม่สำเร็จ',
         syncLoading: 'กำลังดึงข้อมูลจาก Gist...',
         adminFormTitle: 'Edit form',
@@ -857,7 +855,6 @@
       langEnBtn: document.getElementById('langEnBtn'),
       syncGistIdInput: document.getElementById('syncGistIdInput'),
       syncFileInput: document.getElementById('syncFileInput'),
-      syncTokenInput: document.getElementById('syncTokenInput'),
       bookingBackendUrlInput: document.getElementById('bookingBackendUrlInput'),
       syncAutoCheckbox: document.getElementById('syncAutoCheckbox')
     };
@@ -1165,9 +1162,11 @@
     function loadSyncSettings() {
       try {
         const raw = localStorage.getItem(SYNC_SETTINGS_KEY);
-        return { gistId: '802f3a4e9b999023127241fd8a85da57', filename: 'aj-ps5-game-id-data.json', token: '', autoSync: true, bookingBackendUrl: CONFIG.bookingBackendUrl || '', ...(raw ? JSON.parse(raw) : {}) };
+        const parsed = raw ? JSON.parse(raw) : {};
+        delete parsed.token;
+        return { gistId: '802f3a4e9b999023127241fd8a85da57', filename: 'aj-ps5-game-id-data.json', autoSync: true, bookingBackendUrl: CONFIG.bookingBackendUrl || '', ...parsed };
       } catch (err) {
-        return { gistId: '802f3a4e9b999023127241fd8a85da57', filename: 'aj-ps5-game-id-data.json', token: '', autoSync: true, bookingBackendUrl: CONFIG.bookingBackendUrl || '' };
+        return { gistId: '802f3a4e9b999023127241fd8a85da57', filename: 'aj-ps5-game-id-data.json', autoSync: true, bookingBackendUrl: CONFIG.bookingBackendUrl || '' };
       }
     }
 
@@ -1175,7 +1174,6 @@
       return {
         gistId: String(el.syncGistIdInput?.value || '').trim(),
         filename: String(el.syncFileInput?.value || '').trim() || 'aj-ps5-game-id-data.json',
-        token: String(el.syncTokenInput?.value || '').trim(),
         bookingBackendUrl: String(el.bookingBackendUrlInput?.value || '').trim(),
         autoSync: !!el.syncAutoCheckbox?.checked
       };
@@ -1185,7 +1183,6 @@
       const s = loadSyncSettings();
       if (el.syncGistIdInput) el.syncGistIdInput.value = s.gistId || '802f3a4e9b999023127241fd8a85da57';
       if (el.syncFileInput) el.syncFileInput.value = s.filename || 'aj-ps5-game-id-data.json';
-      if (el.syncTokenInput) el.syncTokenInput.value = s.token || '';
       if (el.bookingBackendUrlInput) el.bookingBackendUrlInput.value = s.bookingBackendUrl || '';
       if (el.syncAutoCheckbox) el.syncAutoCheckbox.checked = (typeof s.autoSync === 'boolean' ? s.autoSync : true);
     }
@@ -1198,12 +1195,6 @@
       return s;
     }
 
-    function ghHeaders(token = '') {
-      const headers = { 'Accept': 'application/vnd.github+json' };
-      if (token) headers['Authorization'] = 'Bearer ' + token;
-      return headers;
-    }
-
     async function pullFromGist(supplied = null, silent = false) {
       const s = supplied || getSyncSettingsFromForm();
       if (!s.gistId) {
@@ -1213,7 +1204,7 @@
       if (!silent) showToast(tr('syncLoading'));
       try {
         const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(s.gistId)}`, {
-          headers: ghHeaders(s.token || '')
+          headers: { 'Accept': 'application/vnd.github+json' }
         });
         if (!res.ok) throw new Error('GET gist failed');
         const gist = await res.json();
@@ -1240,7 +1231,7 @@
         adminDraft = adminSelectedId ? structuredClone(state[0]) : null;
         isCreatingNew = false;
         renderResults();
-        if (!el.adminPanel.classList.contains('hidden') && sessionStorage.getItem(ADMIN_AUTH_KEY) === '1') renderAdmin();
+        if (!el.adminPanel.classList.contains('hidden') && adminToken) renderAdmin();
         if (!silent) showToast(tr('syncPulled'));
         return true;
       } catch (err) {
@@ -1256,7 +1247,7 @@
         if (!silent) showToast(tr('syncNeedGist'));
         return false;
       }
-      if (!s.token) {
+      if (!adminToken) {
         if (!silent) showToast(tr('syncNeedToken'));
         return false;
       }
@@ -1270,10 +1261,10 @@
         ids: state
       };
       try {
-        const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(s.gistId)}`, {
+        const res = await fetch(`${ADMIN_API_BASE}/api/admin/gists/${encodeURIComponent(s.gistId)}`, {
           method: 'PATCH',
           headers: {
-            ...ghHeaders(s.token),
+            'Authorization': 'Bearer ' + adminToken,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
@@ -1294,50 +1285,9 @@
       }
     }
 
-    async function createGistFromState() {
-      const s = getSyncSettingsFromForm();
-      if (!s.token) {
-        showToast(tr('syncNeedTokenCreate'));
-        return false;
-      }
-      const payload = {
-        app: 'aj-ps5-game-id-rental',
-        updatedAt: new Date().toISOString(),
-        ids: state
-      };
-      try {
-        const res = await fetch('https://api.github.com/gists', {
-          method: 'POST',
-          headers: {
-            ...ghHeaders(s.token),
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            description: 'AJ PS5 Game ID Rental Sync',
-            public: false,
-            files: {
-              [s.filename || 'aj-ps5-game-id-data.json']: {
-                content: JSON.stringify(payload, null, 2)
-              }
-            }
-          })
-        });
-        if (!res.ok) throw new Error('POST gist failed');
-        const gist = await res.json();
-        if (el.syncGistIdInput) el.syncGistIdInput.value = gist.id || '';
-        saveSyncSettings();
-        showToast(tr('syncCreated'));
-        return true;
-      } catch (err) {
-        console.error(err);
-        showToast(tr('syncFailed'));
-        return false;
-      }
-    }
-
     async function maybeAutoPush() {
       const s = loadSyncSettings();
-      if (!s.autoSync || !s.gistId || !s.token) return false;
+      if (!s.autoSync || !s.gistId || !adminToken) return false;
       return await pushToGist(s, true);
     }
 
@@ -1351,7 +1301,7 @@
       fillSyncForm();
       const existingSyncRaw = localStorage.getItem(SYNC_SETTINGS_KEY);
       if (!existingSyncRaw) {
-        localStorage.setItem(SYNC_SETTINGS_KEY, JSON.stringify({ gistId: '802f3a4e9b999023127241fd8a85da57', filename: 'aj-ps5-game-id-data.json', token: '', autoSync: true }));
+        localStorage.setItem(SYNC_SETTINGS_KEY, JSON.stringify({ gistId: '802f3a4e9b999023127241fd8a85da57', filename: 'aj-ps5-game-id-data.json', autoSync: true }));
       }
       const s = loadSyncSettings();
       if (s.autoSync && s.gistId) {
@@ -1850,7 +1800,7 @@
       showToast(tr('bookingConfirmed'));
 
       const syncSettings = saveSyncSettings();
-      if (syncSettings.gistId && syncSettings.token) {
+      if (syncSettings.gistId && adminToken) {
         await pushToGist(syncSettings, false);
       }
       return false;
@@ -2133,8 +2083,7 @@
 
     function openAdmin() {
       el.adminShell.classList.add('open');
-      const isAuthed = sessionStorage.getItem(ADMIN_AUTH_KEY) === '1';
-      if (isAuthed) showAdminPanel();
+      if (adminToken) showAdminPanel();
       else showAdminLogin();
     }
 
@@ -2168,11 +2117,6 @@
       });
     }
 
-    async function sha256(text) {
-      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
     async function submitAdminLogin() {
       const user = el.adminUserInput.value.trim();
       const pass = el.adminPassInput.value;
@@ -2180,20 +2124,30 @@
         el.loginErrorText.textContent = tr('loginRequired');
         return;
       }
-      const userOk = await sha256(user) === ADMIN_USER_HASH;
-      const passOk = await sha256(pass) === ADMIN_PASS_HASH;
-      if (!userOk || !passOk) {
+      const button = document.getElementById('submitAdminLoginBtn');
+      button.disabled = true;
+      try {
+        const response = await fetch(`${ADMIN_API_BASE}/api/admin/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: user, password: pass })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.token) throw new Error('invalid login');
+        adminToken = data.token;
+      } catch (error) {
         el.loginErrorText.textContent = tr('loginInvalid');
         return;
+      } finally {
+        button.disabled = false;
       }
-      sessionStorage.setItem(ADMIN_AUTH_KEY, '1');
       el.adminPassInput.value = '';
       showAdminPanel();
       showToast(tr('loginTitle'));
     }
 
     function logoutAdmin() {
-      sessionStorage.removeItem(ADMIN_AUTH_KEY);
+      adminToken = '';
       showAdminLogin();
       showToast(tr('logout'));
     }
@@ -2560,10 +2514,8 @@
       setText('syncTitleText', 'syncTitle');
       setText('syncGistIdLabel', 'syncGistId');
       setText('syncFileLabel', 'syncFile');
-      setText('syncTokenLabel', 'syncToken');
       setText('bookingBackendUrlLabel', 'bookingBackendUrl');
       setText('syncAutoText', 'syncAuto');
-      setText('createGistBtn', 'syncCreate');
       setText('saveSyncBtn', 'syncSave');
       setText('pullSyncBtn', 'syncPull');
       setText('pushSyncBtn', 'syncPush');
@@ -2593,7 +2545,7 @@
       el.fNote.placeholder = tr('phNote');
 
       renderResults();
-      if (!el.adminPanel.classList.contains('hidden') && sessionStorage.getItem(ADMIN_AUTH_KEY) === '1') {
+      if (!el.adminPanel.classList.contains('hidden') && adminToken) {
         renderAdmin();
       }
       if (el.infoModal?.classList.contains('open')) {
@@ -2654,7 +2606,6 @@
         if (file) importJson(file);
         e.target.value = '';
       });
-      document.getElementById('createGistBtn').addEventListener('click', createGistFromState);
       document.getElementById('saveSyncBtn').addEventListener('click', saveSyncSettings);
       document.getElementById('pullSyncBtn').addEventListener('click', async () => {
         const s = saveSyncSettings();

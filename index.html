@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>AJ Game Rental - รายการเครื่อง</title>
 <meta name="description" content="บริการให้เช่าเครื่องเล่นเกม พร้อมส่งด่วน 2 ชม. ในกรุงเทพฯ และปริมณฑล🔥">
 <meta property="og:description" content="บริการให้เช่าเครื่องเล่นเกม พร้อมส่งด่วน 2 ชม. ในกรุงเทพฯ และปริมณฑล🔥">
@@ -1031,7 +1032,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
   const CONFIG = {
     version: "index2-clean-1",
-    gamePickerVersion: "20260622-1",
+    gamePickerVersion: "20260825-2",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",
@@ -1077,7 +1078,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     home: "aj_home_sections_v1",
     faq: "aj_faq_data_v1",
     gistId: "aj_gist_id",
-    gistToken: "aj_gist_token",
     ret: "aj_ret_enabled",
     bgPromo: "aj_bg_promo",
     bgCatalog: "aj_bg_catalog_cache_v3",
@@ -5867,8 +5867,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function adminSyncHtml(){
     const gid = localStorage.getItem(LS.gistId) || CONFIG.defaultGistId;
-    const tok = localStorage.getItem(LS.gistToken) || "";
-    return `<div class="card"><h3>GitHub Gist Sync</h3><div class="grid2"><div class="field"><label class="label">Gist ID</label><input class="input" id="gistId" value="${esc(gid)}"></div><div class="field"><label class="label">Token</label><input class="input" id="gistToken" type="password" value="${esc(tok)}"></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn" id="saveGist" type="button">${tr("save")}</button><button class="btn" id="pullGist" type="button">${tr("pull")}</button><button class="btn primary" id="pushGist" type="button">${tr("push")}</button><button class="btn" id="createGist" type="button">Create New</button></div><p class="hint" id="syncStatus"></p></div>`;
+    return `<div class="card"><h3>GitHub Gist Sync</h3><div class="field"><label class="label">Gist ID</label><input class="input" id="gistId" value="${esc(gid)}"></div><p class="hint" style="margin-top:8px">GitHub credentials are kept on the secure server and are never stored in this browser.</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn" id="saveGist" type="button">${tr("save")}</button><button class="btn" id="pullGist" type="button">${tr("pull")}</button><button class="btn primary" id="pushGist" type="button">${tr("push")}</button></div><p class="hint" id="syncStatus"></p></div>`;
   }
   function adminAddonsHtml(){
     return `<div class="card"><h3>PS5 Bundles</h3>${state.bundles.map((b,i)=>`<div class="admin-item"><div class="admin-edit open"><div class="grid2"><input class="input" data-bundle="${i}:th" value="${esc(b.th)}"><input class="input" data-bundle="${i}:en" value="${esc(b.en)}"><input class="input" data-bundle="${i}:rate" type="number" value="${esc(b.rate)}"><input class="input" data-bundle="${i}:weekly" type="number" value="${esc(b.weekly)}"><input class="input" data-bundle="${i}:deposit" type="number" value="${esc(b.deposit)}"><div class="field"><label class="label">Ready Date</label><input class="input" data-bundle="${i}:readyDate" type="date" value="${esc(b.readyDate || "")}"></div></div><button class="btn danger" data-delete-bundle="${i}" type="button">${tr("delete")}</button></div></div>`).join("")}<button class="btn" id="addBundle" type="button">${tr("add")}</button></div>
@@ -5933,10 +5932,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   async function gistFetch(){
     const id = localStorage.getItem(LS.gistId) || CONFIG.defaultGistId;
-    const token = localStorage.getItem(LS.gistToken) || "";
-    const headers = token ? {Authorization:`token ${token}`} : {};
     try{
-      const res = await fetch(`https://api.github.com/gists/${id}?t=${Date.now()}`, {headers, cache:"no-store"});
+      const res = await fetch(`https://api.github.com/gists/${id}?t=${Date.now()}`, {cache:"no-store"});
       if(!res.ok) throw new Error(`Gist ${res.status}`);
       const gist = await res.json();
       const file = gist.files && gist.files[CONFIG.gistFile];
@@ -5950,27 +5947,22 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       return rawRes.json();
     }
   }
-  async function gistPush(create=false){
+  async function gistPush(){
     const id = localStorage.getItem(LS.gistId) || CONFIG.defaultGistId;
-    const token = localStorage.getItem(LS.gistToken) || "";
-    if(!token) throw new Error("Missing GitHub token");
-    const body = create
-      ? {description:"AJ Rental Data Index2", public:false, files:{[CONFIG.gistFile]:{content:JSON.stringify(buildPayload(),null,2)}}}
-      : {files:{[CONFIG.gistFile]:{content:JSON.stringify(buildPayload(),null,2)}}};
-    const res = await fetch(create ? "https://api.github.com/gists" : `https://api.github.com/gists/${id}`, {
-      method:create ? "POST" : "PATCH",
-      headers:{Authorization:`token ${token}`, "Content-Type":"application/json"},
-      body:JSON.stringify(body)
+    if(!state.adminToken) throw new Error("Admin session required");
+    const res = await fetch(`${CONFIG.apiBase}/api/admin/gists/${encodeURIComponent(id)}`, {
+      method:"PATCH",
+      headers:{Authorization:`Bearer ${state.adminToken}`, "Content-Type":"application/json"},
+      body:JSON.stringify({files:{[CONFIG.gistFile]:{content:JSON.stringify(buildPayload(),null,2)}}})
     });
     const json = await res.json().catch(() => ({}));
     if(!res.ok) throw new Error(json.message || `Gist ${res.status}`);
-    if(json.id) localStorage.setItem(LS.gistId, json.id);
     return json;
   }
   function scheduleAutoPush(){
     clearTimeout(state.autoPushTimer);
-    if(!(localStorage.getItem(LS.gistToken) && (localStorage.getItem(LS.gistId) || CONFIG.defaultGistId))) return;
-    state.autoPushTimer = setTimeout(() => gistPush(false).catch(console.warn), 1200);
+    if(!state.adminToken) return;
+    state.autoPushTimer = setTimeout(() => gistPush().catch(console.warn), 1200);
   }
 
   function bindEvents(){
@@ -6281,10 +6273,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(targetId === "addAcc"){ state.accessories.push({id:`acc_${Date.now()}`,th:"อุปกรณ์ใหม่",en:"New Accessory",daily:100,weekly:500,consoleIds:[]}); saveAndRenderAdmin("Accessory added"); }
       if(targetId === "saveAddons") saveAddons();
       if(targetId === "saveQueueClosures") await saveQueueClosuresFromAdmin();
-      if(targetId === "saveGist"){ localStorage.setItem(LS.gistId, byId("gistId").value.trim()); localStorage.setItem(LS.gistToken, byId("gistToken").value.trim()); toast("Gist config saved"); renderAdmin(); }
+      if(targetId === "saveGist"){ localStorage.setItem(LS.gistId, byId("gistId").value.trim()); localStorage.removeItem("aj_gist_token"); toast("Gist config saved"); renderAdmin(); }
       if(targetId === "pullGist"){ try{ byId("syncStatus").textContent = "Pulling..."; applyRemoteData(await gistFetch()); renderAdmin(); toast("Pull success"); }catch(e){ byId("syncStatus").textContent = e.message; } }
-      if(targetId === "pushGist"){ try{ byId("syncStatus").textContent = "Pushing..."; await gistPush(false); renderAdmin(); toast("Push success"); }catch(e){ byId("syncStatus").textContent = e.message; } }
-      if(targetId === "createGist"){ try{ byId("syncStatus").textContent = "Creating..."; await gistPush(true); renderAdmin(); toast("Gist created"); }catch(e){ byId("syncStatus").textContent = e.message; } }
+      if(targetId === "pushGist"){ try{ byId("syncStatus").textContent = "Pushing..."; await gistPush(); renderAdmin(); toast("Push success"); }catch(e){ byId("syncStatus").textContent = e.message; } }
     });
   }
 

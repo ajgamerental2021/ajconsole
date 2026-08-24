@@ -568,3 +568,29 @@ The shipped catalogue audit covers all 587 records with no missing IDs/names,
 duplicates, or unsupported platforms. Nineteen website regression tests pass;
 Thai and English mobile browser QA at 390 px confirmed the embedded catalogue
 loads with the correct language and console scope.
+
+### Domain, security and final-audit preview (2026-08-25)
+
+The sixth preview pass remains isolated on `codex/quick-trust-fixes`;
+production `main` is unchanged. Custom-domain work was explicitly excluded.
+Admin authentication for the main booking page, game catalogue and Game ID
+page now uses the bot server instead of recoverable credentials or password
+hashes in customer-delivered JavaScript. GitHub credentials are no longer
+entered or persisted in browser storage: authenticated Gist updates pass
+through a server-side proxy restricted to an explicit Gist allowlist.
+
+Admin APIs now reject unknown browser origins, disable response caching and
+retain authentication on every Gist read/write. Customer-facing entry points
+declare a strict referrer policy, and the bot dependency audit was reduced from
+three advisories (including one high severity) to zero by updating the affected
+packages. Automated security checks cover the browser credential regressions,
+backend origin allowlist and authenticated Gist proxy. Website catalogue and
+pricing tests pass 19/19; the bot test suite passes 138/138. Mobile and desktop
+browser QA covered the booking page, game catalogue, Game ID and LIFF contract
+in Thai and English with no console errors.
+
+Before this branch can be promoted, Render must receive `GITHUB_GIST_TOKEN` and
+the intended `ADMIN_WEB_ORIGINS` / `ADMIN_GIST_IDS` values. A restrictive CSP
+remains follow-up work because the current static pages rely heavily on inline
+scripts and styles; enabling one without a nonce/hash migration would break the
+customer flow.

@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 
 <meta name="description" content="AJ Game Rental - เช่าเครื่องเกม ส่งถึงบ้าน">
 <meta property="og:title" content="AJ Game Rental - รายการเกม🎮">
@@ -3025,26 +3026,14 @@
         </p>
 
         <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12.5px;color:#0369a1;line-height:1.8">
-          <strong>วิธีสร้าง Token (ทำครั้งเดียว):</strong><br>
-          1. GitHub.com → รูปโปรไฟล์ → <strong>Settings</strong><br>
-          2. เลื่อนล่างสุด → <strong>Developer settings</strong><br>
-          3. <strong>Personal access tokens → Tokens (classic)</strong><br>
-          4. <strong>Generate new token (classic)</strong><br>
-          5. ติ๊ก scope: <strong>gist</strong> → Generate → Copy token<br>
-          6. วาง token ด้านล่าง แล้วกด <strong>🆕 สร้าง Gist อัตโนมัติ</strong>
-        </div>
-
-        <div class="form-row">
-          <label class="form-label">🔑 Personal Access Token (scope: gist)</label>
-          <input class="form-input" id="gist-token" type="password" placeholder="ghp_xxxxxxxxxxxx" oninput="saveGistConfig()">
+          GitHub credentials are kept on the secure server and are never stored in this browser.
         </div>
         <div class="form-row">
           <label class="form-label">📦 Gist ID <span style="font-weight:400;color:var(--text3)">(กรอกเองหรือกดสร้างอัตโนมัติ)</span></label>
           <input class="form-input" id="gist-id" type="text" placeholder="จะถูกกรอกอัตโนมัติหลังสร้าง Gist" oninput="saveGistConfig()">
         </div>
         <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
-          <button class="btn btn-primary" style="flex:1" onclick="createNewBin()">🆕 สร้าง Gist อัตโนมัติ</button>
-          <button class="btn btn-secondary" style="flex:1" onclick="pushToJSONBin(false)">☁️ Sync ข้อมูล</button>
+          <button class="btn btn-primary" style="flex:1" onclick="pushToJSONBin(false)">☁️ Sync ข้อมูล</button>
         </div>
         <div style="margin-top:10px;padding:10px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
           <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--text2)">📱 วิธีให้ทุก Device Sync อัตโนมัติ</div>
@@ -3958,8 +3947,10 @@ let howToSteps = [];
 let faqItems = [];
 // ── ตั้งค่า Gist ID ที่นี่ (กรอกครั้งเดียว หลังสร้าง Gist แล้ว) ──
 var DEFAULT_GIST_ID = '4c37e6a92859ce10f353d2ccb1ecbabd'; // <-- วาง Gist ID ที่นี่
+var GAME_ADMIN_API_BASE = 'https://aj-line-oa-bot.onrender.com';
 
-let gistConfig = { token: '', gistId: '' };
+let gistConfig = { gistId: '' };
+let adminToken = '';
 let activePlatformTab = 'all';
 let adminGameFilter = null;
 let confirmCallback = null;
@@ -4324,7 +4315,7 @@ function saveData() {
   // Auto-push to JSONBin if configured
   if (typeof pushToJSONBin === 'function' && typeof gistConfig !== 'undefined') {
     loadGistConfigFromStorage();
-    if (gistConfig.token && gistConfig.gistId) {
+    if (adminToken && gistConfig.gistId) {
       pushToJSONBin(true);
     }
   }
@@ -4479,28 +4470,32 @@ function showLogin() {
 function hideLogin() {
   document.getElementById('login-overlay').classList.remove('open');
 }
-// Credentials stored as simple hash — not plaintext
-const _a = [97,106,103,97,109,101];        
-const _b = [84,64,110,111,115,101,64,50,48,50,54];
-function _chk(u, p) {
-  const eu = u.split('').map(c=>c.charCodeAt(0));
-  const ep = p.split('').map(c=>c.charCodeAt(0));
-  if (eu.length !== _a.length || ep.length !== _b.length) return false;
-  return eu.every((v,i)=>v===_a[i]) && ep.every((v,i)=>v===_b[i]);
-}
-function doLogin() {
+async function doLogin() {
   const u = document.getElementById('login-user').value.trim();
   const p = document.getElementById('login-pass').value;
-  if (_chk(u, p)) {
+  const button = document.querySelector('.btn-login');
+  button.disabled = true;
+  try {
+    const response = await fetch(GAME_ADMIN_API_BASE + '/api/admin/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username: u, password: p}),
+    });
+    const result = await response.json().catch(function(){ return {}; });
+    if (!response.ok || !result.token) throw new Error('invalid');
+    adminToken = String(result.token);
     hideLogin();
     openAdmin();
-  } else {
+  } catch (error) {
     document.getElementById('login-error').style.display = 'block';
     document.getElementById('login-pass').value = '';
     document.getElementById('login-pass').focus();
+  } finally {
+    button.disabled = false;
   }
 }
 function logout() {
+  adminToken = '';
   document.getElementById('admin-panel').classList.remove('open');
   showToast('ออกจากระบบแล้ว');
 }
@@ -6366,21 +6361,18 @@ function importData(input) {
 function loadGistConfigFromStorage() {
   try {
     var c = JSON.parse(localStorage.getItem('ajgame_gist_config') || '{}');
-    Object.assign(gistConfig, c);
+    gistConfig.gistId = String(c.gistId || '');
+    if (Object.prototype.hasOwnProperty.call(c, 'token')) localStorage.setItem('ajgame_gist_config', JSON.stringify({ gistId: gistConfig.gistId }));
   } catch(e) {}
 }
 function saveGistConfig() {
-  var tok = document.getElementById('gist-token');
   var gid = document.getElementById('gist-id');
-  if (tok) gistConfig.token  = tok.value.trim();
   if (gid) gistConfig.gistId = gid.value.trim();
-  localStorage.setItem('ajgame_gist_config', JSON.stringify(gistConfig));
+  localStorage.setItem('ajgame_gist_config', JSON.stringify({ gistId: gistConfig.gistId }));
 }
 function loadGistConfigUI() {
   loadGistConfigFromStorage();
-  var tok = document.getElementById('gist-token');
   var gid = document.getElementById('gist-id');
-  if (tok) tok.value = gistConfig.token  || '';
   if (gid) gid.value = gistConfig.gistId || '';
 }
 
@@ -6433,9 +6425,7 @@ function fetchFromJSONBin(options) {
   if (!gistConfig.gistId && DEFAULT_GIST_ID) gistConfig.gistId = DEFAULT_GIST_ID;
 
   // Use GitHub API to fetch gist — works for public gists without auth
-  // Add token header if available to avoid rate limit
   var headers = { 'Accept': 'application/vnd.github.v3+json' };
-  if (gistConfig.token) headers['Authorization'] = 'Bearer ' + gistConfig.token;
 
   return fetch('https://api.github.com/gists/' + gistId + '?_=' + Date.now(), {
     headers: headers,
@@ -6480,17 +6470,16 @@ function fetchFromJSONBin(options) {
 // บันทึกข้อมูลขึ้น Gist (PATCH — ไม่ต้องการ SHA!)
 function pushToJSONBin(silent) {
   loadGistConfigFromStorage();
-  if (!gistConfig.token || !gistConfig.gistId) {
-    if (!silent) showSyncStatus('❌ กรุณากรอก Token และ Gist ID ก่อน', 'error');
+  if (!adminToken || !gistConfig.gistId) {
+    if (!silent) showSyncStatus('❌ กรุณาเข้าสู่ระบบ Admin และตรวจสอบ Gist ID', 'error');
     return;
   }
   if (!silent) showSyncStatus('🔄 กำลัง sync...', 'info');
   var bundle = buildDataBundle();
-  fetch('https://api.github.com/gists/' + gistConfig.gistId, {
+  fetch(GAME_ADMIN_API_BASE + '/api/admin/gists/' + encodeURIComponent(gistConfig.gistId), {
     method: 'PATCH',
     headers: {
-      'Authorization': 'Bearer ' + gistConfig.token,
-      'Accept': 'application/vnd.github.v3+json',
+      'Authorization': 'Bearer ' + adminToken,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -6498,7 +6487,7 @@ function pushToJSONBin(silent) {
     }),
   })
   .then(function(r) {
-    if (r.status === 401) throw new Error('Token ไม่ถูกต้อง (401) — ตรวจสอบ token');
+    if (r.status === 401) throw new Error('Admin session หมดอายุ กรุณาเข้าสู่ระบบใหม่');
     if (r.status === 404) throw new Error('ไม่พบ Gist ID (404) — ตรวจสอบ Gist ID');
     if (!r.ok) throw new Error('HTTP ' + r.status);
     return r.json();
@@ -6512,49 +6501,6 @@ function pushToJSONBin(silent) {
     if (!silent) showSyncStatus('❌ ' + msg, 'error');
     else console.warn('[AJGame] Gist push failed:', msg);
   });
-}
-
-// สร้าง Gist ใหม่อัตโนมัติ
-function createNewBin() {
-  loadGistConfigUI();
-  if (!gistConfig.token) {
-    showSyncStatus('❌ กรุณากรอก Token ก่อน แล้วกดสร้างใหม่', 'error'); return;
-  }
-  showSyncStatus('🔄 กำลังสร้าง Gist ใหม่...', 'info');
-  var bundle = buildDataBundle();
-  fetch('https://api.github.com/gists', {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + gistConfig.token,
-      'Accept': 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      description: 'AJ Game Rental Data',
-      public: true,
-      files: { 'ajgame-data.json': { content: JSON.stringify(bundle, null, 2) } },
-    }),
-  })
-  .then(function(r) {
-    if (r.status === 401) throw new Error('Token ไม่ถูกต้อง (401) — ตรวจสอบ token');
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    return r.json();
-  })
-  .then(function(d) {
-    gistConfig.gistId = d.id;
-    localStorage.setItem('ajgame_gist_config', JSON.stringify(gistConfig));
-    var gid = document.getElementById('gist-id');
-    if (gid) gid.value = d.id;
-    // Show Gist ID prominently with instructions for baking into HTML
-    var statusMsg = '✅ สร้าง Gist สำเร็จ! Gist ID: ' + d.id + '\n\n';
-    statusMsg += '📋 คัดลอก Gist ID นี้ไปวางใน Admin → Cloud Sync ของทุกอุปกรณ์ หรือวางใน DEFAULT_GIST_ID ในไฟล์ HTML แล้ว redeploy ครั้งเดียว';
-    showSyncStatus(statusMsg, 'ok');
-    showToast('✅ สร้าง Gist เรียบร้อย — Gist ID: ' + d.id);
-    // Show ID in a copyable box
-    var gistIdBox = document.getElementById('gist-id-display');
-    if (gistIdBox) { gistIdBox.value = d.id; gistIdBox.style.display = 'block'; }
-  })
-  .catch(function(e) { showSyncStatus('❌ ' + e.message, 'error'); });
 }
 
 function showSyncStatus(msg, type) {
