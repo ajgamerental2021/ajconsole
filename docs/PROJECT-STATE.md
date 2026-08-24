@@ -1,5 +1,23 @@
 # Project state
 
+## 2026-08-24 — Rental agreement works with and without LINE
+
+- The production booking page now offers two agreement routes outside LINE:
+  `Open with LINE` uses the existing contract LIFF, while `Continue in browser`
+  opens the same contract form through the direct HTTPS `/liff/` route.
+- Both routes use the same short booking-context token and preserve Rental ID,
+  language, device, dates, games, add-ons, payment, promotion, discounts, and
+  delivery-map data. There is still only one contract form and submission API.
+- When the booking page is already inside LINE, the agreement button skips the
+  chooser and continues through LIFF. LINE booking messages keep the LIFF URL;
+  Messenger, WhatsApp, and copied booking messages now use the direct web URL
+  so customers without LINE are not prompted to install or open it.
+- The chooser is bilingual, mobile responsive, keyboard-cancellable, and does
+  not mark the Finger Guide contract step complete when the customer cancels.
+- Verified locally in Thai and English at desktop and 390×844 mobile sizes.
+  The direct web contract loaded without a LINE redirect, inline JavaScript and
+  `git diff --check` passed, and all 133 bot regression tests passed.
+
 ## 2026-08-24 — Returning-customer fallback through Delivery App Customers
 
 - Manual phone verification now checks both the existing confirmed rental history and the Delivery App Customers tab (`gid 281638460`).
