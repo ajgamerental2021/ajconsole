@@ -540,3 +540,14 @@ console and board-game deposits as separate rows instead of incorrectly folding
 both into the console deposit label. Thirteen pricing regression tests pass,
 the bot suite passes 136/136, and mobile browser QA at 390 px confirmed the
 After Work PS5 total of ฿2,999 in both languages.
+
+### Production booking-copy fix (2026-08-25)
+
+Bot production `main` commit `2e8da9c` rebuilds Admin booking copy from the
+latest structured Booking fields instead of a stale stored message. The same
+builder is used when an edited booking is first opened and immediately after a
+successful save, so a second save is no longer required. Rental-agreement links
+are inserted before cancellation terms in Thai and English, and Thai
+balance-on-delivery copy again includes the cash/card/E-Wallet fee notice. The
+bot suite passes 136/136 and direct bilingual message assertions confirm one
+total, one contract link, correct link ordering, and the fee notice.
