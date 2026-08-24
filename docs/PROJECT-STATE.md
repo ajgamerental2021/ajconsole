@@ -521,3 +521,22 @@ The calculator does not proceed past device/date selection until a queue result
 has loaded successfully, preventing a booking from continuing on unverified
 availability. Thai and English mobile QA at 390 px covered the initial state,
 successful queue load, date-range selection, and game-step guidance.
+
+### Pricing engine preview (2026-08-25)
+
+The fourth preview pass remains isolated on `codex/quick-trust-fixes`;
+production `main` is unchanged. Booking totals now come from one pure pricing
+engine instead of being recalculated independently by summary, booking message,
+and contract handoff code. The fixed calculation order is rental rate, After
+Work promotion, review discounts, returning-customer 10% discount on the
+remaining eligible rental amount, deposits, and payment fee.
+
+The engine covers all After Work tiers (฿777 / ฿888 / ฿999 / ฿1,299), limits the
+promotion to Monday/Tuesday starts for exactly three rental days, reduces each
+review discount to ฿50 during After Work, and preserves ฿100 otherwise. Thai
+balance-on-delivery uses a ฿200 reservation, English uses ฿1,000, while card and
+E-Wallet full payments retain their existing fees. Booking messages now show
+console and board-game deposits as separate rows instead of incorrectly folding
+both into the console deposit label. Thirteen pricing regression tests pass,
+the bot suite passes 136/136, and mobile browser QA at 390 px confirmed the
+After Work PS5 total of ฿2,999 in both languages.

@@ -1020,6 +1020,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 <div class="guide-box" id="guideBox"></div>
 <div class="guide-highlight" id="guideHighlight"></div>
 
+<script src="pricing-engine.js?v=20260825-1"></script>
 <script>
 (() => {
   "use strict";
@@ -1702,7 +1703,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return queueRulesForItem(item).some(rule => queueRuleOverlaps(rule, startValue, endValue));
   }
   function isConsoleSelectable(item){ return isReady(item) && !isQueueClosed(item); }
-  function noContractDeposit(base){ return Number(base) >= 4000 ? 8000 : 5000; }
+  function noContractDeposit(base){ return AJPricing.noContractDeposit(base); }
   function consoleById(id){ return state.consoles.find(c => String(c.id) === String(id)); }
   function getConsoleImage(c){ return state.images[String(c.id)] || ""; }
   function gameUrl(c){
@@ -1719,14 +1720,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return !!gameUrl(c);
   }
   function promoDiscount(kind, subtotal, count=1){
-    const p = state.promos[kind] || {};
-    if(!p.enabled) return 0;
-    const value = Number(p.value) || 0;
-    if(value <= 0) return 0;
-    if(p.mode === "fixed") return Math.min(subtotal, value * count);
-    return Math.round(subtotal * value / 100);
+    return AJPricing.promotionDiscount(state.promos[kind], subtotal, count);
   }
-  const AFTER_WORK_PROMO_PRICES = Object.freeze({300:777, 350:888, 400:999, 500:1299});
+  const AFTER_WORK_PROMO_PRICES = AJPricing.AFTER_WORK_PROMO_PRICES;
   function selectedConsoleRentalTerms(c){
     let daily = Number(c?.rate) || 0;
     let weekly = Number(c?.weekly) || 0;
@@ -1747,20 +1743,19 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const start = parseDate(startValue);
     const end = parseDate(endValue);
     const days = start && end ? diffDays(start, end) : NaN;
-    const eligibleStart = start && (start.getDay() === 1 || start.getDay() === 2);
-    const promoPrice = Number(AFTER_WORK_PROMO_PRICES[Number(dailyRate)]) || 0;
-    const eligibleRate = promoPrice > 0;
-    const discount = eligibleRate && eligibleStart && days === 3
-      ? Math.max(0, (Number(regularRental) || 0) - promoPrice)
-      : 0;
-    return {eligible:discount > 0, discount, price:promoPrice};
+    return AJPricing.afterWorkPromotion({
+      startDay:start ? start.getDay() : NaN,
+      days,
+      regularRental,
+      dailyRate
+    });
   }
   function afterWorkPromotionLabel(price){
     const label = tr("afterWorkPromoDiscount");
     return price > 0 ? `${label} (${state.lang === "en" ? "promo price" : "ราคาโปร"} ${money(price)})` : label;
   }
   function reviewDiscountAmount(afterWorkDiscount){
-    return Number(afterWorkDiscount) > 0 ? 50 : 100;
+    return AJPricing.reviewDiscountValue(afterWorkDiscount);
   }
   function afterWorkCalendarPromotion(startValue, endValue){
     const c = consoleById(state.calc.consoleId);
@@ -2965,8 +2960,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return tr("paymentFee");
   }
   function paymentFeeAmount(amount){
-    const basisPoints = state.calc.payment === "credit" ? 350 : (state.calc.payment === "ewallet" ? 295 : 0);
-    return basisPoints ? Math.ceil(((Number(amount) || 0) * basisPoints) / 10000) : 0;
+    return AJPricing.paymentFee(state.calc.payment, amount);
   }
   function paymentLinkAmount(summary){
     if(state.lang === "en" && state.calc.payment === "cash") return Math.min(1000, Number(summary.total) || 0);
@@ -3225,54 +3219,62 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(!c || !Number.isFinite(days) || days < 1) return {days:0,rental:0,addons:0,bgSubtotal:0,bgDisc:0,bgDeposit:0,consoleDeposit:0,discounts:0,deposit:0,total:0,paymentFee:0,upfront:200,onDelivery:0,bgItems:[]};
     const terms = selectedConsoleRentalTerms(c);
     const {daily, weekly, deposit, bundleName} = terms;
-    const rental = rentalCost(days, daily, weekly);
-    const afterWorkPromo = afterWorkPromotion(state.calc.start, state.calc.end, rental, daily);
-    const afterWorkDisc = afterWorkPromo.discount;
-    const afterWorkPrice = afterWorkPromo.eligible ? afterWorkPromo.price : 0;
     const extras = extrasForConsole(c).filter(x => state.calc.extras.includes(x.id));
     const addons = extras.reduce((sum,x) => sum + accessoryRentalCost(x, days), 0);
     const bgItems = state.calc.boardgames.map(bgById).filter(Boolean);
     const bgSubtotal = bgItems.reduce((sum,g) => sum + bgRentalCost(g, days), 0);
-    const bgDisc = promoDiscount("bg", bgSubtotal, bgItems.length);
     const bgDepositTotal = bgItems.reduce((sum,g) => sum + bgDeposit(g), 0);
-    const activeReviewDiscount = reviewDiscountAmount(afterWorkDisc);
-    const reviewGoogleDisc = state.calc.ret && state.calc.reviewGoogle ? activeReviewDiscount : 0;
-    const reviewFacebookDisc = state.calc.ret && state.calc.reviewFacebook ? activeReviewDiscount : 0;
-    const promoDisc = promoDiscount("console", rental + addons);
-    // Loyalty is applied last, to the eligible rental balance after every
-    // fixed promotion and review discount. This avoids discounting money the
-    // customer has already saved and keeps the summary, booking and contract
-    // handoff on the same total.
-    const returningDiscountBase = Math.max(0,
-      rental + addons - afterWorkDisc - promoDisc - reviewGoogleDisc - reviewFacebookDisc
-    );
-    const retDisc = state.calc.ret && state.retEnabled ? Math.round(returningDiscountBase * 0.1) : 0;
-    const finalDeposit = state.calc.noContract ? noContractDeposit(deposit) : deposit;
-    const consoleDiscounts = retDisc + reviewGoogleDisc + reviewFacebookDisc + promoDisc + afterWorkDisc;
-    const subtotalAfterDiscount = Math.max(0, rental + addons - consoleDiscounts) + Math.max(0, bgSubtotal - bgDisc);
-    const depositTotal = finalDeposit + bgDepositTotal;
-    const subtotalBeforePaymentFee = subtotalAfterDiscount + depositTotal;
-    const paymentFee = paymentFeeAmount(subtotalBeforePaymentFee);
-    const total = subtotalBeforePaymentFee + paymentFee;
-    // Reservation payment differs by language; every full-payment option is
-    // collected before delivery.
-    let upfront = state.lang === "en" ? Math.min(1000, total) : Math.min(CONFIG.reservationAmount, total);
-    let onDelivery = Math.max(0, total - upfront);
-    if(state.calc.payment !== "cash"){
-      upfront = total;
-      onDelivery = 0;
-    }
-    return {days,rental,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,reviewGoogleDisc,reviewFacebookDisc,promoDisc,afterWorkDisc,afterWorkPrice,discounts:retDisc+reviewGoogleDisc+reviewFacebookDisc+promoDisc+afterWorkDisc+bgDisc,deposit:depositTotal,subtotalBeforePaymentFee,paymentFee,total,upfront,onDelivery,bundleName,extras,bgItems};
+    const start = parseDate(state.calc.start);
+    const quote = AJPricing.calculateQuote({
+      days,
+      daily,
+      weekly,
+      startDay:start ? start.getDay() : NaN,
+      addons,
+      boardGameSubtotal:bgSubtotal,
+      boardGameDeposit:bgDepositTotal,
+      boardGameCount:bgItems.length,
+      boardGamePromotion:state.promos.bg,
+      consoleDeposit:deposit,
+      noContract:state.calc.noContract,
+      consolePromotion:state.promos.console,
+      returning:state.calc.ret && state.retEnabled,
+      googleReview:state.calc.reviewGoogle,
+      facebookReview:state.calc.reviewFacebook,
+      payment:state.calc.payment,
+      language:state.lang,
+      reservationAmount:CONFIG.reservationAmount
+    });
+    return {
+      days:quote.days,
+      rental:quote.rental,
+      addons:quote.addons,
+      bgSubtotal:quote.boardGameSubtotal,
+      bgDisc:quote.boardGameDiscount,
+      bgDeposit:quote.boardGameDeposit,
+      consoleDeposit:quote.consoleDeposit,
+      retDisc:quote.returningDiscount,
+      reviewGoogleDisc:quote.googleReviewDiscount,
+      reviewFacebookDisc:quote.facebookReviewDiscount,
+      promoDisc:quote.consolePromoDiscount,
+      afterWorkDisc:quote.afterWorkDiscount,
+      afterWorkPrice:quote.afterWorkPrice,
+      discounts:quote.discounts,
+      deposit:quote.deposit,
+      subtotalBeforePaymentFee:quote.subtotalBeforePaymentFee,
+      paymentFee:quote.paymentFee,
+      total:quote.total,
+      upfront:quote.upfront,
+      onDelivery:quote.onDelivery,
+      bundleName,
+      extras,
+      bgItems
+    };
   }
-  const MONTHLY_RATE = {500:8500, 400:6500, 350:5000, 300:4000};
+  const MONTHLY_RATE = AJPricing.MONTHLY_RATES;
   function monthlyRate(daily){ return MONTHLY_RATE[Number(daily) || 0] || 0; }
   function rentalCost(days, daily, weekly){
-    let d = Number(days) || 0;
-    let cost = 0;
-    const monthly = monthlyRate(daily);
-    if(monthly && d >= 30){ cost += Math.floor(d/30)*monthly; d = d % 30; }
-    if(d >= 7) return cost + Math.floor(d/7)*Number(weekly||0) + (d%7)*Number(daily||0);
-    return cost + d * Number(daily||0);
+    return AJPricing.rentalCost(days, daily, weekly);
   }
 
   function renderFAQ(){
@@ -3962,7 +3964,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(s.retDisc) costs.push({label: en ? "Returning customer 10% discount" : "ส่วนลดลูกค้าเก่า 10%", value:`-${money(s.retDisc)}`, discount:true});
     if(s.bgDisc) costs.push({label: en ? "Board game discount" : "ส่วนลดบอร์ดเกม", value:`-${money(s.bgDisc)}`, discount:true});
     if(s.paymentFee) costs.push({label: en ? "Payment fee" : "ค่าธรรมเนียมการชำระเงิน", value:money(s.paymentFee)});
-    costs.push({label: en ? `${cName(c)} deposit` : `ค่าประกัน ${cName(c)}`, value: money(s.deposit)});
+    costs.push({label: en ? `${cName(c)} deposit` : `ค่าประกัน ${cName(c)}`, value: money(s.consoleDeposit)});
+    if(s.bgDeposit) costs.push({label: en ? "Board game deposit" : "ค่าประกันบอร์ดเกม", value:money(s.bgDeposit)});
     return {
       rentalCode: code,
       lang: en ? "EN" : "TH",
@@ -4196,7 +4199,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       s.reviewFacebookDisc ? `  - ส่วนลดรีวิว Facebook: -${money(s.reviewFacebookDisc)}` : "",
       s.retDisc ? `  - ส่วนลดลูกค้าเก่า 10%: -${money(s.retDisc)}` : "",
       s.bgDisc ? `  - ส่วนลดบอร์ดเกม: -${money(s.bgDisc)}` : "",
-      `  - ค่าประกัน ${cName(c)}: ${money(s.deposit)}${noContractSuffixTh}`
+      `  - ค่าประกัน ${cName(c)}: ${money(s.consoleDeposit)}${noContractSuffixTh}`,
+      s.bgDeposit ? `  - ค่าประกันบอร์ดเกม: ${money(s.bgDeposit)}` : ""
     ].filter(Boolean);
     const costLinesEn = [
       `  - ${cName(c)} rental: ${money(s.rental)}`,
@@ -4209,7 +4213,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       s.reviewFacebookDisc ? `  - Facebook review discount: -${money(s.reviewFacebookDisc)}` : "",
       s.retDisc ? `  - Returning customer 10% discount: -${money(s.retDisc)}` : "",
       s.bgDisc ? `  - Board game discount: -${money(s.bgDisc)}` : "",
-      `  - ${cName(c)} deposit: ${money(s.deposit)}${noContractSuffixEn}`,
+      `  - ${cName(c)} deposit: ${money(s.consoleDeposit)}${noContractSuffixEn}`,
+      s.bgDeposit ? `  - Board game deposit: ${money(s.bgDeposit)}` : "",
       s.paymentFee ? `  - ${paymentFeeLabel()}: ${money(s.paymentFee)}` : ""
     ].filter(Boolean);
     const contractLinesTh = (state.calc.noContract || isReturning) ? [] : [
