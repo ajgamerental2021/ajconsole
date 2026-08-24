@@ -489,3 +489,19 @@ contracts start with Foreigner selected and Thai contracts start with Thai
 citizen selected. Mobile browser QA at 390 px confirmed no horizontal overflow,
 the correct language defaults, hidden public Admin controls, and zero browser
 console errors. The bot suite passes 134/134.
+
+### Trust and privacy preview (2026-08-24)
+
+The second trust pass remains isolated on `codex/quick-trust-fixes`; production
+`main` is still unchanged. Before identity uploads, the contract now displays
+the existing purpose, access limit, no-marketing statement, and 30-day document
+deletion condition in both languages. A separate required acknowledgement is
+validated by both the browser and the server schema. The fallback upload copy
+now tells customers to use only the official AJ chat they are already using.
+
+The booking calculator adds a concise privacy reassurance beside the rental
+contract action and inside returning-customer verification. It states that the
+verification data is used only for discount eligibility and does not reveal
+another customer's identity or rental history. The bot suite passes 136/136;
+both customer pages parse without JavaScript errors, and contract mobile QA at
+390 px shows no horizontal overflow in Thai or English.
