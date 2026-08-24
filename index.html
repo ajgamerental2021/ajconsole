@@ -339,6 +339,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .guide-highlight.show{display:block}
 .step-actions{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px}
 .step-actions .btn{min-width:150px}
+.step-readiness{flex:0 0 100%;display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #d8dee8;border-radius:12px;background:#f8fafc;color:#46536a;padding:10px 12px;font-size:13px;font-weight:800;line-height:1.45}
+.step-readiness.ready{border-color:#b9e5c5;background:#effaf2;color:#176b34}
+.step-readiness.checking{border-color:#f0d78b;background:#fff9e8;color:#795600}
+.step-readiness.error{border-color:#f2b8b8;background:#fff3f3;color:#a31919}
+.step-readiness .btn,.availability-retry{min-width:auto;min-height:36px;padding:7px 11px;white-space:nowrap}
+.availability-feedback{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.calendar-status-error{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #f2b8b8;border-radius:10px;background:#fff3f3;color:#a31919;padding:9px 10px;font-weight:800}
 .admin-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:700;align-items:center;justify-content:center;padding:14px}
 .admin-overlay.open{display:flex}
 .admin-modal{width:min(1080px,100%);max-height:94vh;background:#fff;border-radius:20px;box-shadow:var(--shadow2);overflow:hidden;display:flex;flex-direction:column}
@@ -1266,7 +1273,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       summaryTitle:"สรุปค่าเช่า", summaryEmpty:"เลือกเครื่องและวันที่เพื่อดูสรุป", rental:"ค่าเช่า", discount:"ส่วนลด", promo:"โปรโมชัน", total:"ยอดรวม", grandTotal:"ยอดรวมทั้งหมด", upfront:"โอนล่วงหน้า", upfrontConfirm:"โอนล่วงหน้า (ยืนยันการจอง)", fullPaymentConfirm:"ชำระยอดเต็ม (เพื่อยืนยันการจอง)", onDelivery:"จ่ายตอนของถึง", payOnDelivery:"จ่ายตอนของถึง", delivery:"ค่าส่งแจ้งทางแชท", finalActionHelp:"ตรวจสอบข้อมูลแล้ว กดจองผ่านช่องทางแชทที่คุยกับร้านเพื่อส่งรายละเอียด",
       returningDiscount:"ส่วนลดลูกค้าเก่า 10%", consoleDiscount:"ส่วนลดเครื่องเกม", boardGameDiscount:"ส่วนลดบอร์ดเกม", boardGameDeposit:"ค่าประกันบอร์ดเกม", rentalDays:"จำนวนวันเช่า", boardGameRental:"ค่าเช่าบอร์ดเกม", boardGameList:"รายการบอร์ดเกม",
       equipmentDetails:"รายละเอียดอุปกรณ์", players:"จำนวนผู้เล่น", playTime:"เวลาเล่น", age:"อายุแนะนำ", packageRental:"ค่าเช่าตามแพ็ก", oneDay:"1 วัน", threeDays:"3 วัน", sevenDays:"7 วัน", howToPlay:"วิธีเล่นคร่าว ๆ", noContractDepositNote:"ค่าประกัน (ไม่ทำสัญญา)", noContractLabel:"ไม่ทำสัญญา", standardTier:"เรทมาตรฐาน", planning:"วางแผน",
-      copy:"📋 Copy ข้อความจองเช่า", line:"จองผ่าน Line", whatsapp:"จองผ่าน WhatsApp", messenger:"จองผ่าน Messenger", copied:"คัดลอกแล้ว", minDays:"ขั้นต่ำ 3 วัน", busy:"เครื่องอาจไม่ว่างในช่วงนี้", available:"ช่วงนี้ผ่านการเช็คคิวแล้ว", checking:"กำลังเช็คคิว...", queueError:"ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่", queueClosed:"ปิดคิวในช่วงเวลานี้", bookingHold:"มี 1 คิวกำลังทำรายการ กรุณาเช็คคิวใหม่ใน {minutes} นาที", bookingHoldCell:"กำลังจอง · เช็คใหม่ใน {minutes} นาที", bookingHoldLost:"มีลูกค้ารายอื่นกำลังจองเครื่องนี้ กรุณาเช็คคิวใหม่ใน {minutes} นาที",
+      copy:"📋 Copy ข้อความจองเช่า", line:"จองผ่าน Line", whatsapp:"จองผ่าน WhatsApp", messenger:"จองผ่าน Messenger", copied:"คัดลอกแล้ว", minDays:"ขั้นต่ำ 3 วัน", busy:"เครื่องอาจไม่ว่างในช่วงนี้", available:"ช่วงนี้ผ่านการเช็คคิวแล้ว", checking:"กำลังเช็คคิว...", queueError:"ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่", retryQueue:"ลองเช็คคิวอีกครั้ง", queueRetryCell:"ลองเช็คใหม่", queueClosed:"ปิดคิวในช่วงเวลานี้", bookingHold:"มี 1 คิวกำลังทำรายการ กรุณาเช็คคิวใหม่ใน {minutes} นาที", bookingHoldCell:"กำลังจอง · เช็คใหม่ใน {minutes} นาที", bookingHoldLost:"มีลูกค้ารายอื่นกำลังจองเครื่องนี้ กรุณาเช็คคิวใหม่ใน {minutes} นาที", stepNeedConsole:"เลือกเครื่องเกมก่อนเพื่อเริ่มเช็คคิว", stepNeedStart:"เลือกวันที่เริ่มเช่า", stepNeedEnd:"เลือกวันคืนเครื่อง", stepNeedMinDays:"เลือกช่วงเช่าอย่างน้อย 3 วัน", stepQueueChecking:"กำลังตรวจสอบคิว กรุณารอสักครู่", stepQueueUnavailable:"ช่วงวันที่เลือกยังไม่พร้อมให้จอง", stepReadyDates:"เครื่องและช่วงวันที่พร้อม ไปขั้นตอนถัดไปได้", stepNeedGames:"เลือกรายชื่อเกม หรือเลือกแจ้งรายชื่อเกมภายหลัง", stepReadyGames:"ข้อมูลเกมพร้อมแล้ว ไปขั้นตอนถัดไปได้", stepReadyReview:"ตรวจสอบช่องทางชำระเงิน สัญญา และแผนที่ แล้วดูสรุปได้",
       shareConfirmTitle:"ยืนยันส่งข้อความจอง", shareConfirmMessage:"คุณกำลังจะส่งข้อความจองเช่าผ่าน {channel}", shareConfirmNote:"เพื่อป้องกันการส่งซ้ำ ระบบจะกันการกดซ้ำชั่วคราวหลังยืนยันส่ง", shareConfirmContractNote:"ลูกค้าใหม่ควรทำสัญญาการเช่าก่อนส่งข้อความจอง เพื่อให้ข้อมูลไม่หลุดและลดการส่งซ้ำ", shareConfirmMessengerNote:"Messenger ไม่สามารถใส่ข้อความให้อัตโนมัติ กรุณาคัดลอกข้อความ แล้วเปิดแชท AJ เพื่อวางและกดส่ง", shareConfirmSend:"ยืนยันส่งข้อความจอง", shareContractFirst:"ทำสัญญาก่อน", shareCancel:"ยกเลิก", shareCooldown:"กำลังเตรียมหรือเพิ่งเปิดข้อความจอง กรุณารอสักครู่ก่อนกดซ้ำ", sharePreparing:"กำลังเตรียมข้อความจองสำหรับ {channel} กรุณาอย่ากดซ้ำ", shareReady:"ข้อความพร้อมแล้ว กรุณาคัดลอกและเปิด Messenger", shareOpened:"เปิด {channel} แล้ว กรุณากดส่งข้อความในแชท และรอสักครู่ก่อนกดซ้ำ", messengerHandoffTitle:"ส่งข้อความผ่าน Messenger", messengerHandoffHelp:"1. กดคัดลอกข้อความ  2. เปิด Messenger  3. วางข้อความในแชทและกดส่ง", messengerCopy:"คัดลอกข้อความ", messengerOpen:"เปิด Messenger", messengerCopied:"คัดลอกข้อความแล้ว กรุณาเปิด Messenger และวางในแชท",
       faqTitle:"คำถามที่พบบ่อย", faqExpand:"ดูคำถามทั้งหมด", faqCollapse:"ย่อคำถาม", adminLogin:"เข้าสู่ระบบ Admin", adminUser:"ผู้ใช้", adminPassword:"รหัสผ่าน", adminSubmit:"เข้าสู่ระบบ", wrongPassword:"ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", rentalCode:"รหัสการเช่า", save:"บันทึก", add:"เพิ่ม", edit:"แก้ไข", delete:"ลบ", sync:"Sync", pull:"Pull", push:"Push"
     },
@@ -1358,7 +1365,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Grand total", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", fullPaymentConfirm:"Full payment (to confirm booking)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat", paymentFee:"Payment fee", cardDeposit:"Card / E-Wallet / Thai QR reservation (no fee)", paymentLink:"Payment link", finalActionHelp:"Review the details, then book via the same chat channel to send them to AJ.",
       returningDiscount:"Returning customer 10% discount", consoleDiscount:"Console discount", boardGameDiscount:"Board game discount", boardGameDeposit:"Board game deposit", rentalDays:"Rental days", boardGameRental:"Board game rental", boardGameList:"Board game list",
       equipmentDetails:"Equipment details", players:"Players", playTime:"Play time", age:"Recommended age", packageRental:"Package rental", oneDay:"1 day", threeDays:"3 days", sevenDays:"7 days", howToPlay:"Quick how to play", noContractDepositNote:"Deposit (no contract)", noContractLabel:"No contract", standardTier:"Standard tier", planning:"Planning",
-      copy:"📋 Copy booking message", line:"Book via LINE", whatsapp:"Book via WhatsApp", messenger:"Book via Messenger", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", queueError:"Unable to check the queue. Please try again.", queueClosed:"Queue closed during this period", bookingHold:"1 customer is completing this booking. Check again in {minutes} minutes.", bookingHoldCell:"In progress · retry in {minutes} min", bookingHoldLost:"Another customer is booking this console. Check again in {minutes} minutes.",
+      copy:"📋 Copy booking message", line:"Book via LINE", whatsapp:"Book via WhatsApp", messenger:"Book via Messenger", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", queueError:"Unable to check the queue. Please try again.", retryQueue:"Retry queue check", queueRetryCell:"Retry check", queueClosed:"Queue closed during this period", bookingHold:"1 customer is completing this booking. Check again in {minutes} minutes.", bookingHoldCell:"In progress · retry in {minutes} min", bookingHoldLost:"Another customer is booking this console. Check again in {minutes} minutes.", stepNeedConsole:"Choose a console to start the queue check.", stepNeedStart:"Choose the rental start date.", stepNeedEnd:"Choose the return date.", stepNeedMinDays:"Choose a rental period of at least 3 days.", stepQueueChecking:"Checking the queue. Please wait a moment.", stepQueueUnavailable:"The selected dates are not ready to book.", stepReadyDates:"Console and dates are ready. You can continue.", stepNeedGames:"Choose games or select Send game list later.", stepReadyGames:"Game selection is ready. You can continue.", stepReadyReview:"Review payment, contract and map options, then continue to the summary.",
       shareConfirmTitle:"Confirm booking message", shareConfirmMessage:"You are about to send this booking message via {channel}.", shareConfirmNote:"To prevent duplicate messages, the buttons will be briefly locked after confirmation.", shareConfirmContractNote:"First-time customers should complete the rental contract before sending the booking message, so the details do not get missed or duplicated.", shareConfirmMessengerNote:"Messenger cannot prefill this message. Please copy it, open AJ's chat, paste it, and tap Send.", shareConfirmSend:"Confirm and send", shareContractFirst:"Do contract first", shareCancel:"Cancel", shareCooldown:"Your booking message is being prepared or was just opened. Please wait before trying again.", sharePreparing:"Preparing your booking message for {channel}. Please do not tap again.", shareReady:"Your message is ready. Copy it and open Messenger.", shareOpened:"{channel} opened. Please send the message in the chat and wait before trying again.", messengerHandoffTitle:"Send via Messenger", messengerHandoffHelp:"1. Copy the message  2. Open Messenger  3. Paste it into the chat and tap Send", messengerCopy:"Copy message", messengerOpen:"Open Messenger", messengerCopied:"Message copied. Open Messenger and paste it into the chat.",
       faqTitle:"Frequently Asked Questions", faqExpand:"Show all questions", faqCollapse:"Collapse questions", adminLogin:"Admin Login", adminUser:"User", adminPassword:"Password", adminSubmit:"Login", wrongPassword:"Wrong username or password", rentalCode:"Rental code", save:"Save", add:"Add", edit:"Edit", delete:"Delete", sync:"Sync", pull:"Pull", push:"Push"
     }
@@ -2507,7 +2514,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const n = i+1;
       const disabledStep = n === 2 && skipGameStep;
       const locked = disabledStep || (n > 1 && !stepReady(n - 1));
-      return `<button class="step-tab ${state.calc.step===n?"active":""} ${stepReady(n)?"done":""} ${locked?"locked":""}" data-step="${n}" ${disabledStep?'data-step-disabled="1" disabled aria-disabled="true"':""} type="button"><span class="num">${n}</span><b>${esc(label)}</b></button>`;
+      return `<button class="step-tab ${state.calc.step===n?"active":""} ${stepReady(n)?"done":""} ${locked?"locked":""}" data-step="${n}" ${state.calc.step===n?'aria-current="step"':""} ${locked?'aria-disabled="true"':""} ${disabledStep?'data-step-disabled="1" disabled':""} type="button"><span class="num">${n}</span><b>${esc(label)}</b></button>`;
     }).join("");
     $$(".pane").forEach((pane,i) => pane.classList.toggle("active", i+1 === state.calc.step));
     renderCalcFields();
@@ -2527,7 +2534,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(next > 1 && !stepReady(next - 1)){
       const requiredStep = !stepReady(1) ? 1 : !stepReady(2) ? 2 : 3;
       state.calc.step = requiredStep;
-      toast(state.lang === "en" ? "Please complete the previous step first." : "กรุณาทำขั้นตอนก่อนหน้าให้ครบก่อน");
+      toast(stepReadiness(requiredStep).text);
       renderCalc();
       window.requestAnimationFrame(focusCurrentGuideTarget);
       return;
@@ -2554,12 +2561,34 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const nextStep = skipGameStep && step === 1 ? 3 : step + 1;
       const back = step > 1 ? `<button class="btn" type="button" data-step-go="${backStep}">${tr("backStep")}</button>` : `<span></span>`;
       const next = step < 4 ? `<button class="btn primary" type="button" data-step-go="${nextStep}" ${stepReady(step) ? "" : "disabled"}>${tr("nextStep")}</button>` : "";
-      return `${back}${next}`;
+      return `${renderStepReadiness(step)}${back}${next}`;
     };
     [1,2,3,4].forEach(step => {
       const host = byId(`stepActions${step}`);
       if(host) host.innerHTML = buttons(step);
     });
+  }
+  function stepReadiness(step){
+    if(step === 1){
+      if(!state.calc.consoleId) return {tone:"info", text:tr("stepNeedConsole")};
+      if(!state.calc.start) return {tone:"info", text:tr("stepNeedStart")};
+      if(!state.calc.end) return {tone:"info", text:tr("stepNeedEnd")};
+      const days = selectedDays();
+      if(!Number.isFinite(days) || days < 3) return {tone:"error", text:tr("stepNeedMinDays")};
+      if(state.availability.loading) return {tone:"checking", text:tr("stepQueueChecking")};
+      if(state.availability.error || !state.availability.lastSync) return {tone:"error", text:tr("queueError"), retry:true};
+      if(state.availability.gate.pass === false) return {tone:"error", text:state.availability.gate.message || tr("stepQueueUnavailable")};
+      return {tone:"ready", text:tr("stepReadyDates")};
+    }
+    if(step === 2) return gameSelectionReady()
+      ? {tone:"ready", text:tr("stepReadyGames")}
+      : {tone:"info", text:tr("stepNeedGames")};
+    return {tone:"ready", text:tr("stepReadyReview")};
+  }
+  function renderStepReadiness(step){
+    const status = stepReadiness(step);
+    const retry = status.retry ? `<button class="btn availability-retry" type="button" data-availability-retry>${tr("retryQueue")}</button>` : "";
+    return `<div class="step-readiness ${esc(status.tone)}" role="status" aria-live="polite"><span>${esc(status.text)}</span>${retry}</div>`;
   }
   function calcConsoleChoices(){
     return state.consoles
@@ -2828,7 +2857,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function stepReady(step){
     if(step === 1){
       const days = selectedDays();
-      return !!state.calc.consoleId && startDateAllowed(state.calc.start) && Number.isFinite(days) && days >= 3 && state.availability.gate.pass !== false;
+      const queueVerified = !state.availability.loading && !state.availability.error && !!state.availability.lastSync;
+      return !!state.calc.consoleId && startDateAllowed(state.calc.start) && Number.isFinite(days) && days >= 3 && queueVerified && state.availability.gate.pass !== false;
     }
     if(step === 2) return stepReady(1) && gameSelectionReady();
     if(step === 3) return stepReady(2);
@@ -3475,6 +3505,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(!host) return;
     state.availability.gate = evaluateAvailability();
     if(state.availability.loading) host.textContent = tr("checking");
+    else if(state.availability.error || (state.calc.consoleId && !state.availability.lastSync)) host.innerHTML = `<div class="availability-feedback"><span>${esc(tr("queueError"))}</span><button class="btn availability-retry" type="button" data-availability-retry>${tr("retryQueue")}</button></div>`;
     else if(state.availability.gate.message && !["ok","fallback","idle"].includes(state.availability.gate.mode)) host.textContent = state.availability.gate.message;
     else host.textContent = "";
   }
@@ -3526,11 +3557,20 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     byId("calEndValue").textContent = calendarHeadline(state.calendar.draftEnd);
     byId("calStartSub").textContent = state.calendar.draftStart ? tr("calStartSub") : tr("startDate");
     byId("calEndSub").textContent = state.calendar.draftEnd ? tr("calEndSub") : tr("selectReturnDate");
-    byId("calendarStatus").textContent = !rangeAvailable && state.calendar.draftEnd
-      ? tr("calUnavailable")
-      : (state.calendar.mode === "start" && rentalCutoffPassed()
-        ? tr("cutoffStartNotice")
-        : (state.calendar.mode === "start" ? tr("startDate") : tr("selectReturnDate")));
+    const calendarStatus = byId("calendarStatus");
+    if(!state.availability.loading && (state.availability.error || !state.availability.lastSync)){
+      calendarStatus.className = "hint calendar-status-error";
+      calendarStatus.innerHTML = `<span>${esc(tr("queueError"))}</span><button class="btn availability-retry" type="button" data-availability-retry>${tr("retryQueue")}</button>`;
+    }else{
+      calendarStatus.className = "hint";
+      calendarStatus.textContent = state.availability.loading
+        ? tr("checking")
+        : (!rangeAvailable && state.calendar.draftEnd
+          ? tr("calUnavailable")
+          : (state.calendar.mode === "start" && rentalCutoffPassed()
+            ? tr("cutoffStartNotice")
+            : (state.calendar.mode === "start" ? tr("startDate") : tr("selectReturnDate"))));
+    }
     byId("calendarPicked").innerHTML = `<small>${tr("selectedDates")}</small>${displayDate(state.calendar.draftStart)} - ${displayDate(state.calendar.draftEnd)}${Number.isFinite(days) && days > 0 ? ` (${days} ${tr("day")})` : ""}`;
     byId("calendarLegend").innerHTML = [
       {color:"#eef9f0", label:tr("calAvailable")},
@@ -3567,7 +3607,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(allHolds.some(hold => hold.mine)) return {cls:"busy", note:holdMessage("bookingHoldCell", allHolds.filter(hold => hold.mine))};
     if(!state.availability.rows.length){
       if(state.availability.loading) return {cls:"disabled", note:tr("checking")};
-      if(state.availability.error || !state.availability.lastSync) return {cls:"disabled", note:tr("queueError")};
+      if(state.availability.error || !state.availability.lastSync) return {cls:"disabled", note:tr("queueRetryCell")};
       return {cls:"available", note:calendarCellText("available")};
     }
     const bundleGate = selectedBundleAvailabilityGate(start, end);
@@ -5941,6 +5981,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       }
       const stepGo = event.target.closest("[data-step-go]");
       if(stepGo){ goCalcStep(stepGo.dataset.stepGo); return; }
+      if(event.target.closest("[data-availability-retry]")){
+        fetchAvailability().catch(() => {});
+        if(state.calendar.open) renderCalendar();
+        return;
+      }
       const cardGame = event.target.closest("[data-card-game]");
       if(cardGame){
         state.calc.consoleId = cardGame.dataset.cardGame;
