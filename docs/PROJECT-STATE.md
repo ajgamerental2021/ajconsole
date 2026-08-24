@@ -505,3 +505,19 @@ verification data is used only for discount eligibility and does not reveal
 another customer's identity or rental history. The bot suite passes 136/136;
 both customer pages parse without JavaScript errors, and contract mobile QA at
 390 px shows no horizontal overflow in Thai or English.
+
+### Booking flow preview (2026-08-25)
+
+The third preview pass remains isolated on `codex/quick-trust-fixes`; production
+`main` is unchanged. Every calculator step now has a bilingual live status that
+explains exactly what the customer must complete before the Next button becomes
+available. Locked step tabs expose their disabled state to assistive technology,
+and the current tab uses `aria-current="step"`.
+
+Queue-check failures no longer leave the customer at a dead end. Both the main
+calculator and the calendar show a direct Retry queue check action, while date
+cells use a short retry label instead of repeating a long error in every cell.
+The calculator does not proceed past device/date selection until a queue result
+has loaded successfully, preventing a booking from continuing on unverified
+availability. Thai and English mobile QA at 390 px covered the initial state,
+successful queue load, date-range selection, and game-step guidance.
