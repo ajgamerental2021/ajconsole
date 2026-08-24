@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-08-24 — Returning-customer fallback through Delivery App Customers
+
+- Manual phone verification now checks both the existing confirmed rental history and the Delivery App Customers tab (`gid 281638460`).
+- A customer without an AJ Contract can qualify when the normalized first name and phone number match the same Customers row; matching only one value never grants the discount.
+- Rental-ID verification remains restricted to confirmed rental history and is not weakened by this fallback.
+- The Customers reader supports both named-column sheets and the legacy fixed layout (`UUID`, name, phone, Maps URL, timestamp).
+- Bot tests pass 131/131, including exact match, mismatched name/phone, and legacy headerless Customers cases.
+
 ## 2026-08-23 — One-page rental agreement and note notifications
 
 - The local A4 agreement generator now uses a compact bottom signature area so a normal completed contract, including a renter note, stays on one page without shrinking the existing body text.
