@@ -1021,6 +1021,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 <div class="guide-highlight" id="guideHighlight"></div>
 
 <script src="pricing-engine.js?v=20260825-1"></script>
+<script src="game-catalog-core.js?v=20260825-1"></script>
 <script>
 (() => {
   "use strict";
@@ -4678,7 +4679,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return consoleById(state.calc.consoleId) || gameCatalogConsoles()[0];
   }
   function pickerSelectedIds(){
-    return state.gamePickerBrowseOnly ? [] : state.calc.games.map(game => game.id).filter(Boolean);
+    return state.gamePickerBrowseOnly ? [] : state.calc.games.map(game => game.catalogId || game.id).filter(Boolean);
   }
   function renderGamePickerPlatforms(){
     const host = byId("gamePickerPlatforms");
@@ -6086,7 +6087,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(!pickerOriginAllowed(event.origin)) return;
       const data = event.data || {};
       if(data.type === "AJ_PICKER_SELECTED"){
-        const pickedGames = Array.isArray(data.games) ? data.games.slice(0,10) : [];
+        const activeConsole = activePickerConsole();
+        const expectedPlatform = activeConsole ? (activeConsole.gamePlatform || guessPlatform(activeConsole)) : "";
+        const pickedGames = AJGameCatalog.normalizeIncomingSelection(data.games, expectedPlatform, 10);
+        if(!pickedGames.length){
+          toast(state.lang === "en" ? "The selected games do not match this console. Please choose again." : "รายการเกมไม่ตรงกับเครื่องที่เลือก กรุณาเลือกใหม่อีกครั้ง");
+          return;
+        }
         if(state.gamePickerBrowseOnly){
           const pickedConsole = activePickerConsole();
           if(!pickedConsole || !pickedGames.length) return;
@@ -6359,6 +6366,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(!handoff || Date.now() - Number(handoff.at || 0) > 30 * 60 * 1000 || !Array.isArray(handoff.games)) return false;
       const games = handoff.games.slice(0,10).map(game => ({
         id:String(game.id || ""),
+        catalogId:String(game.catalogId || ""),
         name:String(game.name || ""),
         platformId:String(game.platformId || handoff.platformId || ""),
         platformName:String(game.platformName || "")

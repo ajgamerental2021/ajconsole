@@ -551,3 +551,20 @@ are inserted before cancellation terms in Thai and English, and Thai
 balance-on-delivery copy again includes the cash/card/E-Wallet fee notice. The
 bot suite passes 136/136 and direct bilingual message assertions confirm one
 total, one contract link, correct link ordering, and the fee notice.
+
+### Game catalogue and Game ID preview (2026-08-25)
+
+The fifth preview pass remains isolated on `codex/quick-trust-fixes`;
+production `main` is unchanged. Games now have a platform-namespaced catalogue
+identity such as `ps5::g100`, while old saved `g100` selections remain readable
+within the selected console. New games created or imported in Admin receive
+readable, stable and collision-safe IDs instead of timestamp-only IDs, and the
+Admin editor shows the stored Game ID as read-only.
+
+The booking/game-picker bridge now sends catalogue IDs, restores both new and
+legacy selections, rejects games from another console, and removes duplicate
+incoming selections before they reach the booking summary or contract handoff.
+The shipped catalogue audit covers all 587 records with no missing IDs/names,
+duplicates, or unsupported platforms. Nineteen website regression tests pass;
+Thai and English mobile browser QA at 390 px confirmed the embedded catalogue
+loads with the correct language and console scope.

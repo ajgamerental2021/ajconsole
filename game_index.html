@@ -2655,6 +2655,7 @@
   }
 </style>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="game-catalog-core.js?v=20260825-1"></script>
 </head>
 <body>
 
@@ -3094,6 +3095,11 @@
   <div class="form-box">
     <h3 class="form-title" id="game-form-title">เพิ่มเกม</h3>
     <input type="hidden" id="gf-id">
+    <div class="form-row" id="gf-id-row" style="display:none">
+      <label class="form-label">Game ID (สร้างอัตโนมัติและไม่เปลี่ยนตามชื่อ)</label>
+      <input class="form-input" id="gf-id-display" type="text" readonly>
+      <p class="form-hint">ใช้เชื่อมรายการเกมระหว่าง Catalogue, Booking และสัญญาเช่า กรุณาไม่แก้ไข ID เดิม</p>
+    </div>
     <div class="form-row">
       <label class="form-label">ประเภทเครื่อง *</label>
       <select class="form-select" id="gf-platform" onchange="toggleGamePlatformFields()"></select>
@@ -4216,6 +4222,7 @@ function normalizeGameRecord(g) {
   const ids = gamePlatformIds(next);
   next.platformIds = ids;
   next.platformId = primaryPlatformId(next);
+  next.catalogId = AJGameCatalog.catalogId(next);
   return next;
 }
 function ajTodayYmd() {
@@ -4577,6 +4584,7 @@ function renderAdminGames() {
       <div class="game-row-url">
         ${g.year?`📅 ${g.year} · `:''}${g.players?`👥 ${escHtml(g.players)} · `:''}${g.ytId?'▶ มี Trailer':'ไม่มี Trailer'}
       </div>
+      <div style="font-size:10px;color:var(--text3);font-family:monospace;margin-top:2px">ID: ${escHtml(AJGameCatalog.catalogId(g))}</div>
       ${g.desc_th?`<div style="font-size:11px;color:var(--text3);margin-top:1px;overflow:hidden;max-height:30px">${escHtml(g.desc_th.substring(0,80))}${g.desc_th.length>80?'…':''}</div>`:''}
     </div>
     <div class="row-actions">
@@ -4635,6 +4643,8 @@ function openGameForm(id) {
   const g = id ? games.find(x => x.id === id) : null;
   document.getElementById('game-form-title').textContent = g ? 'แก้ไขเกม' : 'เพิ่มเกม';
   document.getElementById('gf-id').value = id || '';
+  document.getElementById('gf-id-row').style.display = g ? 'block' : 'none';
+  document.getElementById('gf-id-display').value = g ? AJGameCatalog.catalogId(g) : '';
   // populate platform select
   const sel = document.getElementById('gf-platform');
   const currentIds = g ? gamePlatformIds(g) : [];
@@ -4707,7 +4717,8 @@ function saveGame() {
     if (g) { g.name=name; g.platformId=savePlatformId; g.platformIds=platformIds; g.imgUrl=imgUrl; g.ytId=ytId; g.year=year; g.players=players; g.genre=genre; g.desc_th=desc_th; g.desc_en=desc_en; g.unavailable=unavailable; g.available_date=available_date; }
   } else {
     // Insert at BEGINNING of games array so new game appears first
-    games.unshift({ id:'g_'+Date.now(), platformId:savePlatformId, platformIds, name, imgUrl, ytId, year, players, genre, desc_th, desc_en, unavailable, available_date, insertedAt: Date.now() });
+    const draft = { platformId:savePlatformId, platformIds, name };
+    games.unshift({ id:AJGameCatalog.nextGameId(draft, games), platformId:savePlatformId, platformIds, name, imgUrl, ytId, year, players, genre, desc_th, desc_en, unavailable, available_date, insertedAt: Date.now() });
   }
   adminGameFilter = platformId;
   saveData(); closeGameForm(); renderAdminPlatforms(); renderAdminPlatformFilter(); renderAdminGames(); renderPublic();
@@ -4938,7 +4949,7 @@ function confirmImport() {
       platformId = 'ps5';
     }
     games.push({
-      id: 'g_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      id: AJGameCatalog.nextGameId({ platformId, platformIds, name:r.name }, games),
       platformId,
       platformIds,
       name: r.name,
@@ -6944,7 +6955,7 @@ document.addEventListener('touchstart', function(e) {
       if(!g) return null;
       const pid = gameMatchesPlatform(g, bridgePlatformId) ? bridgePlatformId : primaryPlatformId(g);
       const p = platformObjectById(pid);
-      return { id:g.id, name:g.name, platformId:pid, platformName:p ? p.name : '' };
+      return { id:g.id, catalogId:AJGameCatalog.catalogId(g), name:g.name, platformId:pid, platformName:p ? p.name : '' };
     }).filter(Boolean);
   }
   function confirmSelection(){
@@ -6984,7 +6995,7 @@ document.addEventListener('touchstart', function(e) {
     bridgePlatformId = data.platformId === PLAYSTATION_ADMIN_ID ? 'ps5' : (data.platformId || '');
     setLangSafe(data.lang || 'th');
     if(typeof openPickModal === 'function') openPickModal();
-    pickedGames = Array.isArray(data.selectedGameIds) ? data.selectedGameIds.filter(id => getGamesSafe().some(g => g.id === id)).slice(0,10) : [];
+    pickedGames = AJGameCatalog.resolveSelectionRefs(data.selectedGameIds, getGamesSafe(), bridgePlatformId).map(game => game.id).slice(0,10);
     if(bridgePlatformId && typeof setPickPlatform === 'function'){
       setPickPlatform(bridgePlatformId);
     }else{
@@ -7214,7 +7225,7 @@ document.addEventListener('touchstart', function(e) {
     ensureCatalogReady();
     try{
       if(typeof openPickModal === 'function') openPickModal();
-      pickedGames = Array.isArray(request.selectedGameIds) ? request.selectedGameIds.filter(function(id){ return (Array.isArray(games)?games:[]).some(function(g){ return g.id === id; }); }).slice(0,10) : [];
+      pickedGames = AJGameCatalog.resolveSelectionRefs(request.selectedGameIds, Array.isArray(games) ? games : [], request.platformId || '').map(function(game){ return game.id; }).slice(0,10);
       const pid = safePlatformId(request.platformId || '');
       if(pid && typeof setPickPlatform === 'function') setPickPlatform(pid);
       if(typeof renderPickPlatformTabs === 'function') renderPickPlatformTabs();
