@@ -1,5 +1,24 @@
 # Project state
 
+## 2026-08-25 — Selective Trust/privacy and Booking-flow release
+
+- Prepared a production release from the latest remote `main` rather than the
+  locally advanced worktrees, so unrelated contract, delivery, pricing, game-ID,
+  and admin-security commits are not included.
+- The booking page now adds bilingual privacy reassurance beside the rental
+  contract and returning-customer verification, without changing eligibility or
+  pricing calculations.
+- The rental-agreement form explains document purpose, access limits, 30-day
+  document-copy deletion, and the existing one-year agreement/data-retention
+  limit in Thai and English. Submission now requires an explicit privacy
+  acknowledgement, validated by both the browser and server schema.
+- Booking steps now expose bilingual live readiness, keep later steps locked
+  until prerequisites and a successful queue check exist, and provide direct
+  queue retry actions in the form and calendar.
+- Verified at a 390×844 mobile viewport in Thai and English. The website inline
+  script passes `node --check`; the bot suite passes 138/138; pricing and payment
+  implementation files are unchanged by this selective release.
+
 ## 2026-08-24 — Rental agreement works with and without LINE
 
 - The production booking page now offers two agreement routes outside LINE:
