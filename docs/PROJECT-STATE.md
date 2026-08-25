@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-08-25 — Contract booking costs follow the selected language
+
+- The rental-agreement page now localizes structured booking-cost labels every time it loads or changes language, rather than retaining the language used on the booking page.
+- Thai booking context switched to English now shows English rental, After Work promotion, review discount, returning-customer discount, payment-fee, and deposit labels; switching back restores Thai.
+- The localized rows are also stored in the submitted `bookingCosts`, so the PDF and shop notifications use the agreement language while all amounts and pricing calculations remain unchanged.
+- Production and local browser checks passed for Thai → English → Thai, including the hidden submission value and default Thai/Foreigner customer type. Bot tests pass 140/140.
+
 ## 2026-08-25 — Selective Trust/privacy and Booking-flow release
 
 - Prepared a production release from the latest remote `main` rather than the
