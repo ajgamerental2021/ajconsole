@@ -3924,10 +3924,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }, 250);
   }
   function rentalContractLink(code, mode="line"){
-    const lineUserId = lineUniqueId();
     const baseUrl = mode === "web" ? CONFIG.contractWebUrl : CONFIG.contractUrl;
     const url = new URL(baseUrl, location.href);
-    if(lineUserId) url.searchParams.set("lineUserId", lineUserId);
     url.searchParams.set("lang", state.lang === "en" ? "en" : "th");
     url.searchParams.set("paymentOption", state.calc.payment || "cash");
     const selected = consoleById(state.calc.consoleId);
@@ -4037,14 +4035,15 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       paymentBankName: state.calc.payment === "wise" ? CONFIG.wiseBankNameEn : (en ? "Krungthai Bank" : CONFIG.reservationBankNameTh),
       paymentAccountName: en ? CONFIG.wiseAccountNameEn : CONFIG.reservationAccountName,
       paymentEmail: state.calc.payment === "wise" ? CONFIG.wiseEmail : "",
-      paymentSwiftRequired: state.calc.payment === "wise" ? false : undefined
+      paymentSwiftRequired: state.calc.payment === "wise" ? false : undefined,
+      contractRequested: !state.calc.noContract && !state.calc.ret
     };
   }
   async function prepareContractHandoff(code, contractMode="line"){
     const data = bookingStructured(code);
     const fallbackUrl = rentalContractLink(code, contractMode);
     const fallbackMessage = bookingMessage(code, fallbackUrl);
-    if(!code || !data) return {url:fallbackUrl, message:fallbackMessage, data};
+    if(!code || !data) return {url:fallbackUrl, message:fallbackMessage, data:data ? {...data, contractUrl:fallbackUrl} : data};
     try{
       const endpoint = new URL(`/api/booking-context/${encodeURIComponent(code)}`, CONFIG.contractWebUrl);
       const response = await fetch(endpoint, {
@@ -4069,10 +4068,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         headers:{"Content-Type":"text/plain;charset=utf-8"},
         body:JSON.stringify({message})
       });
-      return {url, message, data};
+      return {url, message, data:{...data, contractUrl:url}};
     }catch(error){
       console.warn("Contract context fallback", error);
-      return {url:fallbackUrl, message:fallbackMessage, data};
+      return {url:fallbackUrl, message:fallbackMessage, data:{...data, contractUrl:fallbackUrl}};
     }
   }
 
