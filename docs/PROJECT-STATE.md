@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-08-26 — Contract checkbox compatibility
+
+- Fixed contract submissions from pages opened before a deployment where a checked native checkbox can arrive as the HTML value `on` instead of Boolean `true`.
+- The server accepts only recognized checked values (`true`, `on`, or `1`) for privacy acknowledgement, agreement consent, and rental terms; missing, unchecked, and false values remain rejected.
+- Validation errors for these fields now show clear Thai/English instructions instead of the raw Zod message `Invalid input: expected true`.
+- Bumped the LIFF app cache-buster and verified the production assets after deployment. Bot tests pass 142/142. Bot commit: `071e84c`.
+
 ## 2026-08-25 — Contract booking costs follow the selected language
 
 - The rental-agreement page now localizes structured booking-cost labels every time it loads or changes language, rather than retaining the language used on the booking page.
