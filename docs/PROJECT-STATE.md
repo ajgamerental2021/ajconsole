@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-08-26 — One-time rental rescheduling clause
+
+- Added a new item 4 to the Thai and English rental terms: a renter may change the rental start date or postpone once, the new start must be within 15 days of the original date and remains subject to availability, and AJ must be notified by 18:00 on the day before the original start date. Existing items shift down automatically.
+- The generated Thai/English contract PDF includes the same rule. A Thai test contract with an Additional notes value remains on one signed A4 page, and the shared Telegram/Discord/email message builder includes the note.
+- LIFF app cache-buster updated. Bot tests pass 150/150. Bot production commit: `f6b1208`.
+
 ## 2026-08-26 — Availability refresh no longer contradicts the calendar
 
 - Fixed a race where the calendar continued showing the last successful queue snapshot as available, but a later transient refresh error immediately blocked Step 1 and disabled the Next button.
