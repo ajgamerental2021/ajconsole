@@ -1498,7 +1498,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     retEnabled: false,
     filter: {type:"all", brand:"all", sort:"brand"},
     calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,retVerified:false,retVerificationMethod:"",retVerifiedLineUserId:"",reviewGoogle:false,reviewFacebook:false,noContract:false,payment:"cash",maps:"",games:[],later:false,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",beamPaymentExpiresAt:"",contractSignature:"",guideDone:{},guideConsoleId:""},
-    availability: {rows:[],holds:[],loading:false,error:"",lastSync:0,gate:{mode:"idle",pass:true}},
+    availability: {rows:[],holds:[],loading:false,error:"",lastSync:0,stale:false,gate:{mode:"idle",pass:true}},
     queueClosures: {allClosed:false,types:{console:false,vr:false,handheld:false,racing:false},devices:{},rules:{all:{closed:false,startAt:"",endAt:""},types:{},devices:{}},loading:false,error:"",updatedAt:""},
     calendar: {open:false,mode:"start",base:new Date(),draftStart:"",draftEnd:""},
     faqExpanded: false,
@@ -1549,6 +1549,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   const SHARE_STATUS_KEY = "aj_booking_share_status";
   const OWN_BOOKING_HOLD_KEY = "aj_booking_own_hold";
   const AVAILABILITY_CACHE_KEY = "aj_booking_availability_cache";
+  const AVAILABILITY_VERIFIED_TTL_MS = 5 * 60 * 1000;
   const LINE_GAME_CARD_SENT_PREFIX = "aj_line_game_picker_card_sent_";
   const LINE_GAME_CARD_TTL_MS = 24 * 60 * 60 * 1000;
   const CONSOLE_SLUGS = {
@@ -2575,8 +2576,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(!state.calc.end) return {tone:"info", text:tr("stepNeedEnd")};
       const days = selectedDays();
       if(!Number.isFinite(days) || days < 3) return {tone:"error", text:tr("stepNeedMinDays")};
-      if(state.availability.loading) return {tone:"checking", text:tr("stepQueueChecking")};
-      if(state.availability.error || !state.availability.lastSync) return {tone:"error", text:tr("queueError"), retry:true};
+      if(state.availability.loading && !hasRecentAvailabilitySnapshot()) return {tone:"checking", text:tr("stepQueueChecking")};
+      if(state.availability.error || !hasRecentAvailabilitySnapshot()) return {tone:"error", text:tr("queueError"), retry:true};
       if(state.availability.gate.pass === false) return {tone:"error", text:state.availability.gate.message || tr("stepQueueUnavailable")};
       return {tone:"ready", text:tr("stepReadyDates")};
     }
@@ -2857,7 +2858,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function stepReady(step){
     if(step === 1){
       const days = selectedDays();
-      const queueVerified = !state.availability.loading && !state.availability.error && !!state.availability.lastSync;
+      const queueVerified = !state.availability.error && hasRecentAvailabilitySnapshot();
       return !!state.calc.consoleId && startDateAllowed(state.calc.start) && Number.isFinite(days) && days >= 3 && queueVerified && state.availability.gate.pass !== false;
     }
     if(step === 2) return stepReady(1) && gameSelectionReady();
@@ -3075,8 +3076,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       throw error;
     }
     const hold = await acquireBookingHold(rentalCode);
-    await fetchAvailability();
-    if(state.availability.error || !state.availability.lastSync){
+    const refreshed = await fetchAvailability();
+    if(!refreshed?.fresh){
       await releaseBookingHold(rentalCode);
       throw new Error("booking_availability_refresh_failed");
     }
@@ -3320,6 +3321,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       localStorage.removeItem(AVAILABILITY_CACHE_KEY);
     }
   }
+  function hasRecentAvailabilitySnapshot(){
+    return state.availability.rows.length > 0
+      && Number(state.availability.lastSync) > 0
+      && Date.now() - Number(state.availability.lastSync) <= AVAILABILITY_VERIFIED_TTL_MS;
+  }
   function pick(obj, keys){
     if(!obj || typeof obj !== "object") return "";
     const lookup = {};
@@ -3459,6 +3465,21 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       clearTimeout(timer);
     }
   }
+  async function fetchAvailabilityPayload(stamp){
+    let lastError = null;
+    for(let attempt = 0; attempt < 2; attempt += 1){
+      if(attempt) await new Promise(resolve => window.setTimeout(resolve, 800));
+      try{
+        return await Promise.any([
+          fetchJsonWithTimeout(`${CONFIG.availabilityApi}?_ts=${stamp}-${attempt}`, 15000),
+          fetchJsonWithTimeout(`${CONFIG.availabilityUrl}${CONFIG.availabilityUrl.includes("?")?"&":"?"}_ts=${stamp}-${attempt}`, 12000)
+        ]);
+      }catch(error){
+        lastError = error;
+      }
+    }
+    throw lastError || new Error("Availability request failed");
+  }
   function refreshAvailabilitySupport(){
     fetchJsonWithTimeout(`${CONFIG.apiBase}/api/queue-closures?_ts=${Date.now()}`, 12000)
       .then(payload => { applyQueueClosures(payload); state.queueClosures.error = ""; renderAvailabilityHint(); if(state.calendar.open) renderCalendar(); })
@@ -3475,21 +3496,30 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     refreshAvailabilitySupport();
     try{
       const stamp = Date.now();
-      const availabilityPayload = await Promise.any([
-        fetchJsonWithTimeout(`${CONFIG.availabilityApi}?_ts=${stamp}`, 18000),
-        fetchJsonWithTimeout(`${CONFIG.availabilityUrl}${CONFIG.availabilityUrl.includes("?")?"&":"?"}_ts=${stamp}`, 10000)
-      ]);
+      const availabilityPayload = await fetchAvailabilityPayload(stamp);
       state.availability.rows = normalizeAvailabilityRows(availabilityPayload);
       if(!state.availability.rows.length) throw new Error("Availability response is empty");
       state.availability.error = "";
+      state.availability.stale = false;
       state.availability.lastSync = Date.now();
       try{
         localStorage.setItem(AVAILABILITY_CACHE_KEY, JSON.stringify({savedAt:state.availability.lastSync,payload:availabilityPayload}));
       }catch(error){
         console.warn("Availability cache skipped", error);
       }
+      return {fresh:true};
     }catch(error){
+      if(hasRecentAvailabilitySnapshot()){
+        // Keep a recently verified result through a transient refresh failure.
+        // ensureBookingHold() still requires a fresh result before retaining
+        // the server-side hold, so this cannot create a conflicting booking.
+        state.availability.error = "";
+        state.availability.stale = true;
+        return {fresh:false,cached:true};
+      }
       state.availability.error = String(error?.message || error || "Availability request failed");
+      state.availability.stale = false;
+      return {fresh:false,cached:false};
     }finally{
       state.availability.loading = false;
       availabilityRequest = null;
@@ -3504,8 +3534,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const host = byId("availabilityHint");
     if(!host) return;
     state.availability.gate = evaluateAvailability();
-    if(state.availability.loading) host.textContent = tr("checking");
-    else if(state.availability.error || (state.calc.consoleId && !state.availability.lastSync)) host.innerHTML = `<div class="availability-feedback"><span>${esc(tr("queueError"))}</span><button class="btn availability-retry" type="button" data-availability-retry>${tr("retryQueue")}</button></div>`;
+    if(state.availability.loading && !hasRecentAvailabilitySnapshot()) host.textContent = tr("checking");
+    else if(state.availability.error || (state.calc.consoleId && !hasRecentAvailabilitySnapshot())) host.innerHTML = `<div class="availability-feedback"><span>${esc(tr("queueError"))}</span><button class="btn availability-retry" type="button" data-availability-retry>${tr("retryQueue")}</button></div>`;
     else if(state.availability.gate.message && !["ok","fallback","idle"].includes(state.availability.gate.mode)) host.textContent = state.availability.gate.message;
     else host.textContent = "";
   }
@@ -3558,7 +3588,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     byId("calStartSub").textContent = state.calendar.draftStart ? tr("calStartSub") : tr("startDate");
     byId("calEndSub").textContent = state.calendar.draftEnd ? tr("calEndSub") : tr("selectReturnDate");
     const calendarStatus = byId("calendarStatus");
-    if(!state.availability.loading && (state.availability.error || !state.availability.lastSync)){
+    if(!state.availability.loading && (state.availability.error || !hasRecentAvailabilitySnapshot())){
       calendarStatus.className = "hint calendar-status-error";
       calendarStatus.innerHTML = `<span>${esc(tr("queueError"))}</span><button class="btn availability-retry" type="button" data-availability-retry>${tr("retryQueue")}</button>`;
     }else{
@@ -3605,9 +3635,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(isQueueClosed(c, start, end)) return {cls:"busy", note:calendarCellText("unavailable")};
     const allHolds = matchingBookingHolds(c, start, end, true);
     if(allHolds.some(hold => hold.mine)) return {cls:"busy", note:holdMessage("bookingHoldCell", allHolds.filter(hold => hold.mine))};
+    if(state.availability.loading && !hasRecentAvailabilitySnapshot()) return {cls:"disabled", note:tr("checking")};
+    if(!hasRecentAvailabilitySnapshot()) return {cls:"disabled", note:tr("queueRetryCell")};
     if(!state.availability.rows.length){
-      if(state.availability.loading) return {cls:"disabled", note:tr("checking")};
-      if(state.availability.error || !state.availability.lastSync) return {cls:"disabled", note:tr("queueRetryCell")};
       return {cls:"available", note:calendarCellText("available")};
     }
     const bundleGate = selectedBundleAvailabilityGate(start, end);
@@ -3631,7 +3661,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const start = parseDate(startValue), end = parseDate(endValue);
     if(start && !startDateAllowed(start)) return false;
     if(c && start && end && isQueueClosed(c, start, end)) return false;
-    if(!c || !start || !end || !state.availability.rows.length) return true;
+    if(!c || !start || !end) return true;
+    if(!hasRecentAvailabilitySnapshot()) return false;
+    if(!state.availability.rows.length) return true;
     if(!selectedBundleAvailabilityGate(start, end).pass) return false;
     const aliases = availabilityAliases(c);
     const matches = state.availability.rows.filter(row => aliases.has(norm(row.deviceName)));

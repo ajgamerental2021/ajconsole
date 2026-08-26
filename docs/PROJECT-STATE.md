@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-08-26 — Availability refresh no longer contradicts the calendar
+
+- Fixed a race where the calendar continued showing the last successful queue snapshot as available, but a later transient refresh error immediately blocked Step 1 and disabled the Next button.
+- Queue refresh now retries both independent availability sources once. A successfully verified snapshot remains usable for five minutes while a background refresh is pending or temporarily fails, keeping the calendar, readiness message, and Next button consistent.
+- Booking safety is unchanged: before retaining the server-side booking hold, the site still requires a fresh live availability response. A cached snapshot can help the customer continue through the form but cannot finalize a conflicting booking.
+- Verified the reported Xbox Series X period (30 Aug–2 Sep 2026) in Thai and English at desktop and 390×844 mobile sizes: the calendar accepts the three-day range, Step 1 reports ready, Next is enabled, and the browser console has no errors. Inline JavaScript and `git diff --check` pass.
+
 ## 2026-08-26 — Admin eligibility results show matched private details
 
 - After an eligible result, the Admin tester now fetches customer details through a separate Bearer-token-protected endpoint. The public customer eligibility API remains Boolean/source-only.
