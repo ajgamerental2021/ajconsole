@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-08-26 — Admin returning-customer eligibility tester
+
+- Added a dedicated `ทดสอบสิทธิ์ลูกค้าเก่า` card to the authenticated LIFF Admin home. It calls the same eligibility API used by customers and displays only eligible/not eligible plus the matched source—never another customer's record.
+- The tester switches independently between Thai and English and supports three paths: phone/name + last four ID/Passport characters, first name + phone, and first name + last five Rental ID characters.
+- Added concise bilingual validation/status copy, responsive mobile styling, and cache-busters for both JS and CSS.
+- Verified the Admin flow in the real local server at a 390×844 viewport: language and method switching work with no horizontal overflow. Production assets were verified after deployment. Bot tests pass 146/146. Bot commit: `2aebb35`.
+
 ## 2026-08-26 — Returning discount reads legacy rental agreements
 
 - Returning-customer verification now reads the legacy Google Form agreement responses in spreadsheet `15pbl...SwkQUQ`, gid `1940708406`, in addition to current Contracts, confirmed Rental History, and Delivery Customers.
