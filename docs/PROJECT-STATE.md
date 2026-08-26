@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-08-26 — Returning discount reads legacy rental agreements
+
+- Returning-customer verification now reads the legacy Google Form agreement responses in spreadsheet `15pbl...SwkQUQ`, gid `1940708406`, in addition to current Contracts, confirmed Rental History, and Delivery Customers.
+- Columns are resolved from their real headers (including `เลขบัตรประจำตัวประชาชน` and `เบอร์โทรศัพท์ที่ติดต่อได้`) rather than fixed positions.
+- Thai verification requires phone + last four ID characters; the no-ID fallback requires exact first name + phone. English verification requires first name + last four Passport characters. Mismatches remain rejected.
+- Production API checks for the reported customer returned `eligible: true` both through legacy-contract identity and the phone fallback. Bot tests pass 145/145. Bot commit: `d3dde5c`.
+
 ## 2026-08-26 — Renter notes preserved across contract outputs
 
 - The LIFF agreement form now snapshots the live Additional notes value before asynchronous image compression and submission, preventing mobile input methods or writing-assistant overlays from leaving the shared payload blank.
