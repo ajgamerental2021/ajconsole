@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-08-26 — Admin eligibility results show matched private details
+
+- After an eligible result, the Admin tester now fetches customer details through a separate Bearer-token-protected endpoint. The public customer eligibility API remains Boolean/source-only.
+- The Admin result shows matched name, phone, full Thai ID/Passport, latest rental dates, Rental ID, device, and deposit-refund bank/account details. Missing legacy fields are labeled as not recorded rather than inferred.
+- Added an explicit private-information warning and responsive definition-list layout in Thai and English.
+- Verified production assets and confirmed the details endpoint returns HTTP 401 without a valid Admin session. Bot tests pass 148/148. Bot commit: `bbd3d5a`.
+
 ## 2026-08-26 — Admin returning-customer eligibility tester
 
 - Added a dedicated `ทดสอบสิทธิ์ลูกค้าเก่า` card to the authenticated LIFF Admin home. It calls the same eligibility API used by customers and displays only eligible/not eligible plus the matched source—never another customer's record.
