@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-08-26 — Renter notes preserved across contract outputs
+
+- The LIFF agreement form now snapshots the live Additional notes value before asynchronous image compression and submission, preventing mobile input methods or writing-assistant overlays from leaving the shared payload blank.
+- The same normalized `notes` value continues to feed the PDF and the one shared message used by Telegram, Discord, and email; it is now also retained in local contract metadata for audit/recovery.
+- Bumped the LIFF cache-buster and verified the new script on production after deployment. Bot tests pass 143/143. Bot commit: `3bab091`.
+
 ## 2026-08-26 — Contract checkbox compatibility
 
 - Fixed contract submissions from pages opened before a deployment where a checked native checkbox can arrive as the HTML value `on` instead of Boolean `true`.
