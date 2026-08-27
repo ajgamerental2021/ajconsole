@@ -547,3 +547,24 @@ paused job shows slightly old numbers rather than an empty section.
   DOM rather than trusting a screenshot when that happens.
 - The console keeps errors from previous page loads. Check the `?v=` in an error
   before believing it came from the current build.
+
+---
+
+## 2026-08-27 — Multi-device rental demo (branch only)
+
+- Added `multi-device-demo.html` on `codex/multidevice-demo`; production pages
+  and production booking behavior are unchanged.
+- The prototype models one Rental Order with `rental_items[]`, aggregates
+  repeated models into quantity, enforces an Admin-configurable total-device
+  limit, calculates rental/deposit totals per item, and previews the v2 payload
+  intended for the contract and Delivery App.
+- Game selection is scoped to each Rental Item's platform. Multiple units of
+  one model can share one selected game list; different platforms cannot share
+  selections.
+- Live availability is range-aware in the prototype. Localhost cannot call the
+  production availability API because it is not an allowed CORS origin; the
+  hosted demo origin must be allowlisted before end-to-end availability QA.
+- This is a UI/data-contract prototype only. Atomic multi-item holds, persisted
+  Rental Items, contract/PDF generation, payment adjustments, Delivery App
+  ingestion, and migration/backward-compatibility tests remain outstanding.
+- Current readiness: **NOT READY FOR PRODUCTION**.
