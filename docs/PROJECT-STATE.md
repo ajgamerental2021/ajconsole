@@ -1,5 +1,18 @@
 # Project state
 
+## 2026-08-27 — Rental-change FAQ
+
+- Added a bilingual FAQ explaining that the start date or rental duration may
+  be changed once, within 15 days of the original date, with notice by 12:00 on
+  the preceding day and subject to availability.
+- The same FAQ points customers to LINE > “คิวเช่าของฉัน” / “My Rentals” for
+  accessory additions, or to an admin when using another channel.
+- FAQ data is normally pulled from the shared Gist. `normalizeFaq()` therefore
+  inserts this item immediately after the cancellation/refund question when it
+  is missing, so existing cached and remotely managed FAQ lists also receive it.
+- Applied independently to `index.html` and `index-demo.html`; no page was copied
+  over the other.
+
 ## 2026-08-26 — One-time rental rescheduling clause
 
 - Added a new item 4 to the Thai and English rental terms: a renter may change or postpone the rental start date once, within 15 days of the original date, subject to availability, and must notify AJ before 12:00 on the day before the rental starts. Existing items shift down automatically. The final wording was shortened for readability.

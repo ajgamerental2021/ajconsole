@@ -1164,10 +1164,17 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     ]
   };
 
+  const RENTAL_CHANGE_FAQ = {
+    qTh:"เปลี่ยนวันเช่า จำนวนวัน หรือเพิ่มอุปกรณ์ได้ไหม",
+    aTh:"เปลี่ยนวันเริ่มเช่าหรือจำนวนวันได้ 1 ครั้ง ภายใน 15 วันจากวันเดิม โดยแจ้งก่อน 12.00 น. ของวันก่อนเริ่มเช่า และขึ้นอยู่กับคิวว่าง เพิ่มอุปกรณ์ได้ที่ LINE เมนู “คิวเช่าของฉัน” หรือติดต่อแอดมิน",
+    qEn:"Can I change the rental dates or add accessories?",
+    aEn:"You may change the start date or rental duration once, within 15 days of the original date, subject to availability. Notify us by 12:00 noon on the day before the original start date. Add accessories through “My Rentals” in LINE or contact an admin."
+  };
   const DEFAULT_FAQ = [
     {qTh:"ขั้นต่ำเช่ากี่วัน?",aTh:"ขั้นต่ำ 3 วัน สำหรับเรทบุคคล",qEn:"What is the minimum rental period?",aEn:"The minimum rental period is 3 days for individual rates."},
     {qTh:"ส่งพื้นที่ไหนบ้าง?",aTh:"จัดส่งเฉพาะกรุงเทพฯ และปริมณฑล ค่าส่งเช็กตามลิงก์ Google Maps",qEn:"Where do you deliver?",aEn:"Delivery is available in Bangkok and Greater Bangkok. Delivery cost depends on your Google Maps location."},
-    {qTh:"ต้องทำสัญญาไหม?",aTh:"ผู้เช่าครั้งแรกต้องทำสัญญา หากไม่สะดวกสามารถเลือกไม่ทำสัญญาได้ แต่ค่าประกันจะสูงขึ้น",qEn:"Is a rental contract required?",aEn:"First-time renters need a contract. You can choose no contract, but the deposit will be higher."}
+    {qTh:"ต้องทำสัญญาไหม?",aTh:"ผู้เช่าครั้งแรกต้องทำสัญญา หากไม่สะดวกสามารถเลือกไม่ทำสัญญาได้ แต่ค่าประกันจะสูงขึ้น",qEn:"Is a rental contract required?",aEn:"First-time renters need a contract. You can choose no contract, but the deposit will be higher."},
+    RENTAL_CHANGE_FAQ
   ];
 
   const BRAND_META = {
@@ -2084,12 +2091,22 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function normalizeFaq(list){
     const source = Array.isArray(list) ? list : DEFAULT_FAQ;
-    return source.map(x => ({
+    const normalized = source.map(x => ({
       qTh: String(x.qTh || x.q_th || "").trim(),
       aTh: String(x.aTh || x.a_th || "").trim(),
       qEn: String(x.qEn || x.q_en || "").trim(),
       aEn: String(x.aEn || x.a_en || "").trim()
     })).filter(x => x.qTh || x.aTh || x.qEn || x.aEn);
+    const hasRentalChangeFaq = normalized.some(x =>
+      x.qTh === RENTAL_CHANGE_FAQ.qTh || x.qEn === RENTAL_CHANGE_FAQ.qEn
+    );
+    if(!hasRentalChangeFaq){
+      const cancelIndex = normalized.findIndex(x =>
+        x.qTh.includes("ขอยกเลิก") || /cancel/i.test(x.qEn)
+      );
+      normalized.splice(cancelIndex >= 0 ? cancelIndex + 1 : normalized.length, 0, {...RENTAL_CHANGE_FAQ});
+    }
+    return normalized;
   }
 
   function render(){
