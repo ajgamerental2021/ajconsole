@@ -4918,6 +4918,24 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       return direct;
     }
   }
+  function lineBookingAppLinks(params){
+    const query = new URLSearchParams();
+    for(const key of ["bookingLine", "ctx", "rentalCode", "lang"]){
+      const value = String(params.get(key) || "").trim();
+      if(value) query.set(key, value);
+    }
+    const suffix = query.toString() ? `?${query.toString()}` : "";
+    const id = activeLineLiffId();
+    return {
+      official:`https://liff.line.me/${id}${suffix}`,
+      appFallback:`https://line.me/R/app/${id}${suffix}`
+    };
+  }
+  function showLineAppRequired(panel, params){
+    const en = params.get("lang") === "en";
+    const links = lineBookingAppLinks(params);
+    panel.innerHTML = `<div style="width:54px;height:54px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:#e8f8ee;color:#16883f;font-size:28px;font-weight:900">LINE</div><h1 style="font-size:22px;margin:0 0 12px">${en ? "Open this booking in the LINE app" : "เปิดรายการนี้ด้วยแอป LINE"}</h1><p style="margin:0 0 20px;color:#667085">${en ? "Use the LINE app so we can verify your LINE account and send the booking card directly to you." : "กรุณาเปิดด้วยแอป LINE เพื่อยืนยันบัญชีและรับการ์ดข้อมูลจองโดยตรง"}</p><a href="${esc(links.appFallback)}" style="display:block;border-radius:14px;background:#16883f;color:#fff;text-decoration:none;font-weight:800;padding:14px 24px;margin-bottom:10px">${en ? "Open LINE app" : "เปิดแอป LINE"}</a><a href="${esc(links.official)}" style="display:block;border-radius:14px;border:1px solid #b9c2cf;color:#344054;text-decoration:none;font-weight:700;padding:12px 20px">${en ? "Try the standard LIFF link" : "ลองเปิดด้วยลิงก์ LIFF มาตรฐาน"}</a><p style="margin:14px 0 0;color:#8a8f98;font-size:13px">${en ? "If Safari shows an OPEN button at the top, tap OPEN." : "หาก Safari แสดงปุ่ม OPEN ด้านบน ให้กด OPEN"}</p>`;
+  }
   async function completeLineBookingHandoff(){
     const params = lineBookingHandoffParams();
     if(params.get("bookingLine") !== "1") return false;
@@ -4930,6 +4948,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const liff = await loadLineSdk();
       await liff.init({liffId:activeLineLiffId()});
       if(!liff.isLoggedIn()){
+        if(!liff.isInClient?.()){
+          showLineAppRequired(document.body.querySelector("section"), params);
+          return true;
+        }
         liff.login({redirectUri:location.href});
         return true;
       }
