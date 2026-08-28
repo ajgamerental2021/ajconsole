@@ -4976,7 +4976,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       localStorage.setItem("aj_line_display_name", profile.displayName || "");
       const panel = document.body.querySelector("section");
       const en = params.get("lang") === "en";
-      panel.innerHTML = `<div style="width:54px;height:54px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:#e8f8ee;color:#16883f;font-size:30px;font-weight:900">✓</div><h1 style="font-size:22px;margin:0 0 12px">${en ? "Booking card sent" : "ส่งการ์ดข้อมูลจองแล้ว"}</h1><p style="margin:0 0 20px;color:#667085">${en ? "The booking details were sent to your AJ LINE chat in English." : "ส่งรายละเอียดการจองภาษาไทยไปที่แชต LINE ร้าน AJ แล้ว"}</p><a href="${CONFIG.lineOaMessageUrl}" style="display:inline-block;border-radius:14px;background:#16883f;color:#fff;text-decoration:none;font-weight:800;padding:13px 24px">${en ? "Open AJ LINE chat" : "เปิดแชต LINE ร้าน AJ"}</a>`;
+      panel.innerHTML = `<div style="width:54px;height:54px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:#e8f8ee;color:#16883f;font-size:30px;font-weight:900">✓</div><h1 style="font-size:22px;margin:0 0 12px">${en ? "Booking card sent" : "ส่งการ์ดข้อมูลจองแล้ว"}</h1><p style="margin:0 0 20px;color:#667085">${en ? "The booking details were sent to your AJ LINE chat." : "ส่งรายละเอียดการจองไปที่แชต LINE ร้าน AJ แล้ว"}</p><a href="${CONFIG.lineOaMessageUrl}" style="display:inline-block;border-radius:14px;background:#16883f;color:#fff;text-decoration:none;font-weight:800;padding:13px 24px">${en ? "Open AJ LINE chat" : "เปิดแชต LINE ร้าน AJ"}</a>`;
       if(liff.isInClient?.()) window.setTimeout(() => liff.closeWindow?.(), 900);
       return true;
     }catch(error){
