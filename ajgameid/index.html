@@ -207,6 +207,9 @@
     .copy-modal-card h3 { margin:0 0 10px; font-size:1.22rem; line-height:1.25; }
     .copy-modal-card p { margin:0 0 18px; color:#4b5563; line-height:1.55; }
     .copy-modal-card .primary-btn { min-width:120px; }
+    .copy-modal-actions { display:grid; gap:10px; }
+    .copy-modal-guide-btn { width:100%; display:inline-flex; align-items:center; justify-content:center; gap:8px; border:1px solid #15803d; border-radius:12px; padding:11px 14px; background:#15803d; color:#fff; font:inherit; font-weight:900; cursor:pointer; }
+    .copy-modal-guide-btn svg { width:18px; height:18px; flex:0 0 auto; fill:currentColor; }
     .info-modal { position:fixed; inset:0; z-index:96; display:none; place-items:center; padding:18px; background:rgba(17,24,39,.34); backdrop-filter:blur(8px); }
     .info-modal.open { display:grid; }
     .info-modal-card { width:min(860px, 100%); max-height:min(86vh, 920px); overflow:hidden; background:#fff; border:1px solid var(--line); border-radius:20px; box-shadow:0 24px 70px rgba(17,24,39,.22); display:flex; flex-direction:column; }
@@ -434,7 +437,13 @@
     <div class="copy-modal-card">
       <h3 id="copyModalTitle">คัดลอกข้อมูลเรียบร้อย</h3>
       <p id="copyModalMessage">นำข้อความไปส่งต่อในแชทที่คุยกับทางร้านได้เลย</p>
-      <button class="primary-btn" id="copyModalOkBtn" type="button">ตกลง</button>
+      <div class="copy-modal-actions">
+        <button class="copy-modal-guide-btn" id="copyModalGuideBtn" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-2 5.7 6.2 4.3-6.2 4.3V7.7Z"/></svg>
+          <span id="copyModalGuideText">วิธีการแจ้งเช่าไอดี</span>
+        </button>
+        <button class="primary-btn" id="copyModalOkBtn" type="button">ตกลง</button>
+      </div>
     </div>
   </div>
   <div id="infoModal" class="info-modal" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
@@ -823,6 +832,8 @@
       copyModal: document.getElementById('copyModal'),
       copyModalTitle: document.getElementById('copyModalTitle'),
       copyModalMessage: document.getElementById('copyModalMessage'),
+      copyModalGuideBtn: document.getElementById('copyModalGuideBtn'),
+      copyModalGuideText: document.getElementById('copyModalGuideText'),
       copyModalOkBtn: document.getElementById('copyModalOkBtn'),
       infoModal: document.getElementById('infoModal'),
       infoModalTitle: document.getElementById('infoModalTitle'),
@@ -1571,6 +1582,7 @@
       if (!el.copyModal) return;
       el.copyModalTitle.textContent = tr('copyModalTitle');
       el.copyModalMessage.textContent = tr('copyModalMessage');
+      el.copyModalGuideText.textContent = tr('rentGuideHelp');
       el.copyModalOkBtn.textContent = tr('copyModalOk');
       el.copyModal.classList.add('open');
       setTimeout(() => el.copyModalOkBtn?.focus(), 30);
@@ -2520,6 +2532,7 @@
       setText('heroSubtitleText', 'heroSubtitle');
       setText('idTypesHelpBtn', 'idTypesHelp');
       setText('rentGuideHelpBtn', 'rentGuideHelp');
+      setText('copyModalGuideText', 'rentGuideHelp');
       el.searchInput.placeholder = tr('searchPlaceholder');
       setText('filterAllBtn', 'filterAll');
       setText('filterAvailableBtn', 'filterAvailable');
@@ -2606,6 +2619,10 @@
       el.langThBtn.addEventListener('click', () => { currentLang = 'th'; applyLanguage(); });
       el.langEnBtn.addEventListener('click', () => { currentLang = 'en'; applyLanguage(); });
       el.copyModalOkBtn.addEventListener('click', closeCopyModal);
+      el.copyModalGuideBtn.addEventListener('click', () => {
+        closeCopyModal();
+        openInfoModal('rentGuide');
+      });
       el.copyModal.addEventListener('click', e => {
         if (e.target === el.copyModal) closeCopyModal();
       });

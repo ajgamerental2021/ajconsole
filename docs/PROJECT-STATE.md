@@ -1,5 +1,16 @@
 # Project state
 
+## 2026-08-28 — Two-page contract signatures and ajgameid copy guide
+
+- Thai and English contracts now use the verified local two-page A4 generator in
+  production, including the expanded late-return and damage clauses.
+- Both lessor and renter signatures appear on pages 1 and 2, with a comfortable
+  gap after each page's final paragraph instead of being pinned to the page edge.
+- `ajgameid/index.html` adds the existing bilingual rental-guide action to the
+  successful-copy popup as a full-width green play button above OK.
+- All 163 bot tests, syntax checks, bilingual browser checks, and four rendered
+  PDF page inspections passed before release.
+
 ## 2026-08-27 — Rental-change FAQ
 
 - Added a bilingual FAQ explaining that the start date or rental duration may
