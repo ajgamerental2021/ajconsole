@@ -1,5 +1,18 @@
 # Project state
 
+## 2026-08-29 — Chat booking no longer double-checks the same hold
+
+- LINE, Messenger, and WhatsApp now acquire one server-side booking hold only,
+  after the final Rental ID is available. The former provisional hold followed
+  by a second hold/refresh was removed because one click could fail between the
+  two checks and incorrectly report that queue verification failed.
+- If the historical Rental ID Sheet is temporarily unavailable, checkout now
+  uses the existing allocator/offline collision-resistant suffix instead of
+  blocking every chat channel with an unrelated queue error.
+- The real queue conflict check remains active before preparing each channel's
+  message or payment link. Syntax, whitespace, endpoint, and source-flow checks
+  pass for LINE, Messenger, and WhatsApp.
+
 ## 2026-08-29 — No-contract Rental Terms acknowledgement
 
 - Selecting the no-contract option now opens the complete bilingual Rental

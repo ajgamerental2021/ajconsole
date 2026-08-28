@@ -3036,10 +3036,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const active = Number.isFinite(expiresAt) && expiresAt > Date.now();
     return key && active && state.calc.beamPaymentKey === key ? (state.calc.beamPaymentLink || "") : "";
   }
-  function provisionalBookingHoldCode(){
-    if(/^AJ-[A-Z0-9-]{6,40}$/i.test(String(state.calc.rentalCode || ""))) return state.calc.rentalCode;
-    return `AJ-${rentalCodeDate()}-R0000-${offlineCodeSuffix()}`;
-  }
   function selectedBundleHoldDevice(){
     if(Number(state.calc.consoleId) !== SPEC.PS5 || !state.calc.bundleId) return null;
     const bundle = state.bundles.find(item => String(item.id) === String(state.calc.bundleId));
@@ -3168,6 +3164,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return data.url;
   }
   function showBookingActionError(error){
+    console.error("Booking action failed", error);
     if(error?.code === "booking_hold_conflict") return toast(error.message);
     return toast(state.lang === "en" ? "Cannot check availability. Please try again." : "ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่");
   }
@@ -3919,8 +3916,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   async function ensureRentalCode(summary=calcSummary()){
     const sig = rentalSignature(summary);
     if(state.calc.rentalCode && state.calc.rentalCodeSig === sig) return state.calc.rentalCode;
-    const used = await existingRentalCodes();
-    if(!used) throw new Error("Cannot read rental code sheet");
+    // The allocator is authoritative. If the historical Sheet is temporarily
+    // unavailable, keep checkout working with the collision-resistant suffix.
+    const used = await existingRentalCodes() || new Set();
     if(
       state.calc.rentalCode &&
       state.calc.rentalCodeSig === sig &&
@@ -4589,15 +4587,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(!(await confirmBookingShare(channel))) return false;
     setShareStatus(channel, "preparing");
     unlockShareButtons();
-    let immediateHoldCode = "";
     try{
-      if(["line","whatsapp","messenger"].includes(channel)){
-        immediateHoldCode = provisionalBookingHoldCode();
-        await acquireBookingHold(immediateHoldCode);
-      }
       const result = await action();
       if(result === false){
-        if(immediateHoldCode) await releaseBookingHold(immediateHoldCode);
         sessionStorage.removeItem(SHARE_STATUS_KEY);
         shareCooldownUntil = 0;
         renderSummary();
@@ -4606,7 +4598,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       }
       return true;
     }catch(error){
-      if(immediateHoldCode) await releaseBookingHold(immediateHoldCode);
       sessionStorage.removeItem(SHARE_STATUS_KEY);
       shareCooldownUntil = 0;
       renderSummary();
