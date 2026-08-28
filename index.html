@@ -4569,7 +4569,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       submitRentalToSheet(summary, code, "line", msg, handoff.data);
       setShareStatus("line", "opened");
       await new Promise(resolve => window.setTimeout(resolve, 450));
-      const liffUrl = new URL(`https://liff.line.me/${activeLineLiffId()}/`);
+      const liffUrl = new URL(`https://liff.line.me/${activeLineLiffId()}`);
       liffUrl.searchParams.set("bookingLine", "1");
       liffUrl.searchParams.set("ctx", handoff.contextToken);
       liffUrl.searchParams.set("rentalCode", code);
@@ -4899,8 +4899,27 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(existing) existing.remove();
     document.body.insertAdjacentHTML("beforeend", `<div id="lineExternalLaunch" style="position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:24px;background:#f5f7fb"><section style="width:min(100%,520px);text-align:center;background:#fff;border:1px solid #d9dee8;border-radius:22px;padding:30px;box-shadow:0 12px 35px rgba(15,23,42,.12)"><h1 style="font-size:22px;margin:0 0 12px">${en ? "LINE has been opened" : "เปิด LINE แล้ว"}</h1><p style="margin:0 0 20px;color:#667085">${en ? "Continue in LINE to link your account and send the booking message. You may close this Safari tab after sending." : "ทำรายการต่อใน LINE เพื่อผูกบัญชีและส่งข้อความจอง เมื่อส่งแล้วสามารถปิดแท็บ Safari นี้ได้"}</p><a id="lineExternalLaunchAgain" href="${esc(liffUrl)}" style="display:inline-block;border-radius:14px;background:#16883f;color:#fff;text-decoration:none;font-weight:800;padding:13px 24px">${en ? "Open LINE again" : "เปิด LINE อีกครั้ง"}</a></section></div>`);
   }
+  function lineBookingHandoffParams(){
+    const direct = new URLSearchParams(location.search);
+    if(direct.get("bookingLine") === "1") return direct;
+    const rawState = String(direct.get("liff.state") || "").trim();
+    if(!rawState) return direct;
+    try{
+      const decoded = decodeURIComponent(rawState);
+      const queryStart = decoded.indexOf("?");
+      if(queryStart < 0) return direct;
+      const fromLiffState = new URLSearchParams(decoded.slice(queryStart + 1).split("#")[0]);
+      for(const [key, value] of direct.entries()){
+        if(!fromLiffState.has(key) && key !== "liff.state") fromLiffState.set(key, value);
+      }
+      return fromLiffState;
+    }catch(error){
+      console.warn("Unable to read LIFF handoff state", error);
+      return direct;
+    }
+  }
   async function completeLineBookingHandoff(){
-    const params = new URLSearchParams(location.search);
+    const params = lineBookingHandoffParams();
     if(params.get("bookingLine") !== "1") return false;
     const contextToken = String(params.get("ctx") || "").trim();
     const rentalCode = String(params.get("rentalCode") || "").trim().toUpperCase();
