@@ -4574,6 +4574,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       liffUrl.searchParams.set("ctx", handoff.contextToken);
       liffUrl.searchParams.set("rentalCode", code);
       liffUrl.searchParams.set("lang", state.lang === "en" ? "en" : "th");
+      showExternalLineLaunch(liffUrl.toString());
       location.href = liffUrl.toString();
       return true;
     }catch(error){
@@ -4891,6 +4892,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }
     return stored || CONFIG.lineLiffId;
   }
+  function showExternalLineLaunch(liffUrl){
+    if(isInsideLineClient()) return;
+    const en = state.lang === "en";
+    const existing = byId("lineExternalLaunch");
+    if(existing) existing.remove();
+    document.body.insertAdjacentHTML("beforeend", `<div id="lineExternalLaunch" style="position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:24px;background:#f5f7fb"><section style="width:min(100%,520px);text-align:center;background:#fff;border:1px solid #d9dee8;border-radius:22px;padding:30px;box-shadow:0 12px 35px rgba(15,23,42,.12)"><h1 style="font-size:22px;margin:0 0 12px">${en ? "LINE has been opened" : "เปิด LINE แล้ว"}</h1><p style="margin:0 0 20px;color:#667085">${en ? "Continue in LINE to link your account and send the booking message. You may close this Safari tab after sending." : "ทำรายการต่อใน LINE เพื่อผูกบัญชีและส่งข้อความจอง เมื่อส่งแล้วสามารถปิดแท็บ Safari นี้ได้"}</p><a id="lineExternalLaunchAgain" href="${esc(liffUrl)}" style="display:inline-block;border-radius:14px;background:#16883f;color:#fff;text-decoration:none;font-weight:800;padding:13px 24px">${en ? "Open LINE again" : "เปิด LINE อีกครั้ง"}</a></section></div>`);
+  }
   async function completeLineBookingHandoff(){
     const params = new URLSearchParams(location.search);
     if(params.get("bookingLine") !== "1") return false;
@@ -4910,6 +4918,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const profile = await liff.getProfile();
       if(!accessToken || !profile?.userId) throw new Error("LINE identity unavailable");
       const endpoint = new URL(`/api/booking-context/${encodeURIComponent(contextToken)}/line-link`, CONFIG.contractWebUrl);
+      document.body.querySelector("p").textContent = params.get("lang") === "en"
+        ? "Verifying your LINE account..."
+        : "กำลังยืนยันบัญชี LINE...";
       const response = await fetch(endpoint, {
         method:"POST",
         cache:"no-store",
@@ -4921,6 +4932,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       localStorage.setItem("aj_line_unique_id", profile.userId);
       localStorage.setItem("aj_line_display_name", profile.displayName || "");
       pushLineGamePickerCard(rentalCode);
+      document.body.querySelector("p").textContent = params.get("lang") === "en"
+        ? "LINE connected. Opening the AJ chat..."
+        : "เชื่อมต่อ LINE แล้ว กำลังเปิดแชตร้าน AJ...";
       location.href = `${CONFIG.lineOaMessageUrl}?${encodeURIComponent(result.message)}`;
       return true;
     }catch(error){
