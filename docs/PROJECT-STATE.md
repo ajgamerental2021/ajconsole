@@ -1,5 +1,15 @@
 # Project state
 
+## 2026-08-28 — Contract cancellation clause and PDF spacing
+
+- The LIFF rental terms remove only “ในแชท LINE” from Thai item 5; the
+  remaining Thai wording and the English item are unchanged.
+- The contract PDF adds the same bilingual cancellation rule immediately after
+  the rescheduling rule and leaves a blank line before the contract-term block
+  so it no longer touches the deposit-refund statement.
+- Thai and English PDF layout tests cover a renter note and signatures; both
+  remain on one A4 page.
+
 ## 2026-08-27 — Rental-change FAQ
 
 - Added a bilingual FAQ explaining that the start date or rental duration may
