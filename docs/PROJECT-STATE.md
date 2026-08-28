@@ -1,5 +1,16 @@
 # Project state
 
+## 2026-08-28 — Legacy foreign-renter history in returning discount checks
+
+- Returning-customer eligibility now also reads the legacy English Google Form
+  responses in spreadsheet `13nL...lJzJk`, gid `19272404`.
+- The source supports exact first name + last four Passport characters and the
+  existing exact first name + phone fallback. Header matching follows the sheet's
+  real English columns, including `Passport No.` and `Mobile Number`.
+- The Admin eligibility tester can show matched foreign legacy details and labels
+  this source separately in Thai and English.
+- Bot tests pass 166/166 and the LIFF cache-buster was updated.
+
 ## 2026-08-28 — Two-page contract signatures and ajgameid copy guide
 
 - Thai and English contracts now use the verified local two-page A4 generator in
