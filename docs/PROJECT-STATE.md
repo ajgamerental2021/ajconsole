@@ -1,5 +1,69 @@
 # Project state
 
+## 2026-08-29 — No-contract Rental Terms acknowledgement
+
+- Selecting the no-contract option now opens the complete bilingual Rental
+  Terms before the option can be enabled. The renter must explicitly check an
+  acknowledgement and continue; closing or cancelling leaves the option off.
+- The acknowledgement stores its timestamp, language, and terms version in the
+  booking payload. Existing saved no-contract selections without the current
+  acknowledgement are reset and must be accepted again.
+- Thai and English booking messages state that the renter acknowledged the
+  terms and include the matching-language read-only terms link. The LINE Flex
+  card presents the same status and link; Messenger and WhatsApp use the same
+  localized plain-message output.
+- The standalone terms page opens in the booking language, supports an explicit
+  Thai/English switch, and is safely frameable only by the AJ booking origin.
+- AJ Console syntax and whitespace checks pass. AJ Bot syntax and all 179 tests
+  pass, including both terms-page languages and both Flex-card languages.
+
+## 2026-08-28 — Book via LINE verified LIFF handoff
+
+- Only the `จองผ่าน LINE` / `Book via LINE` confirmation now enters the
+  production booking LIFF before opening the AJ Official Account chat.
+- LIFF obtains the signed-in LINE profile and sends its access token to the Bot;
+  the Bot verifies that token with LINE and links the resulting LINE Unique ID
+  and display name to the same Rental ID/booking context.
+- After the verified link, the existing AJ chat opens with the complete booking
+  message prefilled and still waiting for the customer to press Send. Copy,
+  WhatsApp, and Messenger flows are unchanged.
+- The durable booking-row update retries briefly to cover the race between the
+  booking page's background Sheet append and the LIFF transition. The chat only
+  opens after that link succeeds; otherwise LIFF shows a bilingual retry action.
+- AJ Console inline JavaScript and Bot syntax checks pass; all 171 Bot tests pass.
+- Follow-up: verified identity now links to the live booking context immediately
+  and the slower Sheet persistence retries in the background, so LIFF no longer
+  waits on Apps Script. Safari shows a clear “LINE has been opened” handoff page
+  with an Open LINE again action instead of appearing to jump back to the home page.
+
+## 2026-08-28 — Full bilingual contract terms and channel-specific refunds
+
+- Web terms and the two-page contract PDF now share the same late-return,
+  damage, two-day extension, delivery/return-time, inspection-photo, and GPS
+  conditions in Thai and English.
+- Late charges explicitly count any partial day as one full day. The accidental
+  empty third recovery-cost item was removed.
+- The refund section now states that cash refunds are never available. The web
+  explains Thai-bank and Wise timing separately; each generated PDF prints only
+  the selected route's timing and details. Thai-bank refunds are due after
+  return inspection within the return date, while Wise states 1-3 business days
+  and includes the three official help links.
+- Page-one term labels and page-two clause headings/key phrases are bold. Both
+  languages remain two A4 pages with signatures on both pages.
+- JavaScript syntax, rendered four-page visual QA, and all 170 Bot tests pass.
+
+## 2026-08-28 — Admin After Work ฿999 selector
+
+- The Bot Admin booking editor now detects the existing After Work 3 Nights
+  conditions for ฿400/day consoles: a three-day rental beginning Monday or
+  Tuesday.
+- Eligible bookings display a bilingual green checkbox for the ฿999 promotion.
+  Selecting it inserts the ฿201 promotion discount and recalculates the total
+  and pay-on-delivery amount; removing eligibility also removes the promotion.
+- Existing bookings that already contain the promotion reopen with the option
+  selected. The cost rows remain editable for exceptional Admin adjustments.
+- JavaScript syntax and all 167 Bot tests pass.
+
 ## 2026-08-28 — Legacy foreign-renter history in returning discount checks
 
 - Returning-customer eligibility now also reads the legacy English Google Form
