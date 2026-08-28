@@ -4068,7 +4068,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         headers:{"Content-Type":"text/plain;charset=utf-8"},
         body:JSON.stringify({message})
       });
-      return {url, message, data:{...data, contractUrl:url}};
+      return {url, message, contextToken:result.contextToken, data:{...data, contractUrl:url}};
     }catch(error){
       console.warn("Contract context fallback", error);
       return {url:fallbackUrl, message:fallbackMessage, data:{...data, contractUrl:fallbackUrl}};
@@ -4564,13 +4564,17 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const code = await ensureRentalCode(summary);
       await ensureBeamPaymentLink(summary, code);
       const handoff = await prepareContractHandoff(code, "line");
+      if(!handoff.contextToken) throw new Error("LINE booking handoff is unavailable");
       const msg = handoff.message;
       submitRentalToSheet(summary, code, "line", msg, handoff.data);
-      pushLineGamePickerCard(code);
-      if(shouldCopyLineMessageForDesktop()) await writeBookingClipboard(msg).catch(() => false);
       setShareStatus("line", "opened");
       await new Promise(resolve => window.setTimeout(resolve, 450));
-      location.href = `${CONFIG.lineOaMessageUrl}?${encodeURIComponent(msg)}`;
+      const liffUrl = new URL(`https://liff.line.me/${activeLineLiffId()}/`);
+      liffUrl.searchParams.set("bookingLine", "1");
+      liffUrl.searchParams.set("ctx", handoff.contextToken);
+      liffUrl.searchParams.set("rentalCode", code);
+      liffUrl.searchParams.set("lang", state.lang === "en" ? "en" : "th");
+      location.href = liffUrl.toString();
       return true;
     }catch(error){
       showBookingActionError(error);
@@ -4886,6 +4890,47 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       return CONFIG.lineLiffId;
     }
     return stored || CONFIG.lineLiffId;
+  }
+  async function completeLineBookingHandoff(){
+    const params = new URLSearchParams(location.search);
+    if(params.get("bookingLine") !== "1") return false;
+    const contextToken = String(params.get("ctx") || "").trim();
+    const rentalCode = String(params.get("rentalCode") || "").trim().toUpperCase();
+    if(!contextToken || !/^AJ-[A-Z0-9-]{6,40}$/.test(rentalCode)) return false;
+    loadState();
+    document.body.innerHTML = `<main style="min-height:100vh;display:grid;place-items:center;padding:24px;background:#f5f7fb"><section style="max-width:520px;text-align:center;background:#fff;border:1px solid #d9dee8;border-radius:22px;padding:30px;box-shadow:0 12px 35px rgba(15,23,42,.12)"><h1 style="font-size:22px;margin:0 0 12px">${params.get("lang") === "en" ? "Opening AJ LINE chat" : "กำลังเปิดแชต LINE ร้าน AJ"}</h1><p style="margin:0;color:#667085">${params.get("lang") === "en" ? "Linking this LINE account to your Rental ID..." : "กำลังผูกบัญชี LINE กับ Rental ID ของคุณ..."}</p></section></main>`;
+    try{
+      const liff = await loadLineSdk();
+      await liff.init({liffId:activeLineLiffId()});
+      if(!liff.isLoggedIn()){
+        liff.login({redirectUri:location.href});
+        return true;
+      }
+      const accessToken = String(liff.getAccessToken?.() || "").trim();
+      const profile = await liff.getProfile();
+      if(!accessToken || !profile?.userId) throw new Error("LINE identity unavailable");
+      const endpoint = new URL(`/api/booking-context/${encodeURIComponent(contextToken)}/line-link`, CONFIG.contractWebUrl);
+      const response = await fetch(endpoint, {
+        method:"POST",
+        cache:"no-store",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({lineAccessToken:accessToken})
+      });
+      const result = await response.json().catch(() => ({}));
+      if(!response.ok || !result?.linked || !result?.message) throw new Error(result.error || `LINE link ${response.status}`);
+      localStorage.setItem("aj_line_unique_id", profile.userId);
+      localStorage.setItem("aj_line_display_name", profile.displayName || "");
+      pushLineGamePickerCard(rentalCode);
+      location.href = `${CONFIG.lineOaMessageUrl}?${encodeURIComponent(result.message)}`;
+      return true;
+    }catch(error){
+      console.error("LINE booking handoff failed", error);
+      const panel = document.body.querySelector("section");
+      const en = params.get("lang") === "en";
+      panel.innerHTML = `<h1 style="font-size:22px;margin:0 0 12px">${en ? "Unable to link LINE" : "ผูกบัญชี LINE ไม่สำเร็จ"}</h1><p style="margin:0 0 20px;color:#667085">${en ? "Your booking message has not been opened. Please try again so your LINE account is linked to the Rental ID first." : "ระบบยังไม่เปิดข้อความจอง กรุณาลองอีกครั้งเพื่อผูกบัญชี LINE กับ Rental ID ให้สำเร็จก่อน"}</p><button id="lineHandoffRetry" type="button" style="border:0;border-radius:14px;background:#cf0000;color:#fff;font:inherit;font-weight:800;padding:13px 24px">${en ? "Try again" : "ลองอีกครั้ง"}</button>`;
+      panel.querySelector("#lineHandoffRetry").addEventListener("click", () => location.reload());
+      return true;
+    }
   }
   async function connectLine(){
     try{
@@ -6688,6 +6733,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
 
   async function boot(){
+    if(await completeLineBookingHandoff()) return;
     loadState();
     restoreAvailabilityCache();
     state.availability.holds = mergeBookingHolds(state.availability.holds);
