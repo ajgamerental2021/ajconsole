@@ -1029,7 +1029,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
   const CONFIG = {
     version: "index2-clean-1",
-    gamePickerVersion: "20260622-1",
+    gamePickerVersion: "20260829-1",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",
@@ -4574,8 +4574,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       liffUrl.searchParams.set("ctx", handoff.contextToken);
       liffUrl.searchParams.set("rentalCode", code);
       liffUrl.searchParams.set("lang", state.lang === "en" ? "en" : "th");
-      showExternalLineLaunch(liffUrl.toString());
-      location.href = liffUrl.toString();
+      const launchUrl = isInsideLineClient()
+        ? liffUrl.toString()
+        : `https://line.me/R/app/${activeLineLiffId()}?${liffUrl.searchParams.toString()}`;
+      location.href = launchUrl;
       return true;
     }catch(error){
       showBookingActionError(error);

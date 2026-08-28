@@ -5352,7 +5352,15 @@ function clearAllPicked() {
    to the booking + platform and stores the submitted list, so no rental id,
    booking id or personal data ever appears in this URL.
 ────────────────────────────────────── */
-const GAME_API_BASE = 'https://delivery-app-backend-68pm.onrender.com';
+const GAME_API_BASE = (function () {
+  try {
+    return new URLSearchParams(location.search).get('api') === 'bot'
+      ? 'https://aj-line-oa-bot.onrender.com'
+      : 'https://delivery-app-backend-68pm.onrender.com';
+  } catch (e) {
+    return 'https://delivery-app-backend-68pm.onrender.com';
+  }
+})();
 let selectionToken = null;      // opaque token from the URL
 let selectionContext = null;    // { gamePlatform, deviceName, startDate, maxGames }
 
