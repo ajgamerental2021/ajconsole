@@ -710,5 +710,5 @@ paused job shows slightly old numbers rather than an empty section.
 - Returning-customer Rental Order review now appears inside the returning-customer discount card only after the customer is verified by LINE or the manual eligibility flow.
 - The Rental Order modal has its own Thai/English switch, safer edge spacing, and properly spaced acknowledgement checkboxes.
 - When the modal is opened by LINE, Messenger, or WhatsApp booking intent, accepting continues that selected channel immediately. Opening the review button directly accepts only the order and prompts the customer to choose a channel.
-- Desktop LINE launch now uses the LINE app scheme instead of falling through to LINE's generic “Life on LINE” marketing page. Mobile external browsers keep the standard LIFF launch route.
+- LINE Desktop itself does not run LIFF. Desktop booking therefore stays in the external browser, enables LIFF external-browser login, returns to the same signed booking context after login, and then links the LINE account and pushes the Flex card. It no longer invokes LINE Desktop's unsupported-LIFF QR dialog. Mobile external browsers keep the standard LIFF app-launch route.
 - The bot's language-specific Rental Order PDF now includes the full accepted Rental Terms snapshot and version on subsequent PDF pages for durable reference.
