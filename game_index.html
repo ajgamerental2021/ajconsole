@@ -5058,6 +5058,14 @@ function applySearch() {
 let pickedGames = [];
 let pickActivePlatform = null;
 const MAX_PICK = 10;
+/**
+ * The list as last preselected or last saved.
+ *
+ * Two things need it: the preselect must not overwrite a change the customer
+ * has already made by hand, and the send button must come back once the list
+ * differs from what was saved.
+ */
+let pickBaselineIds = [];
 let pickSortMode = 'newest';
 let pickGenreFilter = '';
 let pickSearchQuery = '';
@@ -5319,6 +5327,24 @@ function togglePick(gameId) {
   syncPickModalScrollState();
 }
 
+/**
+ * Re-arm the send button once the list differs from what was saved.
+ *
+ * It used to read "✓ Saved" and stay disabled for the rest of the session, so a
+ * customer who saved and then changed their mind had no way to send the new
+ * list — the picker looked finished while their edit sat there unsent.
+ */
+function refreshSubmitButtonState() {
+  if (typeof selectionToken === 'undefined' || !selectionToken) return;
+  const btn = document.getElementById('btn-generate-copy');
+  if (!btn || !btn.disabled) return;
+  const changed = pickedGames.length !== pickBaselineIds.length
+    || pickedGames.some((id, i) => id !== pickBaselineIds[i]);
+  if (!changed || !pickedGames.length) return;
+  btn.disabled = false;
+  btn.textContent = (currentLang === 'en') ? 'Send updated games' : 'ส่งรายการเกมที่แก้ไข';
+}
+
 function renderPickFooter() {
   const badge = document.getElementById('pick-count-badge');
   badge.textContent = `${pickedGames.length} / ${MAX_PICK}`;
@@ -5335,6 +5361,7 @@ function renderPickFooter() {
   }).join('');
   document.getElementById('btn-generate-copy').style.display = pickedGames.length > 0 ? '' : 'none';
   document.getElementById('pick-copy-panel').classList.remove('show');
+  try { refreshSubmitButtonState(); } catch (e) {}
 }
 
 function clearAllPicked() {
@@ -5393,13 +5420,76 @@ async function initSelectionToken() {
       currentPlatform = data.gamePlatform;
       try { renderPickPlatformTabs(); renderPickBody(); renderPickFooter(); } catch (e) {}
     }
-    if (Array.isArray(data.selectedGames) && data.selectedGames.length) {
-      showToast(currentLang === 'en'
-        ? 'You already chose games — submitting again replaces the list.'
-        : 'เคยเลือกเกมไว้แล้ว — ส่งใหม่จะแทนที่รายการเดิม');
-    }
   } catch (e) {
     console.warn('resolve token failed', e);
+  }
+}
+
+/**
+ * The games already on this booking, as catalogue ids.
+ *
+ * The backend stores what a customer picked as names, because that is what the
+ * shop reads on the sheet; the picker works in ids. Matching is on a normalised
+ * name — case and spacing differ between what the shop types and what the
+ * catalogue says, and neither spelling is more correct than the other.
+ *
+ * Names with no match come back separately rather than being dropped. A list
+ * quietly arriving one game short is the worst outcome here: the customer sees
+ * a plausible selection, confirms it, and loses a game without ever being told.
+ */
+function matchSavedGameNames(names) {
+  const norm = (v) => String(v || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const catalogue = (function () { try { return Array.isArray(games) ? games : []; } catch (e) { return []; } })();
+  const byName = new Map();
+  catalogue.forEach((g) => { if (g && g.name) byName.set(norm(g.name), g.id); });
+
+  const ids = [];
+  const missing = [];
+  (Array.isArray(names) ? names : []).forEach((name) => {
+    const id = byName.get(norm(name));
+    if (id && !ids.includes(id)) ids.push(id);
+    else if (!id && String(name || '').trim()) missing.push(String(name).trim());
+  });
+  return { ids: ids.slice(0, MAX_PICK), missing };
+}
+
+/**
+ * Tick the booking's current games, so the customer edits a list instead of
+ * rebuilding one.
+ *
+ * Runs only once and only while nothing has been touched: re-resolving the
+ * token or reopening the picker must never undo a change the customer has just
+ * made by hand.
+ */
+let preselectionApplied = false;
+function applyPreselection() {
+  if (preselectionApplied) return;
+  if (!selectionContext || !Array.isArray(selectionContext.selectedGames)) return;
+  const saved = selectionContext.selectedGames;
+  if (!saved.length) { preselectionApplied = true; return; }
+
+  const catalogueReady = (function () { try { return Array.isArray(games) && games.length > 0; } catch (e) { return false; } })();
+  if (!catalogueReady) return;   // try again once the catalogue lands
+
+  const { ids, missing } = matchSavedGameNames(saved);
+  preselectionApplied = true;
+  const sameAsBaseline = pickedGames.length === pickBaselineIds.length
+    && pickedGames.every((id, i) => id === pickBaselineIds[i]);
+  if (pickedGames.length && !sameAsBaseline) return;   // a hand-made change wins
+
+  pickedGames = ids;
+  pickBaselineIds = ids.slice();
+  try { renderPickPlatformTabs(); renderPickBody(); renderPickFooter(); } catch (e) {}
+
+  if (missing.length) {
+    // Named, not counted: the customer has to know *which* ones to re-pick.
+    showToast(currentLang === 'en'
+      ? `${missing.length} game${missing.length > 1 ? 's are' : ' is'} no longer in the list: ${missing.join(', ')}`
+      : `มี ${missing.length} เกมที่ไม่มีในแคตตาล็อกแล้ว: ${missing.join(', ')}`);
+  } else {
+    showToast(currentLang === 'en'
+      ? 'Your current games are ticked — add or remove, then confirm.'
+      : 'ติ๊กเกมที่เลือกไว้ให้แล้ว — เพิ่มหรือเอาออกได้ แล้วกดยืนยัน');
   }
 }
 
@@ -5485,6 +5575,9 @@ async function submitSelectionToken() {
       return;
     }
     showToast(currentLang === 'en' ? '✓ Your game selection has been saved' : '✓ บันทึกรายการเกมเรียบร้อยแล้ว');
+    // What is saved is now the baseline, so a further edit re-arms the button.
+    pickBaselineIds = pickedGames.slice();
+    if (selectionContext) selectionContext.selectedGames = names;
     if (btn) { btn.disabled = true; btn.textContent = currentLang === 'en' ? '✓ Saved' : '✓ บันทึกแล้ว'; }
   } catch (e) {
     showToast(currentLang === 'en' ? 'Network error — please try again.' : 'เชื่อมต่อไม่ได้ ลองใหม่อีกครั้งครับ');
@@ -6994,6 +7087,9 @@ document.addEventListener('touchstart', function(e) {
     setLangSafe(data.lang || 'th');
     if(typeof openPickModal === 'function') openPickModal();
     pickedGames = Array.isArray(data.selectedGameIds) ? data.selectedGameIds.filter(id => getGamesSafe().some(g => g.id === id)).slice(0,10) : [];
+    // Ticking the booking's own games is not the customer editing; a later
+    // applyPreselection must still be allowed to report what it could not find.
+    try { pickBaselineIds = pickedGames.slice(); } catch(e){}
     if(bridgePlatformId && typeof setPickPlatform === 'function'){
       setPickPlatform(bridgePlatformId);
     }else{
@@ -7051,13 +7147,28 @@ document.addEventListener('touchstart', function(e) {
     if(isContractCardPicker()){
       // A ?t= link knows its console only after the token resolves, so wait for
       // it — otherwise the picker opens on every platform at once.
-      Promise.resolve(window.ajSelectionReady || '').then(function(tokenPlatform){
+      // Both, not just the token: the games already on the booking are stored
+      // as names and can only be turned into ids once the catalogue is loaded.
+      Promise.all([
+        Promise.resolve(window.ajSelectionReady || ''),
+        Promise.resolve(window.ajGameCatalogReady).catch(function(){ return null; })
+      ]).then(function(results){
+        const tokenPlatform = results[0] || '';
+        let preselected = [];
+        try {
+          if (selectionContext && Array.isArray(selectionContext.selectedGames)) {
+            preselected = matchSavedGameNames(selectionContext.selectedGames).ids;
+          }
+        } catch (e) {}
         openPickerFromParent({
           requestId: params.get('rentalCode') || 'contract-card',
           platformId: params.get('platformId') || params.get('platform') || tokenPlatform || '',
           lang: params.get('lang') || 'th',
-          selectedGameIds: []
+          selectedGameIds: preselected
         });
+        // Reports anything the catalogue no longer has, and covers the case
+        // where the catalogue arrived after the token resolved.
+        try { applyPreselection(); } catch (e) {}
       });
     }else{
       setTimeout(refreshEmbedPicker, 0);
