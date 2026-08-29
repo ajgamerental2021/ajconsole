@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-08-29 — Full dates in booking Flex cards
+
+- Thai and English booking Flex date rows now split their width evenly between
+  label and value, so `DD/MM/YYYY` remains fully visible instead of ending in
+  an ellipsis on narrow LINE clients.
+- Bot syntax and all 182 automated tests pass.
+
 ## 2026-08-29 — Contract-completion LINE Flex handoff
 
 - Only the contract form's `จองผ่าน LINE` / `Book via LINE` completion action
