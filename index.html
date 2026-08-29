@@ -2735,13 +2735,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return Number.isNaN(date.getTime()) ? "-" : date.toLocaleDateString(state.lang === "en" ? "en-GB" : "th-TH");
   }
   function closeMasterAgreementModal(){ byId("masterAgreementModal")?.classList.remove("open"); }
-  function openMasterAgreementModal(){
+  async function openMasterAgreementModal(){
     const agreement = state.calc.masterAgreement;
     if(!agreement || !["valid","legacy_verified"].includes(agreement.status)){
       toast(tr("masterAgreementExpired"));
       return;
     }
-    const code = ensureRentalCode();
+    const code = await ensureRentalCode();
     byId("masterAgreementModalTitle").textContent = tr("masterAgreementTitle");
     const agreementSummary = agreement.status === "legacy_verified"
       ? `<b>${tr("masterAgreementLegacy")}</b>`
@@ -2840,7 +2840,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       toast(tr("returningVerifySuccess"));
       closeReturningEligibility();
       render();
-      if(["valid","legacy_verified"].includes(state.calc.masterAgreement?.status)) openMasterAgreementModal();
+      if(["valid","legacy_verified"].includes(state.calc.masterAgreement?.status)) await openMasterAgreementModal();
       else if(state.calc.masterAgreement?.status === "expired") toast(tr("masterAgreementExpired"));
     }catch(error){
       console.warn("Returning eligibility check failed", error);
@@ -3261,8 +3261,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const summary = calcSummary();
     const hasGameCatalog = consoleHasGameCatalog(c);
     const shareLocked = activeShareStatus()?.locked === true;
-    const agreementReady = !state.calc.ret || !state.calc.retVerified || hasActiveMasterAgreement();
-    const canSend = agreementReady && !shareLocked && (shareReturnUnlocked() || Boolean(state.calc.start && state.calc.end && summary.days >= 3 && evaluateAvailability().pass));
+    const canSend = !shareLocked && (shareReturnUnlocked() || Boolean(state.calc.start && state.calc.end && summary.days >= 3 && evaluateAvailability().pass));
     const depositValue = amount => state.calc.noContract
       ? `${money(amount)} <span class="no-contract-note">(${esc(tr("noContractLabel"))})</span>`
       : money(amount);
@@ -4662,7 +4661,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   async function guardedBookingShare(channel, action){
     if(state.calc.ret && state.calc.retVerified && !hasActiveMasterAgreement()){
-      openMasterAgreementModal();
+      await openMasterAgreementModal();
       return false;
     }
     if(!(await confirmBookingShare(channel))) return false;
@@ -5202,7 +5201,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         }
         saveLocal();
         render();
-        if(eligible && ["valid","legacy_verified"].includes(state.calc.masterAgreement?.status) && !state.calc.masterAgreementAccepted) openMasterAgreementModal();
         return eligible;
       }catch(error){
         console.warn("Automatic LINE eligibility check skipped", error);
@@ -6528,7 +6526,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(targetId === "rentalTermsCancel" || targetId === "rentalTermsClose"){ closeRentalTermsModal(); return; }
       if(targetId === "masterAgreementConfirm"){ acceptMasterAgreementOrder(); return; }
       if(targetId === "masterAgreementCancel" || targetId === "masterAgreementClose"){ closeMasterAgreementModal(); return; }
-      if(targetId === "reviewRentalOrderBtn"){ openMasterAgreementModal(); return; }
+      if(targetId === "reviewRentalOrderBtn"){ await openMasterAgreementModal(); return; }
       if(byId("shareConfirmModal")?.dataset.mode === "messenger-handoff"){
         if(targetId === "shareContractFirst"){ await copyMessengerHandoff(); return; }
         if(targetId === "shareConfirmSend"){ await openMessengerFromHandoff(); return; }
