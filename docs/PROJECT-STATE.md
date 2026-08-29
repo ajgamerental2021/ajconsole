@@ -704,3 +704,11 @@ paused job shows slightly old numbers rather than an empty section.
   DOM rather than trusting a screenshot when that happens.
 - The console keeps errors from previous page loads. Check the `?v=` in an error
   before believing it came from the current build.
+
+## 2026-08-29 — Rental Order acceptance UX and PDF snapshot
+
+- Returning-customer Rental Order review now appears inside the returning-customer discount card only after the customer is verified by LINE or the manual eligibility flow.
+- The Rental Order modal has its own Thai/English switch, safer edge spacing, and properly spaced acknowledgement checkboxes.
+- When the modal is opened by LINE, Messenger, or WhatsApp booking intent, accepting continues that selected channel immediately. Opening the review button directly accepts only the order and prompts the customer to choose a channel.
+- Desktop LINE launch now uses the LINE app scheme instead of falling through to LINE's generic “Life on LINE” marketing page. Mobile external browsers keep the standard LIFF launch route.
+- The bot's language-specific Rental Order PDF now includes the full accepted Rental Terms snapshot and version on subsequent PDF pages for durable reference.
