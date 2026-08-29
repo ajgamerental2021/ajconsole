@@ -92,7 +92,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .details{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--text2)}
 .details div{background:#fafafa;border:1px solid var(--border);border-radius:9px;padding:6px 8px}
 .calc-shell{background:#fff;border:1px solid var(--border);box-shadow:var(--shadow);border-radius:22px;overflow:hidden}
-.calc-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-bottom:1px solid var(--border);background:#fafafa}
+.calc-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-bottom:1px solid var(--border);background:#fafafa}
 .step-tab{border:0;border-right:1px solid var(--border);background:transparent;padding:14px 12px;text-align:left}
 .step-tab:last-child{border-right:0}
 .step-tab.active{background:#fff7f7;color:#8b0000}
@@ -470,7 +470,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .calc-body{grid-template-columns:1fr}
   .console-grid,.home-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .summary{position:static;display:none}
-  body[data-calc-step="4"] .summary{display:block}
+  body[data-calc-step="3"] .summary{display:block}
   .calc-head-wrap{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:stretch;gap:14px}
   .calc-line-host{position:static;width:100%;max-width:none;margin:0}
   .calc-line-host .line-card{height:100%}
@@ -520,7 +520,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .cal-top-picks{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center}
   .cal-arrow-big{display:block;font-size:22px}
   .boardgame-tools{grid-template-columns:1fr}
-  .calc-tabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:8px;background:#fff;border-bottom:1px solid var(--border);box-shadow:0 4px 14px rgba(0,0,0,.06)}
+  .calc-tabs{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:8px;background:#fff;border-bottom:1px solid var(--border);box-shadow:0 4px 14px rgba(0,0,0,.06)}
   .step-tab{position:relative;display:flex;align-items:center;min-height:46px;border:1px solid #bfe5c9;border-radius:14px;background:#effbf2;color:#184d2a;padding:9px 34px 9px 10px}
   .step-tab:after{content:"→";position:absolute;right:11px;color:#39a35b;font-size:18px;font-weight:900}
   .step-tab.active{border-color:#e10000;background:#fff7f7;color:#8b0000}
@@ -889,26 +889,23 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
             </div>
             <div class="pane" id="pane2">
               <div class="card">
-                <h3 data-i18n="step2Title">เลือกเกม</h3>
+                <h3 data-i18n="step2Title">รายละเอียดการจอง</h3>
                 <p class="hint" data-i18n="gamePickHelp">ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้</p>
                 <div id="gamePickBox"></div>
+              </div>
+              <div class="card">
+                <h3 data-i18n="step2DetailsTitle">การจัดส่ง การชำระเงิน และเอกสาร</h3>
+                <div id="optionRows"></div>
               </div>
               <div class="step-actions" id="stepActions2"></div>
             </div>
             <div class="pane" id="pane3">
               <div class="card">
-                <h3 data-i18n="step3Title">ชำระเงิน / สัญญา / แผนที่</h3>
-                <div id="optionRows"></div>
-              </div>
-              <div class="step-actions" id="stepActions3"></div>
-            </div>
-            <div class="pane" id="pane4">
-              <div class="card">
-                <h3 data-i18n="step4Title">สรุปและส่งข้อความ</h3>
+                <h3 data-i18n="step3Title">สรุปและส่งข้อความ</h3>
                 <p class="hint" data-i18n="summaryHelp">ตรวจสอบข้อมูล แล้วคัดลอกหรือส่งทาง Line / WhatsApp</p>
                 <div class="personal-rate-warning" data-i18n-html="personalRateWarning"></div>
               </div>
-              <div class="step-actions" id="stepActions4"></div>
+              <div class="step-actions" id="stepActions3"></div>
             </div>
           </div>
           <aside class="summary" id="summaryBox"></aside>
@@ -1005,7 +1002,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     <div class="modal-head"><h3 id="masterAgreementModalTitle"></h3><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="masterAgreementLangBtn" type="button"></button><button class="xbtn" id="masterAgreementClose" type="button">&times;</button></div></div>
     <div id="masterAgreementSummary" class="privacy-reassurance"></div>
     <iframe id="masterAgreementTermsFrame" class="rental-terms-frame" title="Rental Terms"></iframe>
-    <label class="rental-terms-accept"><input type="checkbox" id="masterAgreementIdentityAccept"><span id="masterAgreementIdentityLabel"></span></label>
     <label class="rental-terms-accept"><input type="checkbox" id="masterAgreementOrderAccept"><span id="masterAgreementOrderLabel"></span></label>
     <div class="returning-verify-actions"><button class="btn" id="masterAgreementCancel" type="button"></button><button class="btn primary" id="masterAgreementConfirm" type="button" disabled></button></div>
   </div>
@@ -1297,7 +1293,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       filterType:"ประเภท", filterBrand:"แบรนด์", filterSort:"เรียง", all:"ทั้งหมด", type_console:"Console", type_vr:"VR & AR", type_handheld:"PC Handheld", type_racing:"Racing",
       sort_brand:"แยกตามแบรนด์", sort_price_desc:"ราคา สูง → ต่ำ", sort_price_asc:"ราคา ต่ำ → สูง", sort_name:"ชื่อ A → Z",
       calcTag:"คำนวณ", calcTitle:"เช็คคิว & คำนวณค่าเช่า", calcSub:"ขั้นต่ำ 3 วัน | ราคาเรทบุคคล",
-      step1:"เลือกเครื่อง/วันที่", step2:"เลือกเกม", step3:"ชำระเงิน / สัญญา / แผนที่", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"เลือกเกม", step3Title:"ชำระเงิน / สัญญา / แผนที่", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"📖 อ่านขั้นตอนการเช่าก่อนเริ่ม", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
+      step1:"เลือกเครื่อง/วันที่", step2:"รายละเอียดการจอง", step3:"สรุปและส่ง", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"เลือกเกม", step2DetailsTitle:"การจัดส่ง การชำระเงิน และเอกสาร", step3Title:"สรุปและส่งข้อความ", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"📖 อ่านขั้นตอนการเช่าก่อนเริ่ม", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
       nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
       deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
       gamePickHelp:"ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้", gamePickerTitle:"เลือกเกม", gameStorageWarning:"⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ", summaryHelp:"ตรวจสอบข้อมูล แล้วกดจองผ่านช่องทางที่สะดวก",
@@ -1305,7 +1301,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       daily:"รายวัน", weekly:"รายสัปดาห์", day:"วัน", wk:"สัปดาห์", deposit:"ค่าประกัน", ready:"พร้อม", notReady:"ยังไม่พร้อม", readyOn:"พร้อมวันที่",
       contractPrivacy:"เอกสารใช้เพื่อยืนยันตัวตนและจัดทำสัญญาเท่านั้น รายละเอียดการเข้าถึงและกำหนดลบเอกสารจะแสดงก่อนอัปโหลด",
       bundle:"Bundle", accessories:"อุปกรณ์เสริม", noBundle:"ไม่เพิ่ม Bundle", noAccessory:"ไม่เพิ่มอุปกรณ์เสริม", contract:"ทำสัญญาการเช่า", contractHelp:"แนะนำสำหรับผู้เช่าครั้งแรก กรอกก่อนนัดส่งเครื่อง", contractAge:"*ผู้ทำสัญญาการเช่าต้องมีอายุ 20 ปีขึ้นไปเท่านั้น*", contractOpenTitle:"เลือกวิธีเปิดหน้าสัญญา", contractOpenMessage:"หากคุณใช้ LINE แนะนำให้เปิดผ่าน LINE เพื่อเชื่อมสัญญากับบัญชีของคุณ", contractOpenLine:"เปิดผ่าน LINE", contractOpenWeb:"ทำสัญญาผ่านเว็บ", contractOpenNote:"ไม่มี LINE? สามารถทำสัญญาผ่านเว็บได้ตามปกติ", contractOpenClose:"ปิดหน้าต่าง",
-      masterAgreementTitle:"อ่านและยืนยันรายการเช่าครั้งนี้", masterAgreementLegacy:"ยืนยันสิทธิ์จากประวัติลูกค้าเก่าแล้ว (ข้อมูลเดิมไม่มีเลขที่ข้อตกลงหลัก)", masterAgreementIdentity:"ข้าพเจ้ายืนยันว่าข้อมูลระบุตัวตนและข้อมูลติดต่อไม่เปลี่ยนแปลง และยินยอมให้อ้างอิงข้อมูลลูกค้าเก่าที่ผ่านการยืนยัน", masterAgreementOrder:"ข้าพเจ้าได้ตรวจสอบรายละเอียดการเช่าครั้งนี้ อ่าน และยอมรับ Rental Terms แล้ว", masterAgreementConfirm:"ยอมรับและทำรายการต่อ", masterAgreementAcceptedChooseChannel:"ยืนยันแล้ว กรุณากดเลือกช่องทางจองด้านล่างเพื่อส่งข้อมูลให้ร้าน", masterAgreementExpired:"ข้อตกลงหลักหมดอายุแล้ว ต้องจัดทำข้อตกลงหลักใหม่ หรือเลือกเช่าโดยไม่ทำสัญญา", masterAgreementId:"เลขที่ข้อตกลงหลัก", masterAgreementExpiry:"ใช้ได้ถึง", rentalOrderId:"เลขที่รายการเช่า",
+      masterAgreementTitle:"อ่านและยืนยันรายการเช่าครั้งนี้", masterAgreementLegacy:"ยืนยันสิทธิ์จากประวัติลูกค้าเก่าแล้ว (ข้อมูลเดิมไม่มีเลขที่ข้อตกลงหลัก)", masterAgreementIdentity:"ข้าพเจ้ายืนยันว่าข้อมูลระบุตัวตนและข้อมูลติดต่อไม่เปลี่ยนแปลง และยินยอมให้อ้างอิงข้อมูลลูกค้าเก่าที่ผ่านการยืนยัน", masterAgreementOrder:"ข้าพเจ้ายืนยันว่าข้อมูลระบุตัวตนและข้อมูลติดต่อไม่เปลี่ยนแปลง ยินยอมให้อ้างอิงข้อมูลลูกค้าเก่าที่ผ่านการยืนยัน และได้ตรวจสอบรายละเอียดการเช่าครั้งนี้ อ่านและยอมรับ Rental Terms แล้ว", masterAgreementConfirm:"ยอมรับและทำรายการต่อ", masterAgreementAcceptedChooseChannel:"ยืนยันแล้ว กรุณากดเลือกช่องทางจองด้านล่างเพื่อส่งข้อมูลให้ร้าน", masterAgreementExpired:"ข้อตกลงหลักหมดอายุแล้ว ต้องจัดทำข้อตกลงหลักใหม่ หรือเลือกเช่าโดยไม่ทำสัญญา", masterAgreementId:"เลขที่ข้อตกลงหลัก", masterAgreementExpiry:"ใช้ได้ถึง", rentalOrderId:"เลขที่รายการเช่า",
       noContract:"เช่าโดยไม่จัดทำสัญญาพร้อมเอกสารยืนยันตัวตน", noContractHelp:"ยังต้องอ่านและยอมรับเงื่อนไขการเช่า โดยค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น", rentalTermsTitle:"เงื่อนไขการเช่า", rentalTermsAccept:"ข้าพเจ้าได้อ่าน เข้าใจ และยอมรับเงื่อนไขการเช่า การคืนล่าช้า ความเสียหาย การยกเลิก และการคืนเงินประกันทั้งหมดแล้ว", rentalTermsConfirm:"ยืนยันและทำรายการต่อ", rentalTermsCancel:"ยกเลิก", rentalTermsAccepted:"ลูกค้ารับทราบเงื่อนไขการเช่าแล้ว", rentalTermsRead:"อ่านเงื่อนไขการเช่า",
       returning:"ลูกค้าเก่า (เท่านั้น) รับส่วนลด 10% ค่าเช่า", returningOnly:"ลูกค้าเก่าเท่านั้น", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง", bank:"🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%",
       wiseAvailabilityNote:"ไม่สามารถชำระผ่าน Wise ในวันเสาร์-อาทิตย์หรือวันหยุดธนาคารไทยได้ เนื่องจากเงินจะเข้าในวันทำการถัดไป", wiseUnavailableWeekend:"วันนี้ไม่สามารถเลือก Wise ได้ (วันเสาร์-อาทิตย์)", wiseUnavailableHoliday:"วันนี้ไม่สามารถเลือก Wise ได้ (วันหยุดธนาคารไทย)", returningVerifyTitle:"ยืนยันสิทธิ์ส่วนลดลูกค้าเก่า", returningVerifyHelp:"กรอกเบอร์โทรที่เคยใช้เช่า และเลขบัตรประชาชน 4 ตัวท้าย", returningVerifyPhone:"เบอร์โทรศัพท์", returningVerifyFirstName:"ชื่อจริง (ไม่ต้องใส่นามสกุล)", returningVerifyLast4:"เลขบัตรประชาชน 4 ตัวท้าย", returningVerifyNoIdentity:"ไม่มีเลขบัตรประชาชนในประวัติการเช่า", returningVerifyHistoryHelp:"ใช้สำหรับลูกค้าเก่าที่ไม่มีเลขบัตรประชาชนในประวัติ กรุณาใช้ชื่อจริงร่วมกับรหัสการเช่าครั้งก่อนหรือเบอร์โทรศัพท์เพื่อยืนยัน ไม่ต้องใส่นามสกุล", returningVerifyRentalSuffix:"Rental ID 5 ตัวท้าย", returningVerifyUsePhone:"ใช้เบอร์โทรแทน", returningVerifyHistoryPhone:"เบอร์โทรศัพท์ที่เคยส่งให้ทางร้าน", returningVerifyFindRentalId:"วิธีการหา Rental ID", returningVerifySubmit:"ตรวจสอบสิทธิ์", returningVerifyCancel:"ยกเลิก", returningVerifyChecking:"กำลังตรวจสอบ...", returningVerifySuccess:"ยืนยันสิทธิ์ลูกค้าเก่าเรียบร้อย", returningVerifyNotFound:"ไม่พบประวัติ Confirmed ที่ชื่อจริงและข้อมูลยืนยันตรงกัน กรุณาตรวจสอบข้อมูลหรือติดต่อ AJ", returningVerifyError:"ตรวจสอบสิทธิ์ไม่ได้ในขณะนี้ กรุณาลองใหม่ภายหลัง", returningVerifyInvalid:"กรุณากรอกเบอร์โทร 10 หลัก และเลขบัตร 4 ตัวท้าย", returningVerifyHistoryInvalid:"กรุณากรอกชื่อจริง และ Rental ID 5 ตัวท้ายหรือเบอร์โทรศัพท์ที่ถูกต้อง", returningLineVerifiedTitle:"ตรวจพบประวัติลูกค้าเก่า ใช้ส่วนลดค่าเช่า 10% แล้ว", returningLineVerifiedDetail:"ยืนยันสิทธิ์ผ่านบัญชี LINE และเลือกส่วนลดให้อัตโนมัติแล้ว",
@@ -1318,12 +1314,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       guideTitle:"ขั้นตอนถัดไป", guideConsole:"เลือกเครื่องเกม", guideStart:"เลือกวันที่เริ่มเช่า", guideEnd:"เลือกวันคืนเครื่อง", guideAccessory:"เลือกอุปกรณ์เสริม ถ้าไม่ต้องการให้ข้ามได้เลย", guidePs5Bundle:"เลือก Bundle ของ PS5 ถ้าต้องการ", guideNextStep:"กดไปขั้นตอนถัดไป", guideBg:"เลือก Bundle บอร์ดเกม ถ้าต้องการเพิ่ม", guideRet:"เคยเช่ากับทางร้านไหม?", guideContractChoice:"ต้องการทำสัญญาการเช่าหรือไม่?", guideContractLink:"กดลิงก์ทำสัญญาการเช่า หรือเลือกทำทีหลัง", guidePayment:"เลือกช่องทางชำระเงิน", guideMaps:"วางลิงก์ Google Maps สำหรับเช็คค่าจัดส่ง", guideGames:"เลือกเกมจากรายการ หรือเลือกแจ้งภายหลัง", guideShare:"เช็ครายละเอียดการเช่าทางด้านบน แล้วกดจองผ่านช่องทางที่สะดวก", guideCopy:"คัดลอกข้อความจองเช่า", guideLine:"จองผ่าน Line", guideWa:"จองผ่าน WhatsApp", guideMessenger:"จองผ่าน Messenger",
       guideDoContract:"ทำสัญญา", guideNoContract:"ไม่ทำสัญญา", guideLater:"ทำทีหลัง", guideSkip:"ข้าม", guideGameLater:"เลือกทีหลัง", guideNext:"ต่อไป", guideRetYes:"เคย", guideRetNo:"ไม่เคย",
       pickGames:"เลือก / แก้ไขรายชื่อเกม", sendLater:"แจ้งรายชื่อเกมภายหลัง", clearGames:"ล้างรายชื่อเกม", noGameList:"รุ่นนี้ไม่มีรายการเกมให้เลือกในระบบ",
-      summaryTitle:"สรุปค่าเช่า", summaryEmpty:"เลือกเครื่องและวันที่เพื่อดูสรุป", rental:"ค่าเช่า", discount:"ส่วนลด", promo:"โปรโมชัน", total:"ยอดรวม", grandTotal:"ยอดรวมทั้งหมด", upfront:"โอนล่วงหน้า", upfrontConfirm:"โอนล่วงหน้า (ยืนยันการจอง)", fullPaymentConfirm:"ชำระยอดเต็ม (เพื่อยืนยันการจอง)", onDelivery:"จ่ายตอนของถึง", payOnDelivery:"จ่ายตอนของถึง", delivery:"ค่าส่งแจ้งทางแชท", finalActionHelp:"ตรวจสอบข้อมูลแล้ว กดจองผ่านช่องทางแชทที่คุยกับร้านเพื่อส่งรายละเอียด",
+      summaryTitle:"สรุปค่าเช่า", summaryEmpty:"เลือกเครื่องและวันที่เพื่อดูสรุป", rental:"ค่าเช่า", discount:"ส่วนลด", promo:"โปรโมชัน", total:"ยอดรวม", grandTotal:"ยอดรวมก่อนค่าจัดส่ง", upfront:"โอนล่วงหน้า", upfrontConfirm:"โอนล่วงหน้า (ยืนยันการจอง)", fullPaymentConfirm:"ชำระยอดเต็ม (เพื่อยืนยันการจอง)", onDelivery:"จ่ายตอนของถึง", payOnDelivery:"จ่ายตอนของถึง", delivery:"ค่าส่งแจ้งทางแชท", finalActionHelp:"ตรวจสอบข้อมูลแล้ว กดจองผ่านช่องทางแชทที่คุยกับร้านเพื่อส่งรายละเอียด",
       returningDiscount:"ส่วนลดลูกค้าเก่า 10%", consoleDiscount:"ส่วนลดเครื่องเกม", boardGameDiscount:"ส่วนลดบอร์ดเกม", boardGameDeposit:"ค่าประกันบอร์ดเกม", rentalDays:"จำนวนวันเช่า", boardGameRental:"ค่าเช่าบอร์ดเกม", boardGameList:"รายการบอร์ดเกม",
       equipmentDetails:"รายละเอียดอุปกรณ์", players:"จำนวนผู้เล่น", playTime:"เวลาเล่น", age:"อายุแนะนำ", packageRental:"ค่าเช่าตามแพ็ก", oneDay:"1 วัน", threeDays:"3 วัน", sevenDays:"7 วัน", howToPlay:"วิธีเล่นคร่าว ๆ", noContractDepositNote:"ค่าประกัน (ไม่ทำสัญญา)", noContractLabel:"ไม่ทำสัญญา", standardTier:"เรทมาตรฐาน", planning:"วางแผน",
       copy:"📋 Copy ข้อความจองเช่า", line:"จองผ่าน Line", whatsapp:"จองผ่าน WhatsApp", messenger:"จองผ่าน Messenger", copied:"คัดลอกแล้ว", minDays:"ขั้นต่ำ 3 วัน", busy:"เครื่องอาจไม่ว่างในช่วงนี้", available:"ช่วงนี้ผ่านการเช็คคิวแล้ว", checking:"กำลังเช็คคิว...", queueError:"ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่", retryQueue:"ลองเช็คคิวอีกครั้ง", queueRetryCell:"ลองเช็คใหม่", queueClosed:"ปิดคิวในช่วงเวลานี้", bookingHold:"มี 1 คิวกำลังทำรายการ กรุณาเช็คคิวใหม่ใน {minutes} นาที", bookingHoldCell:"กำลังจอง · เช็คใหม่ใน {minutes} นาที", bookingHoldLost:"มีลูกค้ารายอื่นกำลังจองเครื่องนี้ กรุณาเช็คคิวใหม่ใน {minutes} นาที", stepNeedConsole:"เลือกเครื่องเกมก่อนเพื่อเริ่มเช็คคิว", stepNeedStart:"เลือกวันที่เริ่มเช่า", stepNeedEnd:"เลือกวันคืนเครื่อง", stepNeedMinDays:"เลือกช่วงเช่าอย่างน้อย 3 วัน", stepQueueChecking:"กำลังตรวจสอบคิว กรุณารอสักครู่", stepQueueUnavailable:"ช่วงวันที่เลือกยังไม่พร้อมให้จอง", stepReadyDates:"เครื่องและช่วงวันที่พร้อม ไปขั้นตอนถัดไปได้", stepNeedGames:"เลือกรายชื่อเกม หรือเลือกแจ้งรายชื่อเกมภายหลัง", stepReadyGames:"ข้อมูลเกมพร้อมแล้ว ไปขั้นตอนถัดไปได้", stepReadyReview:"ตรวจสอบช่องทางชำระเงิน สัญญา และแผนที่ แล้วดูสรุปได้",
       shareConfirmTitle:"ยืนยันส่งข้อความจอง", shareConfirmMessage:"คุณกำลังจะส่งข้อความจองเช่าผ่าน {channel}", shareConfirmNote:"เพื่อป้องกันการส่งซ้ำ ระบบจะกันการกดซ้ำชั่วคราวหลังยืนยันส่ง", shareConfirmContractNote:"ลูกค้าใหม่ควรทำสัญญาการเช่าก่อนส่งข้อความจอง เพื่อให้ข้อมูลไม่หลุดและลดการส่งซ้ำ", shareConfirmMessengerNote:"Messenger ไม่สามารถใส่ข้อความให้อัตโนมัติ กรุณาคัดลอกข้อความ แล้วเปิดแชท AJ เพื่อวางและกดส่ง", shareConfirmSend:"ยืนยันส่งข้อความจอง", shareContractFirst:"ทำสัญญาก่อน", shareCancel:"ยกเลิก", shareCooldown:"กำลังเตรียมหรือเพิ่งเปิดข้อความจอง กรุณารอสักครู่ก่อนกดซ้ำ", sharePreparing:"กำลังเตรียมข้อความจองสำหรับ {channel} กรุณาอย่ากดซ้ำ", shareReady:"ข้อความพร้อมแล้ว กรุณาคัดลอกและเปิด Messenger", shareOpened:"เปิด {channel} แล้ว กรุณากดส่งข้อความในแชท และรอสักครู่ก่อนกดซ้ำ", messengerHandoffTitle:"ส่งข้อความผ่าน Messenger", messengerHandoffHelp:"1. กดคัดลอกข้อความ  2. เปิด Messenger  3. วางข้อความในแชทและกดส่ง", messengerCopy:"คัดลอกข้อความ", messengerOpen:"เปิด Messenger", messengerCopied:"คัดลอกข้อความแล้ว กรุณาเปิด Messenger และวางในแชท",
-      faqTitle:"คำถามที่พบบ่อย", faqExpand:"ดูคำถามทั้งหมด", faqCollapse:"ย่อคำถาม", adminLogin:"เข้าสู่ระบบ Admin", adminUser:"ผู้ใช้", adminPassword:"รหัสผ่าน", adminSubmit:"เข้าสู่ระบบ", wrongPassword:"ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", rentalCode:"รหัสการเช่า", save:"บันทึก", add:"เพิ่ม", edit:"แก้ไข", delete:"ลบ", sync:"Sync", pull:"Pull", push:"Push"
+      faqTitle:"คำถามที่พบบ่อย", faqExpand:"ดูคำถามทั้งหมด", faqCollapse:"ย่อคำถาม", adminLogin:"เข้าสู่ระบบ Admin", adminUser:"ผู้ใช้", adminPassword:"รหัสผ่าน", adminSubmit:"เข้าสู่ระบบ", wrongPassword:"ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", rentalCode:"รหัสการเช่า", temporaryRentalCode:"รหัสรายการชั่วคราว", save:"บันทึก", add:"เพิ่ม", edit:"แก้ไข", delete:"ลบ", sync:"Sync", pull:"Pull", push:"Push"
     },
     en:{
       calcCta:"Check Queue & Calculate",
@@ -1390,7 +1386,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       filterType:"Type", filterBrand:"Brand", filterSort:"Sort", all:"All", type_console:"Console", type_vr:"VR & AR", type_handheld:"PC Handheld", type_racing:"Racing",
       sort_brand:"Group by brand", sort_price_desc:"Price high → low", sort_price_asc:"Price low → high", sort_name:"Name A → Z",
       calcTag:"Calculator", calcTitle:"Check Queue & Calculate Rental", calcSub:"Minimum 3 days | Individual rates",
-      step1:"Device / Dates", step2:"Games", step3:"Payment / Contract / Map", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Choose games", step3Title:"Payment / Contract / Map", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"📖 Read rental steps first", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
+      step1:"Device / Dates", step2:"Booking details", step3:"Review and send", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Choose games", step2DetailsTitle:"Delivery, payment and documents", step3Title:"Summary and send", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"📖 Read rental steps first", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
       nextStep:"Next step", backStep:"Back",
       deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", startDate:"Start date", endDate:"Return date",
       gamePickHelp:"Choose up to 10 games when this model has a catalog, or send the list later.", gamePickerTitle:"Select Games", gameStorageWarning:"⚠️ Limited device storage. Some games may not all fit.", summaryHelp:"Review the details, then book through your preferred channel.",
@@ -1398,7 +1394,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       daily:"Daily", weekly:"Weekly", day:"day", wk:"week", deposit:"Deposit", ready:"Ready", notReady:"Not ready", readyOn:"Ready on",
       contractPrivacy:"Identity documents are used only for verification and the rental agreement. Access and deletion details are shown before upload.",
       bundle:"Bundle", accessories:"Accessories", noBundle:"No bundle", noAccessory:"No extra accessory", contract:"Rental contract", contractHelp:"Recommended for first-time renters. Complete it before delivery.", contractAge:"*The person entering into the rental agreement must be at least 20 years old.*", contractOpenTitle:"Choose how to open the rental agreement", contractOpenMessage:"If you use LINE, opening through LINE is recommended so the agreement can be linked to your account.", contractOpenLine:"Open with LINE", contractOpenWeb:"Continue in browser", contractOpenNote:"Don't use LINE? You can complete the agreement directly in your browser.", contractOpenClose:"Close dialog",
-      masterAgreementTitle:"Review and accept this Rental Order", masterAgreementLegacy:"Returning-customer history verified (the legacy record has no Master Agreement number)", masterAgreementIdentity:"I confirm that my identity and contact details are unchanged and consent to this rental referencing my verified returning-customer record.", masterAgreementOrder:"I have reviewed this rental, read the Rental Terms, and accept this Rental Order.", masterAgreementConfirm:"Accept and continue", masterAgreementAcceptedChooseChannel:"Accepted. Please choose a booking channel below to send the details to AJ.", masterAgreementExpired:"Your Master Agreement has expired. Create a new Master Agreement or choose the no-contract option.", masterAgreementId:"Master Agreement no.", masterAgreementExpiry:"Valid until", rentalOrderId:"Rental Order no.",
+      masterAgreementTitle:"Review and accept this Rental Order", masterAgreementLegacy:"Returning-customer history verified (the legacy record has no Master Agreement number)", masterAgreementIdentity:"I confirm that my identity and contact details are unchanged and consent to this rental referencing my verified returning-customer record.", masterAgreementOrder:"I confirm that my identity and contact details are unchanged, consent to this rental referencing my verified returning-customer record, and have reviewed this rental, read the Rental Terms, and accept this Rental Order.", masterAgreementConfirm:"Accept and continue", masterAgreementAcceptedChooseChannel:"Accepted. Please choose a booking channel below to send the details to AJ.", masterAgreementExpired:"Your Master Agreement has expired. Create a new Master Agreement or choose the no-contract option.", masterAgreementId:"Master Agreement no.", masterAgreementExpiry:"Valid until", rentalOrderId:"Rental Order no.",
       noContract:"Rent without an identity-document agreement", noContractHelp:"You must still read and accept the rental terms. The deposit increases from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the model.", rentalTermsTitle:"Rental Terms", rentalTermsAccept:"I have read, understood, and accepted all rental, late-return, damage, cancellation, and deposit-refund terms.", rentalTermsConfirm:"Accept and continue", rentalTermsCancel:"Cancel", rentalTermsAccepted:"Customer has acknowledged the Rental Terms", rentalTermsRead:"View Rental Terms", wiseLinkTime:"Wise transfer time", wiseLinkPolicy:"Wise policy", wiseLinkCoverage:"Where Wise works",
       returning:"Returning customers only: 10% off rental fee", returningOnly:"Returning customers only", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"💵 Balance on delivery", bank:"🏦 Thai Bank Transfer", wise:"🌍 Wise", credit:"💳 Credit Card: pay full amount + 3.50% fee", ewallet:"👛 E-Wallet: pay full amount + 2.95%",
       wiseAvailabilityNote:"Wise payments are unavailable on weekends and Thai bank holidays because funds arrive on the next business day.", wiseUnavailableWeekend:"Wise is unavailable today (weekend).", wiseUnavailableHoliday:"Wise is unavailable today (Thai bank holiday).", returningVerifyTitle:"Verify returning-customer discount", returningVerifyHelp:"Enter your first name (surname not required) and the last 4 characters of your Passport.", returningVerifyName:"First name (surname not required)", returningVerifyFirstName:"First name (surname not required)", returningVerifyLast4:"Last 4 Passport characters", returningVerifyNoIdentity:"My Passport was not recorded in my rental history", returningVerifyHistoryHelp:"For returning customers whose Passport was not recorded. Please use your first name with your previous Rental ID or Phone number to verify eligibility. Surname is not required.", returningVerifyRentalSuffix:"Last 5 characters of Rental ID", returningVerifyUsePhone:"Use phone number instead", returningVerifyHistoryPhone:"Phone number previously provided to AJ", returningVerifyFindRentalId:"How to find your Rental ID", returningVerifySubmit:"Check eligibility", returningVerifyCancel:"Cancel", returningVerifyChecking:"Checking...", returningVerifySuccess:"Returning-customer eligibility confirmed.", returningVerifyNotFound:"No Confirmed rental matched both the first name and verification detail. Check the details or contact AJ.", returningVerifyError:"Eligibility cannot be checked right now. Please try again later.", returningVerifyInvalid:"Enter your first name (surname not required) and the last 4 Passport characters.", returningVerifyHistoryInvalid:"Enter your first name and the last 5 characters of your Rental ID or a valid phone number.", returningLineVerifiedTitle:"Returning customer found: 10% rental discount applied", returningLineVerifiedDetail:"Verified through your LINE account and selected automatically.",
@@ -1411,12 +1407,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       guideTitle:"Next step", guideConsole:"Choose console", guideStart:"Choose start date", guideEnd:"Choose return date", guideAccessory:"Choose accessories if needed, or skip.", guidePs5Bundle:"Choose a PS5 bundle if needed.", guideNextStep:"Go to the next step.", guideBg:"Add a board game bundle if needed.", guideRet:"Have you rented with us before?", guideContractChoice:"Would you like to complete the rental contract?", guideContractLink:"Open the rental agreement link, or do it later.", guidePayment:"Choose payment option.", guideMaps:"Paste your Google Maps link for delivery check.", guideGames:"Pick games from the catalog, or send later.", guideShare:"Check the rental details above, then book through your preferred channel.", guideCopy:"Copy booking message", guideLine:"Book via LINE", guideWa:"Book via WhatsApp", guideMessenger:"Book via Messenger",
       guideDoContract:"Do contract", guideNoContract:"No contract", guideLater:"Later", guideSkip:"Skip", guideGameLater:"Choose later", guideNext:"Next", guideRetYes:"Yes", guideRetNo:"No",
       pickGames:"Choose / Edit games", sendLater:"Send game list later", clearGames:"Clear games", noGameList:"This model has no game catalog in the system.",
-      summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Grand total", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", fullPaymentConfirm:"Full payment (to confirm booking)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat", paymentFee:"Payment fee", cardDeposit:"Card / E-Wallet / Thai QR reservation (no fee)", paymentLink:"Payment link", finalActionHelp:"Review the details, then book via the same chat channel to send them to AJ.",
+      summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Total before delivery", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", fullPaymentConfirm:"Full payment (to confirm booking)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat", paymentFee:"Payment fee", cardDeposit:"Card / E-Wallet / Thai QR reservation (no fee)", paymentLink:"Payment link", finalActionHelp:"Review the details, then book via the same chat channel to send them to AJ.",
       returningDiscount:"Returning customer 10% discount", consoleDiscount:"Console discount", boardGameDiscount:"Board game discount", boardGameDeposit:"Board game deposit", rentalDays:"Rental days", boardGameRental:"Board game rental", boardGameList:"Board game list",
       equipmentDetails:"Equipment details", players:"Players", playTime:"Play time", age:"Recommended age", packageRental:"Package rental", oneDay:"1 day", threeDays:"3 days", sevenDays:"7 days", howToPlay:"Quick how to play", noContractDepositNote:"Deposit (no contract)", noContractLabel:"No contract", standardTier:"Standard tier", planning:"Planning",
       copy:"📋 Copy booking message", line:"Book via LINE", whatsapp:"Book via WhatsApp", messenger:"Book via Messenger", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", queueError:"Unable to check the queue. Please try again.", retryQueue:"Retry queue check", queueRetryCell:"Retry check", queueClosed:"Queue closed during this period", bookingHold:"1 customer is completing this booking. Check again in {minutes} minutes.", bookingHoldCell:"In progress · retry in {minutes} min", bookingHoldLost:"Another customer is booking this console. Check again in {minutes} minutes.", stepNeedConsole:"Choose a console to start the queue check.", stepNeedStart:"Choose the rental start date.", stepNeedEnd:"Choose the return date.", stepNeedMinDays:"Choose a rental period of at least 3 days.", stepQueueChecking:"Checking the queue. Please wait a moment.", stepQueueUnavailable:"The selected dates are not ready to book.", stepReadyDates:"Console and dates are ready. You can continue.", stepNeedGames:"Choose games or select Send game list later.", stepReadyGames:"Game selection is ready. You can continue.", stepReadyReview:"Review payment, contract and map options, then continue to the summary.",
       shareConfirmTitle:"Confirm booking message", shareConfirmMessage:"You are about to send this booking message via {channel}.", shareConfirmNote:"To prevent duplicate messages, the buttons will be briefly locked after confirmation.", shareConfirmContractNote:"First-time customers should complete the rental contract before sending the booking message, so the details do not get missed or duplicated.", shareConfirmMessengerNote:"Messenger cannot prefill this message. Please copy it, open AJ's chat, paste it, and tap Send.", shareConfirmSend:"Confirm and send", shareContractFirst:"Do contract first", shareCancel:"Cancel", shareCooldown:"Your booking message is being prepared or was just opened. Please wait before trying again.", sharePreparing:"Preparing your booking message for {channel}. Please do not tap again.", shareReady:"Your message is ready. Copy it and open Messenger.", shareOpened:"{channel} opened. Please send the message in the chat and wait before trying again.", messengerHandoffTitle:"Send via Messenger", messengerHandoffHelp:"1. Copy the message  2. Open Messenger  3. Paste it into the chat and tap Send", messengerCopy:"Copy message", messengerOpen:"Open Messenger", messengerCopied:"Message copied. Open Messenger and paste it into the chat.",
-      faqTitle:"Frequently Asked Questions", faqExpand:"Show all questions", faqCollapse:"Collapse questions", adminLogin:"Admin Login", adminUser:"User", adminPassword:"Password", adminSubmit:"Login", wrongPassword:"Wrong username or password", rentalCode:"Rental code", save:"Save", add:"Add", edit:"Edit", delete:"Delete", sync:"Sync", pull:"Pull", push:"Push"
+      faqTitle:"Frequently Asked Questions", faqExpand:"Show all questions", faqCollapse:"Collapse questions", adminLogin:"Admin Login", adminUser:"User", adminPassword:"Password", adminSubmit:"Login", wrongPassword:"Wrong username or password", rentalCode:"Rental code", temporaryRentalCode:"Temporary order ID", save:"Save", add:"Add", edit:"Edit", delete:"Delete", sync:"Sync", pull:"Pull", push:"Push"
     }
   };
 
@@ -1546,7 +1542,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     promos: {bg:{enabled:false,mode:"percent",value:0}, console:{enabled:false,mode:"percent",value:0}},
     retEnabled: false,
     filter: {type:"all", brand:"all", sort:"brand"},
-    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,retVerified:false,retVerificationMethod:"",retVerifiedLineUserId:"",masterAgreement:null,masterAgreementAccepted:false,masterAgreementAcceptedAt:"",reviewGoogle:false,reviewFacebook:false,noContract:false,rentalTermsAccepted:false,rentalTermsAcceptedAt:"",rentalTermsVersion:"",rentalTermsLanguage:"",payment:"cash",maps:"",games:[],later:false,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",beamPaymentExpiresAt:"",contractSignature:"",guideDone:{},guideConsoleId:""},
+    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,retVerified:false,retVerificationMethod:"",retVerifiedLineUserId:"",masterAgreement:null,masterAgreementAccepted:false,masterAgreementAcceptedAt:"",reviewGoogle:false,reviewFacebook:false,noContract:false,rentalTermsAccepted:false,rentalTermsAcceptedAt:"",rentalTermsVersion:"",rentalTermsLanguage:"",payment:"cash",maps:"",games:[],later:true,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",beamPaymentExpiresAt:"",contractSignature:"",guideDone:{},guideConsoleId:""},
     availability: {rows:[],holds:[],loading:false,error:"",lastSync:0,stale:false,gate:{mode:"idle",pass:true}},
     queueClosures: {allClosed:false,types:{console:false,vr:false,handheld:false,racing:false},devices:{},rules:{all:{closed:false,startAt:"",endAt:""},types:{},devices:{}},loading:false,error:"",updatedAt:""},
     calendar: {open:false,mode:"start",base:new Date(),draftStart:"",draftEnd:""},
@@ -1563,6 +1559,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   };
   const GUIDE_ORDER = ["console","start","end","ps5bundle","accessory","next1","games","next2","bg","maps","ret","contractChoice","contractLink","payment","next3","share"];
   const GUIDE_KEY = "aj_index2_guide_stage";
+  const AUTO_GUIDE_ENABLED = false;
   const RENTAL_SHEET_COLUMNS = [
     "รหัสการเช่า",
     "วันที่บันทึก",
@@ -2574,20 +2571,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
 
   function renderCalc(){
-    const selectedConsole = consoleById(state.calc.consoleId);
-    const skipGameStep = !!selectedConsole && !consoleHasGameCatalog(selectedConsole);
-    if(skipGameStep){
-      state.calc.games = [];
-      state.calc.later = false;
-      if(state.calc.step === 2) state.calc.step = 3;
-    }
+    state.calc.step = Math.min(3, Math.max(1, Number(state.calc.step) || 1));
     document.body.dataset.calcStep = String(state.calc.step);
-    const steps = [tr("step1"),tr("step2"),tr("step3"),tr("step4")];
+    const steps = [tr("step1"),tr("step2"),tr("step3")];
     byId("calcTabs").innerHTML = steps.map((label,i) => {
       const n = i+1;
-      const disabledStep = n === 2 && skipGameStep;
-      const locked = disabledStep || (n > 1 && !stepReady(n - 1));
-      return `<button class="step-tab ${state.calc.step===n?"active":""} ${stepReady(n)?"done":""} ${locked?"locked":""}" data-step="${n}" ${state.calc.step===n?'aria-current="step"':""} ${locked?'aria-disabled="true"':""} ${disabledStep?'data-step-disabled="1" disabled':""} type="button"><span class="num">${n}</span><b>${esc(label)}</b></button>`;
+      const locked = n > 1 && !stepReady(n - 1);
+      return `<button class="step-tab ${state.calc.step===n?"active":""} ${stepReady(n)?"done":""} ${locked?"locked":""}" data-step="${n}" ${state.calc.step===n?'aria-current="step"':""} ${locked?'aria-disabled="true"':""} type="button"><span class="num">${n}</span><b>${esc(label)}</b></button>`;
     }).join("");
     $$(".pane").forEach((pane,i) => pane.classList.toggle("active", i+1 === state.calc.step));
     renderCalcFields();
@@ -2600,10 +2590,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     renderGuide();
   }
   function goCalcStep(step){
-    const c = consoleById(state.calc.consoleId);
-    const skipGameStep = !!c && !consoleHasGameCatalog(c);
-    let next = Math.min(4, Math.max(1, Number(step) || 1));
-    if(skipGameStep && next === 2) next = state.calc.step >= 3 ? 1 : 3;
+    const next = Math.min(3, Math.max(1, Number(step) || 1));
     if(next > 1 && !stepReady(next - 1)){
       const requiredStep = !stepReady(1) ? 1 : !stepReady(2) ? 2 : 3;
       state.calc.step = requiredStep;
@@ -2620,6 +2607,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     window.requestAnimationFrame(focusCurrentGuideTarget);
   }
   function focusCurrentGuideTarget(){
+    if(!AUTO_GUIDE_ENABLED) return;
     const target = guideTarget();
     if(!target.el) return;
     guideLastScrollStage = target.stage;
@@ -2628,15 +2616,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function renderStepActions(){
     const buttons = step => {
-      const c = consoleById(state.calc.consoleId);
-      const skipGameStep = !!c && !consoleHasGameCatalog(c);
-      const backStep = skipGameStep && step === 3 ? 1 : step - 1;
-      const nextStep = skipGameStep && step === 1 ? 3 : step + 1;
-      const back = step > 1 ? `<button class="btn" type="button" data-step-go="${backStep}">${tr("backStep")}</button>` : `<span></span>`;
-      const next = step < 4 ? `<button class="btn primary" type="button" data-step-go="${nextStep}" ${stepReady(step) ? "" : "disabled"}>${tr("nextStep")}</button>` : "";
+      const back = step > 1 ? `<button class="btn" type="button" data-step-go="${step - 1}">${tr("backStep")}</button>` : `<span></span>`;
+      const next = step < 3 ? `<button class="btn primary" type="button" data-step-go="${step + 1}" ${stepReady(step) ? "" : "disabled"}>${tr("nextStep")}</button>` : "";
       return `${renderStepReadiness(step)}${back}${next}`;
     };
-    [1,2,3,4].forEach(step => {
+    [1,2,3].forEach(step => {
       const host = byId(`stepActions${step}`);
       if(host) host.innerHTML = buttons(step);
     });
@@ -2653,9 +2637,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(state.availability.gate.pass === false) return {tone:"error", text:state.availability.gate.message || tr("stepQueueUnavailable")};
       return {tone:"ready", text:tr("stepReadyDates")};
     }
-    if(step === 2) return gameSelectionReady()
-      ? {tone:"ready", text:tr("stepReadyGames")}
-      : {tone:"info", text:tr("stepNeedGames")};
+    if(step === 2) return {tone:"ready", text:tr("stepReadyReview")};
     return {tone:"ready", text:tr("stepReadyReview")};
   }
   function renderStepReadiness(step){
@@ -2678,7 +2660,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     state.calc.bundleId = "";
     state.calc.extras = [];
     state.calc.games = [];
-    state.calc.later = false;
+    state.calc.later = true;
     resetStepOneGuide();
     setGuideStage("start", {syncStep:false});
     fetchAvailability();
@@ -2760,7 +2742,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ? `<b>${tr("masterAgreementLegacy")}</b>`
       : `<b>${tr("masterAgreementId")}: ${esc(agreement.id)}</b><br>${tr("masterAgreementExpiry")}: ${esc(formatAgreementDate(agreement.validUntil))}${agreement.pdfUrl ? `<br><a href="${esc(agreement.pdfUrl)}" target="_blank" rel="noopener">${tr("rentalTermsRead")} · PDF</a>` : ""}`;
     byId("masterAgreementSummary").innerHTML = `${agreementSummary}<br>${tr("rentalOrderId")}: ${esc(code)}`;
-    byId("masterAgreementIdentityLabel").textContent = tr("masterAgreementIdentity");
     byId("masterAgreementOrderLabel").textContent = tr("masterAgreementOrder");
     byId("masterAgreementCancel").textContent = tr("rentalTermsCancel");
     byId("masterAgreementConfirm").textContent = tr("masterAgreementConfirm");
@@ -2775,13 +2756,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const code = await ensureRentalCode();
     byId("masterAgreementModal").dataset.rentalCode = code;
     renderMasterAgreementModal(code);
-    byId("masterAgreementIdentityAccept").checked = false;
     byId("masterAgreementOrderAccept").checked = false;
     byId("masterAgreementConfirm").disabled = true;
     byId("masterAgreementModal").classList.add("open");
   }
   async function acceptMasterAgreementOrder(){
-    if(!byId("masterAgreementIdentityAccept")?.checked || !byId("masterAgreementOrderAccept")?.checked) return;
+    if(!byId("masterAgreementOrderAccept")?.checked) return;
     state.calc.masterAgreementAccepted = true;
     state.calc.masterAgreementAcceptedAt = new Date().toISOString();
     state.calc.rentalTermsAccepted = true;
@@ -2936,7 +2916,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const agreementHtml = state.calc.ret && state.calc.masterAgreement ? `<div class="privacy-reassurance"><b>${state.calc.masterAgreement.status === "legacy_verified" ? tr("masterAgreementLegacy") : `${tr("masterAgreementId")}: ${esc(state.calc.masterAgreement.id || "-")}`}</b>${state.calc.masterAgreement.status === "valid" ? `<br>${tr("masterAgreementExpiry")}: ${esc(formatAgreementDate(state.calc.masterAgreement.validUntil))}` : ""}${hasActiveMasterAgreement() ? ` · ✓ ${tr("rentalTermsAccepted")}` : ""}</div>` : "";
     const agreementActionHtml = state.calc.ret && state.calc.retVerified && hasVerifiedAgreementRecord() ? `<div class="returning-agreement-action">${agreementHtml}${hasActiveMasterAgreement() ? "" : `<button class="btn primary" id="reviewRentalOrderBtn" type="button">${tr("masterAgreementTitle")}</button>`}</div>` : "";
     const contractHtml = state.calc.ret && state.calc.retVerified && hasVerifiedAgreementRecord() ? "" : `<div class="card" id="contractCard" style="margin:12px 0 0">
-      ${state.calc.noContract ? "" : `<h3>${tr("contract")}${selectedConsole ? depositBadge(selectedConsole.deposit, "ok") : ""}</h3><p class="hint">${tr("contractHelp")}</p><p class="privacy-reassurance">🔒 ${tr("contractPrivacy")}</p><p class="hint" style="color:#c00000;font-weight:800">${tr("contractAge")}</p><button class="btn soft" id="contractBtn" type="button">${tr("contract")}</button><p class="hint" id="contractCodeHint">${state.calc.rentalCode ? `${tr("rentalCode")}: ${esc(state.calc.rentalCode)}` : ""}</p>`}
+      ${state.calc.noContract ? "" : `<h3>${tr("contract")}${selectedConsole ? depositBadge(selectedConsole.deposit, "ok") : ""}</h3><p class="hint">${tr("contractHelp")}</p><p class="privacy-reassurance">🔒 ${tr("contractPrivacy")}</p><p class="hint" style="color:#c00000;font-weight:800">${tr("contractAge")}</p><button class="btn soft" id="contractBtn" type="button">${tr("contract")}</button><p class="hint" id="contractCodeHint">${state.calc.rentalCode ? `${tr("temporaryRentalCode")}: ${esc(state.calc.rentalCode)}` : ""}</p>`}
       <label class="option-row" style="margin-top:${state.calc.noContract ? 0 : 12}px"><input type="checkbox" id="noContractOpt" ${state.calc.noContract?"checked":""}><div><b>${tr("noContract")}${state.calc.noContract && selectedConsole ? depositBadge(noContractDeposit(selectedConsole.deposit), "danger") : ""}</b><div class="hint">${tr("noContractHelp")}</div>${state.calc.noContract ? `<div class="hint" style="color:#18743a;font-weight:800">✓ ${tr("rentalTermsAccepted")} · <a href="${esc(rentalTermsUrl(state.lang))}" target="_blank" rel="noopener">${tr("rentalTermsRead")}</a></div>` : ""}</div></label>
     </div>`;
     byId("optionRows").innerHTML = `
@@ -2980,6 +2960,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       return;
     }
     const list = state.calc.games || [];
+    if(!list.length) state.calc.later = true;
     byId("gamePickBox").innerHTML = `
       <button class="btn primary" id="openGamePicker" type="button">${tr("pickGames")}</button>
       <label class="option-row" style="margin-top:12px"><input type="checkbox" id="laterOpt" ${state.calc.later?"checked":""}><div><b>${tr("sendLater")}</b></div></label>
@@ -3001,7 +2982,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }
     if(step === 2) return stepReady(1) && gameSelectionReady();
     if(step === 3) return stepReady(2);
-    if(step === 4) return stepReady(3);
     return false;
   }
   function numberedSummaryList(items){
@@ -3291,7 +3271,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const summary = calcSummary();
     const hasGameCatalog = consoleHasGameCatalog(c);
     const shareLocked = activeShareStatus()?.locked === true;
-    const canSend = !shareLocked && (shareReturnUnlocked() || Boolean(state.calc.start && state.calc.end && summary.days >= 3 && evaluateAvailability().pass));
+    const canSend = !shareLocked && stepReady(2) && (shareReturnUnlocked() || Boolean(state.calc.start && state.calc.end && summary.days >= 3 && evaluateAvailability().pass));
     const depositValue = amount => state.calc.noContract
       ? `${money(amount)} <span class="no-contract-note">(${esc(tr("noContractLabel"))})</span>`
       : money(amount);
@@ -3303,7 +3283,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ...(summary.bgItems || []).map(item => `${tr("boardGames")}: ${bgName(item)}`)
     ];
     const rows = [
-      ...(state.calc.rentalCode ? [{label:tr("rentalCode"), value:state.calc.rentalCode}] : []),
+      ...(state.calc.rentalCode ? [{label:tr("temporaryRentalCode"), value:state.calc.rentalCode}] : []),
       {label:tr("device"), value:summaryDeviceHtml(c), html:true},
       {label:tr("equipmentDetails"), value:plainSummaryList(equipmentDetails), html:true},
       {label:tr("startDate"), value:displayDate(state.calc.start)},
@@ -3347,8 +3327,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function renderLineCard(){
     const uid = localStorage.getItem("aj_line_unique_id") || "";
-    const name = localStorage.getItem("aj_line_display_name") || (state.lang==="en" ? "LINE not connected" : "ยังไม่ได้เชื่อมต่อ LINE");
-    return `<div class="line-card"><div class="line-kicker">LINE / WHATSAPP</div><div class="line-name">${esc(name)}</div><div class="line-actions"><button class="btn dark" id="lineHistoryBtn" type="button">${state.lang==="en" ? "Rental history" : "ประวัติการเช่า"}</button><button class="btn line-connect" id="lineConnectBtn" type="button">${uid ? (state.lang==="en" ? "Refresh LINE" : "รีเฟรช LINE") : (state.lang==="en" ? "Connect LINE" : "เชื่อมต่อ LINE")}</button></div></div>`;
+    if(!uid) return "";
+    const name = localStorage.getItem("aj_line_display_name") || "LINE";
+    return `<div class="line-card"><div class="line-kicker">LINE</div><div class="line-name">${esc(name)}</div><div class="line-actions"><button class="btn dark" id="lineHistoryBtn" type="button">${state.lang==="en" ? "Rental history" : "ประวัติการเช่า"}</button></div></div>`;
   }
   function summaryDeviceHtml(c){
     const img = getConsoleImage(c);
@@ -4832,7 +4813,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       saveLocal();
       render();
       const hint = byId("contractCodeHint");
-      if(hint) hint.textContent = `${tr("rentalCode")}: ${code}`;
+      if(hint) hint.textContent = `${tr("temporaryRentalCode")}: ${code}`;
       // Persist the booking (incl. message) when the customer opens the contract,
       // so the shop can retrieve it later even if the customer never copies/sends.
       submitRentalToSheet(summary, code, "contract", handoff.message, handoff.data);
@@ -5668,6 +5649,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const box = byId("guideBox");
     const hi = byId("guideHighlight");
     if(!pointer || !box || !hi) return;
+    if(!AUTO_GUIDE_ENABLED){ hideGuideVisuals(); return; }
     if(state.beforeRentActive){
       hideGuideVisuals();
       return;
@@ -6447,8 +6429,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         byId("rentalTermsConfirm").disabled = !event.target.checked;
         return;
       }
-      if(event.target.id === "masterAgreementIdentityAccept" || event.target.id === "masterAgreementOrderAccept"){
-        byId("masterAgreementConfirm").disabled = !(byId("masterAgreementIdentityAccept")?.checked && byId("masterAgreementOrderAccept")?.checked);
+      if(event.target.id === "masterAgreementOrderAccept"){
+        byId("masterAgreementConfirm").disabled = !event.target.checked;
         return;
       }
       if(event.target.id === "returningVerifyNoIdentity"){
@@ -6466,7 +6448,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
           state.calc.bundleId = "";
           state.calc.extras = [];
           state.calc.games = [];
-          state.calc.later = false;
+          state.calc.later = true;
         }
         saveLocal();
         render();
@@ -6598,7 +6580,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         }
       }
       if(targetId === "openGamePicker") openGamePicker();
-      if(targetId === "clearGames"){ state.calc.games = []; state.calc.later = false; saveLocal(); render(); }
+      if(targetId === "clearGames"){ state.calc.games = []; state.calc.later = true; saveLocal(); render(); }
       if(targetId === "sendLine"){ if(await sendLine()){ renderSummary(); renderGuide(); } }
       if(targetId === "sendWa"){ if(await sendWhatsApp()){ renderSummary(); renderGuide(); } }
       if(targetId === "sendMessenger"){ if(await sendMessenger()){ renderSummary(); renderGuide(); } }
@@ -6744,7 +6726,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     state.calc.bundleId = "";
     state.calc.extras = [];
     state.calc.games = [];
-    state.calc.later = false;
+    state.calc.later = true;
     resetStepOneGuide();
     setGuideStage("start", {syncStep:false});
     saveLocal();

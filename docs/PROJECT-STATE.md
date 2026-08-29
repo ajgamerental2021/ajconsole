@@ -1,11 +1,21 @@
 # Project state
 
+## 2026-08-29 — Booking journey reduced to three steps
+
+- Removed the automatic Finger Guide overlays. The customer-controlled rental-steps guide remains available from its button.
+- Combined game selection with delivery, payment, contract, map, and returning-customer options in one Booking Details step. A game-catalog rental now defaults to “send game list later”; selecting games remains optional.
+- Reduced the calculator from four steps to three: Device/Dates, Booking Details, and Review/Send. Existing saved drafts are clamped safely into the new flow.
+- The general Connect/Refresh LINE button is hidden; LINE connection is requested only by flows that actually need it. Existing connected customers still see Rental History.
+- Returning customers accept identity/contact reuse and the current Rental Order/Rental Terms with one combined checkbox.
+- Before submission, the generated identifier is labelled “รหัสรายการชั่วคราว” / “Temporary order ID”. The rental summary and booking Flex now say “ยอดรวมก่อนค่าจัดส่ง” / “Total before delivery”.
+- Verified JavaScript syntax and the three-step/default-game behavior in a real local browser. No browser console errors were reported. All 189 Bot tests pass.
+
 ## 2026-08-29 — Master Agreement + Rental Order rollout
 
 - The existing signed identity contract is now described as a **Master Agreement**. It records verified identity, signature, and general Rental Terms acceptance for one year; it no longer claims that the whole old contract is reused for every future rental.
 - Returning-customer discount and agreement eligibility are separate. Discount history alone never authorizes reusing a signature.
 - The booking page stores the verified Master Agreement metadata only after the Bot API has verified either a LINE User ID or the existing manual returning-customer challenge. A customer without LINE cannot retrieve agreement metadata before that challenge succeeds.
-- A valid agreement opens a bilingual confirmation modal showing agreement number/expiry and the current Rental Order number. Both identity/contact confirmation and current-order/Rental-Terms acceptance are required.
+- A valid agreement opens a bilingual confirmation modal showing agreement number/expiry and the current Rental Order number. One combined checkbox confirms unchanged identity/contact details and current-order/Rental-Terms acceptance.
 - The structured booking message carries agreement/order metadata. The Bot creates a separate Rental Order PDF and the LINE booking Flex can show buttons for the Master Agreement, current Rental Order, and Rental Terms.
 - An expired or missing agreement does not skip the contract flow; the returning-customer price discount may still apply independently.
 
