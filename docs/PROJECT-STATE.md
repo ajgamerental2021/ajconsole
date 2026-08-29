@@ -1,5 +1,19 @@
 # Project state
 
+## 2026-08-29 — Contract-completion LINE Flex handoff
+
+- Only the contract form's `จองผ่าน LINE` / `Book via LINE` completion action
+  now enters the verified booking LIFF and links the signed-in LINE Unique ID to
+  the same Rental ID. Messenger, WhatsApp, and the PDF action are unchanged.
+- The Bot sends the booking Flex first with the rental-contract action removed,
+  because the customer has already completed the agreement. It then sends the
+  existing contract-ready Flex with the PDF and payment instructions directly
+  below it.
+- Thai and English use the booking language throughout. The completion handoff
+  has bilingual progress, success, and failure messages, and duplicate taps are
+  idempotent for the same LINE user and booking context.
+- Bot syntax and whitespace checks pass, and all 181 automated tests pass.
+
 ## 2026-08-29 — Chat booking no longer double-checks the same hold
 
 - LINE, Messenger, and WhatsApp now acquire one server-side booking hold only,
