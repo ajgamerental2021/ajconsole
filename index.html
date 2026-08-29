@@ -987,6 +987,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     </div>
   </div>
 </div>
+<div class="modal-overlay" id="masterAgreementModal" role="dialog" aria-modal="true" aria-labelledby="masterAgreementModalTitle">
+  <div class="modal-card rental-terms-card">
+    <div class="modal-head"><h3 id="masterAgreementModalTitle"></h3><button class="xbtn" id="masterAgreementClose" type="button">&times;</button></div>
+    <div id="masterAgreementSummary" class="privacy-reassurance"></div>
+    <iframe id="masterAgreementTermsFrame" class="rental-terms-frame" title="Rental Terms"></iframe>
+    <label class="rental-terms-accept"><input type="checkbox" id="masterAgreementIdentityAccept"><span id="masterAgreementIdentityLabel"></span></label>
+    <label class="rental-terms-accept"><input type="checkbox" id="masterAgreementOrderAccept"><span id="masterAgreementOrderLabel"></span></label>
+    <div class="returning-verify-actions"><button class="btn" id="masterAgreementCancel" type="button"></button><button class="btn primary" id="masterAgreementConfirm" type="button" disabled></button></div>
+  </div>
+</div>
 
 <div class="modal-overlay" id="returningVerifyModal">
   <div class="modal-card" style="width:min(480px,100%)">
@@ -1282,6 +1292,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       daily:"รายวัน", weekly:"รายสัปดาห์", day:"วัน", wk:"สัปดาห์", deposit:"ค่าประกัน", ready:"พร้อม", notReady:"ยังไม่พร้อม", readyOn:"พร้อมวันที่",
       contractPrivacy:"เอกสารใช้เพื่อยืนยันตัวตนและจัดทำสัญญาเท่านั้น รายละเอียดการเข้าถึงและกำหนดลบเอกสารจะแสดงก่อนอัปโหลด",
       bundle:"Bundle", accessories:"อุปกรณ์เสริม", noBundle:"ไม่เพิ่ม Bundle", noAccessory:"ไม่เพิ่มอุปกรณ์เสริม", contract:"ทำสัญญาการเช่า", contractHelp:"แนะนำสำหรับผู้เช่าครั้งแรก กรอกก่อนนัดส่งเครื่อง", contractAge:"*ผู้ทำสัญญาการเช่าต้องมีอายุ 20 ปีขึ้นไปเท่านั้น*", contractOpenTitle:"เลือกวิธีเปิดหน้าสัญญา", contractOpenMessage:"หากคุณใช้ LINE แนะนำให้เปิดผ่าน LINE เพื่อเชื่อมสัญญากับบัญชีของคุณ", contractOpenLine:"เปิดผ่าน LINE", contractOpenWeb:"ทำสัญญาผ่านเว็บ", contractOpenNote:"ไม่มี LINE? สามารถทำสัญญาผ่านเว็บได้ตามปกติ", contractOpenClose:"ปิดหน้าต่าง",
+      masterAgreementTitle:"ยืนยันข้อตกลงหลักและรายการเช่าครั้งนี้", masterAgreementIdentity:"ข้าพเจ้ายืนยันว่าข้อมูลระบุตัวตนและข้อมูลติดต่อไม่เปลี่ยนแปลง และยินยอมให้อ้างอิงข้อตกลงหลักที่ยังมีผล", masterAgreementOrder:"ข้าพเจ้าได้ตรวจสอบรายละเอียดการเช่าครั้งนี้ อ่าน และยอมรับ Rental Terms แล้ว", masterAgreementConfirm:"ยอมรับและทำรายการต่อ", masterAgreementExpired:"ข้อตกลงหลักหมดอายุแล้ว ต้องจัดทำข้อตกลงหลักใหม่ หรือเลือกเช่าโดยไม่ทำสัญญา", masterAgreementId:"เลขที่ข้อตกลงหลัก", masterAgreementExpiry:"ใช้ได้ถึง", rentalOrderId:"เลขที่รายการเช่า",
       noContract:"เช่าโดยไม่จัดทำสัญญาพร้อมเอกสารยืนยันตัวตน", noContractHelp:"ยังต้องอ่านและยอมรับเงื่อนไขการเช่า โดยค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น", rentalTermsTitle:"เงื่อนไขการเช่า", rentalTermsAccept:"ข้าพเจ้าได้อ่าน เข้าใจ และยอมรับเงื่อนไขการเช่า การคืนล่าช้า ความเสียหาย การยกเลิก และการคืนเงินประกันทั้งหมดแล้ว", rentalTermsConfirm:"ยืนยันและทำรายการต่อ", rentalTermsCancel:"ยกเลิก", rentalTermsAccepted:"ลูกค้ารับทราบเงื่อนไขการเช่าแล้ว", rentalTermsRead:"อ่านเงื่อนไขการเช่า",
       returning:"ลูกค้าเก่า (เท่านั้น) รับส่วนลด 10% ค่าเช่า", returningOnly:"ลูกค้าเก่าเท่านั้น", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง", bank:"🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%",
       wiseAvailabilityNote:"ไม่สามารถชำระผ่าน Wise ในวันเสาร์-อาทิตย์หรือวันหยุดธนาคารไทยได้ เนื่องจากเงินจะเข้าในวันทำการถัดไป", wiseUnavailableWeekend:"วันนี้ไม่สามารถเลือก Wise ได้ (วันเสาร์-อาทิตย์)", wiseUnavailableHoliday:"วันนี้ไม่สามารถเลือก Wise ได้ (วันหยุดธนาคารไทย)", returningVerifyTitle:"ยืนยันสิทธิ์ส่วนลดลูกค้าเก่า", returningVerifyHelp:"กรอกเบอร์โทรที่เคยใช้เช่า และเลขบัตรประชาชน 4 ตัวท้าย", returningVerifyPhone:"เบอร์โทรศัพท์", returningVerifyFirstName:"ชื่อจริง (ไม่ต้องใส่นามสกุล)", returningVerifyLast4:"เลขบัตรประชาชน 4 ตัวท้าย", returningVerifyNoIdentity:"ไม่มีเลขบัตรประชาชนในประวัติการเช่า", returningVerifyHistoryHelp:"ใช้สำหรับลูกค้าเก่าที่ไม่มีเลขบัตรประชาชนในประวัติ กรุณาใช้ชื่อจริงร่วมกับรหัสการเช่าครั้งก่อนหรือเบอร์โทรศัพท์เพื่อยืนยัน ไม่ต้องใส่นามสกุล", returningVerifyRentalSuffix:"Rental ID 5 ตัวท้าย", returningVerifyUsePhone:"ใช้เบอร์โทรแทน", returningVerifyHistoryPhone:"เบอร์โทรศัพท์ที่เคยส่งให้ทางร้าน", returningVerifyFindRentalId:"วิธีการหา Rental ID", returningVerifySubmit:"ตรวจสอบสิทธิ์", returningVerifyCancel:"ยกเลิก", returningVerifyChecking:"กำลังตรวจสอบ...", returningVerifySuccess:"ยืนยันสิทธิ์ลูกค้าเก่าเรียบร้อย", returningVerifyNotFound:"ไม่พบประวัติ Confirmed ที่ชื่อจริงและข้อมูลยืนยันตรงกัน กรุณาตรวจสอบข้อมูลหรือติดต่อ AJ", returningVerifyError:"ตรวจสอบสิทธิ์ไม่ได้ในขณะนี้ กรุณาลองใหม่ภายหลัง", returningVerifyInvalid:"กรุณากรอกเบอร์โทร 10 หลัก และเลขบัตร 4 ตัวท้าย", returningVerifyHistoryInvalid:"กรุณากรอกชื่อจริง และ Rental ID 5 ตัวท้ายหรือเบอร์โทรศัพท์ที่ถูกต้อง", returningLineVerifiedTitle:"ตรวจพบประวัติลูกค้าเก่า ใช้ส่วนลดค่าเช่า 10% แล้ว", returningLineVerifiedDetail:"ยืนยันสิทธิ์ผ่านบัญชี LINE และเลือกส่วนลดให้อัตโนมัติแล้ว",
@@ -1374,6 +1385,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       daily:"Daily", weekly:"Weekly", day:"day", wk:"week", deposit:"Deposit", ready:"Ready", notReady:"Not ready", readyOn:"Ready on",
       contractPrivacy:"Identity documents are used only for verification and the rental agreement. Access and deletion details are shown before upload.",
       bundle:"Bundle", accessories:"Accessories", noBundle:"No bundle", noAccessory:"No extra accessory", contract:"Rental contract", contractHelp:"Recommended for first-time renters. Complete it before delivery.", contractAge:"*The person entering into the rental agreement must be at least 20 years old.*", contractOpenTitle:"Choose how to open the rental agreement", contractOpenMessage:"If you use LINE, opening through LINE is recommended so the agreement can be linked to your account.", contractOpenLine:"Open with LINE", contractOpenWeb:"Continue in browser", contractOpenNote:"Don't use LINE? You can complete the agreement directly in your browser.", contractOpenClose:"Close dialog",
+      masterAgreementTitle:"Confirm the Master Agreement and this Rental Order", masterAgreementIdentity:"I confirm that my identity and contact details are unchanged and consent to this rental referencing my active Master Agreement.", masterAgreementOrder:"I have reviewed this rental, read the Rental Terms, and accept this Rental Order.", masterAgreementConfirm:"Accept and continue", masterAgreementExpired:"Your Master Agreement has expired. Create a new Master Agreement or choose the no-contract option.", masterAgreementId:"Master Agreement no.", masterAgreementExpiry:"Valid until", rentalOrderId:"Rental Order no.",
       noContract:"Rent without an identity-document agreement", noContractHelp:"You must still read and accept the rental terms. The deposit increases from ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 depending on the model.", rentalTermsTitle:"Rental Terms", rentalTermsAccept:"I have read, understood, and accepted all rental, late-return, damage, cancellation, and deposit-refund terms.", rentalTermsConfirm:"Accept and continue", rentalTermsCancel:"Cancel", rentalTermsAccepted:"Customer has acknowledged the Rental Terms", rentalTermsRead:"View Rental Terms", wiseLinkTime:"Wise transfer time", wiseLinkPolicy:"Wise policy", wiseLinkCoverage:"Where Wise works",
       returning:"Returning customers only: 10% off rental fee", returningOnly:"Returning customers only", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"💵 Balance on delivery", bank:"🏦 Thai Bank Transfer", wise:"🌍 Wise", credit:"💳 Credit Card: pay full amount + 3.50% fee", ewallet:"👛 E-Wallet: pay full amount + 2.95%",
       wiseAvailabilityNote:"Wise payments are unavailable on weekends and Thai bank holidays because funds arrive on the next business day.", wiseUnavailableWeekend:"Wise is unavailable today (weekend).", wiseUnavailableHoliday:"Wise is unavailable today (Thai bank holiday).", returningVerifyTitle:"Verify returning-customer discount", returningVerifyHelp:"Enter your first name (surname not required) and the last 4 characters of your Passport.", returningVerifyName:"First name (surname not required)", returningVerifyFirstName:"First name (surname not required)", returningVerifyLast4:"Last 4 Passport characters", returningVerifyNoIdentity:"My Passport was not recorded in my rental history", returningVerifyHistoryHelp:"For returning customers whose Passport was not recorded. Please use your first name with your previous Rental ID or Phone number to verify eligibility. Surname is not required.", returningVerifyRentalSuffix:"Last 5 characters of Rental ID", returningVerifyUsePhone:"Use phone number instead", returningVerifyHistoryPhone:"Phone number previously provided to AJ", returningVerifyFindRentalId:"How to find your Rental ID", returningVerifySubmit:"Check eligibility", returningVerifyCancel:"Cancel", returningVerifyChecking:"Checking...", returningVerifySuccess:"Returning-customer eligibility confirmed.", returningVerifyNotFound:"No Confirmed rental matched both the first name and verification detail. Check the details or contact AJ.", returningVerifyError:"Eligibility cannot be checked right now. Please try again later.", returningVerifyInvalid:"Enter your first name (surname not required) and the last 4 Passport characters.", returningVerifyHistoryInvalid:"Enter your first name and the last 5 characters of your Rental ID or a valid phone number.", returningLineVerifiedTitle:"Returning customer found: 10% rental discount applied", returningLineVerifiedDetail:"Verified through your LINE account and selected automatically.",
@@ -1521,7 +1533,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     promos: {bg:{enabled:false,mode:"percent",value:0}, console:{enabled:false,mode:"percent",value:0}},
     retEnabled: false,
     filter: {type:"all", brand:"all", sort:"brand"},
-    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,retVerified:false,retVerificationMethod:"",retVerifiedLineUserId:"",reviewGoogle:false,reviewFacebook:false,noContract:false,rentalTermsAccepted:false,rentalTermsAcceptedAt:"",rentalTermsVersion:"",rentalTermsLanguage:"",payment:"cash",maps:"",games:[],later:false,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",beamPaymentExpiresAt:"",contractSignature:"",guideDone:{},guideConsoleId:""},
+    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,retVerified:false,retVerificationMethod:"",retVerifiedLineUserId:"",masterAgreement:null,masterAgreementAccepted:false,masterAgreementAcceptedAt:"",reviewGoogle:false,reviewFacebook:false,noContract:false,rentalTermsAccepted:false,rentalTermsAcceptedAt:"",rentalTermsVersion:"",rentalTermsLanguage:"",payment:"cash",maps:"",games:[],later:false,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",beamPaymentExpiresAt:"",contractSignature:"",guideDone:{},guideConsoleId:""},
     availability: {rows:[],holds:[],loading:false,error:"",lastSync:0,stale:false,gate:{mode:"idle",pass:true}},
     queueClosures: {allClosed:false,types:{console:false,vr:false,handheld:false,racing:false},devices:{},rules:{all:{closed:false,startAt:"",endAt:""},types:{},devices:{}},loading:false,error:"",updatedAt:""},
     calendar: {open:false,mode:"start",base:new Date(),draftStart:"",draftEnd:""},
@@ -1963,6 +1975,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     state.calc.retVerified = !!state.calc.retVerified;
     state.calc.retVerificationMethod = ["line","manual"].includes(state.calc.retVerificationMethod) ? state.calc.retVerificationMethod : "";
     state.calc.retVerifiedLineUserId = String(state.calc.retVerifiedLineUserId || "");
+    state.calc.masterAgreement = state.calc.masterAgreement && typeof state.calc.masterAgreement === "object" ? state.calc.masterAgreement : null;
+    state.calc.masterAgreementAccepted = !!state.calc.masterAgreementAccepted && state.calc.masterAgreement?.status === "valid";
     // Bookings saved before Rental Terms acknowledgement existed must not keep
     // a silently selected no-contract state. The customer must review and
     // accept the current version explicitly.
@@ -2712,6 +2726,45 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return items;
   }
   function closeReturningEligibility(){ byId("returningVerifyModal")?.classList.remove("open"); }
+  function hasActiveMasterAgreement(){
+    return state.calc.masterAgreement?.status === "valid" && !!state.calc.masterAgreementAccepted;
+  }
+  function formatAgreementDate(value){
+    const date = new Date(value || "");
+    return Number.isNaN(date.getTime()) ? "-" : date.toLocaleDateString(state.lang === "en" ? "en-GB" : "th-TH");
+  }
+  function closeMasterAgreementModal(){ byId("masterAgreementModal")?.classList.remove("open"); }
+  function openMasterAgreementModal(){
+    const agreement = state.calc.masterAgreement;
+    if(!agreement || agreement.status !== "valid"){
+      toast(tr("masterAgreementExpired"));
+      return;
+    }
+    const code = ensureRentalCode();
+    byId("masterAgreementModalTitle").textContent = tr("masterAgreementTitle");
+    byId("masterAgreementSummary").innerHTML = `<b>${tr("masterAgreementId")}: ${esc(agreement.id)}</b><br>${tr("masterAgreementExpiry")}: ${esc(formatAgreementDate(agreement.validUntil))}<br>${tr("rentalOrderId")}: ${esc(code)}${agreement.pdfUrl ? `<br><a href="${esc(agreement.pdfUrl)}" target="_blank" rel="noopener">${tr("rentalTermsRead")} · PDF</a>` : ""}`;
+    byId("masterAgreementIdentityLabel").textContent = tr("masterAgreementIdentity");
+    byId("masterAgreementOrderLabel").textContent = tr("masterAgreementOrder");
+    byId("masterAgreementCancel").textContent = tr("rentalTermsCancel");
+    byId("masterAgreementConfirm").textContent = tr("masterAgreementConfirm");
+    byId("masterAgreementIdentityAccept").checked = false;
+    byId("masterAgreementOrderAccept").checked = false;
+    byId("masterAgreementConfirm").disabled = true;
+    byId("masterAgreementTermsFrame").src = rentalTermsUrl(state.lang, true);
+    byId("masterAgreementModal").classList.add("open");
+  }
+  function acceptMasterAgreementOrder(){
+    if(!byId("masterAgreementIdentityAccept")?.checked || !byId("masterAgreementOrderAccept")?.checked) return;
+    state.calc.masterAgreementAccepted = true;
+    state.calc.masterAgreementAcceptedAt = new Date().toISOString();
+    state.calc.rentalTermsAccepted = true;
+    state.calc.rentalTermsAcceptedAt = state.calc.masterAgreementAcceptedAt;
+    state.calc.rentalTermsVersion = RENTAL_TERMS_VERSION;
+    state.calc.rentalTermsLanguage = state.lang === "en" ? "en" : "th";
+    closeMasterAgreementModal();
+    saveLocal();
+    render();
+  }
   function renderReturningEligibilityForm(useHistory=false, usePhone=false){
     const body = byId("returningVerifyBody");
     if(!body) return;
@@ -2770,6 +2823,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       state.calc.retVerified = true;
       state.calc.retVerificationMethod = "manual";
       state.calc.retVerifiedLineUserId = "";
+      state.calc.masterAgreement = result.masterAgreement || {status:"none"};
+      state.calc.masterAgreementAccepted = false;
+      state.calc.masterAgreementAcceptedAt = "";
       state.calc.ret = true;
       state.calc.noContract = false;
       markGuideDone("ret");
@@ -2780,6 +2836,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       toast(tr("returningVerifySuccess"));
       closeReturningEligibility();
       render();
+      if(state.calc.masterAgreement?.status === "valid") openMasterAgreementModal();
+      else if(state.calc.masterAgreement?.status === "expired") toast(tr("masterAgreementExpired"));
     }catch(error){
       console.warn("Returning eligibility check failed", error);
       status.textContent = tr("returningVerifyError");
@@ -2841,7 +2899,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn" type="button" id="mapsOpen">Google Maps</button><button class="btn" type="button" id="mapsHelp">${tr("mapsHelp")}</button></div>
       <div class="hint" style="margin:10px 0 12px"><b>${tr("mapsDeliveryArea")}</b><br>${tr("mapsDeliveryPromo")}</div>`;
-    const contractHtml = state.calc.ret ? "" : `<div class="card" id="contractCard" style="margin:12px 0 0">
+    const agreementHtml = state.calc.ret && state.calc.masterAgreement?.id ? `<div class="privacy-reassurance"><b>${tr("masterAgreementId")}: ${esc(state.calc.masterAgreement.id)}</b><br>${tr("masterAgreementExpiry")}: ${esc(formatAgreementDate(state.calc.masterAgreement.validUntil))}${hasActiveMasterAgreement() ? ` · ✓ ${tr("rentalTermsAccepted")}` : ""}</div>` : "";
+    const contractHtml = hasActiveMasterAgreement() ? agreementHtml : `<div class="card" id="contractCard" style="margin:12px 0 0">
       ${state.calc.noContract ? "" : `<h3>${tr("contract")}${selectedConsole ? depositBadge(selectedConsole.deposit, "ok") : ""}</h3><p class="hint">${tr("contractHelp")}</p><p class="privacy-reassurance">🔒 ${tr("contractPrivacy")}</p><p class="hint" style="color:#c00000;font-weight:800">${tr("contractAge")}</p><button class="btn soft" id="contractBtn" type="button">${tr("contract")}</button><p class="hint" id="contractCodeHint">${state.calc.rentalCode ? `${tr("rentalCode")}: ${esc(state.calc.rentalCode)}` : ""}</p>`}
       <label class="option-row" style="margin-top:${state.calc.noContract ? 0 : 12}px"><input type="checkbox" id="noContractOpt" ${state.calc.noContract?"checked":""}><div><b>${tr("noContract")}${state.calc.noContract && selectedConsole ? depositBadge(noContractDeposit(selectedConsole.deposit), "danger") : ""}</b><div class="hint">${tr("noContractHelp")}</div>${state.calc.noContract ? `<div class="hint" style="color:#18743a;font-weight:800">✓ ${tr("rentalTermsAccepted")} · <a href="${esc(rentalTermsUrl(state.lang))}" target="_blank" rel="noopener">${tr("rentalTermsRead")}</a></div>` : ""}</div></label>
     </div>`;
@@ -4061,7 +4120,15 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       paymentAccountName: en ? CONFIG.wiseAccountNameEn : CONFIG.reservationAccountName,
       paymentEmail: state.calc.payment === "wise" ? CONFIG.wiseEmail : "",
       paymentSwiftRequired: state.calc.payment === "wise" ? false : undefined,
-      contractRequested: !state.calc.noContract && !state.calc.ret,
+      contractRequested: !state.calc.noContract && !hasActiveMasterAgreement(),
+      masterAgreementId: state.calc.masterAgreement?.id || "",
+      masterAgreementStatus: state.calc.masterAgreement?.status || "none",
+      masterAgreementSignedAt: state.calc.masterAgreement?.signedAt || "",
+      masterAgreementValidUntil: state.calc.masterAgreement?.validUntil || "",
+      masterAgreementPdfUrl: state.calc.masterAgreement?.pdfUrl || "",
+      masterAgreementAccepted: !!state.calc.masterAgreementAccepted,
+      masterAgreementAcceptedAt: state.calc.masterAgreementAcceptedAt || "",
+      rentalOrderId: code,
       noContract: !!state.calc.noContract,
       rentalTermsAccepted: !!state.calc.rentalTermsAccepted,
       rentalTermsAcceptedAt: state.calc.rentalTermsAcceptedAt || "",
@@ -4137,7 +4204,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         headers:{"Content-Type":"text/plain;charset=utf-8"},
         body:JSON.stringify({message})
       });
-      return {url, message, contextToken:result.contextToken, data:{...data, contractUrl:url}};
+      return {url, message, contextToken:result.contextToken, data:{...data, rentalOrderId:result.rentalOrderId || code, rentalOrderPdfUrl:result.rentalOrderPdfUrl || "", contractUrl:url}};
     }catch(error){
       console.warn("Contract context fallback", error);
       return {url:fallbackUrl, message:fallbackMessage, data:{...data, contractUrl:fallbackUrl}};
@@ -4332,13 +4399,15 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ...(state.calc.noContract ? [`  ✅ Customer has acknowledged the Rental Terms`, `  🔗 View Rental Terms: ${termsLink}`] : []),
       s.paymentFee ? `  - ${paymentFeeLabel()}: ${money(s.paymentFee)}` : ""
     ].filter(Boolean);
-    const contractLinesTh = (state.calc.noContract || isReturning) ? [] : [
+    const agreementLinesTh = hasActiveMasterAgreement() ? ["", `✅ รับทราบ Rental Terms แล้ว`, `📄 เลขที่ข้อตกลงหลัก: ${state.calc.masterAgreement.id}`, `📅 ข้อตกลงหลักใช้ได้ถึง: ${formatAgreementDate(state.calc.masterAgreement.validUntil)}`, ...(state.calc.masterAgreement.pdfUrl ? [`🔗 เปิดข้อตกลงหลัก: ${state.calc.masterAgreement.pdfUrl}`] : []), `🧾 เลขที่รายการเช่าครั้งนี้: ${rentalCode}`, `🔗 Rental Terms: ${termsLink}`] : [];
+    const agreementLinesEn = hasActiveMasterAgreement() ? ["", `✅ Rental Terms acknowledged`, `📄 Master Agreement no.: ${state.calc.masterAgreement.id}`, `📅 Master Agreement valid until: ${formatAgreementDate(state.calc.masterAgreement.validUntil)}`, ...(state.calc.masterAgreement.pdfUrl ? [`🔗 View Master Agreement: ${state.calc.masterAgreement.pdfUrl}`] : []), `🧾 Rental Order no.: ${rentalCode}`, `🔗 Rental Terms: ${termsLink}`] : [];
+    const contractLinesTh = (state.calc.noContract || hasActiveMasterAgreement()) ? [] : [
       "",
       "📝 กรุณาทำสัญญาการเช่าก่อนนัดส่งเครื่อง",
       contractLink,
       `❌ ไม่ทำสัญญา → ค่าประกัน ${money(noContractDeposit(c.deposit)).replace("฿","")} บาท`
     ];
-    const contractLinesEn = (state.calc.noContract || isReturning) ? [] : [
+    const contractLinesEn = (state.calc.noContract || hasActiveMasterAgreement()) ? [] : [
       "",
       "📝 Please complete the rental agreement before delivery",
       contractLink,
@@ -4363,6 +4432,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       "",
       ...paymentSummaryLinesTh,
       ...contractLinesTh,
+      ...agreementLinesTh,
       "",
       ...(isCashPayment ? ["🚫 ยกเลิกโดยลูกค้า → ไม่คืนเงินจอง 200 บาท"] : []),
       "🚫 คืนก่อนกำหนด → ไม่คืนเงินส่วนต่าง",
@@ -4393,6 +4463,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       "",
       ...paymentSummaryLinesEn,
       ...contractLinesEn,
+      ...agreementLinesEn,
       "",
       ...(isCashPayment ? ["🚫 Customer cancellation → Reservation deposit of ฿1,000 is non-refundable"] : []),
       "🚫 Early return → No refund for the unused rental period",
@@ -4411,7 +4482,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(!c || !consoleHasGameCatalog(c) || c.showGameButton === false) return false;
     const platformId = c.gamePlatform || guessPlatform(c);
     if(!platformId) return false;
-    const skipsContract = state.calc.noContract || (state.calc.ret && state.retEnabled);
+    const skipsContract = state.calc.noContract || hasActiveMasterAgreement();
     if(!skipsContract) return false;
     return state.calc.later || !(state.calc.games || []).length;
   }
@@ -4542,7 +4613,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       toast(tr("shareCooldown"));
       return Promise.resolve(false);
     }
-    const needsContractPrompt = !state.calc.ret && !state.calc.noContract;
+    const needsContractPrompt = !state.calc.noContract && !hasActiveMasterAgreement();
     const noteParts = [];
     if(needsContractPrompt) noteParts.push(tr("shareConfirmContractNote"));
     if(channel === "messenger") noteParts.push(tr("shareConfirmMessengerNote"));
@@ -5103,6 +5174,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
           state.calc.retVerified = true;
           state.calc.retVerificationMethod = "line";
           state.calc.retVerifiedLineUserId = fallbackLineUserId;
+          state.calc.masterAgreement = result.masterAgreement || {status:"none"};
+          state.calc.masterAgreementAccepted = false;
+          state.calc.masterAgreementAcceptedAt = "";
           state.calc.ret = true;
           state.calc.noContract = false;
           markGuideDone("ret");
@@ -5118,6 +5192,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         }
         saveLocal();
         render();
+        if(eligible && state.calc.masterAgreement?.status === "valid" && !state.calc.masterAgreementAccepted) openMasterAgreementModal();
         return eligible;
       }catch(error){
         console.warn("Automatic LINE eligibility check skipped", error);
@@ -6332,6 +6407,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         byId("rentalTermsConfirm").disabled = !event.target.checked;
         return;
       }
+      if(event.target.id === "masterAgreementIdentityAccept" || event.target.id === "masterAgreementOrderAccept"){
+        byId("masterAgreementConfirm").disabled = !(byId("masterAgreementIdentityAccept")?.checked && byId("masterAgreementOrderAccept")?.checked);
+        return;
+      }
       if(event.target.id === "returningVerifyNoIdentity"){
         renderReturningEligibilityForm(event.target.checked, false);
         return;
@@ -6437,6 +6516,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(targetId === "contractOpenClose"){ closeContractOpenModal(""); return; }
       if(targetId === "rentalTermsConfirm"){ acceptRentalTerms(); return; }
       if(targetId === "rentalTermsCancel" || targetId === "rentalTermsClose"){ closeRentalTermsModal(); return; }
+      if(targetId === "masterAgreementConfirm"){ acceptMasterAgreementOrder(); return; }
+      if(targetId === "masterAgreementCancel" || targetId === "masterAgreementClose"){ closeMasterAgreementModal(); return; }
       if(byId("shareConfirmModal")?.dataset.mode === "messenger-handoff"){
         if(targetId === "shareContractFirst"){ await copyMessengerHandoff(); return; }
         if(targetId === "shareConfirmSend"){ await openMessengerFromHandoff(); return; }

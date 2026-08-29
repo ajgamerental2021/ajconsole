@@ -1,5 +1,20 @@
 # Project state
 
+## 2026-08-29 — Master Agreement + Rental Order rollout
+
+- The existing signed identity contract is now described as a **Master Agreement**. It records verified identity, signature, and general Rental Terms acceptance for one year; it no longer claims that the whole old contract is reused for every future rental.
+- Returning-customer discount and agreement eligibility are separate. Discount history alone never authorizes reusing a signature.
+- The booking page stores the verified Master Agreement metadata only after the Bot API has verified either a LINE User ID or the existing manual returning-customer challenge. A customer without LINE cannot retrieve agreement metadata before that challenge succeeds.
+- A valid agreement opens a bilingual confirmation modal showing agreement number/expiry and the current Rental Order number. Both identity/contact confirmation and current-order/Rental-Terms acceptance are required.
+- The structured booking message carries agreement/order metadata. The Bot creates a separate Rental Order PDF and the LINE booking Flex can show buttons for the Master Agreement, current Rental Order, and Rental Terms.
+- An expired or missing agreement does not skip the contract flow; the returning-customer price discount may still apply independently.
+
+### Delivery App handoff still required
+
+- Persist these optional fields on each booking: `masterAgreementId`, `masterAgreementSignedAt`, `masterAgreementValidUntil`, `masterAgreementPdfUrl`, `rentalOrderId`, `rentalOrderPdfUrl`, `rentalOrderAcceptedAt`, `rentalTermsVersion`, and `rentalTermsUrl`.
+- Booking Confirm Flex and My Rentals (active/history) must display the immutable agreement/order references captured for that rental. Never replace historic rows with the customer's newest agreement.
+- Continue enforcing customer ownership before redirecting to either PDF, as the existing `/c/my/contract` route does.
+
 ## 2026-08-29 — Booking Flex labels no longer truncate
 
 - Thai and English booking Flex cards now wrap Google Maps, payment-summary,
