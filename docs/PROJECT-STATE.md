@@ -1,5 +1,14 @@
 # Project state
 
+## 2026-08-29 — Booking Flex labels no longer truncate
+
+- Thai and English booking Flex cards now wrap Google Maps, payment-summary,
+  and bank-transfer headings instead of displaying ellipses on narrow LINE
+  clients. Summary labels can wrap while numeric values stay aligned.
+- The compact identifier label is now `รหัสเช่า` / `Rental ID`, while the full
+  Rental ID value remains prominent.
+- Bot syntax and all 183 automated tests pass.
+
 ## 2026-08-29 — Full dates in booking Flex cards
 
 - Thai and English booking Flex date rows now split their width evenly between
