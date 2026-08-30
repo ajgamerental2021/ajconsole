@@ -755,3 +755,7 @@ paused job shows slightly old numbers rather than an empty section.
 - When the modal is opened by LINE, Messenger, or WhatsApp booking intent, accepting continues that selected channel immediately. Opening the review button directly accepts only the order and prompts the customer to choose a channel.
 - LINE Desktop itself does not run LIFF. Desktop booking therefore stays in the external browser, enables LIFF external-browser login, returns to the same signed booking context after login, and then links the LINE account and pushes the Flex card. It no longer invokes LINE Desktop's unsupported-LIFF QR dialog. Mobile external browsers keep the standard LIFF app-launch route.
 - The bot's language-specific Rental Order PDF now includes the full accepted Rental Terms snapshot and version on subsequent PDF pages for durable reference.
+## 2026-08-30 — Admin review save regression fixed
+
+- Fixed the Reviews admin Save button after the new footer social links reused the admin form's `data-social` attribute and caused `undefined.trim()`.
+- Footer analytics links now use `data-analytics-social`; review saving is additionally scoped to `#adminReviews` so unrelated page elements cannot enter the admin payload.
