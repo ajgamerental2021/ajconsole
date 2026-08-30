@@ -1669,11 +1669,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         channel:details.channel || "",
         value:details.value || ""
       });
-      if(navigator.sendBeacon){
-        navigator.sendBeacon(CONFIG.analyticsApi, new Blob([payload], {type:"application/json"}));
-      }else{
-        fetch(CONFIG.analyticsApi,{method:"POST",headers:{"Content-Type":"application/json"},body:payload,keepalive:true}).catch(()=>{});
-      }
+      fetch(CONFIG.analyticsApi,{method:"POST",headers:{"Content-Type":"application/json"},body:payload,keepalive:true}).catch(() => {
+        if(navigator.sendBeacon) navigator.sendBeacon(CONFIG.analyticsApi, new Blob([payload], {type:"application/json"}));
+      });
     }catch{}
   }
   const CONSOLE_SLUGS = {

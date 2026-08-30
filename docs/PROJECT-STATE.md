@@ -759,3 +759,7 @@ paused job shows slightly old numbers rather than an empty section.
 
 - Fixed the Reviews admin Save button after the new footer social links reused the admin form's `data-social` attribute and caused `undefined.trim()`.
 - Footer analytics links now use `data-analytics-social`; review saving is additionally scoped to `#adminReviews` so unrelated page elements cannot enter the admin payload.
+## 2026-08-30 — Analytics delivery reliability
+
+- Website analytics now uses cross-origin `fetch` with `keepalive` as the primary transport and retains `sendBeacon` only as a fallback, avoiding silent beacon loss in stricter browsers.
+- The private analytics dashboard now refreshes automatically every 60 seconds and displays its latest refresh time.
