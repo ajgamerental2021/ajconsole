@@ -922,6 +922,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       </div>
       <div class="faq-list" id="faqList"></div>
       <div style="text-align:center;margin-top:14px"><button class="btn" id="faqExpandBtn" type="button"></button></div>
+      <p class="hint" style="text-align:center;margin-top:22px" data-i18n="analyticsPrivacy">เว็บไซต์เก็บสถิติการใช้งานแบบไม่ระบุตัวบุคคลเพื่อปรับปรุงบริการ โดยไม่บันทึกชื่อ เบอร์โทร เอกสารยืนยันตัวตน หรือที่อยู่จัดส่งในระบบสถิติ</p>
     </div>
   </section>
 </main>
@@ -1090,6 +1091,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     facebookMessengerUrl: "https://m.me/ajgamerental",
     beamPaymentApi: "https://aj-line-oa-bot.onrender.com/api/payments/beam-link",
     returningEligibilityApi: "https://aj-line-oa-bot.onrender.com/api/customers/returning-eligibility",
+    analyticsApi: "https://aj-line-oa-bot.onrender.com/api/analytics/event",
     paymentSuccessUrl: "https://ajgamerental.onrender.com/payment-success.html",
     paymentFailedUrl: "https://ajgamerental.onrender.com/payment-failed.html",
     paymentLinkBase: "https://pay.ajgamerental.com/demo-checkout",
@@ -1312,6 +1314,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       returning:"ลูกค้าเก่า (เท่านั้น) รับส่วนลด 10% ค่าเช่า", returningOnly:"ลูกค้าเก่าเท่านั้น", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง", bank:"🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%",
       wiseAvailabilityNote:"ไม่สามารถชำระผ่าน Wise ในวันเสาร์-อาทิตย์หรือวันหยุดธนาคารไทยได้ เนื่องจากเงินจะเข้าในวันทำการถัดไป", wiseUnavailableWeekend:"วันนี้ไม่สามารถเลือก Wise ได้ (วันเสาร์-อาทิตย์)", wiseUnavailableHoliday:"วันนี้ไม่สามารถเลือก Wise ได้ (วันหยุดธนาคารไทย)", returningVerifyTitle:"ยืนยันสิทธิ์ส่วนลดลูกค้าเก่า", returningVerifyHelp:"กรอกเบอร์โทรที่เคยใช้เช่า และเลขบัตรประชาชน 4 ตัวท้าย", returningVerifyPhone:"เบอร์โทรศัพท์", returningVerifyFirstName:"ชื่อจริง (ไม่ต้องใส่นามสกุล)", returningVerifyLast4:"เลขบัตรประชาชน 4 ตัวท้าย", returningVerifyNoIdentity:"ไม่มีเลขบัตรประชาชนในประวัติการเช่า", returningVerifyHistoryHelp:"ใช้สำหรับลูกค้าเก่าที่ไม่มีเลขบัตรประชาชนในประวัติ กรุณาใช้ชื่อจริงร่วมกับรหัสการเช่าครั้งก่อนหรือเบอร์โทรศัพท์เพื่อยืนยัน ไม่ต้องใส่นามสกุล", returningVerifyRentalSuffix:"Rental ID 5 ตัวท้าย", returningVerifyUsePhone:"ใช้เบอร์โทรแทน", returningVerifyHistoryPhone:"เบอร์โทรศัพท์ที่เคยส่งให้ทางร้าน", returningVerifyFindRentalId:"วิธีการหา Rental ID", returningVerifySubmit:"ตรวจสอบสิทธิ์", returningVerifyCancel:"ยกเลิก", returningVerifyChecking:"กำลังตรวจสอบ...", returningVerifySuccess:"ยืนยันสิทธิ์ลูกค้าเก่าเรียบร้อย", returningVerifyNotFound:"ไม่พบประวัติ Confirmed ที่ชื่อจริงและข้อมูลยืนยันตรงกัน กรุณาตรวจสอบข้อมูลหรือติดต่อ AJ", returningVerifyError:"ตรวจสอบสิทธิ์ไม่ได้ในขณะนี้ กรุณาลองใหม่ภายหลัง", returningVerifyInvalid:"กรุณากรอกเบอร์โทร 10 หลัก และเลขบัตร 4 ตัวท้าย", returningVerifyHistoryInvalid:"กรุณากรอกชื่อจริง และ Rental ID 5 ตัวท้ายหรือเบอร์โทรศัพท์ที่ถูกต้อง", returningLineVerifiedTitle:"ตรวจพบประวัติลูกค้าเก่า ใช้ส่วนลดค่าเช่า 10% แล้ว", returningLineVerifiedDetail:"ยืนยันสิทธิ์ผ่านบัญชี LINE และเลือกส่วนลดให้อัตโนมัติแล้ว",
       returningVerifyPrivacy:"ใช้ข้อมูลนี้เพื่อตรวจสิทธิ์ส่วนลดเท่านั้น หน้าเว็บจะไม่แสดงเลขบัตรหรือประวัติการเช่าของลูกค้ารายอื่น",
+      analyticsPrivacy:"เว็บไซต์เก็บสถิติการใช้งานแบบไม่ระบุตัวบุคคลเพื่อปรับปรุงบริการ โดยไม่บันทึกชื่อ เบอร์โทร เอกสารยืนยันตัวตน หรือที่อยู่จัดส่งในระบบสถิติ",
       reviewGoogle:"รับส่วนลดเพิ่มจากการรีวิวบน Google Maps มูลค่า 100 บาท", reviewFacebook:"รับส่วนลดเพิ่มจากการรีวิวบน Facebook มูลค่า 100 บาท", reviewGoogleAfterWork:"รับส่วนลดเพิ่มจากการรีวิวบน Google Maps มูลค่า 50 บาท", reviewFacebookAfterWork:"รับส่วนลดเพิ่มจากการรีวิวบน Facebook มูลค่า 50 บาท", reviewGoogleHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Google Maps ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewFacebookHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Facebook ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewGoogleBtn:"รีวิว Google Maps", reviewFacebookBtn:"รีวิว Facebook", reviewGoogleDiscount:"ส่วนลดรีวิว Google Maps", reviewFacebookDiscount:"ส่วนลดรีวิว Facebook",
       boardGameCollapsed:"ต้องการเพิ่มบอร์ดเกม? กดเพื่อขยายและเลือกเข้าชุดเช่า", ps5BundleCollapsed:"ต้องการ Bundle? กดเพื่อจับคู่ PS5 กับอุปกรณ์อื่น",
       boardGameBundle:"Bundle บอร์ดเกม", chooseBoardGame:"-- เลือกบอร์ดเกม --", addBoardGame:"เพิ่มบอร์ดเกม", boardGames:"บอร์ดเกม", selectedDates:"วันที่เลือก", confirmRange:"ตกลง", selectReturnDate:"เลือกวันคืนเครื่อง", remove:"ลบ",
@@ -1405,6 +1408,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       returning:"Returning customers only: 10% off rental fee", returningOnly:"Returning customers only", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"💵 Balance on delivery", bank:"🏦 Thai Bank Transfer", wise:"🌍 Wise", credit:"💳 Credit Card: pay full amount + 3.50% fee", ewallet:"👛 E-Wallet: pay full amount + 2.95%",
       wiseAvailabilityNote:"Wise payments are unavailable on weekends and Thai bank holidays because funds arrive on the next business day.", wiseUnavailableWeekend:"Wise is unavailable today (weekend).", wiseUnavailableHoliday:"Wise is unavailable today (Thai bank holiday).", returningVerifyTitle:"Verify returning-customer discount", returningVerifyHelp:"Enter your first name (surname not required) and the last 4 characters of your Passport.", returningVerifyName:"First name (surname not required)", returningVerifyFirstName:"First name (surname not required)", returningVerifyLast4:"Last 4 Passport characters", returningVerifyNoIdentity:"My Passport was not recorded in my rental history", returningVerifyHistoryHelp:"For returning customers whose Passport was not recorded. Please use your first name with your previous Rental ID or Phone number to verify eligibility. Surname is not required.", returningVerifyRentalSuffix:"Last 5 characters of Rental ID", returningVerifyUsePhone:"Use phone number instead", returningVerifyHistoryPhone:"Phone number previously provided to AJ", returningVerifyFindRentalId:"How to find your Rental ID", returningVerifySubmit:"Check eligibility", returningVerifyCancel:"Cancel", returningVerifyChecking:"Checking...", returningVerifySuccess:"Returning-customer eligibility confirmed.", returningVerifyNotFound:"No Confirmed rental matched both the first name and verification detail. Check the details or contact AJ.", returningVerifyError:"Eligibility cannot be checked right now. Please try again later.", returningVerifyInvalid:"Enter your first name (surname not required) and the last 4 Passport characters.", returningVerifyHistoryInvalid:"Enter your first name and the last 5 characters of your Rental ID or a valid phone number.", returningLineVerifiedTitle:"Returning customer found: 10% rental discount applied", returningLineVerifiedDetail:"Verified through your LINE account and selected automatically.",
       returningVerifyPrivacy:"This information is used only to verify discount eligibility. The page will not reveal another customer's passport details or rental history.",
+      analyticsPrivacy:"This website collects anonymous usage statistics to improve the service. Analytics does not store names, phone numbers, identity documents, or delivery addresses.",
       reviewGoogle:"Extra ฿100 discount for a Google Maps review", reviewFacebook:"Extra ฿100 discount for a Facebook review", reviewGoogleAfterWork:"Extra ฿50 discount for a Google Maps review", reviewFacebookAfterWork:"Extra ฿50 discount for a Facebook review", reviewGoogleHelp:"To receive this discount, tap Review Google Maps below, then send a screenshot to the AJ chat you are using.", reviewFacebookHelp:"To receive this discount, tap Review Facebook below, then send a screenshot to the AJ chat you are using.", reviewGoogleBtn:"Review Google Maps", reviewFacebookBtn:"Review Facebook", reviewGoogleDiscount:"Google Maps review discount", reviewFacebookDiscount:"Facebook review discount",
       boardGameCollapsed:"Want board games? Expand to add them to this rental.", ps5BundleCollapsed:"Want a bundle? Expand to pair PS5 with another device.",
       boardGameBundle:"Board Game Bundle", chooseBoardGame:"-- Choose board game --", addBoardGame:"Add board game", boardGames:"Board games", selectedDates:"Selected dates", confirmRange:"Confirm", selectReturnDate:"Choose return date", remove:"Remove",
@@ -1605,6 +1609,42 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   const AVAILABILITY_VERIFIED_TTL_MS = 5 * 60 * 1000;
   const LINE_GAME_CARD_SENT_PREFIX = "aj_line_game_picker_card_sent_";
   const LINE_GAME_CARD_TTL_MS = 24 * 60 * 60 * 1000;
+  const ANALYTICS_VISITOR_KEY = "aj_analytics_visitor_v1";
+  const ANALYTICS_SESSION_KEY = "aj_analytics_session_v1";
+  function anonymousAnalyticsId(storage, key){
+    let value = storage.getItem(key) || "";
+    if(!/^[a-f0-9-]{16,64}$/i.test(value)){
+      value = globalThis.crypto?.randomUUID?.() || `${Date.now().toString(16)}-${Math.random().toString(16).slice(2)}-${Math.random().toString(16).slice(2)}`;
+      storage.setItem(key, value);
+    }
+    return value;
+  }
+  function analyticsPlatform(){
+    const ua = navigator.userAgent || "";
+    if(/iPad|Tablet/i.test(ua)) return "tablet";
+    if(/Android|iPhone|iPod|Mobile/i.test(ua)) return "mobile";
+    return "desktop";
+  }
+  function trackAnalytics(event, details={}){
+    try{
+      const payload = JSON.stringify({
+        event,
+        visitorId:anonymousAnalyticsId(localStorage, ANALYTICS_VISITOR_KEY),
+        sessionId:anonymousAnalyticsId(sessionStorage, ANALYTICS_SESSION_KEY),
+        language:state.lang === "en" ? "en" : "th",
+        platform:analyticsPlatform(),
+        step:Number(state.calc.step) || 0,
+        path:location.pathname,
+        channel:details.channel || "",
+        value:details.value || ""
+      });
+      if(navigator.sendBeacon){
+        navigator.sendBeacon(CONFIG.analyticsApi, new Blob([payload], {type:"application/json"}));
+      }else{
+        fetch(CONFIG.analyticsApi,{method:"POST",headers:{"Content-Type":"application/json"},body:payload,keepalive:true}).catch(()=>{});
+      }
+    }catch{}
+  }
   const CONSOLE_SLUGS = {
     "ps5":"PS5", "ps5-pro":"PS5 Pro", "ps4":"PS4", "switch2":"Nintendo Switch 2",
     "switch1":"Nintendo Switch 1", "meta-quest3":"Meta Quest 3", "meta-quest3s":"Meta Quest 3s",
@@ -2630,6 +2670,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       return;
     }
     state.calc.step = next;
+    trackAnalytics("step_viewed", {value:String(next)});
     setGuideStage(guideStageForStep(next), {syncStep:false});
     guideLastScrollStage = "";
     saveLocal();
@@ -2687,6 +2728,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function selectCalcConsole(consoleId){
     state.calc.consoleId = String(consoleId || "");
+    if(state.calc.consoleId) trackAnalytics("device_selected", {value:state.calc.consoleId});
     state.calc.bundleId = "";
     state.calc.extras = [];
     state.calc.games = [];
@@ -2871,6 +2913,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       state.calc.masterAgreementAccepted = false;
       state.calc.masterAgreementAcceptedAt = "";
       state.calc.ret = true;
+      trackAnalytics("returning_customer_verified", {value:"manual"});
       state.calc.noContract = false;
       markGuideDone("ret");
       markGuideDone("contractChoice");
@@ -4198,6 +4241,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(checkbox) checkbox.checked = !!state.calc.noContract;
   }
   function openRentalTermsModal(){
+    trackAnalytics("rental_terms_opened");
     byId("rentalTermsModalTitle").textContent = tr("rentalTermsTitle");
     byId("rentalTermsAcceptLabel").textContent = tr("rentalTermsAccept");
     byId("rentalTermsConfirm").textContent = tr("rentalTermsConfirm");
@@ -4214,6 +4258,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     state.calc.rentalTermsAcceptedAt = new Date().toISOString();
     state.calc.rentalTermsVersion = RENTAL_TERMS_VERSION;
     state.calc.rentalTermsLanguage = state.lang === "en" ? "en" : "th";
+    trackAnalytics("rental_terms_accepted");
     markGuideDone("contractChoice");
     markGuideDone("contractLink");
     setGuideStage("payment");
@@ -4748,6 +4793,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }
   }
   async function sendLine(skipGuard=false){
+    if(!skipGuard) trackAnalytics("booking_channel_clicked", {channel:"line"});
     if(!skipGuard) return guardedBookingShare("line", () => sendLine(true));
     try{
       const summary = calcSummary();
@@ -4758,6 +4804,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const msg = handoff.message;
       submitRentalToSheet(summary, code, "line", msg, handoff.data);
       setShareStatus("line", "opened");
+      trackAnalytics("booking_handoff_started", {channel:"line"});
       await new Promise(resolve => window.setTimeout(resolve, 450));
       const liffUrl = new URL(`https://liff.line.me/${activeLineLiffId()}`);
       liffUrl.searchParams.set("bookingLine", "1");
@@ -4772,6 +4819,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       location.href = launchUrl;
       return true;
     }catch(error){
+      trackAnalytics("booking_handoff_failed", {channel:"line", value:String(error?.message || "error").slice(0,80)});
       showBookingActionError(error);
       return false;
     }
@@ -4792,6 +4840,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return url.toString();
   }
   async function sendWhatsApp(skipGuard=false){
+    if(!skipGuard) trackAnalytics("booking_channel_clicked", {channel:"whatsapp"});
     if(!skipGuard) return guardedBookingShare("whatsapp", () => sendWhatsApp(true));
     try{
       const summary = calcSummary();
@@ -4801,14 +4850,17 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const msg = unicodeSafeText(handoff.message);
       submitRentalToSheet(summary, code, "whatsapp", msg, handoff.data);
       setShareStatus("whatsapp", "opened");
+      trackAnalytics("booking_handoff_started", {channel:"whatsapp"});
       location.href = whatsappShareUrl(msg);
       return true;
     }catch(error){
+      trackAnalytics("booking_handoff_failed", {channel:"whatsapp", value:String(error?.message || "error").slice(0,80)});
       showBookingActionError(error);
       return false;
     }
   }
   async function sendMessenger(skipGuard=false){
+    if(!skipGuard) trackAnalytics("booking_channel_clicked", {channel:"messenger"});
     if(!skipGuard) return guardedBookingShare("messenger", () => sendMessenger(true));
     try{
       const summary = calcSummary();
@@ -4818,8 +4870,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const msg = unicodeSafeText(handoff.message);
       submitRentalToSheet(summary, code, "messenger", msg, handoff.data);
       showMessengerBookingHandoff(msg);
+      trackAnalytics("booking_handoff_started", {channel:"messenger"});
       return true;
     }catch(error){
+      trackAnalytics("booking_handoff_failed", {channel:"messenger", value:String(error?.message || "error").slice(0,80)});
       showBookingActionError(error);
       return false;
     }
@@ -5023,6 +5077,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     loadGamePickerPlatform();
   }
   function openGamePicker(options={}){
+    trackAnalytics("game_picker_opened", {value:options.browseOnly ? "browse" : "booking"});
     const browseOnly = !!options.browseOnly;
     state.gamePickerBrowseOnly = browseOnly;
     const current = consoleById(state.calc.consoleId);
@@ -6372,16 +6427,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       if(delAcc){ state.accessories.splice(Number(delAcc.dataset.deleteAcc),1); saveAndRenderAdmin("Accessory deleted"); return; }
     });
     byId("sortSelect").addEventListener("change", e => { state.filter.sort = e.target.value; renderConsoles(); });
-    byId("langBtn").addEventListener("click", () => { state.lang = state.lang === "en" ? "th" : "en"; render(); });
+    byId("langBtn").addEventListener("click", () => { state.lang = state.lang === "en" ? "th" : "en"; trackAnalytics("language_changed", {value:state.lang}); render(); });
     byId("beforeRentStart").addEventListener("click", () => setBeforeRent(false, {startGuide:true}));
     byId("beforeRentFinalCta").addEventListener("click", () => setBeforeRent(false, {startGuide:true}));
     byId("beforeRentGames").addEventListener("click", () => openGamePicker({browseOnly:true}));
     byId("beforeRentSteps").addEventListener("click", openStepsPopup);
     byId("beforeRentFaq").addEventListener("click", openFAQPopup);
     byId("beforeRentBack").addEventListener("click", () => setBeforeRent(true));
-    byId("faqBtn").addEventListener("click", openFAQPopup);
+    byId("faqBtn").addEventListener("click", () => { trackAnalytics("faq_opened"); openFAQPopup(); });
     byId("faqLangBtn").addEventListener("click", toggleFaqLang);
-    byId("stepsBtn").addEventListener("click", openStepsPopup);
+    byId("stepsBtn").addEventListener("click", () => { trackAnalytics("rental_guide_opened"); openStepsPopup(); });
     byId("stepsClose").addEventListener("click", closeStepsPopup);
     byId("stepsLangBtn").addEventListener("click", toggleStepsLang);
     byId("stepsModal").addEventListener("click", (e) => { if(e.target === byId("stepsModal")) closeStepsPopup(); });
@@ -6503,6 +6558,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
           return;
         }
         state.calc.ret = event.target.checked;
+        trackAnalytics("returning_customer_selected", {value:state.calc.ret ? "selected" : "cleared"});
         if(state.calc.ret){
           state.calc.noContract = false;
           state.calc.rentalTermsAccepted = false;
@@ -6555,7 +6611,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         saveLocal();
         render();
       }
-      if(event.target.id === "laterOpt"){ state.calc.later = event.target.checked; if(state.calc.later){ markGuideDone("games"); setGuideStage("next2"); } saveLocal(); render(); }
+      if(event.target.id === "laterOpt"){ state.calc.later = event.target.checked; if(state.calc.later){ trackAnalytics("games_deferred"); markGuideDone("games"); setGuideStage("next2"); } saveLocal(); render(); }
     });
     document.addEventListener("input", event => {
       if(event.target.id === "mapsInput"){ state.calc.maps = event.target.value.trim(); if(state.calc.maps.length > 8){ markGuideDone("maps"); setGuideStage("ret"); } saveLocal(); renderGuide(); }
@@ -6602,6 +6658,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         render();
       }
       if(targetId === "contractBtn"){
+        trackAnalytics("contract_opened");
         if(await openContract()){
           markGuideDone("contractLink");
           setGuideStage("payment");
@@ -7019,6 +7076,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(restoredGameList) state.beforeRentActive = false;
     exposeCompatibility();
     bindEvents();
+    trackAnalytics("page_view");
     render();
     const openedFromLink = restoredGameList ? false : applyDeepLink();
     if(restoredGameList){

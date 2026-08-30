@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-08-30 — Privacy-first website analytics dashboard
+
+- The production booking page now sends non-blocking first-party analytics events for page visits, language changes, funnel steps, game/terms/contract actions, returning-customer verification, and LINE/Messenger/WhatsApp handoffs.
+- Analytics uses random browser/session identifiers and deliberately excludes customer names, phone numbers, LINE IDs, identity documents, maps links, addresses, rental codes, and message contents. The bilingual website notice discloses this anonymous usage measurement.
+- The Bot accepts only allowlisted event names and fields, rate-limits submissions, batches Google Sheets writes to a dedicated `Analytics Events` tab, and keeps booking usable when analytics storage fails.
+- `/analytics/` is a separate no-index owner dashboard using the existing server-side Admin login. It provides selectable 1/7/30/90/365-day views, daily activity, weekly/monthly summaries, channel counts, funnel actions, and estimated conversion.
+- Unauthenticated analytics reports return HTTP 401. The event endpoint returns HTTP 202, the production page has no new JavaScript errors in browser verification, and all 192 Bot tests pass.
+
 ## 2026-08-30 — Delivery area, timing, and fee FAQ aligned
 
 - The pre-rental service line now explicitly says delivery is limited to Bangkok and the metropolitan area in both languages.
