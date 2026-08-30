@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-08-30 — Full device names in booking Flex
+
+- The booking Flex device row now gives the device value more width and allows it to wrap. Long names such as Meta Quest variants are shown in full instead of ending in `...` in narrow LINE clients.
+- The behavior is identical for Thai and English cards. A bilingual regression test covers a deliberately long device name; all 190 Bot tests pass.
+
 ## 2026-08-29 — Booking journey reduced to three steps
 
 - Removed the automatic Finger Guide overlays. The customer-controlled rental-steps guide remains available from its button.
