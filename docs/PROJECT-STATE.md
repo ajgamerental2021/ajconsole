@@ -768,3 +768,8 @@ paused job shows slightly old numbers rather than an empty section.
 - Moved the anonymous analytics disclosure to the very bottom of the Before Rent panel and removed the duplicate beneath FAQ.
 - Anonymous events now include coarse browser and operating-system families without versions; the dashboard adds device class, browser, OS, and Bangkok hour-of-day session breakdowns.
 - Daily chart bars now show their session count directly instead of requiring hover.
+## 2026-08-30 — Compact mobile analytics dashboard
+
+- Mobile analytics metrics now use three columns (six metrics in two rows) instead of six full-width cards.
+- Device, browser, and OS summaries remain in one three-column row; weekly and monthly summaries share a two-column row.
+- Mobile cards, headings, controls, and bar rows use compact spacing; verified at 390 px with no horizontal overflow.
