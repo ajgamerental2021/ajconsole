@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-08-30 — Analytics disclosure and social footer
+
+- The before-rental landing panel now shows the complete bilingual anonymous-analytics disclosure near the initial trust/decision content; the existing disclosure remains below FAQ as well.
+- Added a responsive site footer with bilingual AJ Game Rental copyright copy and direct, accessible SVG-icon links to AJ's YouTube, Facebook, and TikTok pages. External links open safely in a new tab.
+- Social-link clicks are recorded as an anonymous analytics event and appear in the owner dashboard. Desktop and 390×844 mobile browser checks pass in Thai and English with no horizontal overflow or JavaScript errors.
+
 ## 2026-08-30 — Privacy-first website analytics dashboard
 
 - The production booking page now sends non-blocking first-party analytics events for page visits, language changes, funnel steps, game/terms/contract actions, returning-customer verification, and LINE/Messenger/WhatsApp handoffs.

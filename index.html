@@ -582,6 +582,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .before-rent-action.is-primary .before-rent-icon{color:#fff}
   .ico{display:block;width:1em;height:1em;flex:0 0 auto}
   .before-rent-terms{margin:14px 0 0;color:#667085;font-size:12.5px;font-weight:700;line-height:1.6}
+  .before-rent-privacy{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:#f7f8fa;color:#667085;font-size:11.5px;font-weight:600;line-height:1.55}
+  .site-footer{border-top:1px solid var(--border);background:#fff;color:#8a8f98}
+  .site-footer-inner{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding-top:16px;padding-bottom:16px}
+  .site-copyright{font-size:12px}
+  .site-socials{display:flex;align-items:center;gap:8px}
+  .site-social-link{display:grid;place-items:center;width:38px;height:38px;border:1px solid #e3e6ea;border-radius:10px;color:#7d838d;text-decoration:none;transition:.18s}
+  .site-social-link:hover,.site-social-link:focus-visible{border-color:#c90012;background:#fff7f7;color:#c90012;transform:translateY(-1px)}
+  .site-social-link svg{width:19px;height:19px;fill:currentColor}
   /* One slim row of proof under the menu: it answers "is this shop real" before
      the customer scrolls, without pushing the consoles down a screen. */
   .before-rent-trust{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:14px 0 0;padding:10px 12px;border:1px solid #e5e7eb;border-radius:12px;background:#fbfcfd}
@@ -725,6 +733,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     .before-rent-devices::-webkit-scrollbar,.before-rent-promos::-webkit-scrollbar,.before-rent-reviews::-webkit-scrollbar,.before-rent-highlights::-webkit-scrollbar{display:none}
     .before-rent-final-cta{padding:18px 12px}
     .before-rent-final-cta .btn{width:100%;min-width:0}
+    .site-footer-inner{align-items:flex-start;flex-direction:column-reverse}
   }
 </style>
 </head>
@@ -770,6 +779,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         </div>
         <p class="before-rent-terms" id="beforeRentTerms"></p>
         <div class="before-rent-trust" id="beforeRentTrust" hidden></div>
+        <p class="before-rent-privacy" data-i18n="analyticsPrivacy">เว็บไซต์เก็บสถิติการใช้งานแบบไม่ระบุตัวบุคคล เช่น จำนวนผู้เข้าชมและการใช้งานปุ่มต่าง ๆ เพื่อปรับปรุงเว็บไซต์และบริการ โดยระบบสถิติไม่จัดเก็บชื่อ เบอร์โทร LINE ID เอกสารยืนยันตัวตน ที่อยู่จัดส่ง หรือข้อความการจอง</p>
         <div class="before-rent-discovery">
           <div class="before-rent-discovery-head">
             <div>
@@ -926,6 +936,23 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     </div>
   </section>
 </main>
+
+<footer class="site-footer">
+  <div class="container site-footer-inner">
+    <p class="site-copyright" data-i18n="siteCopyright">AJ Game Rental © 2026. สงวนลิขสิทธิ์</p>
+    <div class="site-socials" role="navigation" aria-label="Social media">
+      <a class="site-social-link" data-social="youtube" href="https://www.youtube.com/@ajgamerental" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg>
+      </a>
+      <a class="site-social-link" data-social="facebook" href="https://www.facebook.com/ajgamerental" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7.1V12h3V9.3c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-1.9.9-1.9 1.8V12h3.3l-.5 3.5h-2.8v8.4A12 12 0 0 0 24 12Z"/></svg>
+      </a>
+      <a class="site-social-link" data-social="tiktok" href="https://www.tiktok.com/@ajgamerental" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.7 1c.4 2.4 1.8 3.9 4.3 4.1v3.4a9 9 0 0 1-4.2-1v6.3a6.8 6.8 0 1 1-5.9-6.7v3.5a3.4 3.4 0 1 0 2.5 3.2V1h3.3Z"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
 
 <button class="btn primary float-calc" id="floatCalc" type="button" data-i18n="calcCta">เช็คคิว & คำนวณค่าเช่า</button>
 
@@ -1104,6 +1131,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     wiseEmail: "ajgamerental2021@gmail.com",
     lineLiffId: "2010212481-IXO3gDQp",
     facebookPageUrl: "https://www.facebook.com/ajgamerental",
+    youtubeUrl: "https://www.youtube.com/@ajgamerental",
+    tiktokUrl: "https://www.tiktok.com/@ajgamerental",
     googleMapsUrl: "https://maps.app.goo.gl/QoGqkWe64QRxBGjT6"
   };
 
@@ -1314,7 +1343,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       returning:"ลูกค้าเก่า (เท่านั้น) รับส่วนลด 10% ค่าเช่า", returningOnly:"ลูกค้าเก่าเท่านั้น", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง", bank:"🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%",
       wiseAvailabilityNote:"ไม่สามารถชำระผ่าน Wise ในวันเสาร์-อาทิตย์หรือวันหยุดธนาคารไทยได้ เนื่องจากเงินจะเข้าในวันทำการถัดไป", wiseUnavailableWeekend:"วันนี้ไม่สามารถเลือก Wise ได้ (วันเสาร์-อาทิตย์)", wiseUnavailableHoliday:"วันนี้ไม่สามารถเลือก Wise ได้ (วันหยุดธนาคารไทย)", returningVerifyTitle:"ยืนยันสิทธิ์ส่วนลดลูกค้าเก่า", returningVerifyHelp:"กรอกเบอร์โทรที่เคยใช้เช่า และเลขบัตรประชาชน 4 ตัวท้าย", returningVerifyPhone:"เบอร์โทรศัพท์", returningVerifyFirstName:"ชื่อจริง (ไม่ต้องใส่นามสกุล)", returningVerifyLast4:"เลขบัตรประชาชน 4 ตัวท้าย", returningVerifyNoIdentity:"ไม่มีเลขบัตรประชาชนในประวัติการเช่า", returningVerifyHistoryHelp:"ใช้สำหรับลูกค้าเก่าที่ไม่มีเลขบัตรประชาชนในประวัติ กรุณาใช้ชื่อจริงร่วมกับรหัสการเช่าครั้งก่อนหรือเบอร์โทรศัพท์เพื่อยืนยัน ไม่ต้องใส่นามสกุล", returningVerifyRentalSuffix:"Rental ID 5 ตัวท้าย", returningVerifyUsePhone:"ใช้เบอร์โทรแทน", returningVerifyHistoryPhone:"เบอร์โทรศัพท์ที่เคยส่งให้ทางร้าน", returningVerifyFindRentalId:"วิธีการหา Rental ID", returningVerifySubmit:"ตรวจสอบสิทธิ์", returningVerifyCancel:"ยกเลิก", returningVerifyChecking:"กำลังตรวจสอบ...", returningVerifySuccess:"ยืนยันสิทธิ์ลูกค้าเก่าเรียบร้อย", returningVerifyNotFound:"ไม่พบประวัติ Confirmed ที่ชื่อจริงและข้อมูลยืนยันตรงกัน กรุณาตรวจสอบข้อมูลหรือติดต่อ AJ", returningVerifyError:"ตรวจสอบสิทธิ์ไม่ได้ในขณะนี้ กรุณาลองใหม่ภายหลัง", returningVerifyInvalid:"กรุณากรอกเบอร์โทร 10 หลัก และเลขบัตร 4 ตัวท้าย", returningVerifyHistoryInvalid:"กรุณากรอกชื่อจริง และ Rental ID 5 ตัวท้ายหรือเบอร์โทรศัพท์ที่ถูกต้อง", returningLineVerifiedTitle:"ตรวจพบประวัติลูกค้าเก่า ใช้ส่วนลดค่าเช่า 10% แล้ว", returningLineVerifiedDetail:"ยืนยันสิทธิ์ผ่านบัญชี LINE และเลือกส่วนลดให้อัตโนมัติแล้ว",
       returningVerifyPrivacy:"ใช้ข้อมูลนี้เพื่อตรวจสิทธิ์ส่วนลดเท่านั้น หน้าเว็บจะไม่แสดงเลขบัตรหรือประวัติการเช่าของลูกค้ารายอื่น",
-      analyticsPrivacy:"เว็บไซต์เก็บสถิติการใช้งานแบบไม่ระบุตัวบุคคลเพื่อปรับปรุงบริการ โดยไม่บันทึกชื่อ เบอร์โทร เอกสารยืนยันตัวตน หรือที่อยู่จัดส่งในระบบสถิติ",
+      analyticsPrivacy:"เว็บไซต์เก็บสถิติการใช้งานแบบไม่ระบุตัวบุคคล เช่น จำนวนผู้เข้าชมและการใช้งานปุ่มต่าง ๆ เพื่อปรับปรุงเว็บไซต์และบริการ โดยระบบสถิติไม่จัดเก็บชื่อ เบอร์โทร LINE ID เอกสารยืนยันตัวตน ที่อยู่จัดส่ง หรือข้อความการจอง",
+      siteCopyright:"AJ Game Rental © 2026. สงวนลิขสิทธิ์",
       reviewGoogle:"รับส่วนลดเพิ่มจากการรีวิวบน Google Maps มูลค่า 100 บาท", reviewFacebook:"รับส่วนลดเพิ่มจากการรีวิวบน Facebook มูลค่า 100 บาท", reviewGoogleAfterWork:"รับส่วนลดเพิ่มจากการรีวิวบน Google Maps มูลค่า 50 บาท", reviewFacebookAfterWork:"รับส่วนลดเพิ่มจากการรีวิวบน Facebook มูลค่า 50 บาท", reviewGoogleHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Google Maps ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewFacebookHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Facebook ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewGoogleBtn:"รีวิว Google Maps", reviewFacebookBtn:"รีวิว Facebook", reviewGoogleDiscount:"ส่วนลดรีวิว Google Maps", reviewFacebookDiscount:"ส่วนลดรีวิว Facebook",
       boardGameCollapsed:"ต้องการเพิ่มบอร์ดเกม? กดเพื่อขยายและเลือกเข้าชุดเช่า", ps5BundleCollapsed:"ต้องการ Bundle? กดเพื่อจับคู่ PS5 กับอุปกรณ์อื่น",
       boardGameBundle:"Bundle บอร์ดเกม", chooseBoardGame:"-- เลือกบอร์ดเกม --", addBoardGame:"เพิ่มบอร์ดเกม", boardGames:"บอร์ดเกม", selectedDates:"วันที่เลือก", confirmRange:"ตกลง", selectReturnDate:"เลือกวันคืนเครื่อง", remove:"ลบ",
@@ -1408,7 +1438,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       returning:"Returning customers only: 10% off rental fee", returningOnly:"Returning customers only", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"💵 Balance on delivery", bank:"🏦 Thai Bank Transfer", wise:"🌍 Wise", credit:"💳 Credit Card: pay full amount + 3.50% fee", ewallet:"👛 E-Wallet: pay full amount + 2.95%",
       wiseAvailabilityNote:"Wise payments are unavailable on weekends and Thai bank holidays because funds arrive on the next business day.", wiseUnavailableWeekend:"Wise is unavailable today (weekend).", wiseUnavailableHoliday:"Wise is unavailable today (Thai bank holiday).", returningVerifyTitle:"Verify returning-customer discount", returningVerifyHelp:"Enter your first name (surname not required) and the last 4 characters of your Passport.", returningVerifyName:"First name (surname not required)", returningVerifyFirstName:"First name (surname not required)", returningVerifyLast4:"Last 4 Passport characters", returningVerifyNoIdentity:"My Passport was not recorded in my rental history", returningVerifyHistoryHelp:"For returning customers whose Passport was not recorded. Please use your first name with your previous Rental ID or Phone number to verify eligibility. Surname is not required.", returningVerifyRentalSuffix:"Last 5 characters of Rental ID", returningVerifyUsePhone:"Use phone number instead", returningVerifyHistoryPhone:"Phone number previously provided to AJ", returningVerifyFindRentalId:"How to find your Rental ID", returningVerifySubmit:"Check eligibility", returningVerifyCancel:"Cancel", returningVerifyChecking:"Checking...", returningVerifySuccess:"Returning-customer eligibility confirmed.", returningVerifyNotFound:"No Confirmed rental matched both the first name and verification detail. Check the details or contact AJ.", returningVerifyError:"Eligibility cannot be checked right now. Please try again later.", returningVerifyInvalid:"Enter your first name (surname not required) and the last 4 Passport characters.", returningVerifyHistoryInvalid:"Enter your first name and the last 5 characters of your Rental ID or a valid phone number.", returningLineVerifiedTitle:"Returning customer found: 10% rental discount applied", returningLineVerifiedDetail:"Verified through your LINE account and selected automatically.",
       returningVerifyPrivacy:"This information is used only to verify discount eligibility. The page will not reveal another customer's passport details or rental history.",
-      analyticsPrivacy:"This website collects anonymous usage statistics to improve the service. Analytics does not store names, phone numbers, identity documents, or delivery addresses.",
+      analyticsPrivacy:"This website collects anonymous usage statistics, such as visitor counts and button interactions, to improve the website and its services. Analytics does not store names, phone numbers, LINE IDs, identity documents, delivery addresses, or booking messages.",
+      siteCopyright:"AJ Game Rental © 2026. All rights reserved.",
       reviewGoogle:"Extra ฿100 discount for a Google Maps review", reviewFacebook:"Extra ฿100 discount for a Facebook review", reviewGoogleAfterWork:"Extra ฿50 discount for a Google Maps review", reviewFacebookAfterWork:"Extra ฿50 discount for a Facebook review", reviewGoogleHelp:"To receive this discount, tap Review Google Maps below, then send a screenshot to the AJ chat you are using.", reviewFacebookHelp:"To receive this discount, tap Review Facebook below, then send a screenshot to the AJ chat you are using.", reviewGoogleBtn:"Review Google Maps", reviewFacebookBtn:"Review Facebook", reviewGoogleDiscount:"Google Maps review discount", reviewFacebookDiscount:"Facebook review discount",
       boardGameCollapsed:"Want board games? Expand to add them to this rental.", ps5BundleCollapsed:"Want a bundle? Expand to pair PS5 with another device.",
       boardGameBundle:"Board Game Bundle", chooseBoardGame:"-- Choose board game --", addBoardGame:"Add board game", boardGames:"Board games", selectedDates:"Selected dates", confirmRange:"Confirm", selectReturnDate:"Choose return date", remove:"Remove",
@@ -6437,6 +6468,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     byId("faqBtn").addEventListener("click", () => { trackAnalytics("faq_opened"); openFAQPopup(); });
     byId("faqLangBtn").addEventListener("click", toggleFaqLang);
     byId("stepsBtn").addEventListener("click", () => { trackAnalytics("rental_guide_opened"); openStepsPopup(); });
+    document.querySelectorAll("[data-social]").forEach(link => link.addEventListener("click", () => trackAnalytics("social_link_clicked", {value:link.dataset.social})));
     byId("stepsClose").addEventListener("click", closeStepsPopup);
     byId("stepsLangBtn").addEventListener("click", toggleStepsLang);
     byId("stepsModal").addEventListener("click", (e) => { if(e.target === byId("stepsModal")) closeStepsPopup(); });
