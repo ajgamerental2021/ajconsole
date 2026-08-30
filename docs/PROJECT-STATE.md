@@ -779,3 +779,7 @@ paused job shows slightly old numbers rather than an empty section.
 - Dashboard ranks devices and games by unique selecting Session, defaults to Top 5, and can expand to all; games are filterable by device.
 - Added session funnel/drop-off analysis with explicitly labelled possible causes, plus calendar-month, calendar-year, recent-range, and five-year views.
 - Analytics Sheet schema expanded through column P for device/game fields; old rows remain compatible. Mobile dashboard verified at 390 px with no horizontal overflow.
+## 2026-08-30 — Legacy analytics device names
+
+- Device rankings now prefer the Device Name stored on each analytics row and resolve older ID-only events against the live website device catalog (plus the device Sheet as fallback).
+- Catalog names are cached server-side for five minutes; legacy IDs such as `11` now render as `PS5` without rewriting historical analytics rows.
