@@ -1689,7 +1689,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         step:Number(state.calc.step) || 0,
         path:location.pathname,
         channel:details.channel || "",
-        value:details.value || ""
+        value:details.value || "",
+        deviceId:details.deviceId || "",
+        deviceName:details.deviceName || "",
+        gameId:details.gameId || "",
+        gameName:details.gameName || ""
       });
       fetch(CONFIG.analyticsApi,{method:"POST",headers:{"Content-Type":"application/json"},body:payload,keepalive:true}).catch(() => {
         if(navigator.sendBeacon) navigator.sendBeacon(CONFIG.analyticsApi, new Blob([payload], {type:"application/json"}));
@@ -2779,7 +2783,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function selectCalcConsole(consoleId){
     state.calc.consoleId = String(consoleId || "");
-    if(state.calc.consoleId) trackAnalytics("device_selected", {value:state.calc.consoleId});
+    if(state.calc.consoleId){
+      const selectedConsole = consoleById(state.calc.consoleId);
+      trackAnalytics("device_selected", {value:state.calc.consoleId, deviceId:state.calc.consoleId, deviceName:selectedConsole ? cName(selectedConsole) : state.calc.consoleId});
+    }
     state.calc.bundleId = "";
     state.calc.extras = [];
     state.calc.games = [];
@@ -2789,6 +2796,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     fetchAvailability();
     saveLocal();
     render();
+  }
+  function trackPickedGames(games){
+    const selectedConsole = consoleById(state.calc.consoleId);
+    const deviceName = selectedConsole ? cName(selectedConsole) : state.calc.consoleId;
+    (games || []).forEach(game => trackAnalytics("game_selected", {
+      deviceId:state.calc.consoleId,
+      deviceName,
+      gameId:String(game.id || game.name || game.title || ""),
+      gameName:String(game.name || game.title || game.id || "")
+    }));
   }
   function renderCalcFields(){
     byId("calcType").innerHTML = [["",tr("chooseType")],["console",tr("type_console")],["vr",tr("type_vr")],["handheld",tr("type_handheld")],["racing",tr("type_racing")]].map(([id,label]) => `<option value="${id}" ${state.calc.type===id?"selected":""}>${esc(label)}</option>`).join("");
@@ -6535,6 +6552,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
           state.calc.extras = [];
           state.calc.games = pickedGames;
           state.calc.later = false;
+          trackAnalytics("device_selected", {value:state.calc.consoleId, deviceId:state.calc.consoleId, deviceName:cName(pickedConsole)});
+          trackPickedGames(pickedGames);
           state.calc.step = 1;
           closeGamePicker();
           fetchAvailability();
@@ -6544,6 +6563,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         }
         state.calc.games = pickedGames;
         state.calc.later = false;
+        trackPickedGames(pickedGames);
         setGuideStage("next2");
         closeGamePicker();
         saveLocal();
@@ -6845,6 +6865,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       state.lang = handoff.lang === "en" ? "en" : "th";
       state.calc.games = games;
       state.calc.later = false;
+      trackPickedGames(games);
       state.calc.step = 2;
       saveLocal();
       return true;

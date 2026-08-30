@@ -773,3 +773,9 @@ paused job shows slightly old numbers rather than an empty section.
 - Mobile analytics metrics now use three columns (six metrics in two rows) instead of six full-width cards.
 - Device, browser, and OS summaries remain in one three-column row; weekly and monthly summaries share a two-column row.
 - Mobile cards, headings, controls, and bar rows use compact spacing; verified at 390 px with no horizontal overflow.
+## 2026-08-30 — Product rankings, funnel drop-off, and calendar analytics
+
+- Analytics events now carry anonymous device/game IDs and display names; game selections are emitted from embedded-picker and handoff flows.
+- Dashboard ranks devices and games by unique selecting Session, defaults to Top 5, and can expand to all; games are filterable by device.
+- Added session funnel/drop-off analysis with explicitly labelled possible causes, plus calendar-month, calendar-year, recent-range, and five-year views.
+- Analytics Sheet schema expanded through column P for device/game fields; old rows remain compatible. Mobile dashboard verified at 390 px with no horizontal overflow.
