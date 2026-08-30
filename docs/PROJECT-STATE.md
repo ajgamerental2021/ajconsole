@@ -7,6 +7,7 @@
 - The Bot accepts only allowlisted event names and fields, rate-limits submissions, batches Google Sheets writes to a dedicated `Analytics Events` tab, and keeps booking usable when analytics storage fails.
 - `/analytics/` is a separate no-index owner dashboard using the existing server-side Admin login. It provides selectable 1/7/30/90/365-day views, daily activity, weekly/monthly summaries, channel counts, funnel actions, and estimated conversion.
 - Unauthenticated analytics reports return HTTP 401. The event endpoint returns HTTP 202, the production page has no new JavaScript errors in browser verification, and all 192 Bot tests pass.
+- Analytics login now remains valid on the same browser for 30 days. The remembered token is signed with the configured Admin password, survives Bot restarts/deployments, becomes invalid when the Admin password changes, and is removed immediately by the dashboard Logout button.
 
 ## 2026-08-30 — Delivery area, timing, and fee FAQ aligned
 
