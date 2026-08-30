@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-08-30 — Master Agreement wording clarified
+
+- The bilingual rental-step guide now explains that the Master Agreement lasts one year and only its verified information and signature may be referenced for a later rental. Every rental still requires fresh confirmation of its details and Rental Terms.
+- The guide and returning-customer note both require a new Master Agreement after expiry or whenever material customer information changes; the former wording that implied reusing the whole rental contract was removed.
+
 ## 2026-08-30 — Full device names in booking Flex
 
 - The booking Flex device row now gives the device value more width and allows it to wrap. Long names such as Meta Quest variants are shown in full instead of ending in `...` in narrow LINE clients.
