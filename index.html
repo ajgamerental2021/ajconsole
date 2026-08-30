@@ -779,7 +779,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         </div>
         <p class="before-rent-terms" id="beforeRentTerms"></p>
         <div class="before-rent-trust" id="beforeRentTrust" hidden></div>
-        <p class="before-rent-privacy" data-i18n="analyticsPrivacy">เว็บไซต์เก็บสถิติการใช้งานแบบไม่ระบุตัวบุคคล เช่น จำนวนผู้เข้าชมและการใช้งานปุ่มต่าง ๆ เพื่อปรับปรุงเว็บไซต์และบริการ โดยระบบสถิติไม่จัดเก็บชื่อ เบอร์โทร LINE ID เอกสารยืนยันตัวตน ที่อยู่จัดส่ง หรือข้อความการจอง</p>
         <div class="before-rent-discovery">
           <div class="before-rent-discovery-head">
             <div>
@@ -836,6 +835,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
             <button class="btn primary" id="beforeRentFinalCta" type="button" data-i18n="beforeRentFinalCta">เลือกเครื่องและเช็คคิว</button>
           </div>
         </div>
+        <p class="before-rent-privacy" data-i18n="analyticsPrivacy">เว็บไซต์เก็บสถิติการใช้งานแบบไม่ระบุตัวบุคคล เช่น จำนวนผู้เข้าชมและการใช้งานปุ่มต่าง ๆ เพื่อปรับปรุงเว็บไซต์และบริการ โดยระบบสถิติไม่จัดเก็บชื่อ เบอร์โทร LINE ID เอกสารยืนยันตัวตน ที่อยู่จัดส่ง หรือข้อความการจอง</p>
       </div>
     </div>
   </section>
@@ -932,7 +932,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       </div>
       <div class="faq-list" id="faqList"></div>
       <div style="text-align:center;margin-top:14px"><button class="btn" id="faqExpandBtn" type="button"></button></div>
-      <p class="hint" style="text-align:center;margin-top:22px" data-i18n="analyticsPrivacy">เว็บไซต์เก็บสถิติการใช้งานแบบไม่ระบุตัวบุคคลเพื่อปรับปรุงบริการ โดยไม่บันทึกชื่อ เบอร์โทร เอกสารยืนยันตัวตน หรือที่อยู่จัดส่งในระบบสถิติ</p>
     </div>
   </section>
 </main>
@@ -1656,6 +1655,27 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(/Android|iPhone|iPod|Mobile/i.test(ua)) return "mobile";
     return "desktop";
   }
+  function analyticsBrowser(){
+    const ua = navigator.userAgent || "";
+    if(/Line\//i.test(ua)) return "LINE";
+    if(/FBAN|FBAV|MessengerForiOS/i.test(ua)) return "Facebook / Messenger";
+    if(/SamsungBrowser/i.test(ua)) return "Samsung Internet";
+    if(/Edg\//i.test(ua)) return "Edge";
+    if(/Firefox|FxiOS/i.test(ua)) return "Firefox";
+    if(/Chrome|CriOS/i.test(ua)) return "Chrome";
+    if(/Safari/i.test(ua)) return "Safari";
+    return "Other";
+  }
+  function analyticsOs(){
+    const ua = navigator.userAgent || "";
+    if(/iPhone|iPad|iPod/i.test(ua)) return "iOS / iPadOS";
+    if(/Android/i.test(ua)) return "Android";
+    if(/Windows/i.test(ua)) return "Windows";
+    if(/CrOS/i.test(ua)) return "ChromeOS";
+    if(/Mac OS X|Macintosh/i.test(ua)) return "macOS";
+    if(/Linux/i.test(ua)) return "Linux";
+    return "Other";
+  }
   function trackAnalytics(event, details={}){
     try{
       const payload = JSON.stringify({
@@ -1664,6 +1684,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         sessionId:anonymousAnalyticsId(sessionStorage, ANALYTICS_SESSION_KEY),
         language:state.lang === "en" ? "en" : "th",
         platform:analyticsPlatform(),
+        browser:analyticsBrowser(),
+        os:analyticsOs(),
         step:Number(state.calc.step) || 0,
         path:location.pathname,
         channel:details.channel || "",

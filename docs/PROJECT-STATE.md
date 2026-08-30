@@ -763,3 +763,8 @@ paused job shows slightly old numbers rather than an empty section.
 
 - Website analytics now uses cross-origin `fetch` with `keepalive` as the primary transport and retains `sendBeacon` only as a fallback, avoiding silent beacon loss in stricter browsers.
 - The private analytics dashboard now refreshes automatically every 60 seconds and displays its latest refresh time.
+## 2026-08-30 — Analytics device and time breakdowns
+
+- Moved the anonymous analytics disclosure to the very bottom of the Before Rent panel and removed the duplicate beneath FAQ.
+- Anonymous events now include coarse browser and operating-system families without versions; the dashboard adds device class, browser, OS, and Bangkok hour-of-day session breakdowns.
+- Daily chart bars now show their session count directly instead of requiring hover.
