@@ -783,3 +783,8 @@ paused job shows slightly old numbers rather than an empty section.
 
 - Device rankings now prefer the Device Name stored on each analytics row and resolve older ID-only events against the live website device catalog (plus the device Sheet as fallback).
 - Catalog names are cached server-side for five minutes; legacy IDs such as `11` now render as `PS5` without rewriting historical analytics rows.
+## 2026-08-30 — Before-rent controls and language analytics
+
+- The Before Rent page now records anonymous clicks for Rent, browse games, rental steps, FAQ, Google/Facebook review links, review/activity cards, all-activity link, and the review/activity carousel arrows.
+- Review and activity section exposure is recorded once per Session when at least 35% of the section becomes visible.
+- The private dashboard adds dedicated Before Rent and language panels. English-language Sessions are a demand signal only and are explicitly not presented as verified nationality.

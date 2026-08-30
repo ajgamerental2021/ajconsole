@@ -2505,9 +2505,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       byId("beforeRentReviewsCount").textContent = tr("beforeRentReviewsCount").replace("{n}", String(reviews.length));
       byId("beforeRentReviewsHint").innerHTML = `${icon("swipe")}<span>${esc(tr("beforeRentReviewsHint"))}</span>`;
       byId("beforeRentReviewLinks").innerHTML = [
-        ["pin", CONFIG.googleMapsUrl, "beforeRentReviewGoogle"],
-        ["thumb", CONFIG.facebookPageUrl, "beforeRentReviewFacebook"]
-      ].map(([iconName, href, key]) => `<a class="before-rent-review-link" href="${esc(safeHref(href))}" target="_blank" rel="noopener noreferrer">${icon(iconName)}<span>${esc(tr(key))}</span></a>`).join("");
+        ["pin", CONFIG.googleMapsUrl, "beforeRentReviewGoogle", "review_google_all"],
+        ["thumb", CONFIG.facebookPageUrl, "beforeRentReviewFacebook", "review_facebook_all"]
+      ].map(([iconName, href, key, trackingKey]) => `<a class="before-rent-review-link" data-before-rent-track="${trackingKey}" href="${esc(safeHref(href))}" target="_blank" rel="noopener noreferrer">${icon(iconName)}<span>${esc(tr(key))}</span></a>`).join("");
       reviewHost.scrollLeft = 0;
       bindScrollRail(byId("beforeRentReviewsRail"), reviewHost);
     }
@@ -2519,7 +2519,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       highlightsHost.setAttribute("aria-label", tr("beforeRentHighlights"));
       highlightsHost.innerHTML = highlights.map(item => {
         const title = state.lang === "en" ? item.titleEn : item.titleTh;
-        return `<a class="before-rent-highlight" href="${esc(safeHref(item.url))}" target="_blank" rel="noopener noreferrer">
+        return `<a class="before-rent-highlight" data-before-rent-track="highlight_item" href="${esc(safeHref(item.url))}" target="_blank" rel="noopener noreferrer">
           <img src="${esc(safeHref(item.image))}" alt="${esc(title)}" loading="lazy">
           <span class="before-rent-highlight-copy"><span class="before-rent-highlight-title">${esc(title)}</span><span class="before-rent-highlight-cue">${esc(tr("beforeRentHighlightCue"))}</span></span>
         </a>`;
@@ -2527,6 +2527,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       byId("beforeRentHighlightsCount").textContent = tr("beforeRentHighlightsCount").replace("{n}", String(highlights.length));
       byId("beforeRentHighlightsHint").innerHTML = `${icon("swipe")}<span>${esc(tr("beforeRentHighlightsHint"))}</span>`;
       const allLink = byId("beforeRentHighlightsAll");
+      allLink.dataset.beforeRentTrack = "highlights_all";
       allLink.href = safeHref(social.highlightsUrl);
       allLink.innerHTML = `${icon("thumb")}<span>${esc(tr("beforeRentHighlightsAll"))}</span>`;
       highlightsHost.scrollLeft = 0;
@@ -2562,6 +2563,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         button.className = `rail-nav rail-nav-${direction}`;
         button.innerHTML = icon(direction === "prev" ? "chevronLeft" : "chevronRight");
         button.addEventListener("click", () => {
+          if(["beforeRentReviews","beforeRentHighlights"].includes(scroller.id)){
+            trackAnalytics("before_rent_action_clicked", {value:`${scroller.id}_${direction}`});
+          }
           const step = Math.max(160, Math.round(scroller.clientWidth * 0.8));
           scroller.scrollBy({left: direction === "prev" ? -step : step, behavior:"smooth"});
         });
@@ -2598,6 +2602,18 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     });
     sync();
     requestAnimationFrame(sync);
+  }
+  function bindBeforeRentSectionAnalytics(){
+    if(!("IntersectionObserver" in window)) return;
+    const values = {beforeRentReviewsSection:"reviews", beforeRentHighlightsSection:"highlights"};
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if(!entry.isIntersecting || entry.intersectionRatio < 0.35) return;
+        trackAnalytics("before_rent_section_viewed", {value:values[entry.target.id]});
+        observer.unobserve(entry.target);
+      });
+    }, {threshold:0.35});
+    Object.keys(values).forEach(id => { const section = byId(id); if(section) observer.observe(section); });
   }
   function renderBeforeRent(){
     const active = !!state.beforeRentActive;
@@ -6429,6 +6445,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
   function bindEvents(){
     document.addEventListener("click", event => {
+      const beforeRentTracked = event.target.closest("[data-before-rent-track]");
+      if(beforeRentTracked) trackAnalytics("before_rent_action_clicked", {value:beforeRentTracked.dataset.beforeRentTrack});
       const typeBtn = event.target.closest("[data-type]");
       if(typeBtn){ state.filter.type = typeBtn.dataset.type; render(); return; }
       const brandBtn = event.target.closest("[data-brand]");
@@ -6496,11 +6514,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     });
     byId("sortSelect").addEventListener("change", e => { state.filter.sort = e.target.value; renderConsoles(); });
     byId("langBtn").addEventListener("click", () => { state.lang = state.lang === "en" ? "th" : "en"; trackAnalytics("language_changed", {value:state.lang}); render(); });
-    byId("beforeRentStart").addEventListener("click", () => setBeforeRent(false, {startGuide:true}));
-    byId("beforeRentFinalCta").addEventListener("click", () => setBeforeRent(false, {startGuide:true}));
-    byId("beforeRentGames").addEventListener("click", () => openGamePicker({browseOnly:true}));
-    byId("beforeRentSteps").addEventListener("click", openStepsPopup);
-    byId("beforeRentFaq").addEventListener("click", openFAQPopup);
+    byId("beforeRentStart").addEventListener("click", () => { trackAnalytics("before_rent_action_clicked", {value:"rent"}); setBeforeRent(false, {startGuide:true}); });
+    byId("beforeRentFinalCta").addEventListener("click", () => { trackAnalytics("before_rent_action_clicked", {value:"rent_bottom"}); setBeforeRent(false, {startGuide:true}); });
+    byId("beforeRentGames").addEventListener("click", () => { trackAnalytics("before_rent_action_clicked", {value:"games"}); openGamePicker({browseOnly:true}); });
+    byId("beforeRentSteps").addEventListener("click", () => { trackAnalytics("before_rent_action_clicked", {value:"steps"}); trackAnalytics("rental_guide_opened"); openStepsPopup(); });
+    byId("beforeRentFaq").addEventListener("click", () => { trackAnalytics("before_rent_action_clicked", {value:"faq"}); trackAnalytics("faq_opened"); openFAQPopup(); });
     byId("beforeRentBack").addEventListener("click", () => setBeforeRent(true));
     byId("faqBtn").addEventListener("click", () => { trackAnalytics("faq_opened"); openFAQPopup(); });
     byId("faqLangBtn").addEventListener("click", toggleFaqLang);
@@ -7149,6 +7167,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(restoredGameList) state.beforeRentActive = false;
     exposeCompatibility();
     bindEvents();
+    bindBeforeRentSectionAnalytics();
     trackAnalytics("page_view");
     render();
     const openedFromLink = restoredGameList ? false : applyDeepLink();
