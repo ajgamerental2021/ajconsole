@@ -1676,8 +1676,32 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(/Linux/i.test(ua)) return "Linux";
     return "Other";
   }
+  function analyticsAttribution(){
+    const key = "aj_analytics_attribution_v1";
+    try{
+      const saved = JSON.parse(sessionStorage.getItem(key) || "null");
+      if(saved) return saved;
+      const params = new URLSearchParams(location.search);
+      const ref = document.referrer ? new URL(document.referrer).hostname.replace(/^www\./, "") : "";
+      let source = (params.get("utm_source") || "").toLowerCase();
+      if(!source){
+        if(/facebook|fb\./i.test(ref)) source = "facebook";
+        else if(/tiktok/i.test(ref)) source = "tiktok";
+        else if(/youtube|youtu\.be/i.test(ref)) source = "youtube";
+        else if(/google/i.test(ref)) source = "google";
+        else if(/line\.me|line-scdn/i.test(ref) || isInsideLineClient()) source = "line";
+        else source = ref || "direct";
+      }
+      const value = {source, medium:params.get("utm_medium") || (ref ? "referral" : "direct"), campaign:params.get("utm_campaign") || "", content:params.get("utm_content") || "", referrer:ref};
+      sessionStorage.setItem(key, JSON.stringify(value));
+      return value;
+    }catch{return {source:"direct",medium:"direct",campaign:"",content:"",referrer:""};}
+  }
+  let analyticsStepEnteredAt = Date.now();
+  let analyticsLastStep = 1;
   function trackAnalytics(event, details={}){
     try{
+      const attribution = analyticsAttribution();
       const payload = JSON.stringify({
         event,
         visitorId:anonymousAnalyticsId(localStorage, ANALYTICS_VISITOR_KEY),
@@ -1693,7 +1717,15 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         deviceId:details.deviceId || "",
         deviceName:details.deviceName || "",
         gameId:details.gameId || "",
-        gameName:details.gameName || ""
+        gameName:details.gameName || "",
+        ...attribution,
+        durationMs:details.durationMs || 0,
+        reason:details.reason || "",
+        errorCode:details.errorCode || "",
+        rentalId:details.rentalId || "",
+        customerType:details.customerType || "",
+        amount:details.amount || 0,
+        status:details.status || ""
       });
       fetch(CONFIG.analyticsApi,{method:"POST",headers:{"Content-Type":"application/json"},body:payload,keepalive:true}).catch(() => {
         if(navigator.sendBeacon) navigator.sendBeacon(CONFIG.analyticsApi, new Blob([payload], {type:"application/json"}));
@@ -2740,6 +2772,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       window.requestAnimationFrame(focusCurrentGuideTarget);
       return;
     }
+    if(analyticsLastStep && next !== analyticsLastStep){
+      trackAnalytics("step_duration", {value:String(analyticsLastStep), durationMs:Date.now() - analyticsStepEnteredAt});
+      analyticsStepEnteredAt = Date.now();
+      analyticsLastStep = next;
+    }
     state.calc.step = next;
     trackAnalytics("step_viewed", {value:String(next)});
     setGuideStage(guideStageForStep(next), {syncStep:false});
@@ -3727,6 +3764,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(nextReturn) return {mode:"busy",pass:false,message:`${tr("busy")} (${tr("readyOn")} ${displayDate(nextReturn)})`};
     return {mode:"ok",pass:true,message:tr("available")};
   }
+  const analyticsUnavailableSeen = new Set();
+  function trackAvailabilityLoss(gate){
+    if(!gate || gate.pass !== false) return;
+    const reason = ["busy","hold","closed"].includes(gate.mode) ? (gate.mode === "closed" ? "date_closed" : "device_or_date_full") : gate.mode;
+    const key = `${state.calc.consoleId}|${state.calc.start}|${state.calc.end}|${reason}`;
+    if(analyticsUnavailableSeen.has(key)) return;
+    analyticsUnavailableSeen.add(key);
+    const device = consoleById(state.calc.consoleId);
+    trackAnalytics("rental_unavailable", {reason, deviceId:state.calc.consoleId, deviceName:device ? cName(device) : state.calc.consoleId, amount:calcSummary()?.total || 0});
+  }
   async function fetchJsonWithTimeout(url, timeoutMs){
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -3792,6 +3839,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       }
       state.availability.error = String(error?.message || error || "Availability request failed");
       state.availability.stale = false;
+      trackAnalytics("client_error", {errorCode:"availability_api_failed"});
       return {fresh:false,cached:false};
     }finally{
       state.availability.loading = false;
@@ -3807,6 +3855,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const host = byId("availabilityHint");
     if(!host) return;
     state.availability.gate = evaluateAvailability();
+    trackAvailabilityLoss(state.availability.gate);
     if(state.availability.loading && !hasRecentAvailabilitySnapshot()) host.textContent = tr("checking");
     else if(state.availability.error || (state.calc.consoleId && !hasRecentAvailabilitySnapshot())) host.innerHTML = `<div class="availability-feedback"><span>${esc(tr("queueError"))}</span><button class="btn availability-retry" type="button" data-availability-retry>${tr("retryQueue")}</button></div>`;
     else if(state.availability.gate.message && !["ok","fallback","idle"].includes(state.availability.gate.mode)) host.textContent = state.availability.gate.message;
@@ -4888,7 +4937,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const msg = handoff.message;
       submitRentalToSheet(summary, code, "line", msg, handoff.data);
       setShareStatus("line", "opened");
-      trackAnalytics("booking_handoff_started", {channel:"line"});
+      trackAnalytics("booking_handoff_started", {channel:"line", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
       await new Promise(resolve => window.setTimeout(resolve, 450));
       const liffUrl = new URL(`https://liff.line.me/${activeLineLiffId()}`);
       liffUrl.searchParams.set("bookingLine", "1");
@@ -4903,7 +4952,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       location.href = launchUrl;
       return true;
     }catch(error){
-      trackAnalytics("booking_handoff_failed", {channel:"line", value:String(error?.message || "error").slice(0,80)});
+      trackAnalytics("booking_handoff_failed", {channel:"line", value:String(error?.message || "error").slice(0,80), errorCode:"line_handoff_failed"});
+      trackAnalytics("client_error", {channel:"line", errorCode:"line_liff_or_handoff_failed"});
       showBookingActionError(error);
       return false;
     }
@@ -4934,11 +4984,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const msg = unicodeSafeText(handoff.message);
       submitRentalToSheet(summary, code, "whatsapp", msg, handoff.data);
       setShareStatus("whatsapp", "opened");
-      trackAnalytics("booking_handoff_started", {channel:"whatsapp"});
+      trackAnalytics("booking_handoff_started", {channel:"whatsapp", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
       location.href = whatsappShareUrl(msg);
       return true;
     }catch(error){
-      trackAnalytics("booking_handoff_failed", {channel:"whatsapp", value:String(error?.message || "error").slice(0,80)});
+      trackAnalytics("booking_handoff_failed", {channel:"whatsapp", value:String(error?.message || "error").slice(0,80), errorCode:"whatsapp_handoff_failed"});
+      trackAnalytics("client_error", {channel:"whatsapp", errorCode:"whatsapp_handoff_failed"});
       showBookingActionError(error);
       return false;
     }
@@ -4954,10 +5005,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const msg = unicodeSafeText(handoff.message);
       submitRentalToSheet(summary, code, "messenger", msg, handoff.data);
       showMessengerBookingHandoff(msg);
-      trackAnalytics("booking_handoff_started", {channel:"messenger"});
+      trackAnalytics("booking_handoff_started", {channel:"messenger", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
       return true;
     }catch(error){
-      trackAnalytics("booking_handoff_failed", {channel:"messenger", value:String(error?.message || "error").slice(0,80)});
+      trackAnalytics("booking_handoff_failed", {channel:"messenger", value:String(error?.message || "error").slice(0,80), errorCode:"messenger_handoff_failed"});
+      trackAnalytics("client_error", {channel:"messenger", errorCode:"messenger_handoff_failed"});
       showBookingActionError(error);
       return false;
     }
@@ -5276,6 +5328,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const rentalCode = String(params.get("rentalCode") || "").trim().toUpperCase();
     if(!contextToken || !/^AJ-[A-Z0-9-]{6,40}$/.test(rentalCode)) return false;
     loadState();
+    analyticsLastStep = Number(state.calc.step) || 1;
+    analyticsStepEnteredAt = Date.now();
     document.body.innerHTML = `<main style="min-height:100vh;display:grid;place-items:center;padding:24px;background:#f5f7fb"><section style="max-width:520px;text-align:center;background:#fff;border:1px solid #d9dee8;border-radius:22px;padding:30px;box-shadow:0 12px 35px rgba(15,23,42,.12)"><h1 style="font-size:22px;margin:0 0 12px">${params.get("lang") === "en" ? "Sending your booking card" : "กำลังส่งการ์ดข้อมูลจอง"}</h1><p style="margin:0;color:#667085">${params.get("lang") === "en" ? "Linking this LINE account to your Rental ID..." : "กำลังผูกบัญชี LINE กับ Rental ID ของคุณ..."}</p></section></main>`;
     try{
       const liff = await loadLineSdk();
@@ -7188,6 +7242,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {});
     syncBoardGameCatalog().catch(() => {});
     window.addEventListener("pageshow", resetShareUi);
+    window.addEventListener("pagehide", () => trackAnalytics("step_duration", {value:String(analyticsLastStep), durationMs:Date.now() - analyticsStepEnteredAt}));
     document.addEventListener("visibilitychange", () => {
       if(document.visibilityState === "visible") resetShareUi();
     });

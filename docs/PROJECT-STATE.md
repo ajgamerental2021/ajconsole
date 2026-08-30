@@ -788,3 +788,8 @@ paused job shows slightly old numbers rather than an empty section.
 - The Before Rent page now records anonymous clicks for Rent, browse games, rental steps, FAQ, Google/Facebook review links, review/activity cards, all-activity link, and the review/activity carousel arrows.
 - Review and activity section exposure is recorded once per Session when at least 35% of the section becomes visible.
 - The private dashboard adds dedicated Before Rent and language panels. English-language Sessions are a demand signal only and are explicitly not presented as verified nationality.
+## 2026-08-30 — Acquisition, friction, error, and revenue analytics
+
+- The booking site now persists first-touch UTM/referrer attribution per Session, measures Step duration, records availability/API/handoff failures, and attaches Rental ID, device, games, channel, customer type, and quoted value to booking handoffs.
+- Analytics Events expands through column AC while remaining backward-compatible with old rows. The dashboard adds acquisition/campaign, Step timing, lost-opportunity value, client error, and payment-backed commerce panels.
+- Delivery App posts signed payment and customer-cancellation status events back to the Bot; the shared `AJ_RENTAL_WEBHOOK_SECRET` authenticates both directions. Outside-service-area reporting is supported through the same signed status payload using `reason: outside_service_area`.
