@@ -389,7 +389,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .faq-list.collapsed .faq-item:nth-child(n+6){display:none}
 .faq-item{background:#fff;border:1px solid var(--border);border-radius:14px;padding:13px 15px}
 .faq-q{font-weight:900;margin-bottom:5px}
-.faq-a{font-size:13px;color:var(--text2)}
+.faq-a{font-size:13px;color:var(--text2);white-space:pre-line}
 .bg-detail-modal{display:grid;grid-template-columns:minmax(280px,1fr) minmax(320px,1.1fr);gap:22px;align-items:start}
 .bg-detail-image{border-radius:18px;overflow:hidden;background:#f4f4f4;min-height:420px;display:grid;place-items:center}
 .bg-detail-image img{width:100%;height:100%;object-fit:cover;display:block}
@@ -1206,6 +1206,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     qEn:"Can I change the rental dates or add accessories?",
     aEn:"You may change the start date or rental duration once, within 15 days of the original date, subject to availability. Notify us by 12:00 noon on the day before the original start date. Add accessories through “My Rentals” in LINE or contact an admin."
   };
+  const DELIVERY_FAQS = {
+    time:{qTh:"ส่งเครื่องเวลาไหน",aTh:"ปกติจัดส่งเวลา 10.00–18.00 น. ตามคิว โดยร้านต้องเตรียมเครื่องและติดตั้งเกมก่อน หากแจ้งเช่าก่อน 18.00 น. ยังสามารถจัดส่งภายในวันนั้นได้ ส่วนหลัง 18.00 น. จะจัดส่งวันถัดไป เว้นแต่ร้านยืนยันว่ายังส่งได้",qEn:"What time do you deliver?",aEn:"Delivery is normally scheduled between 10:00 and 18:00, subject to the day’s queue and device preparation. Requests made before 18:00 can usually be delivered the same day. Requests made after 18:00 will be delivered the next day unless AJ confirms same-day delivery is still available."},
+    preparation:{qTh:"ระยะเวลาในการเตรียมเครื่องก่อนจัดส่ง",aTh:"เตรียมเครื่องและติดตั้งเกมประมาณ 2–3 ชั่วโมง หรือ 30 นาที–1 ชั่วโมงสำหรับเครื่องที่ไม่ต้องติดตั้งเกม",qEn:"How long does device preparation take?",aEn:"Device preparation and game installation take about 2–3 hours, or 30 minutes–1 hour for devices that do not require game installation."},
+    area:{qTh:"พื้นที่ให้บริการ",aTh:"ให้บริการเช่าเฉพาะใน กรุงเทพฯ–ปริมณฑล (นครปฐม, สมุทรสาคร, สมุทรปราการ, ปทุมธานี, นนทบุรี)",qEn:"Service area",aEn:"Rental service is available only in Bangkok and the surrounding provinces: Nakhon Pathom, Samut Sakhon, Samut Prakan, Pathum Thani, and Nonthaburi."},
+    pattaya:{qTh:"พัทยา/ชลบุรี เช่าได้ไหม",aTh:"สามารถเช่าได้ แต่ค่าจัดส่งทั้งหมดลูกค้าเป็นผู้รับผิดชอบเอง กรุณาทักแชทร้านเพื่อสอบถามค่าจัดส่ง",qEn:"Can I rent in Pattaya / Chonburi?",aEn:"Yes, but the customer is responsible for all delivery costs. Please contact the shop to confirm the delivery fee."}
+  };
   const DEFAULT_FAQ = [
     {qTh:"ขั้นต่ำเช่ากี่วัน?",aTh:"ขั้นต่ำ 3 วัน สำหรับเรทบุคคล",qEn:"What is the minimum rental period?",aEn:"The minimum rental period is 3 days for individual rates."},
     {qTh:"ส่งพื้นที่ไหนบ้าง?",aTh:"จัดส่งเฉพาะกรุงเทพฯ และปริมณฑล ค่าส่งเช็กตามลิงก์ Google Maps",qEn:"Where do you deliver?",aEn:"Delivery is available in Bangkok and Greater Bangkok. Delivery cost depends on your Google Maps location."},
@@ -1280,7 +1286,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentNoteDelivery:"ฟรีค่าส่งสูงสุด ฿100/เที่ยว · 3–6 วัน ฟรีขากลับ · 7+ วัน ฟรีไป-กลับ · ส่งเฉพาะกรุงเทพฯ–ปริมณฑล",
       beforeRentNoteDeposit:"ค่าประกัน ได้คืนเต็มจำนวนเมื่อคืนเครื่องครบสภาพ ไม่ใช่ค่าเช่า",
       beforeRentNoteContract:"หากไม่ทำสัญญาเช่า ค่าประกันปรับเป็น ฿5,000 / ฿8,000 ตามรุ่น",
-      beforeRentTerms:"เช่าขั้นต่ำ <b>3 วัน</b> · ฟรีค่าส่งสูงสุด <b>฿100/เที่ยว</b> (3–6 วัน ฟรีขากลับ · 7+ วัน ฟรีไป-กลับ)",
+      beforeRentTerms:"เช่าขั้นต่ำ <b>3 วัน</b> · ฟรีค่าส่งสูงสุด <b>฿100/เที่ยว</b> (3–6 วัน ฟรีขากลับ · 7+ วัน ฟรีไป-กลับ) · <b>ส่งเฉพาะกรุงเทพฯ–ปริมณฑล</b>",
       beforeRentStartDevice:"ดูคิวและราคา",
       gamePickerAllPlatforms:"👉 เลือกเครื่อง",
       gamePickerScrollHint:"เลื่อนดูเครื่องอื่น →",
@@ -1373,7 +1379,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentNoteDelivery:"Free delivery up to ฿100/trip · 3–6 days: free return · 7+ days: both trips free · Bangkok metro only",
       beforeRentNoteDeposit:"The deposit is fully refunded when the console is returned in good condition — it is not part of the rental fee",
       beforeRentNoteContract:"Without a rental contract the deposit becomes ฿5,000 / ฿8,000 depending on the model",
-      beforeRentTerms:"<b>3-day</b> minimum · free delivery up to <b>฿100/trip</b> (3–6 days: free return · 7+ days: both trips free)",
+      beforeRentTerms:"<b>3-day</b> minimum · free delivery up to <b>฿100/trip</b> (3–6 days: free return · 7+ days: both trips free) · <b>Bangkok metropolitan area only</b>",
       beforeRentStartDevice:"Check dates & price",
       gamePickerAllPlatforms:"👉 Pick a console",
       gamePickerScrollHint:"Swipe for more →",
@@ -2143,12 +2149,36 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function normalizeFaq(list){
     const source = Array.isArray(list) ? list : DEFAULT_FAQ;
-    const normalized = source.map(x => ({
+    let normalized = source.map(x => ({
       qTh: String(x.qTh || x.q_th || "").trim(),
       aTh: String(x.aTh || x.a_th || "").trim(),
       qEn: String(x.qEn || x.q_en || "").trim(),
       aEn: String(x.aEn || x.a_en || "").trim()
     })).filter(x => x.qTh || x.aTh || x.qEn || x.aEn);
+    const matches = (faq, th, en) => th.test(faq.qTh) || en.test(faq.qEn);
+    const timeIndex = normalized.findIndex(faq => matches(faq, /^ส่งเครื่องเวลาไหน/, /^What time do you deliver/i));
+    if(timeIndex >= 0) normalized[timeIndex] = {...DELIVERY_FAQS.time};
+    else normalized.splice(Math.min(1, normalized.length), 0, {...DELIVERY_FAQS.time});
+    const updatedTimeIndex = normalized.findIndex(faq => matches(faq, /^ส่งเครื่องเวลาไหน/, /^What time do you deliver/i));
+    normalized = normalized.filter((faq, index) => index === updatedTimeIndex || !matches(
+      faq,
+      /^(ระยะเวลาในการเตรียมเครื่องก่อนจัดส่ง|ส่งพื้นที่ไหนบ้าง|ให้บริการพื้นที่ไหนบ้าง|พื้นที่ให้บริการ|พัทยา\/ชลบุรี เช่าได้ไหม)/,
+      /^(How long does device preparation take|Where do you deliver|Which areas do you serve|Service area|Can I rent in Pattaya \/ Chonburi)/i
+    ));
+    const deliveryInfoIndex = normalized.findIndex(faq => matches(faq, /^ส่งเครื่องเวลาไหน/, /^What time do you deliver/i));
+    normalized.splice(deliveryInfoIndex + 1, 0, {...DELIVERY_FAQS.preparation}, {...DELIVERY_FAQS.area}, {...DELIVERY_FAQS.pattaya});
+    const deliveryMethodIndex = normalized.findIndex(faq => matches(faq, /^จัดส่งอย่างไร/, /^How do you deliver/i));
+    if(deliveryMethodIndex >= 0) normalized[deliveryMethodIndex] = {
+      ...normalized[deliveryMethodIndex],
+      aTh:"จัดส่งด้วย Lalamove / Grab ประมาณ 1–2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ",
+      aEn:"Delivery by Lalamove / Grab takes approximately 1–2 hours, depending on distance, traffic, and weather."
+    };
+    const deliveryFeeIndex = normalized.findIndex(faq => matches(faq, /^ค่าจัดส่งคิดอย่างไร/, /^How is the delivery fee calculated/i));
+    if(deliveryFeeIndex >= 0) normalized[deliveryFeeIndex] = {
+      ...normalized[deliveryFeeIndex],
+      aTh:"ค่าจัดส่งคิดตามจริงจากแอปขนส่ง\n\n• เช่า 3–6 วัน: ฟรีขากลับสูงสุด ฿100\n• เช่า 7 วันขึ้นไป: ฟรีไป–กลับ สูงสุด ฿100/เที่ยว\n\nส่วนต่างที่เกิน ฿100 ลูกค้าชำระเพิ่มเติม",
+      aEn:"Delivery fees are charged at the actual rate shown in the delivery app.\n\n• 3–6 days: return trip free up to ฿100\n• 7+ days: both trips free up to ฿100 per trip\n\nThe customer pays any amount above ฿100."
+    };
     const hasRentalChangeFaq = normalized.some(x =>
       x.qTh === RENTAL_CHANGE_FAQ.qTh || x.qEn === RENTAL_CHANGE_FAQ.qEn
     );
@@ -5400,8 +5430,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         }
       ],
       detail:{
-        th:`<div class="step-detail-section"><h4>หลังส่งข้อมูล</h4><ul><li>ทางร้านตรวจคิว สรุปค่าใช้จ่ายพร้อมค่าจัดส่ง และแจ้งขั้นตอนถัดไป</li><li><span class="step-mark">ผู้เช่าครั้งแรกต้องทำสัญญาการเช่าก่อนนัดส่งเครื่อง</span> เว้นแต่เลือกไม่ทำสัญญาและยอมรับค่าประกันที่เพิ่มขึ้น</li><li>สัญญาหลักมีอายุ 1 ปี สามารถใช้ข้อมูลและลายมือชื่อเดิมสำหรับการเช่าครั้งถัดไปได้ โดยแต่ละครั้งต้องยืนยันรายละเอียดและเงื่อนไขการเช่าใหม่ เมื่อครบ 1 ปีหรือข้อมูลสำคัญเปลี่ยนแปลง ต้องทำสัญญาหลักใหม่</li><li>ชำระเงินตามช่องทางที่เลือก หลังทางร้านยืนยันคิวและค่าจัดส่ง</li></ul></div><div class="step-detail-section"><h4>เตรียมเครื่องและจัดส่ง</h4><ul><li>เตรียมเครื่องและติดตั้งเกมประมาณ <span class="step-mark">2-3 ชั่วโมง</span> หรือ 30 นาที - 1 ชั่วโมงสำหรับเครื่องที่ไม่ต้องติดตั้งเกม</li><li>จัดส่งประมาณ 1-2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ</li><li>เมื่อของถึง สามารถเปิดกระเป๋าเช็คของกับคนส่งของก่อน แล้วชำระยอดที่เหลือพร้อมส่งสลิปให้ร้านทางแชท</li></ul><p><strong>ไม่ทำสัญญาเช่า: เพิ่มค่าประกันจาก ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000</strong></p></div><div class="step-detail-section"><h4>การคืนเครื่อง</h4><ul><li>ทางร้านเรียกรถเข้าไปรับเครื่อง และลูกค้ายืนยันอุปกรณ์ก่อนส่งคืน</li><li>ส่งของให้คนรับของ แล้วแจ้งยืนยันหรือส่งรูปให้ร้านทางแชท</li><li>ร้านเช็คเครื่องและอุปกรณ์ จากนั้นคืนค่าประกันเข้าบัญชีในสัญญา หรือบัญชีที่แจ้งทางแชท</li></ul><p><strong>*ทางร้านเรียกรถขนส่งให้ทั้งขาส่งและขารับกลับเท่านั้น</strong></p><p><strong>**ทางร้านให้บริการแบบออนไลน์เท่านั้น ไม่มีรับหรือคืนเครื่องที่หน้าร้าน</strong></p></div>`,
-        en:`<div class="step-detail-section"><h4>After submitting details</h4><ul><li>The shop checks availability, confirms the total including delivery, and sends the next steps.</li><li><span class="step-mark">First-time renters must complete the rental contract before delivery</span>, unless they choose no contract and accept the higher deposit.</li><li>The Master Agreement is valid for 1 year. The existing information and signature may be used for subsequent rentals, but the rental details and terms must be confirmed again for each rental. A new Master Agreement is required after 1 year or whenever material information changes.</li><li>Pay with the selected method after the shop confirms availability and delivery cost.</li></ul></div><div class="step-detail-section"><h4>Preparation and delivery</h4><ul><li>Device preparation and game installation takes about <span class="step-mark">2-3 hours</span>, or 30 minutes - 1 hour for devices that do not need game installation.</li><li>Delivery usually takes about 1-2 hours depending on distance, traffic, and weather.</li><li>On arrival, you can check the items with the delivery rider first, then pay the remaining balance and send the slip to the shop by chat.</li></ul><p><strong>No rental contract: deposit increases from ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000.</strong></p></div><div class="step-detail-section"><h4>Returning the device</h4><ul><li>The shop calls a rider for pickup, and you can confirm the accessories before return.</li><li>Hand the items to the pickup rider, then confirm or send a photo to the shop by chat.</li><li>The shop checks the device and accessories, then refunds the deposit to the bank account in the contract or the account sent by chat.</li></ul><p><strong>*The shop arranges transport for both delivery and return pickup only.</strong></p><p><strong>**Online service only. Pickup or return at the shop is not available.</strong></p></div>`
+        th:`<div class="step-detail-section"><h4>หลังส่งข้อมูล</h4><ul><li>ทางร้านตรวจคิว สรุปค่าใช้จ่ายพร้อมค่าจัดส่ง และแจ้งขั้นตอนถัดไป</li><li><span class="step-mark">ผู้เช่าครั้งแรกต้องทำสัญญาการเช่าก่อนนัดส่งเครื่อง</span> เว้นแต่เลือกไม่ทำสัญญาและยอมรับค่าประกันที่เพิ่มขึ้น</li><li>สัญญาหลักมีอายุ 1 ปี สามารถใช้ข้อมูลและลายมือชื่อเดิมสำหรับการเช่าครั้งถัดไปได้ โดยแต่ละครั้งต้องยืนยันรายละเอียดและเงื่อนไขการเช่าใหม่ เมื่อครบ 1 ปีหรือข้อมูลสำคัญเปลี่ยนแปลง ต้องทำสัญญาหลักใหม่</li><li>ชำระเงินตามช่องทางที่เลือก หลังทางร้านยืนยันคิวและค่าจัดส่ง</li></ul></div><div class="step-detail-section"><h4>เตรียมเครื่องและจัดส่ง</h4><ul><li>เตรียมเครื่องและติดตั้งเกมประมาณ <span class="step-mark">2-3 ชั่วโมง</span> หรือ 30 นาที - 1 ชั่วโมงสำหรับเครื่องที่ไม่ต้องติดตั้งเกม</li><li>จัดส่งด้วย Lalamove / Grab ประมาณ 1-2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ</li><li>เมื่อของถึง สามารถเปิดกระเป๋าเช็คของกับคนส่งของก่อน แล้วชำระยอดที่เหลือพร้อมส่งสลิปให้ร้านทางแชท</li></ul><p><strong>ไม่ทำสัญญาเช่า: เพิ่มค่าประกันจาก ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000</strong></p></div><div class="step-detail-section"><h4>การคืนเครื่อง</h4><ul><li>ทางร้านเรียกรถเข้าไปรับเครื่อง และลูกค้ายืนยันอุปกรณ์ก่อนส่งคืน</li><li>ส่งของให้คนรับของ แล้วแจ้งยืนยันหรือส่งรูปให้ร้านทางแชท</li><li>ร้านเช็คเครื่องและอุปกรณ์ จากนั้นคืนค่าประกันเข้าบัญชีในสัญญา หรือบัญชีที่แจ้งทางแชท</li></ul><p><strong>*ทางร้านเรียกรถขนส่งให้ทั้งขาส่งและขารับกลับเท่านั้น</strong></p><p><strong>**ทางร้านให้บริการแบบออนไลน์เท่านั้น ไม่มีรับหรือคืนเครื่องที่หน้าร้าน</strong></p></div>`,
+        en:`<div class="step-detail-section"><h4>After submitting details</h4><ul><li>The shop checks availability, confirms the total including delivery, and sends the next steps.</li><li><span class="step-mark">First-time renters must complete the rental contract before delivery</span>, unless they choose no contract and accept the higher deposit.</li><li>The Master Agreement is valid for 1 year. The existing information and signature may be used for subsequent rentals, but the rental details and terms must be confirmed again for each rental. A new Master Agreement is required after 1 year or whenever material information changes.</li><li>Pay with the selected method after the shop confirms availability and delivery cost.</li></ul></div><div class="step-detail-section"><h4>Preparation and delivery</h4><ul><li>Device preparation and game installation takes about <span class="step-mark">2-3 hours</span>, or 30 minutes - 1 hour for devices that do not need game installation.</li><li>Delivery by Lalamove / Grab takes approximately 1-2 hours, depending on distance, traffic, and weather.</li><li>On arrival, you can check the items with the delivery rider first, then pay the remaining balance and send the slip to the shop by chat.</li></ul><p><strong>No rental contract: deposit increases from ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000.</strong></p></div><div class="step-detail-section"><h4>Returning the device</h4><ul><li>The shop calls a rider for pickup, and you can confirm the accessories before return.</li><li>Hand the items to the pickup rider, then confirm or send a photo to the shop by chat.</li><li>The shop checks the device and accessories, then refunds the deposit to the bank account in the contract or the account sent by chat.</li></ul><p><strong>*The shop arranges transport for both delivery and return pickup only.</strong></p><p><strong>**Online service only. Pickup or return at the shop is not available.</strong></p></div>`
       }
     },
     {

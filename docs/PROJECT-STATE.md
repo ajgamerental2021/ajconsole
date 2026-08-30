@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-08-30 — Delivery area, timing, and fee FAQ aligned
+
+- The pre-rental service line now explicitly says delivery is limited to Bangkok and the metropolitan area in both languages.
+- Canonical bilingual FAQ entries are applied after Gist data loads, so stale remote copy cannot restore the old wording. The delivery section is ordered: delivery time, device-preparation time, service area, then Pattaya/Chonburi.
+- The duplicate “ให้บริการพื้นที่ไหนบ้าง / Which areas do you serve?” entry is removed. The service-area answer lists Nakhon Pathom, Samut Sakhon, Samut Prakan, Pathum Thani, and Nonthaburi.
+- Delivery timing now explains the 18:00 cutoff concisely. Lalamove/Grab and the estimated 1–2 hour transit time are consistent in FAQ and rental steps. Delivery-fee FAQ copy includes the actual app rate, 3–6 day return-trip benefit, 7+ day round-trip benefit, and customer-paid overage above ฿100.
+- Verified the Gist-backed FAQ in a real local browser in Thai and English, including order, multiline fee formatting, removal of the duplicate area entry, and zero console errors.
+
 ## 2026-08-30 — Master Agreement wording clarified
 
 - The bilingual rental-step guide now explains that the Master Agreement lasts one year and only its verified information and signature may be referenced for a later rental. Every rental still requires fresh confirmation of its details and Rental Terms.
