@@ -793,3 +793,8 @@ paused job shows slightly old numbers rather than an empty section.
 - The booking site now persists first-touch UTM/referrer attribution per Session, measures Step duration, records availability/API/handoff failures, and attaches Rental ID, device, games, channel, customer type, and quoted value to booking handoffs.
 - Analytics Events expands through column AC while remaining backward-compatible with old rows. The dashboard adds acquisition/campaign, Step timing, lost-opportunity value, client error, and payment-backed commerce panels.
 - Delivery App posts signed payment and customer-cancellation status events back to the Bot; the shared `AJ_RENTAL_WEBHOOK_SECRET` authenticates both directions. Outside-service-area reporting is supported through the same signed status payload using `reason: outside_service_area`.
+## 2026-08-31 — Analytics calendar-day ranges
+
+- หน้า Analytics ของ AJ LINE OA Bot เปลี่ยนตัวเลือก “วันนี้” จากช่วงย้อนหลัง 24 ชั่วโมงเป็นวันปฏิทินตามเวลาไทย (Asia/Bangkok) ตั้งแต่ 00:00 ถึง 23:59:59
+- เพิ่มตัวเลือก “เลือกวัน” พร้อม date picker สำหรับดูสถิติรายวันย้อนหลัง และไม่อนุญาตให้เลือกวันในอนาคต
+- ช่วงเลือกเดือนและเลือกปีใช้ขอบเขตวันตามเวลาไทยเช่นเดียวกัน
