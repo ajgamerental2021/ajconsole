@@ -3609,10 +3609,23 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const availableDate = parseDate(pick(row, ["availableDate","readyDate","วันที่ว่าง","พร้อมวันที่"]));
       const bookingRanges = [];
       if(Array.isArray(row?.bookingRanges)){
+        // A rental that has already ended stops blocking dates once the device
+        // reads Available. A range runs to its return date inclusive, so the
+        // day a console came back stayed full for the rest of it — the one day
+        // the shop most wants to re-let it.
+        //
+        // Applied here rather than upstream because the payload can come from
+        // either source in fetchAvailabilityPayload's race, and only one of
+        // them knows the return job is finished.
+        const releaseEnded = status === "available";
+        const today = parseDate(todayIso());
         row.bookingRanges.forEach(item => {
           const rs = parseDate(item?.startDate || item?.start || item?.rentDate);
           const re = parseDate(item?.returnDate || item?.endDate || item?.end || item?.availableDate);
-          if(rs && re) bookingRanges.push({startDate:rs, returnDate:addDays(re, 1), status:String(item?.status || "")});
+          if(!rs || !re) return;
+          // Strictly before today's cell: anything ending today has ended.
+          if(releaseEnded && today && re <= today) return;
+          bookingRanges.push({startDate:rs, returnDate:addDays(re, 1), status:String(item?.status || "")});
         });
       }
       const start = parseDate(pick(row, ["startDate","rentDate","วันที่เริ่มเช่า"]));
