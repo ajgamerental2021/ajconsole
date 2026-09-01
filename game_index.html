@@ -2827,7 +2827,7 @@
         <button id="pick-search-clear" onclick="clearPickSearch()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:13px;padding:4px;display:none">✕</button>
       </div>
       <div class="pick-filter-sort">
-        <button class="pick-fsort-btn active" id="pfsort-newest" onclick="setPickSort('newest')">🕒 <span id="pf-label-newest">ใหม่ล่าสุด</span></button>
+        <button class="pick-fsort-btn active" id="pfsort-manual" onclick="setPickSort('manual')"><span id="pf-label-order">ลำดับ ID</span></button>
         <button class="pick-fsort-btn" id="pfsort-alpha" onclick="setPickSort('alpha')">A–Z</button>
         <button class="pick-fsort-btn" id="pfsort-genre" onclick="setPickSort('genre')">🏷 <span id="pf-label-genre">ประเภท</span></button>
         <div style="width:1px;height:18px;background:var(--border);margin:0 2px;flex-shrink:0"></div>
@@ -3096,6 +3096,11 @@
     <h3 class="form-title" id="game-form-title">เพิ่มเกม</h3>
     <input type="hidden" id="gf-id">
     <div class="form-row">
+      <label class="form-label" id="gf-order-label">ลำดับ ID (แก้ไขได้) *</label>
+      <input class="form-input" id="gf-order" type="number" min="1" step="1">
+      <p class="form-hint" id="gf-order-hint">ใช้กำหนดลำดับเกมภายในทุกประเภทเครื่อง เลขต้องไม่ซ้ำกัน</p>
+    </div>
+    <div class="form-row">
       <label class="form-label">ประเภทเครื่อง *</label>
       <select class="form-select" id="gf-platform" onchange="toggleGamePlatformFields()"></select>
       <div id="gf-ps-platforms-row" style="display:none;margin-top:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg)">
@@ -3148,12 +3153,12 @@
     <div class="form-row" style="background:var(--danger-light);border:1.5px solid var(--accent);border-radius:var(--radius-sm);padding:12px;margin-top:4px">
       <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:600">
         <input type="checkbox" id="gf-unavailable" onchange="toggleUnavailableDate()" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
-        <span>⚠️ ยังไม่พร้อมให้บริการ</span>
+        <span id="gf-unavailable-label">⚠️ ยังไม่พร้อมให้บริการ</span>
       </label>
       <div id="gf-available-date-row" style="display:none;margin-top:10px">
-        <label class="form-label">📅 พร้อมให้บริการวันที่</label>
+        <label class="form-label" id="gf-available-date-label">📅 พร้อมให้บริการวันที่</label>
         <input class="form-input" id="gf-available-date" type="date" style="margin-top:4px">
-        <p class="form-hint">จะแสดงแถบแจ้งเตือนบนรูปเกม</p>
+        <p class="form-hint" id="gf-available-date-hint">จะแสดงแถบแจ้งเตือนบนรูปเกม</p>
       </div>
     </div>
     <div class="form-actions">
@@ -3959,7 +3964,7 @@ let activePlatformTab = 'all';
 let adminGameFilter = null;
 let confirmCallback = null;
 // Sort & filter state per platform (key = platformId)
-let platformSortMode = {}; // 'newest' | 'alpha' | 'genre'
+let platformSortMode = {}; // 'manual' | 'alpha' | 'genre'
 let platformGenreFilter = {}; // genre string or ''
 // Every platform used to paint its whole catalogue at once, which put well over
 // a thousand cards in the document on a phone. Each section starts capped and
@@ -4219,6 +4224,21 @@ function normalizeGameRecord(g) {
   next.platformId = primaryPlatformId(next);
   return next;
 }
+function normalizeGameOrders(items) {
+  const rows = Array.isArray(items) ? items : [];
+  const used = new Set();
+  let nextOrder = Math.max(0, ...rows.map(g => Number(g && g.orderId) || 0)) + 1;
+  return rows.map((game, index) => {
+    let orderId = Number(game && game.orderId);
+    if (!Number.isInteger(orderId) || orderId < 1 || used.has(orderId)) {
+      const currentPosition = index + 1;
+      orderId = !used.has(currentPosition) ? currentPosition : nextOrder;
+      while (used.has(orderId)) orderId = nextOrder++;
+    }
+    used.add(orderId);
+    return Object.assign({}, game, { orderId });
+  });
+}
 function ajTodayYmd() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -4229,10 +4249,32 @@ function isGameUnavailable(g) {
   if (!ready) return true;
   return ajTodayYmd() < ready;
 }
+function compareGamesForDisplay(a, b, mode) {
+  const aUnavailable = isGameUnavailable(a);
+  const bUnavailable = isGameUnavailable(b);
+  if (aUnavailable !== bUnavailable) return aUnavailable ? -1 : 1;
+  if (aUnavailable && bUnavailable) {
+    const dateOrder = String(b.available_date || '').localeCompare(String(a.available_date || ''));
+    if (dateOrder) return dateOrder;
+  }
+  if (mode === 'alpha') {
+    const nameOrder = String(a.name || '').localeCompare(String(b.name || ''));
+    if (nameOrder) return nameOrder;
+  } else if (mode === 'newest') {
+    const insertedOrder = (Number(b.insertedAt) || 0) - (Number(a.insertedAt) || 0);
+    if (insertedOrder) return insertedOrder;
+    const yearOrder = (Number(b.year) || 0) - (Number(a.year) || 0);
+    if (yearOrder) return yearOrder;
+  }
+  return (Number(a.orderId) || Number.MAX_SAFE_INTEGER) - (Number(b.orderId) || Number.MAX_SAFE_INTEGER);
+}
+function sortGamesForDisplay(items, mode) {
+  return (Array.isArray(items) ? items : []).slice().sort((a, b) => compareGamesForDisplay(a, b, mode || 'manual'));
+}
 function ensurePlayStationPlatforms() {
   const rest = (platforms || []).filter(p => p && !['ps4','ps5',PLAYSTATION_ADMIN_ID].includes(p.id));
   platforms = normalizePlatformOrder(PLAYSTATION_PUBLIC_PLATFORMS.map(p => Object.assign({}, p)).concat(rest));
-  games = (games || []).map(normalizeGameRecord);
+  games = normalizeGameOrders((games || []).map(normalizeGameRecord));
 }
 function adminFilterPlatforms() {
   return [Object.assign({}, PLAYSTATION_ADMIN_PLATFORM)].concat((platforms || []).filter(p => p && !['ps4','ps5',PLAYSTATION_ADMIN_ID].includes(p.id)));
@@ -4563,7 +4605,7 @@ function setAdminGameFilter(id) {
 }
 function renderAdminGames() {
   const pName = platformDisplayNameById(adminGameFilter);
-  const pg = games.filter(g => gameMatchesPlatform(g, adminGameFilter));
+  const pg = sortGamesForDisplay(games.filter(g => gameMatchesPlatform(g, adminGameFilter)), 'manual');
   document.getElementById('admin-games-title').textContent = `รายการเกม — ${pName} (${pg.length})`;
   const wrap = document.getElementById('admin-game-list');
   if (!pg.length) { wrap.innerHTML = '<p style="color:var(--text3);font-size:13px">ยังไม่มีเกมในประเภทนี้</p>'; return; }
@@ -4573,7 +4615,7 @@ function renderAdminGames() {
     <div class="game-row-num">${i+1}</div>
     ${g.imgUrl ? `<img class="game-row-img" src="${escHtml(g.imgUrl)}" alt="" loading="lazy" decoding="async" onerror="this.style.background='var(--bg2)'">` : '<div class="game-row-img" style="background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:18px">🎮</div>'}
     <div class="game-row-info" style="flex:1;min-width:0">
-      <div class="game-row-name">${escHtml(g.name)}${isGameUnavailable(g) ? ' <span style="font-size:10px;background:#fff3cd;color:#856404;padding:1px 6px;border-radius:10px;margin-left:4px">⚠️ ไม่พร้อมบริการ'+(g.available_date?(' '+g.available_date):'')+'</span>' : ''}</div>
+      <div class="game-row-name">#${g.orderId} · ${escHtml(g.name)}${isGameUnavailable(g) ? ` <span style="font-size:10px;background:#fff3cd;color:#856404;padding:1px 6px;border-radius:10px;margin-left:4px">${currentLang === 'en' ? 'Not ready' : 'ไม่พร้อมบริการ'}${g.available_date?(' '+g.available_date):''}</span>` : ''}</div>
       <div style="display:flex;flex-wrap:wrap;gap:4px;margin:2px 0">${gTags}</div>
       <div class="game-row-url">
         ${g.year?`📅 ${g.year} · `:''}${g.players?`👥 ${escHtml(g.players)} · `:''}${g.ytId?'▶ มี Trailer':'ไม่มี Trailer'}
@@ -4636,6 +4678,7 @@ function openGameForm(id) {
   const g = id ? games.find(x => x.id === id) : null;
   document.getElementById('game-form-title').textContent = g ? 'แก้ไขเกม' : 'เพิ่มเกม';
   document.getElementById('gf-id').value = id || '';
+  document.getElementById('gf-order').value = g ? g.orderId : (Math.max(0, ...games.map(game => Number(game.orderId) || 0)) + 1);
   // populate platform select
   const sel = document.getElementById('gf-platform');
   const currentIds = g ? gamePlatformIds(g) : [];
@@ -4683,7 +4726,10 @@ function saveGame() {
   const id = document.getElementById('gf-id').value;
   const name = document.getElementById('gf-name').value.trim();
   const platformId = document.getElementById('gf-platform').value;
-  if (!name) { alert('กรุณากรอกชื่อเกม'); return; }
+  const orderId = Number(document.getElementById('gf-order').value);
+  if (!name) { alert(TRANSLATIONS[currentLang].game_name_required); return; }
+  if (!Number.isInteger(orderId) || orderId < 1) { alert(TRANSLATIONS[currentLang].order_required); return; }
+  if (games.some(game => Number(game.orderId) === orderId && game.id !== id)) { alert(TRANSLATIONS[currentLang].order_duplicate); return; }
   let platformIds = [platformId];
   let savePlatformId = platformId;
   if (platformId === PLAYSTATION_ADMIN_ID) {
@@ -4703,13 +4749,14 @@ function saveGame() {
   const desc_en= document.getElementById('gf-desc-en').value.trim()||null;
   const unavailable = document.getElementById('gf-unavailable')?.checked || false;
   const available_date = unavailable ? (document.getElementById('gf-available-date')?.value || null) : null;
+  if (unavailable && !available_date) { alert(TRANSLATIONS[currentLang].ready_date_required); return; }
   if (id) {
     const g = games.find(x => x.id === id);
-    if (g) { g.name=name; g.platformId=savePlatformId; g.platformIds=platformIds; g.imgUrl=imgUrl; g.ytId=ytId; g.year=year; g.players=players; g.genre=genre; g.desc_th=desc_th; g.desc_en=desc_en; g.unavailable=unavailable; g.available_date=available_date; }
+    if (g) { g.orderId=orderId; g.name=name; g.platformId=savePlatformId; g.platformIds=platformIds; g.imgUrl=imgUrl; g.ytId=ytId; g.year=year; g.players=players; g.genre=genre; g.desc_th=desc_th; g.desc_en=desc_en; g.unavailable=unavailable; g.available_date=available_date; }
   } else {
-    // Insert at BEGINNING of games array so new game appears first
-    games.unshift({ id:'g_'+Date.now(), platformId:savePlatformId, platformIds, name, imgUrl, ytId, year, players, genre, desc_th, desc_en, unavailable, available_date, insertedAt: Date.now() });
+    games.push({ id:'g_'+Date.now(), orderId, platformId:savePlatformId, platformIds, name, imgUrl, ytId, year, players, genre, desc_th, desc_en, unavailable, available_date, insertedAt: Date.now() });
   }
+  games = normalizeGameOrders(games);
   adminGameFilter = platformId;
   saveData(); closeGameForm(); renderAdminPlatforms(); renderAdminPlatformFilter(); renderAdminGames(); renderPublic();
   showToast(id ? 'อัปเดตเกมเรียบร้อย' : 'เพิ่มเกมเรียบร้อย');
@@ -5066,7 +5113,7 @@ const MAX_PICK = 10;
  * differs from what was saved.
  */
 let pickBaselineIds = [];
-let pickSortMode = 'newest';
+let pickSortMode = 'manual';
 let pickGenreFilter = '';
 let pickSearchQuery = '';
 let pickViewMode = 'grid'; // 'grid' | 'list'
@@ -5099,7 +5146,7 @@ function togglePickDetails() {
 function openPickModal() {
   pickedGames = [];
   pickActivePlatform = null;
-  pickSortMode = 'newest';
+  pickSortMode = 'manual';
   pickGenreFilter = '';
   pickSearchQuery = '';
   pickGenrePanelOpen = false;
@@ -5159,7 +5206,7 @@ function renderPickPlatformTabs() {
 function resetPickPlatform() {
   pickedGames = [];
   pickActivePlatform = null;
-  pickSortMode = 'newest';
+  pickSortMode = 'manual';
   pickGenreFilter = '';
   pickSearchQuery = '';
   pickGenrePanelOpen = false;
@@ -5207,7 +5254,7 @@ function updatePickGenreButtonLabel() {
 }
 
 function updatePickFilterButtons() {
-  ['newest','alpha'].forEach(m => {
+  ['manual','alpha'].forEach(m => {
     const btn = document.getElementById('pfsort-' + m);
     if (btn) btn.classList.toggle('active', pickSortMode === m);
   });
@@ -5231,7 +5278,7 @@ function togglePickGenrePanel(forceOpen) {
 function setPickPlatform(id) {
   pickActivePlatform = id;
   pickSearchQuery = '';
-  pickSortMode = 'newest';
+  pickSortMode = 'manual';
   pickGenreFilter = '';
   pickGenrePanelOpen = false;
   // Show search/filter bar
@@ -5711,6 +5758,16 @@ const TRANSLATIONS = {
     copy_closing: 'ขอบคุณครับ/ค่ะ 🙏',
     // Trailer modal
     trailer_close_title: '',
+    order_sort: 'ลำดับ ID',
+    admin_order_label: 'ลำดับ ID (แก้ไขได้) *',
+    admin_order_hint: 'ใช้กำหนดลำดับเกมภายในทุกประเภทเครื่อง เลขต้องไม่ซ้ำกัน',
+    admin_unavailable: '⚠️ ยังไม่พร้อมให้บริการ',
+    admin_ready_date: '📅 พร้อมให้บริการวันที่',
+    admin_ready_hint: 'จะแสดงแถบแจ้งเตือนบนรูปเกม',
+    order_required: 'กรุณากรอกลำดับ ID เป็นเลขตั้งแต่ 1 ขึ้นไป',
+    order_duplicate: 'ลำดับ ID นี้ถูกใช้งานแล้ว กรุณาเลือกเลขอื่น',
+    ready_date_required: 'กรุณาเลือกวันที่พร้อมให้บริการ',
+    game_name_required: 'กรุณากรอกชื่อเกม',
   },
   en: {
     lang_toggle: '🇹🇭 TH',
@@ -5760,6 +5817,16 @@ const TRANSLATIONS = {
     copy_greeting: 'Hello! 🎮 I would like to have the following games:',
     copy_closing: 'Thank you! 🙏',
     trailer_close_title: '',
+    order_sort: 'ID Order',
+    admin_order_label: 'ID order (editable) *',
+    admin_order_hint: 'Controls the game order across every console type. Each number must be unique.',
+    admin_unavailable: '⚠️ Not ready for service',
+    admin_ready_date: '📅 Ready for service on',
+    admin_ready_hint: 'A notice will be shown over the game image.',
+    order_required: 'Enter an ID order of 1 or higher.',
+    order_duplicate: 'This ID order is already in use. Choose another number.',
+    ready_date_required: 'Select the ready-for-service date.',
+    game_name_required: 'Enter the game name.',
   }
 };
 
@@ -5822,8 +5889,18 @@ function applyLang() {
 
   // Pick modal filter labels
   const isEn = currentLang === 'en';
-  const elNewest = document.getElementById('pf-label-newest');
-  if (elNewest) elNewest.textContent = isEn ? 'Latest' : 'ใหม่ล่าสุด';
+  const elOrder = document.getElementById('pf-label-order');
+  if (elOrder) elOrder.textContent = T.order_sort;
+  const adminOrderLabel = document.getElementById('gf-order-label');
+  if (adminOrderLabel) adminOrderLabel.textContent = T.admin_order_label;
+  const adminOrderHint = document.getElementById('gf-order-hint');
+  if (adminOrderHint) adminOrderHint.textContent = T.admin_order_hint;
+  const adminUnavailable = document.getElementById('gf-unavailable-label');
+  if (adminUnavailable) adminUnavailable.textContent = T.admin_unavailable;
+  const adminReadyDate = document.getElementById('gf-available-date-label');
+  if (adminReadyDate) adminReadyDate.textContent = T.admin_ready_date;
+  const adminReadyHint = document.getElementById('gf-available-date-hint');
+  if (adminReadyHint) adminReadyHint.textContent = T.admin_ready_hint;
   updatePickGenreButtonLabel();
   const elView = document.getElementById('pf-label-view');
   if (elView) {
@@ -5896,7 +5973,7 @@ function renderSections() {
   for (const p of platforms) {
     const allPg = games.filter(g => gameMatchesPlatform(g, p.id));
     const visible = activePlatformTab === 'all' || activePlatformTab === p.id;
-    const sortMode = platformSortMode[p.id] || 'newest';
+    const sortMode = platformSortMode[p.id] || 'manual';
     const genreFilter = platformGenreFilter[p.id] || '';
 
     // Get all unique genres for this platform
@@ -5904,13 +5981,12 @@ function renderSections() {
 
     // Apply genre filter then sort
     let pg = genreFilter ? allPg.filter(g => (g.genre || []).includes(genreFilter)) : [...allPg];
-    if (sortMode === 'alpha') pg.sort((a,b) => a.name.localeCompare(b.name));
-    else if (sortMode === 'newest') pg.sort((a,b) => { const ai=a.insertedAt||0, bi=b.insertedAt||0; if(bi!==ai) return bi-ai; return (b.year||0)-(a.year||0); });
+    pg = sortGamesForDisplay(pg, sortMode);
     // genre mode: already filtered; keep insertion order
 
     const isEn = currentLang === 'en';
     const sortLabel = isEn ? 'Sort:' : 'เรียง:';
-    const newestLabel = isEn ? 'Newest' : 'ใหม่ล่าสุด';
+    const orderLabel = T.order_sort;
     const alphaLabel = isEn ? 'A–Z' : 'ตัวอักษร';
     const genreLabel = isEn ? 'Genre' : 'ประเภทเกม';
     const allGenresLabel = isEn ? 'All' : 'ทั้งหมด';
@@ -5957,7 +6033,7 @@ function renderSections() {
     // Filter bar
     html += `<div class="filter-bar" onclick="event.stopPropagation()">
       <span class="filter-label">${sortLabel}</span>
-      <button class="filter-btn ${sortMode==='newest'?'active':''}" onclick="setSectionSort('${p.id}','newest')">${newestLabel}</button>
+      <button class="filter-btn ${sortMode==='manual'?'active':''}" onclick="setSectionSort('${p.id}','manual')">${orderLabel}</button>
       <button class="filter-btn ${sortMode==='alpha'?'active':''}" onclick="setSectionSort('${p.id}','alpha')">${alphaLabel}</button>
       ${allGenres.length > 0 ? `<div class="filter-separator"></div>
       <button class="filter-btn ${sortMode==='genre'?'active':''}" onclick="setSectionSort('${p.id}','genre')">🏷 ${genreLabel}</button>` : ''}
@@ -6134,8 +6210,7 @@ function renderPickBody() {
   let pg = games.filter(g => gameMatchesPlatform(g, pickActivePlatform));
   if (pickGenreFilter) pg = pg.filter(g => (g.genre||[]).includes(pickGenreFilter));
   if (pickSearchQuery) pg = pg.filter(g => g.name.toLowerCase().includes(pickSearchQuery));
-  if (pickSortMode === 'alpha') pg = [...pg].sort((a,b) => a.name.localeCompare(b.name));
-  else if (pickSortMode === 'newest') pg = [...pg].sort((a,b) => { const ai=a.insertedAt||0, bi=b.insertedAt||0; if(bi!==ai) return bi-ai; return (b.year||0)-(a.year||0); });
+  pg = sortGamesForDisplay(pg, pickSortMode);
 
   const body = document.getElementById('pick-body');
   if (!games.filter(g => gameMatchesPlatform(g, pickActivePlatform)).length) {
@@ -6932,8 +7007,8 @@ document.addEventListener('touchstart', function(e) {
     const isEn = (typeof currentLang !== 'undefined' && currentLang === 'en');
     const search = document.getElementById('pick-search-input');
     if(search) search.placeholder = isEn ? 'Search games...' : 'ค้นหาเกม...';
-    const newest = document.getElementById('pf-label-newest');
-    if(newest) newest.textContent = isEn ? 'Latest' : 'ใหม่ล่าสุด';
+    const order = document.getElementById('pf-label-order');
+    if(order) order.textContent = isEn ? 'ID Order' : 'ลำดับ ID';
     const genre = document.getElementById('pf-label-genre');
     if(genre && !genre.textContent.includes(':')) genre.textContent = isEn ? 'Genre' : 'ประเภท';
     const view = document.getElementById('pf-label-view');

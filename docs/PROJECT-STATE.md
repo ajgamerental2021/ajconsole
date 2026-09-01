@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-09-01 — Editable game ordering across every console
+
+- `game_index.html` preserves the existing catalogue sequence as a numeric `orderId` and exposes it as an editable, globally unique ID order in Admin without changing the internal game key used by booking selections.
+- Every public console section, the embedded booking picker, and the Admin list use the same priority rule: games not ready for service appear first, ordered by ready date from farthest to nearest; all other games follow the editable ID order.
+- A ready date is required whenever “not ready for service” is selected. Ordering labels, validation, and availability copy are bilingual.
+- New games receive the next available ID order unless Admin chooses another unused number. The booking page game-picker cache version was bumped to `20260901-1`.
+- Regression tests, inline-script parsing, desktop bilingual checks, and a 375px mobile overflow/error check pass.
+
 ## 2026-08-30 — Analytics disclosure and social footer
 
 - The before-rental landing panel now shows the complete bilingual anonymous-analytics disclosure near the initial trust/decision content; the existing disclosure remains below FAQ as well.
