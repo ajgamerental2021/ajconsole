@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-09-01 — Catalogue Admin entry hidden by default
+
+- The public ajgameid and game catalogue headers no longer expose an Admin button.
+- Their existing login entry is shown only when the owner opens the page with `?admin=1`, matching the main booking page behavior.
+- The game-picker cache version was bumped so embedded catalogue sessions receive the updated header.
+
 ## 2026-09-01 — ajgameid LIFF-only identity and compact mobile cards
 
 - The normal website no longer initiates LINE login; LIFF initialization is restricted to the LINE in-app browser.

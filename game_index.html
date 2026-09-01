@@ -104,9 +104,8 @@
       padding: 0 12px;
       gap: 8px;
     }
-    /* The row used to scroll sideways, so Admin sat permanently clipped by the
-       screen edge. Admin is the only way into the login flow, so shrink the row
-       to fit rather than hiding or scrolling it. */
+    /* Keep the public header controls compact on mobile. Admin is available
+       only through the owner URL and remains hidden during normal browsing. */
     .header-right {
       gap: 5px;
       flex-shrink: 0;
@@ -2668,7 +2667,7 @@
     <button class="btn-howto" id="btn-faq" onclick="scrollToFAQ()">&#x1F4AC; <span id="btn-faq-label">FAQ</span></button>
     <button class="btn-howto" id="btn-howto" onclick="openHowToModal()">❓ <span id="btn-howto-label">วิธีใช้</span></button>
     <button class="btn-lang" id="btn-lang" onclick="toggleLang()">🇬🇧 EN</button>
-    <button class="btn-admin" onclick="showLogin()">⚙ Admin</button>
+    <button class="btn-admin" id="catalog-admin-btn" onclick="showLogin()" hidden>⚙ Admin</button>
   </div>
 </header>
 
@@ -4505,6 +4504,7 @@ function closeTrailer(e) {
 /* ──────────────────────────────────────
    LOGIN
 ────────────────────────────────────── */
+document.getElementById('catalog-admin-btn').hidden = new URLSearchParams(window.location.search).get('admin') !== '1';
 function showLogin() {
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
