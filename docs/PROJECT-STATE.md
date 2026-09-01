@@ -807,3 +807,9 @@ paused job shows slightly old numbers rather than an empty section.
 - เพิ่มตัวเลือก “เลือกวัน” พร้อม date picker สำหรับดูสถิติรายวันย้อนหลัง และไม่อนุญาตให้เลือกวันในอนาคต
 - ช่วงเลือกเดือนและเลือกปีใช้ขอบเขตวันตามเวลาไทยเช่นเดียวกัน
 - ค่าเริ่มต้นเมื่อเปิดหน้า Analytics คือ “วันนี้” แทน “30 วัน”
+
+## 2026-09-01 — Onrender ajgameid mirror synchronized
+
+- Synchronized `/ajgameid/` in this repository with the current standalone `ajgameid` catalogue used by GitHub Pages.
+- The Onrender copy now supports editable manual IDs and puts not-ready games first, sorted by the farthest ready date before falling back to manual ID order.
+- Added a regression test so the embedded Onrender copy cannot silently lose the Thai/English ordering behavior again.
