@@ -846,3 +846,10 @@ paused job shows slightly old numbers rather than an empty section.
 - `ajgameid` initializes its LIFF identity, stores verified LINE Unique ID/display name/language with the ID Pending row, and immediately pushes a bilingual ID-rental Flex after the customer taps Rent/Reserve.
 - When the automatic Flex succeeds, the popup confirms that AJ received the request. Otherwise it keeps the copy fallback. The former guide button in that popup is now “Open AJ LINE”.
 - The standalone GitHub Pages and embedded Onrender copies of `ajgameid` remain byte-for-byte synchronized.
+
+## 2026-09-01 — Daily system backup package
+
+- Added a standalone Google Apps Script daily backup for the website and LINE OA Bot; Delivery App is deliberately excluded for its separate owner-managed backup work.
+- Each run copies production/legacy Google Sheets as native Sheets plus XLSX, recursively snapshots the Bot contract-output Drive folder, saves both website Gists, and downloads ZIP snapshots plus commit SHAs for `aj-line-oa-bot`, `ajconsole`, and `ajgameid`.
+- Every snapshot has per-component results, redacted configuration, JSON manifests with SHA-256 descriptions, and a 30-day retention cleanup. A Thai status email is sent to `ajgamerental2021@gmail.com` after every successful, partial, or failed run without attaching customer data.
+- The one-time installer creates a daily Apps Script trigger in the 03:00–04:00 Asia/Bangkok window. Activation still requires the owner to paste the script into Google Apps Script, set the production `GOOGLE_SHEETS_ID` as a Script Property, run the installer, and grant Google permissions.
