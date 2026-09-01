@@ -853,3 +853,10 @@ paused job shows slightly old numbers rather than an empty section.
 - Each run copies production/legacy Google Sheets as native Sheets plus XLSX, recursively snapshots the Bot contract-output Drive folder, saves both website Gists, and downloads ZIP snapshots plus commit SHAs for `aj-line-oa-bot`, `ajconsole`, and `ajgameid`.
 - Every snapshot has per-component results, redacted configuration, JSON manifests with SHA-256 descriptions, and a 30-day retention cleanup. A Thai status email is sent to `ajgamerental2021@gmail.com` after every successful, partial, or failed run without attaching customer data.
 - The one-time installer creates a daily Apps Script trigger in the 03:00–04:00 Asia/Bangkok window. Activation still requires the owner to paste the script into Google Apps Script, set the production `GOOGLE_SHEETS_ID` as a Script Property, run the installer, and grant Google permissions.
+
+## 2026-09-01 — ID rental booking type, cover and LIFF identity UX
+
+- ID rental requests now carry an explicit `immediate` or `advance` booking type based on the same availability window used by the button: available and service-ready offers are “พร้อมเล่นทันที / Ready to play now”; busy or not-ready items are “จองล่วงหน้า / Advance booking”.
+- The first HTTPS cover URL from the selected catalogue item is persisted in `ID Pending` and rendered as the LINE Flex hero image. Existing rows remain compatible with the two appended columns.
+- The LIFF header shows `LINE: <profile display name>` instead of exposing the LINE Unique ID. On small screens, the language control is aligned at the right edge with the profile badge beneath it.
+- Standalone and embedded `ajgameid` copies remain byte-for-byte synchronized.
