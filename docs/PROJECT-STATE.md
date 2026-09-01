@@ -820,3 +820,10 @@ paused job shows slightly old numbers rather than an empty section.
 - The booking Flex greets matched customers by name in Thai and English, and the name/phone are persisted against the Rental ID.
 - Verified SlipOK and Beam payment forwards now include customer identity plus normalized rental details, allowing Delivery App to create the paid booking automatically without retyping name or phone.
 - Delivery App treats a rental code carried by the signed payment webhook as the explicit booking target after extension/modification checks, retaining idempotent booking creation and the existing ambiguity safeguards.
+
+## 2026-09-01 — Current Rental Terms, refreshed payment links, and ajgameid LIFF booking
+
+- Admin booking edits now attach the current Thai/English Rental Terms reference and regenerate Beam payment links from the edited upfront amount before saving; payment methods that do not use Beam have stale links cleared.
+- `ajgameid` initializes its LIFF identity, stores verified LINE Unique ID/display name/language with the ID Pending row, and immediately pushes a bilingual ID-rental Flex after the customer taps Rent/Reserve.
+- When the automatic Flex succeeds, the popup confirms that AJ received the request. Otherwise it keeps the copy fallback. The former guide button in that popup is now “Open AJ LINE”.
+- The standalone GitHub Pages and embedded Onrender copies of `ajgameid` remain byte-for-byte synchronized.
