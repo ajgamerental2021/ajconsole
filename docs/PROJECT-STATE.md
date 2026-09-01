@@ -853,6 +853,7 @@ paused job shows slightly old numbers rather than an empty section.
 - Each run copies production/legacy Google Sheets as native Sheets plus XLSX, recursively snapshots the Bot contract-output Drive folder, saves both website Gists, and downloads ZIP snapshots plus commit SHAs for `aj-line-oa-bot`, `ajconsole`, and `ajgameid`.
 - Every snapshot has per-component results, redacted configuration, JSON manifests with SHA-256 descriptions, and a 30-day retention cleanup. A Thai status email is sent to `ajgamerental2021@gmail.com` after every successful, partial, or failed run without attaching customer data.
 - The one-time installer creates a daily Apps Script trigger in the 03:00–04:00 Asia/Bangkok window. Activation still requires the owner to paste the script into Google Apps Script, set the production `GOOGLE_SHEETS_ID` as a Script Property, run the installer, and grant Google permissions.
+- The Board Game catalogue Google Sheet is also in the default backup allowlist; the Delivery App Customers Sheet remains excluded with the rest of Delivery App.
 
 ## 2026-09-01 — ID rental booking type, cover and LIFF identity UX
 
