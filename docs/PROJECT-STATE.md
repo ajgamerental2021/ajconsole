@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-09-01 — ajgameid LIFF-only identity and compact mobile cards
+
+- The normal website no longer initiates LINE login; LIFF initialization is restricted to the LINE in-app browser.
+- A verified LIFF session shows the customer's LINE Unique ID in the top-right header.
+- The copy confirmation uses the rental guide outside LIFF and opens AJ LINE only for a verified LIFF session.
+- Removed the legacy `resultsHint` and footer output and tightened the two-column mobile catalogue layout.
+
 ## 2026-09-01 — Editable game ordering across every console
 
 - `game_index.html` preserves the existing catalogue sequence as a numeric `orderId` and exposes it as an editable, globally unique ID order in Admin without changing the internal game key used by booking selections.
