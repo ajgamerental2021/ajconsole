@@ -3624,7 +3624,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function restoreAvailabilityCache(){
     try{
       const cached = JSON.parse(localStorage.getItem(AVAILABILITY_CACHE_KEY) || "null");
-      if(!cached || !cached.payload || Date.now() - Number(cached.savedAt || 0) > 6 * 60 * 60 * 1000) return;
+      // Half an hour, not six. This snapshot is painted before the network
+      // answers, and availability changes the moment a device is returned — a
+      // six-hour-old copy told a customer a free console was unavailable, and
+      // would just as happily offer one that had since been taken.
+      if(!cached || !cached.payload || Date.now() - Number(cached.savedAt || 0) > 30 * 60 * 1000) return;
       state.availability.rows = normalizeAvailabilityRows(cached.payload);
       state.availability.lastSync = Number(cached.savedAt || 0);
     }catch{
