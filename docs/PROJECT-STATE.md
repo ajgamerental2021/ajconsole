@@ -813,3 +813,10 @@ paused job shows slightly old numbers rather than an empty section.
 - Synchronized `/ajgameid/` in this repository with the current standalone `ajgameid` catalogue used by GitHub Pages.
 - The Onrender copy now supports editable manual IDs and puts not-ready games first, sorted by the farthest ready date before falling back to manual ID order.
 - Added a regression test so the embedded Onrender copy cannot silently lose the Thai/English ordering behavior again.
+
+## 2026-09-01 — Returning-customer identity in booking and payment handoff
+
+- The bot now resolves a matched returning customer's name and phone server-side from Contracts or the Delivery App Customers Sheet by verified LINE Unique ID; the public eligibility API still exposes only yes/no agreement status.
+- The booking Flex greets matched customers by name in Thai and English, and the name/phone are persisted against the Rental ID.
+- Verified SlipOK and Beam payment forwards now include customer identity plus normalized rental details, allowing Delivery App to create the paid booking automatically without retyping name or phone.
+- Delivery App treats a rental code carried by the signed payment webhook as the explicit booking target after extension/modification checks, retaining idempotent booking creation and the existing ambiguity safeguards.
