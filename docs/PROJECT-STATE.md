@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-09-01 — English ajgameid LIFF deep link
+
+- The ajgameid catalogue now accepts `?lang=en` or `?lang=th`; an explicit URL language overrides the language previously saved in that browser.
+- This provides a dedicated English LIFF link without changing the Thai default or the customer's language switch.
+
 ## 2026-09-01 — Catalogue Admin entry hidden by default
 
 - The public ajgameid and game catalogue headers no longer expose an Admin button.
