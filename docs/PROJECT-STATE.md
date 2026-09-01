@@ -3,6 +3,7 @@
 ## 2026-09-01 — English ajgameid LIFF deep link
 
 - The ajgameid catalogue now accepts `?lang=en` or `?lang=th`; an explicit URL language overrides the language previously saved in that browser.
+- LIFF-wrapped query strings are also read from `liff.state`, which is how LINE forwards parameters appended to a `liff.line.me` permalink.
 - This provides a dedicated English LIFF link without changing the Thai default or the customer's language switch.
 
 ## 2026-09-01 — Catalogue Admin entry hidden by default
