@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-09-02 — Booking-channel handoffs hardened
+
+- The contract LIFF now restores `ctx`, rental code, language, payment fields, and the completed-contract LINE handoff flag when LINE wraps them inside `liff.state`; previously the completed-contract LINE button could lose its booking context and fail.
+- The contract page app cache-buster was updated so customers do not keep running the stale pre-fix JavaScript after deployment.
+- On the main booking page, LINE, Messenger, and English WhatsApp still require a fresh availability hold, but a temporary Beam payment-link failure no longer blocks the booking handoff. The booking reaches AJ and payment can be completed from the resulting conversation.
+- Verified the production availability/config endpoints, English LIFF-state restoration on the real local Express server, Thai/English channel rendering, zero browser console errors, all 214 Bot tests, and all 20 catalogue/booking-page tests.
+
 ## 2026-09-02 — Booking-detail choices stay on Step 2
 
 - Fixed the automatic guide's leftover four-step mapping after the booking flow was reduced to three steps.

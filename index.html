@@ -3398,8 +3398,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }
     return hold;
   }
-  async function ensureBeamPaymentLink(summary, rentalCode){
-    await ensureBookingHold(rentalCode);
+  async function ensureBeamPaymentLink(summary, rentalCode, options={}){
+    if(!options.holdAcquired) await ensureBookingHold(rentalCode);
     const amount = paymentLinkAmount(summary);
     const key = currentBeamPaymentKey(summary, rentalCode);
     if(!key) return "";
@@ -3430,6 +3430,20 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     state.calc.beamPaymentExpiresAt = data.expiresAt || "";
     saveLocal();
     return data.url;
+  }
+  async function prepareBookingPayment(summary, rentalCode){
+    await ensureBookingHold(rentalCode);
+    try{
+      return await ensureBeamPaymentLink(summary, rentalCode, {holdAcquired:true});
+    }catch(error){
+      console.warn("Payment link unavailable; continuing with booking handoff", error);
+      state.calc.beamPaymentLink = "";
+      state.calc.beamPaymentKey = "";
+      state.calc.beamPaymentExpiresAt = "";
+      trackAnalytics("client_error", {errorCode:"payment_link_optional_fallback"});
+      saveLocal();
+      return "";
+    }
   }
   function showBookingActionError(error){
     console.error("Booking action failed", error);
@@ -4948,7 +4962,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     try{
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
-      await ensureBeamPaymentLink(summary, code);
+      await prepareBookingPayment(summary, code);
       const handoff = await prepareContractHandoff(code, "line");
       if(!handoff.contextToken) throw new Error("LINE booking handoff is unavailable");
       const msg = handoff.message;
@@ -4996,7 +5010,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     try{
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
-      await ensureBeamPaymentLink(summary, code);
+      await prepareBookingPayment(summary, code);
       const handoff = await prepareContractHandoff(code, "web");
       const msg = unicodeSafeText(handoff.message);
       submitRentalToSheet(summary, code, "whatsapp", msg, handoff.data);
@@ -5017,7 +5031,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     try{
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
-      await ensureBeamPaymentLink(summary, code);
+      await prepareBookingPayment(summary, code);
       const handoff = await prepareContractHandoff(code, "web");
       const msg = unicodeSafeText(handoff.message);
       submitRentalToSheet(summary, code, "messenger", msg, handoff.data);
