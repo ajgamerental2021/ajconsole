@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-09-02 — Returning-customer checkbox Step 2 follow-up
+
+- Removed the remaining generic guide advancement from the returning-customer checkbox change handler. When previously completed guide stages were restored from browser state, that advancement could still jump directly to Step 3.
+- Checking and clearing the returning-customer option now explicitly keeps the current booking-detail step and only updates the next guide target to payment or contract choice.
+- Added a regression test covering both checkbox directions; all 21 website tests and inline JavaScript parsing pass.
+
 ## 2026-09-02 — Booking-channel handoffs hardened
 
 - The contract LIFF now restores `ctx`, rental code, language, payment fields, and the completed-contract LINE handoff flag when LINE wraps them inside `liff.state`; previously the completed-contract LINE button could lose its booking context and fail.

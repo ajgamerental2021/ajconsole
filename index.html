@@ -6742,7 +6742,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
           state.calc.reviewGoogle = false;
           state.calc.reviewFacebook = false;
         }
-        advanceGuide("ret");
+        // Changing the returning-customer option must never navigate away from
+        // booking details. Some guide stages may already be marked complete
+        // from an earlier selection, so generic guide advancement could skip
+        // as far as next3 and silently change state.calc.step to 3.
+        markGuideDone("ret");
+        setGuideStage(state.calc.ret ? "payment" : "contractChoice", {syncStep:false});
+        saveLocal();
+        render();
       }
       if(event.target.id === "reviewGoogleOpt"){ state.calc.reviewGoogle = event.target.checked && state.calc.ret; saveLocal(); render(); }
       if(event.target.id === "reviewFacebookOpt"){ state.calc.reviewFacebook = event.target.checked && state.calc.ret; saveLocal(); render(); }
