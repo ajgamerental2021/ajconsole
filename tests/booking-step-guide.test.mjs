@@ -18,3 +18,12 @@ test('step 2 advances through payment before review', () => {
   assert.match(stepTwo, /return "next2"/);
   assert.doesNotMatch(stepTwo, /guideStageForStep\(3\)/);
 });
+
+test('preparation timing is shown above the calculator and after game selection in both languages', () => {
+  assert.match(source, /class="prep-time-brief" data-i18n="preparationBrief"/);
+  assert.match(source, /class="prep-time-detail" data-i18n-html="preparationDetail"/);
+  assert.match(source, /กรณีต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 2–3 ชั่วโมง/);
+  assert.match(source, /If additional games need to be downloaded or installed: approximately 2–3 hours/);
+  assert.match(source, /rentalTermsVersion !== "2026-09-02"/);
+  assert.match(source, /const RENTAL_TERMS_VERSION = "2026-09-02"/);
+});

@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-09-02 — Preparation-time disclosure across booking and contracts
+
+- Added the bilingual 30–60 minute / 2–3 hour preparation estimate to the calculator introduction, Booking Details after game selection, and the step-by-step guide.
+- Added the same notice to the LIFF contract form, its expanded rental agreement, the public Rental Terms page, and both contract/order-confirmation PDFs so the customer sees one consistent policy throughout the journey.
+- The wording explains that timing starts after availability confirmation, the complete game list, and reservation/payment, and that actual timing depends on download size, internet speed, game count, and the current queue.
+- Advanced the Rental Terms version to `2026-09-02`, intentionally requiring customers with an older saved acceptance to review and accept the updated terms again.
+- Website tests pass 27/27; Bot/contract tests pass 227/227; both changed JavaScript modules pass syntax validation.
+
 ## 2026-09-02 — Copy fallback for failed booking channels
 
 - LINE, Messenger, and English WhatsApp still attempt their existing automatic handoff first on both the main booking page and the post-contract completion page.

@@ -52,6 +52,10 @@ h1 em{color:var(--accent);font-style:normal}
 .section-head{text-align:center;margin-bottom:24px}
 .calc-head-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,420px);align-items:center;gap:24px;margin-bottom:24px}
 .calc-head-wrap .section-head{margin-bottom:0}
+.prep-time-brief{margin:-10px 0 18px;padding:10px 14px;border:1px solid #f0cf86;border-radius:12px;background:#fff9e9;color:#704900;font-size:13px;font-weight:800;line-height:1.55}
+.prep-time-detail{margin-top:14px;padding:13px 14px;border:1px solid #f0cf86;border-radius:12px;background:#fff9e9;color:#60420a;font-size:13px;line-height:1.6}
+.prep-time-detail strong{display:block;margin-bottom:4px;color:#513500}
+.prep-time-detail ul{margin:5px 0 5px 20px;padding:0}
 .calc-line-host{width:100%}
 .calc-line-host .line-card{margin-top:0}
 .tag{font-size:12px;font-weight:900;letter-spacing:1.8px;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
@@ -878,6 +882,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         </div>
         <div class="calc-line-host" id="calcLineCardHost"></div>
       </div>
+      <div class="prep-time-brief" data-i18n="preparationBrief">กรุณาเผื่อเวลาเตรียมเครื่องประมาณ 30–60 นาที หรือ 2–3 ชั่วโมงหากต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม</div>
       <div class="calc-shell">
         <div class="calc-tabs" id="calcTabs"></div>
         <div class="calc-body">
@@ -902,6 +907,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
                 <h3 data-i18n="step2Title">รายละเอียดการจอง</h3>
                 <p class="hint" data-i18n="gamePickHelp">ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้</p>
                 <div id="gamePickBox"></div>
+                <div class="prep-time-detail" data-i18n-html="preparationDetail"></div>
               </div>
               <div class="card">
                 <h3 data-i18n="step2DetailsTitle">การจัดส่ง การชำระเงิน และเอกสาร</h3>
@@ -1329,6 +1335,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       filterType:"ประเภท", filterBrand:"แบรนด์", filterSort:"เรียง", all:"ทั้งหมด", type_console:"Console", type_vr:"VR & AR", type_handheld:"PC Handheld", type_racing:"Racing",
       sort_brand:"แยกตามแบรนด์", sort_price_desc:"ราคา สูง → ต่ำ", sort_price_asc:"ราคา ต่ำ → สูง", sort_name:"ชื่อ A → Z",
       calcTag:"คำนวณ", calcTitle:"เช็คคิว & คำนวณค่าเช่า", calcSub:"ขั้นต่ำ 3 วัน | ราคาเรทบุคคล",
+      preparationBrief:"กรุณาเผื่อเวลาเตรียมเครื่องประมาณ 30–60 นาที หรือ 2–3 ชั่วโมงหากต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม",
+      preparationDetail:"<strong>ระยะเวลาเตรียมเครื่องโดยประมาณ</strong><span>เริ่มนับหลังจากร้านยืนยันคิว ได้รับรายชื่อเกมครบถ้วน และได้รับยอดจองหรือยอดชำระตามช่องทางที่เลือก</span><ul><li>กรณีต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 2–3 ชั่วโมง</li><li>กรณีไม่ต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 30–60 นาที</li></ul><span>ระยะเวลาจริงอาจเปลี่ยนแปลงตามขนาดเกม ความเร็วในการดาวน์โหลด จำนวนเกม และคิวงานในขณะนั้น ทางร้านจะแจ้งเวลาที่เครื่องพร้อมจัดส่งให้ทราบอีกครั้ง</span>",
       step1:"เลือกเครื่อง/วันที่", step2:"รายละเอียดการจอง", step3:"สรุปและส่ง", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"เลือกเกม", step2DetailsTitle:"การจัดส่ง การชำระเงิน และเอกสาร", step3Title:"สรุปและส่งข้อความ", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"📖 อ่านขั้นตอนการเช่าก่อนเริ่ม", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
       nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
       deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
@@ -1425,6 +1433,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       filterType:"Type", filterBrand:"Brand", filterSort:"Sort", all:"All", type_console:"Console", type_vr:"VR & AR", type_handheld:"PC Handheld", type_racing:"Racing",
       sort_brand:"Group by brand", sort_price_desc:"Price high → low", sort_price_asc:"Price low → high", sort_name:"Name A → Z",
       calcTag:"Calculator", calcTitle:"Check Queue & Calculate Rental", calcSub:"Minimum 3 days | Individual rates",
+      preparationBrief:"Please allow approximately 30–60 minutes for preparation, or 2–3 hours if additional games must be downloaded or installed.",
+      preparationDetail:"<strong>Estimated preparation time</strong><span>Preparation begins after AJ confirms availability, receives the complete game list, and receives the reservation deposit or payment through the selected payment method.</span><ul><li>If additional games need to be downloaded or installed: approximately 2–3 hours</li><li>If no additional downloads or installations are required: approximately 30–60 minutes</li></ul><span>Actual preparation time may vary depending on game size, download speed, the number of games, and the current service queue. AJ will confirm the expected delivery-ready time again.</span>",
       step1:"Device / Dates", step2:"Booking details", step3:"Review and send", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Choose games", step2DetailsTitle:"Delivery, payment and documents", step3Title:"Summary and send", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"📖 Read rental steps first", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
       nextStep:"Next step", backStep:"Back",
       deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", startDate:"Start date", endDate:"Return date",
@@ -2126,7 +2136,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     // Bookings saved before Rental Terms acknowledgement existed must not keep
     // a silently selected no-contract state. The customer must review and
     // accept the current version explicitly.
-    if(state.calc.noContract && (!state.calc.rentalTermsAccepted || state.calc.rentalTermsVersion !== "2026-08-29")){
+    if(state.calc.noContract && (!state.calc.rentalTermsAccepted || state.calc.rentalTermsVersion !== "2026-09-02")){
       state.calc.noContract = false;
       state.calc.rentalTermsAccepted = false;
       state.calc.rentalTermsAcceptedAt = "";
@@ -4393,7 +4403,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     };
   }
 
-  const RENTAL_TERMS_VERSION = "2026-08-29";
+  const RENTAL_TERMS_VERSION = "2026-09-02";
   function rentalTermsUrl(language=state.lang, embed=false){
     const url = new URL("/rental-terms/", CONFIG.apiBase);
     url.searchParams.set("lang", language === "en" ? "en" : "th");
@@ -5697,8 +5707,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         }
       ],
       detail:{
-        th:`<div class="step-detail-section"><h4>หลังส่งข้อมูล</h4><ul><li>ทางร้านตรวจคิว สรุปค่าใช้จ่ายพร้อมค่าจัดส่ง และแจ้งขั้นตอนถัดไป</li><li><span class="step-mark">ผู้เช่าครั้งแรกต้องทำสัญญาการเช่าก่อนนัดส่งเครื่อง</span> เว้นแต่เลือกไม่ทำสัญญาและยอมรับค่าประกันที่เพิ่มขึ้น</li><li>สัญญาหลักมีอายุ 1 ปี สามารถใช้ข้อมูลและลายมือชื่อเดิมสำหรับการเช่าครั้งถัดไปได้ โดยแต่ละครั้งต้องยืนยันรายละเอียดและเงื่อนไขการเช่าใหม่ เมื่อครบ 1 ปีหรือข้อมูลสำคัญเปลี่ยนแปลง ต้องทำสัญญาหลักใหม่</li><li>ชำระเงินตามช่องทางที่เลือก หลังทางร้านยืนยันคิวและค่าจัดส่ง</li></ul></div><div class="step-detail-section"><h4>เตรียมเครื่องและจัดส่ง</h4><ul><li>เตรียมเครื่องและติดตั้งเกมประมาณ <span class="step-mark">2-3 ชั่วโมง</span> หรือ 30 นาที - 1 ชั่วโมงสำหรับเครื่องที่ไม่ต้องติดตั้งเกม</li><li>จัดส่งด้วย Lalamove / Grab ประมาณ 1-2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ</li><li>เมื่อของถึง สามารถเปิดกระเป๋าเช็คของกับคนส่งของก่อน แล้วชำระยอดที่เหลือพร้อมส่งสลิปให้ร้านทางแชท</li></ul><p><strong>ไม่ทำสัญญาเช่า: เพิ่มค่าประกันจาก ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000</strong></p></div><div class="step-detail-section"><h4>การคืนเครื่อง</h4><ul><li>ทางร้านเรียกรถเข้าไปรับเครื่อง และลูกค้ายืนยันอุปกรณ์ก่อนส่งคืน</li><li>ส่งของให้คนรับของ แล้วแจ้งยืนยันหรือส่งรูปให้ร้านทางแชท</li><li>ร้านเช็คเครื่องและอุปกรณ์ จากนั้นคืนค่าประกันเข้าบัญชีในสัญญา หรือบัญชีที่แจ้งทางแชท</li></ul><p><strong>*ทางร้านเรียกรถขนส่งให้ทั้งขาส่งและขารับกลับเท่านั้น</strong></p><p><strong>**ทางร้านให้บริการแบบออนไลน์เท่านั้น ไม่มีรับหรือคืนเครื่องที่หน้าร้าน</strong></p></div>`,
-        en:`<div class="step-detail-section"><h4>After submitting details</h4><ul><li>The shop checks availability, confirms the total including delivery, and sends the next steps.</li><li><span class="step-mark">First-time renters must complete the rental contract before delivery</span>, unless they choose no contract and accept the higher deposit.</li><li>The Master Agreement is valid for 1 year. The existing information and signature may be used for subsequent rentals, but the rental details and terms must be confirmed again for each rental. A new Master Agreement is required after 1 year or whenever material information changes.</li><li>Pay with the selected method after the shop confirms availability and delivery cost.</li></ul></div><div class="step-detail-section"><h4>Preparation and delivery</h4><ul><li>Device preparation and game installation takes about <span class="step-mark">2-3 hours</span>, or 30 minutes - 1 hour for devices that do not need game installation.</li><li>Delivery by Lalamove / Grab takes approximately 1-2 hours, depending on distance, traffic, and weather.</li><li>On arrival, you can check the items with the delivery rider first, then pay the remaining balance and send the slip to the shop by chat.</li></ul><p><strong>No rental contract: deposit increases from ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000.</strong></p></div><div class="step-detail-section"><h4>Returning the device</h4><ul><li>The shop calls a rider for pickup, and you can confirm the accessories before return.</li><li>Hand the items to the pickup rider, then confirm or send a photo to the shop by chat.</li><li>The shop checks the device and accessories, then refunds the deposit to the bank account in the contract or the account sent by chat.</li></ul><p><strong>*The shop arranges transport for both delivery and return pickup only.</strong></p><p><strong>**Online service only. Pickup or return at the shop is not available.</strong></p></div>`
+        th:`<div class="step-detail-section"><h4>หลังส่งข้อมูล</h4><ul><li>ทางร้านตรวจคิว สรุปค่าใช้จ่ายพร้อมค่าจัดส่ง และแจ้งขั้นตอนถัดไป</li><li><span class="step-mark">ผู้เช่าครั้งแรกต้องทำสัญญาการเช่าก่อนนัดส่งเครื่อง</span> เว้นแต่เลือกไม่ทำสัญญาและยอมรับค่าประกันที่เพิ่มขึ้น</li><li>สัญญาหลักมีอายุ 1 ปี สามารถใช้ข้อมูลและลายมือชื่อเดิมสำหรับการเช่าครั้งถัดไปได้ โดยแต่ละครั้งต้องยืนยันรายละเอียดและเงื่อนไขการเช่าใหม่ เมื่อครบ 1 ปีหรือข้อมูลสำคัญเปลี่ยนแปลง ต้องทำสัญญาหลักใหม่</li><li>ชำระเงินตามช่องทางที่เลือก หลังทางร้านยืนยันคิวและค่าจัดส่ง</li></ul></div><div class="step-detail-section"><h4>เตรียมเครื่องและจัดส่ง</h4><ul><li>เริ่มเตรียมหลังร้านยืนยันคิว ได้รับรายชื่อเกมครบ และได้รับยอดจองหรือยอดชำระแล้ว หากต้องดาวน์โหลดหรือติดตั้งเกมเพิ่ม ใช้เวลาประมาณ <span class="step-mark">2–3 ชั่วโมง</span>; หากไม่ต้องติดตั้งเพิ่ม ใช้เวลาประมาณ 30–60 นาที เวลาจริงขึ้นอยู่กับขนาดเกม ความเร็วดาวน์โหลด จำนวนเกม และคิวงาน โดยร้านจะแจ้งเวลาพร้อมส่งอีกครั้ง</li><li>จัดส่งด้วย Lalamove / Grab ประมาณ 1-2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ</li><li>เมื่อของถึง สามารถเปิดกระเป๋าเช็คของกับคนส่งของก่อน แล้วชำระยอดที่เหลือพร้อมส่งสลิปให้ร้านทางแชท</li></ul><p><strong>ไม่ทำสัญญาเช่า: เพิ่มค่าประกันจาก ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000</strong></p></div><div class="step-detail-section"><h4>การคืนเครื่อง</h4><ul><li>ทางร้านเรียกรถเข้าไปรับเครื่อง และลูกค้ายืนยันอุปกรณ์ก่อนส่งคืน</li><li>ส่งของให้คนรับของ แล้วแจ้งยืนยันหรือส่งรูปให้ร้านทางแชท</li><li>ร้านเช็คเครื่องและอุปกรณ์ จากนั้นคืนค่าประกันเข้าบัญชีในสัญญา หรือบัญชีที่แจ้งทางแชท</li></ul><p><strong>*ทางร้านเรียกรถขนส่งให้ทั้งขาส่งและขารับกลับเท่านั้น</strong></p><p><strong>**ทางร้านให้บริการแบบออนไลน์เท่านั้น ไม่มีรับหรือคืนเครื่องที่หน้าร้าน</strong></p></div>`,
+        en:`<div class="step-detail-section"><h4>After submitting details</h4><ul><li>The shop checks availability, confirms the total including delivery, and sends the next steps.</li><li><span class="step-mark">First-time renters must complete the rental contract before delivery</span>, unless they choose no contract and accept the higher deposit.</li><li>The Master Agreement is valid for 1 year. The existing information and signature may be used for subsequent rentals, but the rental details and terms must be confirmed again for each rental. A new Master Agreement is required after 1 year or whenever material information changes.</li><li>Pay with the selected method after the shop confirms availability and delivery cost.</li></ul></div><div class="step-detail-section"><h4>Preparation and delivery</h4><ul><li>Preparation begins after AJ confirms availability, receives the complete game list, and receives the reservation deposit or payment. Additional downloads or installations take approximately <span class="step-mark">2–3 hours</span>; without additional installation, preparation takes approximately 30–60 minutes. Actual time depends on game size, download speed, the number of games, and the current queue. AJ will confirm the delivery-ready time.</li><li>Delivery by Lalamove / Grab takes approximately 1-2 hours, depending on distance, traffic, and weather.</li><li>On arrival, you can check the items with the delivery rider first, then pay the remaining balance and send the slip to the shop by chat.</li></ul><p><strong>No rental contract: deposit increases from ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000.</strong></p></div><div class="step-detail-section"><h4>Returning the device</h4><ul><li>The shop calls a rider for pickup, and you can confirm the accessories before return.</li><li>Hand the items to the pickup rider, then confirm or send a photo to the shop by chat.</li><li>The shop checks the device and accessories, then refunds the deposit to the bank account in the contract or the account sent by chat.</li></ul><p><strong>*The shop arranges transport for both delivery and return pickup only.</strong></p><p><strong>**Online service only. Pickup or return at the shop is not available.</strong></p></div>`
       }
     },
     {
