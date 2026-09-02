@@ -4256,6 +4256,17 @@ function compareGamesForDisplay(a, b, mode) {
     const dateOrder = String(b.available_date || '').localeCompare(String(a.available_date || ''));
     if (dateOrder) return dateOrder;
   }
+  if (mode === 'manual' && !aUnavailable && !bUnavailable) {
+    // Admin-created games lead the ready group automatically. Editing one
+    // clears autoFront so its manually selected ID becomes authoritative.
+    const aAutoFront = !!a.insertedAt && a.autoFront !== false;
+    const bAutoFront = !!b.insertedAt && b.autoFront !== false;
+    if (aAutoFront !== bAutoFront) return aAutoFront ? -1 : 1;
+    if (aAutoFront && bAutoFront) {
+      const insertedOrder = (Number(b.insertedAt) || 0) - (Number(a.insertedAt) || 0);
+      if (insertedOrder) return insertedOrder;
+    }
+  }
   if (mode === 'alpha') {
     const nameOrder = String(a.name || '').localeCompare(String(b.name || ''));
     if (nameOrder) return nameOrder;
@@ -4678,7 +4689,9 @@ function openGameForm(id) {
   const g = id ? games.find(x => x.id === id) : null;
   document.getElementById('game-form-title').textContent = g ? 'แก้ไขเกม' : 'เพิ่มเกม';
   document.getElementById('gf-id').value = id || '';
-  document.getElementById('gf-order').value = g ? g.orderId : (Math.max(0, ...games.map(game => Number(game.orderId) || 0)) + 1);
+  // A newly added game leads the ready-to-play group by default. Games that
+  // are not ready are still forced above it by compareGamesForDisplay().
+  document.getElementById('gf-order').value = g ? g.orderId : 1;
   // populate platform select
   const sel = document.getElementById('gf-platform');
   const currentIds = g ? gamePlatformIds(g) : [];
@@ -4711,6 +4724,16 @@ function openGameForm(id) {
 }
 function editGame(id) { openGameForm(id); }
 function closeGameForm() { document.getElementById('game-form-overlay').classList.remove('open'); }
+function toggleUnavailableDate() {
+  const unavailable = !!document.getElementById('gf-unavailable')?.checked;
+  const dateRow = document.getElementById('gf-available-date-row');
+  const dateInput = document.getElementById('gf-available-date');
+  if (dateRow) dateRow.style.display = unavailable ? 'block' : 'none';
+  if (dateInput) {
+    dateInput.required = unavailable;
+    if (!unavailable) dateInput.value = '';
+  }
+}
 function toggleGamePlatformFields() {
   const sel = document.getElementById('gf-platform');
   const row = document.getElementById('gf-ps-platforms-row');
@@ -4729,7 +4752,7 @@ function saveGame() {
   const orderId = Number(document.getElementById('gf-order').value);
   if (!name) { alert(TRANSLATIONS[currentLang].game_name_required); return; }
   if (!Number.isInteger(orderId) || orderId < 1) { alert(TRANSLATIONS[currentLang].order_required); return; }
-  if (games.some(game => Number(game.orderId) === orderId && game.id !== id)) { alert(TRANSLATIONS[currentLang].order_duplicate); return; }
+  if (id && games.some(game => Number(game.orderId) === orderId && game.id !== id)) { alert(TRANSLATIONS[currentLang].order_duplicate); return; }
   let platformIds = [platformId];
   let savePlatformId = platformId;
   if (platformId === PLAYSTATION_ADMIN_ID) {
@@ -4752,9 +4775,16 @@ function saveGame() {
   if (unavailable && !available_date) { alert(TRANSLATIONS[currentLang].ready_date_required); return; }
   if (id) {
     const g = games.find(x => x.id === id);
-    if (g) { g.orderId=orderId; g.name=name; g.platformId=savePlatformId; g.platformIds=platformIds; g.imgUrl=imgUrl; g.ytId=ytId; g.year=year; g.players=players; g.genre=genre; g.desc_th=desc_th; g.desc_en=desc_en; g.unavailable=unavailable; g.available_date=available_date; }
+    if (g) { g.orderId=orderId; g.name=name; g.platformId=savePlatformId; g.platformIds=platformIds; g.imgUrl=imgUrl; g.ytId=ytId; g.year=year; g.players=players; g.genre=genre; g.desc_th=desc_th; g.desc_en=desc_en; g.unavailable=unavailable; g.available_date=available_date; g.autoFront=false; }
   } else {
-    games.push({ id:'g_'+Date.now(), orderId, platformId:savePlatformId, platformIds, name, imgUrl, ytId, year, players, genre, desc_th, desc_en, unavailable, available_date, insertedAt: Date.now() });
+    // Insert at the requested position instead of rejecting the occupied ID.
+    // This makes the default ID 1 place new ready games immediately after the
+    // date-prioritized unavailable group while keeping every ID editable/unique.
+    games.forEach(game => {
+      const existingOrder = Number(game.orderId);
+      if (Number.isInteger(existingOrder) && existingOrder >= orderId) game.orderId = existingOrder + 1;
+    });
+    games.push({ id:'g_'+Date.now(), orderId, platformId:savePlatformId, platformIds, name, imgUrl, ytId, year, players, genre, desc_th, desc_en, unavailable, available_date, insertedAt: Date.now(), autoFront:true });
   }
   games = normalizeGameOrders(games);
   adminGameFilter = platformId;

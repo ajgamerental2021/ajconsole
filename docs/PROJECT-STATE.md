@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-09-02 — New-game priority and ready-date field
+
+- `game_index.html` now places newly created games at the front of the ready-to-play group by default; unavailable games remain above them and retain farthest-to-nearest ready-date priority.
+- Existing Admin-created games carrying `insertedAt` also receive the new-game priority, so the game just added before this deployment moves up without being recreated. Editing a game clears automatic priority and makes its editable ID order authoritative again.
+- Fixed the missing `toggleUnavailableDate()` handler: selecting “not ready” immediately reveals a required ready-date field, while clearing it hides and resets the date.
+- Bumped the booking-page game-picker cache version and added regression coverage for ordering and date-field behavior.
+
 ## 2026-09-02 — Returning-customer checkbox Step 2 follow-up
 
 - Removed the remaining generic guide advancement from the returning-customer checkbox change handler. When previously completed guide stages were restored from browser state, that advancement could still jump directly to Step 3.
