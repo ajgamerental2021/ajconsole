@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-09-02 — Copy fallback for failed booking channels
+
+- LINE, Messenger, and English WhatsApp still attempt their existing automatic handoff first on both the main booking page and the post-contract completion page.
+- A genuine channel/handoff exception now opens a bilingual recovery popup containing the complete booking message, a Copy button, and a direct button for the selected AJ chat. Opening the chat from the popup copies the message first.
+- Availability/hold conflicts remain blocking queue errors and intentionally do not expose the fallback, preventing customers from sending a booking for a slot another customer is holding.
+- The post-contract LINE fallback also covers missing LIFF context/config and a failed completed-contract Flex API request. Messenger's normal paste workflow remains unchanged.
+- Website tests pass 26/26; Bot/contract tests pass 226/226; both inline scripts pass syntax validation.
+
 ## 2026-09-02 — New-game priority and ready-date field
 
 - `game_index.html` now places newly created games at the front of the ready-to-play group by default; unavailable games remain above them and retain farthest-to-nearest ready-date priority.
