@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-09-02 — Booking-detail choices stay on Step 2
+
+- Fixed the automatic guide's leftover four-step mapping after the booking flow was reduced to three steps.
+- Returning-customer selection, no-contract Rental Terms acceptance/cancellation, contract actions, Google Maps, and payment choices now remain in Booking Details (Step 2) instead of moving the customer to Review/Send (Step 3).
+- Step 2's guide now reaches payment before pointing at its Next button; Step 3 is reserved for reviewing and sending the booking.
+- The behavior is shared by Thai and English. Inline JavaScript syntax and focused regression tests pass.
+
 ## 2026-09-01 — English ajgameid LIFF deep link
 
 - The ajgameid catalogue now accepts `?lang=en` or `?lang=th`; an explicit URL language overrides the language previously saved in that browser.

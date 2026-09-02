@@ -5789,9 +5789,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function guideStep(stage){
     if(["console","start","end","accessory","ps5bundle","next1"].includes(stage)) return 1;
-    if(["games","next2"].includes(stage)) return 2;
-    if(["bg","ret","contractChoice","contractLink","payment","maps","next3"].includes(stage)) return 3;
-    if(stage === "share") return 4;
+    if(["games","bg","ret","contractChoice","contractLink","payment","maps","next2"].includes(stage)) return 2;
+    if(["next3","share"].includes(stage)) return 3;
     return state.calc.step;
   }
   function guideStageForStep(step){
@@ -5805,19 +5804,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }
     if(step === 2){
       const c = consoleById(state.calc.consoleId);
-      if(c && !consoleHasGameCatalog(c)) return guideStageForStep(3);
-      return state.calc.games?.length || state.calc.later || guideDone("games") ? "next2" : "games";
-    }
-    if(step === 3){
+      if(c && consoleHasGameCatalog(c) && !(state.calc.games?.length || state.calc.later || guideDone("games"))) return "games";
       if(!state.calc.boardgames.length && !guideDone("bg")) return "bg";
       if(!state.calc.maps && !guideDone("maps")) return "maps";
       if(!state.calc.ret && !guideDone("ret")) return "ret";
       if(!state.calc.ret && !guideDone("contractChoice")) return "contractChoice";
       if(!state.calc.ret && !state.calc.noContract && !guideDone("contractLink")) return "contractLink";
       if(guideStageAvailable("payment") && !guideDone("payment")) return "payment";
-      return "next3";
+      return "next2";
     }
-    if(step === 4) return "share";
+    if(step === 3) return "share";
     return "console";
   }
   function guideStageAvailable(stage){
