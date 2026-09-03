@@ -53,9 +53,13 @@ h1 em{color:var(--accent);font-style:normal}
 .calc-head-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,420px);align-items:center;gap:24px;margin-bottom:24px}
 .calc-head-wrap .section-head{margin-bottom:0}
 .prep-time-brief{margin:-10px 0 18px;padding:10px 14px;border:1px solid #f0cf86;border-radius:12px;background:#fff9e9;color:#704900;font-size:13px;font-weight:800;line-height:1.55}
-.prep-time-detail{margin-top:14px;padding:13px 14px;border:1px solid #f0cf86;border-radius:12px;background:#fff9e9;color:#60420a;font-size:13px;line-height:1.6}
+.prep-time-detail{margin-top:14px;padding:0;border:1px solid #f0cf86;border-radius:12px;background:#fff9e9;color:#60420a;font-size:13px;line-height:1.6;overflow:hidden}
+.prep-time-detail summary{padding:11px 14px;color:#513500;font-weight:900;cursor:pointer;list-style-position:inside}
+.prep-time-detail>div{padding:0 14px 13px}
 .prep-time-detail strong{display:block;margin-bottom:4px;color:#513500}
 .prep-time-detail ul{margin:5px 0 5px 20px;padding:0}
+.share-disabled-help{margin:10px 0 0;padding:10px 12px;border-radius:10px;background:#fff7e6;color:#754c00;font-size:12px;font-weight:750;line-height:1.5}
+.calc-tabs{scroll-margin-top:calc(var(--nav-h) + 8px)}
 .calc-line-host{width:100%}
 .calc-line-host .line-card{margin-top:0}
 .tag{font-size:12px;font-weight:900;letter-spacing:1.8px;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
@@ -907,7 +911,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
                 <h3 data-i18n="step2Title">รายละเอียดการจอง</h3>
                 <p class="hint" data-i18n="gamePickHelp">ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้</p>
                 <div id="gamePickBox"></div>
-                <div class="prep-time-detail" data-i18n-html="preparationDetail"></div>
+                <details class="prep-time-detail" data-i18n-html="preparationDetail"></details>
               </div>
               <div class="card">
                 <h3 data-i18n="step2DetailsTitle">การจัดส่ง การชำระเงิน และเอกสาร</h3>
@@ -1149,6 +1153,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     gistId: "aj_gist_id",
     gistToken: "aj_gist_token",
     ret: "aj_ret_enabled",
+    boardGameEnabled: "aj_board_game_enabled",
     bgPromo: "aj_bg_promo",
     bgCatalog: "aj_bg_catalog_cache_v3",
     consolePromo: "aj_console_promo",
@@ -1336,7 +1341,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       sort_brand:"แยกตามแบรนด์", sort_price_desc:"ราคา สูง → ต่ำ", sort_price_asc:"ราคา ต่ำ → สูง", sort_name:"ชื่อ A → Z",
       calcTag:"คำนวณ", calcTitle:"เช็คคิว & คำนวณค่าเช่า", calcSub:"ขั้นต่ำ 3 วัน | ราคาเรทบุคคล",
       preparationBrief:"กรุณาเผื่อเวลาเตรียมเครื่องประมาณ 30–60 นาที หรือ 2–3 ชั่วโมงหากต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม",
-      preparationDetail:"<strong>ระยะเวลาเตรียมเครื่องโดยประมาณ</strong><span>เริ่มนับหลังจากร้านยืนยันคิว ได้รับรายชื่อเกมครบถ้วน และได้รับยอดจองหรือยอดชำระตามช่องทางที่เลือก</span><ul><li>กรณีต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 2–3 ชั่วโมง</li><li>กรณีไม่ต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 30–60 นาที</li></ul><span>ระยะเวลาจริงอาจเปลี่ยนแปลงตามขนาดเกม ความเร็วในการดาวน์โหลด จำนวนเกม และคิวงานในขณะนั้น ทางร้านจะแจ้งเวลาที่เครื่องพร้อมจัดส่งให้ทราบอีกครั้ง</span>",
+      preparationDetail:"<summary>ระยะเวลาเตรียมเครื่องโดยประมาณ (กดเพื่ออ่าน)</summary><div><span>เริ่มนับหลังจากร้านยืนยันคิว ได้รับรายชื่อเกมครบถ้วน และได้รับยอดจองหรือยอดชำระตามช่องทางที่เลือก</span><ul><li>กรณีต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 2–3 ชั่วโมง</li><li>กรณีไม่ต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 30–60 นาที</li></ul><span>ระยะเวลาจริงอาจเปลี่ยนแปลงตามขนาดเกม ความเร็วในการดาวน์โหลด จำนวนเกม และคิวงานในขณะนั้น ทางร้านจะแจ้งเวลาที่เครื่องพร้อมจัดส่งให้ทราบอีกครั้ง</span></div>",
       step1:"เลือกเครื่อง/วันที่", step2:"รายละเอียดการจอง", step3:"สรุปและส่ง", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"เลือกเกม", step2DetailsTitle:"การจัดส่ง การชำระเงิน และเอกสาร", step3Title:"สรุปและส่งข้อความ", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"📖 อ่านขั้นตอนการเช่าก่อนเริ่ม", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
       nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
       deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
@@ -1347,7 +1352,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       bundle:"Bundle", accessories:"อุปกรณ์เสริม", noBundle:"ไม่เพิ่ม Bundle", noAccessory:"ไม่เพิ่มอุปกรณ์เสริม", contract:"ทำสัญญาการเช่า", contractHelp:"แนะนำสำหรับผู้เช่าครั้งแรก กรอกก่อนนัดส่งเครื่อง", contractAge:"*ผู้ทำสัญญาการเช่าต้องมีอายุ 20 ปีขึ้นไปเท่านั้น*", contractOpenTitle:"เลือกวิธีเปิดหน้าสัญญา", contractOpenMessage:"หากคุณใช้ LINE แนะนำให้เปิดผ่าน LINE เพื่อเชื่อมสัญญากับบัญชีของคุณ", contractOpenLine:"เปิดผ่าน LINE", contractOpenWeb:"ทำสัญญาผ่านเว็บ", contractOpenNote:"ไม่มี LINE? สามารถทำสัญญาผ่านเว็บได้ตามปกติ", contractOpenClose:"ปิดหน้าต่าง",
       masterAgreementTitle:"อ่านและยืนยันรายการเช่าครั้งนี้", masterAgreementLegacy:"ยืนยันสิทธิ์จากประวัติลูกค้าเก่าแล้ว (ข้อมูลเดิมไม่มีเลขที่ข้อตกลงหลัก)", masterAgreementIdentity:"ข้าพเจ้ายืนยันว่าข้อมูลระบุตัวตนและข้อมูลติดต่อไม่เปลี่ยนแปลง และยินยอมให้อ้างอิงข้อมูลลูกค้าเก่าที่ผ่านการยืนยัน", masterAgreementOrder:"ข้าพเจ้ายืนยันว่าข้อมูลระบุตัวตนและข้อมูลติดต่อไม่เปลี่ยนแปลง ยินยอมให้อ้างอิงข้อมูลลูกค้าเก่าที่ผ่านการยืนยัน และได้ตรวจสอบรายละเอียดการเช่าครั้งนี้ อ่านและยอมรับ Rental Terms แล้ว", masterAgreementConfirm:"ยอมรับและทำรายการต่อ", masterAgreementAcceptedChooseChannel:"ยืนยันแล้ว กรุณากดเลือกช่องทางจองด้านล่างเพื่อส่งข้อมูลให้ร้าน", masterAgreementExpired:"ข้อตกลงหลักหมดอายุแล้ว ต้องจัดทำข้อตกลงหลักใหม่ หรือเลือกเช่าโดยไม่ทำสัญญา", masterAgreementId:"เลขที่ข้อตกลงหลัก", masterAgreementExpiry:"ใช้ได้ถึง", rentalOrderId:"เลขที่รายการเช่า",
       noContract:"เช่าโดยไม่จัดทำสัญญาพร้อมเอกสารยืนยันตัวตน", noContractHelp:"ยังต้องอ่านและยอมรับเงื่อนไขการเช่า โดยค่าประกันจะปรับจาก ฿2,000 → ฿5,000 / ฿4,000 → ฿8,000 ตามรุ่น", rentalTermsTitle:"เงื่อนไขการเช่า", rentalTermsAccept:"ข้าพเจ้าได้อ่าน เข้าใจ และยอมรับเงื่อนไขการเช่า การคืนล่าช้า ความเสียหาย การยกเลิก และการคืนเงินประกันทั้งหมดแล้ว", rentalTermsConfirm:"ยืนยันและทำรายการต่อ", rentalTermsCancel:"ยกเลิก", rentalTermsAccepted:"ลูกค้ารับทราบเงื่อนไขการเช่าแล้ว", rentalTermsRead:"อ่านเงื่อนไขการเช่า",
-      returning:"ลูกค้าเก่า (เท่านั้น) รับส่วนลด 10% ค่าเช่า", returningOnly:"ลูกค้าเก่าเท่านั้น", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง", bank:"🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%",
+      returning:"ลูกค้าเก่า (เท่านั้น) รับส่วนลด 10% ค่าเช่า", returningOnly:"ลูกค้าเก่าเท่านั้น", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 โอนจองคิว ฿200 และชำระยอดที่เหลือปลายทาง", bank:"🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%",
       wiseAvailabilityNote:"ไม่สามารถชำระผ่าน Wise ในวันเสาร์-อาทิตย์หรือวันหยุดธนาคารไทยได้ เนื่องจากเงินจะเข้าในวันทำการถัดไป", wiseUnavailableWeekend:"วันนี้ไม่สามารถเลือก Wise ได้ (วันเสาร์-อาทิตย์)", wiseUnavailableHoliday:"วันนี้ไม่สามารถเลือก Wise ได้ (วันหยุดธนาคารไทย)", returningVerifyTitle:"ยืนยันสิทธิ์ส่วนลดลูกค้าเก่า", returningVerifyHelp:"กรอกเบอร์โทรที่เคยใช้เช่า และเลขบัตรประชาชน 4 ตัวท้าย", returningVerifyPhone:"เบอร์โทรศัพท์", returningVerifyFirstName:"ชื่อจริง (ไม่ต้องใส่นามสกุล)", returningVerifyLast4:"เลขบัตรประชาชน 4 ตัวท้าย", returningVerifyNoIdentity:"ไม่มีเลขบัตรประชาชนในประวัติการเช่า", returningVerifyHistoryHelp:"ใช้สำหรับลูกค้าเก่าที่ไม่มีเลขบัตรประชาชนในประวัติ กรุณาใช้ชื่อจริงร่วมกับรหัสการเช่าครั้งก่อนหรือเบอร์โทรศัพท์เพื่อยืนยัน ไม่ต้องใส่นามสกุล", returningVerifyRentalSuffix:"Rental ID 5 ตัวท้าย", returningVerifyUsePhone:"ใช้เบอร์โทรแทน", returningVerifyHistoryPhone:"เบอร์โทรศัพท์ที่เคยส่งให้ทางร้าน", returningVerifyFindRentalId:"วิธีการหา Rental ID", returningVerifySubmit:"ตรวจสอบสิทธิ์", returningVerifyCancel:"ยกเลิก", returningVerifyChecking:"กำลังตรวจสอบ...", returningVerifySuccess:"ยืนยันสิทธิ์ลูกค้าเก่าเรียบร้อย", returningVerifyNotFound:"ไม่พบประวัติ Confirmed ที่ชื่อจริงและข้อมูลยืนยันตรงกัน กรุณาตรวจสอบข้อมูลหรือติดต่อ AJ", returningVerifyError:"ตรวจสอบสิทธิ์ไม่ได้ในขณะนี้ กรุณาลองใหม่ภายหลัง", returningVerifyInvalid:"กรุณากรอกเบอร์โทร 10 หลัก และเลขบัตร 4 ตัวท้าย", returningVerifyHistoryInvalid:"กรุณากรอกชื่อจริง และ Rental ID 5 ตัวท้ายหรือเบอร์โทรศัพท์ที่ถูกต้อง", returningLineVerifiedTitle:"ตรวจพบประวัติลูกค้าเก่า ใช้ส่วนลดค่าเช่า 10% แล้ว", returningLineVerifiedDetail:"ยืนยันสิทธิ์ผ่านบัญชี LINE และเลือกส่วนลดให้อัตโนมัติแล้ว",
       returningVerifyPrivacy:"ใช้ข้อมูลนี้เพื่อตรวจสิทธิ์ส่วนลดเท่านั้น หน้าเว็บจะไม่แสดงเลขบัตรหรือประวัติการเช่าของลูกค้ารายอื่น",
       analyticsPrivacy:"เว็บไซต์เก็บสถิติการใช้งานแบบไม่ระบุตัวบุคคล เช่น จำนวนผู้เข้าชมและการใช้งานปุ่มต่าง ๆ เพื่อปรับปรุงเว็บไซต์และบริการ โดยระบบสถิติไม่จัดเก็บชื่อ เบอร์โทร LINE ID เอกสารยืนยันตัวตน ที่อยู่จัดส่ง หรือข้อความการจอง",
@@ -1434,7 +1439,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       sort_brand:"Group by brand", sort_price_desc:"Price high → low", sort_price_asc:"Price low → high", sort_name:"Name A → Z",
       calcTag:"Calculator", calcTitle:"Check Queue & Calculate Rental", calcSub:"Minimum 3 days | Individual rates",
       preparationBrief:"Please allow approximately 30–60 minutes for preparation, or 2–3 hours if additional games must be downloaded or installed.",
-      preparationDetail:"<strong>Estimated preparation time</strong><span>Preparation begins after AJ confirms availability, receives the complete game list, and receives the reservation deposit or payment through the selected payment method.</span><ul><li>If additional games need to be downloaded or installed: approximately 2–3 hours</li><li>If no additional downloads or installations are required: approximately 30–60 minutes</li></ul><span>Actual preparation time may vary depending on game size, download speed, the number of games, and the current service queue. AJ will confirm the expected delivery-ready time again.</span>",
+      preparationDetail:"<summary>Estimated preparation time (tap to read)</summary><div><span>Preparation begins after AJ confirms availability, receives the complete game list, and receives the reservation deposit or payment through the selected payment method.</span><ul><li>If additional games need to be downloaded or installed: approximately 2–3 hours</li><li>If no additional downloads or installations are required: approximately 30–60 minutes</li></ul><span>Actual preparation time may vary depending on game size, download speed, the number of games, and the current service queue. AJ will confirm the expected delivery-ready time again.</span></div>",
       step1:"Device / Dates", step2:"Booking details", step3:"Review and send", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Choose games", step2DetailsTitle:"Delivery, payment and documents", step3Title:"Summary and send", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"📖 Read rental steps first", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
       nextStep:"Next step", backStep:"Back",
       deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", startDate:"Start date", endDate:"Return date",
@@ -1593,6 +1598,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     swSub: clone(DEFAULT_SW_SUB),
     promos: {bg:{enabled:false,mode:"percent",value:0}, console:{enabled:false,mode:"percent",value:0}},
     retEnabled: false,
+    boardGameEnabled: false,
     filter: {type:"all", brand:"all", sort:"brand"},
     calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,retVerified:false,retVerificationMethod:"",retVerifiedLineUserId:"",masterAgreement:null,masterAgreementAccepted:false,masterAgreementAcceptedAt:"",reviewGoogle:false,reviewFacebook:false,noContract:false,rentalTermsAccepted:false,rentalTermsAcceptedAt:"",rentalTermsVersion:"",rentalTermsLanguage:"",payment:"cash",maps:"",games:[],later:true,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",beamPaymentExpiresAt:"",contractSignature:"",guideDone:{},guideConsoleId:""},
     availability: {rows:[],holds:[],loading:false,error:"",lastSync:0,stale:false,gate:{mode:"idle",pass:true}},
@@ -2121,6 +2127,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     state.promos.bg = Object.assign({enabled:false,mode:"percent",value:0}, readJson(LS.bgPromo, {}));
     state.promos.console = Object.assign({enabled:false,mode:"percent",value:0}, readJson(LS.consolePromo, {}));
     state.retEnabled = localStorage.getItem(LS.ret) === "true";
+    state.boardGameEnabled = localStorage.getItem(LS.boardGameEnabled) === "true";
     const draft = readJson(LS.draft, null);
     if(draft && draft.calc) Object.assign(state.calc, draft.calc);
     if(!Array.isArray(state.calc.boardgames)) state.calc.boardgames = [];
@@ -2178,6 +2185,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     writeJson(LS.bgPromo, state.promos.bg);
     writeJson(LS.consolePromo, state.promos.console);
     localStorage.setItem(LS.ret, state.retEnabled ? "true" : "false");
+    localStorage.setItem(LS.boardGameEnabled, state.boardGameEnabled ? "true" : "false");
     localStorage.setItem(LS.draft, JSON.stringify({at:Date.now(), calc:state.calc}));
   }
   function normalizeHome(home){
@@ -2774,7 +2782,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     renderLineCardHost();
     renderGuide();
   }
-  function goCalcStep(step){
+  function goCalcStep(step, options={}){
     const next = Math.min(3, Math.max(1, Number(step) || 1));
     if(next > 1 && !stepReady(next - 1)){
       const requiredStep = !stepReady(1) ? 1 : !stepReady(2) ? 2 : 3;
@@ -2795,7 +2803,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     guideLastScrollStage = "";
     saveLocal();
     renderCalc();
-    window.requestAnimationFrame(focusCurrentGuideTarget);
+    window.requestAnimationFrame(() => {
+      if(options.scrollTabs) byId("calcTabs")?.scrollIntoView({behavior:"smooth", block:"start"});
+      else focusCurrentGuideTarget();
+    });
   }
   function focusCurrentGuideTarget(){
     if(!AUTO_GUIDE_ENABLED) return;
@@ -3071,16 +3082,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const depositBadge = (amount, tone) => selectedConsole
       ? `<span class="deposit-badge ${tone}">${tr("deposit")} ${money(amount)}</span>`
       : "";
-    const lineReturningVerified = state.calc.retVerified && state.calc.retVerificationMethod === "line";
     const afterWorkReviewRate = afterWorkCalendarPromotion(state.calc.start, state.calc.end).eligible;
     const reviewGoogleLabel = tr(afterWorkReviewRate ? "reviewGoogleAfterWork" : "reviewGoogle");
     const reviewFacebookLabel = tr(afterWorkReviewRate ? "reviewFacebookAfterWork" : "reviewFacebook");
     const returningHelp = state.lang === "en"
       ? "If this is checked but you have not rented with us before, the shop will update the price and remove this discount. **A new Master Agreement is required when the existing Master Agreement has expired or material information has changed."
       : "หากติ๊กส่วนลดลูกค้าเก่าแต่ยังไม่เคยเช่ากับทางร้าน ทางร้านจะอัปเดตราคาใหม่โดยตัดส่วนลดนี้ออก **ต้องทำสัญญาหลักใหม่เมื่อสัญญาหลักเดิมหมดอายุหรือข้อมูลสำคัญเปลี่ยนแปลง";
-    const returningVerifiedHtml = lineReturningVerified
-      ? `<div class="returning-line-confirmed" role="status"><b aria-hidden="true">✓</b><div><strong>${tr("returningLineVerifiedTitle")}</strong><span>${tr("returningLineVerifiedDetail")}</span></div></div>`
-      : "";
     const returningReviewHtml = state.calc.ret ? `
       <div class="review-discount-box">
         <label class="option-row"><input type="checkbox" id="reviewGoogleOpt" ${state.calc.reviewGoogle?"checked":""}><div><b>${reviewGoogleLabel}</b><div class="hint">${tr("reviewGoogleHelp")}</div><div class="review-actions"><button class="btn" type="button" id="reviewGoogleBtn">${tr("reviewGoogleBtn")}</button><span class="review-only-highlight">${tr("returningOnly")}</span></div></div></label>
@@ -3110,7 +3117,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       : `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span class="payment-option-copy"><span>🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน</span></span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}>${creditOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`;
     const reservationTitle = state.lang === "en"
       ? "Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee)"
-      : "จองคิว ฿200 ด้วยเงินโอน";
+      : "ชำระปลายทาง (มีโอนจองคิวก่อน ฿200)";
     const fullPaymentTitle = state.lang === "en" ? "Pay the full amount before delivery" : "ชำระเต็มจำนวนก่อนจัดส่ง";
     const recommended = state.lang === "en" ? "Recommended" : "แนะนำ";
     const paymentHtml = `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title"><span>${reservationTitle}</span><span class="payment-recommended">${recommended}</span></div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""} ${paymentDisabled}>${cashDeliveryOptionHtml()}</label></div><div class="payment-group"><div class="payment-group-title"><span>${fullPaymentTitle}</span></div>${fullPaymentOptions}</div></div>${paymentLockHint}</div>`;
@@ -3128,7 +3135,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     byId("optionRows").innerHTML = `
       ${renderBoardGameBundle()}
       ${mapsHtml}
-      ${returningVerifiedHtml}
       <div class="returning-option-card"><label class="option-row"><input type="checkbox" id="retOpt" ${state.calc.ret?"checked":""} ${state.retEnabled?"":"disabled"}><div><b>${tr("returning")}</b><div class="hint">${returningHelp}</div></div></label>${agreementActionHtml}</div>
       ${returningReviewHtml}
       ${contractHtml}
@@ -3136,6 +3142,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     `;
   }
   function renderBoardGameBundle(){
+    if(!state.boardGameEnabled) return "";
     const games = bgVisibleList();
     const selected = state.calc.boardgames.map(bgById).filter(Boolean);
     const choices = games.filter(g => !state.calc.boardgames.includes(g.id));
@@ -3214,7 +3221,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     return paymentOptionLabelEn();
   }
   function paymentOptionMessageLabelTh(){
-    if(state.calc.payment === "cash") return "จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง";
+    if(state.calc.payment === "cash") return "โอนจองคิว ฿200 และชำระยอดที่เหลือปลายทาง";
     if(state.calc.payment === "bank") return "โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน";
     if(state.calc.payment === "credit") return "บัตรเครดิต: ชำระเต็มจำนวนก่อนจัดส่ง (+ค่าธรรมเนียม 3.50%)";
     if(state.calc.payment === "ewallet") return "E-Wallet: ชำระเต็มจำนวนก่อนจัดส่ง (+ค่าธรรมเนียม 2.95%)";
@@ -3244,7 +3251,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function cashDeliveryOptionHtml(){
     const title = state.lang === "en"
       ? "💵 Balance on delivery"
-      : "💸 จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง";
+      : "💸 โอนจองคิว ฿200 และชำระยอดที่เหลือปลายทาง";
     const firstLine = state.lang === "en" ? "Thai QR scan (no fee)" : "เงินโอน (ไม่มีค่าธรรมเนียม)";
     const secondLine = state.lang === "en" ? "Card (+3.50%) or E-Wallet (+2.95%)" : "บัตร (+3.50%) หรือ E-Wallet (+2.95%)";
     return `<span class="payment-option-copy"><span>${title}</span><small>${firstLine}</small><small>${secondLine}</small>${paymentReservationBadgesHtml()}${paymentRefundNoteHtml()}</span>`;
@@ -3539,6 +3546,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         ${state.lang === "en" ? `<button class="btn wa-share" id="sendWa" type="button" ${canSend?"":"disabled"}>${brandButtonIcon("WA")}${tr("whatsapp")}</button>` : ""}
         <button class="btn fb-share" id="sendMessenger" type="button" ${canSend?"":"disabled"}>${brandButtonIcon("f")}${tr("messenger")}</button>
       </div>
+      ${!canSend && !shareLocked ? `<p class="share-disabled-help" role="status">${esc(state.lang === "en" ? "Please review the rental dates and other details. Availability may have changed. If the buttons remain unavailable, contact AJ in the chat for help." : "กรุณาตรวจสอบวันที่เช่าและรายละเอียดอื่นอีกครั้ง เนื่องจากคิวอาจมีการเปลี่ยนแปลง หากปุ่มยังใช้งานไม่ได้ กรุณาแจ้งแอดมินทางแชทเพื่อให้ช่วยตรวจสอบ")}</p>` : ""}
       ${shareStatusHtml()}`;
   }
   function renderLineCardHost(){
@@ -6450,6 +6458,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function adminSettingsHtml(){
     return `<div class="card"><h3>Feature Settings</h3>
       <label class="option-row"><input type="checkbox" id="setRet" ${state.retEnabled?"checked":""}><div><b>Returning customer discount 10%</b></div></label>
+      <label class="option-row"><input type="checkbox" id="setBoardGame" ${state.boardGameEnabled?"checked":""}><div><b>Show board-game bundle</b><div class="hint">Hidden from customers when disabled</div></div></label>
       <h3 style="margin-top:18px">Promotions</h3>
       ${promoAdmin("console")} ${promoAdmin("bg")}
     </div><button class="btn primary" id="saveSettings" type="button">${tr("save")}</button>`;
@@ -6460,6 +6469,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function saveSettings(){
     state.retEnabled = byId("setRet").checked;
+    state.boardGameEnabled = byId("setBoardGame").checked;
+    if(!state.boardGameEnabled){ state.calc.boardgames = []; state.calc.bgOpen = false; }
     ["console","bg"].forEach(kind => {
       state.promos[kind] = {
         enabled: $(`[data-promo-enabled="${kind}"]`).checked,
@@ -6509,7 +6520,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       faqData: state.faq,
       socialProof: state.social,
       retEnabled: state.retEnabled,
-      featureSettings: {returningDiscountEnabled: state.retEnabled, stepGuideEnabled: true},
+      featureSettings: {returningDiscountEnabled: state.retEnabled, boardGameEnabled: state.boardGameEnabled, stepGuideEnabled: true},
       bgPromo: state.promos.bg,
       boardGameCatalog: state.bgCatalog,
       consolePromo: state.promos.console,
@@ -6526,6 +6537,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(data.socialProof) state.social = normalizeSocial(data.socialProof);
     if(Object.prototype.hasOwnProperty.call(data,"retEnabled")) state.retEnabled = !!data.retEnabled;
     if(data.featureSettings && Object.prototype.hasOwnProperty.call(data.featureSettings,"returningDiscountEnabled")) state.retEnabled = !!data.featureSettings.returningDiscountEnabled;
+    if(data.featureSettings && Object.prototype.hasOwnProperty.call(data.featureSettings,"boardGameEnabled")) state.boardGameEnabled = !!data.featureSettings.boardGameEnabled;
+    if(!state.boardGameEnabled){ state.calc.boardgames = []; state.calc.bgOpen = false; }
     if(data.bgPromo) state.promos.bg = Object.assign({enabled:false,mode:"percent",value:0}, data.bgPromo);
     if(Array.isArray(data.boardGameCatalog)) state.bgCatalog = data.boardGameCatalog.map(normalizeBgGame);
     if(data.consolePromo) state.promos.console = Object.assign({enabled:false,mode:"percent",value:0}, data.consolePromo);
@@ -6592,7 +6605,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         return;
       }
       const stepGo = event.target.closest("[data-step-go]");
-      if(stepGo){ goCalcStep(stepGo.dataset.stepGo); return; }
+      if(stepGo){ goCalcStep(stepGo.dataset.stepGo, {scrollTabs:true}); return; }
       if(event.target.closest("[data-availability-retry]")){
         fetchAvailability().catch(() => {});
         if(state.calendar.open) renderCalendar();
@@ -7103,7 +7116,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       ""
     ] : [
       "",
-      "💳 ช่องทางชำระ: จองคิว ฿200 ด้วยเงินโอน และชำระยอดที่เหลือปลายทาง",
+      "💳 ช่องทางชำระ: โอนจองคิว ฿200 และชำระยอดที่เหลือปลายทาง",
       `✅เลขบัญชี : ${CONFIG.reservationBankAccount}`,
       `✅ธนาคาร : ${CONFIG.reservationBankNameTh}`,
       `✅ชื่อบัญชี : ${CONFIG.reservationAccountName}`,

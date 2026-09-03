@@ -1,5 +1,15 @@
 # Project state
 
+## 2026-09-03 — Booking-detail clarity and guarded send actions
+
+- Removed the duplicate green LINE returning-customer banner while retaining the verified Master Agreement/status block inside the returning-customer card.
+- Revised only the Thai cash-on-delivery option: the group is now “ชำระปลายทาง (มีโอนจองคิวก่อน ฿200)” and the choice/message is “โอนจองคิว ฿200 และชำระยอดที่เหลือปลายทาง”; English remains unchanged.
+- Board-game bundles are hidden by default. Admin Feature Settings now includes a persisted “Show board-game bundle” switch; hiding the feature also clears stale board-game selections from the active draft.
+- Disabled LINE, Messenger, and English WhatsApp actions now show bilingual guidance to recheck dates/details and contact AJ in chat. This guidance is intentionally suppressed during the separate post-click cooldown lock.
+- The detailed preparation-time notice is collapsed by default and expands on demand in both languages.
+- Next-step buttons now scroll the three-step tracker to the top of the viewport (accounting for the navigation height), so the active Step 2 or Step 3 is visible before the customer continues.
+- Website tests pass 32/32 and inline JavaScript syntax validation passes.
+
 ## 2026-09-02 — Preparation-time disclosure across booking and contracts
 
 - Added the bilingual 30–60 minute / 2–3 hour preparation estimate to the calculator introduction, Booking Details after game selection, and the step-by-step guide.
