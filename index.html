@@ -59,6 +59,10 @@ h1 em{color:var(--accent);font-style:normal}
 .prep-time-detail strong{display:block;margin-bottom:4px;color:#513500}
 .prep-time-detail ul{margin:5px 0 5px 20px;padding:0}
 .share-disabled-help{margin:10px 0 0;padding:10px 12px;border-radius:10px;background:#fff7e6;color:#754c00;font-size:12px;font-weight:750;line-height:1.5}
+.line-booking-guide{line-height:1.7;overflow-wrap:anywhere}
+.line-booking-guide ol{padding-left:22px;margin-bottom:16px}
+.line-booking-guide li{margin:10px 0}
+.line-booking-guide .btn{display:inline-flex;white-space:normal;margin-top:12px}
 .calc-tabs{scroll-margin-top:calc(var(--nav-h) + 8px)}
 .calc-line-host{width:100%}
 .calc-line-host .line-card{margin-top:0}
@@ -1341,6 +1345,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       sort_brand:"แยกตามแบรนด์", sort_price_desc:"ราคา สูง → ต่ำ", sort_price_asc:"ราคา ต่ำ → สูง", sort_name:"ชื่อ A → Z",
       calcTag:"คำนวณ", calcTitle:"เช็คคิว & คำนวณค่าเช่า", calcSub:"ขั้นต่ำ 3 วัน | ราคาเรทบุคคล",
       preparationBrief:"กรุณาเผื่อเวลาเตรียมเครื่องประมาณ 30–60 นาที หรือ 2–3 ชั่วโมงหากต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม",
+      lineNoLaunch:"เมื่อเลือกข้อมูลและกดยืนยันจองผ่าน LINE แล้ว ลิงก์เปิดรายการจะแสดงในหน้าต่างนี้",
+      lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE", lineHelpLink:"ดูขั้นตอน / เปิด LINE อีกครั้ง", linePreparingStatus:"กำลังเตรียมลิงก์ส่งข้อมูลจองผ่าน LINE กรุณารอสักครู่ สามารถกดดูขั้นตอนได้ด้านล่าง", lineReadyStatus:"ข้อมูลพร้อมแล้ว กดเปิด LINE และรอจนเห็นการ์ดในแชทร้าน AJ — ยังไม่ถือว่าส่งสำเร็จในขั้นตอนนี้", lineOpeningStatus:"กำลังเปิด LINE หากพบคำถาม Open this page in “LINE”? ให้กด Open แล้วรอการ์ดในแชทร้าน AJ ไม่ต้องวางข้อความเอง", lineHelpSteps:"<ol><li>กด <b>เปิด LINE เพื่อส่งข้อมูลจอง</b> ด้านล่าง</li><li>หากพบคำถาม <b>Open this page in “LINE”?</b> ให้กด <b>Open (เปิด)</b> ไม่ใช่ Cancel</li><li>เมื่อเห็นหน้า <b>กำลังส่งการ์ดข้อมูลจอง</b> ให้รอระบบยืนยันบัญชี LINE และส่งการ์ด อย่าปิดหน้าระหว่างรอ</li><li>ตรวจว่าแชทร้าน AJ มีการ์ด <b>ส่งข้อมูลจองแล้ว</b> จึงถือว่าส่งข้อมูลสำเร็จ จากนั้นทำสัญญาหากจำเป็น รอแอดมินยืนยันค่าส่งและยอดชำระ แล้วจึงชำระตามช่องทางที่เลือก</li></ol><p>การส่งข้อมูลยังไม่ใช่การยืนยันคิวหรือยืนยันการชำระเงิน หากเปิด LINE แล้วไม่มีการ์ด ให้กลับมากดเปิดรายการเดิมอีกครั้ง หากยังไม่ได้ให้แจ้งแอดมินพร้อมรหัสการเช่า</p>", lineOpenBooking:"เปิด LINE เพื่อส่งข้อมูลจอง", linePreparingLink:"กำลังเตรียมลิงก์ กรุณารอสักครู่", lineSuccessNext:"ได้รับการยืนยันจากระบบว่าส่งการ์ดแล้ว กรุณาตรวจแชทร้าน AJ ทำสัญญาหากจำเป็น และรอแอดมินยืนยันค่าส่งกับยอดชำระก่อนชำระเงิน", lineHandoffFailedHelp:"ส่งการ์ดไม่สำเร็จ หรือยังยืนยันผลไม่ได้ กรุณาเปิดรายการเดิมเพื่อลองอีกครั้ง หากยังไม่ได้ให้แจ้งแอดมินพร้อมรหัสการเช่า อย่าเริ่มรายการใหม่ซ้ำ",
       preparationDetail:"<summary>ระยะเวลาเตรียมเครื่องโดยประมาณ (กดเพื่ออ่าน)</summary><div><span>เริ่มนับหลังจากร้านยืนยันคิว ได้รับรายชื่อเกมครบถ้วน และได้รับยอดจองหรือยอดชำระตามช่องทางที่เลือก</span><ul><li>กรณีต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 2–3 ชั่วโมง</li><li>กรณีไม่ต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 30–60 นาที</li></ul><span>ระยะเวลาจริงอาจเปลี่ยนแปลงตามขนาดเกม ความเร็วในการดาวน์โหลด จำนวนเกม และคิวงานในขณะนั้น ทางร้านจะแจ้งเวลาที่เครื่องพร้อมจัดส่งให้ทราบอีกครั้ง</span></div>",
       step1:"เลือกเครื่อง/วันที่", step2:"รายละเอียดการจอง", step3:"สรุปและส่ง", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"เลือกเกม", step2DetailsTitle:"การจัดส่ง การชำระเงิน และเอกสาร", step3Title:"สรุปและส่งข้อความ", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"📖 อ่านขั้นตอนการเช่าก่อนเริ่ม", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
       nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
@@ -1439,6 +1445,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       sort_brand:"Group by brand", sort_price_desc:"Price high → low", sort_price_asc:"Price low → high", sort_name:"Name A → Z",
       calcTag:"Calculator", calcTitle:"Check Queue & Calculate Rental", calcSub:"Minimum 3 days | Individual rates",
       preparationBrief:"Please allow approximately 30–60 minutes for preparation, or 2–3 hours if additional games must be downloaded or installed.",
+      lineNoLaunch:"After completing your details and confirming Book via LINE, the link for your booking will appear here.",
+      lineHelpTitle:"How to send your booking through LINE", lineHelpLink:"View steps / reopen LINE", linePreparingStatus:"Preparing your LINE booking link. Please wait. You can view the steps below.", lineReadyStatus:"Your booking is ready to open in LINE. Wait for the card in AJ's chat — it has not been sent yet.", lineOpeningStatus:"Opening LINE. If asked Open this page in “LINE”?, tap Open and wait for the card in AJ's chat. You do not need to paste a message.", lineHelpSteps:"<ol><li>Tap <b>Open LINE to send booking</b> below.</li><li>If asked <b>Open this page in “LINE”?</b>, tap <b>Open</b>, not Cancel.</li><li>On the <b>Sending your booking card</b> screen, wait for LINE account verification and card delivery. Keep that screen open.</li><li>Check AJ's chat for the <b>Booking details sent</b> card. Only then are your details sent. Complete the rental agreement if required, wait for AJ to confirm delivery fees and the amount due, then pay through your selected method.</li></ol><p>Sending details does not confirm availability or payment. If no card appears, return here and reopen the same booking. If it still fails, contact AJ with your rental code instead of creating another booking.</p>", lineOpenBooking:"Open LINE to send booking", linePreparingLink:"Preparing your link. Please wait.", lineSuccessNext:"The server confirmed card delivery. Check AJ's chat, complete the agreement if required, and wait for AJ to confirm delivery fees and the amount due before paying.", lineHandoffFailedHelp:"The card could not be sent, or delivery could not be confirmed. Reopen the same booking to retry. If it still fails, contact AJ with your rental code. Do not create a duplicate booking.",
       preparationDetail:"<summary>Estimated preparation time (tap to read)</summary><div><span>Preparation begins after AJ confirms availability, receives the complete game list, and receives the reservation deposit or payment through the selected payment method.</span><ul><li>If additional games need to be downloaded or installed: approximately 2–3 hours</li><li>If no additional downloads or installations are required: approximately 30–60 minutes</li></ul><span>Actual preparation time may vary depending on game size, download speed, the number of games, and the current service queue. AJ will confirm the expected delivery-ready time again.</span></div>",
       step1:"Device / Dates", step2:"Booking details", step3:"Review and send", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Choose games", step2DetailsTitle:"Delivery, payment and documents", step3Title:"Summary and send", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"📖 Read rental steps first", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
       nextStep:"Next step", backStep:"Back",
@@ -4450,6 +4458,35 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     saveLocal();
     render();
   }
+  async function bookingWait(promise, timeoutMs=30000){
+    let timer;
+    try { return await Promise.race([promise, new Promise((_,reject) => { timer = setTimeout(() => reject(new Error("LINE request timed out; check chat before retrying")), timeoutMs); })]); }
+    finally { clearTimeout(timer); }
+  }
+  async function bookingFetch(url, options={}, timeoutMs=30000){
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try { return await fetch(url, {...options, signal:controller.signal}); }
+    finally { clearTimeout(timer); }
+  }
+  function lineBookingLaunchSignature(){
+    return JSON.stringify([rentalSignature(),state.calc.maps,state.lang,state.calc.masterAgreementAcceptedAt,state.calc.rentalTermsAcceptedAt]);
+  }
+  function savedLineBookingLaunch(){
+    try {
+      const saved = JSON.parse(sessionStorage.getItem("aj_line_booking_launch_v1") || "null");
+      if(!saved || Date.now() - saved.createdAt > 6 * 86400000) return null;
+      if(state.calc.rentalCode && saved.code !== state.calc.rentalCode) return null;
+      if(saved.signature !== lineBookingLaunchSignature()) return null;
+      const url = new URL(saved.url);
+      if(url.origin !== "https://liff.line.me" || !url.searchParams.get("ctx")) return null;
+      return saved;
+    } catch { return null; }
+  }
+  function showLineBookingHelp(){
+    const saved = savedLineBookingLaunch();
+    showModal(tr("lineHelpTitle"), `<div class="line-booking-guide">${tr("lineHelpSteps")}${saved ? `<p><b>${esc(saved.code)}</b></p><a class="btn primary" data-line-booking-launch href="${esc(saved.url)}">${esc(tr("lineOpenBooking"))}</a>` : `<p role="status">${esc(tr(activeShareStatus()?.phase === "preparing" ? "linePreparingLink" : "lineNoLaunch"))}</p>`}</div>`);
+  }
   async function prepareContractHandoff(code, contractMode="line"){
     const data = bookingStructured(code);
     const fallbackUrl = rentalContractLink(code, contractMode);
@@ -4457,7 +4494,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(!code || !data) return {url:fallbackUrl, message:fallbackMessage, data:data ? {...data, contractUrl:fallbackUrl} : data};
     try{
       const endpoint = new URL(`/api/booking-context/${encodeURIComponent(code)}`, CONFIG.contractWebUrl);
-      const response = await fetch(endpoint, {
+      const response = await bookingFetch(endpoint, {
         method:"POST",
         cache:"no-store",
         headers:{"Content-Type":"text/plain;charset=utf-8"},
@@ -4473,7 +4510,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const url = contractUrl.toString();
       const message = bookingMessage(code, url);
       const updateEndpoint = new URL(`/api/booking-context/${encodeURIComponent(result.contextToken)}/message`, CONFIG.contractWebUrl);
-      await fetch(updateEndpoint, {
+      await bookingFetch(updateEndpoint, {
         method:"PATCH",
         cache:"no-store",
         headers:{"Content-Type":"text/plain;charset=utf-8"},
@@ -4839,16 +4876,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     }
   }
   function shareStatusHtml(){
-    const status = activeShareStatus();
+    const status = activeShareStatus() || (savedLineBookingLaunch() ? {channel:"line",phase:"ready"} : null);
     if(!status) return `<div id="shareSendStatus" class="share-send-status" role="status" aria-live="assertive" hidden></div>`;
     const key = status.phase === "opened" ? "shareOpened" : status.phase === "ready" ? "shareReady" : "sharePreparing";
-    const message = tr(key).replace("{channel}", shareChannelLabel(status.channel));
-    return `<div id="shareSendStatus" class="share-send-status ${status.phase === "opened" ? "is-ready" : ""}" role="status" aria-live="assertive">${esc(message)}</div>`;
+    const message = status.channel === "line" ? tr(status.phase === "opened" ? "lineOpeningStatus" : status.phase === "ready" ? "lineReadyStatus" : "linePreparingStatus") : tr(key).replace("{channel}", shareChannelLabel(status.channel));
+    return `<div id="shareSendStatus" class="share-send-status ${status.phase === "opened" || status.phase === "ready" ? "is-ready" : ""}" role="status" aria-live="polite">${esc(message)}${status.channel === "line" ? `<br><button class="btn" type="button" data-line-booking-help>${esc(tr("lineHelpLink"))}</button>` : ""}</div>`;
   }
   function setShareStatus(channel, phase){
     const opened = phase === "opened";
     const expiresAt = Date.now() + (opened ? 60000 : 30000);
-    const lockedUntil = opened ? Date.now() + 12000 : expiresAt;
+    const lockedUntil = phase === "ready" && channel === "line" ? 0 : opened ? Date.now() + 12000 : expiresAt;
     sessionStorage.setItem(SHARE_STATUS_KEY, JSON.stringify({channel, phase, expiresAt, lockedUntil}));
     shareCooldownUntil = lockedUntil;
     renderSummary();
@@ -5013,6 +5050,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   async function sendLine(skipGuard=false){
     if(!skipGuard) trackAnalytics("booking_channel_clicked", {channel:"line"});
+    if(!skipGuard && savedLineBookingLaunch()){ showLineBookingHelp(); return true; }
     if(!skipGuard) return guardedBookingShare("line", () => sendLine(true));
     let fallbackMessage = bookingMessage(state.calc.rentalCode || "");
     try{
@@ -5024,20 +5062,21 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const msg = handoff.message;
       fallbackMessage = msg;
       submitRentalToSheet(summary, code, "line", msg, handoff.data);
-      setShareStatus("line", "opened");
+      setShareStatus("line", "ready");
       trackAnalytics("booking_handoff_started", {channel:"line", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
-      await new Promise(resolve => window.setTimeout(resolve, 450));
       const liffUrl = new URL(`https://liff.line.me/${activeLineLiffId()}`);
       liffUrl.searchParams.set("bookingLine", "1");
       liffUrl.searchParams.set("ctx", handoff.contextToken);
       liffUrl.searchParams.set("rentalCode", code);
       liffUrl.searchParams.set("lang", state.lang === "en" ? "en" : "th");
-      const launchUrl = isInsideLineClient()
-        ? liffUrl.toString()
-        : (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "")
-          ? `https://line.me/R/app/${activeLineLiffId()}?${liffUrl.searchParams.toString()}`
-          : liffUrl.toString());
-      location.href = launchUrl;
+      sessionStorage.setItem("aj_line_booking_launch_v1", JSON.stringify({url:liffUrl.toString(),code,lang:state.lang,signature:lineBookingLaunchSignature(),createdAt:Date.now()}));
+      showLineBookingHelp();
+      // A real link tap preserves iOS user activation after the asynchronous
+      // booking preparation. Reopening this link reuses the same booking/token.
+      if(isInsideLineClient()){
+        setShareStatus("line", "opened");
+        location.href = liffUrl.toString();
+      }
       return true;
     }catch(error){
       trackAnalytics("booking_handoff_failed", {channel:"line", value:String(error?.message || "error").slice(0,80), errorCode:"line_handoff_failed"});
@@ -5420,24 +5459,25 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     const rentalCode = String(params.get("rentalCode") || "").trim().toUpperCase();
     if(!contextToken || !/^AJ-[A-Z0-9-]{6,40}$/.test(rentalCode)) return false;
     loadState();
+    state.lang = params.get("lang") === "en" ? "en" : "th";
     analyticsLastStep = Number(state.calc.step) || 1;
     analyticsStepEnteredAt = Date.now();
     document.body.innerHTML = `<main style="min-height:100vh;display:grid;place-items:center;padding:24px;background:#f5f7fb"><section style="max-width:520px;text-align:center;background:#fff;border:1px solid #d9dee8;border-radius:22px;padding:30px;box-shadow:0 12px 35px rgba(15,23,42,.12)"><h1 style="font-size:22px;margin:0 0 12px">${params.get("lang") === "en" ? "Sending your booking card" : "กำลังส่งการ์ดข้อมูลจอง"}</h1><p style="margin:0;color:#667085">${params.get("lang") === "en" ? "Linking this LINE account to your Rental ID..." : "กำลังผูกบัญชี LINE กับ Rental ID ของคุณ..."}</p></section></main>`;
     try{
-      const liff = await loadLineSdk();
-      await liff.init({liffId:activeLineLiffId(), withLoginOnExternalBrowser:true});
+      const liff = await bookingWait(loadLineSdk());
+      await bookingWait(liff.init({liffId:activeLineLiffId(), withLoginOnExternalBrowser:true}));
       if(!liff.isLoggedIn()){
         liff.login({redirectUri:location.href});
         return true;
       }
       const accessToken = String(liff.getAccessToken?.() || "").trim();
-      const profile = await liff.getProfile();
+      const profile = await bookingWait(liff.getProfile());
       if(!accessToken || !profile?.userId) throw new Error("LINE identity unavailable");
       const endpoint = new URL(`/api/booking-context/${encodeURIComponent(contextToken)}/line-link`, CONFIG.contractWebUrl);
       document.body.querySelector("p").textContent = params.get("lang") === "en"
         ? "Verifying your LINE account..."
         : "กำลังยืนยันบัญชี LINE...";
-      const response = await fetch(endpoint, {
+      const response = await bookingFetch(endpoint, {
         method:"POST",
         cache:"no-store",
         headers:{"Content-Type":"application/json"},
@@ -5450,7 +5490,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const panel = document.body.querySelector("section");
       const en = params.get("lang") === "en";
       panel.innerHTML = `<div style="width:54px;height:54px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:#e8f8ee;color:#16883f;font-size:30px;font-weight:900">✓</div><h1 style="font-size:22px;margin:0 0 12px">${en ? "Booking card sent" : "ส่งการ์ดข้อมูลจองแล้ว"}</h1><p style="margin:0 0 20px;color:#667085">${en ? "The booking details were sent to your AJ LINE chat." : "ส่งรายละเอียดการจองไปที่แชต LINE ร้าน AJ แล้ว"}</p><a href="${CONFIG.lineOaMessageUrl}" style="display:inline-block;border-radius:14px;background:#16883f;color:#fff;text-decoration:none;font-weight:800;padding:13px 24px">${en ? "Open AJ LINE chat" : "เปิดแชต LINE ร้าน AJ"}</a>`;
-      if(liff.isInClient?.()) window.setTimeout(() => liff.closeWindow?.(), 900);
+      panel.insertAdjacentHTML("beforeend", `<p style="margin-top:16px;color:#667085">${esc(tr("lineSuccessNext"))}</p>`);
       return true;
     }catch(error){
       console.error("LINE booking handoff failed", error);
@@ -5458,6 +5498,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const en = params.get("lang") === "en";
       panel.innerHTML = `<h1 style="font-size:22px;margin:0 0 12px">${en ? "Unable to send the booking card" : "ส่งการ์ดข้อมูลจองไม่สำเร็จ"}</h1><p style="margin:0 0 20px;color:#667085">${en ? "Please add or open the AJ LINE account, then try again." : "กรุณาเพิ่มเพื่อนหรือเปิด LINE ร้าน AJ แล้วลองอีกครั้ง"}</p><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><a href="${CONFIG.lineOaMessageUrl}" style="border-radius:14px;background:#16883f;color:#fff;text-decoration:none;font-weight:800;padding:13px 20px">${en ? "Open AJ LINE" : "เปิด LINE ร้าน AJ"}</a><button id="lineHandoffRetry" type="button" style="border:0;border-radius:14px;background:#cf0000;color:#fff;font:inherit;font-weight:800;padding:13px 20px">${en ? "Try again" : "ลองอีกครั้ง"}</button></div>`;
       panel.querySelector("#lineHandoffRetry").addEventListener("click", () => location.reload());
+      panel.querySelector("p").textContent = tr("lineHandoffFailedHelp");
+      panel.insertAdjacentHTML("beforeend", `<p><b>${esc(rentalCode)}</b></p><details style="text-align:left;margin-top:18px"><summary>${esc(tr("lineHelpTitle"))}</summary>${tr("lineHelpSteps")}</details>`);
       return true;
     }
   }
@@ -6592,6 +6634,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
   function bindEvents(){
     document.addEventListener("click", event => {
+      if(event.target.closest("[data-line-booking-help]")){ showLineBookingHelp(); return; }
+      if(event.target.closest("[data-line-booking-launch]")){ setShareStatus("line", "opened"); return; }
       const beforeRentTracked = event.target.closest("[data-before-rent-track]");
       if(beforeRentTracked) trackAnalytics("before_rent_action_clicked", {value:beforeRentTracked.dataset.beforeRentTrack});
       const typeBtn = event.target.closest("[data-type]");
@@ -7322,6 +7366,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   async function boot(){
     if(await completeLineBookingHandoff()) return;
     loadState();
+    const requestedLanguage = new URLSearchParams(location.search).get("lang");
+    if(["th","en"].includes(requestedLanguage)) state.lang = requestedLanguage;
     restoreAvailabilityCache();
     state.availability.holds = mergeBookingHolds(state.availability.holds);
     state.beforeRentActive = !hasRentalContext();
@@ -7348,6 +7394,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     if(new URLSearchParams(location.search).get("steps") === "1" || location.hash === "#steps"){
       setTimeout(openStepsPopup, 120);
     }
+    if(new URLSearchParams(location.search).get("lineGuide") === "1") showLineBookingHelp();
     fetchAvailability().catch(() => {});
     detectLineReturningEligibility().catch(() => {});
     gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {});

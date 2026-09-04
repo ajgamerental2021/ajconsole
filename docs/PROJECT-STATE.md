@@ -1,5 +1,14 @@
 # Project state
 
+## 2026-09-04 — Explicit LINE launch and guarded card delivery
+
+- External-browser booking now opens a bilingual in-page guide with a real, user-tapped LIFF link instead of relying on navigation after asynchronous preparation. Yellow/green status links reopen the guide; the existing booking URL is reused only for the same draft and language.
+- Guide explains iOS Open, waiting for the sending screen, checking the receipt in AJ chat, completing the agreement where required, and waiting for delivery/payment confirmation. Public guide links: `/?lineGuide=1&lang=th` and `/?lineGuide=1&lang=en`.
+- LIFF handoff waits are bounded and success requires the server's linked + flexSent acknowledgement. Failure retains retry/help and existing text fallback. Opening LINE alone is not described as delivery success.
+- Contract completion sends Flex instead of booking Text when a verified LINE identity is available. Receipt sends are guarded per rental/customer, and contract-card sends per rental/customer/PDF. Successful receipt markers are persisted best-effort; this is not durable exactly-once delivery across all restarts/network ambiguity.
+- Contract-card heading is now “สร้างสัญญาเช่าเรียบร้อยแล้ว” / “Rental agreement created successfully”. Booking-details receipt is distinct from the Delivery App's paid/confirmed booking card; that application is unchanged.
+- QA: website 36 tests; bot suite rerun after rebasing Claude's payment-latency change. TH/EN guide checked at 375px and 1280px without horizontal overflow; real Express contract form initializes. Local LIFF endpoint mismatch warnings are expected. Actual iOS app-switch and customer LINE delivery require a real-device acceptance test; no test bookings/messages sent to production customers.
+
 ## 2026-09-03 — Booking-detail clarity and guarded send actions
 
 - Removed the duplicate green LINE returning-customer banner while retaining the verified Master Agreement/status block inside the returning-customer card.
