@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-09-04 — LINE guide screenshots
+
+- Added the owner's Open-prompt screenshot below step 2 and sending-screen screenshot below step 3 in both guide languages, with localized alt text and responsive image sizing. Original screenshots are preserved, including the Thai text in the sending-screen example.
+- Verified image loading and placement on mobile (375px) and desktop; website regression tests pass 36/36. No booking or notification behavior changed.
+
 ## 2026-09-04 — Explicit LINE launch and guarded card delivery
 
 - External-browser booking now opens a bilingual in-page guide with a real, user-tapped LIFF link instead of relying on navigation after asynchronous preparation. Yellow/green status links reopen the guide; the existing booking URL is reused only for the same draft and language.
