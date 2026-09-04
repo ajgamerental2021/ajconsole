@@ -3369,7 +3369,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const start = parseDate(state.calc.start), end = parseDate(state.calc.end);
     if(!c || !start || !end) throw new Error("booking_hold_invalid");
     const devices = bookingHoldDevicePayload();
-    const response = await fetch(`${CONFIG.apiBase}/api/booking-holds`, {
+    const response = await bookingFetch(`${CONFIG.apiBase}/api/booking-holds`, {
       method:"POST",
       cache:"no-store",
       headers:{"Content-Type":"application/json"},
@@ -3445,7 +3445,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const redirectContext = `lang=${encodeURIComponent(state.lang)}&rentalCode=${encodeURIComponent(rentalCode)}&line=${lineUserId ? "1" : "0"}&amount=${encodeURIComponent(amount)}&method=${encodeURIComponent(state.calc.payment)}`;
     const cachedLink = generatedPaymentLink(summary, rentalCode);
     if(cachedLink) return cachedLink;
-    const response = await fetch(CONFIG.beamPaymentApi, {
+    const response = await bookingFetch(CONFIG.beamPaymentApi, {
       method: "POST",
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify({
@@ -3459,7 +3459,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         returnUrl: `${CONFIG.paymentSuccessUrl}?${redirectContext}`,
         cancelUrl: `${CONFIG.paymentFailedUrl}?${redirectContext}`
       })
-    });
+    }, 10000);
     const data = await response.json().catch(() => ({}));
     if(!response.ok || !data.url) throw new Error(data.error || "Beam payment link unavailable");
     state.calc.beamPaymentLink = data.url;
@@ -4229,7 +4229,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!api) url.searchParams.set("action", "allocateRentalCode");
     url.searchParams.set("ymd", ymd);
     url.searchParams.set("source", "booking-web");
-    const res = await fetch(url.toString(), {cache:"no-store"});
+    const res = await bookingFetch(url.toString(), {cache:"no-store"}, 12000);
     if(!res.ok) throw new Error(`Rental code allocator ${res.status}`);
     const data = await res.json();
     if(!data || data.ok !== true || !data.code) throw new Error(String((data && data.error) || "allocator refused"));
@@ -4253,7 +4253,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // Offline path: the sheet read is cached and other browsers are invisible to
     // us, so the sequential number alone is not safe. A random suffix keeps the
     // code readable and still unique.
-    if(!used) throw new Error("Cannot read rental code sheet");
+    if(!used) used = await bookingWait(existingRentalCodes(), 5000).catch(() => null) || new Set();
     let next = 1;
     used.forEach(code => {
       const n = rentalCodeNumber(code, ymd);
@@ -4263,16 +4263,30 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     localStorage.setItem(key, String(next));
     return `${formatRentalCode(ymd, next)}-${offlineCodeSuffix()}`;
   }
+  let rentalCodeRequest = null;
   async function ensureRentalCode(summary=calcSummary()){
+    const sig = rentalSignature(summary);
+    if(rentalCodeRequest){
+      if(rentalCodeRequest.sig === sig) return rentalCodeRequest.promise;
+      await rentalCodeRequest.promise.catch(() => {});
+      return ensureRentalCode(summary);
+    }
+    const request = {sig, promise:null};
+    request.promise = allocateRentalCodeForDraft(summary);
+    rentalCodeRequest = request;
+    try { return await request.promise; }
+    finally { if(rentalCodeRequest === request) rentalCodeRequest = null; }
+  }
+  async function allocateRentalCodeForDraft(summary=calcSummary()){
     const sig = rentalSignature(summary);
     if(state.calc.rentalCode && state.calc.rentalCodeSig === sig) return state.calc.rentalCode;
     // The allocator is authoritative. If the historical Sheet is temporarily
     // unavailable, keep checkout working with the collision-resistant suffix.
-    const used = await existingRentalCodes() || new Set();
+    const used = null;
     if(
       state.calc.rentalCode &&
       state.calc.rentalCodeSig === sig &&
-      !used.has(state.calc.rentalCode) &&
+      !used?.has(state.calc.rentalCode) &&
       !SESSION_RENTAL_CODES.has(state.calc.rentalCode) &&
       localStorage.getItem(`aj_rental_sheet_submitted_${state.calc.rentalCode}`) !== "1"
     ) return state.calc.rentalCode;
@@ -4520,12 +4534,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const url = contractUrl.toString();
       const message = bookingMessage(code, url);
       const updateEndpoint = new URL(`/api/booking-context/${encodeURIComponent(result.contextToken)}/message`, CONFIG.contractWebUrl);
-      await bookingFetch(updateEndpoint, {
+      // The POST already stored a usable message and token. This optional
+      // refinement must never delay or discard a successful LINE launch.
+      void bookingFetch(updateEndpoint, {
         method:"PATCH",
         cache:"no-store",
         headers:{"Content-Type":"text/plain;charset=utf-8"},
         body:JSON.stringify({message})
-      });
+      }, 5000).catch(error => console.warn("Contract message refinement skipped", error));
       return {url, message, contextToken:result.contextToken, data:{...data, rentalOrderId:result.rentalOrderId || code, rentalOrderPdfUrl:result.rentalOrderPdfUrl || "", contractUrl:url}};
     }catch(error){
       console.warn("Contract context fallback", error);
@@ -5011,7 +5027,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const url = bookingFallbackUrl(bookingFallbackChannel);
     if(url) location.href = url;
   }
+  let bookingShareInFlight = false;
   async function executeBookingShare(channel, action){
+    if(bookingShareInFlight) return false;
+    bookingShareInFlight = true;
     setShareStatus(channel, "preparing");
     unlockShareButtons();
     try{
@@ -5031,6 +5050,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       renderGuide();
       showBookingActionError(error);
       return false;
+    }finally{
+      bookingShareInFlight = false;
     }
   }
   async function guardedBookingShare(channel, action){

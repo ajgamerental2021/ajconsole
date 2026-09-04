@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-09-04 — Remove avoidable LINE preparation delays
+
+- Identified code paths, not a proven diagnosis of a specific customer request: every new code awaited a historical Sheet read before the authoritative allocator; optional context-message PATCH failures discarded a valid context token; payment-link fetches had no timeout; preview and checkout could race allocations.
+- Historical Sheet reads now occur only on allocator fallback (bounded to 5s), allocator waits are bounded to 12s, optional payment-link requests to 10s, and hold acquisition to 30s. Availability checks remain mandatory and fail closed.
+- A successful context POST returns its usable token without waiting for the optional PATCH. Failed refinements are logged without forcing manual-copy fallback. Code allocation is shared between preview/checkout; overlapping share execution is blocked while pending.
+- Regression tests 39/39 include stalled PATCH, concurrent allocation and bypassing historical Sheet on successful allocation. Inline syntax passes. Network/LINE outages can still require fallback; no claim of guaranteed delivery or exact customer root cause without request logs.
+
 - 2026-09-04 follow-up: reduced step 3 screenshot to 120px in both languages (step 2 remains 160px), and shortened only the English guide copy. Kept the visible launch footer, wait-for-card instructions, agreement/payment sequence, and retry/contact advice.
 
 - 2026-09-04 follow-up: LINE guide examples are now 160px wide. Guide instructions scroll independently above a non-shrinking action footer so the launch link stays within the popup viewport. Checked TH/EN footer bounds at 375×568 (bottom 556px) and internal scrolling; no booking submitted during QA.
