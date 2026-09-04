@@ -1,5 +1,7 @@
 # Project state
 
+- 2026-09-04 follow-up: reduced both LINE guide example images to 220px wide (responsive below that), in Thai and English, with tighter spacing.
+
 - 2026-09-04 follow-up: English LINE guide step 3 now uses the owner's English sending-screen screenshot; Thai keeps its original screenshot. Images remain responsive.
 
 ## 2026-09-04 — LINE guide screenshots
