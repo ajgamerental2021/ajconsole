@@ -7,7 +7,7 @@
 - LIFF handoff waits are bounded and success requires the server's linked + flexSent acknowledgement. Failure retains retry/help and existing text fallback. Opening LINE alone is not described as delivery success.
 - Contract completion sends Flex instead of booking Text when a verified LINE identity is available. Receipt sends are guarded per rental/customer, and contract-card sends per rental/customer/PDF. Successful receipt markers are persisted best-effort; this is not durable exactly-once delivery across all restarts/network ambiguity.
 - Contract-card heading is now “สร้างสัญญาเช่าเรียบร้อยแล้ว” / “Rental agreement created successfully”. Booking-details receipt is distinct from the Delivery App's paid/confirmed booking card; that application is unchanged.
-- QA: website 36 tests; bot suite rerun after rebasing Claude's payment-latency change. TH/EN guide checked at 375px and 1280px without horizontal overflow; real Express contract form initializes. Local LIFF endpoint mismatch warnings are expected. Actual iOS app-switch and customer LINE delivery require a real-device acceptance test; no test bookings/messages sent to production customers.
+- QA: website 36/36 tests; bot 261/261 after rebasing Claude's payment-latency change. TH/EN guide checked at 375px and 1280px without horizontal overflow; real Express contract form initializes. Local LIFF endpoint mismatch warnings are expected. Actual iOS app-switch and customer LINE delivery require a real-device acceptance test; no test bookings/messages sent to production customers.
 
 ## 2026-09-03 — Booking-detail clarity and guarded send actions
 
