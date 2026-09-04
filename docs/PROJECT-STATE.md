@@ -1,5 +1,7 @@
 # Project state
 
+- 2026-09-04 follow-up: reduced step 3 screenshot to 120px in both languages (step 2 remains 160px), and shortened only the English guide copy. Kept the visible launch footer, wait-for-card instructions, agreement/payment sequence, and retry/contact advice.
+
 - 2026-09-04 follow-up: LINE guide examples are now 160px wide. Guide instructions scroll independently above a non-shrinking action footer so the launch link stays within the popup viewport. Checked TH/EN footer bounds at 375×568 (bottom 556px) and internal scrolling; no booking submitted during QA.
 
 - 2026-09-04 follow-up: reduced both LINE guide example images to 220px wide (responsive below that), in Thai and English, with tighter spacing.

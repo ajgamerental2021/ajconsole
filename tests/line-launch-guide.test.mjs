@@ -32,8 +32,8 @@ for (const lang of ['th','en']) {
     const {context} = harness(lang);
     vm.runInContext('showLineBookingHelp()', context);
     assert.match(context.modal.body, /href="https:\/\/liff.line.me\/test\?ctx=opaque"/);
-    assert.match(context.modal.body, /Open this page/);
-    assert.match(context.modal.title, lang === 'th' ? /วิธีส่งข้อมูล/ : /How to send/);
+    assert.match(context.modal.body, lang === 'th' ? /Open this page/ : /Tap <b>Open<\/b> when prompted/);
+    assert.match(context.modal.title, lang === 'th' ? /วิธีส่งข้อมูล/ : /Send booking via LINE/);
     for (const phase of ['preparing','ready','opened']) {
       context.status = {channel:'line',phase};
       const html = vm.runInContext('shareStatusHtml()', context);
