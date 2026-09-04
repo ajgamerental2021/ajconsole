@@ -62,8 +62,16 @@ h1 em{color:var(--accent);font-style:normal}
 .line-booking-guide{line-height:1.7;overflow-wrap:anywhere}
 .line-booking-guide ol{padding-left:22px;margin-bottom:16px}
 .line-booking-guide li{margin:10px 0}
-.line-guide-example{display:block;width:220px;max-width:100%;height:auto;margin:8px 0 12px;border-radius:10px}
+.line-guide-example{display:block;width:160px;max-width:100%;height:auto;margin:6px 0 8px;border-radius:8px}
 .line-booking-guide .btn{display:inline-flex;white-space:normal;margin-top:12px}
+#simpleModal:has(.line-booking-guide) .modal-card{display:flex;flex-direction:column;max-height:calc(100dvh - 24px);overflow:hidden}
+#simpleModal:has(.line-booking-guide) .modal-head{flex-shrink:0}
+#simpleModalBody:has(.line-booking-guide){display:flex;min-height:0;overflow:hidden;padding:0}
+.line-booking-guide{display:flex;flex-direction:column;min-height:0;width:100%}
+.line-guide-content{overflow:auto;min-height:0;padding:12px 18px;overscroll-behavior:contain}
+.line-guide-actions{flex-shrink:0;padding:10px 18px max(12px,env(safe-area-inset-bottom));border-top:1px solid var(--border);background:#fff}
+.line-guide-actions p{margin:0 0 6px;font-size:13px}
+.line-guide-actions .btn{display:flex;width:100%;justify-content:center;margin:0;min-height:44px}
 .calc-tabs{scroll-margin-top:calc(var(--nav-h) + 8px)}
 .calc-line-host{width:100%}
 .calc-line-host .line-card{margin-top:0}
@@ -4486,7 +4494,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   function showLineBookingHelp(){
     const saved = savedLineBookingLaunch();
-    showModal(tr("lineHelpTitle"), `<div class="line-booking-guide">${tr("lineHelpSteps")}${saved ? `<p><b>${esc(saved.code)}</b></p><a class="btn primary" data-line-booking-launch href="${esc(saved.url)}">${esc(tr("lineOpenBooking"))}</a>` : `<p role="status">${esc(tr(activeShareStatus()?.phase === "preparing" ? "linePreparingLink" : "lineNoLaunch"))}</p>`}</div>`);
+    showModal(tr("lineHelpTitle"), `<div class="line-booking-guide"><div class="line-guide-content">${tr("lineHelpSteps")}</div><div class="line-guide-actions">${saved ? `<p><b>${esc(saved.code)}</b></p><a class="btn primary" data-line-booking-launch href="${esc(saved.url)}">${esc(tr("lineOpenBooking"))}</a>` : `<p role="status">${esc(tr(activeShareStatus()?.phase === "preparing" ? "linePreparingLink" : "lineNoLaunch"))}</p>`}</div></div>`);
   }
   async function prepareContractHandoff(code, contractMode="line"){
     const data = bookingStructured(code);

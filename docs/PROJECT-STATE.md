@@ -1,5 +1,7 @@
 # Project state
 
+- 2026-09-04 follow-up: LINE guide examples are now 160px wide. Guide instructions scroll independently above a non-shrinking action footer so the launch link stays within the popup viewport. Checked TH/EN footer bounds at 375×568 (bottom 556px) and internal scrolling; no booking submitted during QA.
+
 - 2026-09-04 follow-up: reduced both LINE guide example images to 220px wide (responsive below that), in Thai and English, with tighter spacing.
 
 - 2026-09-04 follow-up: English LINE guide step 3 now uses the owner's English sending-screen screenshot; Thai keeps its original screenshot. Images remain responsive.
