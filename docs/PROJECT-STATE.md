@@ -1,5 +1,7 @@
 # Project state
 
+- 2026-09-04 follow-up: English LINE guide step 3 now uses the owner's English sending-screen screenshot; Thai keeps its original screenshot. Images remain responsive.
+
 ## 2026-09-04 — LINE guide screenshots
 
 - Added the owner's Open-prompt screenshot below step 2 and sending-screen screenshot below step 3 in both guide languages, with localized alt text and responsive image sizing. Original screenshots are preserved, including the Thai text in the sending-screen example.
