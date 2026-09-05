@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-09-05 — Fast contract response and automatic LINE completion
+
+- Contract submission now responds as soon as the signed local PDF and metadata are safely written. Slow Google Drive uploads, recovery retries and the Contract Sheet append continue in the background, so those external services no longer leave the mobile form stuck on “กำลังสร้างสัญญา...” / “Generating contract...”.
+- When the submitted contract already has a verified LINE Unique ID (including a contract opened inside LIFF), the server automatically sends the booking-confirmation Flex when needed and the contract-ready Flex. The completion popup no longer offers LINE/Messenger/WhatsApp choices in this case; it shows the automatic LINE-delivery status and PDF action in Thai or English.
+- Contracts without a LINE identity retain the existing channel choices and fallback flow.
+- Bot regressions pass 265/265.
+
 ## 2026-09-05 — Contract LIFF state restoration and equal channel buttons
 
 - Corrected a bad LIFF diagnosis from the immediately preceding release: `ID_RENTAL_LIFF_ID` belongs to the ID-game catalogue, while the contract uses `LINE_LIFF_ID`. Contract links and `/api/config` use the contract LIFF again, and every LIFF deep link now includes the required path separator before its query.
