@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-09-05 — Dedicated contract LIFF and equal channel buttons
+
+- Fixed completed-contract LINE delivery at its source: contract links and `/api/config` now use the dedicated `ID_RENTAL_LIFF_ID` consistently. Production configuration confirms the general LINE LIFF and rental LIFF are both configured and are different; previously the contract page initialized the wrong LIFF app before requesting the Flex delivery.
+- LINE, Messenger, and English WhatsApp booking buttons now receive equal widths and fixed equal button heights even when the LINE recommendation label is present. The contract completion actions use the same fixed-height treatment in both languages.
+- Bot regressions pass 262/262 and website regressions pass 44/44.
+
 ## 2026-09-05 — LINE marked as the recommended booking channel
 
 - The final booking actions now label LINE as “ช่องทางแนะนำ” / “Recommended” while retaining Messenger in both languages and WhatsApp for English customers.
