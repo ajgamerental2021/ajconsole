@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-09-05 — Collapsed booking extras and contextual game lists
+
+- Promotions & News and the full Available Consoles catalogue are collapsed by default in booking mode behind one bilingual “ดูโปรโมชั่นและเครื่องอื่น ๆ” / “View promotions & other consoles” control immediately after the calculator. Step changes do not open it automatically.
+- Compact pre-rental console cards now show a bilingual “ดูเกมของเครื่องนี้” / “View games for this console” action only when that console has a game catalogue. It opens the picker in browse-only mode on the matching console without changing the current booking selection.
+- The global browse-all-games action remains for customers who have not chosen a console.
+
 ## 2026-09-05 — Clear dates and explicit Step 3 navigation
 
 - Added “ล้างวันที่ที่เลือก” / “Clear selected dates” beside the calendar status/navigation area. It is disabled when empty; when used it clears both draft and committed start/return dates, invalidates the rental code, payment link, contract signature and saved LINE launch, releases the existing hold, and returns date guidance to start-date selection.
