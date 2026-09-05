@@ -989,7 +989,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         <div class="cal-pick"><small id="calEndLabel">วันคืนเครื่อง</small><b id="calEndValue">-</b><span id="calEndSub">เลือกแล้ว</span></div>
       </div>
       <div class="cal-top">
-        <div id="calendarStatus" class="hint"></div>
+        <div><div id="calendarStatus" class="hint"></div><button class="btn" id="calendarClear" type="button">ล้างวันที่ที่เลือก</button></div>
         <div style="display:flex;gap:8px"><button class="btn" id="prevMonth" type="button">&lt;</button><button class="btn" id="nextMonth" type="button">&gt;</button></div>
       </div>
       <div class="cal-legend" id="calendarLegend"></div>
@@ -1377,7 +1377,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       boardGameCollapsed:"ต้องการเพิ่มบอร์ดเกม? กดเพื่อขยายและเลือกเข้าชุดเช่า", ps5BundleCollapsed:"ต้องการ Bundle? กดเพื่อจับคู่ PS5 กับอุปกรณ์อื่น",
       boardGameBundle:"Bundle บอร์ดเกม", chooseBoardGame:"-- เลือกบอร์ดเกม --", addBoardGame:"เพิ่มบอร์ดเกม", boardGames:"บอร์ดเกม", selectedDates:"วันที่เลือก", confirmRange:"ตกลง", selectReturnDate:"เลือกวันคืนเครื่อง", remove:"ลบ",
       boardGameBundleHelp:"เพิ่มบอร์ดเกมเข้าชุดเช่า — ราคาเรท 3 วัน + เพิ่มตามจำนวนวันตามแพ็กของแต่ละเกม", boardGameImageHint:"💡 คลิกที่รูปเพื่อดูรายละเอียดของบอร์ดเกมนั้นๆ", viewDetails:"ดูรายละเอียด",
-      calTitle:"📅 ปฏิทินเช็คคิวเครื่อง", calStartSub:"เลือกแล้ว", calEndSub:"เลือกแล้ว", calAvailable:"ว่าง", calUnavailable:"ไม่ว่าง", calPartial:"เช่าได้สั้นกว่า", calDisabled:"ผ่านมาแล้ว / เลือกไม่ได้", calMinDisabled:"เลือกไม่ได้ ขั้นต่ำ 3 วัน", calStartDay:"เริ่มเช่า", calRangeDay:"ช่วงเช่า", calEndDay:"คืนเครื่อง", cutoffStartCell:"เลยเวลา เริ่มพรุ่งนี้", cutoffStartNotice:"หลัง 20:00 เริ่มเช่าได้วันถัดไป", afterWorkPromoCell:"โปร 3 วัน {price}", afterWorkPromoDiscount:"โปรโมชั่น After Work 3 Nights",
+      calTitle:"📅 ปฏิทินเช็คคิวเครื่อง", calClear:"ล้างวันที่ที่เลือก", calStartSub:"เลือกแล้ว", calEndSub:"เลือกแล้ว", calAvailable:"ว่าง", calUnavailable:"ไม่ว่าง", calPartial:"เช่าได้สั้นกว่า", calDisabled:"ผ่านมาแล้ว / เลือกไม่ได้", calMinDisabled:"เลือกไม่ได้ ขั้นต่ำ 3 วัน", calStartDay:"เริ่มเช่า", calRangeDay:"ช่วงเช่า", calEndDay:"คืนเครื่อง", cutoffStartCell:"เลยเวลา เริ่มพรุ่งนี้", cutoffStartNotice:"หลัง 20:00 เริ่มเช่าได้วันถัดไป", afterWorkPromoCell:"โปร 3 วัน {price}", afterWorkPromoDiscount:"โปรโมชั่น After Work 3 Nights",
       guideTitle:"ขั้นตอนถัดไป", guideConsole:"เลือกเครื่องเกม", guideStart:"เลือกวันที่เริ่มเช่า", guideEnd:"เลือกวันคืนเครื่อง", guideAccessory:"เลือกอุปกรณ์เสริม ถ้าไม่ต้องการให้ข้ามได้เลย", guidePs5Bundle:"เลือก Bundle ของ PS5 ถ้าต้องการ", guideNextStep:"กดไปขั้นตอนถัดไป", guideBg:"เลือก Bundle บอร์ดเกม ถ้าต้องการเพิ่ม", guideRet:"เคยเช่ากับทางร้านไหม?", guideContractChoice:"ต้องการทำสัญญาการเช่าหรือไม่?", guideContractLink:"กดลิงก์ทำสัญญาการเช่า หรือเลือกทำทีหลัง", guidePayment:"เลือกช่องทางชำระเงิน", guideMaps:"วางลิงก์ Google Maps สำหรับเช็คค่าจัดส่ง", guideGames:"เลือกเกมจากรายการ หรือเลือกแจ้งภายหลัง", guideShare:"เช็ครายละเอียดการเช่าทางด้านบน แล้วกดจองผ่านช่องทางที่สะดวก", guideCopy:"คัดลอกข้อความจองเช่า", guideLine:"จองผ่าน Line", guideWa:"จองผ่าน WhatsApp", guideMessenger:"จองผ่าน Messenger",
       guideDoContract:"ทำสัญญา", guideNoContract:"ไม่ทำสัญญา", guideLater:"ทำทีหลัง", guideSkip:"ข้าม", guideGameLater:"เลือกทีหลัง", guideNext:"ต่อไป", guideRetYes:"เคย", guideRetNo:"ไม่เคย",
       pickGames:"เลือก / แก้ไขรายชื่อเกม", sendLater:"แจ้งรายชื่อเกมภายหลัง", clearGames:"ล้างรายชื่อเกม", noGameList:"รุ่นนี้ไม่มีรายการเกมให้เลือกในระบบ",
@@ -1477,7 +1477,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       boardGameCollapsed:"Want board games? Expand to add them to this rental.", ps5BundleCollapsed:"Want a bundle? Expand to pair PS5 with another device.",
       boardGameBundle:"Board Game Bundle", chooseBoardGame:"-- Choose board game --", addBoardGame:"Add board game", boardGames:"Board games", selectedDates:"Selected dates", confirmRange:"Confirm", selectReturnDate:"Choose return date", remove:"Remove",
       boardGameBundleHelp:"Add board games to this rental set — 3-day package rate, then extend by each game's package rules.", boardGameImageHint:"💡 Click the image to view board game details.", viewDetails:"View details",
-      calTitle:"📅 Queue Calendar", calStartSub:"Selected", calEndSub:"Selected", calAvailable:"Available", calUnavailable:"Unavailable", calPartial:"Shorter rental only", calDisabled:"Past / unavailable", calMinDisabled:"Unavailable, minimum 3 days", calStartDay:"Start", calRangeDay:"Rental period", calEndDay:"Return", cutoffStartCell:"Start tomorrow", cutoffStartNotice:"After 8 PM, choose tomorrow or later.", afterWorkPromoCell:"3-day promo {price}", afterWorkPromoDiscount:"After Work 3 Nights promotion",
+      calTitle:"📅 Queue Calendar", calClear:"Clear selected dates", calStartSub:"Selected", calEndSub:"Selected", calAvailable:"Available", calUnavailable:"Unavailable", calPartial:"Shorter rental only", calDisabled:"Past / unavailable", calMinDisabled:"Unavailable, minimum 3 days", calStartDay:"Start", calRangeDay:"Rental period", calEndDay:"Return", cutoffStartCell:"Start tomorrow", cutoffStartNotice:"After 8 PM, choose tomorrow or later.", afterWorkPromoCell:"3-day promo {price}", afterWorkPromoDiscount:"After Work 3 Nights promotion",
       guideTitle:"Next step", guideConsole:"Choose console", guideStart:"Choose start date", guideEnd:"Choose return date", guideAccessory:"Choose accessories if needed, or skip.", guidePs5Bundle:"Choose a PS5 bundle if needed.", guideNextStep:"Go to the next step.", guideBg:"Add a board game bundle if needed.", guideRet:"Have you rented with us before?", guideContractChoice:"Would you like to complete the rental contract?", guideContractLink:"Open the rental agreement link, or do it later.", guidePayment:"Choose payment option.", guideMaps:"Paste your Google Maps link for delivery check.", guideGames:"Pick games from the catalog, or send later.", guideShare:"Check the rental details above, then book through your preferred channel.", guideCopy:"Copy booking message", guideLine:"Book via LINE", guideWa:"Book via WhatsApp", guideMessenger:"Book via Messenger",
       guideDoContract:"Do contract", guideNoContract:"No contract", guideLater:"Later", guideSkip:"Skip", guideGameLater:"Choose later", guideNext:"Next", guideRetYes:"Yes", guideRetNo:"No",
       pickGames:"Choose / Edit games", sendLater:"Send game list later", clearGames:"Clear games", noGameList:"This model has no game catalog in the system.",
@@ -3972,6 +3972,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("calendarTitle").textContent = `${tr("calTitle")}${selectedConsole ? ` - ${cName(selectedConsole)}` : ""}`;
     byId("calendarInstruction").textContent = state.calendar.mode === "start" ? tr("startDate") : tr("selectReturnDate");
     byId("calendarLangBtn").textContent = state.lang === "en" ? "🇹🇭 TH" : "🇬🇧 EN";
+    byId("calendarClear").textContent = tr("calClear");
+    byId("calendarClear").disabled = !(state.calendar.draftStart || state.calendar.draftEnd || state.calc.start || state.calc.end);
     byId("calStartLabel").textContent = tr("startDate");
     byId("calEndLabel").textContent = tr("endDate");
     byId("calStartValue").textContent = calendarHeadline(state.calendar.draftStart);
@@ -4155,6 +4157,27 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     fetchAvailability();
     saveLocal();
     render();
+  }
+  function clearCalendarRange(){
+    const previousCode = state.calc.rentalCode || "";
+    state.calendar.draftStart = "";
+    state.calendar.draftEnd = "";
+    state.calendar.mode = "start";
+    state.calc.start = "";
+    state.calc.end = "";
+    state.calc.datesTouched = false;
+    state.calc.rentalCode = "";
+    state.calc.rentalCodeSig = "";
+    state.calc.contractSignature = "";
+    state.calc.beamPaymentLink = "";
+    state.calc.beamPaymentKey = "";
+    state.calc.beamPaymentExpiresAt = "";
+    sessionStorage.removeItem("aj_line_booking_launch_v1");
+    resetStepOneGuide();
+    setGuideStage("start", {syncStep:false});
+    saveLocal();
+    void releaseBookingHold(previousCode);
+    renderCalendar();
   }
   function rentalCodeDate(){
     const d = new Date();
@@ -6765,6 +6788,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("prevMonth").addEventListener("click", () => moveCalendarMonth(-1));
     byId("nextMonth").addEventListener("click", () => moveCalendarMonth(1));
     byId("calendarApply").addEventListener("click", applyCalendarRange);
+    byId("calendarClear").addEventListener("click", clearCalendarRange);
     document.addEventListener("keydown", event => {
       if(event.key === "Escape" && byId("contractOpenModal")?.classList.contains("open")){
         closeContractOpenModal("");
@@ -6926,7 +6950,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         state.calc.beamPaymentKey = "";
         state.calc.beamPaymentExpiresAt = "";
         markGuideDone("payment");
-        setGuideStage("next3");
+        setGuideStage("next3", {syncStep:false});
         saveLocal();
         render();
       }

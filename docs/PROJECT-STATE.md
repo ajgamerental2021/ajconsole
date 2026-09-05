@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-09-05 — Clear dates and explicit Step 3 navigation
+
+- Added “ล้างวันที่ที่เลือก” / “Clear selected dates” beside the calendar status/navigation area. It is disabled when empty; when used it clears both draft and committed start/return dates, invalidates the rental code, payment link, contract signature and saved LINE launch, releases the existing hold, and returns date guidance to start-date selection.
+- Payment selection now updates calculations and advances only the inline guide marker; `syncStep:false` keeps the customer on Step 2. Step 3 still requires the explicit Next button.
+- Regression tests pass 41/41 and inline JavaScript syntax validation passes. Browser QA confirmed the Thai clear control appears in the live calendar and is disabled while no dates are selected.
+
 ## 2026-09-04 — Remove avoidable LINE preparation delays
 
 - Identified code paths, not a proven diagnosis of a specific customer request: every new code awaited a historical Sheet read before the authoritative allocator; optional context-message PATCH failures discarded a valid context token; payment-link fetches had no timeout; preview and checkout could race allocations.
