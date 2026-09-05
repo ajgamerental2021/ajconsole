@@ -4,6 +4,13 @@ import test from 'node:test';
 
 const source = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
+test('LINE remains visibly recommended without removing Messenger', () => {
+  assert.match(source, /recommendedChannel:"ช่องทางแนะนำ"/);
+  assert.match(source, /recommendedChannel:"Recommended"/);
+  assert.match(source, /class="summary-recommended-channel"/);
+  assert.match(source, /id="sendMessenger"/);
+});
+
 test('booking channels retain the availability hold when payment-link creation fails', () => {
   const helperStart = source.indexOf('async function prepareBookingPayment');
   const helperEnd = source.indexOf('\n  function showBookingActionError', helperStart);

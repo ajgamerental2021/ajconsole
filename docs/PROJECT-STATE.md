@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-09-05 — LINE marked as the recommended booking channel
+
+- The final booking actions now label LINE as “ช่องทางแนะนำ” / “Recommended” while retaining Messenger in both languages and WhatsApp for English customers.
+- The completed-contract actions use the same recommendation label. The LINE action opens a bilingual four-step launch guide with compact Open-prompt and sending-screen examples before handing off to LIFF.
+- Contract completion now saves the server-generated booking message together with the contract ID/PDF result. Reopening booking confirmation after closing its popup can restore every channel without depending solely on another context fetch; the context fetch still runs first for fresh data.
+- Manual copy/open remains a last-resort fallback only after an actual LINE delivery failure.
+
 ## 2026-09-05 — Collapsed booking extras and contextual game lists
 
 - Promotions & News and the full Available Consoles catalogue are collapsed by default in booking mode behind one bilingual “ดูโปรโมชั่นและเครื่องอื่น ๆ” / “View promotions & other consoles” control immediately after the calculator. Step changes do not open it automatically.
