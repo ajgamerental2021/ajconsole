@@ -1,10 +1,12 @@
 # Project state
 
-## 2026-09-05 — Dedicated contract LIFF and equal channel buttons
+## 2026-09-05 — Contract LIFF state restoration and equal channel buttons
 
-- Fixed completed-contract LINE delivery at its source: contract links and `/api/config` now use the dedicated `ID_RENTAL_LIFF_ID` consistently. Production configuration confirms the general LINE LIFF and rental LIFF are both configured and are different; previously the contract page initialized the wrong LIFF app before requesting the Flex delivery.
+- Corrected a bad LIFF diagnosis from the immediately preceding release: `ID_RENTAL_LIFF_ID` belongs to the ID-game catalogue, while the contract uses `LINE_LIFF_ID`. Contract links and `/api/config` use the contract LIFF again, and every LIFF deep link now includes the required path separator before its query.
+- The contract page now waits for `liff.init()` to restore the endpoint state before rereading `ctx`, language and Rental ID, then loads the booking context. Query-only `liff.state` payloads are supported, and OAuth fragments such as `access_token=...` can no longer be accepted as a Rental ID.
+- The completed-contract launch label is shortened to “เปิด LINE” / “Open LINE”.
 - LINE, Messenger, and English WhatsApp booking buttons now receive equal widths and fixed equal button heights even when the LINE recommendation label is present. The contract completion actions use the same fixed-height treatment in both languages.
-- Bot regressions pass 262/262 and website regressions pass 44/44.
+- Bot regressions pass 263/263 and website regressions pass 45/45.
 
 ## 2026-09-05 — LINE marked as the recommended booking channel
 

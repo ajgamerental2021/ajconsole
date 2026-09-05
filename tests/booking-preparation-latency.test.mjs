@@ -3,6 +3,10 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 const source = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+
+test('contract LIFF deep link keeps a path separator before its booking query', () => {
+  assert.match(source, /contractUrl: "https:\/\/liff\.line\.me\/2010196202-iYu3RKIb\/"/);
+});
 function fn(name){
   const start=source.indexOf(`  async function ${name}(`);
   assert.ok(start>=0);
