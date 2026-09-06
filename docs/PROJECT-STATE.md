@@ -983,3 +983,9 @@ paused job shows slightly old numbers rather than an empty section.
 - Fixed contract notifications being sent to Discord, Telegram, and email before the background Google Drive upload had populated the customer folder, ID-card/Passport, and selfie URLs.
 - Contract creation still responds to the customer before slow Drive/Sheets work, but the background notification step now runs only after storage finalization; if storage fails, notifications still run and include the recorded upload error.
 - Verified the complete Bot test suite: 265 tests passed.
+
+## 2026-09-06 — Shareable links for games, FAQ, and rental steps
+
+- Added bilingual copy-link controls to the game picker, FAQ, and rental-steps dialogs.
+- Copied links reopen the requested dialog directly and preserve the selected Thai/English language.
+- Game-picker links also preserve the active console so customers land on the relevant game catalogue immediately.
