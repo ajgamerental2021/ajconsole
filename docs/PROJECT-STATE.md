@@ -977,3 +977,9 @@ paused job shows slightly old numbers rather than an empty section.
 - The first HTTPS cover URL from the selected catalogue item is persisted in `ID Pending` and rendered as the LINE Flex hero image. Existing rows remain compatible with the two appended columns.
 - The LIFF header shows `LINE: <profile display name>` instead of exposing the LINE Unique ID. On small screens, the language control is aligned at the right edge with the profile badge beneath it.
 - Standalone and embedded `ajgameid` copies remain byte-for-byte synchronized.
+
+## 2026-09-06 — Contract notifications wait for Google Drive links
+
+- Fixed contract notifications being sent to Discord, Telegram, and email before the background Google Drive upload had populated the customer folder, ID-card/Passport, and selfie URLs.
+- Contract creation still responds to the customer before slow Drive/Sheets work, but the background notification step now runs only after storage finalization; if storage fails, notifications still run and include the recorded upload error.
+- Verified the complete Bot test suite: 265 tests passed.
