@@ -989,3 +989,32 @@ paused job shows slightly old numbers rather than an empty section.
 - Added bilingual copy-link controls to the game picker, FAQ, and rental-steps dialogs.
 - Copied links reopen the requested dialog directly and preserve the selected Thai/English language.
 - Game-picker links also preserve the active console so customers land on the relevant game catalogue immediately.
+
+## 2026-09-07 — Local-only redesign demo v1 (not production)
+
+- User requested an isolated redesign demo and a checked implementation list. Workspace: `/Users/ajgame/Documents/AJ Website Redesign Demo`; primary progress file: `CHECKLIST.md`; review notes: `HANDOVER.md`.
+- Copied current production source into a separate snapshot, not the diverged `index-demo.html`. Added isolated bilingual design layers for booking, games and a three-step contract form. Production HTML/JS/CSS are unchanged; no push or deployment.
+- Preserved the original calendar markup and logic, with desktop/mobile computed-style comparisons. Pricing and structured-payload source functions also match the originals.
+- Public snapshots contain 18 website consoles and 1,064 games; Bot catalog has 17 device entries. Mapping audit found unresolved website devices: PS FlexStrike Wireless Fight Stick and Viture Pro 2. Do not guess mappings or silently change inventory names.
+- Local Node server at `http://127.0.0.1:8817/` mocks all API writes, LINE identity/delivery, payments, documents and notifications. It does not use production credentials. Images may load from existing public URLs; calendar availability is fictional.
+- Browser checks cover all three pages in TH/EN at 375/1440px, and PS5 → dates → two games → contract completion with matching dates/total. Real LIFF, Delivery App/HMAC, allocator concurrency, cloud documents/notifications and full pricing/accessibility acceptance remain unchecked staging work.
+- Owner is reviewing demo design; do not merge this snapshot over production. Mock success does not demonstrate that any production LINE/timeout issue has been fixed.
+
+## 2026-09-07 — Local redesign v2 after visual feedback
+
+- In the isolated demo only, replaced the tall 18-console grid with a single horizontal rail. Swipe/trackpad, next-card preview, arrows and existing category filters remain; no devices or card pricing were removed.
+- Rebuilt the product-card hierarchy with separate booking and game actions, preserving original nodes/listeners/disabled states. Moved the catalogue above secondary help and promotions; shortened the hero and removed duplicate section headings.
+- Updated game catalogue to a compact working header, and the desktop contract wizard to sidebar progress/rental summary plus form content (stacked on mobile).
+- Verified 18 cards in a single row, category re-render, arrows, prices and game links at 375/1440px in TH/EN. Rechecked the mobile LINE-mock booking-to-contract flow and unchanged calendar styles. Checklist and screenshots remain in the external demo workspace. No production deployment or source-code changes.
+
+## 2026-09-07 — Rental-window game availability in local demo
+
+- Added demo-only date-aware behavior to the embedded game picker: index sends the selected rental start/return dates, and a game whose `available_date` is inclusively within that range becomes selectable.
+- A game ready on the first rental day has no warning. A game ready later in the rental displays a bilingual playable-date label and its selected name sent back to index includes the same date. Games ready after the return remain disabled; standalone catalogue behavior is unchanged without a rental range.
+- TH/EN browser test for 15–24 September 2026 verified Wolverine ready on the first day, FC27 ready 19 September, Control Resonant ready 22 September, and GTA VI after the rental still disabled. The existing mobile LINE-mock booking-to-contract regression still passes. This has not been applied to production.
+
+## 2026-09-07 — Rental-window availability production release
+
+- Applied only the rental-window availability feature to production `index.html` and `game_index.html`; no redesign demo styles or layout were merged.
+- The index now forwards rental start/return dates to the picker. Games released inclusively during that window are selectable; later releases remain disabled. Games released after the start date show a compact bilingual playable-date label inside the cover image and include the date in the selected-game message.
+- Added cache-buster `gamePickerVersion: 20260907-1` and normalised saved names so previously submitted dated labels can still be reselected.

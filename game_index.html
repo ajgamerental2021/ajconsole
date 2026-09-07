@@ -690,6 +690,24 @@
     border-radius: calc(var(--radius) - 2px) calc(var(--radius) - 2px) 0 0;
     flex-shrink: 0;
   }
+  .pick-card-media { position: relative; flex-shrink: 0; }
+  .pick-rental-ready-overlay {
+    position: absolute;
+    left: 7px;
+    right: 7px;
+    bottom: 7px;
+    z-index: 4;
+    padding: 5px 7px;
+    border: 1px solid #a8dfb8;
+    border-radius: 7px;
+    background: rgba(240, 253, 244, 0.96);
+    color: #166534;
+    font-size: 9px;
+    font-weight: 800;
+    line-height: 1.25;
+    text-align: center;
+    pointer-events: none;
+  }
   .pick-card-placeholder {
     width: 100%; aspect-ratio: 3/4;
     background: var(--bg2);
@@ -4242,10 +4260,40 @@ function ajTodayYmd() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
+let pickerRentalStart = '';
+let pickerRentalEnd = '';
+function normalizePickerDate(value) {
+  const match = String(value || '').trim().match(/^(\d{4}-\d{2}-\d{2})/);
+  return match ? match[1] : '';
+}
+function setPickerRentalRange(startDate, endDate) {
+  pickerRentalStart = normalizePickerDate(startDate);
+  pickerRentalEnd = normalizePickerDate(endDate);
+}
+function gameReadyDuringRental(g) {
+  const ready = normalizePickerDate(g && g.available_date);
+  return !!(g && g.unavailable && ready && pickerRentalStart && pickerRentalEnd
+    && ready >= pickerRentalStart && ready <= pickerRentalEnd);
+}
+function gameReadyAfterRentalStart(g) {
+  const ready = normalizePickerDate(g && g.available_date);
+  return gameReadyDuringRental(g) && ready > pickerRentalStart;
+}
+function pickerReadyDate(g) {
+  const ready = normalizePickerDate(g && g.available_date);
+  return ready ? ready.split('-').reverse().join('/') : '';
+}
+function gameSelectionName(g) {
+  if (!g) return '';
+  if (!gameReadyAfterRentalStart(g)) return g.name;
+  const suffix = currentLang === 'en' ? `playable ${pickerReadyDate(g)}` : `เล่นได้ ${pickerReadyDate(g)}`;
+  return `${g.name} (${suffix})`;
+}
 function isGameUnavailable(g) {
   if (!g || !g.unavailable) return false;
   const ready = String(g.available_date || '').trim();
   if (!ready) return true;
+  if (pickerRentalStart && pickerRentalEnd) return !gameReadyDuringRental(g);
   return ajTodayYmd() < ready;
 }
 function compareGamesForDisplay(a, b, mode) {
@@ -5515,7 +5563,11 @@ async function initSelectionToken() {
  * a plausible selection, confirms it, and loses a game without ever being told.
  */
 function matchSavedGameNames(names) {
-  const norm = (v) => String(v || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const norm = (v) => String(v || '')
+    .replace(/\s*\((?:เล่นได้|playable)\s+\d{2}\/\d{2}\/\d{4}\)\s*$/i, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
   const catalogue = (function () { try { return Array.isArray(games) ? games : []; } catch (e) { return []; } })();
   const byName = new Map();
   catalogue.forEach((g) => { if (g && g.name) byName.set(norm(g.name), g.id); });
@@ -5632,7 +5684,7 @@ window.ajSelectionReady = (function () {
 async function submitSelectionToken() {
   if (!selectionToken || !pickedGames.length) return;
   const names = pickedGames
-    .map(id => (games.find(x => x.id === id) || {}).name)
+    .map(id => gameSelectionName(games.find(x => x.id === id)))
     .filter(Boolean);
   const btn = document.getElementById('btn-generate-copy');
   if (btn) { btn.disabled = true; btn.textContent = currentLang === 'en' ? 'Sending…' : 'กำลังส่ง...'; }
@@ -5694,7 +5746,7 @@ function generateCopyText() {
   pickedGames.forEach((id, i) => {
     const g = games.find(x => x.id === id);
     const p = g ? platformObjectById(primaryPlatformId(g)) : null;
-    if (g) lines.push(`${i+1}. ${g.name}${p ? ` (${p.name})` : ''}`);
+    if (g) lines.push(`${i+1}. ${gameSelectionName(g)}${p ? ` (${p.name})` : ''}`);
   });
   lines.push('');
   lines.push('ขอบคุณครับ/ค่ะ 🙏');
@@ -6181,7 +6233,7 @@ function generateCopyText() {
   pickedGames.forEach((id, i) => {
     const g = games.find(x => x.id === id);
     const p = g ? platformObjectById(primaryPlatformId(g)) : null;
-    if (g) lines.push(`${i+1}. ${g.name}${p ? ` (${p.name})` : ''}`);
+    if (g) lines.push(`${i+1}. ${gameSelectionName(g)}${p ? ` (${p.name})` : ''}`);
   });
   lines.push('');
   lines.push(T.copy_closing);
@@ -6270,6 +6322,9 @@ function renderPickBody() {
         const lbl = isEn() ? ('Ready '+ds) : ('พร้อม '+ds);
         return `<span style="font-size:10px;background:#fff3cd;color:#856404;padding:2px 7px;border-radius:10px;flex-shrink:0;font-weight:700">⚠️ ${lbl}</span>`;
       })() : '';
+      const rentalReadyBadge = gameReadyAfterRentalStart(g)
+        ? `<span style="font-size:10px;background:#f0fdf4;color:#166534;padding:2px 7px;border:1px solid #a8dfb8;border-radius:10px;flex-shrink:0;font-weight:700">${isEn() ? 'Playable ' : 'เล่นได้ '}${pickerReadyDate(g)}</span>`
+        : '';
       const atMaxL = disabled && !isUnavailL;
       return `<div class="game-list-row ${sel ? 'selected-list-row' : ''}"
         onclick="${isUnavailL ? '' : atMaxL ? 'pickCapNotice()' : `togglePick('${g.id}')`}"
@@ -6278,6 +6333,7 @@ function renderPickBody() {
         <span style="font-size:16px;flex-shrink:0">${isUnavailL ? '⚠️' : (sel ? '✓' : '○')}</span>
         <span class="game-list-name" style="${sel?'color:var(--accent)':''}">${escHtml(g.name)}</span>
         ${unavailBadge}
+        ${rentalReadyBadge}
         ${genreTag}
         <span class="game-list-year">${g.year||''}</span>
       </div>`;
@@ -6305,13 +6361,19 @@ function renderPickBody() {
           <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:88%;background:rgba(0,0,0,0.88);color:#FFD700;font-size:10px;font-weight:800;padding:6px 8px;border-radius:5px;text-align:center;line-height:1.4;white-space:pre-line">${lbl}</div>
         </div>`;
       })() : '';
+      const rentalReadyOverlay = gameReadyAfterRentalStart(g)
+        ? `<div class="pick-rental-ready-overlay">${isEn() ? 'Selectable · Playable ' : 'เลือกได้ · เล่นได้ '}${pickerReadyDate(g)}</div>`
+        : '';
       return `<div class="pick-card ${sel ? 'selected' : ''} ${disabled || isUnavail ? 'pick-disabled' : ''} ${disabled && !isUnavail ? 'pick-at-max' : ''}"
         onclick="${isUnavail ? '' : disabled ? 'pickCapNotice()' : `togglePick('${g.id}')`}"
         style="${isUnavail ? 'cursor:not-allowed;' : ''}"
         data-id="${g.id}">
         ${unavailPickRibbon}
-        ${imgBlock}
-        <div class="pick-card-placeholder" style="${placeholderStyle}">🎮</div>
+        <div class="pick-card-media">
+          ${imgBlock}
+          <div class="pick-card-placeholder" style="${placeholderStyle}">🎮</div>
+          ${rentalReadyOverlay}
+        </div>
         ${!isUnavail ? '<div class="pick-check">✓</div>' : ''}
         <div class="pick-card-name">${genreTag}<br>${escHtml(g.name)}</div>
       </div>`;
@@ -7151,7 +7213,7 @@ document.addEventListener('touchstart', function(e) {
       if(!g) return null;
       const pid = gameMatchesPlatform(g, bridgePlatformId) ? bridgePlatformId : primaryPlatformId(g);
       const p = platformObjectById(pid);
-      return { id:g.id, name:g.name, platformId:pid, platformName:p ? p.name : '' };
+      return { id:g.id, name:gameSelectionName(g), platformId:pid, platformName:p ? p.name : '' };
     }).filter(Boolean);
   }
   function confirmSelection(){
@@ -7189,6 +7251,7 @@ document.addEventListener('touchstart', function(e) {
     if(isContractCardPicker()) document.body.classList.add('aj-contract-card-picker');
     bridgeRequestId = data.requestId || '';
     bridgePlatformId = data.platformId === PLAYSTATION_ADMIN_ID ? 'ps5' : (data.platformId || '');
+    setPickerRentalRange(data.startDate, data.endDate || data.returnDate);
     setLangSafe(data.lang || 'th');
     if(typeof openPickModal === 'function') openPickModal();
     pickedGames = Array.isArray(data.selectedGameIds) ? data.selectedGameIds.filter(id => getGamesSafe().some(g => g.id === id)).slice(0,10) : [];
@@ -7269,7 +7332,9 @@ document.addEventListener('touchstart', function(e) {
           requestId: params.get('rentalCode') || 'contract-card',
           platformId: params.get('platformId') || params.get('platform') || tokenPlatform || '',
           lang: params.get('lang') || 'th',
-          selectedGameIds: preselected
+          selectedGameIds: preselected,
+          startDate: params.get('startDate') || (selectionContext && selectionContext.startDate) || '',
+          endDate: params.get('endDate') || (selectionContext && (selectionContext.endDate || selectionContext.returnDate)) || ''
         });
         // Reports anything the catalogue no longer has, and covers the case
         // where the catalogue arrived after the token resolved.
@@ -7438,6 +7503,7 @@ document.addEventListener('touchstart', function(e) {
   function forceRenderPicker(request){
     ensureCatalogReady();
     try{
+      setPickerRentalRange(request.startDate, request.endDate || request.returnDate);
       if(typeof openPickModal === 'function') openPickModal();
       pickedGames = Array.isArray(request.selectedGameIds) ? request.selectedGameIds.filter(function(id){ return (Array.isArray(games)?games:[]).some(function(g){ return g.id === id; }); }).slice(0,10) : [];
       const pid = safePlatformId(request.platformId || '');

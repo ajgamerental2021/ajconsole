@@ -1144,7 +1144,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
   const CONFIG = {
     version: "index2-clean-1",
-    gamePickerVersion: "20260902-1",
+    gamePickerVersion: "20260907-1",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",
@@ -5375,7 +5375,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const platformId = c.gamePlatform || guessPlatform(c);
     const selectedIds = pickerSelectedIds();
     const browseOnly = state.gamePickerBrowseOnly;
-    const params = new URLSearchParams({embed:"picker", lang:state.lang, platformId, selected:selectedIds.join(","), browse:browseOnly?"1":"0", chrome:"compact", v:CONFIG.gamePickerVersion});
+    const params = new URLSearchParams({embed:"picker", lang:state.lang, platformId, selected:selectedIds.join(","), browse:browseOnly?"1":"0", chrome:"compact", startDate:state.calc.start || "", endDate:state.calc.end || "", v:CONFIG.gamePickerVersion});
     const src = `${CONFIG.gamePage}?${params.toString()}`;
     const send = () => frame.contentWindow?.postMessage({
       type:"AJ_PICKER_OPEN",
@@ -5383,7 +5383,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       platformId,
       lang:state.lang,
       selectedGameIds:selectedIds,
-      browseOnly
+      browseOnly,
+      startDate:state.calc.start || "",
+      endDate:state.calc.end || ""
     }, pickerTargetOrigin());
     if((frame.getAttribute("src") || "") !== src){
       frame.onload = () => { send(); sendPickerHowTo(); applyPickerChromeFallback(); };
@@ -6958,7 +6960,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           platformId:c ? (c.gamePlatform || guessPlatform(c)) : "",
           lang:state.lang,
           selectedGameIds:pickerSelectedIds(),
-          browseOnly:state.gamePickerBrowseOnly
+          browseOnly:state.gamePickerBrowseOnly,
+          startDate:state.calc.start || "",
+          endDate:state.calc.end || ""
         }, pickerTargetOrigin());
       }
     });
