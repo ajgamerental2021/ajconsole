@@ -1018,3 +1018,8 @@ paused job shows slightly old numbers rather than an empty section.
 - Applied only the rental-window availability feature to production `index.html` and `game_index.html`; no redesign demo styles or layout were merged.
 - The index now forwards rental start/return dates to the picker. Games released inclusively during that window are selectable; later releases remain disabled. Games released after the start date show a compact bilingual playable-date label inside the cover image and include the date in the selected-game message.
 - Added cache-buster `gamePickerVersion: 20260907-1` and normalised saved names so previously submitted dated labels can still be reselected.
+
+## 2026-09-07 — Rental-window availability correction
+
+- Corrected the inclusive availability rule: games ready before or on the rental return date are selectable, including titles released before the rental start date (for example, NBA 2K27 ready 04/09/2026 for a 15–24/09 rental).
+- Increased the in-cover “selectable / playable date” label for readability and bumped the picker cache-buster to `20260907-2`.
