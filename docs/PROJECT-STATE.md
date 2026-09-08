@@ -1023,3 +1023,9 @@ paused job shows slightly old numbers rather than an empty section.
 
 - Corrected the inclusive availability rule: games ready before or on the rental return date are selectable, including titles released before the rental start date (for example, NBA 2K27 ready 04/09/2026 for a 15–24/09 rental).
 - Increased the in-cover “selectable / playable date” label for readability and bumped the picker cache-buster to `20260907-2`.
+
+## 2026-09-08 — Verified LINE identity persisted to Console Pending
+
+- Fixed the LINE booking handoff race in the Bot service. The website creates the Pending row before LIFF knows the customer account; after LIFF verifies the access token, the Bot now updates the matching Rental ID row in `Line / WhatsApp LOGs` directly through Google Sheets instead of relying only on the separate booking-history update.
+- The direct update writes `Line Unique ID` and LINE display name. When the verified account matches an existing contract or Delivery App customer, available customer name and phone fields are also forwarded without changing unrelated booking values.
+- The first persistence attempt is acknowledged during the LINE handoff; if the Pending row is still being created, bounded background retries handle the race. Added pure mapping tests and retained the existing booking-history update for Delivery App compatibility. Full Bot suite: 267/267 passing.
