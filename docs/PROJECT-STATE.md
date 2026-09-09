@@ -1058,3 +1058,9 @@ paused job shows slightly old numbers rather than an empty section.
 
 - Restored the normal service-ready ID order to ascending ID number. Only the recently added IDs #67 and #68 are promoted to the front of the ready group, in that order; every not-ready item still appears before them.
 - Applied the same correction to standalone and embedded `ajgameid` and added ordering regression coverage.
+
+## 2026-09-09 — Creation-date ordering for new rental IDs
+
+- New `ajgameid` entries now persist an ISO `createdAt` timestamp. Service-ready entries with creation dates sort newest-first, ahead of the legacy ascending-ID group, while not-ready entries always remain first.
+- IDs #67 and #68 seed the new-entry group in that order when their existing records have no timestamp. The next saved ID keeps its sequential number (for example #69) but sorts ahead of #67/#68 automatically.
+- Standalone and embedded catalogues use identical logic and regression tests cover the first future new entry.

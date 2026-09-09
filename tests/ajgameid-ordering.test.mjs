@@ -13,10 +13,13 @@ test('embedded ajgameid keeps editable manual IDs', () => {
   assert.match(html, /const duplicate = state\.some/);
 });
 
-test('embedded ajgameid puts unavailable games first, then IDs 67 and 68, then ready IDs ascending', () => {
+test('embedded ajgameid puts unavailable games first, then new items by creation date', () => {
   assert.match(html, /if \(aNotReady !== bNotReady\) return aNotReady \? -1 : 1/);
   assert.match(html, /readyDateSortValue\(b\)\.localeCompare\(readyDateSortValue\(a\)\)/);
-  assert.match(html, /readyOrderOverrides = new Map\(\[\[67, 0\], \[68, 1\]\]\)/);
+  assert.match(html, /createdAt: new Date\(\)\.toISOString\(\)/);
+  assert.match(html, /itemCreatedAtSortValue\(b\) - itemCreatedAtSortValue\(a\)/);
+  assert.match(html, /Number\(item\?\.idNo\) === 67/);
+  assert.match(html, /Number\(item\?\.idNo\) === 68/);
   assert.match(html, /return \(Number\(a\?\.idNo\)[\s\S]*?- \(Number\(b\?\.idNo\)/);
 });
 
