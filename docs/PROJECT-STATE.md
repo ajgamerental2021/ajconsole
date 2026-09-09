@@ -1029,3 +1029,10 @@ paused job shows slightly old numbers rather than an empty section.
 - Fixed the LINE booking handoff race in the Bot service. The website creates the Pending row before LIFF knows the customer account; after LIFF verifies the access token, the Bot now updates the matching Rental ID row in `Line / WhatsApp LOGs` directly through Google Sheets instead of relying only on the separate booking-history update.
 - The direct update writes `Line Unique ID` and LINE display name. When the verified account matches an existing contract or Delivery App customer, available customer name and phone fields are also forwarded without changing unrelated booking values.
 - The first persistence attempt is acknowledged during the LINE handoff; if the Pending row is still being created, bounded background retries handle the race. Added pure mapping tests and retained the existing booking-history update for Delivery App compatibility. Full Bot suite: 267/267 passing.
+
+## 2026-09-09 — Review-discount actions in LINE booking Flex
+
+- The shared Bot `bookingFlexMessage` now detects Google Maps and Facebook review discounts from structured cost rows, so the behavior applies to LINE bookings sent directly from index and again after contract completion. It works for both 50 and 100 baht discount tiers.
+- After the payment instructions, the card shows a concise bilingual instruction to submit a screenshot in the same chat, plus only the selected review-channel buttons. Google Maps uses Google blue and Facebook uses Facebook blue; links point to the shop's supplied review URLs.
+- Game-selection token resolution now returns `endDate`/`returnDate` as well as `startDate`, enabling the rental-window release-date logic when Delivery App launches the LINE picker. Implementation prompt: Bot repo `docs/DELIVERY-APP-GAME-AVAILABILITY-PROMPT.md`.
+- Bot test suite: 268/268 passing.
