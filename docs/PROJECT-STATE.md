@@ -1053,3 +1053,8 @@ paused job shows slightly old numbers rather than an empty section.
 - Updated the standalone and embedded `ajgameid` catalogues so unavailable/upcoming IDs remain at the top, while service-ready IDs are ordered newest-first by ID number. This puts newly added ready IDs near the top without overtaking not-ready entries.
 - Added a canonical under-20 rental FAQ as the first item on index in both Thai and English. It explains the 20+ contract requirement, parent/guardian signing option and the higher-deposit no-contract option; remote FAQ data is normalised to avoid duplicate age questions.
 - Verified the standalone and embedded catalogue files match, targeted ordering/FAQ tests pass, and browser checks confirm the FAQ and live ID order in both languages.
+
+## 2026-09-09 — ID ordering correction for #67 and #68
+
+- Restored the normal service-ready ID order to ascending ID number. Only the recently added IDs #67 and #68 are promoted to the front of the ready group, in that order; every not-ready item still appears before them.
+- Applied the same correction to standalone and embedded `ajgameid` and added ordering regression coverage.
