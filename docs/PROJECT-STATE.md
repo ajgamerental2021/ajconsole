@@ -1047,3 +1047,9 @@ paused job shows slightly old numbers rather than an empty section.
 - `normalizePickerDate()` now reads `dd/mm/yyyy` as well as ISO. The Delivery App sends the booking's dates in the format the sheets keep, so the ISO-only reader left `pickerRentalStart`/`pickerRentalEnd` empty and the picker silently fell back to judging games by today's date — the exact behaviour the rental-window work exists to replace.
 - A `?t=` token link opened on its own now sets the range from the resolved booking too; previously only the embedded (contract-card) picker and `forceRenderPicker()` received it.
 - `tests/game-readiness-window.test.mjs` runs the page's own readiness functions over the acceptance cases: 04/09, 15/09, 19/09, 22/09 and 25/09 against a 15/09–24/09 rental, the Thai and English submitted names, both date formats, and the no-window fallback. The three stale `gamePickerVersion` assertions were pointing at versions `index.html` had already moved past; all now read `20260909-1`, which is also the new cache-buster for this change.
+
+## 2026-09-09 — Newest ready IDs first and age FAQ
+
+- Updated the standalone and embedded `ajgameid` catalogues so unavailable/upcoming IDs remain at the top, while service-ready IDs are ordered newest-first by ID number. This puts newly added ready IDs near the top without overtaking not-ready entries.
+- Added a canonical under-20 rental FAQ as the first item on index in both Thai and English. It explains the 20+ contract requirement, parent/guardian signing option and the higher-deposit no-contract option; remote FAQ data is normalised to avoid duplicate age questions.
+- Verified the standalone and embedded catalogue files match, targeted ordering/FAQ tests pass, and browser checks confirm the FAQ and live ID order in both languages.

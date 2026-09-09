@@ -1295,7 +1295,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     area:{qTh:"พื้นที่ให้บริการ",aTh:"ให้บริการเช่าเฉพาะใน กรุงเทพฯ–ปริมณฑล (นครปฐม, สมุทรสาคร, สมุทรปราการ, ปทุมธานี, นนทบุรี)",qEn:"Service area",aEn:"Rental service is available only in Bangkok and the surrounding provinces: Nakhon Pathom, Samut Sakhon, Samut Prakan, Pathum Thani, and Nonthaburi."},
     pattaya:{qTh:"พัทยา/ชลบุรี เช่าได้ไหม",aTh:"สามารถเช่าได้ แต่ค่าจัดส่งทั้งหมดลูกค้าเป็นผู้รับผิดชอบเอง กรุณาทักแชทร้านเพื่อสอบถามค่าจัดส่ง",qEn:"Can I rent in Pattaya / Chonburi?",aEn:"Yes, but the customer is responsible for all delivery costs. Please contact the shop to confirm the delivery fee."}
   };
+  const AGE_FAQ = {
+    qTh:"อายุไม่ถึง 20 ปีบริบูรณ์ เช่าได้ไหม?",
+    aTh:"ผู้ทำสัญญาต้องมีอายุ 20 ปีขึ้นไป หากผู้เช่าอายุไม่ถึงเกณฑ์ สามารถให้ผู้ปกครองทำสัญญาแทน หรือเลือกไม่ทำสัญญาโดยชำระค่าประกันที่สูงขึ้น",
+    qEn:"Can I rent if I am under 20?",
+    aEn:"The person signing the rental agreement must be at least 20. If the renter is under 20, a parent or guardian may sign instead, or the no-contract option is available with a higher deposit."
+  };
   const DEFAULT_FAQ = [
+    AGE_FAQ,
     {qTh:"ขั้นต่ำเช่ากี่วัน?",aTh:"ขั้นต่ำ 3 วัน สำหรับเรทบุคคล",qEn:"What is the minimum rental period?",aEn:"The minimum rental period is 3 days for individual rates."},
     {qTh:"ส่งพื้นที่ไหนบ้าง?",aTh:"จัดส่งเฉพาะกรุงเทพฯ และปริมณฑล ค่าส่งเช็กตามลิงก์ Google Maps",qEn:"Where do you deliver?",aEn:"Delivery is available in Bangkok and Greater Bangkok. Delivery cost depends on your Google Maps location."},
     {qTh:"ต้องทำสัญญาไหม?",aTh:"ผู้เช่าครั้งแรกต้องทำสัญญา หากไม่สะดวกสามารถเลือกไม่ทำสัญญาได้ แต่ค่าประกันจะสูงขึ้น",qEn:"Is a rental contract required?",aEn:"First-time renters need a contract. You can choose no contract, but the deposit will be higher."},
@@ -2365,6 +2372,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       aEn: String(x.aEn || x.a_en || "").trim()
     })).filter(x => x.qTh || x.aTh || x.qEn || x.aEn);
     const matches = (faq, th, en) => th.test(faq.qTh) || en.test(faq.qEn);
+    normalized = normalized.filter(faq => !matches(
+      faq,
+      /^(อายุไม่ถึง|อายุต่ำกว่า)\s*20\s*ปี/,
+      /(?:under|younger than|at least)\s*20|minimum age/i
+    ));
+    normalized.unshift({...AGE_FAQ});
     const timeIndex = normalized.findIndex(faq => matches(faq, /^ส่งเครื่องเวลาไหน/, /^What time do you deliver/i));
     if(timeIndex >= 0) normalized[timeIndex] = {...DELIVERY_FAQS.time};
     else normalized.splice(Math.min(1, normalized.length), 0, {...DELIVERY_FAQS.time});
