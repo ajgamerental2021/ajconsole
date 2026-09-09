@@ -1041,3 +1041,9 @@ paused job shows slightly old numbers rather than an empty section.
 
 - Updated the shared booking Flex summary so the bilingual total label and amount remain on one row in narrow LINE clients. The label receives more width and both sides use `shrink-to-fit` instead of wrapping.
 - Added Thai/English regression coverage. Full Bot suite: 269/269 passing.
+
+## 2026-09-09 — The rental window reaches the picker in the format it is sent
+
+- `normalizePickerDate()` now reads `dd/mm/yyyy` as well as ISO. The Delivery App sends the booking's dates in the format the sheets keep, so the ISO-only reader left `pickerRentalStart`/`pickerRentalEnd` empty and the picker silently fell back to judging games by today's date — the exact behaviour the rental-window work exists to replace.
+- A `?t=` token link opened on its own now sets the range from the resolved booking too; previously only the embedded (contract-card) picker and `forceRenderPicker()` received it.
+- `tests/game-readiness-window.test.mjs` runs the page's own readiness functions over the acceptance cases: 04/09, 15/09, 19/09, 22/09 and 25/09 against a 15/09–24/09 rental, the Thai and English submitted names, both date formats, and the no-window fallback. The three stale `gamePickerVersion` assertions were pointing at versions `index.html` had already moved past; all now read `20260909-1`, which is also the new cache-buster for this change.

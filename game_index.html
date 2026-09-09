@@ -4263,8 +4263,15 @@ function ajTodayYmd() {
 let pickerRentalStart = '';
 let pickerRentalEnd = '';
 function normalizePickerDate(value) {
-  const match = String(value || '').trim().match(/^(\d{4}-\d{2}-\d{2})/);
-  return match ? match[1] : '';
+  const raw = String(value || '').trim();
+  const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+  // The rental window arrives from the Delivery App as dd/mm/yyyy, the format
+  // the sheets keep. Reading only ISO here left the window empty and silently
+  // sent the picker back to judging games by today's date.
+  const thai = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (thai) return `${thai[3]}-${String(thai[2]).padStart(2,'0')}-${String(thai[1]).padStart(2,'0')}`;
+  return '';
 }
 function setPickerRentalRange(startDate, endDate) {
   pickerRentalStart = normalizePickerDate(startDate);
@@ -5540,6 +5547,10 @@ async function initSelectionToken() {
       return;
     }
     selectionContext = data;
+    // Judge every game against this booking's rental window, not against
+    // today. The embedded picker gets the same range through openPickerFromParent;
+    // a token link opened on its own would otherwise never receive it.
+    setPickerRentalRange(data.startDate, data.endDate || data.returnDate);
     // The platform comes from the token, never from the query string.
     if (data.gamePlatform) {
       currentPlatform = data.gamePlatform;
