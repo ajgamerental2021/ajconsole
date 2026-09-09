@@ -1036,3 +1036,8 @@ paused job shows slightly old numbers rather than an empty section.
 - After the payment instructions, the card shows a concise bilingual instruction to submit a screenshot in the same chat, plus only the selected review-channel buttons. Google Maps uses Google blue and Facebook uses Facebook blue; links point to the shop's supplied review URLs.
 - Game-selection token resolution now returns `endDate`/`returnDate` as well as `startDate`, enabling the rental-window release-date logic when Delivery App launches the LINE picker. Implementation prompt: Bot repo `docs/DELIVERY-APP-GAME-AVAILABILITY-PROMPT.md`.
 - Bot test suite: 268/268 passing.
+
+## 2026-09-09 — Single-line booking total in LINE Flex
+
+- Updated the shared booking Flex summary so the bilingual total label and amount remain on one row in narrow LINE clients. The label receives more width and both sides use `shrink-to-fit` instead of wrapping.
+- Added Thai/English regression coverage. Full Bot suite: 269/269 passing.
