@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-09-10 — Keep game-picker actions on refreshed booking cards
+
+- Booking Flex cards now retain a “เลือกเกม” / “Choose games” action when the customer selected “แจ้งรายชื่อเกมภายหลัง”. If games are already saved, the action is labelled “เลือกเกมใหม่” / “Choose different games” and the saved list remains the baseline.
+- The opaque picker URL is now persisted when LINE links to a booking and when a game list is submitted, so payment-method changes and admin re-sends no longer drop the button. Older rows without that field receive a safe contract-card picker fallback.
+- Added regressions for Thai/English labels, legacy-row fallback links and handoff persistence.
+
 ## 2026-09-10 — Payment Flex readability and exact fee amounts
 
 - Shortened the Thai/English full-payment labels in booking Flex cards so LINE does not render an ellipsis; the label now reads “ชำระเต็มจำนวน” / “Full payment”. Advance-payment labels were shortened as well.
