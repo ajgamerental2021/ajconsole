@@ -4709,17 +4709,29 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       }
     };
   }
-  function submitRentalToSheet(summary, code, channel, preparedMessage="", preparedData=null){
-    if(!code || localStorage.getItem(`aj_rental_sheet_submitted_${code}`) === "1") return;
-    const endpoint = String(localStorage.getItem("aj_rental_sheet_webapp_url") || CONFIG.rentalSheetWebApp || "").trim();
-    if(!endpoint) return;
+  async function submitRentalToSheet(summary, code, channel, preparedMessage="", preparedData=null){
+    if(!code || localStorage.getItem(`aj_rental_sheet_submitted_${code}`) === "1") return true;
+    const endpoint = new URL("/api/console-pending-submissions", CONFIG.contractWebUrl).toString();
     SESSION_RENTAL_CODES.add(code);
     const payload = rentalSheetPayload(summary, code, channel, preparedMessage, preparedData);
-    // POST so the full booking message (added for the shop-side viewer) is not
-    // capped by the GET URL length limit. Apps Script doPost reads the raw body.
-    fetch(endpoint, {method:"POST", mode:"no-cors", cache:"no-store", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload)}).then(() => {
+    // The Bot acknowledges this upsert and protects any payment method the
+    // customer has changed since the original browser submission. Unlike the
+    // old no-cors Apps Script write, failure is observable and can be retried.
+    try{
+      const response = await bookingFetch(endpoint, {
+        method:"POST",
+        cache:"no-store",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(payload)
+      }, 10000);
+      const result = await response.json().catch(() => ({}));
+      if(!response.ok || !result?.ok) throw new Error(result?.error || "console_pending_submission_failed");
       localStorage.setItem(`aj_rental_sheet_submitted_${code}`, "1");
-    }).catch(error => console.warn("Rental sheet append skipped", error));
+      return true;
+    }catch(error){
+      console.warn("Rental sheet append skipped", error);
+      throw error;
+    }
   }
   function lineUniqueId(){
     try{
@@ -5169,7 +5181,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const handoff = await prepareContractHandoff(code, "web");
       const msg = handoff.message;
       await writeBookingClipboard(msg);
-      submitRentalToSheet(summary, code, "copy", msg, handoff.data);
+      await submitRentalToSheet(summary, code, "copy", msg, handoff.data);
       return true;
     }catch(error){
       showBookingActionError(error);
@@ -5189,7 +5201,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(!handoff.contextToken) throw new Error("LINE booking handoff is unavailable");
       const msg = handoff.message;
       fallbackMessage = msg;
-      submitRentalToSheet(summary, code, "line", msg, handoff.data);
+      await submitRentalToSheet(summary, code, "line", msg, handoff.data);
       setShareStatus("line", "ready");
       trackAnalytics("booking_handoff_started", {channel:"line", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
       const liffUrl = new URL(`https://liff.line.me/${activeLineLiffId()}`);
@@ -5239,7 +5251,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const handoff = await prepareContractHandoff(code, "web");
       const msg = unicodeSafeText(handoff.message);
       fallbackMessage = msg;
-      submitRentalToSheet(summary, code, "whatsapp", msg, handoff.data);
+      await submitRentalToSheet(summary, code, "whatsapp", msg, handoff.data);
       setShareStatus("whatsapp", "opened");
       trackAnalytics("booking_handoff_started", {channel:"whatsapp", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
       location.href = whatsappShareUrl(msg);
@@ -5262,7 +5274,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const handoff = await prepareContractHandoff(code, "web");
       const msg = unicodeSafeText(handoff.message);
       fallbackMessage = msg;
-      submitRentalToSheet(summary, code, "messenger", msg, handoff.data);
+      await submitRentalToSheet(summary, code, "messenger", msg, handoff.data);
       showMessengerBookingHandoff(msg);
       trackAnalytics("booking_handoff_started", {channel:"messenger", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
       return true;
@@ -5295,7 +5307,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(hint) hint.textContent = `${tr("temporaryRentalCode")}: ${code}`;
       // Persist the booking (incl. message) when the customer opens the contract,
       // so the shop can retrieve it later even if the customer never copies/sends.
-      submitRentalToSheet(summary, code, "contract", handoff.message, handoff.data);
+      await submitRentalToSheet(summary, code, "contract", handoff.message, handoff.data);
       // In-app browsers may block a new tab after the async setup above.
       // Same-tab navigation is not subject to popup blocking and preserves
       // every parameter prepared in the contract URL.
@@ -7332,46 +7344,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     };
   }
 
-  function normalizeViewerCashPaymentBlock(message, bookingData, en){
-    if(String(bookingData.paymentOption || "").toLowerCase() !== "cash") return String(message || "");
-    const source = String(message || "");
-    const onDelivery = String(bookingData.onDelivery || source.match(/(?:Pay on delivery|ชำระยอดที่เหลือปลายทาง|ยอดที่เหลือชำระปลายทาง):\s*([^\n]+)/i)?.[1] || "").trim();
-    const removable = en
-      ? /^(?:💳\s*(?:Payment option|Transfer before delivery)|🔗\s*Payment link|⏳\s*This payment link expires|🚚\s*Pay on delivery|\*\*\s*Cash(?: or Thai QR scan)? \(no fee\))/i
-      : /^(?:💳\s*(?:ช่องทางชำระ|โอนล่วงหน้า)|🔗\s*ลิงก์ชำระเงิน|🚚\s*(?:ชำระยอดที่เหลือปลายทาง|ยอดที่เหลือชำระปลายทาง)|\*\*\s*เงินโอน|✅\s*(?:เลขบัญชี|ธนาคาร|ชื่อบัญชี)|กรุณาโอนค่าจองคิว)/i;
-    const lines = source.split("\n").filter(line => !removable.test(line.trim()));
-    const compact = lines.filter((line, index) => line.trim() || (index > 0 && lines[index - 1].trim()));
-    const totalIndex = compact.findIndex(line => en ? /^💰\s*Total:/i.test(line) : /^💰\s*ยอดรวมทั้งหมด:/.test(line));
-    if(totalIndex < 0) return source;
-    const paymentLink = String(bookingData.paymentLink || source.match(/https:\/\/pay\.beamcheckout\.com\/[^\s]+/i)?.[0] || "").trim();
-    const paymentBlock = en ? [
-      "",
-      "💳 Payment option: Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee)",
-      ...(paymentLink ? [`🔗 Payment link: ${paymentLink}`] : []),
-      "",
-      ...(onDelivery ? [`🚚 Pay on delivery: ${onDelivery}`] : []),
-      "** Thai QR Scan (no fee), Card (+3.50%) or E-Wallet (+2.95%) **",
-      ""
-    ] : [
-      "",
-      "💳 ช่องทางชำระ: โอนจองคิว ฿200 และชำระยอดที่เหลือปลายทาง",
-      `✅เลขบัญชี : ${CONFIG.reservationBankAccount}`,
-      `✅ธนาคาร : ${CONFIG.reservationBankNameTh}`,
-      `✅ชื่อบัญชี : ${CONFIG.reservationAccountName}`,
-      "",
-      ...(onDelivery ? [`🚚 ชำระยอดที่เหลือปลายทาง: ${onDelivery}`] : []),
-      "** เงินโอน (ไม่มีค่าธรรมเนียม), บัตร (+3.50%) หรือ E-Wallet (+2.95%) **",
-      ""
-    ];
-    compact.splice(totalIndex + 1, 0, ...paymentBlock);
-    return compact.join("\n").replace(/\n{3,}/g, "\n\n");
-  }
-
   function normalizeViewerBookingMessage(message, payload){
     let text = String(message || "");
     const lang = String((payload && (payload.lang || (payload.data && payload.data.lang))) || "TH").toUpperCase();
     const en = lang === "EN" || /^Hello|^Game rental booking details/i.test(text);
-    const bookingData = payload && typeof payload.data === "object" ? payload.data : {};
     const maps = String(
       (payload && payload.maps) ||
       (payload && payload.googleMaps) ||
@@ -7398,48 +7374,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       text = lines.join("\n");
     }
 
-    text = normalizeViewerCashPaymentBlock(text, bookingData, en);
-
-    if(en && !/(Payment link(?:\s*\(|:)|Account number:|Bank Acc No\.)/i.test(text)){
-      const paymentLink = String(bookingData.paymentLink || "").trim();
-      const paymentOption = String(bookingData.paymentOption || "").toLowerCase();
-      const paymentLines = [
-        bookingData.paymentOptionLabel ? `💳 Payment option: ${bookingData.paymentOptionLabel}` : "",
-        paymentLink ? `🔗 Payment link: ${paymentLink}` : "",
-        ...(!paymentLink && paymentOption === "bank" ? [
-          `✅ Account number: ${bookingData.paymentBankAccount || CONFIG.reservationBankAccount}`,
-          `✅ Bank: ${bookingData.paymentBankName || "Krungthai Bank"}`,
-          `✅ Account name: ${bookingData.paymentAccountName || CONFIG.reservationAccountName}`
-        ] : []),
-        ...(!paymentLink && paymentOption === "wise" ? [
-          `✅Bank Acc No. : ${bookingData.paymentBankAccount || CONFIG.reservationBankAccount}`,
-          `✅Bank Name : ${bookingData.paymentBankName || CONFIG.wiseBankNameEn}`,
-          `✅Bank Acc. Name : ${bookingData.paymentAccountName || CONFIG.wiseAccountNameEn}`,
-          `✅Email : ${bookingData.paymentEmail || CONFIG.wiseEmail}`,
-          "⚠️No swift code required"
-        ] : [])
-      ].filter(Boolean);
-      if(paymentLines.length){
-        const lines = text.split("\n");
-        const insertAt = lines.findIndex(line => /^🚫/.test(line));
-        lines.splice(insertAt >= 0 ? insertAt : lines.length, 0, ...paymentLines, "");
-        text = lines.join("\n");
-      }
-    }
-    if(!en && String(bookingData.paymentOption || "").toLowerCase() === "wise" && !/SWIFT Code/i.test(text)){
-      const lines = text.split("\n");
-      const insertAt = lines.findIndex(line => /^🚫/.test(line));
-      lines.splice(insertAt >= 0 ? insertAt : lines.length, 0,
-        "💳 ช่องทางชำระ: Wise",
-        `✅เลขบัญชี : ${bookingData.paymentBankAccount || CONFIG.reservationBankAccount}`,
-        `✅ชื่อธนาคาร : ${CONFIG.reservationBankNameTh}`,
-        `✅ชื่อบัญชี : ${CONFIG.reservationAccountName}`,
-        `✅อีเมล : ${bookingData.paymentEmail || CONFIG.wiseEmail}`,
-        "⚠️ไม่ต้องใช้ SWIFT Code",
-        ""
-      );
-      text = lines.join("\n");
-    }
+    // Payment lines are already rewritten atomically with payload.data by the
+    // Bot. Display the stored block verbatim so an old Beam URL can never be
+    // recovered from browser state or regex fallback.
 
     return text.replace(
       /(\n\s*-\s*[^\n]*(?:deposit|ค่าประกัน)[^\n]*)\n[ \t]*\n(?=💰\s*(?:Total|ยอดรวมทั้งหมด):)/gi,

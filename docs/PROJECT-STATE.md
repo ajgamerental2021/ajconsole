@@ -1,5 +1,14 @@
 # Project state
 
+## 2026-09-10 — Payment-method changes stay authoritative across the website and contract flow
+
+- Website booking submissions now use the Bot's acknowledged Console Pending upsert instead of writing directly to Apps Script with `no-cors`. Every send path awaits the response before marking the rental submitted.
+- Repeated submissions for an existing rental preserve the current payment method, payment link, expiry, upfront/on-delivery amounts and bank fields already stored in the Sheet. They also preserve the payment-aware stored message, preventing another browser or stale local state from restoring an old method or cancelled Beam URL.
+- The booking viewer reads the latest rental-history row first and uses in-memory context only while a brand-new row is unavailable. Website-side message reconstruction and old-Beam-link regex recovery were removed; the payment block stored by the Bot is displayed as the source of truth.
+- Website fee calculations are covered against the Bot formula: `base + ceil(base * bps / 10000)` with 350 bps for credit, 295 bps for E-Wallet, and the existing language-specific cash reservation cap.
+- Chose handoff option (a) for Rental Order PDFs: the mutable payment-method line is removed while the agreed total remains. Rendered Thai QA confirms the two-page PDF is legible and has no payment-method line.
+- Verification: website regressions pass 54/54 with inline JavaScript syntax validation; Bot regressions pass 280/280 with server syntax and PDF rendering checks. Local browser initialization passed in Thai and English without submitting a booking or creating a payment.
+
 ## 2026-09-05 — Fast contract response and automatic LINE completion
 
 - Contract submission now responds as soon as the signed local PDF and metadata are safely written. Slow Google Drive uploads, recovery retries and the Contract Sheet append continue in the background, so those external services no longer leave the mobile form stuck on “กำลังสร้างสัญญา...” / “Generating contract...”.
