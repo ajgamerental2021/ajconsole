@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-09-10 — Legacy game-picker links now restore saved selections
+
+- If an older booking row has no persisted picker URL, its Flex button now opens a bot endpoint that mints a fresh short-lived token from the booking record. The picker can therefore preselect the saved games and submit replacements through the same backend flow as newer bookings.
+- Legacy rows without a verified LINE identity still fall back to the existing copy-and-send picker. Bot tests remain green at 291/291 before deployment.
+
 ## 2026-09-10 — Keep game-picker actions on refreshed booking cards
 
 - Booking Flex cards now retain a “เลือกเกม” / “Choose games” action when the customer selected “แจ้งรายชื่อเกมภายหลัง”. If games are already saved, the action is labelled “เลือกเกมใหม่” / “Choose different games” and the saved list remains the baseline.
