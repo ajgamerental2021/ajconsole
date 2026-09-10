@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-09-10 — Payment Flex readability and exact fee amounts
+
+- Shortened the Thai/English full-payment labels in booking Flex cards so LINE does not render an ellipsis; the label now reads “ชำระเต็มจำนวน” / “Full payment”. Advance-payment labels were shortened as well.
+- Credit-card and E-Wallet bookings now show the calculated fee as a separate, fully readable row with the exact amount (for example, `฿112`) in both languages. The same fee is included in rebuilt booking messages and persisted as `paymentFee` when a payment method is changed.
+- Payment-method page amounts now include the `฿` currency symbol beside the fee. Added regression coverage for both languages and confirmed all 289 Bot tests pass.
+
 ## 2026-09-10 — Localized payment switching, full transfer, Wise and faster save feedback
 
 - Fixed the payment-change page so its API options, document title, loading state and language toggle all use the selected language. English no longer reuses Thai payment labels, and changing the language reloads the matching option set.
