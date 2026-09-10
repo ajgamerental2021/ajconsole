@@ -1,5 +1,14 @@
 # Project state
 
+## 2026-09-10 — Localized payment switching, full transfer, Wise and faster save feedback
+
+- Fixed the payment-change page so its API options, document title, loading state and language toggle all use the selected language. English no longer reuses Thai payment labels, and changing the language reloads the matching option set.
+- Added fee-free full Thai bank transfer in Thai and English. English additionally offers Wise with the next-business-day weekend/Thai-holiday warning, refund timing guidance and the three requested Wise reference links. Thai shows the card/E-Wallet deposit-refund-by-bank-transfer notice.
+- Confirming a payment method now persists the selected language alongside the rewritten payment data/message. Wise is rejected outside English, carries the shop transfer details, and is protected from stale browser resubmission like the other payment fields.
+- Booking confirmation Flex cards now explicitly show the current payment method in Thai and English; full bank transfer and English Wise cards include their relevant transfer details.
+- Reduced long saving waits: Beam link creation has a 15-second upper bound, the redundant rental-history mirror runs after the canonical Sheet write without blocking the customer, and LINE card delivery is waited on for at most 4 seconds with accurate sent/pending/failed confirmation copy.
+- Verification: all 288 Bot tests pass, inline payment-page JavaScript and server/service syntax pass, and local browser QA confirms four Thai choices (without Wise) and five fully localized English choices with the requested notices and links. No payment method was submitted during UI QA.
+
 ## 2026-09-10 — Payment-method changes stay authoritative across the website and contract flow
 
 - Website booking submissions now use the Bot's acknowledged Console Pending upsert instead of writing directly to Apps Script with `no-cors`. Every send path awaits the response before marking the rental submitted.
