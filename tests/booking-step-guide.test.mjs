@@ -24,8 +24,8 @@ test('preparation timing is shown above the calculator and after game selection 
   assert.match(source, /<details class="prep-time-detail" data-i18n-html="preparationDetail"><\/details>/);
   assert.match(source, /กรณีต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 2–3 ชั่วโมง/);
   assert.match(source, /If additional games need to be downloaded or installed: approximately 2–3 hours/);
-  assert.match(source, /rentalTermsVersion !== "2026-09-02"/);
-  assert.match(source, /const RENTAL_TERMS_VERSION = "2026-09-02"/);
+  assert.match(source, /rentalTermsVersion !== "2026-09-13"/);
+  assert.match(source, /const RENTAL_TERMS_VERSION = "2026-09-13"/);
 });
 
 test('booking details hide duplicate returning banner and keep the verified agreement status', () => {

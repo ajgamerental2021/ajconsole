@@ -422,6 +422,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .faq-item{background:#fff;border:1px solid var(--border);border-radius:14px;padding:13px 15px}
 .faq-q{font-weight:900;margin-bottom:5px}
 .faq-a{font-size:13px;color:var(--text2);white-space:pre-line}
+.faq-action{margin-top:10px}
 .bg-detail-modal{display:grid;grid-template-columns:minmax(280px,1fr) minmax(320px,1.1fr);gap:22px;align-items:start}
 .bg-detail-image{border-radius:18px;overflow:hidden;background:#f4f4f4;min-height:420px;display:grid;place-items:center}
 .bg-detail-image img{width:100%;height:100%;object-fit:cover;display:block}
@@ -1294,6 +1295,20 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     preparation:{qTh:"ระยะเวลาในการเตรียมเครื่องก่อนจัดส่ง",aTh:"เตรียมเครื่องและติดตั้งเกมประมาณ 2–3 ชั่วโมง หรือ 30 นาที–1 ชั่วโมงสำหรับเครื่องที่ไม่ต้องติดตั้งเกม",qEn:"How long does device preparation take?",aEn:"Device preparation and game installation take about 2–3 hours, or 30 minutes–1 hour for devices that do not require game installation."},
     area:{qTh:"พื้นที่ให้บริการ",aTh:"ให้บริการเช่าเฉพาะใน กรุงเทพฯ–ปริมณฑล (นครปฐม, สมุทรสาคร, สมุทรปราการ, ปทุมธานี, นนทบุรี)",qEn:"Service area",aEn:"Rental service is available only in Bangkok and the surrounding provinces: Nakhon Pathom, Samut Sakhon, Samut Prakan, Pathum Thani, and Nonthaburi."},
     pattaya:{qTh:"พัทยา/ชลบุรี เช่าได้ไหม",aTh:"สามารถเช่าได้ แต่ค่าจัดส่งทั้งหมดลูกค้าเป็นผู้รับผิดชอบเอง กรุณาทักแชทร้านเพื่อสอบถามค่าจัดส่ง",qEn:"Can I rent in Pattaya / Chonburi?",aEn:"Yes, but the customer is responsible for all delivery costs. Please contact the shop to confirm the delivery fee."}
+  };
+  const DELIVERY_PROCESS_FAQ = {
+    kind:"deliveryProcess",
+    qTh:"ส่งเครื่องและคืนเครื่องอย่างไร",
+    aTh:"ทางร้านจะเป็นฝ่ายเรียกรถจัดส่งให้ทั้งขาส่งไปและขารับคืนเครื่อง ผู้เช่าเพียงรอรับและส่งคืนเครื่องให้กับคนขับเท่านั้น",
+    qEn:"How are the console delivery and return arranged?",
+    aEn:"AJ arranges the driver for both delivery and return. The renter only needs to receive the console and hand it back to the driver."
+  };
+  const NO_CONTRACT_FAQ = {
+    kind:"noContractTerms",
+    qTh:"ไม่ทำสัญญาการเช่าได้ไหม?",
+    aTh:"ได้ แต่ค่าประกันจะปรับจาก ฿2,000 → ฿5,000 หรือ ฿4,000 → ฿8,000 ตามเครื่องที่เช่า และผู้เช่ายังคงต้องอ่านและยอมรับข้อตกลงการเช่า",
+    qEn:"Can I rent without signing a rental agreement?",
+    aEn:"Yes, but the deposit increases from ฿2,000 → ฿5,000 or ฿4,000 → ฿8,000 depending on the console. The renter must still read and accept the Rental Terms."
   };
   const AGE_FAQ = {
     qTh:"อายุไม่ถึง 20 ปีบริบูรณ์ เช่าได้ไหม?",
@@ -2212,7 +2227,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // Bookings saved before Rental Terms acknowledgement existed must not keep
     // a silently selected no-contract state. The customer must review and
     // accept the current version explicitly.
-    if(state.calc.noContract && (!state.calc.rentalTermsAccepted || state.calc.rentalTermsVersion !== "2026-09-02")){
+    if(state.calc.noContract && (!state.calc.rentalTermsAccepted || state.calc.rentalTermsVersion !== "2026-09-13")){
       state.calc.noContract = false;
       state.calc.rentalTermsAccepted = false;
       state.calc.rentalTermsAcceptedAt = "";
@@ -2366,41 +2381,36 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function normalizeFaq(list){
     const source = Array.isArray(list) ? list : DEFAULT_FAQ;
     let normalized = source.map(x => ({
+      kind: String(x.kind || "").trim(),
       qTh: String(x.qTh || x.q_th || "").trim(),
       aTh: String(x.aTh || x.a_th || "").trim(),
       qEn: String(x.qEn || x.q_en || "").trim(),
       aEn: String(x.aEn || x.a_en || "").trim()
     })).filter(x => x.qTh || x.aTh || x.qEn || x.aEn);
     const matches = (faq, th, en) => th.test(faq.qTh) || en.test(faq.qEn);
-    normalized = normalized.filter(faq => !matches(
-      faq,
-      /^(อายุไม่ถึง|อายุต่ำกว่า)\s*20\s*ปี/,
-      /(?:under|younger than|at least)\s*20|minimum age/i
-    ));
-    normalized.unshift({...AGE_FAQ});
+    if(!normalized.some(faq => matches(faq, /^(อายุไม่ถึง|อายุต่ำกว่า)\s*20\s*ปี/, /(?:under|younger than|at least)\s*20|minimum age/i))){
+      normalized.unshift({...AGE_FAQ});
+    }
     const timeIndex = normalized.findIndex(faq => matches(faq, /^ส่งเครื่องเวลาไหน/, /^What time do you deliver/i));
-    if(timeIndex >= 0) normalized[timeIndex] = {...DELIVERY_FAQS.time};
-    else normalized.splice(Math.min(1, normalized.length), 0, {...DELIVERY_FAQS.time});
-    const updatedTimeIndex = normalized.findIndex(faq => matches(faq, /^ส่งเครื่องเวลาไหน/, /^What time do you deliver/i));
-    normalized = normalized.filter((faq, index) => index === updatedTimeIndex || !matches(
-      faq,
-      /^(ระยะเวลาในการเตรียมเครื่องก่อนจัดส่ง|ส่งพื้นที่ไหนบ้าง|ให้บริการพื้นที่ไหนบ้าง|พื้นที่ให้บริการ|พัทยา\/ชลบุรี เช่าได้ไหม)/,
-      /^(How long does device preparation take|Where do you deliver|Which areas do you serve|Service area|Can I rent in Pattaya \/ Chonburi)/i
-    ));
-    const deliveryInfoIndex = normalized.findIndex(faq => matches(faq, /^ส่งเครื่องเวลาไหน/, /^What time do you deliver/i));
-    normalized.splice(deliveryInfoIndex + 1, 0, {...DELIVERY_FAQS.preparation}, {...DELIVERY_FAQS.area}, {...DELIVERY_FAQS.pattaya});
+    if(timeIndex < 0) normalized.splice(Math.min(1, normalized.length), 0, {...DELIVERY_FAQS.time});
+    let deliveryInfoIndex = normalized.findIndex(faq => matches(faq, /^ส่งเครื่องเวลาไหน/, /^What time do you deliver/i));
+    [
+      [DELIVERY_FAQS.preparation, /^(ระยะเวลาในการเตรียมเครื่องก่อนจัดส่ง)/, /^(How long does device preparation take)/i],
+      [DELIVERY_FAQS.area, /^(ส่งพื้นที่ไหนบ้าง|ให้บริการพื้นที่ไหนบ้าง|พื้นที่ให้บริการ)/, /^(Where do you deliver|Which areas do you serve|Service area)/i],
+      [DELIVERY_FAQS.pattaya, /^พัทยา\/ชลบุรี เช่าได้ไหม/, /^Can I rent in Pattaya \/ Chonburi/i]
+    ].forEach(([fallback, th, en]) => {
+      if(normalized.some(faq => matches(faq, th, en))) return;
+      normalized.splice(++deliveryInfoIndex, 0, {...fallback});
+    });
     const deliveryMethodIndex = normalized.findIndex(faq => matches(faq, /^จัดส่งอย่างไร/, /^How do you deliver/i));
-    if(deliveryMethodIndex >= 0) normalized[deliveryMethodIndex] = {
-      ...normalized[deliveryMethodIndex],
-      aTh:"จัดส่งด้วย Lalamove / Grab ประมาณ 1–2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ",
-      aEn:"Delivery by Lalamove / Grab takes approximately 1–2 hours, depending on distance, traffic, and weather."
-    };
-    const deliveryFeeIndex = normalized.findIndex(faq => matches(faq, /^ค่าจัดส่งคิดอย่างไร/, /^How is the delivery fee calculated/i));
-    if(deliveryFeeIndex >= 0) normalized[deliveryFeeIndex] = {
-      ...normalized[deliveryFeeIndex],
-      aTh:"ค่าจัดส่งคิดตามจริงจากแอปขนส่ง\n\n• เช่า 3–6 วัน: ฟรีขากลับสูงสุด ฿100\n• เช่า 7 วันขึ้นไป: ฟรีไป–กลับ สูงสุด ฿100/เที่ยว\n\nส่วนต่างที่เกิน ฿100 ลูกค้าชำระเพิ่มเติม",
-      aEn:"Delivery fees are charged at the actual rate shown in the delivery app.\n\n• 3–6 days: return trip free up to ฿100\n• 7+ days: both trips free up to ฿100 per trip\n\nThe customer pays any amount above ฿100."
-    };
+    if(!normalized.some(faq => faq.kind === DELIVERY_PROCESS_FAQ.kind || matches(faq, /^ส่งเครื่องและคืนเครื่องอย่างไร/, /^How are the console delivery and return arranged/i))){
+      normalized.splice(deliveryMethodIndex >= 0 ? deliveryMethodIndex + 1 : normalized.length, 0, {...DELIVERY_PROCESS_FAQ});
+    }
+    if(!normalized.some(faq => faq.kind === NO_CONTRACT_FAQ.kind || matches(faq, /^ไม่ทำสัญญาการเช่าได้ไหม/, /^Can I rent without signing a rental agreement/i))){
+      const safeContractIndex = normalized.findIndex(faq => matches(faq, /^ทำสัญญาการเช่าปลอดภัยไหม/, /Is (?:signing )?the rental agreement safe/i));
+      const contractIndex = safeContractIndex >= 0 ? safeContractIndex : normalized.findIndex(faq => matches(faq, /สัญญา/, /contract|agreement/i));
+      normalized.splice(contractIndex >= 0 ? contractIndex + 1 : normalized.length, 0, {...NO_CONTRACT_FAQ});
+    }
     const hasRentalChangeFaq = normalized.some(x =>
       x.qTh === RENTAL_CHANGE_FAQ.qTh || x.qEn === RENTAL_CHANGE_FAQ.qEn
     );
@@ -3718,7 +3728,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     host.innerHTML = state.faq.map(f => {
       const q = state.lang==="en" ? (f.qEn || f.qTh) : (f.qTh || f.qEn);
       const a = state.lang==="en" ? (f.aEn || f.aTh) : (f.aTh || f.aEn);
-      return `<div class="faq-item"><div class="faq-q">${esc(q)}</div><div class="faq-a">${esc(a)}</div></div>`;
+      const action = f.kind === NO_CONTRACT_FAQ.kind ? `<button class="btn soft faq-action" type="button" data-faq-rental-terms>${esc(tr("rentalTermsRead"))}</button>` : "";
+      return `<div class="faq-item"><div class="faq-q">${esc(q)}</div><div class="faq-a">${esc(a)}</div>${action}</div>`;
     }).join("");
     const btn = byId("faqExpandBtn");
     if(btn){
@@ -4540,7 +4551,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     };
   }
 
-  const RENTAL_TERMS_VERSION = "2026-09-02";
+  const RENTAL_TERMS_VERSION = "2026-09-13";
   function rentalTermsUrl(language=state.lang, embed=false){
     const url = new URL("/rental-terms/", CONFIG.apiBase);
     url.searchParams.set("lang", language === "en" ? "en" : "th");
@@ -4553,16 +4564,28 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const checkbox = byId("noContractOpt");
     if(checkbox) checkbox.checked = !!state.calc.noContract;
   }
+  function configureRentalTermsModal(readOnly=false){
+    const modal = byId("rentalTermsModal");
+    modal.dataset.readOnly = readOnly ? "1" : "0";
+    byId("rentalTermsModalTitle").textContent = tr("rentalTermsTitle");
+    byId("rentalTermsFrame").src = rentalTermsUrl(state.lang, true);
+    byId("rentalTermsAccept").closest(".rental-terms-check").style.display = readOnly ? "none" : "flex";
+    byId("rentalTermsConfirm").style.display = readOnly ? "none" : "inline-flex";
+    byId("rentalTermsCancel").textContent = readOnly ? (state.lang === "en" ? "Close" : "ปิด") : tr("rentalTermsCancel");
+    byId("rentalTermsCancel").classList.toggle("primary", readOnly);
+    modal.classList.add("open");
+  }
+  function openRentalTermsReadOnly(){
+    trackAnalytics("rental_terms_read_only_opened");
+    configureRentalTermsModal(true);
+  }
   function openRentalTermsModal(){
     trackAnalytics("rental_terms_opened");
-    byId("rentalTermsModalTitle").textContent = tr("rentalTermsTitle");
+    configureRentalTermsModal(false);
     byId("rentalTermsAcceptLabel").textContent = tr("rentalTermsAccept");
     byId("rentalTermsConfirm").textContent = tr("rentalTermsConfirm");
-    byId("rentalTermsCancel").textContent = tr("rentalTermsCancel");
     byId("rentalTermsAccept").checked = false;
     byId("rentalTermsConfirm").disabled = true;
-    byId("rentalTermsFrame").src = rentalTermsUrl(state.lang, true);
-    byId("rentalTermsModal").classList.add("open");
   }
   function acceptRentalTerms(){
     if(!byId("rentalTermsAccept")?.checked) return;
@@ -5909,7 +5932,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const items = state.faq.map(f => {
       const q = state.lang==="en" ? (f.qEn || f.qTh) : (f.qTh || f.qEn);
       const a = state.lang==="en" ? (f.aEn || f.aTh) : (f.aTh || f.aEn);
-      return `<div class="faq-item"><div class="faq-q">${esc(q)}</div><div class="faq-a">${esc(a)}</div></div>`;
+      const action = f.kind === NO_CONTRACT_FAQ.kind ? `<button class="btn soft faq-action" type="button" data-faq-rental-terms>${esc(tr("rentalTermsRead"))}</button>` : "";
+      return `<div class="faq-item"><div class="faq-q">${esc(q)}</div><div class="faq-a">${esc(a)}</div>${action}</div>`;
     }).join("");
     return `<div style="margin-bottom:10px">${copyButton}</div>${items}`;
   }
@@ -5947,8 +5971,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         }
       ],
       detail:{
-        th:`<div class="step-detail-section"><h4>หลังส่งข้อมูล</h4><ul><li>ทางร้านตรวจคิว สรุปค่าใช้จ่ายพร้อมค่าจัดส่ง และแจ้งขั้นตอนถัดไป</li><li><span class="step-mark">ผู้เช่าครั้งแรกต้องทำสัญญาการเช่าก่อนนัดส่งเครื่อง</span> เว้นแต่เลือกไม่ทำสัญญาและยอมรับค่าประกันที่เพิ่มขึ้น</li><li>สัญญาหลักมีอายุ 1 ปี สามารถใช้ข้อมูลและลายมือชื่อเดิมสำหรับการเช่าครั้งถัดไปได้ โดยแต่ละครั้งต้องยืนยันรายละเอียดและเงื่อนไขการเช่าใหม่ เมื่อครบ 1 ปีหรือข้อมูลสำคัญเปลี่ยนแปลง ต้องทำสัญญาหลักใหม่</li><li>ชำระเงินตามช่องทางที่เลือก หลังทางร้านยืนยันคิวและค่าจัดส่ง</li></ul></div><div class="step-detail-section"><h4>เตรียมเครื่องและจัดส่ง</h4><ul><li>เริ่มเตรียมหลังร้านยืนยันคิว ได้รับรายชื่อเกมครบ และได้รับยอดจองหรือยอดชำระแล้ว หากต้องดาวน์โหลดหรือติดตั้งเกมเพิ่ม ใช้เวลาประมาณ <span class="step-mark">2–3 ชั่วโมง</span>; หากไม่ต้องติดตั้งเพิ่ม ใช้เวลาประมาณ 30–60 นาที เวลาจริงขึ้นอยู่กับขนาดเกม ความเร็วดาวน์โหลด จำนวนเกม และคิวงาน โดยร้านจะแจ้งเวลาพร้อมส่งอีกครั้ง</li><li>จัดส่งด้วย Lalamove / Grab ประมาณ 1-2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ</li><li>เมื่อของถึง สามารถเปิดกระเป๋าเช็คของกับคนส่งของก่อน แล้วชำระยอดที่เหลือพร้อมส่งสลิปให้ร้านทางแชท</li></ul><p><strong>ไม่ทำสัญญาเช่า: เพิ่มค่าประกันจาก ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000</strong></p></div><div class="step-detail-section"><h4>การคืนเครื่อง</h4><ul><li>ทางร้านเรียกรถเข้าไปรับเครื่อง และลูกค้ายืนยันอุปกรณ์ก่อนส่งคืน</li><li>ส่งของให้คนรับของ แล้วแจ้งยืนยันหรือส่งรูปให้ร้านทางแชท</li><li>ร้านเช็คเครื่องและอุปกรณ์ จากนั้นคืนค่าประกันเข้าบัญชีในสัญญา หรือบัญชีที่แจ้งทางแชท</li></ul><p><strong>*ทางร้านเรียกรถขนส่งให้ทั้งขาส่งและขารับกลับเท่านั้น</strong></p><p><strong>**ทางร้านให้บริการแบบออนไลน์เท่านั้น ไม่มีรับหรือคืนเครื่องที่หน้าร้าน</strong></p></div>`,
-        en:`<div class="step-detail-section"><h4>After submitting details</h4><ul><li>The shop checks availability, confirms the total including delivery, and sends the next steps.</li><li><span class="step-mark">First-time renters must complete the rental contract before delivery</span>, unless they choose no contract and accept the higher deposit.</li><li>The Master Agreement is valid for 1 year. The existing information and signature may be used for subsequent rentals, but the rental details and terms must be confirmed again for each rental. A new Master Agreement is required after 1 year or whenever material information changes.</li><li>Pay with the selected method after the shop confirms availability and delivery cost.</li></ul></div><div class="step-detail-section"><h4>Preparation and delivery</h4><ul><li>Preparation begins after AJ confirms availability, receives the complete game list, and receives the reservation deposit or payment. Additional downloads or installations take approximately <span class="step-mark">2–3 hours</span>; without additional installation, preparation takes approximately 30–60 minutes. Actual time depends on game size, download speed, the number of games, and the current queue. AJ will confirm the delivery-ready time.</li><li>Delivery by Lalamove / Grab takes approximately 1-2 hours, depending on distance, traffic, and weather.</li><li>On arrival, you can check the items with the delivery rider first, then pay the remaining balance and send the slip to the shop by chat.</li></ul><p><strong>No rental contract: deposit increases from ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000.</strong></p></div><div class="step-detail-section"><h4>Returning the device</h4><ul><li>The shop calls a rider for pickup, and you can confirm the accessories before return.</li><li>Hand the items to the pickup rider, then confirm or send a photo to the shop by chat.</li><li>The shop checks the device and accessories, then refunds the deposit to the bank account in the contract or the account sent by chat.</li></ul><p><strong>*The shop arranges transport for both delivery and return pickup only.</strong></p><p><strong>**Online service only. Pickup or return at the shop is not available.</strong></p></div>`
+        th:`<div class="step-detail-section"><h4>หลังส่งข้อมูล</h4><ul><li>ทางร้านตรวจคิว สรุปค่าใช้จ่ายพร้อมค่าจัดส่ง และแจ้งขั้นตอนถัดไป</li><li><span class="step-mark">ผู้เช่าครั้งแรกต้องทำสัญญาการเช่าก่อนนัดส่งเครื่อง</span> เว้นแต่เลือกไม่ทำสัญญาและยอมรับค่าประกันที่เพิ่มขึ้น</li><li>สัญญาหลักมีอายุ 1 ปี สามารถใช้ข้อมูลและลายมือชื่อเดิมสำหรับการเช่าครั้งถัดไปได้ โดยแต่ละครั้งต้องยืนยันรายละเอียดและเงื่อนไขการเช่าใหม่ เมื่อครบ 1 ปีหรือข้อมูลสำคัญเปลี่ยนแปลง ต้องทำสัญญาหลักใหม่</li><li>ชำระเงินตามช่องทางที่เลือก หลังทางร้านยืนยันคิวและค่าจัดส่ง</li></ul></div><div class="step-detail-section"><h4>เตรียมเครื่องและจัดส่ง</h4><ul><li>เริ่มเตรียมหลังร้านยืนยันคิว ได้รับรายชื่อเกมครบ และได้รับยอดจองหรือยอดชำระแล้ว หากต้องดาวน์โหลดหรือติดตั้งเกมเพิ่ม ใช้เวลาประมาณ <span class="step-mark">2–3 ชั่วโมง</span>; หากไม่ต้องติดตั้งเพิ่ม ใช้เวลาประมาณ 30–60 นาที เวลาจริงขึ้นอยู่กับขนาดเกม ความเร็วดาวน์โหลด จำนวนเกม และคิวงาน โดยร้านจะแจ้งเวลาพร้อมส่งอีกครั้ง</li><li>จัดส่งด้วย Lalamove / Grab ประมาณ 1-2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ</li><li><strong>ทางร้านเป็นฝ่ายเรียกรถให้ทั้งขาส่งไปและขารับคืนเครื่อง ผู้เช่าเพียงรอรับและส่งคืนเครื่องให้กับคนขับ</strong></li><li>เมื่อของถึง สามารถเปิดกระเป๋าเช็คของกับคนส่งของก่อน แล้วชำระยอดที่เหลือพร้อมส่งสลิปให้ร้านทางแชท</li></ul><p><strong>ไม่ทำสัญญาเช่า: เพิ่มค่าประกันจาก ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000</strong></p></div><div class="step-detail-section"><h4>การคืนเครื่อง</h4><ul><li>ทางร้านเรียกรถเข้าไปรับเครื่อง และลูกค้ายืนยันอุปกรณ์ก่อนส่งคืน</li><li>ส่งของให้คนรับของ แล้วแจ้งยืนยันหรือส่งรูปให้ร้านทางแชท</li><li>ร้านเช็คเครื่องและอุปกรณ์ จากนั้นคืนค่าประกันเข้าบัญชีในสัญญา หรือบัญชีที่แจ้งทางแชท</li></ul><p><strong>*ทางร้านเรียกรถขนส่งให้ทั้งขาส่งและขารับกลับเท่านั้น</strong></p><p><strong>**ทางร้านให้บริการแบบออนไลน์เท่านั้น ไม่มีรับหรือคืนเครื่องที่หน้าร้าน</strong></p></div>`,
+        en:`<div class="step-detail-section"><h4>After submitting details</h4><ul><li>The shop checks availability, confirms the total including delivery, and sends the next steps.</li><li><span class="step-mark">First-time renters must complete the rental contract before delivery</span>, unless they choose no contract and accept the higher deposit.</li><li>The Master Agreement is valid for 1 year. The existing information and signature may be used for subsequent rentals, but the rental details and terms must be confirmed again for each rental. A new Master Agreement is required after 1 year or whenever material information changes.</li><li>Pay with the selected method after the shop confirms availability and delivery cost.</li></ul></div><div class="step-detail-section"><h4>Preparation and delivery</h4><ul><li>Preparation begins after AJ confirms availability, receives the complete game list, and receives the reservation deposit or payment. Additional downloads or installations take approximately <span class="step-mark">2–3 hours</span>; without additional installation, preparation takes approximately 30–60 minutes. Actual time depends on game size, download speed, the number of games, and the current queue. AJ will confirm the delivery-ready time.</li><li>Delivery by Lalamove / Grab takes approximately 1-2 hours, depending on distance, traffic, and weather.</li><li><strong>AJ arranges the driver for both delivery and return. The renter only needs to receive the console and hand it back to the driver.</strong></li><li>On arrival, you can check the items with the delivery rider first, then pay the remaining balance and send the slip to the shop by chat.</li></ul><p><strong>No rental contract: deposit increases from ฿2,000 &gt; ฿5,000 / ฿4,000 &gt; ฿8,000.</strong></p></div><div class="step-detail-section"><h4>Returning the device</h4><ul><li>The shop calls a rider for pickup, and you can confirm the accessories before return.</li><li>Hand the items to the pickup rider, then confirm or send a photo to the shop by chat.</li><li>The shop checks the device and accessories, then refunds the deposit to the bank account in the contract or the account sent by chat.</li></ul><p><strong>*The shop arranges transport for both delivery and return pickup only.</strong></p><p><strong>**Online service only. Pickup or return at the shop is not available.</strong></p></div>`
       }
     },
     {
@@ -6825,6 +6849,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
 
   function bindEvents(){
     document.addEventListener("click", event => {
+      if(event.target.closest("[data-faq-rental-terms]")){ openRentalTermsReadOnly(); return; }
       if(event.target.closest("[data-line-booking-help]")){ showLineBookingHelp(); return; }
       if(event.target.closest("[data-line-booking-launch]")){ setShareStatus("line", "opened"); return; }
       const beforeRentTracked = event.target.closest("[data-before-rent-track]");

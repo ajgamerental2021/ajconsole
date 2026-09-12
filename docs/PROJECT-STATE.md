@@ -1099,3 +1099,11 @@ paused job shows slightly old numbers rather than an empty section.
 - New `ajgameid` entries now persist an ISO `createdAt` timestamp. Service-ready entries with creation dates sort newest-first, ahead of the legacy ascending-ID group, while not-ready entries always remain first.
 - IDs #67 and #68 seed the new-entry group in that order when their existing records have no timestamp. The next saved ID keeps its sequential number (for example #69) but sorts ahead of #67/#68 automatically.
 - Standalone and embedded catalogues use identical logic and regression tests cover the first future new entry.
+
+## 2026-09-13 — Editable FAQ answers and delivery/return terms
+
+- Fixed FAQ normalisation so answers saved through Admin are preserved. Canonical defaults are now inserted only when an item is missing instead of overwriting edited Thai/English answers during every load and save.
+- Added a bilingual “How are delivery and return arranged?” FAQ immediately after the delivery-method item. It states that AJ arranges the driver for both trips and the renter only receives and hands back the equipment.
+- Added a bilingual no-contract FAQ immediately after the contract-safety item, including the ฿2,000 → ฿5,000 and ฿4,000 → ฿8,000 deposit changes. Its Rental Terms viewer is read-only: no checkbox or acceptance action, only close controls.
+- Added the same delivery/return responsibility to the website rental steps, the LIFF contract terms, both languages of the contract PDF, the public Rental Terms page, and returning-customer Rental Order PDFs.
+- Advanced the shared Rental Terms version to `2026-09-13` and bumped the LIFF app cache-buster. Verified 58/58 website tests and 292/292 Bot tests, plus Thai/English browser checks and two-page TH/EN Rental Order PDF text extraction.
