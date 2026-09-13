@@ -1147,3 +1147,10 @@ paused job shows slightly old numbers rather than an empty section.
 - Kept bank identity details and the compact Krungthai logo together in the top row, but moved transfer guidance below that row so it uses the full Flex-card width instead of wrapping inside the narrow text column.
 - Added native LINE clipboard buttons in Thai (`คัดลอกเลขบัญชี`) and English (`Copy account number`). The action copies only the destination account number and is used by reservation-transfer, full-bank-transfer and Wise detail blocks.
 - Verified against LINE's current clipboard action schema, added bilingual structure/action tests, and passed all 297 Bot tests. Production Bot commit `9ac8d4c` is deployed; Thai and English test cards were successfully pushed to the owner's requested test account.
+
+## 2026-09-13 — No-contract confirmation details and one-time acceptance
+
+- The Bot's no-contract Rental Terms page now switches Thai/English locally and immediately, without depending on a second booking API request. The terms iframe follows the selected language.
+- Added rental fee, rental start date, return date and rental-day count above the original/new deposit comparison. Completion copy now says that updated details were sent to the chat and does not expose the internal “Flex Card” term.
+- Added a bilingual second confirmation dialog warning that acceptance is available only once. A previously accepted booking returns in a locked state, and the server rejects both repeated and overlapping acceptance attempts before recalculating or resending anything.
+- Regression coverage checks the added quote data, bilingual wording and server-side duplicate guards. Full Bot verification passed 305/305 after the final page changes.
