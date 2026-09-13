@@ -1115,3 +1115,10 @@ paused job shows slightly old numbers rather than an empty section.
 - Added a bilingual no-contract FAQ immediately after the contract-safety item, including the ฿2,000 → ฿5,000 and ฿4,000 → ฿8,000 deposit changes. Its Rental Terms viewer is read-only: no checkbox or acceptance action, only close controls.
 - Added the same delivery/return responsibility to the website rental steps, the LIFF contract terms, both languages of the contract PDF, the public Rental Terms page, and returning-customer Rental Order PDFs.
 - Advanced the shared Rental Terms version to `2026-09-13` and bumped the LIFF app cache-buster. Verified 58/58 website tests and 292/292 Bot tests, plus Thai/English browser checks and two-page TH/EN Rental Order PDF text extraction.
+
+## 2026-09-13 — Production queue-check CORS repair
+
+- Fixed the booking site's all-device queue failure by adding `/api/availability` to the Bot's public CORS middleware. The endpoint itself was healthy, but browsers could not read its response from `ajgamerental.onrender.com` because the required `Access-Control-Allow-Origin` header was absent.
+- Added a regression test that requires the availability endpoint to remain covered by the cross-origin middleware. Bot production commit `80c58ea` is deployed and returns all 36 inventory rows with the browser-access header.
+- Rechecked the live booking page for 17 selectable devices over 14–17 September 2026 in Thai and English. Available devices advanced normally, occupied devices showed their real ready dates, and none displayed the queue-check error. A separate clean browser session also completed the initial fetch without cached availability data.
+- Verification: 296/296 Bot tests and 59/59 website tests passed; the production page inline script passed `node --check`.
