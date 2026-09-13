@@ -1128,3 +1128,9 @@ paused job shows slightly old numbers rather than an empty section.
 - Moved the Krungthai logo from above the transfer instructions to the right of the account-detail column and reduced it from LINE Flex size `sm` to `xs`.
 - The layout applies consistently to reservation transfer, full Thai bank transfer and Wise blocks, but only when the destination account is `8690576029`; other bank accounts remain unbranded.
 - Added structural regression coverage for the horizontal layout, right-aligned compact logo and exact-account restriction. All 296 Bot tests passed; production Bot commit `8361a18` is deployed.
+
+## 2026-09-13 — Full-width transfer guidance and copy-account button
+
+- Kept bank identity details and the compact Krungthai logo together in the top row, but moved transfer guidance below that row so it uses the full Flex-card width instead of wrapping inside the narrow text column.
+- Added native LINE clipboard buttons in Thai (`คัดลอกเลขบัญชี`) and English (`Copy account number`). The action copies only the destination account number and is used by reservation-transfer, full-bank-transfer and Wise detail blocks.
+- Verified against LINE's current clipboard action schema, added bilingual structure/action tests, and passed all 297 Bot tests. Production Bot commit `9ac8d4c` is deployed; Thai and English test cards were successfully pushed to the owner's requested test account.
