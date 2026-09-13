@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-09-13 — Rental-window game picker links and no-contract acceptance
+
+- The post-contract game-picker button now opens the same token-backed picker path as booking Flex cards. Fresh tokens restore the saved list and expose both rental dates, so games becoming playable on the start date or during the rental are selectable and retain their bilingual playable-date suffix.
+- Legacy/fallback picker redirects now also carry both rental dates and the saved game names, while the resolve response reports whether the list is pending or already submitted.
+- Unsigned booking Flex cards now offer a bilingual “ไม่ทำสัญญาเช่า” / “Rent without a contract” action. Its opaque, restart-safe link shows the original and increased deposit, the revised total, and the current Rental Terms with Cancel and Accept controls.
+- Acceptance raises deposits from ฿2,000 to ฿5,000 or ฿4,000 to ฿8,000, recalculates payment totals/fees, persists the updated booking to Rental History and Console Pending with retries, and sends a refreshed bilingual booking Flex confirming that the customer acknowledged the terms.
+
 ## 2026-09-13 — Simplified booking helper copy
 
 - Removed the helper sentence above the game picker, the Google Maps input hint, the returning-customer discount explanation, and the first-time-renter recommendation under the rental-contract heading.
