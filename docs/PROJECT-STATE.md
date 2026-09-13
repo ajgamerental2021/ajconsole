@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-09-13 — Krungthai logo and returning-customer identity binding
+
+- Booking confirmation Flex cards now show a circular Krungthai logo only beside transfer instructions that use account `8690576029`; other bank accounts do not receive the logo.
+- Manual returning-customer verification now returns an opaque, short-lived proof instead of customer details. The Bot resolves that proof server-side, adds the verified customer name to the Flex greeting, and persists name and phone against the Rental ID.
+- When LINE links the booking, the Bot persists LINE Unique ID, customer name, and phone both in the Console Pending columns (where available) and its structured booking data. Only the customer name is rendered on the Flex card; phone and LINE Unique ID remain private.
+- Verification: Bot syntax and 295 tests pass; website inline JavaScript syntax and 59 tests pass. A real LINE test and production asset check are pending deployment.
+
 ## 2026-09-10 — Legacy game-picker links now restore saved selections
 
 - If an older booking row has no persisted picker URL, its Flex button now opens a bot endpoint that mints a fresh short-lived token from the booking record. The picker can therefore preselect the saved games and submit replacements through the same backend flow as newer bookings.

@@ -1683,7 +1683,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     retEnabled: false,
     boardGameEnabled: false,
     filter: {type:"all", brand:"all", sort:"brand"},
-    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,retVerified:false,retVerificationMethod:"",retVerifiedLineUserId:"",masterAgreement:null,masterAgreementAccepted:false,masterAgreementAcceptedAt:"",reviewGoogle:false,reviewFacebook:false,noContract:false,rentalTermsAccepted:false,rentalTermsAcceptedAt:"",rentalTermsVersion:"",rentalTermsLanguage:"",payment:"cash",maps:"",games:[],later:true,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",beamPaymentExpiresAt:"",contractSignature:"",guideDone:{},guideConsoleId:""},
+    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,retVerified:false,retVerificationMethod:"",retVerifiedLineUserId:"",retVerificationToken:"",masterAgreement:null,masterAgreementAccepted:false,masterAgreementAcceptedAt:"",reviewGoogle:false,reviewFacebook:false,noContract:false,rentalTermsAccepted:false,rentalTermsAcceptedAt:"",rentalTermsVersion:"",rentalTermsLanguage:"",payment:"cash",maps:"",games:[],later:true,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",beamPaymentExpiresAt:"",contractSignature:"",guideDone:{},guideConsoleId:""},
     availability: {rows:[],holds:[],loading:false,error:"",lastSync:0,stale:false,gate:{mode:"idle",pass:true}},
     queueClosures: {allClosed:false,types:{console:false,vr:false,handheld:false,racing:false},devices:{},rules:{all:{closed:false,startAt:"",endAt:""},types:{},devices:{}},loading:false,error:"",updatedAt:""},
     calendar: {open:false,mode:"start",base:new Date(),draftStart:"",draftEnd:""},
@@ -2222,6 +2222,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     state.calc.retVerified = !!state.calc.retVerified;
     state.calc.retVerificationMethod = ["line","manual"].includes(state.calc.retVerificationMethod) ? state.calc.retVerificationMethod : "";
     state.calc.retVerifiedLineUserId = String(state.calc.retVerifiedLineUserId || "");
+    state.calc.retVerificationToken = String(state.calc.retVerificationToken || "");
     state.calc.masterAgreement = state.calc.masterAgreement && typeof state.calc.masterAgreement === "object" ? state.calc.masterAgreement : null;
     state.calc.masterAgreementAccepted = !!state.calc.masterAgreementAccepted && ["valid","legacy_verified"].includes(state.calc.masterAgreement?.status);
     // Bookings saved before Rental Terms acknowledgement existed must not keep
@@ -2239,6 +2240,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       state.calc.retVerified = false;
       state.calc.retVerificationMethod = "";
       state.calc.retVerifiedLineUserId = "";
+      state.calc.retVerificationToken = "";
       state.calc.ret = false;
     }
     if(state.calc.ret && !state.calc.retVerified) state.calc.ret = false;
@@ -3155,6 +3157,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       state.calc.retVerified = true;
       state.calc.retVerificationMethod = "manual";
       state.calc.retVerifiedLineUserId = "";
+      state.calc.retVerificationToken = String(result.verificationToken || "");
       state.calc.masterAgreement = result.masterAgreement || {status:"none"};
       state.calc.masterAgreementAccepted = false;
       state.calc.masterAgreementAcceptedAt = "";
@@ -4547,7 +4550,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       rentalTermsAcceptedAt: state.calc.rentalTermsAcceptedAt || "",
       rentalTermsVersion: state.calc.rentalTermsVersion || "",
       rentalTermsLanguage: state.calc.rentalTermsLanguage || (en ? "en" : "th"),
-      rentalTermsUrl: rentalTermsUrl(en ? "en" : "th")
+      rentalTermsUrl: rentalTermsUrl(en ? "en" : "th"),
+      returningVerificationToken: state.calc.retVerificationMethod === "manual" ? state.calc.retVerificationToken : ""
     };
   }
 
@@ -5762,6 +5766,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           state.calc.retVerified = true;
           state.calc.retVerificationMethod = "line";
           state.calc.retVerifiedLineUserId = fallbackLineUserId;
+          state.calc.retVerificationToken = "";
           state.calc.masterAgreement = result.masterAgreement || {status:"none"};
           state.calc.masterAgreementAccepted = false;
           state.calc.masterAgreementAcceptedAt = "";
@@ -5774,6 +5779,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           state.calc.retVerified = false;
           state.calc.retVerificationMethod = "";
           state.calc.retVerifiedLineUserId = "";
+          state.calc.retVerificationToken = "";
           state.calc.ret = false;
           state.calc.reviewGoogle = false;
           state.calc.reviewFacebook = false;

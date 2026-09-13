@@ -12,3 +12,9 @@ test('checking or clearing returning customer stays on booking details', () => {
   assert.doesNotMatch(handler, /advanceGuide\(/);
   assert.doesNotMatch(handler, /state\.calc\.step\s*=/);
 });
+
+test('manual returning-customer proof follows the booking without exposing name or phone', () => {
+  assert.match(source, /state\.calc\.retVerificationToken = String\(result\.verificationToken \|\| ""\)/);
+  assert.match(source, /returningVerificationToken: state\.calc\.retVerificationMethod === "manual" \? state\.calc\.retVerificationToken : ""/);
+  assert.doesNotMatch(source, /state\.calc\.(?:customerName|customerPhone)\s*=\s*result\./);
+});
