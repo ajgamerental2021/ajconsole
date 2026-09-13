@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-09-13 — Simplified booking helper copy
+
+- Removed the helper sentence above the game picker, the Google Maps input hint, the returning-customer discount explanation, and the first-time-renter recommendation under the rental-contract heading.
+- Kept the related game picker, Google Maps field/buttons, returning-customer option, and rental-contract controls unchanged in both Thai and English.
+- Added regression coverage to ensure the removed helper blocks stay hidden while their controls remain available.
+
 ## 2026-09-13 — Krungthai logo and returning-customer identity binding
 
 - Booking confirmation Flex cards now show a circular Krungthai logo only beside transfer instructions that use account `8690576029`; other bank accounts do not receive the logo.

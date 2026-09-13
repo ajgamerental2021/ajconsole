@@ -942,7 +942,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
             <div class="pane" id="pane2">
               <div class="card">
                 <h3 data-i18n="step2Title">รายละเอียดการจอง</h3>
-                <p class="hint" data-i18n="gamePickHelp">ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้</p>
                 <div id="gamePickBox"></div>
                 <details class="prep-time-detail" data-i18n-html="preparationDetail"></details>
               </div>
@@ -1418,7 +1417,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       step1:"เลือกเครื่อง/วันที่", step2:"รายละเอียดการจอง", step3:"สรุปและส่ง", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"เลือกเกม", step2DetailsTitle:"การจัดส่ง การชำระเงิน และเอกสาร", step3Title:"สรุปและส่งข้อความ", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"📖 อ่านขั้นตอนการเช่าก่อนเริ่ม", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
       nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
       deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
-      gamePickHelp:"ถ้ารุ่นนี้มีรายการเกม สามารถเลือกได้สูงสุด 10 เกม หรือแจ้งภายหลังได้", gamePickerTitle:"เลือกเกม", gameStorageWarning:"⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ", summaryHelp:"ตรวจสอบข้อมูล แล้วกดจองผ่านช่องทางที่สะดวก",
+      gamePickerTitle:"เลือกเกม", gameStorageWarning:"⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ", summaryHelp:"ตรวจสอบข้อมูล แล้วกดจองผ่านช่องทางที่สะดวก",
       personalRateWarning:"⚠️ ราคาเช่าเป็นเรทบุคคล ไม่สามารถออกใบกำกับภาษี/ใบเสร็จได้ หากต้องการเอกสาร กรุณาติดต่อ Line: <b>@ajgame</b> หรือ โทร. <b>081-624-4715</b> 🙏",
       daily:"รายวัน", weekly:"รายสัปดาห์", day:"วัน", wk:"สัปดาห์", deposit:"ค่าประกัน", ready:"พร้อม", notReady:"ยังไม่พร้อม", readyOn:"พร้อมวันที่",
       contractPrivacy:"เอกสารใช้เพื่อยืนยันตัวตนและจัดทำสัญญาเท่านั้น รายละเอียดการเข้าถึงและกำหนดลบเอกสารจะแสดงก่อนอัปโหลด",
@@ -1525,7 +1524,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       step1:"Device / Dates", step2:"Booking details", step3:"Review and send", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Choose games", step2DetailsTitle:"Delivery, payment and documents", step3Title:"Summary and send", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"📖 Read rental steps first", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
       nextStep:"Next step", backStep:"Back",
       deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", startDate:"Start date", endDate:"Return date",
-      gamePickHelp:"Choose up to 10 games when this model has a catalog, or send the list later.", gamePickerTitle:"Select Games", gameStorageWarning:"⚠️ Limited device storage. Some games may not all fit.", summaryHelp:"Review the details, then book through your preferred channel.",
+      gamePickerTitle:"Select Games", gameStorageWarning:"⚠️ Limited device storage. Some games may not all fit.", summaryHelp:"Review the details, then book through your preferred channel.",
       personalRateWarning:"⚠️ Individual rental rates only. Tax invoice / receipt is not available. For documents, contact Line: <b>@ajgame</b> or call <b>081-624-4715</b> 🙏",
       daily:"Daily", weekly:"Weekly", day:"day", wk:"week", deposit:"Deposit", ready:"Ready", notReady:"Not ready", readyOn:"Ready on",
       contractPrivacy:"Identity documents are used only for verification and the rental agreement. Access and deletion details are shown before upload.",
@@ -3190,9 +3189,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const afterWorkReviewRate = afterWorkCalendarPromotion(state.calc.start, state.calc.end).eligible;
     const reviewGoogleLabel = tr(afterWorkReviewRate ? "reviewGoogleAfterWork" : "reviewGoogle");
     const reviewFacebookLabel = tr(afterWorkReviewRate ? "reviewFacebookAfterWork" : "reviewFacebook");
-    const returningHelp = state.lang === "en"
-      ? "If this is checked but you have not rented with us before, the shop will update the price and remove this discount. **A new Master Agreement is required when the existing Master Agreement has expired or material information has changed."
-      : "หากติ๊กส่วนลดลูกค้าเก่าแต่ยังไม่เคยเช่ากับทางร้าน ทางร้านจะอัปเดตราคาใหม่โดยตัดส่วนลดนี้ออก **ต้องทำสัญญาหลักใหม่เมื่อสัญญาหลักเดิมหมดอายุหรือข้อมูลสำคัญเปลี่ยนแปลง";
     const returningReviewHtml = state.calc.ret ? `
       <div class="review-discount-box">
         <label class="option-row"><input type="checkbox" id="reviewGoogleOpt" ${state.calc.reviewGoogle?"checked":""}><div><b>${reviewGoogleLabel}</b><div class="hint">${tr("reviewGoogleHelp")}</div><div class="review-actions"><button class="btn" type="button" id="reviewGoogleBtn">${tr("reviewGoogleBtn")}</button><span class="review-only-highlight">${tr("returningOnly")}</span></div></div></label>
@@ -3227,20 +3223,20 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const recommended = state.lang === "en" ? "Recommended" : "แนะนำ";
     const paymentHtml = `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title"><span>${reservationTitle}</span><span class="payment-recommended">${recommended}</span></div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""} ${paymentDisabled}>${cashDeliveryOptionHtml()}</label></div><div class="payment-group"><div class="payment-group-title"><span>${fullPaymentTitle}</span></div>${fullPaymentOptions}</div></div>${paymentLockHint}</div>`;
     const mapsHtml = `<div class="grid2" style="margin-top:12px">
-        <div class="field"><label class="label">${mapsLabel}</label><input class="input" id="mapsInput" value="${esc(state.calc.maps)}" placeholder="https://maps.google.com/..."><div class="hint">${tr("mapsInputHelp")}</div></div>
+        <div class="field"><label class="label">${mapsLabel}</label><input class="input" id="mapsInput" value="${esc(state.calc.maps)}" placeholder="https://maps.google.com/..."></div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn" type="button" id="mapsOpen">Google Maps</button><button class="btn" type="button" id="mapsHelp">${tr("mapsHelp")}</button></div>
       <div class="hint" style="margin:10px 0 12px"><b>${tr("mapsDeliveryArea")}</b><br>${tr("mapsDeliveryPromo")}</div>`;
     const agreementHtml = state.calc.ret && state.calc.masterAgreement ? `<div class="privacy-reassurance"><b>${state.calc.masterAgreement.status === "legacy_verified" ? tr("masterAgreementLegacy") : `${tr("masterAgreementId")}: ${esc(state.calc.masterAgreement.id || "-")}`}</b>${state.calc.masterAgreement.status === "valid" ? `<br>${tr("masterAgreementExpiry")}: ${esc(formatAgreementDate(state.calc.masterAgreement.validUntil))}` : ""}${hasActiveMasterAgreement() ? ` · ✓ ${tr("rentalTermsAccepted")}` : ""}</div>` : "";
     const agreementActionHtml = state.calc.ret && state.calc.retVerified && hasVerifiedAgreementRecord() ? `<div class="returning-agreement-action">${agreementHtml}${hasActiveMasterAgreement() ? "" : `<button class="btn primary" id="reviewRentalOrderBtn" type="button">${tr("masterAgreementTitle")}</button>`}</div>` : "";
     const contractHtml = state.calc.ret && state.calc.retVerified && hasVerifiedAgreementRecord() ? "" : `<div class="card" id="contractCard" style="margin:12px 0 0">
-      ${state.calc.noContract ? "" : `<h3>${tr("contract")}${selectedConsole ? depositBadge(selectedConsole.deposit, "ok") : ""}</h3><p class="hint">${tr("contractHelp")}</p><p class="privacy-reassurance">🔒 ${tr("contractPrivacy")}</p><p class="hint" style="color:#c00000;font-weight:800">${tr("contractAge")}</p><button class="btn soft" id="contractBtn" type="button">${tr("contract")}</button><p class="hint" id="contractCodeHint">${state.calc.rentalCode ? `${tr("temporaryRentalCode")}: ${esc(state.calc.rentalCode)}` : ""}</p>`}
+      ${state.calc.noContract ? "" : `<h3>${tr("contract")}${selectedConsole ? depositBadge(selectedConsole.deposit, "ok") : ""}</h3><p class="privacy-reassurance">🔒 ${tr("contractPrivacy")}</p><p class="hint" style="color:#c00000;font-weight:800">${tr("contractAge")}</p><button class="btn soft" id="contractBtn" type="button">${tr("contract")}</button><p class="hint" id="contractCodeHint">${state.calc.rentalCode ? `${tr("temporaryRentalCode")}: ${esc(state.calc.rentalCode)}` : ""}</p>`}
       <label class="option-row" style="margin-top:${state.calc.noContract ? 0 : 12}px"><input type="checkbox" id="noContractOpt" ${state.calc.noContract?"checked":""}><div><b>${tr("noContract")}${state.calc.noContract && selectedConsole ? depositBadge(noContractDeposit(selectedConsole.deposit), "danger") : ""}</b><div class="hint">${tr("noContractHelp")}</div>${state.calc.noContract ? `<div class="hint" style="color:#18743a;font-weight:800">✓ ${tr("rentalTermsAccepted")} · <a href="${esc(rentalTermsUrl(state.lang))}" target="_blank" rel="noopener">${tr("rentalTermsRead")}</a></div>` : ""}</div></label>
     </div>`;
     byId("optionRows").innerHTML = `
       ${renderBoardGameBundle()}
       ${mapsHtml}
-      <div class="returning-option-card"><label class="option-row"><input type="checkbox" id="retOpt" ${state.calc.ret?"checked":""} ${state.retEnabled?"":"disabled"}><div><b>${tr("returning")}</b><div class="hint">${returningHelp}</div></div></label>${agreementActionHtml}</div>
+      <div class="returning-option-card"><label class="option-row"><input type="checkbox" id="retOpt" ${state.calc.ret?"checked":""} ${state.retEnabled?"":"disabled"}><div><b>${tr("returning")}</b></div></label>${agreementActionHtml}</div>
       ${returningReviewHtml}
       ${contractHtml}
       ${paymentHtml ? `<div style="margin-top:12px">${paymentHtml}</div>` : ""}
