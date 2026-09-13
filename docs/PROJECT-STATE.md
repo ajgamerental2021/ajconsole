@@ -1122,3 +1122,9 @@ paused job shows slightly old numbers rather than an empty section.
 - Added a regression test that requires the availability endpoint to remain covered by the cross-origin middleware. Bot production commit `80c58ea` is deployed and returns all 36 inventory rows with the browser-access header.
 - Rechecked the live booking page for 17 selectable devices over 14–17 September 2026 in Thai and English. Available devices advanced normally, occupied devices showed their real ready dates, and none displayed the queue-check error. A separate clean browser session also completed the initial fetch without cached availability data.
 - Verification: 296/296 Bot tests and 59/59 website tests passed; the production page inline script passed `node --check`.
+
+## 2026-09-13 — Compact Krungthai logo placement in booking Flex
+
+- Moved the Krungthai logo from above the transfer instructions to the right of the account-detail column and reduced it from LINE Flex size `sm` to `xs`.
+- The layout applies consistently to reservation transfer, full Thai bank transfer and Wise blocks, but only when the destination account is `8690576029`; other bank accounts remain unbranded.
+- Added structural regression coverage for the horizontal layout, right-aligned compact logo and exact-account restriction. All 296 Bot tests passed; production Bot commit `8361a18` is deployed.
