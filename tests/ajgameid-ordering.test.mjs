@@ -23,6 +23,22 @@ test('embedded ajgameid puts unavailable games first, then new items by creation
   assert.match(html, /return \(Number\(a\?\.idNo\)[\s\S]*?- \(Number\(b\?\.idNo\)/);
 });
 
+test('released games stay after the new-game group and preserve ready-date order', () => {
+  assert.match(html, /function isReleasedFromNotReady\(item\)/);
+  assert.match(html, /const aReleased = isReleasedFromNotReady\(a\)/);
+  assert.match(html, /if \(aReleased !== bReleased\) return aReleased \? -1 : 1/);
+  assert.match(html, /if \(aReleased && bReleased\)/);
+  assert.match(html, /readyDateSortValue\(a\)\.localeCompare\(readyDateSortValue\(b\)\)/);
+});
+
+test('only ID 8 is placed immediately to the right of ID 70', () => {
+  assert.match(html, /function placeIdEightAfterIdSeventy\(items\)/);
+  assert.match(html, /Number\(item\?\.idNo\) === 8/);
+  assert.match(html, /Number\(item\?\.idNo\) === 70/);
+  assert.match(html, /ordered\.splice\(targetIndex \+ 1, 0, idEight\)/);
+  assert.match(html, /return placeIdEightAfterIdSeventy\(sorted\)/);
+});
+
 test('embedded ajgameid requires an availability date in both languages', () => {
   assert.match(html, /draft\.notReady && !draft\.readyDate/);
   assert.match(html, /กรุณาเลือกวันที่พร้อมให้บริการ/);

@@ -1529,8 +1529,27 @@
       return 0;
     }
 
+    function isReleasedFromNotReady(item) {
+      if (Boolean(item?.notReady)) return false;
+      const readyDate = readyDateSortValue(item);
+      if (!readyDate) return false;
+      const [year, month, day] = readyDate.split('-').map(Number);
+      return dateOnly(year, month, day) <= todayInBangkok();
+    }
+
+    function placeIdEightAfterIdSeventy(items) {
+      const ordered = [...items];
+      const idEightIndex = ordered.findIndex(item => Number(item?.idNo) === 8);
+      const idSeventyIndex = ordered.findIndex(item => Number(item?.idNo) === 70);
+      if (idEightIndex < 0 || idSeventyIndex < 0 || idEightIndex === idSeventyIndex + 1) return ordered;
+      const [idEight] = ordered.splice(idEightIndex, 1);
+      const targetIndex = ordered.findIndex(item => Number(item?.idNo) === 70);
+      ordered.splice(targetIndex + 1, 0, idEight);
+      return ordered;
+    }
+
     function sortItems(items) {
-      return [...items].sort((a, b) => {
+      const sorted = [...items].sort((a, b) => {
         const aNotReady = Boolean(a?.notReady);
         const bNotReady = Boolean(b?.notReady);
         if (aNotReady !== bNotReady) return aNotReady ? -1 : 1;
@@ -1538,12 +1557,23 @@
           const dateOrder = readyDateSortValue(b).localeCompare(readyDateSortValue(a));
           if (dateOrder) return dateOrder;
         }
-        if (!aNotReady && !bNotReady) {
+        const aReleased = isReleasedFromNotReady(a);
+        const bReleased = isReleasedFromNotReady(b);
+        const aNew = !aReleased && itemCreatedAtSortValue(a) > 0;
+        const bNew = !bReleased && itemCreatedAtSortValue(b) > 0;
+        if (aNew !== bNew) return aNew ? -1 : 1;
+        if (aReleased !== bReleased) return aReleased ? -1 : 1;
+        if (!aNotReady && !bNotReady && !aReleased && !bReleased) {
           const createdOrder = itemCreatedAtSortValue(b) - itemCreatedAtSortValue(a);
           if (createdOrder) return createdOrder;
         }
+        if (aReleased && bReleased) {
+          const readyOrder = readyDateSortValue(a).localeCompare(readyDateSortValue(b));
+          if (readyOrder) return readyOrder;
+        }
         return (Number(a?.idNo) || 0) - (Number(b?.idNo) || 0);
       });
+      return placeIdEightAfterIdSeventy(sorted);
     }
 
     function dateOnly(year, month, day) {
