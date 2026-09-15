@@ -31,12 +31,13 @@ test('released games stay after the new-game group and preserve ready-date order
   assert.match(html, /readyDateSortValue\(a\)\.localeCompare\(readyDateSortValue\(b\)\)/);
 });
 
-test('only ID 8 is placed immediately to the right of ID 70', () => {
-  assert.match(html, /function placeIdEightAfterIdSeventy\(items\)/);
-  assert.match(html, /Number\(item\?\.idNo\) === 8/);
-  assert.match(html, /Number\(item\?\.idNo\) === 70/);
-  assert.match(html, /ordered\.splice\(targetIndex \+ 1, 0, idEight\)/);
-  assert.match(html, /return placeIdEightAfterIdSeventy\(sorted\)/);
+test('IDs 70, 8 and 71 are grouped immediately before ID 69', () => {
+  assert.match(html, /function placeFeaturedIdsBeforeIdSixtyNine\(items\)/);
+  assert.match(html, /const featuredIds = \[70, 8, 71\]/);
+  assert.match(html, /Number\(item\?\.idNo\) === idNo/);
+  assert.match(html, /Number\(item\?\.idNo\) === 69/);
+  assert.match(html, /withoutFeatured\.splice\(targetIndex, 0, \.\.\.featured\)/);
+  assert.match(html, /return placeFeaturedIdsBeforeIdSixtyNine\(sorted\)/);
 });
 
 test('embedded ajgameid requires an availability date in both languages', () => {

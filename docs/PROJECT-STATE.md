@@ -1155,9 +1155,9 @@ paused job shows slightly old numbers rather than an empty section.
 - Added a bilingual second confirmation dialog warning that acceptance is available only once. A previously accepted booking returns in a locked state, and the server rejects both repeated and overlapping acceptance attempts before recalculating or resending anything.
 - Regression coverage checks the added quote data, bilingual wording and server-side duplicate guards. Full Bot verification passed 305/305 after the final page changes.
 
-## 2026-09-15 — Stable released-game ordering and ID 8 placement
+## 2026-09-15 — Stable released-game ordering and featured ID placement
 
 - Updated the standalone `ajgameid` catalogue so upcoming/not-ready games remain first, newly added games keep their creation-date group, and games that become ready move into a stable released group after the new entries instead of jumping into the legacy list. Released entries retain ready-date order.
-- Added the requested one-off placement for ID #8: when IDs #8 and #70 are both present, #8 is moved directly to the right of #70 while every other game's relative order is preserved.
-- Verified the live local catalogue in Thai and English: 71 IDs render, the language switch works, and the visible order includes ID #70 immediately followed by ID #8. Browser console had no warnings or errors.
+- Added the requested one-off placement for IDs #70, #8 and #71: they are grouped in that order immediately before ID #69 while every other game's relative order is preserved.
+- Verified the live local catalogue in Thai and English: 71 IDs render, the language switch works, and the featured group is placed before ID #69. Browser console had no warnings or errors.
 - Verification: 63/63 website tests passed, the inline `ajgameid` script passed `node --check`, and `git diff --check` passed.

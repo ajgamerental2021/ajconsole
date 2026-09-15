@@ -1537,15 +1537,19 @@
       return dateOnly(year, month, day) <= todayInBangkok();
     }
 
-    function placeIdEightAfterIdSeventy(items) {
+    function placeFeaturedIdsBeforeIdSixtyNine(items) {
       const ordered = [...items];
-      const idEightIndex = ordered.findIndex(item => Number(item?.idNo) === 8);
-      const idSeventyIndex = ordered.findIndex(item => Number(item?.idNo) === 70);
-      if (idEightIndex < 0 || idSeventyIndex < 0 || idEightIndex === idSeventyIndex + 1) return ordered;
-      const [idEight] = ordered.splice(idEightIndex, 1);
-      const targetIndex = ordered.findIndex(item => Number(item?.idNo) === 70);
-      ordered.splice(targetIndex + 1, 0, idEight);
-      return ordered;
+      const featuredIds = [70, 8, 71];
+      const featured = featuredIds
+        .map(idNo => ordered.find(item => Number(item?.idNo) === idNo))
+        .filter(Boolean);
+      if (!featured.length) return ordered;
+
+      const withoutFeatured = ordered.filter(item => !featuredIds.includes(Number(item?.idNo)));
+      const targetIndex = withoutFeatured.findIndex(item => Number(item?.idNo) === 69);
+      if (targetIndex < 0) return ordered;
+      withoutFeatured.splice(targetIndex, 0, ...featured);
+      return withoutFeatured;
     }
 
     function sortItems(items) {
@@ -1573,7 +1577,7 @@
         }
         return (Number(a?.idNo) || 0) - (Number(b?.idNo) || 0);
       });
-      return placeIdEightAfterIdSeventy(sorted);
+      return placeFeaturedIdsBeforeIdSixtyNine(sorted);
     }
 
     function dateOnly(year, month, day) {
