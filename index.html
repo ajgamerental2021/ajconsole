@@ -2255,9 +2255,23 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       state.calc.start = "";
       state.calc.end = "";
     }
-    state.calc.rentalCode = "";
-    state.calc.rentalCodeSig = "";
-    state.calc.contractSignature = "";
+    // Keep the identity of a recently submitted draft across the trip to the
+    // contract site. Clearing it on every reload minted a second Rental ID when
+    // a customer returned to this page and tapped LINE again after signing.
+    // A deliberate detail change still changes rentalSignature() and allocates
+    // a new ID; stale drafts lose their identity after the same six-day window
+    // used by the saved LINE launch.
+    const keepRecentRentalIdentity = Boolean(
+      draft?.at
+      && Date.now() - Number(draft.at) <= 6 * 86400000
+      && state.calc.rentalCode
+      && state.calc.rentalCodeSig
+    );
+    if(!keepRecentRentalIdentity){
+      state.calc.rentalCode = "";
+      state.calc.rentalCodeSig = "";
+      state.calc.contractSignature = "";
+    }
   }
   function saveLocal(){
     writeJson(LS.consoles, state.consoles);
@@ -4506,6 +4520,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(s.bgDisc) costs.push({label: en ? "Board game discount" : "ส่วนลดบอร์ดเกม", value:`-${money(s.bgDisc)}`, discount:true});
     if(s.paymentFee) costs.push({label: en ? "Payment fee" : "ค่าธรรมเนียมการชำระเงิน", value:money(s.paymentFee)});
     costs.push({label: en ? `${cName(c)} deposit` : `ค่าประกัน ${cName(c)}`, value: money(s.deposit)});
+    const contractAddOns = selectedContractAddOns(c);
     return {
       rentalCode: code,
       lang: en ? "EN" : "TH",
@@ -4519,6 +4534,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       later: hasGameCatalog && !!state.calc.later,
       boardgames: (s.bgItems || []).map(bgName),
       extras: (s.extras || []).map(x => en ? (x.en || x.th) : (x.th || x.en)),
+      bundleIds: contractAddOns.bundle,
+      accessoryIds: contractAddOns.accessories,
       costs,
       total: money(s.total),
       upfront: money(s.upfront),

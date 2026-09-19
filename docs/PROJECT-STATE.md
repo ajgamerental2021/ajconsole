@@ -1161,3 +1161,11 @@ paused job shows slightly old numbers rather than an empty section.
 - Added the requested one-off placement for IDs #70, #8 and #71: they are grouped in that order immediately before ID #69 while every other game's relative order is preserved.
 - Verified the live local catalogue in Thai and English: 71 IDs render, the language switch works, and the featured group is placed before ID #69. Browser console had no warnings or errors.
 - Verification: 63/63 website tests passed, the inline `ajgameid` script passed `node --check`, and `git diff --check` passed.
+
+## 2026-09-20 — Contract handoff identity, bank logo delivery and exact add-ons
+
+- Fixed the missing Krungthai logo at the HTTP layer: the Bot now serves only `/assets/banks/*` with `Cross-Origin-Resource-Policy: cross-origin`, allowing LINE's Flex renderer to fetch the image while other public assets keep Helmet's stricter default. The same compact logo is now also present in the post-contract payment card for account `8690576029`.
+- The booking site preserves a recent draft's Rental ID and signature for six days when the customer returns from the contract site. Unchanged details reuse the original Rental ID; changing the rental details or deliberately clearing the dates still creates a new booking. This prevents a second ID when a customer signs and then taps LINE again.
+- Contract completion copy in Thai and English now explicitly says the booking and agreement are complete, not to create or send another booking, and to wait for AJ to confirm delivery fees and the amount due.
+- Booking context now carries exact `bundleIds` and `accessoryIds`, including explicit empty arrays. The Bot treats those IDs as authoritative when generating the agreement, so an unselected hidden/stale accessory such as Switch `bat-grips` cannot appear in the PDF.
+- Verification: 65/65 website tests and 318/318 Bot tests passed after rebasing onto the latest `origin/main`. The website inline script passed `node --check`, both repositories passed `git diff --check`, the real Express server was checked in Thai and English, the bank image returned HTTP 200 with `Cross-Origin-Resource-Policy: cross-origin`, and a rendered two-page Nintendo Switch 2 contract with no add-ons contained no bat-grip text.
