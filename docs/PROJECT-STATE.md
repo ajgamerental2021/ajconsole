@@ -1208,3 +1208,9 @@ paused job shows slightly old numbers rather than an empty section.
 - Console cards now show “เลือกเกมได้สูงสุด 10 เกม” / “Choose up to 10 games” only when that same card actually has an available game-picker button.
 - Cards without the action, including PS Portal and PS VR2, keep their equipment details but omit the misleading game-limit line. The same rendering rule applies to both the all-console popup and the normal full catalogue.
 - Verified visually in Thai and English while confirming game-enabled PlayStation cards retain their game details. Website suite: 71/71 passing; extracted inline JavaScript and `git diff --check` also pass.
+
+## 2026-09-20 — Direct booking-page URL without the before-rent back action
+
+- Added `?booking=1` as a dedicated entry point that opens the queue-check/rental calculator at step 1, scrolls it into view and supports the existing `lang=th` / `lang=en` override.
+- Only this direct-entry mode hides “กลับเมนูก่อนเช่า” / “Back to Before rent”. The button remains in the page markup and stays visible when customers enter the calculator through the normal site flow or the existing `?go=calc` link.
+- Verified the new direct link and the unchanged normal calculator path in a real browser. Website suite: 73/73 passing; extracted inline JavaScript and `git diff --check` also pass.
