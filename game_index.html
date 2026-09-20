@@ -4277,16 +4277,21 @@ function setPickerRentalRange(startDate, endDate) {
   pickerRentalStart = normalizePickerDate(startDate);
   pickerRentalEnd = normalizePickerDate(endDate);
 }
+function hasLiveRentalWindow() {
+  // Past booking drafts must not decide what is available today.
+  return !!(pickerRentalStart && pickerRentalEnd && pickerRentalEnd >= ajTodayYmd());
+}
 function gameReadyDuringRental(g) {
   const ready = normalizePickerDate(g && g.available_date);
-  return !!(g && g.unavailable && ready && pickerRentalStart && pickerRentalEnd
+  return !!(g && g.unavailable && ready && hasLiveRentalWindow()
     && ready <= pickerRentalEnd);
 }
 function gameReadyAfterRentalStart(g) {
   const ready = normalizePickerDate(g && g.available_date);
-  return gameReadyDuringRental(g) && ready > pickerRentalStart;
+  return hasLiveRentalWindow() && gameReadyDuringRental(g) && ready > pickerRentalStart;
 }
 function pickerReadyDate(g) {
+  if (!hasLiveRentalWindow()) return '';
   const ready = normalizePickerDate(g && g.available_date);
   return ready ? ready.split('-').reverse().join('/') : '';
 }
@@ -4300,8 +4305,9 @@ function isGameUnavailable(g) {
   if (!g || !g.unavailable) return false;
   const ready = String(g.available_date || '').trim();
   if (!ready) return true;
-  if (pickerRentalStart && pickerRentalEnd) return !gameReadyDuringRental(g);
-  return ajTodayYmd() < ready;
+  const today = ajTodayYmd();
+  if (hasLiveRentalWindow()) return !gameReadyDuringRental(g);
+  return today < ready;
 }
 function compareGamesForDisplay(a, b, mode) {
   const aUnavailable = isGameUnavailable(a);
@@ -6726,6 +6732,14 @@ function fetchFromJSONBin(options) {
       });
     }
     return JSON.parse(fileObj.content);
+  })
+  .catch(function(apiError) {
+    // Shared mobile IPs often exhaust GitHub's unauthenticated API limit.
+    var rawUrl = 'https://gist.githubusercontent.com/ajgamerental2021/' + gistId + '/raw/ajgame-data.json?_=' + Date.now();
+    return fetch(rawUrl, { cache: 'no-store' }).then(function(r) {
+      if (!r.ok) throw apiError;
+      return r.json();
+    });
   })
   .then(function(bundle) {
     if (applyDataBundle(bundle)) {

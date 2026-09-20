@@ -23,9 +23,9 @@ async function loadReadiness() {
   const dir = mkdtempSync(path.join(tmpdir(), 'aj-readiness-'));
   const file = path.join(dir, 'readiness.mjs');
   writeFileSync(file, catalog.slice(start, end)
-    + '\nfunction ajTodayYmd(){return "2026-09-09";}\nlet currentLang="th";\n'
+    + '\nfunction ajTodayYmd(){return "2026-09-20";}\nlet currentLang="th";\n'
     + 'export function setLang(v){currentLang=v;}\n'
-    + 'export {setPickerRentalRange,gameReadyAfterRentalStart,gameSelectionName,isGameUnavailable,normalizePickerDate};\n');
+    + 'export {setPickerRentalRange,hasLiveRentalWindow,gameReadyAfterRentalStart,pickerReadyDate,gameSelectionName,isGameUnavailable,normalizePickerDate};\n');
   return import(file);
 }
 
@@ -76,13 +76,30 @@ test('the window is read in the format the Delivery App sends', async () => {
 test('without both ends of the window the picker answers about today', async () => {
   const m = await loadReadiness();
   m.setPickerRentalRange('', '');
-  assert.equal(m.isGameUnavailable(game('2026-09-10')), true);
-  assert.equal(m.isGameUnavailable(game('2026-09-08')), false);
+  assert.equal(m.isGameUnavailable(game('2026-09-21')), true);
+  assert.equal(m.isGameUnavailable(game('2026-09-19')), false);
 
   // Half a window would have to guess the other half, and that guess decides
   // what a customer is allowed to choose.
   m.setPickerRentalRange('15/09/2026', '');
-  assert.equal(m.isGameUnavailable(game('2026-09-19')), true);
+  assert.equal(m.isGameUnavailable(game('2026-09-21')), true);
+});
+
+test('an expired rental window cannot keep released games unavailable', async () => {
+  const m = await loadReadiness();
+  const released = game('2026-09-15');
+
+  m.setPickerRentalRange('01/09/2026', '10/09/2026');
+  assert.equal(m.hasLiveRentalWindow(), false);
+  assert.equal(m.isGameUnavailable(released), false);
+  assert.equal(m.gameReadyAfterRentalStart(released), false);
+  assert.equal(m.pickerReadyDate(released), '');
+
+  m.setPickerRentalRange('21/09/2026', '24/09/2026');
+  assert.equal(m.isGameUnavailable(game('2026-09-25')), true);
+
+  m.setPickerRentalRange('', '');
+  assert.equal(m.isGameUnavailable(released), false);
 });
 
 test('every picker entry point learns the rental window', () => {

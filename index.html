@@ -1219,7 +1219,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
   const CONFIG = {
     version: "index2-clean-1",
-    gamePickerVersion: "20260909-1",
+    gamePickerVersion: "20260920-1",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",
@@ -5598,6 +5598,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     host.innerHTML = `<span class="game-picker-platform-label">${esc(tr("gamePickerAllPlatforms"))}</span>${consoles.map(item => `<button class="game-picker-platform-btn ${String(item.id) === String(state.gamePickerPlatformId) ? "active" : ""}" type="button" data-game-platform="${esc(item.id)}">${esc(pickerChipName(item))}</button>`).join("")}`;
     host.querySelectorAll("[data-game-platform]").forEach(button => button.addEventListener("click", () => switchBrowseGamePlatform(button.dataset.gamePlatform)));
   }
+  function livePickerRentalRange(){
+    const calcEnd = state.calc.end || "";
+    const liveRange = !!calcEnd && calcEnd >= todayIso();
+    return {
+      startDate:liveRange ? (state.calc.start || "") : "",
+      endDate:liveRange ? calcEnd : ""
+    };
+  }
   function loadGamePickerPlatform(){
     const c = activePickerConsole();
     if(!c) return;
@@ -5605,7 +5613,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const platformId = c.gamePlatform || guessPlatform(c);
     const selectedIds = pickerSelectedIds();
     const browseOnly = state.gamePickerBrowseOnly;
-    const params = new URLSearchParams({embed:"picker", lang:state.lang, platformId, selected:selectedIds.join(","), browse:browseOnly?"1":"0", chrome:"compact", startDate:state.calc.start || "", endDate:state.calc.end || "", v:CONFIG.gamePickerVersion});
+    const rentalRange = livePickerRentalRange();
+    const params = new URLSearchParams({embed:"picker", lang:state.lang, platformId, selected:selectedIds.join(","), browse:browseOnly?"1":"0", chrome:"compact", startDate:rentalRange.startDate, endDate:rentalRange.endDate, v:CONFIG.gamePickerVersion});
     const src = `${CONFIG.gamePage}?${params.toString()}`;
     const send = () => frame.contentWindow?.postMessage({
       type:"AJ_PICKER_OPEN",
@@ -5614,8 +5623,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       lang:state.lang,
       selectedGameIds:selectedIds,
       browseOnly,
-      startDate:state.calc.start || "",
-      endDate:state.calc.end || ""
+      startDate:rentalRange.startDate,
+      endDate:rentalRange.endDate
     }, pickerTargetOrigin());
     if((frame.getAttribute("src") || "") !== src){
       frame.onload = () => { send(); sendPickerHowTo(); applyPickerChromeFallback(); };
@@ -7215,6 +7224,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       }
       if(data.type === "AJ_GAME_READY" && byId("gamePickerOverlay").classList.contains("open")){
         const c = activePickerConsole();
+        const rentalRange = livePickerRentalRange();
         pickerFrame.contentWindow?.postMessage({
           type:"AJ_PICKER_OPEN",
           requestId:"index2-ready",
@@ -7222,8 +7232,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           lang:state.lang,
           selectedGameIds:pickerSelectedIds(),
           browseOnly:state.gamePickerBrowseOnly,
-          startDate:state.calc.start || "",
-          endDate:state.calc.end || ""
+          startDate:rentalRange.startDate,
+          endDate:rentalRange.endDate
         }, pickerTargetOrigin());
       }
     });

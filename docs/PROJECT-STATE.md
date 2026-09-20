@@ -1214,3 +1214,10 @@ paused job shows slightly old numbers rather than an empty section.
 - Added `?booking=1` as a dedicated entry point that opens the queue-check/rental calculator at step 1, points the initial viewport at the “คำนวณ” / “Calculate” heading and supports the existing `lang=th` / `lang=en` override.
 - “กลับเมนูก่อนเช่า” / “Back to Before rent” remains present immediately above the heading and can be reached by scrolling upward; the direct link does not hide or remove it.
 - Verified the initial heading position and the retained back button in a real browser. Website suite: 73/73 passing; extracted inline JavaScript and `git diff --check` also pass.
+
+## 2026-09-20 — Game picker ignores expired rental drafts
+
+- Added one shared live-rental-window check in `game_index.html`. An expired window restored from browser storage no longer controls availability, mid-rental ready labels, or ready-date text; the picker falls back to today's date instead.
+- The booking page now clears expired start/end dates from all three picker handoffs while preserving a current or future rental range. The picker cache-buster is `20260920-1`.
+- If the GitHub Gist API fails, the catalogue now retries the uncached raw `ajgame-data.json` URL before retaining the cached catalogue.
+- Verification: 78/78 website tests passed; extracted inline JavaScript and `git diff --check` passed. The real local picker was opened with a restored 25–28 August draft in Thai and English: NBA 2K27, The Blood of Dawnwalker, Onimusha and Marvel's Wolverine rendered as available, while genuinely future releases retained their ready-date ribbons.
