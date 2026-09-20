@@ -27,3 +27,11 @@ test('a standalone URL opens the all-console popup immediately', () => {
   assert.match(source, /location\.hash === "#all-consoles"/);
   assert.match(source, /else if\(requestedAllConsoles\)\{[\s\S]*setTimeout\(showAllConsoles, 120\)/);
 });
+
+test('the popup uses compact cards and can copy its bilingual direct URL', () => {
+  assert.match(source, /\.all-consoles-list \.console-grid\{grid-template-columns:repeat\(auto-fill,minmax\(205px,1fr\)\)/);
+  assert.match(source, /id="allConsolesCopyUrl"/);
+  assert.match(source, /allConsolesCopyUrl:"คัดลอก URL"/);
+  assert.match(source, /allConsolesCopyUrl:"Copy URL"/);
+  assert.match(source, /copySectionUrl\("allConsoles"\)/);
+});

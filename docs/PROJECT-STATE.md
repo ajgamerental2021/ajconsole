@@ -1185,3 +1185,9 @@ paused job shows slightly old numbers rather than an empty section.
 - Every console card has a “เช็คคิวและจอง” / “Check availability & book” action that closes the popup, selects that exact console and opens its queue/booking flow.
 - Added direct-entry URLs with `?allConsoles=1` (and the `#all-consoles` alias), compatible with `lang=th` and `lang=en`, so shared links open the popup immediately.
 - Verification: 68/68 website tests passed, the extracted inline script passed `node --check`, `git diff --check` passed, and the real local page was exercised in both languages including direct-link opening and device-specific booking selection.
+
+## 2026-09-20 — Compact all-console cards and copyable popup URL
+
+- Reduced only the catalogue cards inside the all-console popup: desktop now fits five cards per row at the standard popup width, with smaller artwork, pricing, details and actions. The normal console cards elsewhere on the site are unchanged, and the popup keeps a compact two-column phone layout.
+- Added a visible “คัดลอก URL” / “Copy URL” action to the popup header. It copies the direct `?allConsoles=1` link with the currently selected `lang=th` or `lang=en` value and confirms completion using the existing bilingual URL-copied toast.
+- Verification: 69/69 website tests passed, the extracted inline script passed `node --check`, `git diff --check` passed, and the local popup was visually checked in Thai and English. The clipboard output was also confirmed to contain the direct popup URL and selected language.

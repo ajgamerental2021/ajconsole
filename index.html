@@ -278,7 +278,24 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .all-consoles-filter-row .select{flex:1;min-width:220px}
 .all-consoles-list .console-section:first-child{margin-top:0}
 .all-consoles-list .console-group-meta{white-space:nowrap}
-.all-consoles-book{width:100%;margin-top:auto;min-height:44px}
+.all-consoles-list .console-grid{grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:12px}
+.all-consoles-list .con-card{border-radius:12px;box-shadow:0 4px 14px rgba(16,24,40,.07)}
+.all-consoles-list .con-img{min-height:108px;padding:10px}
+.all-consoles-list .con-img img{max-width:128px;max-height:108px}
+.all-consoles-list .con-img .emoji{font-size:42px}
+.all-consoles-list .ready-ribbon{inset:auto 7px 7px;padding:6px 8px;font-size:10px}
+.all-consoles-list .con-body{padding:10px;gap:7px}
+.all-consoles-list .con-name{font-size:15px;line-height:1.25}
+.all-consoles-list .price-row{gap:6px}
+.all-consoles-list .price-cell{padding:7px;border-radius:9px}
+.all-consoles-list .price-cell small{font-size:10px}
+.all-consoles-list .price-cell b{font-size:15px}
+.all-consoles-list .dep{font-size:11px}
+.all-consoles-list .details{gap:3px;font-size:10.5px}
+.all-consoles-list .details div{padding:5px 6px;border-radius:7px}
+.all-consoles-list .btn.soft{padding:7px 8px;font-size:11px}
+.all-consoles-book{width:100%;margin-top:auto;min-height:38px;padding:8px 10px;font-size:12px}
+.all-consoles-copy-url{white-space:nowrap}
 .all-consoles-empty{padding:40px 16px;text-align:center;color:var(--text3);font-weight:800}
 .step1-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
 .step1-head h3{margin:0}
@@ -587,6 +604,18 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .all-consoles-filter-row>strong{flex-basis:100%;margin-bottom:-3px}
   .all-consoles-filter-row .tabs{width:100%}
   .all-consoles-filter-row .select{width:100%;min-width:0}
+  #allConsolesModal .modal-head{align-items:flex-start;padding:10px 12px}
+  #allConsolesModal .modal-head-actions{gap:5px}
+  #allConsolesModal .all-consoles-copy-url{padding:6px 8px;font-size:10px}
+  #allConsolesModal .faq-lang-btn{padding:6px 8px;font-size:11px}
+  #allConsolesModal .xbtn{width:32px;height:32px;font-size:23px}
+  .all-consoles-list .console-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .all-consoles-list .con-img{min-height:92px;padding:8px}
+  .all-consoles-list .con-img img{max-width:108px;max-height:92px}
+  .all-consoles-list .con-body{padding:8px;gap:6px}
+  .all-consoles-list .con-name{font-size:13px}
+  .all-consoles-list .price-cell{padding:6px}
+  .all-consoles-list .price-cell b{font-size:13px}
   #shareConfirmModal{padding:18px;align-items:center;justify-content:center}
   #shareConfirmModal .share-confirm-card{width:min(460px,100%);height:auto;max-height:calc(100vh - 36px);max-height:calc(100dvh - 36px);border-radius:20px}
   .game-picker-head{grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;padding:10px 12px}
@@ -1057,7 +1086,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
 <div class="modal-overlay" id="allConsolesModal" role="dialog" aria-modal="true" aria-labelledby="allConsolesTitle">
   <div class="modal-card all-consoles-card">
-    <div class="modal-head"><div class="modal-title-copy"><h3 id="allConsolesTitle"></h3><p id="allConsolesSubtitle"></p></div><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="allConsolesLangBtn" type="button"></button><button class="xbtn" id="allConsolesClose" type="button">&times;</button></div></div>
+    <div class="modal-head"><div class="modal-title-copy"><h3 id="allConsolesTitle"></h3><p id="allConsolesSubtitle"></p></div><div class="modal-head-actions"><button class="copy-section-url all-consoles-copy-url" id="allConsolesCopyUrl" type="button"></button><button class="btn primary faq-lang-btn" id="allConsolesLangBtn" type="button"></button><button class="xbtn" id="allConsolesClose" type="button">&times;</button></div></div>
     <div class="all-consoles-body">
       <div class="all-consoles-toolbar">
         <div class="all-consoles-filter-row"><strong id="allConsolesTypeLabel"></strong><div class="tabs" id="allConsolesTypeTabs"></div></div>
@@ -1424,6 +1453,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       allConsolesTitle:"เครื่องเกมที่มีให้เช่าทั้งหมด",
       allConsolesSubtitle:"{n} เครื่อง · เลือกเครื่องเพื่อเช็คคิวและเริ่มจอง",
       allConsolesBook:"เช็คคิวและจอง",
+      allConsolesCopyUrl:"คัดลอก URL",
       beforeRentTypeAll:"ทั้งหมด",
       beforeRentEmpty:"ไม่มีเครื่องในประเภทนี้",
       beforeRentDepositBack:"คืนเต็ม",
@@ -1534,6 +1564,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       allConsolesTitle:"All game consoles available for rent",
       allConsolesSubtitle:"{n} consoles · Choose one to check availability and book",
       allConsolesBook:"Check availability & book",
+      allConsolesCopyUrl:"Copy URL",
       beforeRentTypeAll:"All",
       beforeRentEmpty:"No consoles in this category",
       beforeRentDepositBack:"refundable",
@@ -2769,6 +2800,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!brands.includes(filter.brand)) filter.brand = "all";
     byId("allConsolesTitle").textContent = tr("allConsolesTitle");
     byId("allConsolesSubtitle").textContent = tr("allConsolesSubtitle").replace("{n}", String(active.length));
+    byId("allConsolesCopyUrl").innerHTML = `${icon("link")}<span>${esc(tr("allConsolesCopyUrl"))}</span>`;
     byId("allConsolesLangBtn").textContent = state.lang === "en" ? "ไทย" : "EN";
     byId("allConsolesTypeLabel").textContent = tr("filterType");
     byId("allConsolesBrandLabel").textContent = tr("filterBrand");
@@ -7058,6 +7090,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("sortSelect").addEventListener("change", e => { state.filter.sort = e.target.value; renderConsoles(); });
     byId("langBtn").addEventListener("click", () => { state.lang = state.lang === "en" ? "th" : "en"; trackAnalytics("language_changed", {value:state.lang}); render(); });
     byId("allConsolesLangBtn").addEventListener("click", toggleAllConsolesLanguage);
+    byId("allConsolesCopyUrl").addEventListener("click", () => copySectionUrl("allConsoles"));
     byId("allConsolesClose").addEventListener("click", closeAllConsoles);
     byId("allConsolesModal").addEventListener("click", event => { if(event.target === byId("allConsolesModal")) closeAllConsoles(); });
     byId("allConsolesSort").addEventListener("change", event => { state.allConsolesFilter.sort = event.target.value; renderAllConsolesModal(); });
