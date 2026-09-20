@@ -2083,6 +2083,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     url.searchParams.set("focus", pid);
     return url.toString();
   }
+  function isGameLimitDetail(value){
+    const text = String(value || "").trim();
+    return /เลือกเกมได้สูงสุด\s*10\s*เกม/i.test(text) || /choose up to\s*10\s*games/i.test(text);
+  }
   function consoleHasGameCatalog(c = consoleById(state.calc.consoleId)){
     return !!gameUrl(c);
   }
@@ -3024,14 +3028,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const img = getConsoleImage(c);
       const ready = isConsoleSelectable(c);
       const url = gameUrl(c);
+      const gameButtonVisible = !!(url && ready);
+      const details = (state.lang==="en"?c.detailsEn:c.detailsTh).filter(item => gameButtonVisible || !isGameLimitDetail(item));
       return `<article class="con-card ${ready?"":"unavailable"}">
         <div class="con-img">${img?`<img src="${esc(img)}" alt="${esc(cName(c))}" loading="lazy">`:`<span class="emoji">${esc(c.icon)}</span>`}${ready?"":`<div class="ready-ribbon">${isQueueClosed(c) ? tr("queueClosed") : `${tr("readyOn")} ${displayDate(c.readyDate)}`}</div>`}</div>
         <div class="con-body">
           <div class="con-name">${esc(cName(c))}</div>
           <div class="price-row"><div class="price-cell"><small>${tr("daily")}</small><b>${money(c.rate)}</b></div><div class="price-cell"><small>${tr("weekly")}</small><b>${money(c.weekly)}</b></div></div>
           <div class="dep">${tr("deposit")} ${money(c.deposit)}</div>
-          <div class="details">${(state.lang==="en"?c.detailsEn:c.detailsTh).map(x=>`<div>${esc(x)}</div>`).join("")}</div>
-          ${url && ready ? `<button class="btn soft" data-card-game="${esc(String(c.id))}" type="button">${tr("pickGames")}</button>` : ""}
+          <div class="details">${details.map(x=>`<div>${esc(x)}</div>`).join("")}</div>
+          ${gameButtonVisible ? `<button class="btn soft" data-card-game="${esc(String(c.id))}" type="button">${tr("pickGames")}</button>` : ""}
           ${options.bookingButton ? `<button class="btn primary all-consoles-book" data-all-console-book="${esc(String(c.id))}" type="button">${esc(tr("allConsolesBook"))}</button>` : ""}
         </div>
       </article>`;

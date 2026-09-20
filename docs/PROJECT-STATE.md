@@ -1202,3 +1202,9 @@ paused job shows slightly old numbers rather than an empty section.
 - Converted the all-console popup's Type and Brand chip rows into compact disclosure controls. Both start collapsed whenever the popup opens and visibly report the current choice as “เลือกอยู่: …” / “Selected: …”.
 - Each row expands independently on demand. Selecting an option applies the filter, refreshes the available catalogue and collapses that row again; changing Type also resets Brand to All so the visible state always matches the results.
 - Verified the collapsed, expanded and post-selection states in Thai and English. Website suite: 70/70 passing; extracted inline JavaScript and `git diff --check` also pass.
+
+## 2026-09-20 — Game-limit detail follows the game-picker button
+
+- Console cards now show “เลือกเกมได้สูงสุด 10 เกม” / “Choose up to 10 games” only when that same card actually has an available game-picker button.
+- Cards without the action, including PS Portal and PS VR2, keep their equipment details but omit the misleading game-limit line. The same rendering rule applies to both the all-console popup and the normal full catalogue.
+- Verified visually in Thai and English while confirming game-enabled PlayStation cards retain their game details. Website suite: 71/71 passing; extracted inline JavaScript and `git diff --check` also pass.

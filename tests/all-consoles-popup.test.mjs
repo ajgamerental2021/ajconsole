@@ -46,3 +46,12 @@ test('type and brand filters start collapsed, show their selection, and expand o
   assert.match(source, /state\.allConsolesFilterExpanded = \{type:false, brand:false\}/);
   assert.match(source, /state\.allConsolesFilterExpanded\[key\] = !state\.allConsolesFilterExpanded\[key\]/);
 });
+
+test('cards without a game-picker button omit the ten-game detail in both languages', () => {
+  assert.match(source, /function isGameLimitDetail\(value\)/);
+  assert.match(source, /เลือกเกมได้สูงสุด\\s\*10\\s\*เกม/);
+  assert.match(source, /choose up to\\s\*10\\s\*games/);
+  assert.match(source, /const gameButtonVisible = !!\(url && ready\)/);
+  assert.match(source, /\.filter\(item => gameButtonVisible \|\| !isGameLimitDetail\(item\)\)/);
+  assert.match(source, /\$\{gameButtonVisible \? `<button class="btn soft"/);
+});
