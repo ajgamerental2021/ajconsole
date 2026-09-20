@@ -1191,3 +1191,8 @@ paused job shows slightly old numbers rather than an empty section.
 - Reduced only the catalogue cards inside the all-console popup: desktop now fits five cards per row at the standard popup width, with smaller artwork, pricing, details and actions. The normal console cards elsewhere on the site are unchanged, and the popup keeps a compact two-column phone layout.
 - Added a visible “คัดลอก URL” / “Copy URL” action to the popup header. It copies the direct `?allConsoles=1` link with the currently selected `lang=th` or `lang=en` value and confirms completion using the existing bilingual URL-copied toast.
 - Verification: 69/69 website tests passed, the extracted inline script passed `node --check`, `git diff --check` passed, and the local popup was visually checked in Thai and English. The clipboard output was also confirmed to contain the direct popup URL and selected language.
+
+## 2026-09-20 — Removed excess spacing between popup console groups
+
+- Reset the global page-section padding for brand groups inside the all-console popup. This removes the unintended 112px vertical gap after short groups such as Nintendo Switch while preserving a compact 20px separation before the next brand heading.
+- The change is scoped to the popup and does not affect normal page sections or console cards elsewhere. Verified visually across the PlayStation → Nintendo Switch → Xbox transition and covered by the popup regression test.
