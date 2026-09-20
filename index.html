@@ -267,6 +267,19 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:2}
 .modal-head-actions{display:flex;align-items:center;gap:8px}
 .faq-lang-btn{padding:7px 12px;font-size:13px;font-weight:800}
+#allConsolesModal .all-consoles-card{width:min(1180px,100%);height:min(92vh,920px);display:flex;flex-direction:column;overflow:hidden}
+.all-consoles-body{flex:1;min-height:0;overflow:auto;padding:16px 18px 24px;background:#f8f9fb}
+.all-consoles-toolbar{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;padding:14px;border:1px solid var(--border);border-radius:14px;background:#fff}
+.all-consoles-filter-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.all-consoles-filter-row>strong{flex:0 0 60px;color:var(--text3);font-size:12px;text-transform:uppercase}
+.all-consoles-filter-row .tabs{gap:6px}
+.all-consoles-filter-row .tab{padding:7px 11px;cursor:pointer}
+.all-consoles-filter-row .tab.active{border-color:var(--accent);background:var(--accent);color:#fff}
+.all-consoles-filter-row .select{flex:1;min-width:220px}
+.all-consoles-list .console-section:first-child{margin-top:0}
+.all-consoles-list .console-group-meta{white-space:nowrap}
+.all-consoles-book{width:100%;margin-top:auto;min-height:44px}
+.all-consoles-empty{padding:40px 16px;text-align:center;color:var(--text3);font-weight:800}
 .step1-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
 .step1-head h3{margin:0}
 .btn.step-guide-btn{flex:0 0 auto;background:var(--danger);border-color:var(--danger);color:#fff;white-space:nowrap;font-weight:900;box-shadow:0 0 0 4px rgba(214,0,0,.12)}
@@ -567,6 +580,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .modal-overlay,.picker-overlay,.admin-overlay{padding:0}
   .calendar-modal{padding:8px;align-items:stretch}
   .modal-card,.picker-card,.admin-modal{width:100%;height:100%;max-height:none;border-radius:0}
+  #allConsolesModal .all-consoles-card{width:100%;height:100%;max-height:none;border-radius:0}
+  .all-consoles-body{padding:12px}
+  .all-consoles-toolbar{padding:10px}
+  .all-consoles-filter-row{align-items:flex-start}
+  .all-consoles-filter-row>strong{flex-basis:100%;margin-bottom:-3px}
+  .all-consoles-filter-row .tabs{width:100%}
+  .all-consoles-filter-row .select{width:100%;min-width:0}
   #shareConfirmModal{padding:18px;align-items:center;justify-content:center}
   #shareConfirmModal .share-confirm-card{width:min(460px,100%);height:auto;max-height:calc(100vh - 36px);max-height:calc(100dvh - 36px);border-radius:20px}
   .game-picker-head{grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;padding:10px 12px}
@@ -1035,6 +1055,20 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   </div>
 </div>
 
+<div class="modal-overlay" id="allConsolesModal" role="dialog" aria-modal="true" aria-labelledby="allConsolesTitle">
+  <div class="modal-card all-consoles-card">
+    <div class="modal-head"><div class="modal-title-copy"><h3 id="allConsolesTitle"></h3><p id="allConsolesSubtitle"></p></div><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="allConsolesLangBtn" type="button"></button><button class="xbtn" id="allConsolesClose" type="button">&times;</button></div></div>
+    <div class="all-consoles-body">
+      <div class="all-consoles-toolbar">
+        <div class="all-consoles-filter-row"><strong id="allConsolesTypeLabel"></strong><div class="tabs" id="allConsolesTypeTabs"></div></div>
+        <div class="all-consoles-filter-row"><strong id="allConsolesBrandLabel"></strong><div class="tabs" id="allConsolesBrandTabs"></div></div>
+        <div class="all-consoles-filter-row"><strong id="allConsolesSortLabel"></strong><select class="select" id="allConsolesSort"></select></div>
+      </div>
+      <div class="all-consoles-list" id="allConsolesList"></div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="shareConfirmModal">
   <div class="modal-card share-confirm-card">
     <div class="modal-head"><h3 id="shareConfirmTitle"></h3><button class="xbtn" id="shareConfirmClose" type="button">&times;</button></div>
@@ -1386,7 +1420,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       bookingExtrasHide:"ซ่อนโปรโมชั่นและเครื่องอื่น ๆ",
       beforeRentDeviceMin:"ขั้นต่ำ 3 วัน · เริ่มต้น {total}",
       beforeRentDeviceSoon:"ยังไม่พร้อมให้เช่า",
-      beforeRentSeeAll:"ดูทั้งหมดแบบตาราง มีตัวกรอง",
+      beforeRentSeeAll:"ดูเครื่องเกมทั้งหมด",
+      allConsolesTitle:"เครื่องเกมที่มีให้เช่าทั้งหมด",
+      allConsolesSubtitle:"{n} เครื่อง · เลือกเครื่องเพื่อเช็คคิวและเริ่มจอง",
+      allConsolesBook:"เช็คคิวและจอง",
       beforeRentTypeAll:"ทั้งหมด",
       beforeRentEmpty:"ไม่มีเครื่องในประเภทนี้",
       beforeRentDepositBack:"คืนเต็ม",
@@ -1493,7 +1530,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       bookingExtrasHide:"Hide promotions & other consoles",
       beforeRentDeviceMin:"3-day minimum · from {total}",
       beforeRentDeviceSoon:"Not available yet",
-      beforeRentSeeAll:"See all in a table with filters",
+      beforeRentSeeAll:"View all game consoles",
+      allConsolesTitle:"All game consoles available for rent",
+      allConsolesSubtitle:"{n} consoles · Choose one to check availability and book",
+      allConsolesBook:"Check availability & book",
       beforeRentTypeAll:"All",
       beforeRentEmpty:"No consoles in this category",
       beforeRentDepositBack:"refundable",
@@ -1692,6 +1732,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     beforeRentActive: true,
     bookingExtrasOpen: false,
     beforeRentDeviceType: "all",
+    allConsolesFilter: {type:"all", brand:"all", sort:"brand"},
     social: clone(DEFAULT_SOCIAL),
     gamePickerBrowseOnly: false,
     gamePickerHowTo: false,
@@ -2454,6 +2495,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     renderCalc();
     renderFAQ();
     renderBeforeRent();
+    if(byId("allConsolesModal")?.classList.contains("open")) renderAllConsolesModal();
     updateFloatButton();
     renderGuide();
   }
@@ -2703,9 +2745,69 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       renderBeforeRentDiscovery();
     }));
   }
+  function allConsolesFiltered(){
+    const filter = state.allConsolesFilter;
+    const list = state.consoles.filter(item => item.active !== false
+      && (filter.type === "all" || item.type === filter.type)
+      && (filter.brand === "all" || item.brand === filter.brand));
+    if(filter.sort === "price-desc") list.sort((a,b) => b.rate-a.rate || cName(a).localeCompare(cName(b), state.lang));
+    else if(filter.sort === "price-asc") list.sort((a,b) => a.rate-b.rate || cName(a).localeCompare(cName(b), state.lang));
+    else if(filter.sort === "name") list.sort((a,b) => cName(a).localeCompare(cName(b), state.lang));
+    else list.sort((a,b) => brandOrder(a.brand)-brandOrder(b.brand) || consoleRank(a)-consoleRank(b) || b.rate-a.rate || cName(a).localeCompare(cName(b), state.lang));
+    return list;
+  }
+  function renderAllConsolesModal(){
+    const modal = byId("allConsolesModal");
+    if(!modal) return;
+    const filter = state.allConsolesFilter;
+    const active = state.consoles.filter(item => item.active !== false);
+    const availableTypes = new Set(active.map(item => item.type));
+    const types = [["all",tr("all")],["console",tr("type_console")],["vr",tr("type_vr")],["handheld",tr("type_handheld")],["racing",tr("type_racing")]]
+      .filter(([id]) => id === "all" || availableTypes.has(id));
+    const typeDevices = active.filter(item => filter.type === "all" || item.type === filter.type);
+    const brands = ["all", ...Array.from(new Set(typeDevices.map(item => item.brand))).sort((a,b) => brandOrder(a)-brandOrder(b))];
+    if(!brands.includes(filter.brand)) filter.brand = "all";
+    byId("allConsolesTitle").textContent = tr("allConsolesTitle");
+    byId("allConsolesSubtitle").textContent = tr("allConsolesSubtitle").replace("{n}", String(active.length));
+    byId("allConsolesLangBtn").textContent = state.lang === "en" ? "ไทย" : "EN";
+    byId("allConsolesTypeLabel").textContent = tr("filterType");
+    byId("allConsolesBrandLabel").textContent = tr("filterBrand");
+    byId("allConsolesSortLabel").textContent = tr("filterSort");
+    byId("allConsolesTypeTabs").innerHTML = types.map(([id,label]) => `<button class="tab ${filter.type===id?"active":""}" type="button" data-all-console-type="${esc(id)}">${esc(label)}</button>`).join("");
+    byId("allConsolesBrandTabs").innerHTML = brands.map(id => `<button class="tab ${filter.brand===id?"active":""}" type="button" data-all-console-brand="${esc(id)}">${esc(id === "all" ? tr("all") : brandLabel(id))}</button>`).join("");
+    byId("allConsolesSort").innerHTML = [["brand",tr("sort_brand")],["price-desc",tr("sort_price_desc")],["price-asc",tr("sort_price_asc")],["name",tr("sort_name")]].map(([id,label]) => `<option value="${id}" ${filter.sort===id?"selected":""}>${esc(label)}</option>`).join("");
+    const list = allConsolesFiltered();
+    const host = byId("allConsolesList");
+    if(!list.length){ host.innerHTML = `<p class="all-consoles-empty">${esc(tr("beforeRentEmpty"))}</p>`; return; }
+    if(filter.sort !== "brand"){
+      host.innerHTML = renderConsoleGrid(list, {bookingButton:true});
+      return;
+    }
+    const groups = new Map();
+    list.forEach(item => {
+      if(!groups.has(item.brand)) groups.set(item.brand, []);
+      groups.get(item.brand).push(item);
+    });
+    host.innerHTML = Array.from(groups.keys()).sort((a,b) => brandOrder(a)-brandOrder(b)).map(brand => {
+      const items = groups.get(brand);
+      const modelLabel = state.lang === "en" ? `${items.length} models` : `${items.length} รุ่น`;
+      return `<section class="console-section"><div class="console-group-head"><div class="console-group-title">${icon(deviceIconName(items[0]))} ${esc(brandLabel(brand))}</div><div class="console-group-meta">${esc(modelLabel)}</div></div>${renderConsoleGrid(items, {bookingButton:true})}</section>`;
+    }).join("");
+  }
   function showAllConsoles(){
-    setBeforeRent(false, {scrollTo:false});
-    requestAnimationFrame(() => byId("consoles")?.scrollIntoView({behavior:"smooth", block:"start"}));
+    renderAllConsolesModal();
+    byId("allConsolesModal").classList.add("open");
+    document.body.style.overflow = "hidden";
+    trackAnalytics("before_rent_action_clicked", {value:"all_consoles"});
+  }
+  function closeAllConsoles(){
+    byId("allConsolesModal")?.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+  function toggleAllConsolesLanguage(){
+    state.lang = state.lang === "en" ? "th" : "en";
+    trackAnalytics("language_changed", {value:state.lang});
+    render();
   }
   // Adds carousel-style prev/next buttons to a horizontal scroller. A fade or a
   // single edge chevron was not read as "this scrolls", so the control is a pair
@@ -2862,7 +2964,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       return `<div class="console-section"><div class="console-group-head"><div class="console-group-title">${BRAND_META[brand]?.icon || "🎮"} ${esc(brandLabel(brand))}</div><div class="console-group-meta">${items.length} models</div></div>${renderConsoleGrid(items)}</div>`;
     }).join("");
   }
-  function renderConsoleGrid(list){
+  function renderConsoleGrid(list, options={}){
     return `<div class="console-grid">${list.map(c => {
       const img = getConsoleImage(c);
       const ready = isConsoleSelectable(c);
@@ -2875,6 +2977,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           <div class="dep">${tr("deposit")} ${money(c.deposit)}</div>
           <div class="details">${(state.lang==="en"?c.detailsEn:c.detailsTh).map(x=>`<div>${esc(x)}</div>`).join("")}</div>
           ${url && ready ? `<button class="btn soft" data-card-game="${esc(String(c.id))}" type="button">${tr("pickGames")}</button>` : ""}
+          ${options.bookingButton ? `<button class="btn primary all-consoles-book" data-all-console-book="${esc(String(c.id))}" type="button">${esc(tr("allConsolesBook"))}</button>` : ""}
         </div>
       </article>`;
     }).join("")}</div>`;
@@ -6873,6 +6976,20 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(event.target.closest("[data-line-booking-launch]")){ setShareStatus("line", "opened"); return; }
       const beforeRentTracked = event.target.closest("[data-before-rent-track]");
       if(beforeRentTracked) trackAnalytics("before_rent_action_clicked", {value:beforeRentTracked.dataset.beforeRentTrack});
+      const allConsoleType = event.target.closest("[data-all-console-type]");
+      if(allConsoleType){ state.allConsolesFilter.type = allConsoleType.dataset.allConsoleType; state.allConsolesFilter.brand = "all"; renderAllConsolesModal(); return; }
+      const allConsoleBrand = event.target.closest("[data-all-console-brand]");
+      if(allConsoleBrand){ state.allConsolesFilter.brand = allConsoleBrand.dataset.allConsoleBrand; renderAllConsolesModal(); return; }
+      const allConsoleBook = event.target.closest("[data-all-console-book]");
+      if(allConsoleBook){
+        const selectedConsole = consoleById(allConsoleBook.dataset.allConsoleBook);
+        if(!selectedConsole) return;
+        closeAllConsoles();
+        state.calc.type = selectedConsole.type || "";
+        selectCalcConsole(selectedConsole.id);
+        setBeforeRent(false, {startGuide:true});
+        return;
+      }
       const typeBtn = event.target.closest("[data-type]");
       if(typeBtn){ state.filter.type = typeBtn.dataset.type; render(); return; }
       const brandBtn = event.target.closest("[data-brand]");
@@ -6940,6 +7057,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     });
     byId("sortSelect").addEventListener("change", e => { state.filter.sort = e.target.value; renderConsoles(); });
     byId("langBtn").addEventListener("click", () => { state.lang = state.lang === "en" ? "th" : "en"; trackAnalytics("language_changed", {value:state.lang}); render(); });
+    byId("allConsolesLangBtn").addEventListener("click", toggleAllConsolesLanguage);
+    byId("allConsolesClose").addEventListener("click", closeAllConsoles);
+    byId("allConsolesModal").addEventListener("click", event => { if(event.target === byId("allConsolesModal")) closeAllConsoles(); });
+    byId("allConsolesSort").addEventListener("change", event => { state.allConsolesFilter.sort = event.target.value; renderAllConsolesModal(); });
     byId("beforeRentStart").addEventListener("click", () => { trackAnalytics("before_rent_action_clicked", {value:"rent"}); setBeforeRent(false, {startGuide:true}); });
     byId("beforeRentFinalCta").addEventListener("click", () => { trackAnalytics("before_rent_action_clicked", {value:"rent_bottom"}); setBeforeRent(false, {startGuide:true}); });
     byId("beforeRentGames").addEventListener("click", () => { trackAnalytics("before_rent_action_clicked", {value:"games"}); openGamePicker({browseOnly:true}); });
@@ -6981,6 +7102,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(event.key === "Escape" && byId("contractOpenModal")?.classList.contains("open")){
         closeContractOpenModal("");
       }
+      if(event.key === "Escape" && byId("allConsolesModal")?.classList.contains("open")) closeAllConsoles();
     });
     window.addEventListener("scroll", () => { updateFloatButton(); renderGuide(); }, {passive:true});
     window.addEventListener("resize", () => {
@@ -7558,10 +7680,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     render();
     const pageParams = new URLSearchParams(location.search);
     const requestedGames = pageParams.get("games") === "1";
-    const openedFromLink = restoredGameList || requestedGames ? false : applyDeepLink();
+    const requestedAllConsoles = pageParams.get("allConsoles") === "1" || location.hash === "#all-consoles";
+    const openedFromLink = restoredGameList || requestedGames || requestedAllConsoles ? false : applyDeepLink();
     if(restoredGameList){
       setGuideStage("next2", {syncStep:false});
       setTimeout(() => byId("calculator").scrollIntoView({block:"start"}), 80);
+    }else if(requestedAllConsoles){
+      setTimeout(showAllConsoles, 120);
     }else if(requestedGames){
       const requestedConsole = deepLinkedConsole();
       setTimeout(() => openGamePicker({browseOnly:true, consoleId:requestedConsole?.id || ""}), 120);

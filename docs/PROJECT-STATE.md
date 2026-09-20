@@ -1177,3 +1177,11 @@ paused job shows slightly old numbers rather than an empty section.
 - Renumbered the existing damage/loss clause from 2 to 3 in the public Rental Terms, LIFF contract page, full contract PDF, and Rental Order PDF snapshot. Rental Order PDFs now group these clauses under “Other Penalties” with their intended 1–3 numbering.
 - Replaced the contract PDF's hard-coded two-page footer with dynamic page numbering because the complete English terms now require a third readable page; Thai remains two pages.
 - Verification: 319/319 Bot tests passed. The real Express Rental Terms page was checked in Thai and English, four QA PDFs (contract and Rental Order in both languages) were text-checked and visually rendered, and all headings, clause numbers, wrapping, signatures, and page counts were correct.
+
+## 2026-09-20 — All-console booking popup and direct link
+
+- Changed the end-of-rail action to “ดูเครื่องเกมทั้งหมด” / “View all game consoles” and made it open a dedicated full catalogue popup instead of leaving the before-rent page.
+- The popup reads the same live console catalogue as the booking flow, groups devices by brand, includes type/brand/sort controls and switches Thai/English in place.
+- Every console card has a “เช็คคิวและจอง” / “Check availability & book” action that closes the popup, selects that exact console and opens its queue/booking flow.
+- Added direct-entry URLs with `?allConsoles=1` (and the `#all-consoles` alias), compatible with `lang=th` and `lang=en`, so shared links open the popup immediately.
+- Verification: 68/68 website tests passed, the extracted inline script passed `node --check`, `git diff --check` passed, and the real local page was exercised in both languages including direct-link opening and device-specific booking selection.
