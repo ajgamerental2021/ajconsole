@@ -36,3 +36,13 @@ test('the popup uses compact cards and can copy its bilingual direct URL', () =>
   assert.match(source, /allConsolesCopyUrl:"Copy URL"/);
   assert.match(source, /copySectionUrl\("allConsoles"\)/);
 });
+
+test('type and brand filters start collapsed, show their selection, and expand on demand', () => {
+  assert.match(source, /allConsolesFilterExpanded: \{type:false, brand:false\}/);
+  assert.match(source, /data-all-console-filter-toggle="type"/);
+  assert.match(source, /data-all-console-filter-toggle="brand"/);
+  assert.match(source, /allConsolesSelected:"เลือกอยู่: \{value\}"/);
+  assert.match(source, /allConsolesSelected:"Selected: \{value\}"/);
+  assert.match(source, /state\.allConsolesFilterExpanded = \{type:false, brand:false\}/);
+  assert.match(source, /state\.allConsolesFilterExpanded\[key\] = !state\.allConsolesFilterExpanded\[key\]/);
+});

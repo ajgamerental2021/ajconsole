@@ -1196,3 +1196,9 @@ paused job shows slightly old numbers rather than an empty section.
 
 - Reset the global page-section padding for brand groups inside the all-console popup. This removes the unintended 112px vertical gap after short groups such as Nintendo Switch while preserving a compact 20px separation before the next brand heading.
 - The change is scoped to the popup and does not affect normal page sections or console cards elsewhere. Verified visually across the PlayStation → Nintendo Switch → Xbox transition and covered by the popup regression test.
+
+## 2026-09-20 — Collapsible popup type and brand filters
+
+- Converted the all-console popup's Type and Brand chip rows into compact disclosure controls. Both start collapsed whenever the popup opens and visibly report the current choice as “เลือกอยู่: …” / “Selected: …”.
+- Each row expands independently on demand. Selecting an option applies the filter, refreshes the available catalogue and collapses that row again; changing Type also resets Brand to All so the visible state always matches the results.
+- Verified the collapsed, expanded and post-selection states in Thai and English. Website suite: 70/70 passing; extracted inline JavaScript and `git diff --check` also pass.

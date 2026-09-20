@@ -272,6 +272,15 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .all-consoles-toolbar{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;padding:14px;border:1px solid var(--border);border-radius:14px;background:#fff}
 .all-consoles-filter-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .all-consoles-filter-row>strong{flex:0 0 60px;color:var(--text3);font-size:12px;text-transform:uppercase}
+.all-consoles-collapsible{display:block;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff}
+.all-consoles-filter-summary{display:grid;grid-template-columns:70px minmax(0,1fr) 14px;align-items:center;gap:8px;width:100%;padding:8px 10px;border:0;background:#fff;color:var(--text);text-align:left;cursor:pointer}
+.all-consoles-filter-summary:hover{background:#fff8f8}
+.all-consoles-filter-summary strong{color:var(--text3);font-size:12px;text-transform:uppercase}
+.all-consoles-filter-current{min-width:0;font-size:13px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.all-consoles-filter-summary:after{content:"";width:8px;height:8px;border-right:2px solid #667085;border-bottom:2px solid #667085;transform:rotate(45deg) translate(-2px,-2px);transition:transform .18s}
+.all-consoles-filter-summary[aria-expanded="true"]:after{transform:rotate(225deg) translate(-2px,-2px)}
+.all-consoles-filter-options{padding:9px 10px 10px;border-top:1px solid var(--border)}
+.all-consoles-filter-options[hidden]{display:none}
 .all-consoles-filter-row .tabs{gap:6px}
 .all-consoles-filter-row .tab{padding:7px 11px;cursor:pointer}
 .all-consoles-filter-row .tab.active{border-color:var(--accent);background:var(--accent);color:#fff}
@@ -602,7 +611,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .all-consoles-body{padding:12px}
   .all-consoles-toolbar{padding:10px}
   .all-consoles-filter-row{align-items:flex-start}
-  .all-consoles-filter-row>strong{flex-basis:100%;margin-bottom:-3px}
+  .all-consoles-sort-row>strong{flex-basis:100%;margin-bottom:-3px}
+  .all-consoles-filter-summary{grid-template-columns:58px minmax(0,1fr) 14px;padding:8px}
   .all-consoles-filter-row .tabs{width:100%}
   .all-consoles-filter-row .select{width:100%;min-width:0}
   #allConsolesModal .modal-head{align-items:flex-start;padding:10px 12px}
@@ -1090,9 +1100,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     <div class="modal-head"><div class="modal-title-copy"><h3 id="allConsolesTitle"></h3><p id="allConsolesSubtitle"></p></div><div class="modal-head-actions"><button class="copy-section-url all-consoles-copy-url" id="allConsolesCopyUrl" type="button"></button><button class="btn primary faq-lang-btn" id="allConsolesLangBtn" type="button"></button><button class="xbtn" id="allConsolesClose" type="button">&times;</button></div></div>
     <div class="all-consoles-body">
       <div class="all-consoles-toolbar">
-        <div class="all-consoles-filter-row"><strong id="allConsolesTypeLabel"></strong><div class="tabs" id="allConsolesTypeTabs"></div></div>
-        <div class="all-consoles-filter-row"><strong id="allConsolesBrandLabel"></strong><div class="tabs" id="allConsolesBrandTabs"></div></div>
-        <div class="all-consoles-filter-row"><strong id="allConsolesSortLabel"></strong><select class="select" id="allConsolesSort"></select></div>
+        <div class="all-consoles-filter-row all-consoles-collapsible"><button class="all-consoles-filter-summary" id="allConsolesTypeToggle" type="button" data-all-console-filter-toggle="type" aria-controls="allConsolesTypeTabs"><strong id="allConsolesTypeLabel"></strong><span class="all-consoles-filter-current" id="allConsolesTypeCurrent"></span></button><div class="tabs all-consoles-filter-options" id="allConsolesTypeTabs"></div></div>
+        <div class="all-consoles-filter-row all-consoles-collapsible"><button class="all-consoles-filter-summary" id="allConsolesBrandToggle" type="button" data-all-console-filter-toggle="brand" aria-controls="allConsolesBrandTabs"><strong id="allConsolesBrandLabel"></strong><span class="all-consoles-filter-current" id="allConsolesBrandCurrent"></span></button><div class="tabs all-consoles-filter-options" id="allConsolesBrandTabs"></div></div>
+        <div class="all-consoles-filter-row all-consoles-sort-row"><strong id="allConsolesSortLabel"></strong><select class="select" id="allConsolesSort"></select></div>
       </div>
       <div class="all-consoles-list" id="allConsolesList"></div>
     </div>
@@ -1455,6 +1465,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       allConsolesSubtitle:"{n} เครื่อง · เลือกเครื่องเพื่อเช็คคิวและเริ่มจอง",
       allConsolesBook:"เช็คคิวและจอง",
       allConsolesCopyUrl:"คัดลอก URL",
+      allConsolesSelected:"เลือกอยู่: {value}",
       beforeRentTypeAll:"ทั้งหมด",
       beforeRentEmpty:"ไม่มีเครื่องในประเภทนี้",
       beforeRentDepositBack:"คืนเต็ม",
@@ -1566,6 +1577,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       allConsolesSubtitle:"{n} consoles · Choose one to check availability and book",
       allConsolesBook:"Check availability & book",
       allConsolesCopyUrl:"Copy URL",
+      allConsolesSelected:"Selected: {value}",
       beforeRentTypeAll:"All",
       beforeRentEmpty:"No consoles in this category",
       beforeRentDepositBack:"refundable",
@@ -1765,6 +1777,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     bookingExtrasOpen: false,
     beforeRentDeviceType: "all",
     allConsolesFilter: {type:"all", brand:"all", sort:"brand"},
+    allConsolesFilterExpanded: {type:false, brand:false},
     social: clone(DEFAULT_SOCIAL),
     gamePickerBrowseOnly: false,
     gamePickerHowTo: false,
@@ -2806,6 +2819,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("allConsolesTypeLabel").textContent = tr("filterType");
     byId("allConsolesBrandLabel").textContent = tr("filterBrand");
     byId("allConsolesSortLabel").textContent = tr("filterSort");
+    const selectedType = types.find(([id]) => id === filter.type)?.[1] || tr("all");
+    const selectedBrand = filter.brand === "all" ? tr("all") : brandLabel(filter.brand);
+    [["type",selectedType],["brand",selectedBrand]].forEach(([key,value]) => {
+      const expanded = !!state.allConsolesFilterExpanded[key];
+      byId(`allConsoles${key === "type" ? "Type" : "Brand"}Toggle`).setAttribute("aria-expanded", String(expanded));
+      byId(`allConsoles${key === "type" ? "Type" : "Brand"}Current`).textContent = tr("allConsolesSelected").replace("{value}", value);
+      byId(`allConsoles${key === "type" ? "Type" : "Brand"}Tabs`).hidden = !expanded;
+    });
     byId("allConsolesTypeTabs").innerHTML = types.map(([id,label]) => `<button class="tab ${filter.type===id?"active":""}" type="button" data-all-console-type="${esc(id)}">${esc(label)}</button>`).join("");
     byId("allConsolesBrandTabs").innerHTML = brands.map(id => `<button class="tab ${filter.brand===id?"active":""}" type="button" data-all-console-brand="${esc(id)}">${esc(id === "all" ? tr("all") : brandLabel(id))}</button>`).join("");
     byId("allConsolesSort").innerHTML = [["brand",tr("sort_brand")],["price-desc",tr("sort_price_desc")],["price-asc",tr("sort_price_asc")],["name",tr("sort_name")]].map(([id,label]) => `<option value="${id}" ${filter.sort===id?"selected":""}>${esc(label)}</option>`).join("");
@@ -2828,6 +2849,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }).join("");
   }
   function showAllConsoles(){
+    state.allConsolesFilterExpanded = {type:false, brand:false};
     renderAllConsolesModal();
     byId("allConsolesModal").classList.add("open");
     document.body.style.overflow = "hidden";
@@ -7010,9 +7032,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const beforeRentTracked = event.target.closest("[data-before-rent-track]");
       if(beforeRentTracked) trackAnalytics("before_rent_action_clicked", {value:beforeRentTracked.dataset.beforeRentTrack});
       const allConsoleType = event.target.closest("[data-all-console-type]");
-      if(allConsoleType){ state.allConsolesFilter.type = allConsoleType.dataset.allConsoleType; state.allConsolesFilter.brand = "all"; renderAllConsolesModal(); return; }
+      if(allConsoleType){ state.allConsolesFilter.type = allConsoleType.dataset.allConsoleType; state.allConsolesFilter.brand = "all"; state.allConsolesFilterExpanded.type = false; renderAllConsolesModal(); return; }
       const allConsoleBrand = event.target.closest("[data-all-console-brand]");
-      if(allConsoleBrand){ state.allConsolesFilter.brand = allConsoleBrand.dataset.allConsoleBrand; renderAllConsolesModal(); return; }
+      if(allConsoleBrand){ state.allConsolesFilter.brand = allConsoleBrand.dataset.allConsoleBrand; state.allConsolesFilterExpanded.brand = false; renderAllConsolesModal(); return; }
+      const allConsoleFilterToggle = event.target.closest("[data-all-console-filter-toggle]");
+      if(allConsoleFilterToggle){
+        const key = allConsoleFilterToggle.dataset.allConsoleFilterToggle;
+        state.allConsolesFilterExpanded[key] = !state.allConsolesFilterExpanded[key];
+        renderAllConsolesModal();
+        return;
+      }
       const allConsoleBook = event.target.closest("[data-all-console-book]");
       if(allConsoleBook){
         const selectedConsole = consoleById(allConsoleBook.dataset.allConsoleBook);
