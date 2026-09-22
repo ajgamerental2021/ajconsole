@@ -26,3 +26,9 @@ test('demo customer details are included in the real booking context', () => {
   assert.match(html, /phone: String\(state\.calc\.demoCustomerPhone/);
   assert.match(html, /customerDataSource: UNIFIED_FLOW_DEMO/);
 });
+
+test('demo does not reopen with an expired rental draft', () => {
+  assert.match(html, /UNIFIED_FLOW_DEMO && state\.calc\.end && state\.calc\.end < todayIso\(\)/);
+  assert.match(html, /state\.calc\.datesTouched = false/);
+  assert.match(html, /state\.calc\.demoContractSignature = ""/);
+});

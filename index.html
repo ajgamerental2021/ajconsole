@@ -7998,6 +7998,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   async function boot(){
     if(await completeLineBookingHandoff()) return;
     loadState();
+    if(UNIFIED_FLOW_DEMO && state.calc.end && state.calc.end < todayIso()){
+      state.calc.start = "";
+      state.calc.end = "";
+      state.calc.datesTouched = false;
+      state.calc.rentalCode = "";
+      state.calc.rentalCodeSig = "";
+      state.calc.contractSignature = "";
+      state.calc.demoContractCompleted = false;
+      state.calc.demoContractSignature = "";
+    }
     const requestedLanguage = new URLSearchParams(location.search).get("lang");
     if(["th","en"].includes(requestedLanguage)) state.lang = requestedLanguage;
     const directBookingEntry = new URLSearchParams(location.search).get("booking") === "1";
