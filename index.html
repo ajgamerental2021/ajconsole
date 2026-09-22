@@ -2318,7 +2318,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // Bookings saved before Rental Terms acknowledgement existed must not keep
     // a silently selected no-contract state. The customer must review and
     // accept the current version explicitly.
-    if(state.calc.noContract && (!state.calc.rentalTermsAccepted || state.calc.rentalTermsVersion !== "2026-09-13")){
+    if(state.calc.noContract && (!state.calc.rentalTermsAccepted || state.calc.rentalTermsVersion !== "2026-09-22")){
       state.calc.noContract = false;
       state.calc.rentalTermsAccepted = false;
       state.calc.rentalTermsAcceptedAt = "";
@@ -4733,7 +4733,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     };
   }
 
-  const RENTAL_TERMS_VERSION = "2026-09-13";
+  const RENTAL_TERMS_VERSION = "2026-09-22";
   function rentalTermsUrl(language=state.lang, embed=false){
     const url = new URL("/rental-terms/", CONFIG.apiBase);
     url.searchParams.set("lang", language === "en" ? "en" : "th");

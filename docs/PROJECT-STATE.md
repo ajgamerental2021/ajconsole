@@ -1234,3 +1234,10 @@ paused job shows slightly old numbers rather than an empty section.
 - Fixed the first-message greeting merge so Messenger no longer drops platform-less slip results or Dialogflow DEFAULT-tab intent messages when they follow a FACEBOOK greeting.
 - Static intent fallback now prefers explicit FACEBOOK messages and otherwise carries messages without a platform or with `PLATFORM_UNSPECIFIED`. Carried DEFAULT messages are cloned and tagged `FACEBOOK`; the Dialogflow input remains unchanged.
 - Verification: 345/345 Bot tests passed, including greeting plus slip-result text and greeting plus DEFAULT-only intent text with every emitted message tagged for FACEBOOK.
+
+## 2026-09-22 — Bilingual general Rental Terms and version alignment
+
+- Added bilingual general terms covering acceptance and electronic records, definitions, renter eligibility (age 20 or older), lawful residential use, care and prohibited modification, and transfer/subletting restrictions. The same wording now appears on the public Rental Terms page, LIFF contract form, full contract PDF, and Rental Order PDF snapshot.
+- Advanced the current Rental Terms version to `2026-09-22` across the Bot, booking site, contract handoff, and no-contract flow so stale acceptances are invalidated consistently while existing Master Agreements remain unchanged.
+- Made Rental Order penalty numbering independent of the number of preceding general clauses, and prevented contract signatures from being drawn on pages that have no recorded signature placement.
+- Verification: both bilingual three-page QA PDFs were rendered and visually inspected; Bot and website regression suites, JavaScript syntax checks, and `git diff --check` passed.
