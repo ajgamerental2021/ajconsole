@@ -1221,3 +1221,10 @@ paused job shows slightly old numbers rather than an empty section.
 - The booking page now clears expired start/end dates from all three picker handoffs while preserving a current or future rental range. The picker cache-buster is `20260920-1`.
 - If the GitHub Gist API fails, the catalogue now retries the uncached raw `ajgame-data.json` URL before retaining the cached catalogue.
 - Verification: 78/78 website tests passed; extracted inline JavaScript and `git diff --check` passed. The real local picker was opened with a restored 25–28 August draft in Thai and English: NBA 2K27, The Blood of Dawnwalker, Onimusha and Marvel's Wolverine rendered as available, while genuinely future releases retained their ready-date ribbons.
+
+## 2026-09-22 — Once-per-day Messenger welcome bridge
+
+- The Dialogflow fulfillment now starts the detached greeting bridge as soon as a Facebook request is identified, in parallel with Messenger slip verification. The bridge receives the PSID, Messenger message ID and query text, with a two-second timeout and fail-open behavior.
+- A greeting is prepended to either the webhook's own reply or Dialogflow's existing Facebook static messages, so enabling the daily welcome does not remove the matched intent response. Declines, timeouts, non-200 responses, malformed responses and network failures preserve the previous behavior.
+- Facebook greeting intents no longer enter the LINE-only `askFlexSentToday` suppression path. The bridge is disabled unless both `GREETING_BRIDGE_URL` and `GREETING_BRIDGE_TOKEN` are configured; tokens are never logged and PSIDs are masked.
+- Verification: all 344 Bot tests passed, including greeting/static-reply order, greeting plus slip reply, bridge failure modes, LINE isolation and empty configuration. The real Express server started on port 8797 and `/healthz` returned HTTP 200.
