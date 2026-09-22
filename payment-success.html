@@ -63,12 +63,29 @@
       set("paymentLink", params.get("paymentLinkId") || params.get("paymentId") || params.get("id"));
       set("reference", params.get("referenceId") || params.get("orderId"));
       const lineConnected = params.get("line") === "1";
+      const unifiedDemo = params.get("flowDemo") === "1";
       const notice = document.getElementById("notice");
-      notice.textContent = lineConnected ? t.autoNotice : t.manualNotice;
-      notice.classList.toggle("auto", lineConnected);
-      document.getElementById("contactActions").hidden = lineConnected;
-      const contactMessage = lang === "th" ? `แจ้งยืนยันการชำระเงิน รหัสการเช่า ${params.get("rentalCode") || "-"}` : `Payment confirmation for rental code ${params.get("rentalCode") || "-"}`;
+      notice.textContent = unifiedDemo
+        ? (lang === "th" ? "ชำระเงินทดสอบสำเร็จแล้ว กด LINE เพื่อผูกบัญชีและรับ Flex ยืนยันการเช่า" : "The test payment succeeded. Use LINE to link your account and receive the rental-confirmation Flex; use WhatsApp to send this screenshot to AJ.")
+        : (lineConnected ? t.autoNotice : t.manualNotice);
+      notice.classList.toggle("auto", lineConnected || unifiedDemo);
+      document.getElementById("contactActions").hidden = !unifiedDemo && lineConnected;
+      const contactMessage = lang === "th" ? `แจ้งยืนยันการชำระเงิน รหัสการเช่า ${params.get("rentalCode") || "-"}` : `AJ Game Rental payment confirmation\nRental ID: ${params.get("rentalCode") || "-"}\nPayment is complete. I will attach the successful-payment screenshot. Please confirm my rental details.`;
       document.getElementById("whatsappButton").href = `https://api.whatsapp.com/send/?phone=66816244715&text=${encodeURIComponent(contactMessage)}`;
+      if(unifiedDemo){
+        const ctx = String(params.get("ctx") || "").trim();
+        const rentalCode = String(params.get("rentalCode") || "").trim();
+        const lineUrl = new URL("https://liff.line.me/2010212481-IXO3gDQp");
+        lineUrl.searchParams.set("bookingLine", "1");
+        lineUrl.searchParams.set("confirmationOnly", "1");
+        lineUrl.searchParams.set("ctx", ctx);
+        lineUrl.searchParams.set("rentalCode", rentalCode);
+        lineUrl.searchParams.set("lang", lang);
+        document.getElementById("lineButton").href = ctx ? lineUrl.toString() : "https://lin.ee/N4i6cb6";
+        document.getElementById("whatsappButton").hidden = lang !== "en";
+        document.getElementById("facebookButton").hidden = true;
+        document.getElementById("backButton").href = `index.html?booking=1&flowDemo=1&lang=${lang}`;
+      }
       document.getElementById("facebookButton").addEventListener("click", async event => {
         event.preventDefault();
         try { await navigator.clipboard.writeText(contactMessage); } catch {}
@@ -77,7 +94,7 @@
       document.getElementById("language").value = lang;
       document.getElementById("language").addEventListener("change", event => { params.set("lang", event.target.value); location.search = params.toString(); });
       document.getElementById("closeButton").addEventListener("click", () => { if(history.length > 1) history.back(); else location.href = "index-demo.html"; });
-      document.getElementById("backButton").href = `index-demo.html?lang=${lang}`;
+      if(!unifiedDemo) document.getElementById("backButton").href = `index-demo.html?lang=${lang}`;
     })();
   </script>
 </body>

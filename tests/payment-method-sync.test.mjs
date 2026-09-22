@@ -7,7 +7,7 @@ const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 test('Console Pending submissions use the acknowledged Bot upsert and are awaited', () => {
   assert.match(html, /new URL\("\/api\/console-pending-submissions", CONFIG\.contractWebUrl\)/);
   assert.doesNotMatch(html, /fetch\(endpoint, \{method:"POST", mode:"no-cors"/);
-  assert.equal((html.match(/await submitRentalToSheet\(/g) || []).length, 5);
+  assert.equal((html.match(/await submitRentalToSheet\(/g) || []).length, 7);
   assert.match(html, /if\(!response\.ok \|\| !result\?\.ok\) throw new Error/);
 });
 

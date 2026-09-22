@@ -9,14 +9,42 @@ until the owner chooses to make it the default.
 ## Current demo stages
 
 1. Equipment, dates, bundles, accessories, and games.
-2. Customer name and phone, delivery map, returning-customer verification, and
-   the embedded rental agreement. The agreement uses identity documents and an
-   electronic signature; it does not use OTP.
-3. Summary, payment choice, and the existing LINE / WhatsApp handoff.
+2. Customer name, phone, document type (Thai ID or passport, chosen separately
+   from the page language), document number (Thai IDs are check-digit
+   validated), structured delivery address, Google Maps, returning-customer
+   verification, no-contract choice, and Rental Terms acceptance. It does not
+   use OTP.
+   - Typing a postal code fills subdistrict, district and province from
+     `assets/data/service-area-addresses.json` (Bangkok and the five surrounding
+     provinces, from kongvut/thai-province-data, MIT). Postal codes covering
+     several subdistricts offer a list; unknown codes show an out-of-area note.
+   - The Rental Terms checkbox stays disabled until the embedded terms page
+     reports `AJ_RENTAL_TERMS_READ` (scrolled to the end, frame visible). The
+     same message is sent when the terms are opened in a new tab from the demo.
+3. Identity verification with a document-only image and a selfie holding that
+   document, or an explicit verify-later path.
 
-The agreement sends an `AJ_CONTRACT_COMPLETED` message to the AJ parent page,
-which unlocks the final stage. The contract server permits framing only by AJ's
-production origin and local development origins.
+After stage 3 the demo shows one Rental ID dashboard for identity, pricing and
+payment. Beam uses the existing one-baht demo endpoint. Its success return shows
+LINE notification in both languages and WhatsApp in English. LINE uses a
+confirmation-only handoff; the old preliminary booking-message Flex is not sent.
+
+## Identity images
+
+Identity numbers and the address stay in page memory, never localStorage. The
+two images are resized in the browser (longest side 1,800 px, JPEG) and sent to
+`POST /api/booking-context/:token/identity` on the Bot before the Rental ID page
+opens. The Bot uploads them to the shop's Drive, deletes its local copies,
+records `identityVerificationStatus: submitted_pending_review`, and notifies the
+shop. The page says "images received — awaiting AJ review", never "verified".
+
+Each Drive file's description carries `aj-identity-delete-after:YYYY-MM-DD`
+(30 days after the return date). The Apps Script `purgeExpiredIdentityFiles`
+trigger moves expired files to the Drive trash; `aj-identity-hold` in a file's
+description keeps it for a dispute. **Owner setup:** paste the updated
+`google-apps-script/DriveUploadWebApp.gs` into the upload Web App, deploy a new
+version, then run `installIdentityPurgeTrigger()` once. Until then the old
+script ignores the description and nothing is deleted automatically.
 
 ## Lalamove delivery pricing before production switch
 
@@ -49,4 +77,3 @@ Required owner configuration:
 - exact AJ pickup latitude, longitude, and address
 - approved priority-fee policy
 - packed-size/weight rule for when two or three devices require `CAR`
-

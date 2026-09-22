@@ -1251,3 +1251,32 @@ paused job shows slightly old numbers rather than an empty section.
 - Documented the production Lalamove design in `docs/UNIFIED-RENTAL-FLOW-DEMO.md`: two live v3 quotations for outbound and return, server-only credentials, Motorcycle for one standard device, Car for Logitech G29 or more than three devices, and no invented fixed price. Lalamove's priority fee is an order-stage fee, so the owner must approve a priority-fee policy and provide production credentials and exact pickup coordinates before it can be included in checkout.
 - Expired booking drafts are cleared when the demo opens, preventing an old browser date range from blocking the first step or being passed into the game picker.
 - Verification: 85/85 website tests and 349/349 Bot tests pass; both modified JavaScript files pass `node --check`; both repositories pass `git diff --check`; the real Express server returned the restricted frame policy; and the live-data local page was visually checked in Thai and English for both Production and Demo layouts.
+
+## 2026-09-22 — Demo identity stage, rental dashboard, and post-payment confirmation
+
+- Reworked only the feature-gated unified demo into three customer-facing stages: equipment/dates/options, customer/delivery/Rental Terms, and identity verification. Step 2 now includes Thai ID or passport, complete delivery-address fields, Google Maps, returning-customer verification, the no-contract choice, and a bilingual embedded Rental Terms acceptance.
+- Step 3 keeps both a readable document-only image and a selfie holding the same document, with an explicit verify-later path. Uploading does not claim that identity is verified; the demo labels skipped identity incomplete and selected files as not uploaded. Sensitive identity values and images are page-memory only and are never written to localStorage.
+- The no-contract proposal is scoped to the demo and raises deposits from ฿2,000 to ฿10,000 and from ฿4,000 to ฿15,000. Production retains its current tiers.
+- Added a bilingual post-step Rental ID dashboard with item, customer, masked identity, address, dates, identity status, price breakdown, round-trip delivery quote status, and selectable Beam payment methods. Demo checkout uses the existing `/api/payments/beam-link-demo` endpoint and charges ฿1 rather than creating a production amount.
+- A successful demo Beam return carries the opaque booking context into the existing payment-success page. Thai shows LINE; English shows LINE and WhatsApp with a payment-screenshot message. The LINE handoff verifies the token, persists the LINE identity, and sends only the existing confirmation Flex (`contractDone=true`), never the preliminary booking-message Flex. Delivery App payment forwarding and Flex behavior are unchanged.
+- Verified LINE access tokens may return only that customer's name, phone and LINE display name for safe autofill. A caller-supplied/stored LINE user ID can still check eligibility but cannot retrieve profile data.
+- Verification: 87/87 website tests and 350/350 Bot tests pass; both JavaScript syntax checks and `git diff --check` pass; the real Express server started on port 8797; and browser checks confirmed the live queue flow plus Thai/English post-payment visibility and confirmation-only LIFF URL.
+
+## 2026-09-23 — Demo review fixes after Codex handover (Claude Code)
+
+- Reviewed Codex's uncommitted demo identity/dashboard/confirmation-Flex work in both repos and walked the real page in Thai and English with payment/sheet POSTs stubbed (no production writes).
+- The step-3 summary no longer shows the old “จองผ่าน Line / Messenger” chat-booking buttons in demo mode; the demo pays only from the Rental ID page.
+- The no-contract checkbox now sits directly under the ID/passport and email row, as specified.
+- Province default follows the page language (กรุงเทพมหานคร / Bangkok) instead of always showing “Bangkok”.
+- Fixed large vertical gaps on the Rental ID dashboard (global `section` padding leaked into `.demo-order-section`).
+- Reloading while the Rental ID page was open used to show blank customer details and a wrong “files selected” identity status, because identity data is page-memory only; it now reopens step 2.
+- Verification: 90/90 website tests and 351/351 Bot tests pass; `git diff --check` passes. Nothing committed yet.
+
+## 2026-09-23 — Demo: postcode lookup, read-to-accept terms, real identity upload (Claude Code)
+
+- Document type (Thai ID / passport) is now its own choice in step 2, independent of the page language; Thai IDs are check-digit validated.
+- Postal code fills subdistrict, district and province for Bangkok and the five surrounding provinces from `assets/data/service-area-addresses.json` (kongvut/thai-province-data, MIT). Multi-subdistrict codes offer a list; codes outside the area show a note; a new postal code clears only values the lookup filled. A link opens the typed address in Google Maps so the customer can pin and paste the share link. Names follow the page language.
+- The Rental Terms checkbox unlocks only after the embedded terms page reports that it was scrolled to the end (`AJ_RENTAL_TERMS_READ`; also works when opened in a new tab). A hidden (zero-height) frame never counts as read.
+- Identity images are now actually sent: resized in the browser, posted to the new Bot endpoint `POST /api/booking-context/:token/identity`, uploaded to Drive with `aj-identity-delete-after:<return date + 30 days>` in the description, local copies deleted, shop notified (Discord/Telegram/email), booking marked `submitted_pending_review`. The dashboard shows "images received — awaiting AJ review".
+- Correction to the earlier handover: there was no automatic identity-image deletion anywhere. The Apps Script now has `purgeExpiredIdentityFiles` + `installIdentityPurgeTrigger`. **Owner action needed:** redeploy `DriveUploadWebApp.gs` and run `installIdentityPurgeTrigger()` once; before that, uploaded files carry no deletion date. Contract (LIFF) identity images are still not covered, because Master Agreements reuse them across rentals.
+- Verification: 94/94 website and 357/357 Bot tests; a local end-to-end run (Bot on 8797 with a mock Apps Script) uploaded both images with the right deletion date, removed local copies, and returned the correct errors for invalid images, unknown context and the 3-upload limit. Thai/English and 375 px width checked.
