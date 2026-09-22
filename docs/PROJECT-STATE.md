@@ -1228,3 +1228,9 @@ paused job shows slightly old numbers rather than an empty section.
 - A greeting is prepended to either the webhook's own reply or Dialogflow's existing Facebook static messages, so enabling the daily welcome does not remove the matched intent response. Declines, timeouts, non-200 responses, malformed responses and network failures preserve the previous behavior.
 - Facebook greeting intents no longer enter the LINE-only `askFlexSentToday` suppression path. The bridge is disabled unless both `GREETING_BRIDGE_URL` and `GREETING_BRIDGE_TOKEN` are configured; tokens are never logged and PSIDs are masked.
 - Verification: all 344 Bot tests passed, including greeting/static-reply order, greeting plus slip reply, bridge failure modes, LINE isolation and empty configuration. The real Express server started on port 8797 and `/healthz` returned HTTP 200.
+
+## 2026-09-22 — Messenger greeting preserves DEFAULT replies
+
+- Fixed the first-message greeting merge so Messenger no longer drops platform-less slip results or Dialogflow DEFAULT-tab intent messages when they follow a FACEBOOK greeting.
+- Static intent fallback now prefers explicit FACEBOOK messages and otherwise carries messages without a platform or with `PLATFORM_UNSPECIFIED`. Carried DEFAULT messages are cloned and tagged `FACEBOOK`; the Dialogflow input remains unchanged.
+- Verification: 345/345 Bot tests passed, including greeting plus slip-result text and greeting plus DEFAULT-only intent text with every emitted message tagged for FACEBOOK.
