@@ -682,8 +682,38 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .ico{display:block;width:1em;height:1em;flex:0 0 auto}
   .before-rent-terms{margin:14px 0 0;color:#667085;font-size:12.5px;font-weight:700;line-height:1.6}
   .before-rent-privacy{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:#f7f8fa;color:#667085;font-size:11.5px;font-weight:600;line-height:1.55}
-  .site-footer{border-top:1px solid var(--border);background:#fff;color:#8a8f98}
-  .site-footer-inner{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding-top:16px;padding-bottom:16px}
+.site-footer{border-top:1px solid var(--border);background:#fff;color:#8a8f98}
+.site-footer-inner{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding-top:16px;padding-bottom:16px}
+.site-footer-main{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.site-info-links{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap}
+.site-info-link{appearance:none;border:0;background:transparent;padding:4px 0;color:#475467;font:inherit;font-size:12.5px;font-weight:800;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.site-info-link:hover,.site-info-link:focus-visible{color:#c90012}
+.page-info-links{display:flex;align-items:center;justify-content:center;gap:8px 18px;flex-wrap:wrap;margin:16px 0 0;padding:12px 14px;border:1px solid #e5e7eb;border-radius:12px;background:#fafbfc}
+.page-info-links.is-booking{justify-content:flex-start;margin:0 0 18px}
+.info-modal-card{width:min(920px,100%);height:min(90vh,860px);display:flex;flex-direction:column;overflow:hidden}
+.info-modal-body{padding:24px;overflow:auto;color:#344054;line-height:1.7}
+.info-modal-body h2{margin:26px 0 8px;color:#101828;font-size:22px;line-height:1.3}
+.info-modal-body h2:first-child{margin-top:0}
+.info-modal-body h3{margin:20px 0 7px;color:#101828;font-size:17px}
+.info-modal-body p{margin:0 0 12px}
+.info-modal-body ul{margin:6px 0 14px;padding-left:22px}
+.info-modal-body li{margin:6px 0}
+.info-modal-lead{font-size:17px;font-weight:700;color:#344054}
+.info-modal-highlight{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}
+.info-modal-highlight>div{padding:15px;border:1px solid #e5e7eb;border-radius:12px;background:#fafafa}
+.info-modal-highlight strong{display:block;color:#c90012;font-size:18px}
+.info-modal-frame{display:block;width:100%;min-height:720px;border:0;background:#fff}
+.demo-only{display:none!important}
+body.unified-flow-demo .demo-only{display:block!important}
+body.unified-flow-demo .demo-banner{margin:0 0 18px;padding:14px 16px;border:1px solid #f2c94c;border-radius:12px;background:#fff8dc;color:#714f00;font-weight:800;line-height:1.5}
+body.unified-flow-demo #beforeRentBack,body.unified-flow-demo #homeSections,body.unified-flow-demo #consoles,body.unified-flow-demo #bookingExtrasToggle,body.unified-flow-demo #faqSection{display:none!important}
+body.unified-flow-demo .calc-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
+body.unified-flow-demo .demo-customer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+body.unified-flow-demo .demo-contract-frame{width:100%;height:760px;border:1px solid #d0d5dd;border-radius:12px;background:#fff}
+body.unified-flow-demo .demo-contract-status{margin-top:10px;padding:10px 12px;border-radius:10px;background:#eef8f1;color:#176b39;font-weight:800}
+body.unified-flow-demo #demoContractEmbed[hidden]{display:none!important}
+body.unified-flow-demo[data-calc-step="1"] #summaryBox,body.unified-flow-demo[data-calc-step="2"] #summaryBox{display:none}
+body.unified-flow-demo[data-calc-step="1"] .calc-body,body.unified-flow-demo[data-calc-step="2"] .calc-body{grid-template-columns:1fr}
   .site-copyright{font-size:12px}
   .site-socials{display:flex;align-items:center;gap:8px}
   .site-social-link{display:grid;place-items:center;width:38px;height:38px;border:1px solid #e3e6ea;border-radius:10px;color:#7d838d;text-decoration:none;transition:.18s}
@@ -836,6 +866,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     .before-rent-final-cta{padding:18px 12px}
     .before-rent-final-cta .btn{width:100%;min-width:0}
     .site-footer-inner{align-items:flex-start;flex-direction:column-reverse}
+    .site-footer-main{align-items:flex-start;flex-direction:column;gap:8px}
+    .page-info-links,.page-info-links.is-booking{justify-content:flex-start;gap:6px 14px}
+    .info-modal-highlight{grid-template-columns:1fr}
+    .info-modal-body{padding:18px 16px}
+    .info-modal-frame{min-height:calc(100dvh - 90px)}
+    body.unified-flow-demo .demo-customer-grid{grid-template-columns:1fr}
+    body.unified-flow-demo .demo-contract-frame{height:78vh}
   }
 </style>
 </head>
@@ -879,6 +916,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
             <span class="before-rent-copy"><strong data-i18n="beforeRentFaq">คำถามที่พบบ่อย</strong><span data-i18n="beforeRentFaqSub">คำตอบเรื่องเช่า จัดส่ง และค่าประกัน</span></span>
           </button>
         </div>
+        <div class="page-info-links" data-info-links aria-label="ข้อมูลเกี่ยวกับ AJ และนโยบาย"></div>
         <p class="before-rent-terms" id="beforeRentTerms"></p>
         <div class="before-rent-trust" id="beforeRentTrust" hidden></div>
         <div class="before-rent-discovery">
@@ -980,8 +1018,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         </div>
         <div class="calc-line-host" id="calcLineCardHost"></div>
       </div>
+      <div class="page-info-links is-booking" data-info-links aria-label="ข้อมูลและนโยบายที่เกี่ยวข้องกับการเช่า"></div>
       <div class="prep-time-brief" data-i18n="preparationBrief">กรุณาเผื่อเวลาเตรียมเครื่องประมาณ 30–60 นาที หรือ 2–3 ชั่วโมงหากต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม</div>
       <div class="calc-shell">
+        <div class="demo-banner demo-only" id="unifiedDemoBanner"></div>
         <div class="calc-tabs" id="calcTabs"></div>
         <div class="calc-body">
           <div>
@@ -998,9 +1038,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
                 <div class="hint" id="availabilityHint"></div>
               </div>
               <div class="card" id="bundleCard"></div>
+              <div class="card demo-only" id="demoGameCard"><h3 id="demoGameTitle"></h3><div id="demoGameHost"></div></div>
               <div class="step-actions" id="stepActions1"></div>
             </div>
             <div class="pane" id="pane2">
+              <div class="card demo-only" id="demoCustomerCard"></div>
               <div class="card">
                 <h3 data-i18n="step2Title">รายละเอียดการจอง</h3>
                 <div id="gamePickBox"></div>
@@ -1010,6 +1052,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
                 <h3 data-i18n="step2DetailsTitle">การจัดส่ง การชำระเงิน และเอกสาร</h3>
                 <div id="optionRows"></div>
               </div>
+              <div class="card demo-only" id="demoContractEmbed" hidden></div>
               <div class="step-actions" id="stepActions2"></div>
             </div>
             <div class="pane" id="pane3">
@@ -1018,6 +1061,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
                 <p class="hint" data-i18n="summaryHelp">ตรวจสอบข้อมูล แล้วคัดลอกหรือส่งทาง Line / WhatsApp</p>
                 <div class="personal-rate-warning" data-i18n-html="personalRateWarning"></div>
               </div>
+              <div class="card demo-only" id="demoPaymentCard"><h3 id="demoPaymentTitle"></h3><div id="demoPaymentHost"></div></div>
               <div class="step-actions" id="stepActions3"></div>
             </div>
           </div>
@@ -1049,7 +1093,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
 <footer class="site-footer">
   <div class="container site-footer-inner">
-    <p class="site-copyright" data-i18n="siteCopyright">AJ Game Rental © 2026. สงวนลิขสิทธิ์</p>
+    <div class="site-footer-main"><p class="site-copyright" data-i18n="siteCopyright">AJ Game Rental © 2026. สงวนลิขสิทธิ์</p><div class="site-info-links" data-info-links aria-label="ข้อมูลเว็บไซต์"></div></div>
     <div class="site-socials" role="navigation" aria-label="Social media">
       <a class="site-social-link" data-analytics-social="youtube" href="https://www.youtube.com/@ajgamerental" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg>
@@ -1093,6 +1137,13 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   <div class="modal-card">
     <div class="modal-head"><h3 id="simpleModalTitle"></h3><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="faqLangBtn" type="button" style="display:none"></button><button class="xbtn" id="simpleModalClose" type="button">&times;</button></div></div>
     <div class="calendar-body" id="simpleModalBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
+  <div class="modal-card info-modal-card">
+    <div class="modal-head"><div class="modal-title-copy"><h3 id="infoModalTitle"></h3><p id="infoModalSubtitle"></p></div><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="infoModalLang" type="button"></button><button class="xbtn" id="infoModalClose" type="button" aria-label="Close">&times;</button></div></div>
+    <div class="info-modal-body" id="infoModalBody"></div>
   </div>
 </div>
 
@@ -1216,6 +1267,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
   const AJ2 = {};
   window.AJ2 = AJ2;
+  const PAGE_PARAMS = new URLSearchParams(location.search);
+  const UNIFIED_FLOW_DEMO = PAGE_PARAMS.get("flowDemo") === "1";
 
   const CONFIG = {
     version: "index2-clean-1",
@@ -1261,6 +1314,77 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     tiktokUrl: "https://www.tiktok.com/@ajgamerental",
     googleMapsUrl: "https://maps.app.goo.gl/QoGqkWe64QRxBGjT6"
   };
+
+  const INFO_COPY = {
+    th:{
+      links:{about:"เกี่ยวกับเรา",privacy:"นโยบายความเป็นส่วนตัว",terms:"ข้อกำหนดและเงื่อนไข"},
+      aboutTitle:"เกี่ยวกับ AJ เช่าเครื่องเกม",
+      aboutSubtitle:"บริการเช่าอุปกรณ์เกมแบบจัดส่งในกรุงเทพฯ และปริมณฑล",
+      aboutLead:"AJ เช่าเครื่องเกม ให้บริการเช่าเครื่องเล่นเกม แว่น VR แว่น AR เครื่องเล่นเกมพกพาแบบ PC Handheld และอุปกรณ์อิเล็กทรอนิกส์แบบรายวัน รายสัปดาห์ และตามระยะเวลาที่ตกลงกัน",
+      aboutPurpose:"เราอยากให้ผู้เล่นเข้าถึงประสบการณ์ใหม่ได้ง่ายขึ้น ไม่ว่าจะต้องการลองก่อนซื้อ เช่าเล่นชั่วคราว เล่นกับครอบครัวหรือเพื่อน จัดปาร์ตี้ กิจกรรม หรืออีเวนต์ของบริษัท",
+      aboutSince:"เปิดให้บริการตั้งแต่ 7 มีนาคม 2564",
+      aboutDelivery:"ให้บริการแบบจัดส่งเท่านั้น",
+      aboutArea:"กรุงเทพฯ และปริมณฑล",
+      aboutHowTitle:"เช่ากับ AJ อย่างไร",
+      aboutHow:["เลือกเครื่องและอุปกรณ์ที่ต้องการ","เลือกวันเริ่มเช่าและวันคืนเครื่อง พร้อมตรวจสอบคิวว่าง","เลือก Bundle อุปกรณ์เสริม และเกมที่ต้องการ","ระบุสถานที่จัดส่งและตรวจสอบค่าใช้จ่าย","ยืนยันตัวตน อ่านเงื่อนไข และทำสัญญาการเช่าเมื่อจำเป็น","ชำระเงินตามช่องทางที่เลือก แล้วรอร้านยืนยันและจัดเตรียมเครื่อง"],
+      aboutTruth:"AJ ไม่มีหน้าร้านสำหรับรับหรือคืนอุปกรณ์ ลูกค้าทำรายการผ่านเว็บไซต์และติดต่อร้านผ่านช่องทางทางการเท่านั้น ร้านเป็นผู้ประสานรถสำหรับการจัดส่งและรับคืนตามรายละเอียดของรายการเช่า",
+      aboutContactTitle:"ติดต่อเรา",
+      aboutContact:"โทร 081-624-4715 · LINE @ajgame · อีเมล ajgamerental2021@gmail.com",
+      privacyTitle:"นโยบายความเป็นส่วนตัว",
+      privacySubtitle:"ข้อมูลที่ AJ ใช้เพื่อดำเนินการเช่า สัญญา การชำระเงิน และการจัดส่ง",
+      termsTitle:"ข้อกำหนดและเงื่อนไขการเช่า",
+      termsSubtitle:"Rental Terms เวอร์ชันปัจจุบันสำหรับการเช่ากับ AJ"
+    },
+    en:{
+      links:{about:"About Us",privacy:"Privacy Policy",terms:"Terms & Conditions"},
+      aboutTitle:"About AJ Game Rental",
+      aboutSubtitle:"Delivery-only gaming equipment rental in Bangkok and Greater Bangkok",
+      aboutLead:"AJ Game Rental provides daily, weekly, and agreed-period rentals of game consoles, VR headsets, AR glasses, PC handhelds, and related electronic equipment.",
+      aboutPurpose:"Our goal is to make gaming experiences easier to access—whether you want to try before buying, play temporarily, enjoy games with family or friends, host a party, or arrange a company activity or event.",
+      aboutSince:"Serving customers since 7 March 2021",
+      aboutDelivery:"Delivery-only service",
+      aboutArea:"Bangkok and Greater Bangkok",
+      aboutHowTitle:"How renting with AJ works",
+      aboutHow:["Choose the console and equipment you need","Select the rental start and return dates and check availability","Choose bundles, accessories, and games","Provide the delivery location and review the charges","Verify identity, read the terms, and complete a rental agreement when required","Pay through the selected method, then wait for AJ to confirm and prepare the equipment"],
+      aboutTruth:"AJ does not operate a storefront for equipment collection or return. Customers book through the website and contact AJ only through official channels. AJ coordinates the delivery and return drivers according to the Rental Order.",
+      aboutContactTitle:"Contact us",
+      aboutContact:"Tel. 081-624-4715 · LINE @ajgame · Email ajgamerental2021@gmail.com",
+      privacyTitle:"Privacy Policy",
+      privacySubtitle:"How AJ uses information for rentals, agreements, payments, and delivery",
+      termsTitle:"Rental Terms & Conditions",
+      termsSubtitle:"The current Rental Terms for rentals with AJ"
+    }
+  };
+
+  const PRIVACY_COPY = {
+    th:`
+      <p class="info-modal-lead">AJ เก็บและใช้ข้อมูลส่วนบุคคลเท่าที่จำเป็นสำหรับการให้บริการเช่า ตรวจสอบตัวตน จัดทำสัญญา รับชำระเงิน จัดส่ง รับคืน และแก้ไขปัญหาจากรายการเช่า</p>
+      <h2>ข้อมูลที่เราเก็บ</h2>
+      <ul><li>ชื่อ เบอร์โทร อีเมล และชื่อหรือรหัสที่ใช้ติดต่อผ่าน LINE, WhatsApp หรือ Facebook Messenger</li><li>เลขบัตรประชาชนหรือ Passport รูปเอกสาร และรูปเซลฟี่คู่เอกสารสำหรับการยืนยันตัวตนและจัดทำสัญญา</li><li>ที่อยู่ ลิงก์หรือพิกัด Google Maps รายละเอียดอาคาร ผู้รับ และข้อมูลที่จำเป็นสำหรับจัดส่งและรับคืน</li><li>รายการเครื่อง เกม Bundle อุปกรณ์เสริม วันเช่า ค่าเช่า เงินประกัน ค่าส่ง ช่องทางชำระเงิน สลิป และสถานะการชำระเงิน</li><li>ลายมือชื่ออิเล็กทรอนิกส์ Rental ID สัญญา PDF ประวัติการเช่า และหลักฐานที่เกี่ยวข้องกับการรับ-ส่ง ความเสียหาย การสูญหาย หรือข้อพิพาท</li><li>สถิติการใช้งานเว็บไซต์แบบไม่ระบุตัวบุคคล เช่น หน้าที่เปิดและปุ่มที่ใช้งาน เพื่อปรับปรุงบริการ</li></ul>
+      <h2>วัตถุประสงค์</h2>
+      <ul><li>ตรวจสอบคิว คำนวณราคา จัดทำและดำเนินการตามรายการเช่า</li><li>ยืนยันตัวตนและจัดทำสัญญาหรือ Rental Order</li><li>รับและตรวจสอบการชำระเงิน คืนเงินประกัน และจัดทำบันทึกทางบัญชี</li><li>ประสานผู้ให้บริการขนส่งและติดต่อเกี่ยวกับการส่ง รับคืน หรือเหตุฉุกเฉิน</li><li>ป้องกันการทุจริต ตรวจสอบความเสียหายหรือสูญหาย และดำเนินการกรณีข้อพิพาท</li><li>ปฏิบัติตามกฎหมาย คำสั่งของหน่วยงาน หรือปกป้องสิทธิของ AJ และคู่สัญญา</li></ul>
+      <h2>การเปิดเผยและผู้ให้บริการ</h2>
+      <p>AJ เปิดเผยเฉพาะข้อมูลที่จำเป็นแก่ผู้ให้บริการที่เกี่ยวข้อง เช่น ผู้ให้บริการชำระเงิน ธนาคาร ผู้ให้บริการขนส่ง ระบบจัดเก็บเอกสารและตารางข้อมูลของ Google และระบบแจ้งเตือนทาง LINE, WhatsApp, อีเมล, Discord หรือ Telegram รวมถึงที่ปรึกษาหรือหน่วยงานที่มีอำนาจเมื่อกฎหมายกำหนด AJ ไม่ขายข้อมูลส่วนบุคคลของลูกค้า</p>
+      <h2>ระยะเวลาการเก็บรักษา</h2>
+      <p>สำเนาบัตรประชาชน Passport และรูปยืนยันตัวตนจะถูกลบหรือทำลายภายใน 30 วันหลังคืนอุปกรณ์ คืนเงินประกันครบ และไม่มีข้อพิพาท สัญญาและข้อมูลที่จำเป็นอาจเก็บไม่เกิน 1 ปีนับจากวันคืนอุปกรณ์ หรือนานเท่าที่จำเป็นเมื่อมีข้อพิพาท การดำเนินคดี หรือหน้าที่ตามกฎหมาย ข้อมูลธุรกรรมที่กฎหมายกำหนดให้นานกว่านั้นจะเก็บตามระยะเวลาที่กฎหมายกำหนด</p>
+      <h2>สิทธิและความปลอดภัย</h2>
+      <p>ลูกค้าสามารถขอเข้าถึง แก้ไข คัดค้าน จำกัด ถอนความยินยอมในกรณีที่อาศัยความยินยอม หรือขอลบข้อมูลเมื่อกฎหมายอนุญาต AJ จำกัดการเข้าถึงข้อมูลแก่ผู้ที่จำเป็นต่อการทำงานและใช้มาตรการที่เหมาะสมเพื่อป้องกันการเข้าถึง การเปลี่ยนแปลง หรือการเปิดเผยโดยไม่ได้รับอนุญาต</p>
+      <h2>ติดต่อเรื่องข้อมูลส่วนบุคคล</h2><p>LINE: @ajgame · โทร: 081-624-4715 · อีเมล: ajgamerental2021@gmail.com</p>`,
+    en:`
+      <p class="info-modal-lead">AJ collects and uses personal data only as needed to provide rentals, verify identity, prepare agreements, receive payment, arrange delivery and return, and resolve issues connected with a Rental Order.</p>
+      <h2>Data we collect</h2>
+      <ul><li>Name, phone number, email, and the name or identifier used to contact AJ through LINE, WhatsApp, or Facebook Messenger</li><li>Thai ID or passport number, document images, and a selfie with the document for identity verification and agreement preparation</li><li>Address, Google Maps link or coordinates, building and recipient details needed for delivery and return</li><li>Selected equipment, games, bundles, accessories, dates, fees, deposit, delivery charges, payment method, payment slip, and payment status</li><li>Electronic signature, Rental ID, agreement PDF, rental history, and evidence relating to handover, return, damage, loss, or disputes</li><li>Non-identifying website usage statistics, such as pages opened and buttons used, to improve the service</li></ul>
+      <h2>Purposes</h2>
+      <ul><li>Check availability, calculate charges, and perform the Rental Order</li><li>Verify identity and prepare a Master Agreement or Rental Order</li><li>Receive and verify payments, refund deposits, and maintain accounting records</li><li>Coordinate delivery providers and contact the customer about delivery, return, or emergencies</li><li>Prevent fraud, assess damage or loss, and handle disputes</li><li>Comply with law, lawful requests, and protect AJ's and the parties' rights</li></ul>
+      <h2>Disclosures and service providers</h2>
+      <p>AJ discloses only necessary data to relevant providers, including payment providers, banks, delivery providers, Google document and spreadsheet services, and notification services through LINE, WhatsApp, email, Discord, or Telegram. Data may also be disclosed to advisers or authorised authorities where required by law. AJ does not sell customer personal data.</p>
+      <h2>Retention</h2>
+      <p>Copies of Thai IDs, passports, and identity-verification images are deleted or destroyed within 30 days after the equipment is returned, the deposit is fully refunded, and no dispute remains. Agreements and necessary information may be retained for no longer than one year from the return date, or for as long as necessary for a dispute, legal proceedings, or a legal obligation. Transaction records subject to a longer statutory period are retained for that required period.</p>
+      <h2>Your rights and security</h2>
+      <p>You may request access or correction, object to or restrict processing, withdraw consent where processing relies on consent, or request deletion where permitted by law. AJ limits access to people who need the data for their work and uses appropriate measures against unauthorised access, alteration, or disclosure.</p>
+      <h2>Privacy contact</h2><p>LINE: @ajgame · Tel: 081-624-4715 · Email: ajgamerental2021@gmail.com</p>`
+  };
+  let activeInfoPage = "";
 
   const LS = {
     consoles: "aj_consoles",
@@ -1767,7 +1891,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     retEnabled: false,
     boardGameEnabled: false,
     filter: {type:"all", brand:"all", sort:"brand"},
-    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,retVerified:false,retVerificationMethod:"",retVerifiedLineUserId:"",retVerificationToken:"",masterAgreement:null,masterAgreementAccepted:false,masterAgreementAcceptedAt:"",reviewGoogle:false,reviewFacebook:false,noContract:false,rentalTermsAccepted:false,rentalTermsAcceptedAt:"",rentalTermsVersion:"",rentalTermsLanguage:"",payment:"cash",maps:"",games:[],later:true,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",beamPaymentExpiresAt:"",contractSignature:"",guideDone:{},guideConsoleId:""},
+    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,retVerified:false,retVerificationMethod:"",retVerifiedLineUserId:"",retVerificationToken:"",masterAgreement:null,masterAgreementAccepted:false,masterAgreementAcceptedAt:"",reviewGoogle:false,reviewFacebook:false,noContract:false,rentalTermsAccepted:false,rentalTermsAcceptedAt:"",rentalTermsVersion:"",rentalTermsLanguage:"",payment:"cash",maps:"",games:[],later:true,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",beamPaymentExpiresAt:"",contractSignature:"",demoCustomerName:"",demoCustomerPhone:"",demoContractCompleted:false,demoContractSignature:"",guideDone:{},guideConsoleId:""},
     availability: {rows:[],holds:[],loading:false,error:"",lastSync:0,stale:false,gate:{mode:"idle",pass:true}},
     queueClosures: {allClosed:false,types:{console:false,vr:false,handheld:false,racing:false},devices:{},rules:{all:{closed:false,startAt:"",endAt:""},types:{},devices:{}},loading:false,error:"",updatedAt:""},
     calendar: {open:false,mode:"start",base:new Date(),draftStart:"",draftEnd:""},
@@ -2545,6 +2669,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     renderCalc();
     renderFAQ();
     renderBeforeRent();
+    renderInfoLinks();
+    renderInfoModal();
     if(byId("allConsolesModal")?.classList.contains("open")) renderAllConsolesModal();
     updateFloatButton();
     renderGuide();
@@ -3048,7 +3174,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function renderCalc(){
     state.calc.step = Math.min(3, Math.max(1, Number(state.calc.step) || 1));
     document.body.dataset.calcStep = String(state.calc.step);
-    const steps = [tr("step1"),tr("step2"),tr("step3")];
+    const steps = UNIFIED_FLOW_DEMO
+      ? (state.lang === "en" ? ["Equipment & options","Customer, delivery & agreement","Summary & payment"] : ["เครื่องและตัวเลือก","ลูกค้า ที่อยู่ และสัญญา","สรุปและชำระเงิน"])
+      : [tr("step1"),tr("step2"),tr("step3")];
     byId("calcTabs").innerHTML = steps.map((label,i) => {
       const n = i+1;
       const locked = n > 1 && !stepReady(n - 1);
@@ -3057,12 +3185,42 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     $$(".pane").forEach((pane,i) => pane.classList.toggle("active", i+1 === state.calc.step));
     renderCalcFields();
     renderBundleCard();
+    if(UNIFIED_FLOW_DEMO) byId("demoPaymentHost").innerHTML = "";
     renderOptionRows();
     renderGamePickBox();
     renderStepActions();
     renderSummary();
     renderLineCardHost();
+    renderUnifiedFlowDemo();
     renderGuide();
+  }
+  function renderUnifiedFlowDemo(){
+    if(!UNIFIED_FLOW_DEMO) return;
+    document.body.classList.add("unified-flow-demo");
+    const en = state.lang === "en";
+    byId("unifiedDemoBanner").innerHTML = en
+      ? `<b>Unified rental flow demo</b><br>This page uses the live catalogue, queue calendar, prices, discounts, agreement and payment options. It is not linked from the production menu.`
+      : `<b>Demo ขั้นตอนการเช่าแบบรวม</b><br>หน้านี้ใช้รายการเครื่อง ปฏิทินคิว ราคา ส่วนลด สัญญา และช่องทางชำระเงินจริง แต่ยังไม่แสดงในเมนู Production`;
+    byId("demoGameTitle").textContent = en ? "Games" : "เกม";
+    const gameBox = byId("gamePickBox");
+    if(gameBox && gameBox.parentElement !== byId("demoGameHost")){
+      const originalCard = gameBox.closest(".card");
+      const prep = originalCard?.querySelector(".prep-time-detail");
+      byId("demoGameHost").appendChild(gameBox);
+      if(prep) byId("demoGameHost").appendChild(prep);
+      if(originalCard) originalCard.hidden = true;
+    }
+    byId("demoPaymentTitle").textContent = en ? "Payment method" : "ช่องทางชำระเงิน";
+    const payment = byId("paymentOptions");
+    if(payment) byId("demoPaymentHost").appendChild(payment);
+    const card = byId("demoCustomerCard");
+    card.innerHTML = `<h3>${en ? "Customer details" : "ข้อมูลลูกค้า"}</h3>
+      <p class="hint">${en ? "No OTP is used. Your legal name and contact number are passed into the agreement." : "ไม่มีการใช้ OTP ชื่อจริงและเบอร์โทรจะถูกส่งต่อไปยังหน้าสัญญา"}</p>
+      <div class="demo-customer-grid">
+        <div class="field"><label class="label" for="demoCustomerName">${en ? "Legal name" : "ชื่อ-นามสกุลจริง"}</label><input class="input" id="demoCustomerName" autocomplete="name" value="${esc(state.calc.demoCustomerName || "")}"></div>
+        <div class="field"><label class="label" for="demoCustomerPhone">${en ? "Phone / WhatsApp" : "เบอร์โทรศัพท์"}</label><input class="input" id="demoCustomerPhone" type="tel" autocomplete="tel" value="${esc(state.calc.demoCustomerPhone || "")}"></div>
+      </div>
+      <p class="hint">${en ? "Returning customers can select the returning-customer option below and verify with their previous phone number or Rental ID without leaving this page." : "ลูกค้าเก่าสามารถเลือกส่วนลดด้านล่างและยืนยันด้วยเบอร์เดิมหรือ Rental ID ได้ในหน้านี้"}</p>`;
   }
   function goCalcStep(step, options={}){
     const next = Math.min(3, Math.max(1, Number(step) || 1));
@@ -3119,7 +3277,15 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(state.availability.loading && !hasRecentAvailabilitySnapshot()) return {tone:"checking", text:tr("stepQueueChecking")};
       if(state.availability.error || !hasRecentAvailabilitySnapshot()) return {tone:"error", text:tr("queueError"), retry:true};
       if(state.availability.gate.pass === false) return {tone:"error", text:state.availability.gate.message || tr("stepQueueUnavailable")};
+      if(UNIFIED_FLOW_DEMO && !gameSelectionReady()) return {tone:"info", text:tr("stepNeedGames")};
       return {tone:"ready", text:tr("stepReadyDates")};
+    }
+    if(step === 2 && UNIFIED_FLOW_DEMO){
+      if(String(state.calc.demoCustomerName || "").trim().length < 2) return {tone:"info", text:state.lang === "en" ? "Enter the customer's legal name." : "กรุณากรอกชื่อ-นามสกุลจริง"};
+      if(String(state.calc.demoCustomerPhone || "").replace(/\D/g, "").length < 8) return {tone:"info", text:state.lang === "en" ? "Enter a valid phone or WhatsApp number." : "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง"};
+      if(!String(state.calc.maps || "").trim()) return {tone:"info", text:state.lang === "en" ? "Add the Google Maps delivery location." : "กรุณาใส่ Google Maps สถานที่จัดส่ง"};
+      if(!demoAgreementComplete() && !state.calc.noContract && !hasActiveMasterAgreement()) return {tone:"info", text:state.lang === "en" ? "Complete the agreement below, or accept the no-contract Rental Terms option." : "กรุณาทำสัญญาด้านล่าง หรือเลือกยอมรับ Rental Terms แบบไม่ทำสัญญา"};
+      return {tone:"ready", text:state.lang === "en" ? "Customer, delivery and agreement details are ready." : "ข้อมูลลูกค้า การจัดส่ง และสัญญาพร้อมแล้ว"};
     }
     if(step === 2) return {tone:"ready", text:tr("stepReadyReview")};
     return {tone:"ready", text:tr("stepReadyReview")};
@@ -3471,8 +3637,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(step === 1){
       const days = selectedDays();
       const queueVerified = !state.availability.error && hasRecentAvailabilitySnapshot();
-      return !!state.calc.consoleId && startDateAllowed(state.calc.start) && Number.isFinite(days) && days >= 3 && queueVerified && state.availability.gate.pass !== false;
+      return !!state.calc.consoleId && startDateAllowed(state.calc.start) && Number.isFinite(days) && days >= 3 && queueVerified && state.availability.gate.pass !== false && (!UNIFIED_FLOW_DEMO || gameSelectionReady());
     }
+    if(step === 2 && UNIFIED_FLOW_DEMO) return stepReady(1) && String(state.calc.demoCustomerName || "").trim().length >= 2 && String(state.calc.demoCustomerPhone || "").replace(/\D/g, "").length >= 8 && !!String(state.calc.maps || "").trim() && (demoAgreementComplete() || state.calc.noContract || hasActiveMasterAgreement());
     if(step === 2) return stepReady(1) && gameSelectionReady();
     if(step === 3) return stepReady(2);
     return false;
@@ -4472,6 +4639,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       Math.round(Number(summary.total)||0)
     ].join("|");
   }
+  function demoAgreementSignature(){
+    return [rentalSignature(), state.calc.maps, state.calc.demoCustomerName, state.calc.demoCustomerPhone].map(value => String(value || "").trim()).join("|");
+  }
+  function demoAgreementComplete(){
+    return !!state.calc.demoContractCompleted && state.calc.demoContractSignature === demoAgreementSignature();
+  }
   function paymentSelectionLocked(summary=calcSummary()){
     return Boolean(
       state.calc.contractSignature &&
@@ -4689,6 +4862,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return {
       rentalCode: code,
       lang: en ? "EN" : "TH",
+      customerName: String(state.calc.demoCustomerName || "").trim(),
+      fullName: String(state.calc.demoCustomerName || "").trim(),
+      phone: String(state.calc.demoCustomerPhone || "").trim(),
+      customerDataSource: UNIFIED_FLOW_DEMO ? "unified-flow-demo" : "",
       deviceName: cName(c),
       category,
       startDate: displayDate(state.calc.start),
@@ -5493,7 +5670,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   async function openContract(){
     const summary = calcSummary();
     if(!summary.days){ toast(tr("summaryEmpty")); return false; }
-    const contractMode = await chooseContractOpenMode();
+    const contractMode = UNIFIED_FLOW_DEMO ? "web" : await chooseContractOpenMode();
     if(!contractMode) return false;
     const contractButton = byId("contractBtn");
     if(contractButton){
@@ -5513,6 +5690,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       // Persist the booking (incl. message) when the customer opens the contract,
       // so the shop can retrieve it later even if the customer never copies/sends.
       await submitRentalToSheet(summary, code, "contract", handoff.message, handoff.data);
+      if(UNIFIED_FLOW_DEMO){
+        const frameUrl = new URL(handoff.url);
+        frameUrl.searchParams.set("embed", "1");
+        frameUrl.searchParams.set("flowDemo", "1");
+        frameUrl.searchParams.set("parentOrigin", location.origin);
+        const host = byId("demoContractEmbed");
+        host.hidden = false;
+        host.innerHTML = `<h3>${state.lang === "en" ? "Rental agreement" : "สัญญาการเช่า"}</h3><p class="hint">${state.lang === "en" ? "Complete the identity check and agreement below. No OTP is required." : "ยืนยันตัวตนและทำสัญญาด้านล่างได้เลย โดยไม่ใช้ OTP"}</p><iframe class="demo-contract-frame" title="${esc(tr("contract"))}" src="${esc(frameUrl.toString())}"></iframe><div class="demo-contract-status" id="demoContractStatus">${state.lang === "en" ? "Waiting for agreement completion" : "รอทำสัญญาให้เรียบร้อย"}</div>`;
+        host.scrollIntoView({behavior:"smooth", block:"start"});
+        return true;
+      }
       // In-app browsers may block a new tab after the async setup above.
       // Same-tab navigation is not subject to popup blocking and preserves
       // every parameter prepared in the contract URL.
@@ -5777,6 +5965,56 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     refreshGamePickerHowToBtn();
     renderGamePickerPlatforms();
     byId("gamePickerFrame").contentWindow?.postMessage({type:"AJ_SET_LANG", lang:state.lang}, pickerTargetOrigin());
+  }
+
+  function renderInfoLinks(){
+    const labels = INFO_COPY[state.lang].links;
+    const html = ["about","privacy","terms"].map(key => `<button class="site-info-link" type="button" data-info-page="${key}">${esc(labels[key])}</button>`).join("");
+    $$('[data-info-links]').forEach(host => {
+      host.innerHTML = html;
+      host.setAttribute("aria-label", state.lang === "en" ? "About AJ and website policies" : "ข้อมูลเกี่ยวกับ AJ และนโยบายเว็บไซต์");
+    });
+  }
+  function aboutInfoHtml(){
+    const copy = INFO_COPY[state.lang];
+    const activeConsoles = state.consoles.filter(item => item.active !== false);
+    const productCount = activeConsoles.length;
+    return `<p class="info-modal-lead">${esc(copy.aboutLead)}</p>
+      <p>${esc(copy.aboutPurpose)}</p>
+      <div class="info-modal-highlight"><div><strong>${esc(copy.aboutSince)}</strong></div><div><strong>${esc(copy.aboutDelivery)}</strong></div><div><strong>${esc(copy.aboutArea)}</strong><span>${state.lang === "en" ? `${productCount} rental models currently listed` : `ปัจจุบันมีรายการให้เช่า ${productCount} รุ่น`}</span></div></div>
+      <h2>${esc(copy.aboutHowTitle)}</h2><ol>${copy.aboutHow.map(item => `<li>${esc(item)}</li>`).join("")}</ol>
+      <h2>${state.lang === "en" ? "Service model" : "รูปแบบการให้บริการ"}</h2><p>${esc(copy.aboutTruth)}</p>
+      <h2>${esc(copy.aboutContactTitle)}</h2><p>${esc(copy.aboutContact)}</p>`;
+  }
+  function renderInfoModal(){
+    if(!activeInfoPage || !byId("infoModal")?.classList.contains("open")) return;
+    const copy = INFO_COPY[state.lang];
+    const titleKey = `${activeInfoPage}Title`;
+    const subtitleKey = `${activeInfoPage}Subtitle`;
+    byId("infoModalTitle").textContent = copy[titleKey] || "AJ";
+    byId("infoModalSubtitle").textContent = copy[subtitleKey] || "";
+    byId("infoModalLang").textContent = state.lang === "en" ? "TH" : "EN";
+    byId("infoModalClose").setAttribute("aria-label", state.lang === "en" ? "Close" : "ปิด");
+    if(activeInfoPage === "about") byId("infoModalBody").innerHTML = aboutInfoHtml();
+    if(activeInfoPage === "privacy") byId("infoModalBody").innerHTML = PRIVACY_COPY[state.lang];
+    if(activeInfoPage === "terms"){
+      const url = new URL("/rental-terms/", CONFIG.apiBase);
+      url.searchParams.set("lang", state.lang);
+      url.searchParams.set("embed", "1");
+      byId("infoModalBody").innerHTML = `<iframe class="info-modal-frame" title="${esc(copy.termsTitle)}" src="${esc(url.toString())}"></iframe>`;
+    }
+  }
+  function openInfoModal(page){
+    if(!["about","privacy","terms"].includes(page)) return;
+    activeInfoPage = page;
+    byId("infoModal").classList.add("open");
+    renderInfoModal();
+    trackAnalytics("info_page_opened", {value:page});
+  }
+  function closeInfoModal(){
+    byId("infoModal")?.classList.remove("open");
+    byId("infoModalBody").innerHTML = "";
+    activeInfoPage = "";
   }
 
   function showModal(title, bodyHtml){
@@ -7042,6 +7280,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
 
   function bindEvents(){
     document.addEventListener("click", event => {
+      const infoPage = event.target.closest("[data-info-page]");
+      if(infoPage){ openInfoModal(infoPage.dataset.infoPage); return; }
       if(event.target.closest("[data-faq-rental-terms]")){ openRentalTermsReadOnly(); return; }
       if(event.target.closest("[data-line-booking-help]")){ showLineBookingHelp(); return; }
       if(event.target.closest("[data-line-booking-launch]")){ setShareStatus("line", "opened"); return; }
@@ -7171,6 +7411,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("calendarClose").addEventListener("click", closeCalendar);
     byId("calendarLangBtn").addEventListener("click", toggleCalendarLang);
     byId("simpleModalClose").addEventListener("click", closeModal);
+    byId("infoModalClose").addEventListener("click", closeInfoModal);
+    byId("infoModalLang").addEventListener("click", () => { state.lang = state.lang === "en" ? "th" : "en"; render(); });
+    byId("infoModal").addEventListener("click", event => { if(event.target === byId("infoModal")) closeInfoModal(); });
     byId("gamePickerClose").addEventListener("click", closeGamePicker);
     byId("floatCalc").addEventListener("click", () => byId("calculator").scrollIntoView({behavior:"smooth"}));
     byId("prevMonth").addEventListener("click", () => moveCalendarMonth(-1));
@@ -7182,6 +7425,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         closeContractOpenModal("");
       }
       if(event.key === "Escape" && byId("allConsolesModal")?.classList.contains("open")) closeAllConsoles();
+      if(event.key === "Escape" && byId("infoModal")?.classList.contains("open")) closeInfoModal();
     });
     window.addEventListener("scroll", () => { updateFloatButton(); renderGuide(); }, {passive:true});
     window.addEventListener("resize", () => {
@@ -7191,6 +7435,15 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     });
     window.addEventListener("message", event => {
       const pickerFrame = byId("gamePickerFrame");
+      if(UNIFIED_FLOW_DEMO && event.origin === new URL(CONFIG.apiBase).origin && event.data?.type === "AJ_CONTRACT_COMPLETED"){
+        state.calc.demoContractCompleted = true;
+        state.calc.demoContractSignature = demoAgreementSignature();
+        saveLocal();
+        const status = byId("demoContractStatus");
+        if(status) status.textContent = state.lang === "en" ? "Agreement completed. Continue to summary and payment." : "ทำสัญญาเรียบร้อยแล้ว ไปต่อที่สรุปและชำระเงินได้เลย";
+        goCalcStep(3, {scrollTabs:true});
+        return;
+      }
       if(event.source !== pickerFrame.contentWindow) return;
       if(!pickerOriginAllowed(event.origin)) return;
       const data = event.data || {};
@@ -7350,6 +7603,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     });
     document.addEventListener("input", event => {
       if(event.target.id === "mapsInput"){ state.calc.maps = event.target.value.trim(); if(state.calc.maps.length > 8){ markGuideDone("maps"); setGuideStage("ret"); } saveLocal(); renderGuide(); }
+      if(event.target.id === "demoCustomerName"){ state.calc.demoCustomerName = event.target.value; saveLocal(); renderStepActions(); }
+      if(event.target.id === "demoCustomerPhone"){ state.calc.demoCustomerPhone = event.target.value; saveLocal(); renderStepActions(); }
     });
     document.addEventListener("click", async event => {
       const clickedButton = event.target.closest("button");
@@ -7749,7 +8004,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(directBookingEntry) state.calc.step = 1;
     restoreAvailabilityCache();
     state.availability.holds = mergeBookingHolds(state.availability.holds);
-    state.beforeRentActive = !hasRentalContext();
+    state.beforeRentActive = UNIFIED_FLOW_DEMO ? false : !hasRentalContext();
     if(new URLSearchParams(location.search).get("admin") === "1") byId("adminBtn").hidden = false;
     const viewCode = new URLSearchParams(location.search).get("viewMsg");
     if(viewCode){ renderBookingViewer(viewCode.trim()); return; }
@@ -7773,6 +8028,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const requestedConsole = deepLinkedConsole();
       setTimeout(() => openGamePicker({browseOnly:true, consoleId:requestedConsole?.id || ""}), 120);
     }else if(!openedFromLink && directBookingEntry){
+      setTimeout(() => byId("calcHeading").scrollIntoView({block:"start"}), 80);
+    }else if(!openedFromLink && UNIFIED_FLOW_DEMO){
       setTimeout(() => byId("calcHeading").scrollIntoView({block:"start"}), 80);
     }else if(!openedFromLink && (location.hash === "#calculator" || pageParams.get("go") === "calc")){
       setTimeout(() => byId("calculator").scrollIntoView(), 80);

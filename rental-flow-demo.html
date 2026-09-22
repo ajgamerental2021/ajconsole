@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>AJ Unified Rental Flow Demo</title>
+</head>
+<body>
+  <p>Opening the AJ unified rental flow demo…</p>
+  <script>
+    const target = new URL('index.html', location.href);
+    const incoming = new URLSearchParams(location.search);
+    target.searchParams.set('booking', '1');
+    target.searchParams.set('flowDemo', '1');
+    if (incoming.get('lang') === 'en') target.searchParams.set('lang', 'en');
+    location.replace(target.toString());
+  </script>
+</body>
+</html>
