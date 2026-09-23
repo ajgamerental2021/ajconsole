@@ -1340,3 +1340,15 @@ paused job shows slightly old numbers rather than an empty section.
 - The Wise option leads with the Wise logo followed by "pay full amount" on one line, replacing the "🌍 Wise:" text.
 - A returning customer verified through LINE now sees the document AJ already holds (masked to the last four characters). The Bot returns only those four characters and the document type, and only for a verified LINE access token.
 - Verification: 111/111 website and 362/362 Bot tests; the modal, the cancel note, the automatic return handling, the split detail lines and the Wise option were all checked in the real page.
+
+## 2026-09-23 — Demo UX pass 3, rewritten policy copy, document expiry
+
+- Checkout no longer tries to frame the payment provider (it answers `x-frame-options: DENY`); "ชำระเงิน / Pay now" takes the tab straight to the provider, which returns to AJ as before.
+- The Rental ID page: each block has an Edit button back to the step that owns it, the step-3 summary sidebar is gone (the page already shows it), and the equipment details run in two columns on phones.
+- Email is now required in step 2, because the confirmation will be sent there.
+- Identity documents now carry an expiry date. An expired document blocks the step with a clear message and, for a returning customer, cancels the "agreement covers identity" shortcut so a new agreement is made.
+- Map-link resolution follows up to four hops, which fixes short links that redirect more than once before reaching the coordinates.
+- Discount options look like rewards (badges, warmer card) and the identity step carries artwork drawn for AJ rather than borrowed from another site.
+- About and Privacy copy rewritten: shorter, contact details on their own lines, friendlier service description instead of "no storefront", "more than 20 models", Thai wording for rental ID / rental order / rental terms, and the removals the owner asked for (Discord/Telegram, "does not sell data", web statistics, handover evidence, accounting records).
+- Rental Terms wording: modification clause without "repair/jailbreak", one-day notice before 12:00 for a date change, preparation time only after AJ has everything, and the identity-retention clause now states that the shortcut lasts only while the document is valid.
+- Verification: 115/115 website and 362/362 Bot tests, plus a walk in Thai on desktop and at 375 px covering the expiry rule, the edit buttons and the two-column details.

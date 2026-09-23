@@ -142,8 +142,8 @@ test('round-trip delivery price comes from the Bot and is never shown as final w
 });
 
 test('privacy policy explains that AJ stores no card or e-wallet details', () => {
-  assert.match(html, /AJ does not store your credit card number or e-wallet credentials/);
-  assert.match(html, /AJ ไม่ได้จัดเก็บหมายเลขบัตรเครดิตหรือข้อมูล E-Wallet/);
+  assert.match(html, /AJ does not store your card number or e-wallet credentials/);
+  assert.match(html, /AJ ไม่ได้จัดเก็บหมายเลขบัตรหรือข้อมูล E-Wallet/);
 });
 
 test('customer-facing contact email uses the AJ domain', () => {
@@ -179,7 +179,7 @@ test('the demo and the booking page share one payment picker', () => {
 });
 
 test('a live Master Agreement replaces identity verification for the rental', () => {
-  assert.match(html, /function demoIdentityCoveredByAgreement\(\)\{\n\s*return state\.calc\.retVerified && hasVerifiedAgreementRecord\(\);/);
+  assert.match(html, /return state\.calc\.retVerified && hasVerifiedAgreementRecord\(\) && !demoIdentityExpired\(\);/);
   assert.match(html, /if\(demoIdentityCoveredByAgreement\(\)\)\{\n\s*card\.innerHTML/);
   assert.match(html, /verified_master_agreement/);
   assert.match(html, /state\.calc\.ret \? demoReviewDiscountsHtml\(\) : ""/);
@@ -196,12 +196,9 @@ test('multi-line catalogue details render as separate lines everywhere', () => {
   assert.match(html, /const details = splitDetailLines\(\[/);
 });
 
-test('checkout opens over the Rental ID page and can be cancelled', () => {
-  assert.match(html, /id="demoPayModal"/);
-  assert.match(html, /function openDemoPaymentModal\(url\)/);
-  assert.match(html, /ต้องการเปลี่ยนช่องทางชำระเงิน\? กดยกเลิก เลือกช่องทางใหม่ แล้วกดชำระเงินอีกครั้ง/);
-  assert.match(html, /Need a different payment method\? Tap Cancel/);
-  assert.match(html, /payment-\(success\|failed\)/);
+test('checkout goes straight to the payment provider, which refuses framing', () => {
+  assert.match(html, /location\.href = url;/);
+  assert.doesNotMatch(html, /demoPayModal/);
   assert.match(html, /en\?"Pay now":"ชำระเงิน"/);
   assert.doesNotMatch(html, /Create payment link/);
 });
@@ -215,4 +212,26 @@ test('a returning customer sees the document AJ already holds', () => {
   assert.match(html, /function demoIdentityDisplay\(\)/);
   assert.match(html, /demoProfile\.identityOnFileLast4/);
   assert.match(html, /result\.profile\.identityLast4/);
+});
+
+test('the demo asks for the document expiry and refuses an expired one', () => {
+  assert.match(html, /id="demoIdentityExpiry"/);
+  assert.match(html, /function demoIdentityExpired\(\)/);
+  assert.match(html, /hasVerifiedAgreementRecord\(\) && !demoIdentityExpired\(\)/);
+  assert.match(html, /เอกสารหมดอายุแล้ว ต้องใช้เอกสารที่ยังไม่หมดอายุและทำสัญญาการเช่าใหม่/);
+});
+
+test('email is required because the confirmation is sent there', () => {
+  assert.match(html, /need\("demoEmail", \/\^\[\^\\s@\]\+@/);
+});
+
+test('the Rental ID page can send the customer back to fix a section', () => {
+  assert.match(html, /function demoSectionHeadHtml\(title, step\)/);
+  assert.match(html, /data-demo-edit="\$\{step\}"/);
+});
+
+test('identity artwork is drawn by AJ, not embedded from elsewhere', () => {
+  assert.match(html, /function demoIdentityArtHtml\(\)/);
+  assert.match(html, /demo-identity-art/);
+  assert.doesNotMatch(html, /<img[^>]+identity-illustration/);
 });
