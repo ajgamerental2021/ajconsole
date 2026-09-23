@@ -1301,3 +1301,11 @@ paused job shows slightly old numbers rather than an empty section.
 - Rental Terms version advanced to `2026-09-23` in the Bot, the no-contract flow, the terms page, and the booking site, so earlier acceptances are invalidated and customers accept the new wording.
 - LIFF cache-buster is `20260923-retention-v1`.
 - Verification: 362/362 Bot and 100/100 website tests; four QA PDFs rendered and read page by page in both languages; the real booking page loaded with no console errors after the version constant moved.
+
+## 2026-09-23 — ajgamerental.com is live
+
+- DNS at Porkbun now points the root (ALIAS) and `www` (CNAME) at `ajgamerental.onrender.com`; Render verified both and issued the certificate. Render's dashboard briefly kept showing "Certificate Error" after the certificate was already valid — a refresh clears it.
+- `CANONICAL_REDIRECT` is on: any `*.onrender.com` link forwards to `https://ajgamerental.com` with its path and query intact. Old links keep working.
+- Customer-facing URLs now use the domain: Beam success/failure returns, the game-picker link in LINE, the payment-success details link, and the booking viewer in shop notifications. Allow-lists (CORS, frame ancestors, embedded-agreement origins, game-picker URL validation) accept the domain, its www host and the Render host.
+- LIFF cache-buster is `20260923-domain-v1`.
+- Verification: 362/362 Bot and 100/100 website tests; the live domain serves the site over TLS, the Render link forwarded to it with query intact, the demo loaded with no console errors, the catalogue rendered 19 consoles, and a cross-origin call to the Bot from the new origin was accepted.
