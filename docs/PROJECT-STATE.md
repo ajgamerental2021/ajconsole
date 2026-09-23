@@ -1352,3 +1352,11 @@ paused job shows slightly old numbers rather than an empty section.
 - About and Privacy copy rewritten: shorter, contact details on their own lines, friendlier service description instead of "no storefront", "more than 20 models", Thai wording for rental ID / rental order / rental terms, and the removals the owner asked for (Discord/Telegram, "does not sell data", web statistics, handover evidence, accounting records).
 - Rental Terms wording: modification clause without "repair/jailbreak", one-day notice before 12:00 for a date change, preparation time only after AJ has everything, and the identity-retention clause now states that the shortcut lasts only while the document is valid.
 - Verification: 115/115 website and 362/362 Bot tests, plus a walk in Thai on desktop and at 375 px covering the expiry rule, the edit buttons and the two-column details.
+
+## 2026-09-23 — Paid rentals confirm themselves, pickup points are chosen by the shop
+
+- A successful Beam payment now completes the rental on its own: it issues the rental order PDF, emails the customer a bilingual confirmation with the document links and copies `booking@ajgamerental.com`, and sends the existing confirmation Flex when AJ already knows the customer's LINE account. It runs once per rental code, falls back to the booking-context cache or the Console Pending row when the webhook lookup is empty, and never throws — the payment has already been taken.
+- `sendCustomerEmail` is the first mail with a real recipient; the Apps Script web app now accepts `to`, `cc` and `replyTo`. **Owner action:** redeploy `DriveUploadWebApp.gs` (the same redeploy that installs `installIdentityPurgeTrigger`) and set up `booking@ajgamerental.com`, otherwise the copy bounces.
+- Pickup points are stored in the `Pickup Locations` sheet and managed from a new admin tab: add, edit, delete, and mark which one is current. Delivery quotations start from the current point, with `LALAMOVE_PICKUP_*` kept as the fallback.
+- `docs/DELIVERY-APP-ID-EXPIRY-PROMPT.md` holds the task description for the delivery app's expiry warnings.
+- Verification: 367/367 Bot and 116/116 website tests, plus a local signed Beam webhook that produced the rental order PDF and a confirmation email addressed to the customer with the booking mailbox copied.

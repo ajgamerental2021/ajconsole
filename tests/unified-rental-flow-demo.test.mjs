@@ -235,3 +235,10 @@ test('identity artwork is drawn by AJ, not embedded from elsewhere', () => {
   assert.match(html, /demo-identity-art/);
   assert.doesNotMatch(html, /<img[^>]+identity-illustration/);
 });
+
+test('the admin panel manages pickup points', () => {
+  assert.match(html, /adminPickupHtml\(\)/);
+  assert.match(html, /\/api\/admin\/pickup-locations/);
+  assert.match(html, /data-pickup-default/);
+  assert.match(html, /ใช้จุดนี้เป็นจุดรับของตอนนี้/);
+});

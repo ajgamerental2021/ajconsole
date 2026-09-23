@@ -2028,6 +2028,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     calendar: {open:false,mode:"start",base:new Date(),draftStart:"",draftEnd:""},
     faqExpanded: false,
     adminTab: "queue",
+    pickupLocations: {loading:false, error:"", items:[]},
     adminToken: "",
     beforeRentActive: true,
     bookingExtrasOpen: false,
@@ -7635,14 +7636,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("adminOverlay").classList.add("open");
     renderAdmin();
     fetchQueueClosuresForAdmin();
+    void fetchPickupLocationsForAdmin();
   }
   function closeAdmin(){ byId("adminOverlay").classList.remove("open"); }
   function renderAdmin(){
     byId("adminBody").innerHTML = `
       <div class="admin-tabs">
-        ${["queue","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
+        ${["queue","pickup","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
       </div>
       <div class="admin-panel ${state.adminTab==="queue"?"active":""}" id="adminQueue">${adminQueueHtml()}</div>
+      <div class="admin-panel ${state.adminTab==="pickup"?"active":""}" id="adminPickup">${adminPickupHtml()}</div>
       <div class="admin-panel ${state.adminTab==="consoles"?"active":""}" id="adminConsoles">${adminConsolesHtml()}</div>
       <div class="admin-panel ${state.adminTab==="home"?"active":""}" id="adminHome">${adminHomeHtml()}</div>
       <div class="admin-panel ${state.adminTab==="reviews"?"active":""}" id="adminReviews">${adminReviewsHtml()}</div>
@@ -7746,6 +7749,92 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
       else if(status) status.textContent = error.message;
     }finally{ if(button) button.disabled = false; }
+  }
+  // Pickup points AJ dispatches from. The one marked current is the origin of
+  // every delivery quotation, so the shop can move operations for a day without
+  // touching any configuration.
+  function adminPickupHtml(){
+    const en = state.lang === "en";
+    const box = state.pickupLocations;
+    const rows = box.items.map((location, index) => `<div class="card" data-pickup-row="${index}" style="margin:0 0 12px">
+      <div class="grid2">
+        <div class="field"><label class="label">${en ? "Name" : "ชื่อจุดรับของ"}</label><input class="input" data-pickup-field="name" value="${esc(location.name)}"></div>
+        <div class="field"><label class="label">${en ? "Address for the driver" : "ที่อยู่สำหรับคนขับ"}</label><input class="input" data-pickup-field="address" value="${esc(location.address)}"></div>
+        <div class="field"><label class="label">Latitude</label><input class="input" data-pickup-field="lat" inputmode="decimal" value="${esc(location.lat)}"></div>
+        <div class="field"><label class="label">Longitude</label><input class="input" data-pickup-field="lng" inputmode="decimal" value="${esc(location.lng)}"></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px">
+        <label class="option-row" style="flex:1 1 260px;margin:0"><input type="radio" name="pickupDefault" data-pickup-default="${index}" ${location.isDefault?"checked":""}><div><b>${en ? "Use this pickup point now" : "ใช้จุดนี้เป็นจุดรับของตอนนี้"}</b></div></label>
+        <button class="btn" type="button" data-pickup-remove="${index}">${en ? "Delete" : "ลบ"}</button>
+      </div>
+    </div>`).join("");
+    return `<div class="card"><h3>${en ? "Pickup points" : "จุดรับของ"}</h3>
+      <p class="hint">${en ? "The point marked as current is where every delivery quotation and driver booking starts. Copy the coordinates from Google Maps: right-click the exact spot and click the numbers to copy them." : "จุดที่เลือกไว้จะเป็นต้นทางของการคิดค่าส่งและการเรียกรถทุกครั้ง คัดลอกพิกัดจาก Google Maps ได้โดยคลิกขวาตรงจุดที่ต้องการ แล้วคลิกที่ตัวเลขเพื่อคัดลอก"}</p>
+      ${box.loading ? `<p class="hint">${en ? "Loading…" : "กำลังโหลด…"}</p>` : ""}
+      ${box.error ? `<p class="hint" style="color:#b42318">${esc(box.error)}</p>` : ""}
+      ${rows || `<p class="hint">${en ? "No pickup point yet. Add one and mark it as current." : "ยังไม่มีจุดรับของ เพิ่มแล้วเลือกให้เป็นจุดที่ใช้ตอนนี้"}</p>`}
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+        <button class="btn" type="button" id="addPickupLocation">${en ? "Add pickup point" : "เพิ่มจุดรับของ"}</button>
+        <button class="btn primary" type="button" id="savePickupLocations">${en ? "Save" : "บันทึก"}</button>
+      </div>
+      <p class="hint" id="pickupAdminStatus"></p>
+    </div>`;
+  }
+  async function fetchPickupLocationsForAdmin(){
+    if(!state.adminToken) return;
+    state.pickupLocations.loading = true;
+    renderAdmin();
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/admin/pickup-locations?_ts=${Date.now()}`, {headers:{Authorization:`Bearer ${state.adminToken}`},cache:"no-store"});
+      if(response.status === 401) throw new Error("unauthorized");
+      if(!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json();
+      state.pickupLocations.items = Array.isArray(result.locations) ? result.locations : [];
+      state.pickupLocations.error = "";
+    }catch(error){
+      state.pickupLocations.error = error.message;
+      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); return; }
+    }finally{
+      state.pickupLocations.loading = false;
+      if(byId("adminOverlay").classList.contains("open")) renderAdmin();
+    }
+  }
+  function readPickupLocationsFromAdmin(){
+    return $$("[data-pickup-row]").map(row => ({
+      id: state.pickupLocations.items[Number(row.dataset.pickupRow)]?.id || "",
+      name: $("[data-pickup-field='name']", row)?.value || "",
+      address: $("[data-pickup-field='address']", row)?.value || "",
+      lat: $("[data-pickup-field='lat']", row)?.value || "",
+      lng: $("[data-pickup-field='lng']", row)?.value || "",
+      isDefault: Boolean($("[data-pickup-default]", row)?.checked)
+    }));
+  }
+  async function savePickupLocationsFromAdmin(){
+    const status = byId("pickupAdminStatus");
+    const locations = readPickupLocationsFromAdmin();
+    const en = state.lang === "en";
+    if(locations.some(location => !location.name.trim() || !Number.isFinite(Number(location.lat)) || !Number.isFinite(Number(location.lng)))){
+      if(status) status.textContent = en ? "Every pickup point needs a name and valid coordinates." : "ทุกจุดต้องมีชื่อและพิกัดที่ถูกต้อง";
+      return;
+    }
+    if(locations.length && !locations.some(location => location.isDefault)) locations[0].isDefault = true;
+    if(status) status.textContent = en ? "Saving…" : "กำลังบันทึก…";
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/admin/pickup-locations`, {
+        method:"PUT",
+        headers:{"Content-Type":"application/json",Authorization:`Bearer ${state.adminToken}`},
+        body:JSON.stringify({locations})
+      });
+      if(response.status === 401) throw new Error("unauthorized");
+      if(!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json();
+      state.pickupLocations.items = Array.isArray(result.locations) ? result.locations : [];
+      renderAdmin();
+      toast(en ? "Pickup points saved" : "บันทึกจุดรับของแล้ว");
+    }catch(error){
+      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
+      else if(status) status.textContent = error.message;
+    }
   }
   function adminConsolesHtml(){
     return `<div class="card"><h3>${tr("add")} Console</h3><div class="grid2">
@@ -8619,6 +8708,19 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(targetId === "addAcc"){ state.accessories.push({id:`acc_${Date.now()}`,th:"อุปกรณ์ใหม่",en:"New Accessory",daily:100,weekly:500,consoleIds:[]}); saveAndRenderAdmin("Accessory added"); }
       if(targetId === "saveAddons") saveAddons();
       if(targetId === "saveQueueClosures") await saveQueueClosuresFromAdmin();
+      if(targetId === "savePickupLocations"){ void savePickupLocationsFromAdmin(); return; }
+      if(targetId === "addPickupLocation"){
+        state.pickupLocations.items = [...readPickupLocationsFromAdmin(), {id:"", name:"", address:"", lat:"", lng:"", isDefault:state.pickupLocations.items.length === 0}];
+        renderAdmin();
+        return;
+      }
+      const pickupRemove = event.target.closest("[data-pickup-remove]");
+      if(pickupRemove){
+        const index = Number(pickupRemove.dataset.pickupRemove);
+        state.pickupLocations.items = readPickupLocationsFromAdmin().filter((_, position) => position !== index);
+        renderAdmin();
+        return;
+      }
       if(targetId === "saveGist"){ localStorage.setItem(LS.gistId, byId("gistId").value.trim()); localStorage.setItem(LS.gistToken, byId("gistToken").value.trim()); toast("Gist config saved"); renderAdmin(); }
       if(targetId === "pullGist"){ try{ byId("syncStatus").textContent = "Pulling..."; applyRemoteData(await gistFetch()); renderAdmin(); toast("Pull success"); }catch(e){ byId("syncStatus").textContent = e.message; } }
       if(targetId === "pushGist"){ try{ byId("syncStatus").textContent = "Pushing..."; await gistPush(false); renderAdmin(); toast("Push success"); }catch(e){ byId("syncStatus").textContent = e.message; } }
