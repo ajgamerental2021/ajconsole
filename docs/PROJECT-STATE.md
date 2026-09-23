@@ -1309,3 +1309,14 @@ paused job shows slightly old numbers rather than an empty section.
 - Customer-facing URLs now use the domain: Beam success/failure returns, the game-picker link in LINE, the payment-success details link, and the booking viewer in shop notifications. Allow-lists (CORS, frame ancestors, embedded-agreement origins, game-picker URL validation) accept the domain, its www host and the Render host.
 - LIFF cache-buster is `20260923-domain-v1`.
 - Verification: 362/362 Bot and 100/100 website tests; the live domain serves the site over TLS, the Render link forwarded to it with query intact, the demo loaded with no console errors, the catalogue rendered 19 consoles, and a cross-origin call to the Bot from the new origin was accepted.
+
+## 2026-09-23 — Demo step 2 and 3 usability pass
+
+- Step 3 is now full width in the demo, so the upload cards no longer share a row with the summary; the summary follows underneath. Upload cards, fields and phone layout all gained spacing.
+- Each identity upload has a camera button (rear camera for the document, front camera for the selfie) and a "see an example" button that shows AJ's existing example photos from the contract service. The Bot now serves `/assets` with `Cross-Origin-Resource-Policy: cross-origin` so the booking site can display them.
+- Removed the red "a separate document image is still required" warning.
+- Subdistrict is a dropdown filled from the postal code; district and province are filled and read-only. A postal code outside the service area falls back to free text and keeps the out-of-area note.
+- English adds "I don't have Thai address details", which hides the Thai address fields and keeps only the Google Maps pin, with AJ confirming the delivery point in chat.
+- Rental Terms acceptance is no longer gated on scrolling to the end; the terms stay embedded with a new-tab link.
+- Fixed the "cannot check availability" dead end reported after pressing Confirm: the Console Pending sheet write is no longer awaited before the Rental ID page opens. It retries once in the background, so a cold Bot cannot strand a customer between identity and payment.
+- Verification: 102/102 website and 362/362 Bot tests; the real page was walked in Thai and English on desktop and at 375 px, covering the postcode dropdown, the example-image modal, the visitor address checkbox and the terms checkbox.

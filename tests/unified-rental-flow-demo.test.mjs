@@ -80,14 +80,28 @@ test('postal code fills subdistrict, district and province from the service-area
   const chatuchak = data.subdistricts.filter((row) => row[0] === '10900').map((row) => row[1]);
   assert.ok(chatuchak.includes('เสนานิคม'));
   assert.match(html, /fetch\("assets\/data\/service-area-addresses\.json"/);
-  assert.match(html, /list="demoSubdistrictList"/);
+  assert.match(html, /<select class="input" id="demoSubdistrict">/);
   assert.match(html, /if\(event\.target\.id === "demoPostalCode"\) void onDemoPostalCode/);
 });
 
-test('Rental Terms acceptance unlocks only after the embedded terms are read', () => {
-  assert.match(html, /\$\{demoProfile\.termsRead\?"":"disabled"\}/);
-  assert.match(html, /event\.data\?\.type === "AJ_RENTAL_TERMS_READ"/);
-  assert.match(html, /demoProfile\.termsAccepted = demoProfile\.termsRead && event\.target\.checked/);
+test('Rental Terms are embedded and acceptance is recorded', () => {
+  assert.match(html, /class="demo-terms-frame"/);
+  assert.match(html, /demoProfile\.termsAccepted = event\.target\.checked/);
+  assert.doesNotMatch(html, /demoProfile\.termsRead/);
+});
+
+test('identity uploads offer a camera and an example photo', () => {
+  assert.match(html, /data-open-camera="demoIdDocumentCamera"/);
+  assert.match(html, /data-identity-example="selfie"/);
+  assert.match(html, /capture="user"/);
+  assert.match(html, /function showDemoIdentityExample\(kind\)/);
+  assert.doesNotMatch(html, /For safety, the separate document image remains required/);
+});
+
+test('a visitor without Thai address details can rely on the map pin', () => {
+  assert.match(html, /id="demoNoThaiAddress"/);
+  assert.match(html, /I don't have Thai address details/);
+  assert.match(html, /if\(!demoProfile\.noThaiAddress\)\{/);
 });
 
 test('identity images are uploaded to the booking context before the Rental ID page opens', () => {
