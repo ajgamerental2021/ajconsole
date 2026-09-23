@@ -1310,7 +1310,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   // their path and query intact. Leave it off until then, or the old links
   // would forward to a domain that is not answering yet.
   const CANONICAL_HOST = "ajgamerental.com";
-  const CANONICAL_REDIRECT = false;
+  const CANONICAL_REDIRECT = true;
   if(CANONICAL_REDIRECT && /\.onrender\.com$/i.test(location.hostname)){
     location.replace(`https://${CANONICAL_HOST}${location.pathname}${location.search}${location.hash}`);
   }
@@ -1346,8 +1346,8 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
     beamPaymentApiDemo: "https://aj-line-oa-bot.onrender.com/api/payments/beam-link-demo",
     returningEligibilityApi: "https://aj-line-oa-bot.onrender.com/api/customers/returning-eligibility",
     analyticsApi: "https://aj-line-oa-bot.onrender.com/api/analytics/event",
-    paymentSuccessUrl: "https://ajgamerental.onrender.com/payment-success.html",
-    paymentFailedUrl: "https://ajgamerental.onrender.com/payment-failed.html",
+    paymentSuccessUrl: "https://ajgamerental.com/payment-success.html",
+    paymentFailedUrl: "https://ajgamerental.com/payment-failed.html",
     paymentLinkBase: "https://pay.ajgamerental.com/demo-checkout",
     reservationAmount: 200,
     reservationBankAccount: "8690576029",
