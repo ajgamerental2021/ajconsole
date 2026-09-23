@@ -1332,3 +1332,11 @@ paused job shows slightly old numbers rather than an empty section.
 - Ticking the returning-customer discount shows both review discounts, exactly as the booking page does, and they use the existing ฿100 / ฿50-with-promotion logic.
 - A verified LINE sign-in now also fills the saved email and address; the Bot returns them only for the customer's own verified token.
 - Verification: 107/107 website and 362/362 Bot tests, plus a full walk in Thai and English covering the new page, the picker, the review discounts and a simulated live agreement.
+
+## 2026-09-23 — In-page checkout, detail line breaks, Wise logo, document on file
+
+- Catalogue details written as one cell with `\n` now render as separate lines on the Rental ID page and in the booking summary (`splitDetailLines`).
+- "สร้างลิงก์ชำระเงิน" became "ชำระเงิน" / "Pay now", and checkout opens in a modal over the Rental ID page instead of a new tab. The modal explains that changing the method means cancelling and choosing again, keeps an "open in a new tab" link for providers that refuse framing, and watches for the same-origin payment-success/failed return to carry the whole page there.
+- The Wise option leads with the Wise logo followed by "pay full amount" on one line, replacing the "🌍 Wise:" text.
+- A returning customer verified through LINE now sees the document AJ already holds (masked to the last four characters). The Bot returns only those four characters and the document type, and only for a verified LINE access token.
+- Verification: 111/111 website and 362/362 Bot tests; the modal, the cancel note, the automatic return handling, the split detail lines and the Wise option were all checked in the real page.

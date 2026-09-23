@@ -189,3 +189,30 @@ test('a verified LINE sign-in fills the saved email and address', () => {
   assert.match(html, /demoProfile\.email = String\(result\.profile\.email/);
   assert.match(html, /applyDemoSavedAddress\(String\(result\.profile\.address \|\| ""\)\)/);
 });
+
+test('multi-line catalogue details render as separate lines everywhere', () => {
+  assert.match(html, /function splitDetailLines\(items\)/);
+  assert.match(html, /const list = splitDetailLines\(items\);/);
+  assert.match(html, /const details = splitDetailLines\(\[/);
+});
+
+test('checkout opens over the Rental ID page and can be cancelled', () => {
+  assert.match(html, /id="demoPayModal"/);
+  assert.match(html, /function openDemoPaymentModal\(url\)/);
+  assert.match(html, /ต้องการเปลี่ยนช่องทางชำระเงิน\? กดยกเลิก เลือกช่องทางใหม่ แล้วกดชำระเงินอีกครั้ง/);
+  assert.match(html, /Need a different payment method\? Tap Cancel/);
+  assert.match(html, /payment-\(success\|failed\)/);
+  assert.match(html, /en\?"Pay now":"ชำระเงิน"/);
+  assert.doesNotMatch(html, /Create payment link/);
+});
+
+test('the Wise option leads with its logo', () => {
+  assert.match(html, /payment-wise-title/);
+  assert.doesNotMatch(html, /<span>🌍 Wise: pay full amount<\/span>/);
+});
+
+test('a returning customer sees the document AJ already holds', () => {
+  assert.match(html, /function demoIdentityDisplay\(\)/);
+  assert.match(html, /demoProfile\.identityOnFileLast4/);
+  assert.match(html, /result\.profile\.identityLast4/);
+});

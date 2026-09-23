@@ -776,8 +776,14 @@ body.unified-flow-demo .demo-item-thumb-icon{display:grid;place-items:center;fon
 body.unified-flow-demo .demo-item-details{margin:12px 0 0;padding-left:20px;color:#475467;line-height:1.7}
 body.unified-flow-demo .demo-item-details li{margin:2px 0}
 body.unified-flow-demo .demo-order-action{display:flex;justify-content:flex-end;margin-top:12px}
+.demo-pay-card{width:min(560px,calc(100vw - 28px));height:min(88vh,860px);display:flex;flex-direction:column;overflow:hidden}
+.demo-pay-frame{flex:1;min-height:0;width:100%;border:0;background:#fff}
+.demo-pay-foot{padding:12px 16px 16px;border-top:1px solid var(--border);background:#fff}
+.demo-pay-note{margin:0 0 10px;color:#8a4b00;font-weight:700;line-height:1.5}
+.demo-pay-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 body.unified-flow-demo .demo-status.ok{color:#137333}
-.payment-wise-logo{height:20px;width:auto;border-radius:4px;display:block}
+.payment-wise-logo{height:22px;width:auto;display:inline-block;vertical-align:-4px}
+.payment-wise-title{display:inline-flex;align-items:center;gap:7px;font-weight:800}
 body.unified-flow-demo .demo-status{font-weight:900;color:#c00000}
 body.unified-flow-demo .demo-status.ok{color:#137333}
 body.unified-flow-demo .demo-payment-launch{display:grid;gap:10px;margin-top:12px}
@@ -1209,6 +1215,17 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   <div class="modal-card">
     <div class="modal-head"><h3 id="simpleModalTitle"></h3><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="faqLangBtn" type="button" style="display:none"></button><button class="xbtn" id="simpleModalClose" type="button">&times;</button></div></div>
     <div class="calendar-body" id="simpleModalBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="demoPayModal" role="dialog" aria-modal="true" aria-labelledby="demoPayTitle">
+  <div class="modal-card demo-pay-card">
+    <div class="modal-head"><div class="modal-title-copy"><h3 id="demoPayTitle"></h3></div><div class="modal-head-actions"><button class="modal-close" id="demoPayClose" type="button" aria-label="Close">×</button></div></div>
+    <iframe class="demo-pay-frame" id="demoPayFrame" title="Payment" src="about:blank" allow="payment"></iframe>
+    <div class="demo-pay-foot">
+      <p class="demo-pay-note" id="demoPayNote"></p>
+      <div class="demo-pay-actions"><a class="hint" id="demoPayOpenTab" href="#" target="_blank" rel="noopener"></a><button class="btn" id="demoPayCancel" type="button"></button></div>
+    </div>
   </div>
 </div>
 
@@ -2004,7 +2021,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     termsAccepted:false, identitySkipped:false, noThaiAddress:false,
     // "" follows the page language (Thai → Thai ID, English → passport) until
     // the customer picks one; a foreign renter can use Thai and still pick passport.
-    identityType:"", identityUploaded:false
+    identityType:"", identityUploaded:false, identityOnFileLast4:""
   };
   const GUIDE_ORDER = ["console","start","end","ps5bundle","accessory","next1","games","next2","bg","maps","ret","contractChoice","contractLink","payment","next3","share"];
   const GUIDE_KEY = "aj_index2_guide_stage";
@@ -3712,14 +3729,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function demoRentalItemHtml(item, summary){
     const en = state.lang === "en";
     const image = getConsoleImage(item);
-    const details = [
+    const details = splitDetailLines([
       ...(en ? (item?.detailsEn || []) : (item?.detailsTh || [])),
       ...(summary.bundleName ? [`${tr("bundle")}: ${summary.bundleName}`] : []),
       ...(summary.extras || []).map(extra => `${tr("accessories")}: ${en ? extra.en : extra.th}`),
       ...(summary.bgItems || []).map(game => `${tr("boardGames")}: ${bgName(game)}`),
       ...(state.calc.games?.length ? state.calc.games.map((game, index) => `${en ? "Game" : "เกม"} ${index + 1}: ${game.name || game.title || game.id}`) : []),
       ...(state.calc.later && !state.calc.games?.length ? [en ? "Game list: sent later" : "รายชื่อเกม: แจ้งภายหลัง"] : [])
-    ].filter(Boolean);
+    ]);
     return `<div class="demo-order-box demo-item-box">
       <div class="demo-item-head">
         ${image ? `<img class="demo-item-thumb" src="${esc(image)}" alt="${esc(cName(item))}">` : `<span class="demo-item-thumb demo-item-thumb-icon">${esc(item?.icon || "🎮")}</span>`}
@@ -3784,16 +3801,23 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <div>
         <section class="demo-order-section"><h3>${en ? "Rental item" : "สินค้าที่เช่า"}</h3>${demoRentalItemHtml(item, summary)}</section>
         <section class="demo-order-section"><h3>${en ? "Details" : "รายละเอียด"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Rental ID":"รหัสการเช่า"}</span><b>${esc(state.calc.rentalCode || "-")}</b></div><div class="demo-order-row"><span>${en?"Rental status":"สถานะการเช่า"}</span><b class="demo-status">${en?"Awaiting payment":"รอชำระเงิน"}</b></div></div></section>
-        <section class="demo-order-section"><h3>${en ? "Customer" : "ข้อมูลลูกค้า"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Name":"ชื่อ"}</span><b>${esc(demoProfile.fullName)}</b></div>${state.calc.noContract ? "" : `<div class="demo-order-row"><span>${esc(demoIdentityNumberLabel())}</span><b>${esc(maskDemoIdentity(demoProfile.identityNumber))}</b></div>`}<div class="demo-order-row"><span>${en?"Phone":"เบอร์ติดต่อ"}</span><b>${esc(demoProfile.phone)}</b></div><div class="demo-order-row"><span>${en?"Delivery":"ที่อยู่จัดส่ง"}</span><b>${esc([demoProfile.addressLine,demoProfile.subdistrict,demoProfile.district,demoProfile.province,demoProfile.postalCode].filter(Boolean).join(" ") || (en ? "Google Maps pin only" : "ใช้หมุด Google Maps"))}</b></div></div></section>
+        <section class="demo-order-section"><h3>${en ? "Customer" : "ข้อมูลลูกค้า"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Name":"ชื่อ"}</span><b>${esc(demoProfile.fullName)}</b></div>${state.calc.noContract ? "" : `<div class="demo-order-row"><span>${esc(demoIdentityNumberLabel())}</span><b>${esc(demoIdentityDisplay())}</b></div>`}<div class="demo-order-row"><span>${en?"Phone":"เบอร์ติดต่อ"}</span><b>${esc(demoProfile.phone)}</b></div><div class="demo-order-row"><span>${en?"Delivery":"ที่อยู่จัดส่ง"}</span><b>${esc([demoProfile.addressLine,demoProfile.subdistrict,demoProfile.district,demoProfile.province,demoProfile.postalCode].filter(Boolean).join(" ") || (en ? "Google Maps pin only" : "ใช้หมุด Google Maps"))}</b></div></div></section>
         <section class="demo-order-section"><h3>${en ? "Rental period" : "ช่วงเวลา"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Duration":"ระยะเวลา"}</span><b>${summary.days} ${en?"days":"วัน"}</b></div><div class="demo-order-row"><span>${en?"Dates":"วันที่เช่า"}</span><b>${displayDate(state.calc.start)} – ${displayDate(state.calc.end)}</b></div></div></section>
       </div>
       <div>
         <section class="demo-order-section"><h3>${en ? "Identity verification" : "การยืนยันตัวตน"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Status":"สถานะ"}</span><b class="demo-status ${identityTone}">${esc(identityState)}</b></div>${verifyNow?`<div class="demo-order-action"><button class="btn" id="demoVerifyLater" type="button">${en?"Verify now":"ยืนยันตอนนี้"}</button></div>`:""}</div></section>
         <section class="demo-order-section"><h3>${en ? "Payment" : "การชำระเงิน"}</h3>${demoPaymentBreakdownHtml(summary)}</section>
-        <section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${demoPaymentOptionsHtml()}<div class="demo-payment-launch"><button class="btn primary" id="demoBeamPay" type="button">${en?"Create payment link":"สร้างลิงก์ชำระเงิน"}</button><p class="hint">${en?"This demo charges ฿1. The payment is still recorded against this Rental ID and follows the existing webhook flow.":"หน้าทดสอบเรียกเก็บ 1 บาท และยังบันทึกผลกับ Rental ID นี้ผ่าน webhook เดิม"}</p></div></section>
+        <section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${demoPaymentOptionsHtml()}<div class="demo-payment-launch"><button class="btn primary" id="demoBeamPay" type="button">${en?"Pay now":"ชำระเงิน"}</button><p class="hint">${en?"This demo charges ฿1. The payment is still recorded against this Rental ID and follows the existing webhook flow.":"หน้าทดสอบเรียกเก็บ 1 บาท และยังบันทึกผลกับ Rental ID นี้ผ่าน webhook เดิม"}</p></div></section>
         <p class="hint">${en?"After the payment is confirmed, the success page shows LINE and WhatsApp notification actions. The old booking-message Flex is not sent; Delivery App payment Flex remains unchanged.":"หลังยืนยันยอดชำระ หน้าชำระเงินสำเร็จจะแสดงปุ่มแจ้ง LINE โดยไม่ส่ง Flex ข้อความจองเช่าเดิม และ Flex การชำระเงินของ Delivery App ยังคงเดิม"}</p>
       </div>
     </div>`;
+  }
+  function demoIdentityDisplay(){
+    const en = state.lang === "en";
+    const typed = maskDemoIdentity(demoProfile.identityNumber);
+    if(typed) return typed;
+    if(demoProfile.identityOnFileLast4) return `${"•".repeat(8)}${demoProfile.identityOnFileLast4}${en ? " (on file)" : " (มีอยู่กับร้าน)"}`;
+    return demoIdentityCoveredByAgreement() ? (en ? "On file with AJ" : "มีอยู่กับร้านแล้ว") : "-";
   }
   function maskDemoIdentity(value){
     const text = String(value || "").trim();
@@ -4225,8 +4249,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!list.length) return "";
     return `<span class="summary-list">${list.map((x,i) => `<span>${i + 1}. ${esc(x)}</span>`).join("")}</span>`;
   }
+  // Catalogue details may arrive as one cell holding several lines, written
+  // either as real newlines or as a literal \n. Both become separate lines.
+  function splitDetailLines(items){
+    return (items || [])
+      .flatMap(item => String(item || "").split(/\\n|\r?\n/))
+      .map(line => line.trim())
+      .filter(Boolean);
+  }
   function plainSummaryList(items){
-    const list = (items || []).map(x => String(x || "").trim()).filter(Boolean);
+    const list = splitDetailLines(items);
     if(!list.length) return "";
     return `<span class="summary-list">${list.map(esc).map(x => `<span>${x}</span>`).join("")}</span>`;
   }
@@ -4317,7 +4349,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       : status.reason === "holiday"
         ? tr("wiseUnavailableHoliday")
         : "";
-    return `<span class="payment-option-copy"><span>🌍 Wise: pay full amount</span><span class="payment-brand-badges"><img class="payment-wise-logo" src="https://wise.com/public-resources/assets/logos/wise/brand_logo.svg" alt="Wise"></span><small class="payment-wise-note">${tr("wiseAvailabilityNote")}</small>${blocked ? `<small class="wise-status blocked">${blocked}</small>` : ""}${paymentRefundNoteHtml()}</span>`;
+    return `<span class="payment-option-copy"><span class="payment-wise-title"><img class="payment-wise-logo" src="https://wise.com/public-resources/assets/logos/wise/brand_logo.svg" alt="Wise"> pay full amount</span><small class="payment-wise-note">${tr("wiseAvailabilityNote")}</small>${blocked ? `<small class="wise-status blocked">${blocked}</small>` : ""}${paymentRefundNoteHtml()}</span>`;
   }
   function creditOptionHtml(){
     const title = state.lang === "en" ? "💳 Credit Card: pay full amount" : "💳 บัตรเครดิต: ชำระเต็มจำนวน";
@@ -6264,12 +6296,48 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       await submitRentalToSheet(summary, code, "demo-payment", handoff.message, handoff.data);
       const url = await ensureBeamPaymentLink(summary, code);
       if(!url) throw new Error("Beam payment link unavailable");
-      window.open(url, "_blank", "noopener");
+      openDemoPaymentModal(url);
       renderDemoOrderPage();
     }catch(error){
       console.error("Demo Beam payment failed", error);
       toast(state.lang === "en" ? "Unable to create the test payment link. Please try again." : "สร้างลิงก์ชำระเงินทดสอบไม่สำเร็จ กรุณาลองใหม่");
     }
+  }
+  // Checkout opens over the Rental ID page instead of navigating away, so the
+  // customer keeps the order in view and can cancel to pick another method.
+  // The provider may refuse to be framed, so the new-tab link stays available.
+  let demoPaymentWatcher = 0;
+  function openDemoPaymentModal(url){
+    const en = state.lang === "en";
+    const modal = byId("demoPayModal");
+    if(!modal) return void window.open(url, "_blank", "noopener");
+    byId("demoPayTitle").textContent = en ? "Payment" : "ชำระเงิน";
+    byId("demoPayNote").textContent = en
+      ? "Need a different payment method? Tap Cancel, choose another method, then tap Pay again."
+      : "ต้องการเปลี่ยนช่องทางชำระเงิน? กดยกเลิก เลือกช่องทางใหม่ แล้วกดชำระเงินอีกครั้ง";
+    byId("demoPayCancel").textContent = en ? "Cancel" : "ยกเลิก";
+    const openLink = byId("demoPayOpenTab");
+    openLink.textContent = en ? "Payment page not loading? Open it in a new tab" : "หน้าชำระเงินไม่ขึ้น? เปิดในแท็บใหม่";
+    openLink.href = url;
+    byId("demoPayFrame").src = url;
+    modal.classList.add("open");
+    window.clearInterval(demoPaymentWatcher);
+    // The provider returns to AJ's own success page, which is same-origin: as
+    // soon as that happens the whole page follows, exactly as before.
+    demoPaymentWatcher = window.setInterval(() => {
+      let href = "";
+      try{ href = byId("demoPayFrame")?.contentWindow?.location?.href || ""; }catch{ href = ""; }
+      if(href && /payment-(success|failed)\.html/.test(href)){
+        window.clearInterval(demoPaymentWatcher);
+        location.href = href;
+      }
+    }, 1200);
+  }
+  function closeDemoPaymentModal(){
+    window.clearInterval(demoPaymentWatcher);
+    const frame = byId("demoPayFrame");
+    if(frame) frame.src = "about:blank";
+    byId("demoPayModal")?.classList.remove("open");
   }
   async function notifyDemoLine(){
     try{
@@ -6885,6 +6953,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           demoProfile.fullName = String(result.profile.fullName || demoProfile.fullName || "");
           demoProfile.phone = String(result.profile.phone || demoProfile.phone || "");
           demoProfile.email = String(result.profile.email || demoProfile.email || "");
+          if(result.profile.identityLast4 && !demoProfile.identityNumber){
+            demoProfile.identityType = result.profile.identityType === "passport" ? "passport" : "thai_id";
+            demoProfile.identityOnFileLast4 = String(result.profile.identityLast4 || "");
+          }
           applyDemoSavedAddress(String(result.profile.address || ""));
           demoProfile.lineDisplayName = String(result.profile.lineDisplayName || profile?.displayName || "");
           demoProfile.lineUserId = fallbackLineUserId;
@@ -8456,6 +8528,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(exampleTrigger){ showDemoIdentityExample(exampleTrigger.dataset.identityExample); return; }
       if(targetId === "demoConfirmOrder"){ await openDemoOrder(); return; }
       if(targetId === "demoBeamPay"){ await launchDemoBeamPayment(); return; }
+      if(targetId === "demoPayCancel" || targetId === "demoPayClose"){ closeDemoPaymentModal(); return; }
       if(targetId === "demoNotifyLine"){ await notifyDemoLine(); return; }
       if(targetId === "demoNotifyWhatsApp"){ notifyDemoWhatsApp(); return; }
       if(targetId === "demoVerifyLater"){
