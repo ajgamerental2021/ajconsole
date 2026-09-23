@@ -39,7 +39,8 @@ records `identityVerificationStatus: submitted_pending_review`, and notifies the
 shop. The page says "images received — awaiting AJ review", never "verified".
 
 Each Drive file's description carries `aj-identity-delete-after:YYYY-MM-DD`
-(30 days after the return date). The Apps Script `purgeExpiredIdentityFiles`
+(one year after the return date, the same window as the Master Agreement, so a
+returning customer is never asked to verify identity again). The Apps Script `purgeExpiredIdentityFiles`
 trigger moves expired files to the Drive trash; `aj-identity-hold` in a file's
 description keeps it for a dispute. **Owner setup:** paste the updated
 `google-apps-script/DriveUploadWebApp.gs` into the upload Web App, deploy a new

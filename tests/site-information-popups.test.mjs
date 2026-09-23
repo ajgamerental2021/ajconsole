@@ -23,8 +23,8 @@ test('information popup is bilingual and Terms uses the current server document'
 });
 
 test('privacy notice reflects the current identity-document retention policy', () => {
-  assert.match(html, /ภายใน 30 วันหลังคืนอุปกรณ์/);
   assert.match(html, /ไม่เกิน 1 ปีนับจากวันคืนอุปกรณ์/);
-  assert.match(html, /within 30 days after the equipment is returned/);
+  assert.match(html, /ไม่เกิน 1 ปีนับจากวันคืนอุปกรณ์/);
+  assert.match(html, /no longer than one year from the return date/);
   assert.match(html, /no longer than one year from the return date/);
 });

@@ -1416,7 +1416,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
       <h2>ข้อมูลการชำระเงิน</h2>
       <p>การชำระเงินผ่านลิงก์ของ AJ ดำเนินการโดยผู้ให้บริการรับชำระเงิน Beam ลูกค้ากรอกข้อมูลบัตรเครดิตหรือ E-Wallet ในหน้าของผู้ให้บริการโดยตรง AJ ไม่ได้จัดเก็บหมายเลขบัตรเครดิตหรือข้อมูล E-Wallet ของลูกค้าไว้ในระบบ AJ เก็บเฉพาะผลการชำระเงิน เช่น สถานะ ยอดเงิน ช่องทางที่เลือก เวลาที่ชำระ รหัสอ้างอิงรายการ และสลิปที่ลูกค้าส่งมา เพื่อยืนยันการเช่า ออกหลักฐาน คืนเงินประกัน และตรวจสอบข้อพิพาท</p>
       <h2>ระยะเวลาการเก็บรักษา</h2>
-      <p>สำเนาบัตรประชาชน Passport และรูปยืนยันตัวตนจะถูกลบหรือทำลายภายใน 30 วันหลังคืนอุปกรณ์ คืนเงินประกันครบ และไม่มีข้อพิพาท สัญญาและข้อมูลที่จำเป็นอาจเก็บไม่เกิน 1 ปีนับจากวันคืนอุปกรณ์ หรือนานเท่าที่จำเป็นเมื่อมีข้อพิพาท การดำเนินคดี หรือหน้าที่ตามกฎหมาย ข้อมูลธุรกรรมที่กฎหมายกำหนดให้นานกว่านั้นจะเก็บตามระยะเวลาที่กฎหมายกำหนด</p>
+      <p>สำเนาบัตรประชาชน Passport และรูปยืนยันตัวตนจะถูกเก็บไว้ไม่เกิน 1 ปีนับจากวันคืนอุปกรณ์ ซึ่งเท่ากับอายุข้อตกลงหลัก เพื่อให้ลูกค้าเดิมไม่ต้องยืนยันตัวตนใหม่ในการเช่าครั้งถัดไป และเพื่อดำเนินการกรณีความเสียหาย สูญหาย หรือข้อพิพาท เมื่อพ้นกำหนดจะถูกลบหรือทำลาย สัญญาและข้อมูลที่จำเป็นเก็บในระยะเวลาเดียวกัน เว้นแต่มีข้อพิพาท คดีความ หรือหน้าที่ตามกฎหมายที่ต้องเก็บนานกว่านั้น ข้อมูลรายการที่ต้องเก็บตามกฎหมายบัญชีหรือภาษีจะเก็บตามระยะเวลาที่กฎหมายกำหนด</p>
       <h2>สิทธิและความปลอดภัย</h2>
       <p>ลูกค้าสามารถขอเข้าถึง แก้ไข คัดค้าน จำกัด ถอนความยินยอมในกรณีที่อาศัยความยินยอม หรือขอลบข้อมูลเมื่อกฎหมายอนุญาต AJ จำกัดการเข้าถึงข้อมูลแก่ผู้ที่จำเป็นต่อการทำงานและใช้มาตรการที่เหมาะสมเพื่อป้องกันการเข้าถึง การเปลี่ยนแปลง หรือการเปิดเผยโดยไม่ได้รับอนุญาต</p>
       <h2>ติดต่อเรื่องข้อมูลส่วนบุคคล</h2><p>LINE: @ajgame · โทร: 081-624-4715 · อีเมล: contact@ajgamerental.com</p>`,
@@ -1431,7 +1431,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
       <h2>Payment information</h2>
       <p>Payments made through AJ's payment links are processed by the payment provider Beam. Card and e-wallet details are entered on the provider's own page. AJ does not store your credit card number or e-wallet credentials. AJ keeps only the outcome of a payment — status, amount, chosen method, payment time, reference identifiers, and any slip you send — to confirm the rental, issue evidence, refund the deposit, and resolve disputes.</p>
       <h2>Retention</h2>
-      <p>Copies of Thai IDs, passports, and identity-verification images are deleted or destroyed within 30 days after the equipment is returned, the deposit is fully refunded, and no dispute remains. Agreements and necessary information may be retained for no longer than one year from the return date, or for as long as necessary for a dispute, legal proceedings, or a legal obligation. Transaction records subject to a longer statutory period are retained for that required period.</p>
+      <p>Copies of Thai IDs, passports, and identity-verification images are kept for no longer than one year from the return date, the same period as the Master Agreement, so a returning customer does not have to verify identity again, and so AJ can handle damage, loss, or disputes. They are deleted or destroyed after that period. Agreements and necessary information are kept for the same period, unless a dispute, legal proceeding, or legal obligation requires longer. Transaction records subject to a longer statutory period are retained for that required period.</p>
       <h2>Your rights and security</h2>
       <p>You may request access or correction, object to or restrict processing, withdraw consent where processing relies on consent, or request deletion where permitted by law. AJ limits access to people who need the data for their work and uses appropriate measures against unauthorised access, alteration, or disclosure.</p>
       <h2>Privacy contact</h2><p>LINE: @ajgame · Tel: 081-624-4715 · Email: contact@ajgamerental.com</p>`
@@ -2508,7 +2508,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // Bookings saved before Rental Terms acknowledgement existed must not keep
     // a silently selected no-contract state. The customer must review and
     // accept the current version explicitly.
-    if(state.calc.noContract && (!state.calc.rentalTermsAccepted || state.calc.rentalTermsVersion !== "2026-09-22")){
+    if(state.calc.noContract && (!state.calc.rentalTermsAccepted || state.calc.rentalTermsVersion !== RENTAL_TERMS_VERSION)){
       state.calc.noContract = false;
       state.calc.rentalTermsAccepted = false;
       state.calc.rentalTermsAcceptedAt = "";
@@ -3264,8 +3264,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     document.body.classList.add("unified-flow-demo");
     const en = state.lang === "en";
     byId("unifiedDemoBanner").innerHTML = en
-      ? `<b>Unified rental flow demo</b><br>This page uses the live catalogue, queue calendar, prices and discounts. Beam uses the ฿1 demo checkout. Identity images are sent to AJ for review and deleted automatically 30 days after the return date.`
-      : `<b>Demo ขั้นตอนการเช่าแบบรวม</b><br>ใช้รายการเครื่อง ปฏิทินคิว ราคา และส่วนลดจริง โดย Beam เรียกเก็บทดสอบ 1 บาท รูปยืนยันตัวตนจะถูกส่งให้ร้านตรวจสอบ และลบอัตโนมัติ 30 วันหลังวันคืนเครื่อง`
+      ? `<b>Unified rental flow demo</b><br>This page uses the live catalogue, queue calendar, prices and discounts. Beam uses the ฿1 demo checkout. Identity images are sent to AJ for review and deleted automatically one year after the return date.`
+      : `<b>Demo ขั้นตอนการเช่าแบบรวม</b><br>ใช้รายการเครื่อง ปฏิทินคิว ราคา และส่วนลดจริง โดย Beam เรียกเก็บทดสอบ 1 บาท รูปยืนยันตัวตนจะถูกส่งให้ร้านตรวจสอบ และลบอัตโนมัติ 1 ปีหลังวันคืนเครื่อง`
     byId("demoGameTitle").textContent = en ? "Games" : "เกม";
     const gameBox = byId("gamePickBox");
     if(gameBox && gameBox.parentElement !== byId("demoGameHost")){
@@ -5334,7 +5334,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     };
   }
 
-  const RENTAL_TERMS_VERSION = "2026-09-22";
+  const RENTAL_TERMS_VERSION = "2026-09-23";
   function rentalTermsUrl(language=state.lang, embed=false){
     const url = new URL("/rental-terms/", CONFIG.apiBase);
     url.searchParams.set("lang", language === "en" ? "en" : "th");

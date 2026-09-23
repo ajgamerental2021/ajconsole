@@ -1292,3 +1292,12 @@ paused job shows slightly old numbers rather than an empty section.
 - Customer-facing contact email is contact@ajgamerental.com. The Wise payment account stays on the Gmail address.
 - Prepared ajgamerental.com: the Bot accepts it and www as an allowed origin and frame ancestor. The site carries a `CANONICAL_REDIRECT` flag (off) that will forward Render links to the domain once it answers.
 - Verification: 100/100 website and 362/362 Bot tests; a local run with a mock Lalamove confirmed ฿118.50 + ฿50 per trip → ฿338 round trip, ฿100 discount at 4 days and ฿200 at 9 days with a car for a racing wheel, plus rejection of a non-Google map link. Thai and English checked in the real page.
+
+## 2026-09-23 — Identity images retained for the Master Agreement year
+
+- Correction to the same-day entry above: identity images are kept for **one year from the return date**, not 30 days. A returning customer may rent again without verifying identity for a year, and that verification has no other evidence behind it, so a 30-day deletion would have removed it.
+- `IDENTITY_RETENTION_DAYS` is now 365, so every uploaded file carries `aj-identity-delete-after:<return date + 1 year>`. `aj-identity-hold` still keeps a file for a dispute.
+- A new identity-data-retention clause (bilingual) now appears in the public Rental Terms page, the contract PDF, the Rental Order PDF, the LIFF contract form, and the website Privacy Policy. It states the one-year period, the returning-customer reason, and that AJ stores no card or e-wallet credentials. The Rental Order clause sits with the general terms, above OTHER PENALTIES, and penalty numbering is unchanged.
+- Rental Terms version advanced to `2026-09-23` in the Bot, the no-contract flow, the terms page, and the booking site, so earlier acceptances are invalidated and customers accept the new wording.
+- LIFF cache-buster is `20260923-retention-v1`.
+- Verification: 362/362 Bot and 100/100 website tests; four QA PDFs rendered and read page by page in both languages; the real booking page loaded with no console errors after the version constant moved.
