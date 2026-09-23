@@ -758,7 +758,26 @@ body.unified-flow-demo .demo-order-section h3{margin:0 0 8px}
 body.unified-flow-demo .demo-order-box{padding:14px;border:1px solid #d0d5dd;border-radius:12px;background:#fff}
 body.unified-flow-demo .demo-order-row{display:flex;justify-content:space-between;gap:16px;padding:7px 0;border-bottom:1px solid #eef0f2}
 body.unified-flow-demo .demo-order-row:last-child{border-bottom:0}
-body.unified-flow-demo .demo-order-row span{color:#667085}
+body.unified-flow-demo .demo-order-row span{color:#667085;flex:1 1 auto}
+body.unified-flow-demo .demo-order-row b{color:#101828;text-align:right}
+body.unified-flow-demo .demo-order-row.is-discount b{color:#137333}
+body.unified-flow-demo .demo-order-row.is-muted span,body.unified-flow-demo .demo-order-row.is-muted b{color:#667085;font-weight:700}
+body.unified-flow-demo .demo-order-row.is-deposit b{color:#1d4ed8}
+body.unified-flow-demo .demo-order-row.is-subtotal b{font-size:16px}
+body.unified-flow-demo .demo-order-row.is-grand span{color:#101828;font-weight:900}
+body.unified-flow-demo .demo-order-row.is-grand b{font-size:20px;color:#b42318}
+body.unified-flow-demo .demo-total-box{padding:0}
+body.unified-flow-demo .demo-total-group{padding:10px 14px;border-bottom:1px solid #e7e9ee}
+body.unified-flow-demo .demo-total-group:last-child{border-bottom:0}
+body.unified-flow-demo .demo-total-final{background:#fbfcfe;border-radius:0 0 12px 12px}
+body.unified-flow-demo .demo-item-head{display:flex;gap:14px;align-items:center}
+body.unified-flow-demo .demo-item-thumb{width:64px;height:64px;flex:0 0 auto;object-fit:contain;border-radius:12px;background:#f2f4f7}
+body.unified-flow-demo .demo-item-thumb-icon{display:grid;place-items:center;font-size:30px}
+body.unified-flow-demo .demo-item-details{margin:12px 0 0;padding-left:20px;color:#475467;line-height:1.7}
+body.unified-flow-demo .demo-item-details li{margin:2px 0}
+body.unified-flow-demo .demo-order-action{display:flex;justify-content:flex-end;margin-top:12px}
+body.unified-flow-demo .demo-status.ok{color:#137333}
+.payment-wise-logo{height:20px;width:auto;border-radius:4px;display:block}
 body.unified-flow-demo .demo-status{font-weight:900;color:#c00000}
 body.unified-flow-demo .demo-status.ok{color:#137333}
 body.unified-flow-demo .demo-payment-launch{display:grid;gap:10px;margin-top:12px}
@@ -3298,18 +3317,20 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     localizeDemoAddress();
     card.innerHTML = `<h3>${en ? "Customer and delivery details" : "ข้อมูลลูกค้าและที่อยู่จัดส่ง"}</h3>
       ${demoProfile.lineUserId ? `<div class="demo-contract-status">LINE: ${esc(demoProfile.lineDisplayName || (en ? "Verified account detected" : "ตรวจพบบัญชีที่ยืนยันแล้ว"))}</div>` : `<p class="hint">${en ? "Connect LINE now to securely check returning-customer details, or link it after successful payment." : "เชื่อมต่อ LINE ตอนนี้เพื่อตรวจข้อมูลลูกค้าเก่าอย่างปลอดภัย หรือผูกบัญชีหลังชำระเงินสำเร็จ"}</p><button class="btn" id="lineConnectBtn" type="button">${en ? "Connect LINE" : "เชื่อมต่อ LINE"}</button>`}
+      ${demoIdentityCoveredByAgreement() ? `<div class="demo-contract-status">${en ? `Identity already verified — your agreement is valid until ${esc(formatAgreementDate(state.calc.masterAgreement?.validUntil))}. No documents needed this time.` : `ยืนยันตัวตนแล้ว — สัญญาเดิมใช้ได้ถึง ${esc(formatAgreementDate(state.calc.masterAgreement?.validUntil))} ครั้งนี้ไม่ต้องส่งเอกสารอีก`}</div>` : ""}
       <label class="option-row"><input type="checkbox" id="demoReturningOpt" ${state.calc.ret?"checked":""}><div><b>${en ? "Apply returning-customer discount" : "ใช้สิทธิ์ส่วนลดลูกค้าเก่า"}</b><div class="hint">${state.calc.retVerified ? (en ? "Verified" : "ยืนยันสิทธิ์แล้ว") : (en ? "Enter the previous phone / Rental ID in the verification window." : "ยืนยันด้วยเบอร์เดิมหรือ Rental ID ในหน้าต่างตรวจสอบสิทธิ์")}</div></div></label>
+      ${state.calc.ret ? demoReviewDiscountsHtml() : ""}
       <div class="demo-profile-grid">
         <div class="field"><label class="label" for="demoCustomerName">${en ? "Legal name" : "ชื่อ-นามสกุลจริง"}<span class="req">*</span></label><input class="input" id="demoCustomerName" autocomplete="name" value="${esc(demoProfile.fullName)}"></div>
         <div class="field"><label class="label" for="demoCustomerPhone">${en ? "Phone / WhatsApp" : "เบอร์โทรศัพท์"}<span class="req">*</span></label><input class="input" id="demoCustomerPhone" type="tel" autocomplete="tel" value="${esc(demoProfile.phone)}"></div>
-        ${state.calc.noContract ? "" : `
+        ${state.calc.noContract || demoIdentityCoveredByAgreement() ? "" : `
         <div class="field wide"><span class="label">${en ? "Identity document" : "เอกสารยืนยันตัวตน"}<span class="req">*</span></span><div class="demo-id-type" role="radiogroup"><label><input type="radio" name="demoIdentityType" value="thai_id" ${demoIdentityType()==="thai_id"?"checked":""}>${en ? "Thai ID card" : "บัตรประชาชน"}</label><label><input type="radio" name="demoIdentityType" value="passport" ${demoIdentityType()==="passport"?"checked":""}>${en ? "Passport" : "Passport (ชาวต่างชาติ)"}</label></div></div>
         <div class="field"><label class="label" for="demoIdentityNumber">${demoIdentityType()==="passport" ? (en ? "Passport number" : "เลข Passport") : (en ? "Thai ID number" : "เลขบัตรประชาชน")}<span class="req">*</span></label><input class="input" id="demoIdentityNumber" autocomplete="off" ${demoIdentityType()==="passport" ? "maxlength=20 autocapitalize=characters" : "inputmode=numeric maxlength=13"} value="${esc(demoProfile.identityNumber)}"></div>`}
         <div class="field"><label class="label" for="demoEmail">${en ? "Email" : "อีเมล"}</label><input class="input" id="demoEmail" type="email" autocomplete="email" value="${esc(demoProfile.email)}"></div>
-        <div class="field wide">
+        ${demoIdentityCoveredByAgreement() ? "" : `<div class="field wide">
         <label class="option-row"><input type="checkbox" id="demoNoContractOpt" ${state.calc.noContract?"checked":""}><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b><div class="hint">${en ? "No document number or identity images are required, and no rental agreement is prepared. The security deposit increases: ฿2,000 to ฿10,000 / ฿4,000 to ฿15,000." : "ไม่ต้องกรอกเลขเอกสารและไม่ต้องส่งรูปยืนยันตัวตน และไม่มีการทำสัญญาเช่า ค่าประกันเพิ่มขึ้น: 2,000 บาท เป็น 10,000 บาท / 4,000 บาท เป็น 15,000 บาท"}</div></div></label>
         ${state.calc.noContract ? `<div class="demo-choice-warning">${en ? "You remain responsible under the accepted Rental Terms. AJ holds the higher deposit instead of identity documents and may still decline a delivery." : "ลูกค้ายังคงต้องรับผิดชอบตาม Rental Terms ที่ยอมรับ ร้านใช้ค่าประกันที่สูงขึ้นแทนเอกสารยืนยันตัวตน และขอสงวนสิทธิ์ปฏิเสธการจัดส่งเป็นรายกรณี"}</div>` : ""}
-        </div>
+        </div>`}
         ${en ? `<div class="field wide"><label class="option-row"><input type="checkbox" id="demoNoThaiAddress" ${demoProfile.noThaiAddress?"checked":""}><div><b>I don't have Thai address details</b><div class="hint">Skip the Thai address fields and give AJ your Google Maps pin instead. AJ confirms the delivery point with you in chat.</div></div></label></div>` : ""}
         ${demoProfile.noThaiAddress ? "" : `
         <div class="field wide"><label class="label" for="demoAddressLine">${en ? "Building, house number, street and delivery notes" : "บ้านเลขที่ อาคาร ถนน และรายละเอียดการจัดส่ง"}<span class="req">*</span></label><textarea class="input" id="demoAddressLine" rows="3">${esc(demoProfile.addressLine)}</textarea></div>
@@ -3342,6 +3363,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return demoProfile.identityType || (state.lang === "en" ? "passport" : "thai_id");
   }
   function demoIdentityStatus(){
+    if(demoIdentityCoveredByAgreement()) return "verified_master_agreement";
     if(state.calc.noContract) return "not_provided";
     if(demoProfile.identityUploaded) return "submitted_pending_review";
     return demoProfile.identitySkipped ? "incomplete" : "pending_upload";
@@ -3470,25 +3492,29 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
     renderDemoOrderPage();
   }
-  function demoDeliveryRowsHtml(){
+  function demoDeliveryPendingText(){
     const en = state.lang === "en";
-    const quote = demoDelivery.quote;
-    if(demoDelivery.status === "ready" && quote){
-      return `<div class="demo-order-row"><span>${en?"Round-trip delivery":"ค่าจัดส่งไป-กลับ"}</span><b>${money(quote.subtotal)}</b></div>
-        <div class="demo-order-row"><span>${en?`Includes priority allowance ${money(quote.priorityFeePerTrip)} per trip`:`รวมค่าเร่งด่วน ${money(quote.priorityFeePerTrip)} ต่อเที่ยว`}</span><b>${quote.serviceType === "CAR" ? (en?"Car":"รถยนต์") : (en?"Motorcycle":"มอเตอร์ไซค์")}</b></div>
-        <div class="demo-order-row"><span>${en?"AJ delivery promotion":"ส่วนลดค่าจัดส่งจากร้าน"}</span><b>-${money(quote.discount)}</b></div>
-        <div class="demo-order-row"><span>${en?"Delivery you pay":"ค่าจัดส่งที่ต้องชำระ"}</span><b>${money(quote.total)}</b></div>`;
-    }
-    const pending = {
+    return {
       loading: en ? "Calculating…" : "กำลังคำนวณ…",
       needs_pin: en ? "Map link has no pin — paste a link with the exact location" : "ลิงก์แผนที่ไม่มีพิกัด กรุณาปักหมุดแล้วคัดลอกลิงก์ใหม่",
       unavailable: en ? "Awaiting confirmed quote" : "รอยืนยันราคาจริง"
     }[demoDelivery.status] || (en ? "Awaiting confirmed quote" : "รอยืนยันราคาจริง");
-    return `<div class="demo-order-row"><span>${en?"Round-trip delivery":"ค่าจัดส่งไป-กลับ"}</span><b>${esc(pending)}</b></div>`;
   }
   function demoGrandTotal(summary){
     const delivery = demoDelivery.status === "ready" && demoDelivery.quote ? Number(demoDelivery.quote.total) || 0 : 0;
     return (Number(summary.total) || 0) + delivery;
+  }
+  // A saved address arrives as one line. Keep it in the address field and, when
+  // it ends with a Thai postal code, let the lookup fill the rest.
+  function applyDemoSavedAddress(saved){
+    const text = String(saved || "").trim();
+    if(!text || demoProfile.addressLine.trim()) return;
+    demoProfile.addressLine = text;
+    const postal = text.match(/(\d{5})(?!.*\d{5})/);
+    if(postal){
+      demoProfile.postalCode = postal[1];
+      void onDemoPostalCode(postal[1]);
+    }
   }
   function demoMapsSearchUrl(){
     const query = [demoProfile.addressLine, demoProfile.subdistrict, demoProfile.district, demoProfile.province, demoProfile.postalCode].map(part => String(part || "").trim()).filter(Boolean).join(" ");
@@ -3555,8 +3581,23 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       : (en ? "Place the document on a plain surface, fill the frame and avoid glare." : "วางเอกสารบนพื้นเรียบ ให้เต็มกรอบ และไม่มีแสงสะท้อน");
     showModal(title, `<p class="hint">${esc(tips)}</p><img class="demo-example-image" src="${esc(new URL(`/assets/${file}`, CONFIG.apiBase).toString())}" alt="${esc(title)}">`);
   }
+  // A returning customer who already has a Master Agreement verified their
+  // identity within the last year; AJ does not ask for the documents again
+  // until that agreement expires.
+  function demoReviewDiscountsHtml(){
+    const afterWorkRate = calcSummary().afterWorkDisc > 0;
+    const googleLabel = tr(afterWorkRate ? "reviewGoogleAfterWork" : "reviewGoogle");
+    const facebookLabel = tr(afterWorkRate ? "reviewFacebookAfterWork" : "reviewFacebook");
+    return `<div class="review-discount-box">
+      <label class="option-row"><input type="checkbox" id="reviewGoogleOpt" ${state.calc.reviewGoogle?"checked":""}><div><b>${googleLabel}</b><div class="hint">${tr("reviewGoogleHelp")}</div></div></label>
+      <label class="option-row"><input type="checkbox" id="reviewFacebookOpt" ${state.calc.reviewFacebook?"checked":""}><div><b>${facebookLabel}</b><div class="hint">${tr("reviewFacebookHelp")}</div></div></label>
+    </div>`;
+  }
+  function demoIdentityCoveredByAgreement(){
+    return state.calc.retVerified && hasVerifiedAgreementRecord();
+  }
   function demoIdentityReady(){
-    return state.calc.noContract || demoProfile.identitySkipped || demoProfile.identityUploaded || (!!demoProfile.idDocument && !!demoProfile.selfieWithId);
+    return demoIdentityCoveredByAgreement() || state.calc.noContract || demoProfile.identitySkipped || demoProfile.identityUploaded || (!!demoProfile.idDocument && !!demoProfile.selfieWithId);
   }
   function renderDemoIdentityCard(){
     const card = byId("demoIdentityCard");
@@ -3564,6 +3605,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const en = state.lang === "en";
     const documentName = demoProfile.idDocument?.name || "";
     const selfieName = demoProfile.selfieWithId?.name || "";
+    if(demoIdentityCoveredByAgreement()){
+      card.innerHTML = `<h3>${en ? "Identity verification" : "ยืนยันตัวตน"}</h3>
+      <p>${en ? `You verified your identity with AJ before and your agreement is valid until ${esc(formatAgreementDate(state.calc.masterAgreement?.validUntil))}, so this step is already complete.` : `คุณเคยยืนยันตัวตนกับร้านแล้ว และสัญญาเดิมใช้ได้ถึง ${esc(formatAgreementDate(state.calc.masterAgreement?.validUntil))} ขั้นตอนนี้จึงเสร็จเรียบร้อย`}</p>
+      <div class="demo-contract-status">${en ? "Identity verified — continue to payment." : "ยืนยันตัวตนแล้ว ไปหน้าชำระเงินต่อได้"}</div>`;
+      return;
+    }
     if(state.calc.noContract){
       card.innerHTML = `<h3>${en ? "Identity verification" : "ยืนยันตัวตน"}</h3>
       <p>${en ? "You chose not to verify your identity, so this step is skipped and no document images are requested." : "คุณเลือกไม่ยืนยันตัวตน ขั้นตอนนี้จึงข้ามไปได้ และไม่ต้องส่งรูปเอกสาร"}</p>
@@ -3608,7 +3655,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const identity = String(demoProfile.identityNumber || "").trim();
     need("demoCustomerName", demoProfile.fullName.trim().length >= 2, en ? "Enter your legal name." : "กรอกชื่อ-นามสกุลจริง");
     need("demoCustomerPhone", String(demoProfile.phone || "").replace(/\D/g, "").length >= 9, en ? "Enter a phone number AJ can reach you on." : "กรอกเบอร์โทรศัพท์ที่ติดต่อได้");
-    if(!state.calc.noContract){
+    if(!state.calc.noContract && !demoIdentityCoveredByAgreement()){
       need("demoIdentityNumber", demoIdentityType() === "passport" ? /^[A-Z0-9]{6,20}$/i.test(identity) : thaiIdValid(identity),
         demoIdentityType() === "passport"
           ? (en ? "Enter the passport number as printed." : "กรอกเลข Passport ตามที่ระบุในเล่ม")
@@ -3655,14 +3702,68 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return demoStep2Problems().length === 0;
   }
   function demoPaymentOptionsHtml(){
+    return paymentPickerHtml();
+  }
+  function demoIdentityNumberLabel(){
     const en = state.lang === "en";
-    const choices = [
-      ["cash", en ? "Reservation payment via Beam (test charge ฿1)" : "ชำระค่าจองผ่าน Beam (ทดสอบ 1 บาท)"],
-      ["bank", en ? "Full payment by Thai QR / bank via Beam (test charge ฿1)" : "ชำระเต็มด้วย Thai QR / ธนาคารผ่าน Beam (ทดสอบ 1 บาท)"],
-      ["credit", en ? "Full payment by credit card via Beam (test charge ฿1)" : "ชำระเต็มด้วยบัตรเครดิตผ่าน Beam (ทดสอบ 1 บาท)"],
-      ["ewallet", en ? "Full payment by e-wallet via Beam (test charge ฿1)" : "ชำระเต็มด้วย E-Wallet ผ่าน Beam (ทดสอบ 1 บาท)"]
+    if(demoIdentityType() === "passport") return en ? "Passport number" : "เลข Passport";
+    return en ? "Thai ID number" : "เลขบัตรประชาชน";
+  }
+  function demoRentalItemHtml(item, summary){
+    const en = state.lang === "en";
+    const image = getConsoleImage(item);
+    const details = [
+      ...(en ? (item?.detailsEn || []) : (item?.detailsTh || [])),
+      ...(summary.bundleName ? [`${tr("bundle")}: ${summary.bundleName}`] : []),
+      ...(summary.extras || []).map(extra => `${tr("accessories")}: ${en ? extra.en : extra.th}`),
+      ...(summary.bgItems || []).map(game => `${tr("boardGames")}: ${bgName(game)}`),
+      ...(state.calc.games?.length ? state.calc.games.map((game, index) => `${en ? "Game" : "เกม"} ${index + 1}: ${game.name || game.title || game.id}`) : []),
+      ...(state.calc.later && !state.calc.games?.length ? [en ? "Game list: sent later" : "รายชื่อเกม: แจ้งภายหลัง"] : [])
+    ].filter(Boolean);
+    return `<div class="demo-order-box demo-item-box">
+      <div class="demo-item-head">
+        ${image ? `<img class="demo-item-thumb" src="${esc(image)}" alt="${esc(cName(item))}">` : `<span class="demo-item-thumb demo-item-thumb-icon">${esc(item?.icon || "🎮")}</span>`}
+        <div><b>${esc(cName(item))}</b><div class="hint">${summary.days} ${en?"days":"วัน"} · ${money(summary.rental)}</div></div>
+      </div>
+      ${details.length ? `<ul class="demo-item-details">${details.map(line => `<li>${esc(line)}</li>`).join("")}</ul>` : ""}
+    </div>`;
+  }
+  function demoPaymentBreakdownHtml(summary){
+    const en = state.lang === "en";
+    const quote = demoDelivery.status === "ready" ? demoDelivery.quote : null;
+    const row = (label, value, cls = "") => `<div class="demo-order-row ${cls}"><span>${esc(label)}</span><b>${value}</b></div>`;
+    const charges = [
+      row(en ? "Rental" : "ค่าเช่า", money(summary.rental)),
+      ...(summary.addons ? [row(en ? "Accessories" : "อุปกรณ์เสริม", money(summary.addons))] : []),
+      ...(summary.bgSubtotal ? [row(en ? "Board game rental" : "ค่าเช่าบอร์ดเกม", money(summary.bgSubtotal))] : []),
+      ...(summary.paymentFee ? [row(en ? "Payment fee" : "ค่าธรรมเนียมการชำระเงิน", money(summary.paymentFee))] : [])
     ];
-    return `<div class="payment-picker">${choices.map(([value,label]) => `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="${value}" ${state.calc.payment===value?"checked":""}><span class="payment-option-copy"><span>${esc(label)}</span></span></label>`).join("")}</div>`;
+    const discounts = [
+      ...(summary.afterWorkDisc ? [row(afterWorkPromotionLabel(summary.afterWorkPrice), `-${money(summary.afterWorkDisc)}`, "is-discount")] : []),
+      ...(summary.promoDisc ? [row(en ? "Console discount" : "ส่วนลดเครื่องเกม", `-${money(summary.promoDisc)}`, "is-discount")] : []),
+      ...(summary.retDisc ? [row(en ? "Returning customer 10%" : "ส่วนลดลูกค้าเก่า 10%", `-${money(summary.retDisc)}`, "is-discount")] : []),
+      ...(summary.reviewGoogleDisc ? [row(en ? "Google Maps review discount" : "ส่วนลดรีวิว Google Maps", `-${money(summary.reviewGoogleDisc)}`, "is-discount")] : []),
+      ...(summary.reviewFacebookDisc ? [row(en ? "Facebook review discount" : "ส่วนลดรีวิว Facebook", `-${money(summary.reviewFacebookDisc)}`, "is-discount")] : []),
+      ...(summary.bgDisc ? [row(en ? "Board game discount" : "ส่วนลดบอร์ดเกม", `-${money(summary.bgDisc)}`, "is-discount")] : [])
+    ];
+    const deliveryRows = quote
+      ? [
+          row(en ? "Round-trip delivery" : "ค่าจัดส่งไป-กลับ", money(quote.subtotal)),
+          row(en ? "Vehicle" : "ประเภทรถ", esc(quote.serviceType === "CAR" ? (en ? "Car" : "รถยนต์") : (en ? "Motorcycle" : "มอเตอร์ไซค์")), "is-muted"),
+          row(en ? "AJ delivery promotion" : "ส่วนลดค่าจัดส่งจากร้าน", `-${money(quote.discount)}`, "is-discount"),
+          row(en ? "Delivery you pay" : "ค่าจัดส่งที่ต้องชำระ", money(quote.total))
+        ]
+      : [row(en ? "Round-trip delivery" : "ค่าจัดส่งไป-กลับ", esc(demoDeliveryPendingText()), "is-muted")];
+    return `<div class="demo-order-box demo-total-box">
+      <div class="demo-total-group">${charges.join("")}</div>
+      ${discounts.length ? `<div class="demo-total-group">${discounts.join("")}</div>` : ""}
+      <div class="demo-total-group">${row(en ? "Security deposit (refunded)" : "ค่าประกัน (คืนเมื่อคืนเครื่อง)", money(summary.deposit), "is-deposit")}</div>
+      <div class="demo-total-group">${deliveryRows.join("")}</div>
+      <div class="demo-total-group demo-total-final">
+        ${row(en ? "Total before delivery" : "รวมก่อนค่าจัดส่ง", money(summary.total), "is-subtotal")}
+        ${row(en ? "Total including delivery" : "ยอดรวมทั้งหมด", quote ? money(demoGrandTotal(summary)) : esc(en ? "Awaiting delivery quote" : "รอค่าจัดส่ง"), "is-grand")}
+      </div>
+    </div>`;
   }
   function renderDemoOrderPage(){
     const host = byId("demoOrderPage");
@@ -3670,23 +3771,27 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const en = state.lang === "en";
     const summary = calcSummary();
     const item = consoleById(state.calc.consoleId);
-    const identityState = state.calc.noContract
+    const identityState = demoIdentityCoveredByAgreement()
+      ? (en ? "Verified — existing agreement on file" : "ยืนยันแล้ว — ใช้สัญญาเดิมที่มีอยู่")
+      : state.calc.noContract
       ? (en ? "Not provided — higher deposit applies" : "ไม่ยืนยันตัวตน — ใช้ค่าประกันสูงขึ้น")
       : demoProfile.identityUploaded
       ? (en ? "Images received — awaiting AJ review" : "ส่งรูปแล้ว — รอร้านตรวจสอบ")
       : (en ? "Incomplete — verify later" : "ยังไม่สำเร็จ — ยืนยันภายหลัง");
+    const identityTone = demoIdentityCoveredByAgreement() ? "ok" : demoProfile.identityUploaded ? "pending" : "";
+    const verifyNow = !demoProfile.identityUploaded && !state.calc.noContract && !demoIdentityCoveredByAgreement();
     host.innerHTML = `<div class="demo-order-grid">
       <div>
-        <section class="demo-order-section"><h3>${en ? "Rental item" : "สินค้าที่เช่า"}</h3><div class="demo-order-box"><b>${esc(cName(item))}</b><div>${summary.days} ${en?"days":"วัน"} · ${money(summary.rental)}</div></div></section>
+        <section class="demo-order-section"><h3>${en ? "Rental item" : "สินค้าที่เช่า"}</h3>${demoRentalItemHtml(item, summary)}</section>
         <section class="demo-order-section"><h3>${en ? "Details" : "รายละเอียด"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Rental ID":"รหัสการเช่า"}</span><b>${esc(state.calc.rentalCode || "-")}</b></div><div class="demo-order-row"><span>${en?"Rental status":"สถานะการเช่า"}</span><b class="demo-status">${en?"Awaiting payment":"รอชำระเงิน"}</b></div></div></section>
-        <section class="demo-order-section"><h3>${en ? "Customer" : "ข้อมูลลูกค้า"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Name":"ชื่อ"}</span><b>${esc(demoProfile.fullName)}</b></div>${state.calc.noContract ? "" : `<div class="demo-order-row"><span>${en?"Document":"เลขเอกสาร"}</span><b>${esc(maskDemoIdentity(demoProfile.identityNumber))}</b></div>`}<div class="demo-order-row"><span>${en?"Phone":"เบอร์ติดต่อ"}</span><b>${esc(demoProfile.phone)}</b></div><div class="demo-order-row"><span>${en?"Delivery":"ที่อยู่จัดส่ง"}</span><b>${esc([demoProfile.addressLine,demoProfile.subdistrict,demoProfile.district,demoProfile.province,demoProfile.postalCode].filter(Boolean).join(" "))}</b></div></div></section>
+        <section class="demo-order-section"><h3>${en ? "Customer" : "ข้อมูลลูกค้า"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Name":"ชื่อ"}</span><b>${esc(demoProfile.fullName)}</b></div>${state.calc.noContract ? "" : `<div class="demo-order-row"><span>${esc(demoIdentityNumberLabel())}</span><b>${esc(maskDemoIdentity(demoProfile.identityNumber))}</b></div>`}<div class="demo-order-row"><span>${en?"Phone":"เบอร์ติดต่อ"}</span><b>${esc(demoProfile.phone)}</b></div><div class="demo-order-row"><span>${en?"Delivery":"ที่อยู่จัดส่ง"}</span><b>${esc([demoProfile.addressLine,demoProfile.subdistrict,demoProfile.district,demoProfile.province,demoProfile.postalCode].filter(Boolean).join(" ") || (en ? "Google Maps pin only" : "ใช้หมุด Google Maps"))}</b></div></div></section>
         <section class="demo-order-section"><h3>${en ? "Rental period" : "ช่วงเวลา"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Duration":"ระยะเวลา"}</span><b>${summary.days} ${en?"days":"วัน"}</b></div><div class="demo-order-row"><span>${en?"Dates":"วันที่เช่า"}</span><b>${displayDate(state.calc.start)} – ${displayDate(state.calc.end)}</b></div></div></section>
       </div>
       <div>
-        <section class="demo-order-section"><h3>${en ? "Identity verification" : "การยืนยันตัวตน"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Status":"สถานะ"}</span><b class="demo-status ${demoProfile.identityUploaded?"pending":""}">${esc(identityState)}</b></div>${!demoProfile.identityUploaded && !state.calc.noContract?`<button class="btn" id="demoVerifyLater" type="button">${en?"Verify now":"ยืนยันตอนนี้"}</button>`:""}</div></section>
-        <section class="demo-order-section"><h3>${en ? "Payment" : "การชำระเงิน"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Rental":"ค่าเช่า"}</span><b>${money(summary.rental + summary.addons + summary.bgSubtotal - summary.discounts)}</b></div><div class="demo-order-row"><span>${en?"Security deposit":"ค่าประกัน"}</span><b>${money(summary.deposit)}</b></div>${demoDeliveryRowsHtml()}<div class="demo-order-row"><span>${en?"Total before delivery":"รวมก่อนค่าจัดส่ง"}</span><b>${money(summary.total)}</b></div><div class="demo-order-row"><span>${en?"Total including delivery":"ยอดรวมทั้งหมด"}</span><b>${demoDelivery.status === "ready" ? money(demoGrandTotal(summary)) : (en?"Awaiting delivery quote":"รอค่าจัดส่ง")}</b></div></div></section>
-        <section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${demoPaymentOptionsHtml()}<div class="demo-payment-launch"><button class="btn primary" id="demoBeamPay" type="button">${en?"Create Beam payment link":"สร้างลิงก์ชำระเงิน Beam"}</button><p class="hint">${en?"Demo checkout charges ฿1. Payment is still recorded against this Rental ID and follows the existing webhook flow.":"หน้าทดสอบเรียกเก็บ 1 บาท และยังบันทึกผลกับ Rental ID นี้ผ่าน webhook เดิม"}</p></div></section>
-        <p class="hint">${en?"After Beam confirms payment, the success page shows LINE and WhatsApp notification actions. The old booking-message Flex is not sent; Delivery App payment Flex remains unchanged.":"หลัง Beam ยืนยันยอด หน้าชำระเงินสำเร็จจะแสดงปุ่มแจ้ง LINE โดยไม่ส่ง Flex ข้อความจองเช่าเดิม และ Flex การชำระเงินของ Delivery App ยังคงเดิม"}</p>
+        <section class="demo-order-section"><h3>${en ? "Identity verification" : "การยืนยันตัวตน"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Status":"สถานะ"}</span><b class="demo-status ${identityTone}">${esc(identityState)}</b></div>${verifyNow?`<div class="demo-order-action"><button class="btn" id="demoVerifyLater" type="button">${en?"Verify now":"ยืนยันตอนนี้"}</button></div>`:""}</div></section>
+        <section class="demo-order-section"><h3>${en ? "Payment" : "การชำระเงิน"}</h3>${demoPaymentBreakdownHtml(summary)}</section>
+        <section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${demoPaymentOptionsHtml()}<div class="demo-payment-launch"><button class="btn primary" id="demoBeamPay" type="button">${en?"Create payment link":"สร้างลิงก์ชำระเงิน"}</button><p class="hint">${en?"This demo charges ฿1. The payment is still recorded against this Rental ID and follows the existing webhook flow.":"หน้าทดสอบเรียกเก็บ 1 บาท และยังบันทึกผลกับ Rental ID นี้ผ่าน webhook เดิม"}</p></div></section>
+        <p class="hint">${en?"After the payment is confirmed, the success page shows LINE and WhatsApp notification actions. The old booking-message Flex is not sent; Delivery App payment Flex remains unchanged.":"หลังยืนยันยอดชำระ หน้าชำระเงินสำเร็จจะแสดงปุ่มแจ้ง LINE โดยไม่ส่ง Flex ข้อความจองเช่าเดิม และ Flex การชำระเงินของ Delivery App ยังคงเดิม"}</p>
       </div>
     </div>`;
   }
@@ -3761,6 +3866,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       return {tone:"ready", text:state.lang === "en" ? "Customer and delivery details are ready." : "ข้อมูลลูกค้าและการจัดส่งพร้อมแล้ว"};
     }
     if(step === 3 && UNIFIED_FLOW_DEMO){
+      if(demoIdentityCoveredByAgreement()) return {tone:"ready", text:state.lang === "en" ? "Your existing agreement covers identity. Continue to payment." : "ใช้สัญญาเดิมที่ยืนยันตัวตนไว้แล้ว ไปหน้าชำระเงินต่อได้"};
       if(state.calc.noContract) return {tone:"ready", text:state.lang === "en" ? "Identity is not required for this choice. Continue to payment." : "ตัวเลือกนี้ไม่ต้องยืนยันตัวตน ไปหน้าชำระเงินต่อได้"};
       if(!demoIdentityReady()) return {tone:"info", text:state.lang === "en" ? "Upload both identity images, or choose Verify later." : "อัปโหลดรูปยืนยันตัวตนทั้ง 2 รูป หรือเลือกยืนยันภายหลัง"};
       return {tone:"ready", text:demoProfile.identitySkipped ? (state.lang === "en" ? "You can continue. Identity will remain incomplete until approved." : "ไปต่อได้ โดยสถานะยืนยันตัวตนจะยังไม่สำเร็จจนกว่าร้านอนุมัติ") : (state.lang === "en" ? "Files are ready to submit for AJ review." : "ไฟล์พร้อมส่งให้ร้านตรวจสอบ")};
@@ -4036,15 +4142,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       saveLocal();
     }
     const wiseDisabled = paymentLocked || !wiseStatus.available ? "disabled" : "";
-    const fullPaymentOptions = state.lang === "en"
-      ? `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span class="payment-option-copy"><span>🏦 Thai Bank Transfer: pay full amount</span></span></label><label class="payment-option ${wiseStatus.available ? "" : "is-disabled"}"><input type="radio" name="paymentChoice" data-payment-choice="wise" ${state.calc.payment === "wise" ? "checked" : ""} ${wiseDisabled}>${wiseOptionHtml(wiseStatus)}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}>${creditOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`
-      : `<label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="bank" ${state.calc.payment === "bank" ? "checked" : ""} ${paymentDisabled}><span class="payment-option-copy"><span>🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน</span></span></label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="credit" ${state.calc.payment === "credit" ? "checked" : ""} ${paymentDisabled}>${creditOptionHtml()}</label><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="ewallet" ${state.calc.payment === "ewallet" ? "checked" : ""} ${paymentDisabled}>${ewalletOptionHtml()}</label>`;
-    const reservationTitle = state.lang === "en"
-      ? "Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee)"
-      : "ชำระปลายทาง (มีโอนจองคิวก่อน ฿200)";
-    const fullPaymentTitle = state.lang === "en" ? "Pay the full amount before delivery" : "ชำระเต็มจำนวนก่อนจัดส่ง";
-    const recommended = state.lang === "en" ? "Recommended" : "แนะนำ";
-    const paymentHtml = `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label><div class="payment-picker"><div class="payment-group"><div class="payment-group-title"><span>${reservationTitle}</span><span class="payment-recommended">${recommended}</span></div><label class="payment-option"><input type="radio" name="paymentChoice" data-payment-choice="cash" ${state.calc.payment === "cash" ? "checked" : ""} ${paymentDisabled}>${cashDeliveryOptionHtml()}</label></div><div class="payment-group"><div class="payment-group-title"><span>${fullPaymentTitle}</span></div>${fullPaymentOptions}</div></div>${paymentLockHint}</div>`;
+    const paymentHtml = `<div class="field" id="paymentOptions"><label class="label">${tr("payment")}</label>${paymentPickerHtml({disabled:paymentDisabled, wiseStatus})}${paymentLockHint}</div>`;
     const mapsHtml = `<div class="grid2" style="margin-top:12px">
         <div class="field"><label class="label">${mapsLabel}</label><input class="input" id="mapsInput" value="${esc(state.calc.maps)}" placeholder="https://maps.google.com/..."></div>
       </div>
@@ -4173,10 +4271,31 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     ["wiseLinkPolicy", "https://wise.com/help/articles/2971625/how-do-i-cancel-my-transfer"],
     ["wiseLinkCoverage", "https://wise.com/gb/send-money/"]
   ];
+  // One payment picker for the booking page and the demo's Rental ID page, so
+  // the logos, fees and refund notes can never drift apart.
+  function paymentPickerHtml({disabled = "", wiseStatus = null} = {}){
+    const en = state.lang === "en";
+    const status = wiseStatus || (en ? wisePaymentAvailability() : {available:true, reason:"", iso:bangkokNow().iso});
+    const wiseDisabled = disabled || !status.available ? "disabled" : "";
+    const option = (value, copy, extraClass = "", optionDisabled = disabled) =>
+      `<label class="payment-option ${extraClass}"><input type="radio" name="paymentChoice" data-payment-choice="${value}" ${state.calc.payment === value ? "checked" : ""} ${optionDisabled}>${copy}</label>`;
+    const fullPayment = [
+      option("bank", `<span class="payment-option-copy"><span>${en ? "🏦 Thai Bank Transfer: pay full amount" : "🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน"}</span></span>`),
+      ...(en ? [option("wise", wiseOptionHtml(status), status.available ? "" : "is-disabled", wiseDisabled)] : []),
+      option("credit", creditOptionHtml()),
+      option("ewallet", ewalletOptionHtml())
+    ].join("");
+    const reservationTitle = en
+      ? "Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee)"
+      : "ชำระปลายทาง (มีโอนจองคิวก่อน ฿200)";
+    const fullPaymentTitle = en ? "Pay the full amount before delivery" : "ชำระเต็มจำนวนก่อนจัดส่ง";
+    const recommended = en ? "Recommended" : "แนะนำ";
+    return `<div class="payment-picker"><div class="payment-group"><div class="payment-group-title"><span>${reservationTitle}</span><span class="payment-recommended">${recommended}</span></div>${option("cash", cashDeliveryOptionHtml())}</div><div class="payment-group"><div class="payment-group-title"><span>${fullPaymentTitle}</span></div>${fullPayment}</div></div>`;
+  }
   function cashDeliveryOptionHtml(){
     const title = state.lang === "en"
       ? "💵 Balance on delivery"
-      : "💸 โอนจองคิว ฿200 และชำระยอดที่เหลือปลายทาง";
+      : `💸 ชำระค่าจอง ${money(CONFIG.reservationAmount)} และที่เหลือปลายทาง`;
     const firstLine = state.lang === "en" ? "Thai QR scan (no fee)" : "เงินโอน (ไม่มีค่าธรรมเนียม)";
     const secondLine = state.lang === "en" ? "Card (+3.50%) or E-Wallet (+2.95%)" : "บัตร (+3.50%) หรือ E-Wallet (+2.95%)";
     return `<span class="payment-option-copy"><span>${title}</span><small>${firstLine}</small><small>${secondLine}</small>${paymentReservationBadgesHtml()}${paymentRefundNoteHtml()}</span>`;
@@ -4198,7 +4317,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       : status.reason === "holiday"
         ? tr("wiseUnavailableHoliday")
         : "";
-    return `<span class="payment-option-copy"><span>🌍 Wise: pay full amount</span><small class="payment-wise-note">${tr("wiseAvailabilityNote")}</small>${blocked ? `<small class="wise-status blocked">${blocked}</small>` : ""}${paymentRefundNoteHtml()}</span>`;
+    return `<span class="payment-option-copy"><span>🌍 Wise: pay full amount</span><span class="payment-brand-badges"><img class="payment-wise-logo" src="https://wise.com/public-resources/assets/logos/wise/brand_logo.svg" alt="Wise"></span><small class="payment-wise-note">${tr("wiseAvailabilityNote")}</small>${blocked ? `<small class="wise-status blocked">${blocked}</small>` : ""}${paymentRefundNoteHtml()}</span>`;
   }
   function creditOptionHtml(){
     const title = state.lang === "en" ? "💳 Credit Card: pay full amount" : "💳 บัตรเครดิต: ชำระเต็มจำนวน";
@@ -6765,6 +6884,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         if(UNIFIED_FLOW_DEMO && accessToken && result.profile){
           demoProfile.fullName = String(result.profile.fullName || demoProfile.fullName || "");
           demoProfile.phone = String(result.profile.phone || demoProfile.phone || "");
+          demoProfile.email = String(result.profile.email || demoProfile.email || "");
+          applyDemoSavedAddress(String(result.profile.address || ""));
           demoProfile.lineDisplayName = String(result.profile.lineDisplayName || profile?.displayName || "");
           demoProfile.lineUserId = fallbackLineUserId;
         }

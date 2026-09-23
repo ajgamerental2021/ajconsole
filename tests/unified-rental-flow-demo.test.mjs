@@ -153,3 +153,39 @@ test('customer-facing contact email uses the AJ domain', () => {
   // The Wise payment account is a bank detail, not a contact address.
   assert.match(html, /wiseEmail: "ajgamerental2021@gmail\.com"/);
 });
+
+test('the Rental ID page shows the device photo and everything included', () => {
+  assert.match(html, /function demoRentalItemHtml\(item, summary\)/);
+  assert.match(html, /class="demo-item-thumb"/);
+  assert.match(html, /summary\.bundleName \? \[`\$\{tr\("bundle"\)\}/);
+  assert.match(html, /demo-item-details/);
+});
+
+test('the payment breakdown separates charges, discounts, delivery and totals', () => {
+  assert.match(html, /function demoPaymentBreakdownHtml\(summary\)/);
+  assert.match(html, /"is-discount"/);
+  assert.match(html, /"is-grand"/);
+  assert.match(html, /en \? "Vehicle" : "ประเภทรถ"/);
+  assert.match(html, /summary\.retDisc \? \[row\(/);
+  assert.match(html, /summary\.reviewGoogleDisc \? \[row\(/);
+});
+
+test('the demo and the booking page share one payment picker', () => {
+  assert.match(html, /function paymentPickerHtml\(\{disabled = "", wiseStatus = null\} = \{\}\)/);
+  assert.match(html, /function demoPaymentOptionsHtml\(\)\{\n\s*return paymentPickerHtml\(\);/);
+  assert.doesNotMatch(html, /via Beam \(test charge/);
+  assert.match(html, /payment-wise-logo/);
+  assert.match(html, /ชำระค่าจอง \$\{money\(CONFIG\.reservationAmount\)\} และที่เหลือปลายทาง/);
+});
+
+test('a live Master Agreement replaces identity verification for the rental', () => {
+  assert.match(html, /function demoIdentityCoveredByAgreement\(\)\{\n\s*return state\.calc\.retVerified && hasVerifiedAgreementRecord\(\);/);
+  assert.match(html, /if\(demoIdentityCoveredByAgreement\(\)\)\{\n\s*card\.innerHTML/);
+  assert.match(html, /verified_master_agreement/);
+  assert.match(html, /state\.calc\.ret \? demoReviewDiscountsHtml\(\) : ""/);
+});
+
+test('a verified LINE sign-in fills the saved email and address', () => {
+  assert.match(html, /demoProfile\.email = String\(result\.profile\.email/);
+  assert.match(html, /applyDemoSavedAddress\(String\(result\.profile\.address \|\| ""\)\)/);
+});

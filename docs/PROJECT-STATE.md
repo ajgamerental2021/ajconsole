@@ -1320,3 +1320,15 @@ paused job shows slightly old numbers rather than an empty section.
 - Rental Terms acceptance is no longer gated on scrolling to the end; the terms stay embedded with a new-tab link.
 - Fixed the "cannot check availability" dead end reported after pressing Confirm: the Console Pending sheet write is no longer awaited before the Rental ID page opens. It retries once in the background, so a cold Bot cannot strand a customer between identity and payment.
 - Verification: 102/102 website and 362/362 Bot tests; the real page was walked in Thai and English on desktop and at 375 px, covering the postcode dropdown, the example-image modal, the visitor address checkbox and the terms checkbox.
+
+## 2026-09-23 — Rental ID page detail, shared payment picker, returning-customer identity
+
+- The Rental ID page now shows the console photo with everything included: equipment details, bundle, accessories, board games and the chosen games.
+- "Verify now" sits on its own row on the right, clear of the divider.
+- The payment picker is one shared function used by the booking page and the demo, so the demo shows the real method names, logos and fees with no "via Beam" wording. The Thai reservation option reads "ชำระค่าจอง ฿200 และที่เหลือปลายทาง"; English keeps its own ฿1,000 reservation wording and gains Wise with the existing availability note and a small Wise logo.
+- The customer block labels the document as Thai ID or passport, following the chosen type.
+- The payment breakdown is grouped and colour-coded: charges, discounts (including returning-customer 10% and both review discounts), the refundable deposit, delivery (with "ประเภทรถ" instead of the priority-fee line) and the totals.
+- A returning customer with a valid Master Agreement no longer verifies identity: the document fields disappear from step 2, step 3 reports the agreement's expiry date, and the booking records `verified_master_agreement`. An expired agreement asks for identity again.
+- Ticking the returning-customer discount shows both review discounts, exactly as the booking page does, and they use the existing ฿100 / ฿50-with-promotion logic.
+- A verified LINE sign-in now also fills the saved email and address; the Bot returns them only for the customer's own verified token.
+- Verification: 107/107 website and 362/362 Bot tests, plus a full walk in Thai and English covering the new page, the picker, the review discounts and a simulated live agreement.
