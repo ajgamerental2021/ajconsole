@@ -46,34 +46,36 @@ description keeps it for a dispute. **Owner setup:** paste the updated
 version, then run `installIdentityPurgeTrigger()` once. Until then the old
 script ignores the description and nothing is deleted automatically.
 
-## Lalamove delivery pricing before production switch
+## Lalamove delivery pricing
 
-Do not store or call the Lalamove API secret from the browser. Add a server-side
-quotation endpoint using Lalamove v3 `POST /v3/quotations`, with credentials held
-in Render environment variables. Obtain an outbound quotation from AJ to the
-customer and a separate return quotation from the customer to AJ, then store both
-quotation IDs, expiry times, service type, price breakdowns, and the combined
-amount in the Rental Order.
+`POST /api/delivery/quote` on the Bot quotes both trips through Lalamove v3
+(`POST /v3/quotations`) and returns the amounts the Rental ID page shows. The
+key and secret live in Render only; the browser sends just the map link and the
+load. The endpoint answers 503 until Lalamove is configured, and the page then
+keeps saying the fare is awaiting confirmation.
 
-Use `MOTORCYCLE` for one ordinary device. Use `CAR` for Logitech G29 or more than
-three devices. The exact rule for two or three bulky devices should be confirmed
-from packed dimensions and weight before launch, rather than inferred from item
-count alone.
+Rules, as approved by the owner:
 
-Lalamove quotations expire quickly and the official priority fee is added to an
-order after the order has been placed. Therefore the checkout must either:
+- `MOTORCYCLE` for one or two ordinary devices; `CAR` for a racing wheel or
+  three or more devices.
+- Lalamove charges its priority fee when the order is placed, so checkout adds
+  an allowance of `LALAMOVE_PRIORITY_FEE_PER_TRIP` (฿50) to each trip instead.
+- AJ's delivery promotion is a discount of ฿100 on the round trip, or ฿200 from
+  a seven-day rental, never more than the fare itself.
 
-- collect the live base quotations and show that a priority fee will be confirmed
-  at dispatch; or
-- use an owner-approved fixed priority allowance and reconcile the difference.
+The customer's Google Maps link is resolved server-side by
+`services/maps-location.js`. Only Google's own map hosts are accepted and only
+their redirect is followed, so a pasted link cannot make the server fetch an
+arbitrary address. A link without a pin returns `delivery_location_unresolved`
+and the page asks the customer to drop a pin and paste the link again.
 
-Do not label an estimated or cached amount as a final delivery charge. If either
-quotation expires before payment, requote both trips and ask the customer to
-review the changed total.
+Required owner configuration in Render:
 
-Required owner configuration:
+- `LALAMOVE_API_KEY`, `LALAMOVE_API_SECRET` (sandbox first, then production)
+- `LALAMOVE_BASE_URL` (`https://rest.sandbox.lalamove.com`, or
+  `https://rest.lalamove.com` for production)
+- `LALAMOVE_PICKUP_LAT`, `LALAMOVE_PICKUP_LNG`, `LALAMOVE_PICKUP_ADDRESS`
+- `LALAMOVE_PRIORITY_FEE_PER_TRIP` if the ฿50 allowance changes
 
-- Lalamove production API key and secret in Render (never in Git or client code)
-- exact AJ pickup latitude, longitude, and address
-- approved priority-fee policy
-- packed-size/weight rule for when two or three devices require `CAR`
+Still to confirm before production: the packed size and weight rule for two
+bulky devices, which currently still quote a motorcycle.

@@ -71,7 +71,7 @@ test('document type is chosen separately from the page language', () => {
   assert.match(html, /name="demoIdentityType" value="passport"/);
   assert.match(html, /return demoProfile\.identityType \|\| \(state\.lang === "en" \? "passport" : "thai_id"\)/);
   assert.match(html, /demoIdentityType\(\) === "passport" \? \/\^\[A-Z0-9\]\{6,20\}\$\/i\.test\(identity\) : thaiIdValid\(identity\)/);
-  assert.match(html, /identityType: UNIFIED_FLOW_DEMO \? demoIdentityType\(\) : ""/);
+  assert.match(html, /identityType: UNIFIED_FLOW_DEMO && !state\.calc\.noContract \? demoIdentityType\(\) : ""/);
 });
 
 test('postal code fills subdistrict, district and province from the service-area file', () => {
@@ -96,4 +96,46 @@ test('identity images are uploaded to the booking context before the Rental ID p
   assert.ok(openOrder.indexOf('uploadDemoIdentity(') < openOrder.indexOf('state.calc.demoOrderOpen = true'));
   assert.match(html, /Images received — awaiting AJ review/);
   assert.doesNotMatch(html, /are not uploaded by the demo/);
+});
+
+test('step 2 marks the fields that still need filling instead of a dead button', () => {
+  assert.match(html, /function demoStep2Problems\(\)/);
+  assert.match(html, /function showDemoStep2Problems\(\)/);
+  assert.match(html, /stepReady\(step\) \|\| \(UNIFIED_FLOW_DEMO && step === 2\)/);
+  assert.match(html, /class="field-error"/);
+  assert.match(html, /<span class="req">\*<\/span>/);
+  assert.doesNotMatch(html, /No OTP is used\. For privacy/);
+});
+
+test('declining identity removes the document fields and step 3 upload', () => {
+  assert.match(html, /ไม่ต้องการยืนยันตัวตน \/ ไม่ต้องการให้ข้อมูลส่วนตัว/);
+  assert.match(html, /I prefer not to verify my identity or share personal documents/);
+  assert.match(html, /\$\{state\.calc\.noContract \? "" : `/);
+  assert.match(html, /if\(state\.calc\.noContract\)\{\n\s*card\.innerHTML/);
+  assert.match(html, /if\(state\.calc\.noContract\) return "not_provided"/);
+});
+
+test('the guide never moves the demo customer between steps', () => {
+  assert.match(html, /if\(!UNIFIED_FLOW_DEMO && options\.syncStep !== false && step && state\.calc\.step !== step\)/);
+});
+
+test('round-trip delivery price comes from the Bot and is never shown as final when missing', () => {
+  assert.match(html, /\/api\/delivery\/quote/);
+  assert.match(html, /demoDelivery = \{status:"idle", quote:null\}/);
+  assert.match(html, /Awaiting confirmed quote/);
+  assert.match(html, /Map link has no pin/);
+  assert.match(html, /hasLargeItem: \/G29\|Logitech\|VR2\|Racing\/i\.test\(name\)/);
+});
+
+test('privacy policy explains that AJ stores no card or e-wallet details', () => {
+  assert.match(html, /AJ does not store your credit card number or e-wallet credentials/);
+  assert.match(html, /AJ ไม่ได้จัดเก็บหมายเลขบัตรเครดิตหรือข้อมูล E-Wallet/);
+});
+
+test('customer-facing contact email uses the AJ domain', () => {
+  assert.match(html, /Email contact@ajgamerental\.com/);
+  assert.match(html, /อีเมล contact@ajgamerental\.com/);
+  assert.match(html, /Email: contact@ajgamerental\.com/);
+  // The Wise payment account is a bank detail, not a contact address.
+  assert.match(html, /wiseEmail: "ajgamerental2021@gmail\.com"/);
 });
