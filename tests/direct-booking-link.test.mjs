@@ -10,7 +10,7 @@ test('booking=1 points directly at the calculator heading without removing or hi
   assert.match(source, /class="calc-head-wrap" id="calcHeading"/);
   assert.match(source, /#calcHeading\{scroll-margin-top:calc\(var\(--nav-h\) \+ 8px\)\}/);
   assert.match(source, /get\("booking"\) === "1"/);
-  assert.match(source, /if\(directBookingEntry\) state\.calc\.step = 1/);
+  assert.match(source, /if\(directBookingEntry && !\(UNIFIED_FLOW_DEMO && demoProfileRestored\)\) state\.calc\.step = 1/);
   assert.match(source, /else if\(!openedFromLink && directBookingEntry\)\{[\s\S]*byId\("calcHeading"\)\.scrollIntoView\(\{block:"start"\}\)/);
 });
 
