@@ -197,6 +197,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-option-copy{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
 .payment-option-copy small{font-size:12px;font-weight:800;color:var(--text2)}
 .payment-option-note{display:block;margin-top:7px;color:#8a4b00!important;font-size:11px!important;font-weight:900!important;line-height:1.4}
+.payment-option-amount{display:block;margin-top:5px;color:#b42318!important;font-size:12.5px!important;font-weight:900!important;line-height:1.4}
 .payment-wise-note{max-width:560px;line-height:1.4}
 .payment-option.is-disabled{cursor:not-allowed;opacity:.58}
 .wise-status.blocked{color:#d92d20!important;font-weight:900!important}
@@ -692,8 +693,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .site-info-links{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap}
 .site-info-link{appearance:none;border:0;background:transparent;padding:4px 0;color:#475467;font:inherit;font-size:12.5px;font-weight:800;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .site-info-link:hover,.site-info-link:focus-visible{color:#c90012}
-.page-info-links{display:flex;align-items:center;justify-content:center;gap:8px 18px;flex-wrap:wrap;margin:16px 0 0;padding:12px 14px;border:1px solid #e5e7eb;border-radius:12px;background:#fafbfc}
-.page-info-links.is-booking{justify-content:flex-start;margin:0 0 18px}
+.site-menu{position:relative}
+.site-menu-list{position:absolute;right:0;top:calc(100% + 6px);z-index:60;min-width:220px;display:flex;flex-direction:column;padding:6px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 12px 32px rgba(15,23,42,.16)}
+.site-menu-list[hidden]{display:none}
+.site-menu-list .site-info-link{display:block;width:100%;text-align:left;padding:11px 12px;border-radius:8px;font-size:14px;color:#1f2937;text-decoration:none}
+.site-menu-list .site-info-link:hover,.site-menu-list .site-info-link:focus-visible{background:#fef2f2;color:#c90012}
 .info-modal-card{width:min(920px,100%);height:min(90vh,860px);display:flex;flex-direction:column;overflow:hidden}
 .info-modal-body{padding:28px 30px 34px;overflow:auto;color:#344054;line-height:1.75}
 .info-modal-body ul,.info-modal-body ol{padding-left:24px;margin:10px 0}
@@ -708,6 +712,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .info-modal-body ul{margin:6px 0 14px;padding-left:22px}
 .info-modal-body li{margin:6px 0}
 .info-modal-lead{font-size:17px;font-weight:700;color:#344054}
+.info-modal-facts{font-weight:700;color:#c90012;line-height:1.7}
 .info-modal-highlight{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}
 .info-modal-highlight>div{padding:18px;border:1px solid #e5e7eb;border-radius:12px;background:#fafafa;line-height:1.55}
 .info-modal-highlight strong{display:block;color:#c90012;font-size:18px}
@@ -779,6 +784,13 @@ body.unified-flow-demo .demo-total-box{padding:0}
 body.unified-flow-demo .demo-total-group{padding:10px 14px;border-bottom:1px solid #e7e9ee}
 body.unified-flow-demo .demo-total-group:last-child{border-bottom:0}
 body.unified-flow-demo .demo-total-final{background:#fbfcfe;border-radius:0 0 12px 12px}
+body.unified-flow-demo .demo-total-final:not(:last-child){border-radius:0}
+body.unified-flow-demo .demo-payment-schedule{background:#fff8e6;border-radius:0 0 12px 12px}
+body.unified-flow-demo .demo-payment-schedule-title{font-weight:900;color:#101828;margin:0 0 4px}
+body.unified-flow-demo .demo-order-row.is-pay-now b{font-size:18px;color:#b42318}
+body.unified-flow-demo .demo-order-row.is-pay-later b{font-size:16px;color:#101828}
+body.unified-flow-demo .demo-order-row .payment-badges{display:inline-flex;vertical-align:middle;margin-left:4px}
+body.unified-flow-demo .demo-payment-schedule-note{margin:6px 0 0;color:#667085;font-size:12.5px;line-height:1.55}
 body.unified-flow-demo .demo-item-head{display:flex;gap:14px;align-items:center}
 body.unified-flow-demo .demo-item-thumb{width:64px;height:64px;flex:0 0 auto;object-fit:contain;border-radius:12px;background:#f2f4f7}
 body.unified-flow-demo .demo-item-thumb-icon{display:grid;place-items:center;font-size:30px}
@@ -967,7 +979,6 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
     .before-rent-final-cta .btn{width:100%;min-width:0}
     .site-footer-inner{align-items:flex-start;flex-direction:column-reverse}
     .site-footer-main{align-items:flex-start;flex-direction:column;gap:8px}
-    .page-info-links,.page-info-links.is-booking{justify-content:flex-start;gap:6px 14px}
     .info-modal-highlight{grid-template-columns:1fr}
     .info-modal-body{padding:18px 16px}
     .info-modal-frame{min-height:calc(100dvh - 90px)}
@@ -986,6 +997,10 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
     <div class="brand"><div class="brand-mark"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAAAXNSR0IArs4c6QAAAHhlWElmTU0AKgAAAAgABAEaAAUAAAABAAAAPgEbAAUAAAABAAAARgEoAAMAAAABAAIAAIdpAAQAAAABAAAATgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAAAQABAACgAgAEAAAAAQAAAFCgAwAEAAAAAQAAAFAAAAAAAm94eAAAAAlwSFlzAAALEwAACxMBAJqcGAAALi5JREFUeAHlnQd8Xdd9388D8B42QBAAQSwOiaRISlwiRYva05Ls2JIsx3G8Vxs7qfOx3SR12rT9eHTYid2PkyZuE38+zvBo4qW4jmNZsq1BLYqUKEukRIoLJMENAsR+D8B7/X7PxSVBLUu2ZLefHuqPe++5Z/7Of51xnzLhVx/Ka2pq5kxMTHRmMpnOUiYzlyatKoVwcyaEDpvH/SHu/5HbxzOl0pFSqdSbzWZ7R0dHjxE3ZZpfVaBdv/SQo/PLQlnZJaFU2hAymRVc53FtAqgMFMogUSmHipCNfFZDS+TpJ89+rk9wfTAUiw8wCE+RtAD90sKz2vWq1VteUV29vqxYvBWAbqCWZVA2rc1GCFxVJhNymbIwXJwKreUV4fjUZKgrKwvjpVKYhEwnoFPcl5PWPDPCBPdPkeaOYlnZdybHxjbx/Kpzp4P96oX6+pZsZeUHs1VVGzPF4kY6/PtUtpJOZq1YkssiMICyIFsZrq6pj8DcUt8UCqViuKl2VmgoKw/LctVhdVUN6TPxihiHGkCsID/syN+QpZyV1mFd1mndgTb48tUKrw6AdXVzclVVf5QtFLbQ8C8iZhfTOXjpDGB2yG7LUbH7JCgASiUcGAE1AXeVgDQGkHMrsvF9W0VFWJStiqwluObvqsgBchn3CZdST5l18uqLtsG2BNpkia90eKUBrGbUfzc7MfEIHPIpGjtPMMoApjgxEYpTU2cAI953ZygTRovFkDctiA6QltswxsPoVBFuKwvHJidDe3k2HJwshNmIuMDnAfeSqrp4v6CiMnQD5gQZ7ZhE+fNsi22ybURVQ69YUIJekVBRVXV1eVnZV1DoH6DAxtPAAUSusjKsv/jikMvlwsm+PlgRBiGRAE1JgKT1mCDtsUI+VPF8vDAe6mGvkzyX85znXd/kRKjPlIe9E4XQBpDDAD4GKfpb8iPh6uqGsHtiPILbCZCHpyZCBRxsWwiN0E3l5eXXl2Wzu4uTk/uM/EXDdNm/UDE1iMh/YJQ/Sik5S0IHxUYz4uHaa68N7e3tAVclbN68Ody7cWMog3sqAMwetU1TE1dZwxGVc3gNwHAjV0FIxDODiS2FMUovwJEH4b4AkHkG5DAG5wr053dH+8MbamaFLYXROEBt1PXTwthpIC2PUMBl+m+F8fFPcj8aY37OP78QgHDUMvy2v6Tuy6w/dhxOqa2vD+ece264/LLLwsDAQNixY0fY/vSOMD46Fpomp8Iiau0mfQ2k6RyCBiF7koeM09JiCCKQk+Pj0epqMCoh89VPkyM2QtoRgNrH/QnAXFFZHe4cPRVurGkMT06MRdUgx+6cpJxpfnSACBvxK/9loVDQ/fm5ws8NYHll5evgli/RkHY5RT1XBcctWbYsrF61KlQirgd7e8NdP747jA8NhXXl5eF3suXh0cliOERTj0P90Bg0CelvRK6bvhbh4sUrV6APS2HXE08G1EPsug2WHCwBlWtnQc1QNyVcnc2GP0Nn7iTFglxVuC8/FK5DtJ8BvBO4R42ogBPFyViG3Eidh6EPTOXz3+fxZYefSwfCGR+gE39NbU2C14B4VlVXh+te+9pwzsKFYWxsLAyNjIZvf+ubYQmAXQ94CxDDsrJMeIRMT9LiAa5ynF6vHCeIKZATgNfU2hqmSD+J3svAXUMjIwFuj0ALtmR6OVbuPQrh/0Xnspz8S4DmIHkr4bwc8dvgxItztWEUsT8F5YDQASPU05fbyrPZo+jFR5Ool/7XwXxZoaKy8mNk+hMyoZiKoaGuLvzGW98a8oVCGAe44ydOhN17e8LEnt3hEjpcS7J9JO6FauiIbskBxPxsjkuaYYekCgBfceGqcPBAbxTd9q6O8PijW7HiiW5NGy0E3ktyQjf5xgFnFKPjfHABpFt0N3ETGBWd800TI2FdtiYcgwsPFicAPAGSemGF8HuT+fznyfaSg1LwksM0eJ8zA7ojZGmwYjAFkKNwyN9/81uhAh23AZCW8m4/756AFFO5TDeluaI8lPE+L1KE6cvpqyJbga936OixkEEcLd97IkNxMo+RT+BL/ybXxDMf46FPs06wbtVEJ+BdSekj1P29ydGwEFdHuyx488tyob80Ff1MklrU5+hjeDkgpvWT98WDYssY/U9S4bEWEY3yUD97dqikY/0YivGJqTALLryeDlrodkgxjQaBqxwnGA3kK5FgANE2xAGgg3ZbbqiCKnnQdUlHN4o24pwn3zgpJ2NquQ61EEtBl1ToO2OQ4G7jJPM7X2yAlkBV0D4A3MhAdOKYz4Ujt04bFltgWygCNs/81sT4+Jd4/JnhJQGIwbiJBn2H0iqncGavueKK0NbRETbed19gAh8OH+uLOucqwDtIoj3QTONgwxQ+rznS1NLZE3CqrW2mq3NQ7Cp33/Ff0hGuaeNIFv3ECBYPOsoDcNax0mQ4YWoStsDZwwxK6kQrmKZXtAVR670AmgdtpZLJiqrw5NR4aEKttGeyYXsxH9NbF5Sn1FsxLP/M44uGdJBfMFFlZeV5FPZlElQ6k1i8cGHoXrAAiSoPtei/7du3h7Xol/X04kkS9UCpfku47rSOicAM0/GmUnlYW1YZ6kp0kf+mIPgSxc4iAa0Hj9gLuUKuMugH0o7I0WZrRLe1lhBH3mNeQi9gjlB2RZKbv2m9CXebdzc0DF1EoVsxKrUM2vxMLmwrjgMwCxnQSKwpVFLFlxHnK/P5/A6yvGD4WVa4pqy8/NuwxVJLqGS0xuG4WbNmhaeeejpse2pHWI8YrOPdZkgQLqFxct8JWWm6E0nHsdagtSZTGTrLsjjTmVANNVJmOrfC3kbwzWf2qAy4KXI/ybVAjJwsRzlbKaeuvAgi3p2ZCgxHRRgEREHQ6YkDwV/HwDZo8bXaJ6CVUCuD8CCzlXLyL0Yfap3HSC0o5KnDw1gL03ydRzXR84YXBZAp2KfpyVvNCTuHiy66KFx3/fXhu7ffHg4eORoupPOC9zDURJXr8LNmc10KPUMXhum0XGglqwFuMZxaxppJM3pwFo1Xn43zzlWVVtLPguQCdZ7xDoQdjqChOOshfT4tu57cUIJQqMdwTGAMCgBxDkDMhsOPUrPlpCA6OBcD+A2AdID7PdSpq6NoZ+FC/AbcqhIruOURRKJ1m7oxaNmpqam7fH6+8IIAMre9ggx/AZXjH4ULli0Pa9atCz379oVncFMW05jLaYTLLU7lLwC8rwPKVpaeXksjN/Ouj9Z3wBUXl1UBHCKXrQgtiM1xINFgzIdrqshzmOceunuKTleWTcFN+HHQBWWlsBw6F2qBlO8BrscoV26cDWvOBtRh5G2E+pqcM1NWCR27DFAU6X6e5cb3APDbeJZ7L6W9jxF3kDwX8nyEd0cofhGSMcw7KQWG6IuYO98LBj0kfU5IBug50aEaq3sfCmjtJCK7lGnZOhYDBk6eDN+/44ehhVJvoXItrdOwt+NTfQEgTgGOIzwB/ZD7NXBDOyKeAbxFOLT7XCAl3wKA20ee47gSiwHtMspYSYecTRjkOrkvlRs7rZg7hfPeOp+G7mEQHwVA+h+auR4HXLmoGXk9jnpoYvB6EdHtpUK4Fs9Bt4Zl8HABpIfwp7SxmfYozo9w/wzxY5TRDgcPM4CWpegjhVuwypdzZ7POCs9rRFgE0GVZ63RqQXd3GMc96Qe8TZs2hwrE5fpyJvIUI7VTifPRqwC1yD89/R/QmCvgumo4obUyR8cRGQC7sLySedNUeHxyLNwIcDcT3ygnkF9N7RA7zcPri7OLdG1e0Jz7tkId0DxIt+QP6LyuzQ/p9LfgvuxUhrWrTNjLcxM9H2MImnGz1k+WhX8qw4ckz3Hau4G2KDmCKEB7oRW0ay8p5hUrwijgpVwIczudXCsmE/n8n/F4VnguB7KCmysUtoJHp/7e3OaWcOlVV4begwfDffc/EK6BozopQqMxAqlnLgG0i6Gf0IC7AO/asuqo65ZXVYdTiDb9CYvLc+GhidFw8VQhvI9atXqW8Si0D7Iz+4k7wDXRe1GR85ToMRuqvmqHFgKCunA+tBpaDwny14n/DiC20qhj9JwVxZhnDJ1bRtyPS+NRD96Gxf407XRqaJlyt+UI8Z1ekd9WTD3NDv2AKcjc907mcqvD0JA26HR4DoAVudwf4e1/yhR2sgAAWcRTbuiA+24khx3vg4wTQBW0c+Jx3l2RqQpZRPbC6tooPu1lFaGa/Dvzg+GjDMhqGr2JPPdCuhUnoVHyO5/tgQw2SsImxE7YEQNVxM44gIp7NRGzSLGQ+8ugS6F95Pkvct9kYsD6GT3XFUdwuyYn0X2AmI1t1WAlnoPgu5x2EXQfNIQGhGkjeLZD0hjSx38/WSh8mtvTAazPCrOxOl8ipkHW1adylLwvAt5rKUnx6oUmIMFLZqO6GVraXKinoatrawMz83AOVlcLemr8VPgMKesp65vkuQPaSTyTNQwHvhd5XSkpAHCAk0vTVI2Vtw023k6QPdIE1yyrPRNM9YaYH2us9vLyGJy2MlcZbkEcnwS4ExgZLfcAHajR7aFtVXDWfkrUiM0M1mE4H9pKW7Xws+l5PelHcZXiIGYyS3Br/oYkp3VhhZnSgJy/hYRdJrYCp0wmGGPEllNgLfdPQIJnhYJjWoHU2jo1ml9bE9fnujEaU3Rqaqw/fJb3+0jrVGYb1Me9Dq0ca1n6lhtuvDG8/yO/yxv+Eb9n1+7wyY98LDrK6Q6cdfGKHbpiKFDPze97b7jp5jfGODnh+JEj4Quf/k/h5sd/Gj5JIX+cLYXNoD0LIB2kEkasi3b1MQvSzUk67wA5PUz0bxfX5dD+IjNWgD+GV2CITAQ2YoQu/B8xcjo+vWewM+/1wcRSDLS6HMZYxcNeaBRKwJP7EpFSBC7A4tZUseKByMo1jTT01OhA+ATv5Lavcn0MOsK9+m6YDjmM7nnkGhrDhVdcHpZccEG4BH274corw6+/8x1hzrxulvmTtTuSn25XBpVw5NDh8OSjj4WlF14YzoMWQX1w8BO7doXbGXDr+n1AXAGIAqVGq4EbTwLVaoyZcbY/7YMA6nvugQRwiF7qAjXBgXOK6FDiYkgwSrAn4nR8trp6LbKz1gIFxFFxVNVva1BGddxrIa1oJvdNkG4FolvAQX4Nem8vGz5r2H58fKQ//Ec6Iud9gzxPQSe4HwSJUUhDoS83ho957ooVYW53V9i3x+Ynwf2TtRs2BN0oV2BcwUn+Je+LiKt7xTPDFGlH8EN3EvktSG7/OPmaALEVLlQfzkEVnSorsreKCqDtCYjJPF1pOAqJjktxzbgzvj8OF9rnCJYWWaymw2kA2ce4jTi8p0T3wXQxg1X8K2K7cV2q1eoE36XUBMyzaPQq5sW72Oy5uro+/Gh0MHwEH2+CRnybtDugk3RfveIoC5wD42CoYy+97to4rx5i5XpmuOL66yJwDqRk9SmYM9PNvFdCrGs319shdfa/pY5BUJkfQWRBgzl9C+rGmU/aDwEiWahF77bhfn2QPp/KTEHFMAsubEWek96DUYIVOc5wYA6kb5oZYWKMVpjNiD3GKsd9jLbW1PW8ekY/S23qyKWsZFRXZcN8lomaiD+CMViVH4Yr8b0oQ2fbDimyZ8Cb5mQ60saG0/rLLwuNjY1x947Ju82I4fKrrwqdnZ34nskMIoLIG0c9cqQ9flYoEKV+tU4H7ntQK/RWZjEOYBViXE+/FNHlqB37YF8a6ZdTTBd870et3E2fO7i2TCVceAKuFWxrnMZKI55wJeLiYsF5vIji68qHbFygADeADnL/DPf76fBJOmMpdYxSN2tq9XDmERrjlOxyuO+nIwPhfSR4hDyJu+MKRyKyarNUBdiQqYnJ8BrA6144n33vujCb9UWXx9LQOmdOuOzaa0JVvoAKSVa35QMBtH2WMTPYfuvQubZOQdzKdSN0C/cNgNgBF2ogD8NdnniwD/bFvH30zdXyffaV54XQYUocggsb4EI5cTqcN41ZAiBidCkvVH1x+y+Vd5N3Q8ch0Td+jJpcDNWSdZcqsFLF8Hh+LOq+rezJXsNipduQ95BWgzHT2s4ET31WmcuGG2+9hS3P2tA0qykCuOPpp8l5Jtz067exdKY7kzTQRmqkEh/uTLr0znZaTwricdIKoMrhLXToGHpQt+YoIB913o2ec23SPo3TN/MLpn2eCzlTasWIkDwCycWQncYsARDjcYmxJlJMvDIIoJ7MP/t5FjwLPh14qCdlL2/aGMUN1XVh28ip8Ebi5L7dkI1OXRU5wzIsWz1WZMNn6fLliO/lIct0a1bTrDA2Ohq+8bWvhXG2MdNwIVujVYsXx4NGGiD9TVeWXZGJI54mnL4mAKpjk7ptQw/0EHSleeDCNrjQth+iRY1CMKNj3trOU5CD5EJJL9wqF2rFVQEx+TRmMpnuywquETyvRqr/2misDdHdSEfGzN67kqxD6wLpuqpaKiyFLk8TAI7TM2cY5jP/FI1NByAaAeJKiOp1b/i10ABwWtwanO/tT24LD/7oJ2Hnk0+SIgn1iPbVr7uJfYoCNVIh1MClmTuBfHZIAbDOCCIJBrhXlA0X0TkNzVxAVMwdEPvy7P6piU3XBjWSVldGzp/CqbYV05hVlNXW1rbwMM+K5T4L8qqLYGZHUJFIKohZAYNdL1ZU+hBfgycCfjo+Gq4gTw/P+yBPDyhG6XTP8s0diXRN+H433vamuAPHqnfc9914992hH/9uy70K3Zlw45tuCblqlsTIZznnUMoaCqrF7+OQZRgcHIxc63aD5acgCqBGxYE8CD0DXU4KRbgTUExrH9qYF9sng/Ck+Z1eisEgvT+EuA/AheVwoAyGCM8TuzJ25bsQ4Ubiop5xTiuABueHFpJyj3EWLjVhNHQ0G1HEizl6doCzKSvgvsRlUfkmemSEBtkR88h9BuoMyy9aF85dpu1Kwv6enrB96+OhBKc9fC8raekLrit1lPEVNTrqQut4lPqPIOo95PPkw1NsLRzYv5+BSFpvnc6xT3BVn+m8q10XQRn0oLrNDSz7MNuFBeJnkqxh3xsg1wTmwoGSqsPArmSj2OENZDp5FtSo/C3EBxtaA8nGMwvmMVoxN4CGqXwuqywMSshM5FllzkTr1UMlOqQCn4akWtIRUcLa3YDxyOBzpeFHP7gjDLB9WcCNOf7I5jBy2CFIAkdaw7U3vyEU0JuKkTp5LwM9mc2FpqamMAdrPaetLVRxFCRp7XQ9PCk9R6BD5DvA1RTNiKGhjov7KbouM+fGvhVAOdf0ngPTmZYL++DC6b5E7MpKZWVzSBODY2dmE6hAVdKqc/dq5cyUHDkkIO7tdmBAjqHPmjH/aWN1XoVmuqLpayIyHjzqaGGJ7LprSJEEyz24rycsXLwo3MixkM93tIfs3n3p63i96Y1vCG2NDXQskRAHWF8QMYo+pH6k+pKizqrXNpAsOtRyoqB08OzVhQZVjAxgn+z7TPKd+SuhWjrcDgd2QKfTgh3gltbwPgYBNIMDpGftg8clKitziHWyoTOOnqliDzjRiziaePRH4IxWqlZc5Y5YsQURpi+xE4JaKkyE1Re/JrTiILtg61E3RfsPP/WJeHWjyOAMZWZYsGRxeNeFa8Jf3Xd/KLDiYuCoWuS6tBw35Kdt5MyssQ0ygmKsTpdjnqF4fUs5TXEXFBeDy/FrK1ADRdTMJG2zNa4XHgOUMayxaU8zB9h5yuyWtKkpgCZw2mTDalqaw2xWpYeHWSUDrAyNPPnE01ivRKHXoYs8t6ceSB3mBAIipkNavo+We9lNN0ZunmQwtMAGOz8zzMxjvOdjVmONF959b9g+/VLgObB+OlsEMFaecHvywvtSVCdynW1U4WtcBMagJa5g4Oo4VbZgwTxi2BoYOBWGDxyMA2kNGdi0gZLwgqL3cRJRJtxif9q90+q6Ke25ZEUWPRvRZ1szHGOZaBfbmLt37gpTrI7oKNtO++EIjDJ9kyccHePTgXCHbSYsJQakBV21DAOiIZFM/3yBnbCzo2lTIz5jdfNsRzbWbf0zg4Aa0ngZweHx2Xpsn9IhIJYuvxpkBe87uzvDXlTH0z/dFmoaGkIO9eAxO8sxuPgwBOOMTOtBcrfH/lnAssrqsJKTnq697cmPh/1jbqmcCVaVVJc0JnmDXwTgifOQxFuZAEbdkiQ6/deVlQvWrw816DKnbHb42NGjcb9FGZ/CqsqVns7ytGpXV1fohvsN6rvq9rlsXrAlhBi/1CCf2I+UzGdc2p+ZffRdPC4y3dHUtfHR/Wd2C2Je+5cGGUhz1+6EehBOOgqHnWBJyg7Fs810ZA7HOJyrliNmJXRE+smBhXhgKIvOUDwcWUfEq9bbEdP5TRur1T0PPabvVs1xuBy69Quf+Wx48M67Ql9/f1gxPBLeT733kGMn1vgCLO+/+/pXKSkJ6rwOzgyWNj4AIokKSd8931Uui4LG1TbYNjlSMVaKzgCUzNF7EdkFzMuVr4H+gTBBezyXOBNwy0mD2FUQcTvFf+hp5rN5LOosdE0nnLibDSAV/MjJ/nCEgjwZYEF5OMQDdRXoBNRfGAD0eSyiOnHX7VGUBfDZwWMhrXPnhsa2OWFkeDjUIR4eibsP96Wxti6cHDwQl+UbAeZWMt9LmaObtoRhjsvVYbUN1bgpc7o6QzUnI4zXej87GJNAm3Y1eZJrbJ+kb+hOYT8pBUsuUg8ODw2Hp7c9hXNP3zB2npuxFKUpDWmpPnN/uybwMV2DxZzmvKa2EfBy8eR7njiDhxX5aCUU4Jo8R3SLFOw7QbJRnvas5XqE0rzWQ4502re0i1P4fl2LzsUIlUfuG6G8jffcw4gUQg3K23JHGaRPQLbsZhYQLscXLO3aTWlJaMBVaUWHNnXMjUfq1JMzdWUCXpr6zNV4/blZkAAegJwLDyOWQmRfPCWhmoiczeJCBeDZP2KiK+f1OQHsKvDLjplxOwexd+ZHmVlUBH07Tbkb5HKU7y3Av0mBjByt0kgcoxNas8M0RaMvr9jQY1AKnldPp1Y31AenW57UP4rue+SBB8Ot731PtGq7t21H7sfCflTEh0l/FQN3xcrzw3bSZR58kJgk1HMatm3hwvAUy/mqBA2RulQnWo70rGIarFeyrR1cW72HDiI955NnkLeC53sBTPqYpPFecTe/LhDJk7Km47h4mP4Y1rvUi89VrKU1b21ojl75YXRgD5yhHnPEZhZsRnWb33PoR3lAUaXvUnqfhxaJc7PdPdY+0sr+sUvorwfv/FF46K4fMxNhhJH/anTqVtTAAlrZDh0AZN0J/cnbAee7u/eG0rveG9Nbb+wFALdR15vnzw/Xv+ddoYAxkmtUN72cyc5jAAXUoEETBOw2c9pS3JB3YIco33cC6NTMD3zskwxhSPsrY9h+FxaSN9wQBJWAs1LqZRs4d7AwNXWKQpq+NtgXuc5lbbcUBxA7RdLK0gLSwk8CXBNv+rDBhzA8s1hc2FKaiN9x6WcpzlauLXcJX8fbjpo/S9l2rBogm9D05xHZy5u9xCk2NjE68nBXDABm3E3veFuYv3xZmM9CxLLF57JY2R1G0c+VVZXhCK7WA/fcyyGoQlweM4fH5WQA2+Ocdin0AHFNtPUkV7/B8zBRP5KW9iu92mf77nxY90dOFTjfx5DJnBK7spGREbXxfi3SPPTf+xtbw2/AiV3cH6YCK1anJSAm2GvqjwJgM/sExjzFaYMFTMjv5F6nYx5kwwXBjqQDYFpJ62ijtNwuez1C5DO8Ma3cahqvp4lWmyewAFtZXxfGGurCHjjPszqjuFtuA3ztq18NTzz8SLSadtKyokdAYXJSF9QB3QEtBsB90QZ7joZFCU4q2CeDRiXNL/ByrLOi5G0CoO0TM7GzDrYFSk/A9qtOYlH/9/AAHMWnVAAiJ+YA0QZEPcDVggSkj+5pvRTjvYjuZRyY9IDOYRq2jrgdNERRkf0dnHQPWT1VpEEJiDZlWtTjbWxanAGpl3TiDUkqwMby9uzZG5pxpsf5CqCEPu3rOxnuu/ee8O2/+2rInxqMBz9tn+srco3Go5H7tVx3Qhxbj6tGPfRVS8yGXexLOshp/9T9StFhKO60cTUkLfSGz2zBTgDpQ+YBMr7jBCeZVuZqsMYNcfR+MHiKTXLEkySu0KajYBYfTgGLIrCDMXgGELs5HvYVGvZRXj8A9UMuk7vwmnKWsx2/m8swhVOsdTJslAugDkg1Fn/p6pXxs4nezVtCBVM10ynM48dPhF5A7QfI3pqDYeyh8bCLLQC/I8kPDkXwOCAeuTDLUTrPWiuG86ALoT+kJvev9yI9tn0JvRyyfjtmIwjeOmxKnvWqx52u+VqQ7UcMYOY1Asja1v2w6QRsnBXtjaNDoQdDUk9RR0mk9ToARbHgfQ5FrqLupSHnF3Ocz2NdkD0AlfudVPNOqruS9MwkEdNE/00wX9aVaWxuDmvZRP/eP3wj+nW6EX4Pok9YgdpYsnpVuOTNt4WH7r479CKelUX4n7o0VAM/fSLkWfezkzrjzmYK43mW6V0T4UNF9N/rb7s1DOOU77hvI2exK1htLoWrSI+NZ7O9PLwDL8Odw3lISxs7btszhXi+WsmYoH1sQsby7bN9V83IjQIngNM4T4gZjxETfal+Zhm38Tyn14UB3JirahrCfDq0jY/91vNiUjcEgLJc1V8j1OR5ljlsyvipqaN9lGrmoF8eZuw+QDOOkE4dMkbD5p9/fmg/Z2FoR/G3zZ8Xzl2yJC7jN7bMjgsF1/za60MVxzWWvmZ9WL5+XdjKmuD5TPvqWdqqwE9cyr2qwKX/ciz4lewZjyHGXQvmhwlEedF5S8LCc88Jt7zrneGprVvDKHPaOQy0bXcwPwZAfh9yiEF31qXlHWUjaVsR3qbtrm820rdmym5lhJYS9zD5ThEnU/EYAYy6GLU/USj8Z6KmEhFGQkjzz6B8QS0g+aXjQ2PDnOcqMDMp57sPlC2pb4fLTsIJimUUOUDy8OJrStWIK+4MsrCcMdkEfYeln1t57ygOIlY33nprGKIx7bgfA3DIHbf/Y3jTu98Z8sx/o0NMh1Zfegkf64yGvbt2x3lnFm5dx8KDoD8AR77ldTdGgyFH9uzZE972od+KCx/f+buvhFvf+fawYxuLAHW1oWtOWziFhV+EFryZ+v+C7k+x8NtO37YCtrOqLEhsxWtwEUG1MghDOEFopo1X8P5y5mhfpr8zwUvFV6woVq0SQfUaWFj9Fi+m/NLnDk4W5Hi4pa6Jr8Nrw3+Hg3oZLT9Woa6YSXaWBuC6PtyY9IjtkzTqYhr+ecCUA98CLYZycGtbV2c4sGtX9PIfBRCOivGxJdNHgDo10B/B0RVp4fnN73l3OOc8c4aw6f774/FiLa6OsurjkY33R9+vib3kizZcHOqZpay/9LJY/mxAXEBDrfthQPk2A3oz3LdlKh/mIe5HALEfgB30tB/Joj6qAdCO098/B1C3BFRbz+K+KbGyXQZgOh0qONZ7P7pgfT0ieTkfMT/G/PgIxzWa0Rc3AMA+ku6HtKwqWC2ro2Ih15bXcJ5ukuO/OALkb0EUnkLY/5aXJ2jsnRcwq0BHLVh/UdjK3sdedNnCNasjJ6P1w66dz7Cc1B2ndR2ck3n0oYfZC1kThvkCavM994WrXn9TeByjMgvAXNQ4ygp21/zu+IFj17x5YSfvFnAto721Bw6E23r2h2Gk53do27uqGsNeDKRO8x48jHK+AvlJkWkp7xIAk4MEOZ47IP3Fb0AeWue/0wCquhi9TRz3vZQ7ITgLwMDRrQ8S90URd8VlPrpwXWVtHLEhDMuFjPwm3rlZbmEuY9kIS2pjrFZxvGMcDnRS14K46D8dgtO/xHWQDaFv0JhtKP5Byh2H84bRt8qB+fNwxiRARzeHq+f/3PqU28q5H0cNuHjqIq++Wj3pM3C+hyU5Rs/RjGxo5LqId78JwH2A92HKfTPgeRzuOAzgnL9vvBCeRDV5mkL9JYCpy6Pbsg7aCz1IWz0LZNuimJNXXAgfmnm8TQ49HVgx2cOq7ttJ2FAHAOsBbzMfLu9gv7cKHdJNQ8ygS6MyTQpMnEzdgmqOPtTSsRydjEfD4MJajMqXeXcDXHYVnFkAhHHuHTt30FwKy9FZDyJNEu+SVTkuiPNcN9wldZaHIzN0KEOaKtI0Eqe+buS+BfA6eLeBNG8n/WbuP075v8mH17a3B+5rIu0+LLa/BPIMw++07dnc10ladf2PIVmPKkhlSPxW7g8CnuOicY7hLACJGcuUl9cy6td46GYHRzWYI8cTV3LCNsRjLVd9I8VYAFMQ9d8PMF4elSiyklIHiB7obiB/ByrgLwFxLsboLaRzbprmdwZgI+zMEOSipcFy5e50oHz2Xge7jau+qTMF92LO4/oGSIv7pwzy33I28bdrm6PO3gd4ehWPoz8L6PFHSvnoQFuNZcqFOtz6fSshLe9hXvpR0UzuI1rp+GOY7A7v0/BsAEOxpmZ7xdTU20nQ4KLjWrjQr76fhtr4tYwqRGYuVQti2jkt8jLiOWCIiE+FjhKf4QOiG986qnxfj/jnWHgshS0sh99A+qvI3wQJnI1w6ldNfBq8k3xvJ/XFBGw+1Ek5grgMugG6DtpJ/b/HNU97P1w3mzaPhyHAbIXzHh1l83KiGO4FPHXc23Bl1vLuadplHdWQZTmAD0KVmF7BtW6vceCYxEz49UIBkZwRngOgCcoqKlRxN5l5N/u96oArq5Lfc3kILvSHX+yUE21HaTHVXEaDzodnLP2HXBfAia79abadE/cA3FqOwg3DjX/N+6PmodxrSC8H6bhKXTNoHvfzoYWQac6H5JINkMCtgXZT/qcp60fo37fVN/NRdXW4Y2yI/eosgoqfh6+Yh/ME7xzSrUEX3oVUONit5N3FveUL7A8g/d1ktTrRfero6fBHxdHRu9OH9OoAPF84/aGNzuuKbHUYouI9nLxaU1GD0p4Mq7BmzgkOkvt1jGgXjVnOvch/i0b9E7QKruugI6eAeS7WuY8hbQLAc5nyHQDQ/Uz/FjK+15LHqRZnTOJoj3DvQKSNV8TkEq2kor+Lun5CuzaSPstC8Bv4bYSlOP0Pj49El+o8VtS3cD80Vog/RvE4vqoDcyl9+A7t8ojw9bS5h3Im4NCLePcjaA9o+FG4W13xCwWuch8ZXvBDmxcCMPipF9OVO8meUx8qXhsq6yKQWzgHs45GrIHrtpDgKOQO/1t4fh2N2svzJzEenszieGRYxZnkQaZ7fL0X9U8/o6yVns+0Ko8Y7aMz/cy5q+hgG1wzF45VT1ZOd0BO16c8SNqT5OPHacLKyprwGqiK+MdYCD6MRV9E/AAr5I+xZVBemApPMECe71NQ11L366jjf5FfH5FfMOPIb3n8POJxyngEqkV0lSj1sjZ3egALeBPX88MX9/LqOeEFATQlHxt+hr78gcpcKyb3+OMNq+DIMnbqs6iDlXTqMd7bQb+Ruwj6BxqwFXDUDzZIcZcb/bEcP6FS93na1VOrrnZ7ur+N9DnqEHQHw9UfqmAmwF4L8S1YV3+9qBVyq3EfU8y9qBf1lEbCDbGtI8PMbCaYLQEeXJfWnXbyWgZqGe27nfblKfMS8jrY90B+OWqwr6osv9o0EPtZjpv8m/jwPH/Ssp/nVYyqwR+7CxbeYHFy4tqK6jiX1L2Zi/1aRYPm0rCtvHd1sM+RBRzPmphHslGu+HqeehniW0/jx+BIl5NmITJlpHe0XeZyri24gqYlVB9RfwTD+vUGPGLsYBh6cLF2s7BQyHOSFOCexg91dmT9dk4SZNvmfZbrLO4U2/3QT6AqwHNRwzYqui4C227094PMea/j7izD4as0WOaLhukPru8hkYYvcmI/YtLFslAnXLMJ8dlApcuoUhBdPHDkJfXH6XXAeJ8MgsdqOzndKoD+x5pmqAIsf6nNNUh/KMJNHcHzK6kKQJUTBdKpZr/rgGxCjUCTTrnwbY5w8OcAYiz3CBipIwmcz8KtDnXPZhW0C7oXEjzLdnEhHu8gvQNOOEq+n/nBtfX8zHDWJ/+k1rdbhl7bzEeDrYh1C80r4TZcQml7ed8DKYJnQJQTk1mLKyGeSZ75yb/n8/zk359fEyRHn0sUb271vzTm8eqpiTj553qMITppd0n7Yp/8C14l1AUtgVQ5nt9W5zE28ZCU3yz7Az622ShKfUmf/JP2pYWZPzphJkfJM4JLANKvL3Ow0Tk0YjmK2w2lHbxX+WuVE05Mrv7ohC18sR+dkBP80Qn3TgyuBepeuHPmiomiZhtU9kkKHGsGReQHWQhwama8OlgLXgcthtS990C7oUbAwzGA87C8tHv4DHiuVrzkH52wjpcU/FEa/EP1vi6YbWWDnSV8LJsALcUP247Xf4Cmd/Bsgw26HWmwM7OYirmqg+RFEFIgBMN7OUAF3tjVHo5h7UfoaH1HWzg+5DnRJI9pU1EVKPPhMaBPk4VX46xL57wT0nd0/v596jxBmtmA7cBa3rPAs1/+dsyf8+olhZcMoKUxjXkQEP3c4rVQxgOW45C/N3AIIMfRRQuYMz+MMndrUu9eMG2oRsIFS7nrFADGThOXXM9W+MprFQsIC1gsbeF0mMcs8hgKdVWaT5BS/ZZ2YjYS4cKoIj+X9zrezm0fhh6Acg4GJLfFQ5WkPcX99MBw9/J/eCetm+JfWhBE1vB6SS2IjCVnjrHCWq5FuCrHuc9ztKuOWcfD3Msp6p0F0Bq47xjNHKSlVnw2GMlzAgyciIFo7+6MR+oO9fTgNmmBE4tq3pTUbyk18/4qBqmFtBqLZ6AfQyfJ6Oq0xmqUul2IcLVJFTMd3Ez+7ZfDeWnGlw2gGRVnzgk+Rnuu4dEPfyIY6iZdiC66NIi/5yFzNdIj/LXRN9O5MWRX5zetOAXM5/Rezuo+95xwqPcQ5/QG+I2a9jDEFqYGKAVLEdUwKKaCtRA6j4YI4N1cFVc36uW4Gq5+gS53+pMDcp2zHZonHYYD3wF4f8/jyw6W8XMHNpbP+vk7RcEOtgCPFnIu82H1mUuX/lZMP8v83STqJk4R063QwZITpDFIUVcPejLW9UFBZYUIDvQ3YZI81VzrIRcXXMMzvY78LohzKnH5yx/O00n3BIVgO4CWf5LndMB5/NX9/B2Vp+E5P8CYAtkKaMcArYV1Qq2nVnQ2Z4wPs3LdTJyfY7dTSivkcpIcJWB2ULIcr3LnNLfEZw2TKyf6nIchV4ZcT/Soma6QeQTVfBoJy1HvOTiWT2CB6P+CH2BM2pL89SdAOWzzX9El69N4O2KDW1A+fo8xm2sBQ6OxaYlAJqcb+uDW2piyGMVbIOW2VMy18lpNfUvBk1xCA5sIGkx3FuBynE64wMWfUOZKkiSUSpvYcvg4c9ufpFG/yPV0ub9IITPy+iO0/4Lnfw3NmxEfb2fDdenno4LiUVmBdBbh6Xe/Dm8E5BEA9iyyQb0aZwjE+cGfixI22tfTSUwG/PiO8U7uSxxiAZzRwf08fo4V5b/iqjS/IiGt8xUpjEImsdIPF6urv8YpK9XaIkhVFYNTLjslV3rvt2f2UK70d7QGpkEaifNkrKav4SRdDrlWAD2jbBAYQZP8536HXCo5OAbTEPZTxp/w+wofLI6N/ZhnpfsVC9N1vGLlnV2QP8RdKLwZFN6Nc6ZoRxWUco5i6n3UVYA5CDht05yo3nRVxndO8P3Myu/V5FaD+VKKEWf/cTaxiTr/ZiKX++azf6rk7KS/2NOrC+CZtr3oT8GbTDASrko4qBJA/ZRCxJ15aISqiZNzX6DRMt8v/afgX6AtNOXVCy/4PyOgytPtSQG1Gel9eo1R/5/9zwjE4YXC/9P/O4z/A2v7tEWVbw/JAAAAAElFTkSuQmCC" alt="AJ"></div><div id="brandText"><em>AJ</em> เช่าเครื่องเกม</div></div>
     <div class="nav-actions">
       <button class="btn" id="faqBtn" type="button">FAQ</button>
+      <div class="site-menu" id="siteMenu">
+        <button class="btn" id="siteMenuBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="siteMenuList">☰ เมนู</button>
+        <div class="site-menu-list" id="siteMenuList" role="menu" data-info-links hidden></div>
+      </div>
       <button class="btn" id="adminBtn" type="button" hidden><span>Admin</span></button>
       <button class="btn primary" id="langBtn" type="button">EN</button>
     </div>
@@ -1020,7 +1035,6 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
             <span class="before-rent-copy"><strong data-i18n="beforeRentFaq">คำถามที่พบบ่อย</strong><span data-i18n="beforeRentFaqSub">คำตอบเรื่องเช่า จัดส่ง และค่าประกัน</span></span>
           </button>
         </div>
-        <div class="page-info-links" data-info-links aria-label="ข้อมูลเกี่ยวกับ AJ และนโยบาย"></div>
         <p class="before-rent-terms" id="beforeRentTerms"></p>
         <div class="before-rent-trust" id="beforeRentTrust" hidden></div>
         <div class="before-rent-discovery">
@@ -1122,7 +1136,6 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
         </div>
         <div class="calc-line-host" id="calcLineCardHost"></div>
       </div>
-      <div class="page-info-links is-booking" data-info-links aria-label="ข้อมูลและนโยบายที่เกี่ยวข้องกับการเช่า"></div>
       <div class="prep-time-brief" data-i18n="preparationBrief">กรุณาเผื่อเวลาเตรียมเครื่องประมาณ 30–60 นาที หรือ 2–3 ชั่วโมงหากต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม</div>
       <div class="calc-shell">
         <div class="demo-banner demo-only" id="unifiedDemoBanner"></div>
@@ -1450,8 +1463,8 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
     th:{
       links:{about:"เกี่ยวกับเรา",privacy:"นโยบายความเป็นส่วนตัว",terms:"ข้อกำหนดและเงื่อนไข"},
       aboutTitle:"เกี่ยวกับ AJ เช่าเครื่องเกม",
-      aboutSubtitle:"บริการเช่าอุปกรณ์เกมแบบจัดส่งในกรุงเทพฯ และปริมณฑล",
-      aboutLead:"AJ เช่าเครื่องเกม ให้บริการเช่าเครื่องเล่นเกม แว่น VR แว่น AR เครื่องเล่นเกมพกพาแบบ PC Handheld และอุปกรณ์อิเล็กทรอนิกส์แบบรายวัน รายสัปดาห์ และตามระยะเวลาที่ตกลงกัน",
+      aboutSubtitle:"ให้บริการเช่าอุปกรณ์เกมแบบจัดส่งในกรุงเทพฯ และปริมณฑล",
+      aboutLead:"AJ เช่าเครื่องเกม ให้บริการเช่าเครื่องเล่นเกม และอุปกรณ์อิเล็กทรอนิกส์แบบรายวัน รายสัปดาห์",
       aboutPurpose:"เราอยากให้ผู้เล่นเข้าถึงประสบการณ์ใหม่ได้ง่ายขึ้น ไม่ว่าจะต้องการลองก่อนซื้อ เช่าเล่นชั่วคราว เล่นกับครอบครัวหรือเพื่อน จัดปาร์ตี้ กิจกรรม หรืออีเวนต์ของบริษัท",
       aboutSince:"เปิดให้บริการตั้งแต่ 7 มีนาคม 2564",
       aboutDelivery:"ส่งถึงที่ รับคืนถึงที่",
@@ -1470,7 +1483,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
       links:{about:"About Us",privacy:"Privacy Policy",terms:"Terms & Conditions"},
       aboutTitle:"About AJ Game Rental",
       aboutSubtitle:"Delivery-only gaming equipment rental in Bangkok and Greater Bangkok",
-      aboutLead:"AJ Game Rental provides daily, weekly, and agreed-period rentals of game consoles, VR headsets, AR glasses, PC handhelds, and related electronic equipment.",
+      aboutLead:"AJ Game Rental rents out game consoles and electronic equipment by the day and by the week.",
       aboutPurpose:"Our goal is to make gaming experiences easier to access—whether you want to try before buying, play temporarily, enjoy games with family or friends, host a party, or arrange a company activity or event.",
       aboutSince:"Serving customers since 7 March 2021",
       aboutDelivery:"Delivered and collected at your door",
@@ -1487,66 +1500,61 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
     }
   };
 
-  const PRIVACY_COPY = {
-    th:`
-      <p class="info-modal-lead">AJ เก็บและใช้ข้อมูลส่วนบุคคลเท่าที่จำเป็นต่อการให้เช่า ยืนยันตัวตน จัดทำข้อตกลง รับชำระเงิน จัดส่งและรับคืนอุปกรณ์ และแก้ไขปัญหาที่เกิดจากการเช่า</p>
-      <h2>ข้อมูลที่เราเก็บ</h2>
-      <ul>
-        <li>ชื่อ เบอร์โทร อีเมล ที่ใช้ติดต่อผ่าน LINE, WhatsApp หรือ Facebook Messenger</li>
-        <li>เลขบัตรประชาชนหรือ Passport วันหมดอายุเอกสาร รูปเอกสาร และรูปเซลฟี่คู่เอกสาร เพื่อยืนยันตัวตนและจัดทำข้อตกลง</li>
-        <li>ที่อยู่ ลิงก์หรือพิกัด Google Maps และรายละเอียดที่จำเป็นต่อการจัดส่งและรับคืน</li>
-        <li>รายการเช่า ได้แก่ เครื่อง เกม Bundle อุปกรณ์เสริม วันเช่า ค่าเช่า เงินประกัน ค่าจัดส่ง ช่องทางและสถานะการชำระเงิน</li>
-        <li>ลายมือชื่ออิเล็กทรอนิกส์ รหัสการเช่า ใบสั่งเช่าและข้อตกลงในรูปแบบ PDF และประวัติการเช่า</li>
-      </ul>
-      <h2>วัตถุประสงค์</h2>
-      <ul>
-        <li>ตรวจสอบคิว คำนวณราคา และดำเนินการตามรายการเช่า</li>
-        <li>ยืนยันตัวตนและจัดทำข้อตกลงหลักหรือใบสั่งเช่า</li>
-        <li>รับและตรวจสอบการชำระเงิน และคืนเงินประกัน</li>
-        <li>ประสานรถรับ-ส่ง และติดต่อเรื่องการจัดส่ง รับคืน หรือเหตุฉุกเฉิน</li>
-        <li>ป้องกันการทุจริต ตรวจสอบความเสียหายหรือการสูญหาย และดำเนินการกรณีข้อพิพาท</li>
-        <li>ปฏิบัติตามกฎหมายและคำสั่งของหน่วยงานที่มีอำนาจ</li>
-      </ul>
-      <h2>การเปิดเผยและผู้ให้บริการ</h2>
-      <p>AJ เปิดเผยเฉพาะข้อมูลเท่าที่จำเป็นแก่ผู้ให้บริการที่เกี่ยวข้อง ได้แก่ ผู้ให้บริการรับชำระเงิน ธนาคาร ผู้ให้บริการขนส่ง ระบบจัดเก็บเอกสารและตารางข้อมูลของ Google และช่องทางแจ้งเตือนทาง LINE, WhatsApp และอีเมล รวมถึงที่ปรึกษาหรือหน่วยงานที่มีอำนาจเมื่อกฎหมายกำหนด</p>
-      <h2>ข้อมูลการชำระเงิน</h2>
-      <p>การชำระเงินดำเนินการโดยผู้ให้บริการรับชำระเงิน ลูกค้ากรอกข้อมูลบัตรเครดิตหรือ E-Wallet ในหน้าของผู้ให้บริการโดยตรง AJ ไม่ได้จัดเก็บหมายเลขบัตรหรือข้อมูล E-Wallet ไว้ในระบบ และเก็บเฉพาะผลการชำระเงิน เช่น สถานะ ยอดเงิน ช่องทาง เวลา รหัสอ้างอิง และสลิปที่ลูกค้าส่งมา</p>
-      <h2>ระยะเวลาการเก็บรักษา</h2>
-      <p>สำเนาบัตรประชาชน Passport และรูปยืนยันตัวตนเก็บไว้ไม่เกิน 1 ปีนับจากวันคืนอุปกรณ์ เท่ากับอายุข้อตกลงหลัก เพื่อให้ลูกค้าเดิมไม่ต้องยืนยันตัวตนใหม่ในการเช่าครั้งถัดไป ทั้งนี้สิทธิดังกล่าวใช้ได้ตราบใดที่บัตรประชาชนหรือ Passport ยังไม่หมดอายุ หากเอกสารหมดอายุ ต้องจัดทำข้อตกลงใหม่ทันทีเพื่ออัปเดตข้อมูลเอกสาร เมื่อพ้นกำหนดข้อมูลจะถูกลบหรือทำลาย เว้นแต่มีข้อพิพาท คดีความ หรือหน้าที่ตามกฎหมายที่ต้องเก็บนานกว่านั้น</p>
-      <h2>สิทธิและความปลอดภัย</h2>
-      <p>ลูกค้าขอเข้าถึง แก้ไข คัดค้าน จำกัดการใช้ ถอนความยินยอม หรือขอลบข้อมูลได้เท่าที่กฎหมายอนุญาต AJ จำกัดการเข้าถึงข้อมูลเฉพาะผู้ที่จำเป็นต่อการทำงาน และใช้มาตรการที่เหมาะสมเพื่อป้องกันการเข้าถึงหรือเปิดเผยโดยไม่ได้รับอนุญาต</p>
-      <h2>ติดต่อเรื่องข้อมูลส่วนบุคคล</h2>
-      <!--CONTACT-->`,
-    en:`
-      <p class="info-modal-lead">AJ collects and uses personal data only as needed to rent out equipment, verify identity, prepare agreements, take payment, deliver and collect equipment, and resolve problems arising from a rental.</p>
-      <h2>Data we collect</h2>
-      <ul>
-        <li>Name, phone number and email used to reach you through LINE, WhatsApp or Facebook Messenger</li>
-        <li>Thai ID or passport number, its expiry date, document images and a selfie with the document, for identity verification and the agreement</li>
-        <li>Address, Google Maps link or coordinates, and the details needed for delivery and collection</li>
-        <li>The rental itself: equipment, games, bundles, accessories, dates, fees, deposit, delivery charge, payment method and payment status</li>
-        <li>Electronic signature, rental ID, the rental order and agreement as PDFs, and rental history</li>
-      </ul>
-      <h2>Purposes</h2>
-      <ul>
-        <li>Check availability, calculate charges and carry out the rental</li>
-        <li>Verify identity and prepare the master agreement or rental order</li>
-        <li>Take and verify payment, and refund the deposit</li>
-        <li>Arrange the delivery and collection driver and contact you about them</li>
-        <li>Prevent fraud, assess damage or loss, and handle disputes</li>
-        <li>Comply with the law and with lawful requests from authorities</li>
-      </ul>
-      <h2>Disclosures and service providers</h2>
-      <p>AJ shares only what is necessary with the providers involved: the payment provider, banks, delivery providers, Google's document and spreadsheet services, and notifications through LINE, WhatsApp and email, as well as advisers or authorities where the law requires it.</p>
-      <h2>Payment information</h2>
-      <p>Payments are processed by AJ's payment provider, and card or e-wallet details are entered on the provider's own page. AJ does not store your card number or e-wallet credentials; it keeps only the outcome of a payment — status, amount, method, time, reference and any slip you send.</p>
-      <h2>Retention</h2>
-      <p>Copies of Thai IDs, passports and identity images are kept for no longer than one year from the return date, the same period as the master agreement, so a returning customer does not verify identity again. That applies only while the Thai ID or passport itself is valid: once the document expires, a new agreement must be made immediately so AJ holds current details. After the retention period the images are deleted or destroyed, unless a dispute, legal proceeding or legal obligation requires longer.</p>
-      <h2>Your rights and security</h2>
-      <p>You may ask to access, correct, object to, restrict or delete your data, or withdraw consent, as far as the law allows. AJ limits access to the people who need it and uses appropriate measures against unauthorised access or disclosure.</p>
-      <h2>Privacy contact</h2>
-      <!--CONTACT-->`
+  // Privacy Policy as shipped; the shop can publish its own wording from the admin
+  // panel. Same text format as the Rental Terms: "## " heading, "- " bullet,
+  // "1. " numbered item, other lines paragraphs, **bold**, [label](https://link),
+  // and a line reading [contact] for the contact block.
+  const PRIVACY_DEFAULT = {
+    th:`AJ เก็บและใช้ข้อมูลส่วนบุคคลเท่าที่จำเป็นต่อการให้เช่า ยืนยันตัวตน จัดทำข้อตกลง รับชำระเงิน จัดส่งและรับคืนอุปกรณ์ และแก้ไขปัญหาที่เกิดจากการเช่า
+## ข้อมูลที่เราเก็บ
+- ชื่อ เบอร์โทร อีเมล ที่ใช้ติดต่อผ่าน LINE, WhatsApp หรือ Facebook Messenger
+- เลขบัตรประชาชนหรือ Passport วันหมดอายุเอกสาร รูปเอกสาร และรูปเซลฟี่คู่เอกสาร เพื่อยืนยันตัวตนและจัดทำข้อตกลง
+- ที่อยู่ ลิงก์หรือพิกัด Google Maps และรายละเอียดที่จำเป็นต่อการจัดส่งและรับคืน
+- รายการเช่า ได้แก่ เครื่อง เกม Bundle อุปกรณ์เสริม วันเช่า ค่าเช่า เงินประกัน ค่าจัดส่ง ช่องทางและสถานะการชำระเงิน
+- ลายมือชื่ออิเล็กทรอนิกส์ รหัสการเช่า ใบสั่งเช่าและข้อตกลงในรูปแบบ PDF และประวัติการเช่า
+## วัตถุประสงค์
+- ตรวจสอบคิว คำนวณราคา และดำเนินการตามรายการเช่า
+- ยืนยันตัวตนและจัดทำข้อตกลงหลักหรือใบสั่งเช่า
+- รับและตรวจสอบการชำระเงิน และคืนเงินประกัน
+- ประสานรถรับ-ส่ง และติดต่อเรื่องการจัดส่ง รับคืน หรือเหตุฉุกเฉิน
+- ป้องกันการทุจริต ตรวจสอบความเสียหายหรือการสูญหาย และดำเนินการกรณีข้อพิพาท
+- ปฏิบัติตามกฎหมายและคำสั่งของหน่วยงานที่มีอำนาจ
+## การเปิดเผยและผู้ให้บริการ
+AJ เปิดเผยเฉพาะข้อมูลเท่าที่จำเป็นแก่ผู้ให้บริการที่เกี่ยวข้อง ได้แก่ ผู้ให้บริการรับชำระเงิน ธนาคาร ผู้ให้บริการขนส่ง ระบบจัดเก็บเอกสารและตารางข้อมูลของ Google และช่องทางแจ้งเตือนทาง LINE, WhatsApp และอีเมล รวมถึงที่ปรึกษาหรือหน่วยงานที่มีอำนาจเมื่อกฎหมายกำหนด
+## ข้อมูลการชำระเงิน
+การชำระเงินดำเนินการโดยผู้ให้บริการรับชำระเงิน ลูกค้ากรอกข้อมูลบัตรเครดิตหรือ E-Wallet ในหน้าของผู้ให้บริการโดยตรง AJ ไม่ได้จัดเก็บหมายเลขบัตรหรือข้อมูล E-Wallet ไว้ในระบบ และเก็บเฉพาะผลการชำระเงิน เช่น สถานะ ยอดเงิน ช่องทาง เวลา รหัสอ้างอิง และสลิปที่ลูกค้าส่งมา
+## ระยะเวลาการเก็บรักษา
+สำเนาบัตรประชาชน Passport และรูปยืนยันตัวตนเก็บไว้ไม่เกิน 1 ปีนับจากวันคืนอุปกรณ์ เท่ากับอายุข้อตกลงหลัก เพื่อให้ลูกค้าเดิมไม่ต้องยืนยันตัวตนใหม่ในการเช่าครั้งถัดไป ทั้งนี้สิทธิดังกล่าวใช้ได้ตราบใดที่บัตรประชาชนหรือ Passport ยังไม่หมดอายุ หากเอกสารหมดอายุ ต้องจัดทำข้อตกลงใหม่ทันทีเพื่ออัปเดตข้อมูลเอกสาร เมื่อพ้นกำหนดข้อมูลจะถูกลบหรือทำลาย เว้นแต่มีข้อพิพาท คดีความ หรือหน้าที่ตามกฎหมายที่ต้องเก็บนานกว่านั้น
+## สิทธิและความปลอดภัย
+ลูกค้าขอเข้าถึง แก้ไข คัดค้าน จำกัดการใช้ ถอนความยินยอม หรือขอลบข้อมูลได้เท่าที่กฎหมายอนุญาต AJ จำกัดการเข้าถึงข้อมูลเฉพาะผู้ที่จำเป็นต่อการทำงาน และใช้มาตรการที่เหมาะสมเพื่อป้องกันการเข้าถึงหรือเปิดเผยโดยไม่ได้รับอนุญาต
+## ติดต่อเรื่องข้อมูลส่วนบุคคล
+[contact]`,
+    en:`AJ collects and uses personal data only as needed to rent out equipment, verify identity, prepare agreements, take payment, deliver and collect equipment, and resolve problems arising from a rental.
+## Data we collect
+- Name, phone number and email used to reach you through LINE, WhatsApp or Facebook Messenger
+- Thai ID or passport number, its expiry date, document images and a selfie with the document, for identity verification and the agreement
+- Address, Google Maps link or coordinates, and the details needed for delivery and collection
+- The rental itself: equipment, games, bundles, accessories, dates, fees, deposit, delivery charge, payment method and payment status
+- Electronic signature, rental ID, the rental order and agreement as PDFs, and rental history
+## Purposes
+- Check availability, calculate charges and carry out the rental
+- Verify identity and prepare the master agreement or rental order
+- Take and verify payment, and refund the deposit
+- Arrange the delivery and collection driver and contact you about them
+- Prevent fraud, assess damage or loss, and handle disputes
+- Comply with the law and with lawful requests from authorities
+## Disclosures and service providers
+AJ shares only what is necessary with the providers involved: the payment provider, banks, delivery providers, Google's document and spreadsheet services, and notifications through LINE, WhatsApp and email, as well as advisers or authorities where the law requires it.
+## Payment information
+Payments are processed by AJ's payment provider, and card or e-wallet details are entered on the provider's own page. AJ does not store your card number or e-wallet credentials; it keeps only the outcome of a payment — status, amount, method, time, reference and any slip you send.
+## Retention
+Copies of Thai IDs, passports and identity images are kept for no longer than one year from the return date, the same period as the master agreement, so a returning customer does not verify identity again. That applies only while the Thai ID or passport itself is valid: once the document expires, a new agreement must be made immediately so AJ holds current details. After the retention period the images are deleted or destroyed, unless a dispute, legal proceeding or legal obligation requires longer.
+## Your rights and security
+You may ask to access, correct, object to, restrict or delete your data, or withdraw consent, as far as the law allows. AJ limits access to the people who need it and uses appropriate measures against unauthorised access or disclosure.
+## Privacy contact
+[contact]`
   };
+
   let activeInfoPage = "";
 
   const LS = {
@@ -2698,8 +2706,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     state.calc.masterAgreementAccepted = !!state.calc.masterAgreementAccepted && ["valid","legacy_verified"].includes(state.calc.masterAgreement?.status);
     // Bookings saved before Rental Terms acknowledgement existed must not keep
     // a silently selected no-contract state. The customer must review and
-    // accept the current version explicitly.
-    if(state.calc.noContract && (!state.calc.rentalTermsAccepted || state.calc.rentalTermsVersion !== RENTAL_TERMS_VERSION)){
+    // accept the current version explicitly. A newer published version is
+    // checked once the version in force has loaded (loadRentalTermsVersion).
+    if(state.calc.noContract && (!state.calc.rentalTermsAccepted || !state.calc.rentalTermsVersion)){
       state.calc.noContract = false;
       state.calc.rentalTermsAccepted = false;
       state.calc.rentalTermsAcceptedAt = "";
@@ -3617,10 +3626,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // Round-trip delivery price from the Bot, which talks to Lalamove. The page
   // never sees Lalamove credentials and never shows an unconfirmed amount as
   // final: an expired or failed quote falls back to "AJ will confirm".
-  const demoDelivery = {status:"idle", quote:null};
+  const demoDelivery = {status:"idle", quote:null, key:""};
+  // What the quote depends on. A refresh, an edited address or new dates
+  // change it, and the order page asks for a fresh quote.
+  function demoDeliveryQuoteKey(){
+    return [demoProfile.maps, state.calc.consoleId, state.calc.extras?.length ? 1 : 0, state.calc.start, state.calc.end].join("|");
+  }
   async function fetchDemoDeliveryQuote(){
     const consoleItem = consoleById(state.calc.consoleId);
     const name = consoleItem ? `${cName(consoleItem)} ${consoleItem.brand || ""}` : "";
+    demoDelivery.key = demoDeliveryQuoteKey();
     demoDelivery.status = "loading";
     demoDelivery.quote = null;
     renderDemoOrderPage();
@@ -3659,9 +3674,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       unavailable: en ? "Awaiting confirmed quote" : "รอยืนยันราคาจริง"
     }[demoDelivery.status] || (en ? "Awaiting confirmed quote" : "รอยืนยันราคาจริง");
   }
-  function demoGrandTotal(summary){
-    const delivery = demoDelivery.status === "ready" && demoDelivery.quote ? Number(demoDelivery.quote.total) || 0 : 0;
-    return (Number(summary.total) || 0) + delivery;
+  // Round-trip delivery counts toward the total once the page has quoted it;
+  // until then (and on the chat booking path) it is settled separately.
+  function quotedDeliveryTotal(){
+    return demoDelivery.status === "ready" && demoDelivery.quote ? Math.max(0, Number(demoDelivery.quote.total) || 0) : 0;
   }
   // A saved address arrives as one line. Keep it in the address field and, when
   // it ends with a Thai postal code, let the lookup fill the rest.
@@ -3995,8 +4011,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const charges = [
       row(en ? "Rental" : "ค่าเช่า", money(summary.rental)),
       ...(summary.addons ? [row(en ? "Accessories" : "อุปกรณ์เสริม", money(summary.addons))] : []),
-      ...(summary.bgSubtotal ? [row(en ? "Board game rental" : "ค่าเช่าบอร์ดเกม", money(summary.bgSubtotal))] : []),
-      ...(summary.paymentFee ? [row(en ? "Payment fee" : "ค่าธรรมเนียมการชำระเงิน", money(summary.paymentFee))] : [])
+      ...(summary.bgSubtotal ? [row(en ? "Board game rental" : "ค่าเช่าบอร์ดเกม", money(summary.bgSubtotal))] : [])
     ];
     const discounts = [
       ...(summary.afterWorkDisc ? [row(afterWorkPromotionLabel(summary.afterWorkPrice), `-${money(summary.afterWorkDisc)}`, "is-discount")] : []),
@@ -4020,14 +4035,42 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <div class="demo-total-group">${row(en ? "Security deposit (refunded)" : "ค่าประกัน (คืนเมื่อคืนเครื่อง)", money(summary.deposit), "is-deposit")}</div>
       <div class="demo-total-group">${deliveryRows.join("")}</div>
       <div class="demo-total-group demo-total-final">
-        ${row(en ? "Total before delivery" : "รวมก่อนค่าจัดส่ง", money(summary.total), "is-subtotal")}
-        ${row(en ? "Total including delivery" : "ยอดรวมทั้งหมด", quote ? money(demoGrandTotal(summary)) : esc(en ? "Awaiting delivery quote" : "รอค่าจัดส่ง"), "is-grand")}
+        ${summary.paymentFee ? row(paymentFeeLabel(), money(summary.paymentFee)) : ""}
+        ${row(en ? "Total including delivery" : "ยอดรวมทั้งหมด (รวมค่าจัดส่ง)", quote ? money(summary.total) : esc(en ? "Awaiting delivery quote" : "รอค่าจัดส่ง"), "is-grand")}
       </div>
+      ${quote ? paymentScheduleHtml(summary) : ""}
+    </div>`;
+  }
+  // What is paid now and what is left for delivery day, for the payment
+  // option picked. Shared by the order page and anywhere else the split shows.
+  function paymentScheduleHtml(summary){
+    const en = state.lang === "en";
+    const row = (label, value, cls = "") => `<div class="demo-order-row ${cls}"><span>${label}</span><b>${value}</b></div>`;
+    const method = state.calc.payment;
+    const methodNote = method === "cash"
+      ? (en ? "Reservation now by card, E-Wallet or Thai QR scan, no fee. The balance is paid on delivery: Thai QR scan with no fee, or card +3.50% / E-Wallet +2.95% on that balance."
+            : "ค่าจองคิวชำระตอนนี้ด้วยเงินโอน บัตร หรือ E-Wallet ไม่มีค่าธรรมเนียม ยอดที่เหลือชำระตอนรับเครื่อง: เงินโอนไม่มีค่าธรรมเนียม หรือบัตร +3.50% / E-Wallet +2.95% ของยอดที่เหลือ")
+      : method === "credit"
+        ? (en ? "Paid in full now by credit card, including the 3.50% fee. Nothing to pay on delivery." : "ชำระเต็มจำนวนตอนนี้ด้วยบัตรเครดิต รวมค่าธรรมเนียม 3.50% แล้ว ไม่มียอดชำระตอนรับเครื่อง")
+        : method === "ewallet"
+          ? (en ? "Paid in full now by E-Wallet, including the 2.95% fee. Nothing to pay on delivery." : "ชำระเต็มจำนวนตอนนี้ด้วย E-Wallet รวมค่าธรรมเนียม 2.95% แล้ว ไม่มียอดชำระตอนรับเครื่อง")
+          : method === "wise"
+            ? (en ? "Paid in full now through Wise. Nothing to pay on delivery." : "ชำระเต็มจำนวนตอนนี้ผ่าน Wise ไม่มียอดชำระตอนรับเครื่อง")
+            : (en ? "Paid in full now by Thai bank transfer, no fee. Nothing to pay on delivery." : "ชำระเต็มจำนวนตอนนี้ด้วยการโอนเข้าบัญชีธนาคาร ไม่มีค่าธรรมเนียม ไม่มียอดชำระตอนรับเครื่อง");
+    return `<div class="demo-total-group demo-payment-schedule">
+      <div class="demo-payment-schedule-title">${en ? "Amount due" : "ยอดที่ต้องชำระ"}</div>
+      ${row(`${en ? "Pay now" : "ชำระตอนนี้"}: ${esc(upfrontLabel())}`, money(summary.upfront), "is-pay-now")}
+      ${row(esc(en ? "Pay on delivery" : "ชำระตอนรับเครื่อง"), money(summary.onDelivery), summary.onDelivery ? "is-pay-later" : "is-muted")}
+      <p class="demo-payment-schedule-note">${esc(methodNote)}</p>
     </div>`;
   }
   function renderDemoOrderPage(){
     const host = byId("demoOrderPage");
     if(!host) return;
+    if(state.calc.demoOrderOpen && demoDelivery.status !== "loading" && demoDelivery.key !== demoDeliveryQuoteKey()){
+      void fetchDemoDeliveryQuote();
+      return;
+    }
     const en = state.lang === "en";
     const summary = calcSummary();
     const item = consoleById(state.calc.consoleId);
@@ -4556,7 +4599,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const status = wiseStatus || (en ? wisePaymentAvailability() : {available:true, reason:"", iso:bangkokNow().iso});
     const wiseDisabled = disabled || !status.available ? "disabled" : "";
     const option = (value, copy, extraClass = "", optionDisabled = disabled) =>
-      `<label class="payment-option ${extraClass}"><input type="radio" name="paymentChoice" data-payment-choice="${value}" ${state.calc.payment === value ? "checked" : ""} ${optionDisabled}>${copy}</label>`;
+      `<label class="payment-option ${extraClass}"><input type="radio" name="paymentChoice" data-payment-choice="${value}" ${state.calc.payment === value ? "checked" : ""} ${optionDisabled}>${copy.replace(/<\/span>$/, `${paymentOptionAmountHtml(value)}</span>`)}</label>`;
     const fullPayment = [
       option("bank", `<span class="payment-option-copy"><span>${en ? "🏦 Thai Bank Transfer: pay full amount" : "🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน"}</span></span>`),
       ...(en ? [option("wise", wiseOptionHtml(status), status.available ? "" : "is-disabled", wiseDisabled)] : []),
@@ -4582,6 +4625,29 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <div class="payment-group-body">${fullPayment}</div>
       </div>
     </div>`;
+  }
+  // The amounts behind one payment option, whichever option is selected now:
+  // the fee depends on the method, so each option shows its own figures.
+  function paymentAmountsFor(method, summary = calcSummary()){
+    const base = Number(summary.subtotalBeforePaymentFee) || 0;
+    const basisPoints = method === "credit" ? 350 : (method === "ewallet" ? 295 : 0);
+    const fee = basisPoints ? Math.ceil((base * basisPoints) / 10000) : 0;
+    const total = base + fee;
+    const reservation = state.lang === "en" ? 1000 : CONFIG.reservationAmount;
+    const payNow = method === "cash" ? Math.min(reservation, total) : total;
+    return {base, fee, total, payNow, onDelivery:Math.max(0, total - payNow)};
+  }
+  function paymentOptionAmountHtml(method){
+    const summary = calcSummary();
+    if(!(Number(summary.subtotalBeforePaymentFee) > 0)) return "";
+    const en = state.lang === "en";
+    const amounts = paymentAmountsFor(method, summary);
+    const deliveryPending = demoDelivery.status !== "ready";
+    const parts = method === "cash"
+      ? [`${en ? "Now" : "ตอนนี้"} ${money(amounts.payNow)}`, `${en ? "on delivery" : "ปลายทาง"} ${money(amounts.onDelivery)}`]
+      : [`${en ? "Now" : "ตอนนี้"} ${money(amounts.payNow)}${amounts.fee ? ` (${en ? "incl. fee" : "รวมค่าธรรมเนียม"} ${money(amounts.fee)})` : ""}`];
+    const pending = deliveryPending ? ` · ${en ? "delivery not yet included" : "ยังไม่รวมค่าจัดส่ง"}` : "";
+    return `<small class="payment-option-amount">${esc(parts.join(" · ") + pending)}</small>`;
   }
   function cashDeliveryOptionHtml(){
     const title = state.lang === "en"
@@ -4932,7 +4998,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const consoleDiscounts = retDisc + reviewGoogleDisc + reviewFacebookDisc + promoDisc + afterWorkDisc;
     const subtotalAfterDiscount = Math.max(0, rental + addons - consoleDiscounts) + Math.max(0, bgSubtotal - bgDisc);
     const depositTotal = finalDeposit + bgDepositTotal;
-    const subtotalBeforePaymentFee = subtotalAfterDiscount + depositTotal;
+    const delivery = quotedDeliveryTotal();
+    const totalBeforeDelivery = subtotalAfterDiscount + depositTotal;
+    // The card / e-wallet fee is charged on everything paid through it,
+    // delivery included, matching what the payment server validates.
+    const subtotalBeforePaymentFee = totalBeforeDelivery + delivery;
     const paymentFee = paymentFeeAmount(subtotalBeforePaymentFee);
     const total = subtotalBeforePaymentFee + paymentFee;
     // Reservation payment differs by language; every full-payment option is
@@ -4943,7 +5013,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       upfront = total;
       onDelivery = 0;
     }
-    return {days,rental,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,reviewGoogleDisc,reviewFacebookDisc,promoDisc,afterWorkDisc,afterWorkPrice,discounts:retDisc+reviewGoogleDisc+reviewFacebookDisc+promoDisc+afterWorkDisc+bgDisc,deposit:depositTotal,subtotalBeforePaymentFee,paymentFee,total,upfront,onDelivery,bundleName,extras,bgItems};
+    return {days,rental,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,reviewGoogleDisc,reviewFacebookDisc,promoDisc,afterWorkDisc,afterWorkPrice,discounts:retDisc+reviewGoogleDisc+reviewFacebookDisc+promoDisc+afterWorkDisc+bgDisc,deposit:depositTotal,delivery,totalBeforeDelivery,subtotalBeforePaymentFee,paymentFee,total,upfront,onDelivery,bundleName,extras,bgItems};
   }
   const MONTHLY_RATE = {500:8500, 400:6500, 350:5000, 300:4000};
   function monthlyRate(daily){ return MONTHLY_RATE[Number(daily) || 0] || 0; }
@@ -5737,6 +5807,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const hasGameCatalog = consoleHasGameCatalog(c);
     const en = state.lang === "en";
     const category = {console:"Console", vr:"VR & AR", handheld:"PC Handheld", racing:"Racing Simulator"}[String(c.type || "").toLowerCase()] || (c.type || "-");
+    // The demo accepts the terms with its own checkbox; the version is the one in force.
+    const acceptedTermsVersion = state.calc.rentalTermsVersion || (UNIFIED_FLOW_DEMO && demoProfile.termsAccepted ? RENTAL_TERMS_VERSION : "");
     const costs = [];
     costs.push({label: en ? `${cName(c)} rental` : `ค่าเช่า ${cName(c)}`, value: money(s.rental)});
     if(s.bundleName) costs.push({label:`Bundle ${s.bundleName}`, value: en ? "included" : "รวมในค่าเช่า"});
@@ -5748,8 +5820,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(s.reviewFacebookDisc) costs.push({label: en ? "Facebook review discount" : "ส่วนลดรีวิว Facebook", value:`-${money(s.reviewFacebookDisc)}`, discount:true});
     if(s.retDisc) costs.push({label: en ? "Returning customer 10% discount" : "ส่วนลดลูกค้าเก่า 10%", value:`-${money(s.retDisc)}`, discount:true});
     if(s.bgDisc) costs.push({label: en ? "Board game discount" : "ส่วนลดบอร์ดเกม", value:`-${money(s.bgDisc)}`, discount:true});
-    if(s.paymentFee) costs.push({label: en ? "Payment fee" : "ค่าธรรมเนียมการชำระเงิน", value:money(s.paymentFee)});
     costs.push({label: en ? `${cName(c)} deposit` : `ค่าประกัน ${cName(c)}`, value: money(s.deposit)});
+    if(s.delivery) costs.push({label: en ? "Round-trip delivery (after AJ promotion)" : "ค่าจัดส่งไป-กลับ (หลังส่วนลดจากร้าน)", value: money(s.delivery)});
+    if(s.paymentFee) costs.push({label: en ? "Payment fee" : "ค่าธรรมเนียมการชำระเงิน", value:money(s.paymentFee)});
     const contractAddOns = selectedContractAddOns(c);
     return {
       rentalCode: code,
@@ -5806,18 +5879,39 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       noContract: !!state.calc.noContract,
       rentalTermsAccepted: !!state.calc.rentalTermsAccepted,
       rentalTermsAcceptedAt: state.calc.rentalTermsAcceptedAt || "",
-      rentalTermsVersion: state.calc.rentalTermsVersion || "",
+      rentalTermsVersion: acceptedTermsVersion,
       rentalTermsLanguage: state.calc.rentalTermsLanguage || (en ? "en" : "th"),
-      rentalTermsUrl: rentalTermsUrl(en ? "en" : "th"),
+      rentalTermsUrl: rentalTermsUrl(en ? "en" : "th", false, acceptedTermsVersion),
       returningVerificationToken: state.calc.retVerificationMethod === "manual" ? state.calc.retVerificationToken : ""
     };
   }
 
-  const RENTAL_TERMS_VERSION = "2026-09-23";
-  function rentalTermsUrl(language=state.lang, embed=false){
+  // The version in force comes from the server, so an acceptance is stamped
+  // with whatever the shop last published. The shipped version is the fallback.
+  let RENTAL_TERMS_VERSION = "2026-09-23";
+  async function loadRentalTermsVersion(){
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/rental-terms?_ts=${Date.now()}`, {cache:"no-store"});
+      if(!response.ok) return;
+      const result = await response.json();
+      if(result?.version) RENTAL_TERMS_VERSION = String(result.version);
+      if(state.calc.noContract && state.calc.rentalTermsVersion && state.calc.rentalTermsVersion !== RENTAL_TERMS_VERSION){
+        state.calc.noContract = false;
+        state.calc.rentalTermsAccepted = false;
+        state.calc.rentalTermsAcceptedAt = "";
+        state.calc.rentalTermsVersion = "";
+        state.calc.rentalTermsLanguage = "";
+        saveLocal();
+        render();
+      }
+    }catch(error){
+      console.warn("Rental terms version unavailable", error);
+    }
+  }
+  function rentalTermsUrl(language=state.lang, embed=false, version=""){
     const url = new URL("/rental-terms/", CONFIG.apiBase);
     url.searchParams.set("lang", language === "en" ? "en" : "th");
-    url.searchParams.set("v", RENTAL_TERMS_VERSION);
+    if(version) url.searchParams.set("v", version);
     if(embed) url.searchParams.set("embed", "1");
     return url.toString();
   }
@@ -6960,8 +7054,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function renderInfoLinks(){
     const labels = INFO_COPY[state.lang].links;
     const html = ["about","privacy","terms"].map(key => `<button class="site-info-link" type="button" data-info-page="${key}">${esc(labels[key])}</button>`).join("");
+    const menuButton = byId("siteMenuBtn");
+    if(menuButton) menuButton.textContent = state.lang === "en" ? "☰ Menu" : "☰ เมนู";
     $$('[data-info-links]').forEach(host => {
-      host.innerHTML = html;
+      host.innerHTML = host.id === "siteMenuList" ? html.replaceAll('type="button"', 'type="button" role="menuitem"') : html;
       host.setAttribute("aria-label", state.lang === "en" ? "About AJ and website policies" : "ข้อมูลเกี่ยวกับ AJ และนโยบายเว็บไซต์");
     });
   }
@@ -6979,6 +7075,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       aboutHowTitle: override.howTitle || base.aboutHowTitle,
       aboutHow: Array.isArray(override.how) && override.how.length ? override.how : base.aboutHow,
       aboutTruth: override.truth || base.aboutTruth,
+      aboutSince: override.since || base.aboutSince,
       aboutContactTitle: override.contactTitle || base.aboutContactTitle
     };
   }
@@ -6999,10 +7096,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function aboutInfoHtml(){
     const copy = aboutCopy();
     return `<p class="info-modal-lead">${esc(copy.aboutLead)}</p>
+      <p class="info-modal-facts">${esc(copy.aboutSince)}<br>${esc(aboutModelCountText())}</p>
       <p>${esc(copy.aboutPurpose)}</p>
       <h2>${esc(copy.aboutHowTitle)}</h2><ol>${copy.aboutHow.map(item => `<li>${esc(item)}</li>`).join("")}</ol>
       <h2>${state.lang === "en" ? "Service model" : "รูปแบบการให้บริการ"}</h2><p>${esc(copy.aboutTruth)}</p>
       <h2>${esc(copy.aboutContactTitle)}</h2>${contactListHtml()}`;
+  }
+  // Rounded down to the nearest ten so the line stays true as models come and go.
+  function aboutModelCountText(){
+    const count = (state.consoles || []).filter(item => item.active !== false).length;
+    const shown = Math.max(20, Math.floor(count / 10) * 10);
+    return state.lang === "en" ? `More than ${shown} models available to rent` : `มีอุปกรณ์ให้บริการเช่ามากกว่า ${shown} รุ่น`;
   }
   // One contact block, used by About and by the Privacy page, with every
   // channel reachable in one tap.
@@ -7024,7 +7128,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("infoModalLang").textContent = state.lang === "en" ? "TH" : "EN";
     byId("infoModalClose").setAttribute("aria-label", state.lang === "en" ? "Close" : "ปิด");
     if(activeInfoPage === "about") byId("infoModalBody").innerHTML = aboutInfoHtml();
-    if(activeInfoPage === "privacy") byId("infoModalBody").innerHTML = PRIVACY_COPY[state.lang].replace("<!--CONTACT-->", contactListHtml());
+    if(activeInfoPage === "privacy") byId("infoModalBody").innerHTML = richTextHtml(privacyText(state.lang), {lead:true});
     if(activeInfoPage === "terms"){
       const url = new URL("/rental-terms/", CONFIG.apiBase);
       url.searchParams.set("lang", state.lang);
@@ -7041,12 +7145,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       howTitle: INFO_COPY[lang].aboutHowTitle,
       how: INFO_COPY[lang].aboutHow,
       truth: INFO_COPY[lang].aboutTruth,
+      since: INFO_COPY[lang].aboutSince,
       contactTitle: INFO_COPY[lang].aboutContactTitle
     };
     const block = lang => {
       const copy = copyFor(lang);
       return `<div class="card" style="margin:0 0 12px"><h3>${lang === "th" ? "ภาษาไทย" : "English"}</h3>
         ${field(lang, "lead", en ? "Intro" : "ย่อหน้าแรก", copy.lead)}
+        ${field(lang, "since", en ? "Serving since" : "วันที่เปิดให้บริการ", copy.since || INFO_COPY[lang].aboutSince, 1)}
         ${field(lang, "purpose", en ? "Why AJ exists" : "เหตุผลของบริการ", copy.purpose)}
         ${field(lang, "howTitle", en ? "Steps heading" : "หัวข้อขั้นตอน", copy.howTitle, 1)}
         ${field(lang, "how", en ? "Steps, one per line" : "ขั้นตอน บรรทัดละข้อ", (copy.how || []).join("\n"), 6)}
@@ -7095,13 +7201,218 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       else if(status) status.textContent = error.message;
     }
   }
+  // ---- Shop-edited text: Privacy Policy and Rental Terms -------------------
+  // Both use one plain text format (see PRIVACY_DEFAULT). Everything typed is
+  // escaped before display, so the admin text can never inject markup.
+  function richInlineHtml(text){
+    const pattern = /\*\*(.+?)\*\*|\[([^\]]+)\]\((https:\/\/[^\s)]+)\)/g;
+    let html = "", last = 0, match;
+    const value = String(text || "");
+    while((match = pattern.exec(value))){
+      html += esc(value.slice(last, match.index));
+      html += match[1] !== undefined
+        ? `<strong>${esc(match[1])}</strong>`
+        : `<a href="${esc(match[3])}" target="_blank" rel="noopener">${esc(match[2])}</a>`;
+      last = pattern.lastIndex;
+    }
+    return html + esc(value.slice(last));
+  }
+  function richTextHtml(text, {lead=false}={}){
+    const out = [];
+    let list = "", seenBlock = false;
+    const closeList = () => { if(list) out.push(`</${list}>`); list = ""; };
+    for(const raw of String(text || "").split("\n")){
+      const line = raw.trim();
+      if(!line) continue;
+      let match;
+      if((match = line.match(/^[-•]\s+(.+)$/)) || (match = line.match(/^(\d+)[.)]\s+(.+)$/))){
+        const ordered = match.length === 3;
+        const tag = ordered ? "ol" : "ul";
+        if(list !== tag){ closeList(); out.push(ordered && match[1] !== "1" ? `<ol start="${Number(match[1])}">` : `<${tag}>`); list = tag; }
+        out.push(`<li>${richInlineHtml(ordered ? match[2] : match[1])}</li>`);
+        seenBlock = true;
+        continue;
+      }
+      closeList();
+      if(line === "[contact]") out.push(contactListHtml());
+      else if((match = line.match(/^###\s+(.+)$/))) out.push(`<h3>${richInlineHtml(match[1])}</h3>`);
+      else if((match = line.match(/^##\s+(.+)$/))) out.push(`<h2>${richInlineHtml(match[1])}</h2>`);
+      else out.push(`<p${lead && !seenBlock ? ' class="info-modal-lead"' : ""}>${richInlineHtml(line)}</p>`);
+      seenBlock = true;
+    }
+    closeList();
+    return out.join("");
+  }
+  const privacyOverrides = {th:null, en:null};
+  function privacyText(lang){
+    return privacyOverrides[lang] || PRIVACY_DEFAULT[lang];
+  }
+  async function loadPrivacyContent(){
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/site-content/privacy?_ts=${Date.now()}`, {cache:"no-store"});
+      if(!response.ok) return;
+      const result = await response.json();
+      const content = result?.content && typeof result.content === "object" ? result.content : {};
+      privacyOverrides.th = typeof content.th === "string" && content.th.trim() ? content.th : null;
+      privacyOverrides.en = typeof content.en === "string" && content.en.trim() ? content.en : null;
+      if(activeInfoPage === "privacy") renderInfoModal();
+      if(state.adminTab === "privacy" && byId("adminOverlay")?.classList.contains("open") && !document.activeElement?.matches?.("[data-privacy-field]")) renderAdmin();
+    }catch(error){
+      console.warn("Privacy content unavailable", error);
+    }
+  }
+  function richTextFormatHint(en){
+    return en
+      ? `One line per block: <code>## </code>heading, <code>### </code>sub-heading, <code>- </code>bullet, <code>1. </code>numbered item, anything else is a paragraph. <code>**bold**</code> and <code>[label](https://link)</code> work inside a line.`
+      : `พิมพ์บรรทัดละ 1 ย่อหน้า: <code>## </code>หัวข้อ, <code>### </code>หัวข้อย่อย, <code>- </code>ข้อย่อยแบบจุด, <code>1. </code>ข้อย่อยแบบตัวเลข บรรทัดอื่นเป็นย่อหน้าปกติ ใช้ <code>**ตัวหนา**</code> และ <code>[ข้อความ](https://ลิงก์)</code> ในบรรทัดได้`;
+  }
+  function adminPrivacyHtml(){
+    const en = state.lang === "en";
+    const box = lang => `<div class="field"><label class="label">${lang === "th" ? "ภาษาไทย" : "English"}</label><textarea class="input" rows="18" data-privacy-field="${lang}">${esc(privacyText(lang))}</textarea></div>`;
+    return `<div class="card"><h3>${en ? "Privacy Policy" : "นโยบายความเป็นส่วนตัว"}</h3>
+      <p class="hint">${richTextFormatHint(en)} ${en ? "A line reading <code>[contact]</code> shows the phone, LINE and email links." : "บรรทัดที่พิมพ์ว่า <code>[contact]</code> จะแสดงเบอร์โทร LINE และอีเมลแบบกดได้"}</p>
+      ${box("th")}${box("en")}
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn primary" type="button" id="savePrivacyContent">${en ? "Save" : "บันทึก"}</button><button class="btn" type="button" id="resetPrivacyContent">${en ? "Restore the default text" : "คืนค่าข้อความเดิม"}</button></div>
+      <p class="hint" id="privacyAdminStatus"></p>
+    </div>`;
+  }
+  function readPrivacyFromAdmin(){
+    const content = {};
+    $$("[data-privacy-field]").forEach(input => { content[input.dataset.privacyField] = input.value.trim(); });
+    return content;
+  }
+  async function savePrivacyContentFromAdmin(content){
+    const en = state.lang === "en";
+    const status = byId("privacyAdminStatus");
+    if(content && (!content.th || !content.en)){ if(status) status.textContent = en ? "Both languages need text." : "ต้องมีข้อความทั้งภาษาไทยและอังกฤษ"; return; }
+    if(status) status.textContent = en ? "Saving…" : "กำลังบันทึก…";
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/admin/site-content/privacy`, {
+        method:"PUT",
+        headers:{"Content-Type":"application/json",Authorization:`Bearer ${state.adminToken}`},
+        body:JSON.stringify({content})
+      });
+      if(response.status === 401) throw new Error("unauthorized");
+      if(!response.ok) throw new Error(`HTTP ${response.status}`);
+      privacyOverrides.th = content?.th || null;
+      privacyOverrides.en = content?.en || null;
+      renderAdmin();
+      if(activeInfoPage === "privacy") renderInfoModal();
+      toast(en ? "Privacy Policy saved" : "บันทึกนโยบายความเป็นส่วนตัวแล้ว");
+    }catch(error){
+      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
+      else if(status) status.textContent = error.message;
+    }
+  }
+  // The Rental Terms live on AJ's server, which versions every publish and
+  // prints the matching wording on each contract and rental order PDF.
+  const adminTerms = {loaded:false, loading:false, version:"", th:"", en:"", status:""};
+  async function loadAdminTerms(useDefault=false){
+    const en = state.lang === "en";
+    adminTerms.loading = true;
+    adminTerms.status = en ? "Loading…" : "กำลังโหลด…";
+    renderAdmin();
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/rental-terms?${useDefault ? "default=1&" : ""}_ts=${Date.now()}`, {cache:"no-store"});
+      if(!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json();
+      adminTerms.th = result.th.text;
+      adminTerms.en = result.en.text;
+      if(!useDefault) adminTerms.version = result.version;
+      adminTerms.loaded = true;
+      syncAdminTermsFields();
+      adminTerms.status = useDefault
+        ? (en ? `The original text (version ${result.version}) is loaded below. It is not live until you publish it.` : `โหลดข้อความต้นฉบับ (เวอร์ชัน ${result.version}) ลงช่องด้านล่างแล้ว ยังไม่มีผลจนกว่าจะกดเผยแพร่`)
+        : "";
+    }catch(error){
+      adminTerms.status = en ? `Could not load the terms: ${error.message}` : `โหลดเงื่อนไขไม่สำเร็จ: ${error.message}`;
+    }finally{
+      adminTerms.loading = false;
+      renderAdmin();
+    }
+  }
+  // renderAdmin reads the fields back, so loaded text is written into them first.
+  function syncAdminTermsFields(){
+    $$("[data-terms-field]").forEach(input => { input.value = adminTerms[input.dataset.termsField]; });
+  }
+  function adminTermsHtml(){
+    const en = state.lang === "en";
+    if(!adminTerms.loaded) return `<div class="card"><h3>${en ? "Terms & Conditions" : "ข้อกำหนดและเงื่อนไข"}</h3><p class="hint">${esc(adminTerms.status || (en ? "Loading…" : "กำลังโหลด…"))}</p></div>`;
+    const box = lang => `<div class="field"><label class="label">${lang === "th" ? "ภาษาไทย" : "English"}</label><textarea class="input" rows="22" data-terms-field="${lang}">${esc(adminTerms[lang])}</textarea></div>`;
+    const preview = lang => esc(`${CONFIG.apiBase}/rental-terms/?lang=${lang}`);
+    return `<div class="card"><h3>${en ? "Terms & Conditions (Rental Terms)" : "ข้อกำหนดและเงื่อนไข (เงื่อนไขการเช่า)"}</h3>
+      <p class="hint"><b>${en ? "Version in force" : "เวอร์ชันที่ใช้อยู่"}: ${esc(adminTerms.version)}</b> · <a href="${preview("th")}" target="_blank" rel="noopener">${en ? "View Thai" : "ดูหน้าภาษาไทย"}</a> · <a href="${preview("en")}" target="_blank" rel="noopener">${en ? "View English" : "ดูหน้าภาษาอังกฤษ"}</a></p>
+      <p class="hint">${en
+        ? "Publishing creates a new version and applies it everywhere at once: the terms customers accept when booking, the LINE contract form, and the contract and rental order PDFs. Rentals already accepted keep the version they accepted, and their PDFs keep printing it."
+        : "กดเผยแพร่แล้วจะเป็นเวอร์ชันใหม่ และใช้ทุกที่พร้อมกัน: เงื่อนไขที่ลูกค้ากดยอมรับตอนทำรายการเช่า ฟอร์มทำสัญญาใน LINE และ PDF สัญญากับใบสั่งเช่า ส่วนรายการที่ลูกค้ายอมรับไปแล้วยังใช้เวอร์ชันเดิมที่ยอมรับไว้ และ PDF ของรายการนั้นก็ยังพิมพ์เวอร์ชันเดิม"}</p>
+      <p class="hint">${richTextFormatHint(en)}</p>
+      ${box("th")}${box("en")}
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn primary" type="button" id="publishRentalTerms" ${adminTerms.loading ? "disabled" : ""}>${en ? "Publish new version" : "เผยแพร่เวอร์ชันใหม่"}</button><button class="btn" type="button" id="loadDefaultRentalTerms" ${adminTerms.loading ? "disabled" : ""}>${en ? "Load the original text" : "โหลดข้อความต้นฉบับ"}</button></div>
+      <p class="hint" id="termsAdminStatus">${esc(adminTerms.status)}</p>
+    </div>`;
+  }
+  async function publishRentalTermsFromAdmin(){
+    const en = state.lang === "en";
+    $$("[data-terms-field]").forEach(input => { adminTerms[input.dataset.termsField] = input.value; });
+    if(!adminTerms.th.trim() || !adminTerms.en.trim()){
+      adminTerms.status = en ? "Both languages need text." : "ต้องมีข้อความทั้งภาษาไทยและอังกฤษ";
+      renderAdmin();
+      return;
+    }
+    const ok = confirm(en
+      ? "Publish these Rental Terms as a new version? Every booking and contract from now on uses them."
+      : "เผยแพร่เงื่อนไขการเช่านี้เป็นเวอร์ชันใหม่? การจองและสัญญาทุกรายการหลังจากนี้จะใช้เวอร์ชันนี้");
+    if(!ok) return;
+    adminTerms.loading = true;
+    adminTerms.status = en ? "Publishing…" : "กำลังเผยแพร่…";
+    renderAdmin();
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/admin/rental-terms`, {
+        method:"PUT",
+        headers:{"Content-Type":"application/json",Authorization:`Bearer ${state.adminToken}`},
+        body:JSON.stringify({th:adminTerms.th, en:adminTerms.en})
+      });
+      if(response.status === 401) throw new Error("unauthorized");
+      const result = await response.json().catch(() => ({}));
+      if(!response.ok){
+        const reasons = {
+          rental_terms_empty: en ? "Both languages need text." : "ต้องมีข้อความทั้งภาษาไทยและอังกฤษ",
+          rental_terms_needs_heading: en ? "Each language needs at least one heading line starting with ## ." : "แต่ละภาษาต้องมีหัวข้ออย่างน้อย 1 บรรทัดที่ขึ้นต้นด้วย ## ",
+          rental_terms_too_long: en ? "The text is too long (30,000 characters per language)." : "ข้อความยาวเกินไป (สูงสุด 30,000 ตัวอักษรต่อภาษา)"
+        };
+        throw new Error(reasons[result.error] || result.error || `HTTP ${response.status}`);
+      }
+      adminTerms.version = result.version;
+      adminTerms.th = result.th.text;
+      adminTerms.en = result.en.text;
+      syncAdminTermsFields();
+      RENTAL_TERMS_VERSION = result.version;
+      adminTerms.status = en ? `Published version ${result.version}.` : `เผยแพร่เวอร์ชัน ${result.version} แล้ว`;
+      toast(adminTerms.status);
+    }catch(error){
+      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); return; }
+      adminTerms.status = error.message;
+    }finally{
+      adminTerms.loading = false;
+      renderAdmin();
+    }
+  }
   function openInfoModal(page){
     if(!["about","privacy","terms"].includes(page)) return;
     if(page === "about" && !aboutOverrides.th && !aboutOverrides.en) void loadAboutContent();
+    if(page === "privacy" && !privacyOverrides.th && !privacyOverrides.en) void loadPrivacyContent();
     activeInfoPage = page;
     byId("infoModal").classList.add("open");
     renderInfoModal();
     trackAnalytics("info_page_opened", {value:page});
+  }
+  function toggleSiteMenu(open){
+    const list = byId("siteMenuList");
+    const button = byId("siteMenuBtn");
+    if(!list || !button) return;
+    const next = typeof open === "boolean" ? open : list.hidden;
+    list.hidden = !next;
+    button.setAttribute("aria-expanded", String(next));
   }
   function closeInfoModal(){
     byId("infoModal")?.classList.remove("open");
@@ -7929,16 +8240,22 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     fetchQueueClosuresForAdmin();
     void fetchPickupLocationsForAdmin();
     void loadAboutContent();
+    void loadPrivacyContent();
+    if(state.adminTab === "terms" && !adminTerms.loaded) void loadAdminTerms();
   }
   function closeAdmin(){ byId("adminOverlay").classList.remove("open"); }
   function renderAdmin(){
+    // Keep unpublished edits to the terms across re-renders of the panel.
+    $$("[data-terms-field]").forEach(input => { adminTerms[input.dataset.termsField] = input.value; });
     byId("adminBody").innerHTML = `
       <div class="admin-tabs">
-        ${["queue","pickup","about","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
+        ${["queue","pickup","about","privacy","terms","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
       </div>
       <div class="admin-panel ${state.adminTab==="queue"?"active":""}" id="adminQueue">${adminQueueHtml()}</div>
       <div class="admin-panel ${state.adminTab==="pickup"?"active":""}" id="adminPickup">${adminPickupHtml()}</div>
       <div class="admin-panel ${state.adminTab==="about"?"active":""}" id="adminAbout">${adminAboutHtml()}</div>
+      <div class="admin-panel ${state.adminTab==="privacy"?"active":""}" id="adminPrivacy">${adminPrivacyHtml()}</div>
+      <div class="admin-panel ${state.adminTab==="terms"?"active":""}" id="adminTerms">${adminTermsHtml()}</div>
       <div class="admin-panel ${state.adminTab==="consoles"?"active":""}" id="adminConsoles">${adminConsolesHtml()}</div>
       <div class="admin-panel ${state.adminTab==="home"?"active":""}" id="adminHome">${adminHomeHtml()}</div>
       <div class="admin-panel ${state.adminTab==="reviews"?"active":""}" id="adminReviews">${adminReviewsHtml()}</div>
@@ -7947,7 +8264,23 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <div class="admin-panel ${state.adminTab==="sync"?"active":""}" id="adminSync">${adminSyncHtml()}</div>
       <div class="admin-panel ${state.adminTab==="addons"?"active":""}" id="adminAddons">${adminAddonsHtml()}</div>`;
   }
-  function tabLabel(tab){ return ({queue:state.lang==="en"?"Close queue":"ปิดคิว",consoles:"เครื่อง",home:"Home",reviews:"รีวิว",faq:"FAQ",settings:"Settings",sync:"Gist Sync",addons:"Bundles"})[tab]; }
+  function tabLabel(tab){
+    const en = state.lang === "en";
+    return ({
+      queue: en ? "Close queue" : "ปิดคิว",
+      pickup: en ? "Pickup points" : "จุดรับของ",
+      about: en ? "About Us" : "เกี่ยวกับเรา",
+      privacy: en ? "Privacy Policy" : "นโยบายความเป็นส่วนตัว",
+      terms: en ? "Terms & Conditions" : "ข้อกำหนดและเงื่อนไข",
+      consoles: en ? "Consoles" : "เครื่อง",
+      home: "Home",
+      reviews: en ? "Reviews" : "รีวิว",
+      faq: "FAQ",
+      settings: "Settings",
+      sync: "Gist Sync",
+      addons: "Bundles"
+    })[tab] || tab;
+  }
   function queueDateTimeValue(value){
     if(!value) return "";
     const date = new Date(value);
@@ -8484,8 +8817,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
 
   function bindEvents(){
     document.addEventListener("click", event => {
+      if(event.target.closest("#siteMenuBtn")){ toggleSiteMenu(); return; }
+      if(!event.target.closest("#siteMenu")) toggleSiteMenu(false);
       const infoPage = event.target.closest("[data-info-page]");
-      if(infoPage){ openInfoModal(infoPage.dataset.infoPage); return; }
+      if(infoPage){ toggleSiteMenu(false); openInfoModal(infoPage.dataset.infoPage); return; }
       if(event.target.closest("[data-faq-rental-terms]")){ openRentalTermsReadOnly(); return; }
       if(event.target.closest("[data-line-booking-help]")){ showLineBookingHelp(); return; }
       if(event.target.closest("[data-line-booking-launch]")){ setShareStatus("line", "opened"); return; }
@@ -8574,7 +8909,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(bgDetail){ showBoardGameDetail(bgDetail.dataset.bgDetail); return; }
       if(event.target.closest("[data-modal-close]")){ closeModal(); return; }
       const adminTab = event.target.closest("[data-admin-tab]");
-      if(adminTab){ state.adminTab = adminTab.dataset.adminTab; renderAdmin(); return; }
+      if(adminTab){
+        state.adminTab = adminTab.dataset.adminTab;
+        if(state.adminTab === "terms" && !adminTerms.loaded) void loadAdminTerms();
+        if(state.adminTab === "privacy") void loadPrivacyContent();
+        renderAdmin();
+        return;
+      }
       const editC = event.target.closest("[data-edit-console]");
       if(editC){ byId(`editConsole-${editC.dataset.editConsole}`)?.classList.toggle("open"); return; }
       const saveC = event.target.closest("[data-save-console]");
@@ -8649,6 +8990,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       }
       if(event.key === "Escape" && byId("allConsolesModal")?.classList.contains("open")) closeAllConsoles();
       if(event.key === "Escape" && byId("infoModal")?.classList.contains("open")) closeInfoModal();
+      if(event.key === "Escape") toggleSiteMenu(false);
     });
     window.addEventListener("scroll", () => { updateFloatButton(); renderGuide(); }, {passive:true});
     window.addEventListener("resize", () => {
@@ -8657,6 +8999,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(state.calendar.open) renderCalendar();
     });
     window.addEventListener("message", event => {
+      if(event.origin === new URL(CONFIG.apiBase).origin && ["AJ_RENTAL_TERMS_VERSION","AJ_RENTAL_TERMS_READ"].includes(event.data?.type) && /^\d{4}-\d{2}-\d{2}(?:-\d+)?$/.test(String(event.data.version || ""))){
+        RENTAL_TERMS_VERSION = String(event.data.version);
+        return;
+      }
       const pickerFrame = byId("gamePickerFrame");
       if(UNIFIED_FLOW_DEMO && event.origin === new URL(CONFIG.apiBase).origin && event.data?.type === "AJ_CONTRACT_COMPLETED"){
         state.calc.demoContractCompleted = true;
@@ -9020,6 +9366,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(targetId === "savePickupLocations"){ void savePickupLocationsFromAdmin(); return; }
       if(targetId === "saveAboutContent"){ void saveAboutContentFromAdmin(readAboutContentFromAdmin()); return; }
       if(targetId === "resetAboutContent"){ void saveAboutContentFromAdmin(null); return; }
+      if(targetId === "savePrivacyContent"){ void savePrivacyContentFromAdmin(readPrivacyFromAdmin()); return; }
+      if(targetId === "resetPrivacyContent"){ void savePrivacyContentFromAdmin(null); return; }
+      if(targetId === "publishRentalTerms"){ void publishRentalTermsFromAdmin(); return; }
+      if(targetId === "loadDefaultRentalTerms"){ void loadAdminTerms(true); return; }
       if(targetId === "addPickupLocation"){
         state.pickupLocations.items = [...readPickupLocationsFromAdmin(), {id:"", name:"", address:"", lat:"", lng:"", isDefault:state.pickupLocations.items.length === 0}];
         renderAdmin();
@@ -9373,6 +9723,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const restoredGameList = consumeGamePickerHandoff();
     if(restoredGameList) state.beforeRentActive = false;
     exposeCompatibility();
+    void loadRentalTermsVersion();
     bindEvents();
     bindBeforeRentSectionAnalytics();
     trackAnalytics("page_view");

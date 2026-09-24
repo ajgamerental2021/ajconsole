@@ -135,7 +135,7 @@ test('the guide never moves the demo customer between steps', () => {
 
 test('round-trip delivery price comes from the Bot and is never shown as final when missing', () => {
   assert.match(html, /\/api\/delivery\/quote/);
-  assert.match(html, /demoDelivery = \{status:"idle", quote:null\}/);
+  assert.match(html, /demoDelivery = \{status:"idle", quote:null, key:""\}/);
   assert.match(html, /Awaiting confirmed quote/);
   assert.match(html, /Map link has no pin/);
   assert.match(html, /hasLargeItem: \/G29\|Logitech\|VR2\|Racing\/i\.test\(name\)/);
@@ -281,4 +281,23 @@ test('the payment page offers the identity link and clears the saved form', () =
   assert.match(success, /localStorage\.removeItem\("aj_demo_profile_v1"\)/);
   assert.match(success, /ยืนยันตัวตนตอนนี้/);
   assert.match(success, /Verify now/);
+});
+
+test('delivery is part of the total, the card fee covers it, and each option shows pay-now and on-delivery', () => {
+  assert.match(html, /const subtotalBeforePaymentFee = totalBeforeDelivery \+ delivery;/);
+  assert.match(html, /const paymentFee = paymentFeeAmount\(subtotalBeforePaymentFee\);/);
+  assert.match(html, /function paymentScheduleHtml\(summary\)/);
+  assert.match(html, /\$\{quote \? paymentScheduleHtml\(summary\) : ""\}/);
+  assert.match(html, /ชำระตอนนี้/);
+  assert.match(html, /ชำระตอนรับเครื่อง/);
+  assert.match(html, /Pay on delivery/);
+  assert.match(html, /\$\{copy\.replace\(\/<\\\/span>\$\/, `\$\{paymentOptionAmountHtml\(value\)\}<\/span>`\)\}/);
+  // The Beam base amount is the same figure the fee was taken from.
+  assert.match(html, /baseAmount: Number\(summary\.subtotalBeforePaymentFee\) \|\| 0/);
+});
+
+test('the order page asks for a fresh delivery quote after a refresh or an edit', () => {
+  assert.match(html, /function demoDeliveryQuoteKey\(\)/);
+  assert.match(html, /if\(state\.calc\.demoOrderOpen && demoDelivery\.status !== "loading" && demoDelivery\.key !== demoDeliveryQuoteKey\(\)\)\{\n      void fetchDemoDeliveryQuote\(\);/);
+  assert.match(html, /demoDelivery\.key = demoDeliveryQuoteKey\(\);/);
 });
