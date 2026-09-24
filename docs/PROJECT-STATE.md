@@ -1372,3 +1372,11 @@ paused job shows slightly old numbers rather than an empty section.
 - Contact blocks use "label: value" with tap-to-call, the LINE add-friend link `https://lin.ee/w4TFyCV`, and a mailto link.
 - The document expiry date is collected in the LIFF agreement form (prefilled from the booking), printed in the contract PDF and included in the shop notifications. Remaining Thai "Rental Terms" wording now reads "เงื่อนไขการเช่า".
 - Verification: 120/120 website and 367/367 Bot tests; browser walk covering the veil, the accordion, save and cancel in both edit dialogs, the calendar over the dialog, and a simulated own hold that leaves every date free.
+
+## 2026-09-24 — Pay first, verify after; the form survives a refresh
+
+- Renters may still choose "verify later" and pay. After payment they receive a signed per-rental link (Bot `/verify/`) in the confirmation email, as a one-button LINE Flex when AJ knows the account, and on the payment-success page (the only immediate follow-up a WhatsApp customer sees). The link opens that rental only and expires after 45 days.
+- A daily job (10:00 Bangkok) reminds renters whose rental starts tomorrow and tells the shop which rentals are still on hold. `POST /api/admin/identity-reminders/run` runs it on demand.
+- The shop's payment notice now states the identity position, including "จ่ายแล้ว / ยังไม่ยืนยันตัวตน ห้ามส่ง". The delivery app receives `dispatchHold` with the payment and an `identity-updated` event when photos arrive; `docs/DELIVERY-APP-ID-EXPIRY-PROMPT.md` in the Bot repo describes the delivery app's side.
+- The demo form is kept on the device for 24 hours and restores after a refresh or a closed tab, returning to the saved step. The document number is not stored in the browser: it goes to a server-side draft (24 hours, in memory) and the page keeps only the draft id and last four characters. The payment-success page clears the saved form.
+- Verification: 122/122 website and 376/376 Bot tests; local end-to-end run with a signed payment webhook, the confirmation email carrying the link (copied to booking@), an upload through the link (Drive files dated one year after return, shop notified, link then reports "already sent"), a forged link rejected, a refresh restoring every field with the number masked from the draft, and the success page showing the identity request in English.

@@ -22,7 +22,12 @@
     .notice{margin-top:18px;padding:14px;border-radius:10px;background:#fff7d6;color:#755000;font-weight:700;line-height:1.5}.notice.auto{background:#e8f8ef;color:#087c4a}.contact-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}.contact-actions .button{min-width:150px}.line{background:#06c755;color:#fff}.whatsapp{background:#128c7e;color:#fff}.facebook{background:#1877f2;color:#fff}
     .language{border:1px solid #cbd4e5;border-radius:999px;background:#fff;padding:7px 10px;font-weight:700}
     @media(max-width:480px){body{padding:14px}.card{padding:22px}.top{align-items:flex-start}.row{display:block}.row dd{text-align:left;margin-top:4px}.actions{flex-direction:column}}
-  </style>
+    .identity-ask{margin:16px 0;padding:16px;border:1px solid #fecdca;border-radius:14px;background:#fff6f5}
+  .identity-ask strong{display:block;color:#b42318;font-size:17px;margin-bottom:6px}
+  .identity-ask p{margin:0 0 12px;line-height:1.6;color:#344054}
+  .identity-ask[hidden]{display:none}
+  .button.identity{display:block;text-align:center;background:#d71920;color:#fff}
+</style>
 </head>
 <body>
   <main class="card">
@@ -42,6 +47,11 @@
       <div class="row"><dt id="statusLabel">Status</dt><dd id="status">Paid</dd></div>
     </dl>
     <div class="notice" id="notice"></div>
+    <div class="identity-ask" id="identityAsk" hidden>
+      <strong id="identityAskTitle"></strong>
+      <p id="identityAskText"></p>
+      <a class="button identity" id="identityAskButton" href="#"></a>
+    </div>
     <div class="contact-actions" id="contactActions"><a class="button line" id="lineButton" href="https://lin.ee/N4i6cb6">LINE</a><a class="button whatsapp" id="whatsappButton" href="#">WhatsApp</a><a class="button facebook" id="facebookButton" href="https://m.me/ajgamerental">Facebook</a></div>
     <div class="actions"><a class="button primary" id="backButton" href="index-demo.html">Back to AJ Game Rental</a><button class="button secondary" id="closeButton" type="button">Close</button></div>
   </main>
@@ -85,6 +95,28 @@
         document.getElementById("whatsappButton").hidden = lang !== "en";
         document.getElementById("facebookButton").hidden = true;
         document.getElementById("backButton").href = `index.html?booking=1&flowDemo=1&lang=${lang}`;
+        // The booking is paid, so the form details kept for a refresh are no
+        // longer needed on this device.
+        try{ localStorage.removeItem("aj_demo_profile_v1"); }catch{}
+        // A renter who chose "verify later" gets the upload link right here too,
+        // which is the only follow-up a WhatsApp customer receives on the spot.
+        if(ctx){
+          fetch(`https://aj-line-oa-bot.onrender.com/api/booking-context/${encodeURIComponent(ctx)}/identity-link`, {cache:"no-store"})
+            .then(response => response.ok ? response.json() : null)
+            .then(result => {
+              if(!result?.needed || !result.url) return;
+              const en = lang === "en";
+              document.getElementById("identityAskTitle").textContent = en ? "One step left: verify your identity" : "เหลืออีก 1 ขั้นตอน: ยืนยันตัวตน";
+              document.getElementById("identityAskText").textContent = en
+                ? "AJ can deliver once it has a photo of your Thai ID or passport and a selfie holding it. It takes about a minute. The same link is in your email."
+                : "ร้านจะจัดส่งได้เมื่อได้รับรูปบัตรประชาชนหรือ Passport และรูปเซลฟี่คู่บัตร ใช้เวลาประมาณ 1 นาที ลิงก์เดียวกันนี้อยู่ในอีเมลของคุณด้วย";
+              const button = document.getElementById("identityAskButton");
+              button.textContent = en ? "Verify now" : "ยืนยันตัวตนตอนนี้";
+              button.href = result.url;
+              document.getElementById("identityAsk").hidden = false;
+            })
+            .catch(() => {});
+        }
       }
       document.getElementById("facebookButton").addEventListener("click", async event => {
         event.preventDefault();

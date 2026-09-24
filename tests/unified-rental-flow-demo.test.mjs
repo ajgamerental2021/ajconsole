@@ -57,7 +57,7 @@ test('demo summary hides the old chat booking buttons', () => {
 });
 
 test('demo Rental ID page does not reopen without the in-memory customer profile', () => {
-  assert.match(html, /if\(state\.calc\.demoOrderOpen && !demoProfile\.fullName\.trim\(\)\)\{\n\s*state\.calc\.demoOrderOpen = false;\n\s*state\.calc\.step = 2;/);
+  assert.match(html, /if\(state\.calc\.demoOrderOpen && \(!demoProfile\.fullName\.trim\(\) \|\| !state\.calc\.rentalCode\)\)\{\n\s*state\.calc\.demoOrderOpen = false;\n\s*state\.calc\.step = 2;/);
 });
 
 test('no-contract choice sits with the identity-number fields', () => {
@@ -265,4 +265,20 @@ test('the About page can be edited by the shop and read by everyone', () => {
   assert.match(html, /\/api\/admin\/site-content\/about/);
   assert.match(html, /function adminAboutHtml\(\)/);
   assert.doesNotMatch(html, /info-modal-highlight"><div><strong>\$\{esc\(copy\.aboutSince\)\}/);
+});
+
+test('the form survives a refresh without keeping the document number in the browser', () => {
+  assert.match(html, /const DEMO_PROFILE_KEY = "aj_demo_profile_v1"/);
+  assert.match(html, /const DEMO_PROFILE_TTL_MS = 24 \* 60 \* 60 \* 1000/);
+  assert.doesNotMatch(html, /DEMO_PROFILE_FIELDS = \[[^\]]*"identityNumber"/);
+  assert.match(html, /\/api\/identity-drafts/);
+  assert.match(html, /identityDraftId: UNIFIED_FLOW_DEMO && !state\.calc\.noContract \? demoProfile\.identityDraftId : ""/);
+});
+
+test('the payment page offers the identity link and clears the saved form', () => {
+  const success = fs.readFileSync(new URL('../payment-success.html', import.meta.url), 'utf8');
+  assert.match(success, /identity-link/);
+  assert.match(success, /localStorage\.removeItem\("aj_demo_profile_v1"\)/);
+  assert.match(success, /ยืนยันตัวตนตอนนี้/);
+  assert.match(success, /Verify now/);
 });

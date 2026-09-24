@@ -2082,8 +2082,87 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     termsAccepted:false, identitySkipped:false, noThaiAddress:false,
     // "" follows the page language (Thai → Thai ID, English → passport) until
     // the customer picks one; a foreign renter can use Thai and still pick passport.
-    identityType:"", identityUploaded:false, identityOnFileLast4:"", identityExpiry:""
+    identityType:"", identityUploaded:false, identityOnFileLast4:"", identityExpiry:"",
+    identityDraftId:"", identityDraftLast4:""
   };
+  // What the customer typed survives a refresh or a closed tab for 24 hours.
+  // The document number is not among it: it lives in a server-side draft and
+  // the page keeps only that draft's id and last four characters.
+  const DEMO_PROFILE_KEY = "aj_demo_profile_v1";
+  const DEMO_PROFILE_TTL_MS = 24 * 60 * 60 * 1000;
+  const DEMO_PROFILE_FIELDS = ["fullName","phone","email","addressLine","subdistrict","district","province","postalCode","maps","termsAccepted","identitySkipped","noThaiAddress","identityType","identityUploaded","identityExpiry","identityDraftId","identityDraftLast4","identityOnFileLast4"];
+  let demoProfileSaveTimer = 0;
+  function saveDemoProfile(){
+    if(!UNIFIED_FLOW_DEMO) return;
+    window.clearTimeout(demoProfileSaveTimer);
+    demoProfileSaveTimer = window.setTimeout(() => {
+      try{
+        const profile = Object.fromEntries(DEMO_PROFILE_FIELDS.map(key => [key, demoProfile[key]]));
+        localStorage.setItem(DEMO_PROFILE_KEY, JSON.stringify({savedAt:Date.now(), profile}));
+      }catch{}
+    }, 300);
+  }
+  function restoreDemoProfile(){
+    try{
+      const saved = JSON.parse(localStorage.getItem(DEMO_PROFILE_KEY) || "null");
+      if(!saved || Date.now() - Number(saved.savedAt || 0) > DEMO_PROFILE_TTL_MS){
+        localStorage.removeItem(DEMO_PROFILE_KEY);
+        return false;
+      }
+      for(const key of DEMO_PROFILE_FIELDS){
+        if(saved.profile && key in saved.profile) demoProfile[key] = saved.profile[key];
+      }
+      return true;
+    }catch{
+      return false;
+    }
+  }
+  function clearDemoProfile(){
+    try{ localStorage.removeItem(DEMO_PROFILE_KEY); }catch{}
+  }
+  // The number goes to the server as soon as it is valid; the page keeps the id.
+  let demoDraftTimer = 0;
+  function queueIdentityDraft(){
+    window.clearTimeout(demoDraftTimer);
+    demoDraftTimer = window.setTimeout(saveIdentityDraft, 700);
+  }
+  async function saveIdentityDraft(){
+    const number = String(demoProfile.identityNumber || "").trim().toUpperCase();
+    const type = demoIdentityType();
+    const valid = type === "passport" ? /^[A-Z0-9]{6,20}$/.test(number) : thaiIdValid(number);
+    if(!valid) return;
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/identity-drafts`, {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({draftId:demoProfile.identityDraftId, identityType:type, identityNumber:number, identityExpiry:demoProfile.identityExpiry})
+      });
+      const result = await response.json().catch(() => ({}));
+      if(response.ok && result.ok){
+        demoProfile.identityDraftId = result.draftId;
+        demoProfile.identityDraftLast4 = result.identityLast4;
+        saveDemoProfile();
+      }
+    }catch(error){
+      console.warn("Identity draft not saved", error);
+    }
+  }
+  async function refreshIdentityDraft(){
+    if(!demoProfile.identityDraftId || demoProfile.identityNumber) return;
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/identity-drafts/${encodeURIComponent(demoProfile.identityDraftId)}`, {cache:"no-store"});
+      const result = await response.json().catch(() => ({}));
+      if(response.ok && result.ok){
+        demoProfile.identityDraftLast4 = result.identityLast4;
+        if(result.identityExpiry && !demoProfile.identityExpiry) demoProfile.identityExpiry = result.identityExpiry;
+      }else{
+        demoProfile.identityDraftId = "";
+        demoProfile.identityDraftLast4 = "";
+      }
+      saveDemoProfile();
+      render();
+    }catch{}
+  }
   const GUIDE_ORDER = ["console","start","end","ps5bundle","accessory","next1","games","next2","bg","maps","ret","contractChoice","contractLink","payment","next3","share"];
   const GUIDE_KEY = "aj_index2_guide_stage";
   const AUTO_GUIDE_ENABLED = false;
@@ -3404,7 +3483,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <div class="field"><label class="label" for="demoCustomerPhone">${en ? "Phone / WhatsApp" : "เบอร์โทรศัพท์"}<span class="req">*</span></label><input class="input" id="demoCustomerPhone" type="tel" autocomplete="tel" value="${esc(demoProfile.phone)}"></div>
         ${state.calc.noContract || demoIdentityCoveredByAgreement() ? "" : `
         <div class="field wide"><span class="label">${en ? "Identity document" : "ประเภทบัตร"}<span class="req">*</span></span><div class="demo-id-type" role="radiogroup"><label><input type="radio" name="demoIdentityType" value="thai_id" ${demoIdentityType()==="thai_id"?"checked":""}>${en ? "Thai ID card" : "บัตรประชาชน"}</label><label><input type="radio" name="demoIdentityType" value="passport" ${demoIdentityType()==="passport"?"checked":""}>${en ? "Passport" : "Passport (ชาวต่างชาติ)"}</label></div></div>
-        <div class="field"><label class="label" for="demoIdentityNumber">${demoIdentityType()==="passport" ? (en ? "Passport number" : "เลข Passport") : (en ? "Thai ID number" : "เลขบัตรประชาชน")}<span class="req">*</span></label><input class="input" id="demoIdentityNumber" autocomplete="off" ${demoIdentityType()==="passport" ? "maxlength=20 autocapitalize=characters" : "inputmode=numeric maxlength=13"} value="${esc(demoProfile.identityNumber)}"></div>
+        <div class="field"><label class="label" for="demoIdentityNumber">${demoIdentityType()==="passport" ? (en ? "Passport number" : "เลข Passport") : (en ? "Thai ID number" : "เลขบัตรประชาชน")}<span class="req">*</span></label><input class="input" id="demoIdentityNumber" autocomplete="off" ${demoIdentityType()==="passport" ? "maxlength=20 autocapitalize=characters" : "inputmode=numeric maxlength=13"} value="${esc(demoProfile.identityNumber)}" placeholder="${demoProfile.identityDraftLast4 && !demoProfile.identityNumber ? esc(`${"•".repeat(8)}${demoProfile.identityDraftLast4}`) : ""}">${demoProfile.identityDraftLast4 && !demoProfile.identityNumber ? `<p class="hint">${en ? `Saved securely (ending ${esc(demoProfile.identityDraftLast4)}). Type a new number only to change it.` : `บันทึกไว้แล้วอย่างปลอดภัย (ลงท้าย ${esc(demoProfile.identityDraftLast4)}) พิมพ์ใหม่เฉพาะเมื่อต้องการเปลี่ยน`}</p>` : ""}</div>
         <div class="field"><label class="label" for="demoIdentityExpiry">${demoIdentityType()==="passport" ? (en ? "Passport expiry date" : "วันหมดอายุ Passport") : (en ? "Thai ID expiry date" : "วันหมดอายุบัตรประชาชน")}<span class="req">*</span></label><input class="input" id="demoIdentityExpiry" type="date" value="${esc(demoProfile.identityExpiry)}"><p class="hint">${en ? "AJ must hold a document that is still valid. An expired document means a new agreement before the next rental." : "เอกสารต้องยังไม่หมดอายุ หากหมดอายุต้องทำสัญญาการเช่าใหม่ก่อนเช่าครั้งถัดไป"}</p></div>`}
         <div class="field"><label class="label" for="demoEmail">${en ? "Email" : "อีเมล"}<span class="req">*</span></label><input class="input" id="demoEmail" type="email" autocomplete="email" value="${esc(demoProfile.email)}"></div>
         ${demoIdentityCoveredByAgreement() ? "" : `<div class="field wide">
@@ -3430,7 +3509,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <label class="option-row"><input type="checkbox" id="demoTermsOpt" ${demoProfile.termsAccepted?"checked":""}><div><b>${en ? "I have read and accept the Rental Terms" : "ฉันอ่านและยอมรับเงื่อนไขการเช่าแล้ว"}<span class="req">*</span></b></div></label>`;
     // Identity details live only in page memory. After a reload the Rental ID
     // page would show blanks and a wrong identity status, so reopen step 2.
-    if(state.calc.demoOrderOpen && !demoProfile.fullName.trim()){
+    if(state.calc.demoOrderOpen && (!demoProfile.fullName.trim() || !state.calc.rentalCode)){
       state.calc.demoOrderOpen = false;
       state.calc.step = 2;
     }
@@ -3744,7 +3823,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     need("demoCustomerName", demoProfile.fullName.trim().length >= 2, en ? "Enter your legal name." : "กรอกชื่อ-นามสกุลจริง");
     need("demoCustomerPhone", String(demoProfile.phone || "").replace(/\D/g, "").length >= 9, en ? "Enter a phone number AJ can reach you on." : "กรอกเบอร์โทรศัพท์ที่ติดต่อได้");
     if(!state.calc.noContract && !demoIdentityCoveredByAgreement()){
-      need("demoIdentityNumber", demoIdentityType() === "passport" ? /^[A-Z0-9]{6,20}$/i.test(identity) : thaiIdValid(identity),
+      need("demoIdentityNumber", (!identity && demoProfile.identityDraftLast4) || (demoIdentityType() === "passport" ? /^[A-Z0-9]{6,20}$/i.test(identity) : thaiIdValid(identity)),
         demoIdentityType() === "passport"
           ? (en ? "Enter the passport number as printed." : "กรอกเลข Passport ตามที่ระบุในเล่ม")
           : (en ? "Enter all 13 digits of the Thai ID number." : "กรอกเลขบัตรประชาชน 13 หลักให้ถูกต้อง"));
@@ -3978,10 +4057,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   function demoIdentityDisplay(){
     const en = state.lang === "en";
-    const typed = maskDemoIdentity(demoProfile.identityNumber);
+    const typed = maskDemoIdentityOrDraft();
     if(typed) return typed;
     if(demoProfile.identityOnFileLast4) return `${"•".repeat(8)}${demoProfile.identityOnFileLast4}${en ? " (on file)" : " (มีอยู่กับร้าน)"}`;
     return demoIdentityCoveredByAgreement() ? (en ? "On file with AJ" : "มีอยู่กับร้านแล้ว") : "-";
+  }
+  function maskDemoIdentityOrDraft(){
+    return maskDemoIdentity(demoProfile.identityNumber) || (demoProfile.identityDraftLast4 ? `${"•".repeat(8)}${demoProfile.identityDraftLast4}` : "");
   }
   function maskDemoIdentity(value){
     const text = String(value || "").trim();
@@ -5677,7 +5759,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       phone: String(UNIFIED_FLOW_DEMO ? demoProfile.phone : state.calc.demoCustomerPhone || "").trim(),
       email: UNIFIED_FLOW_DEMO ? String(demoProfile.email || "").trim() : "",
       identityType: UNIFIED_FLOW_DEMO && !state.calc.noContract ? demoIdentityType() : "",
-      identityLast4: UNIFIED_FLOW_DEMO && !state.calc.noContract ? String(demoProfile.identityNumber || "").trim().slice(-4) : "",
+      identityLast4: UNIFIED_FLOW_DEMO && !state.calc.noContract ? (String(demoProfile.identityNumber || "").trim().slice(-4) || demoProfile.identityDraftLast4) : "",
+      identityDraftId: UNIFIED_FLOW_DEMO && !state.calc.noContract ? demoProfile.identityDraftId : "",
       identityExpiry: UNIFIED_FLOW_DEMO && !state.calc.noContract ? String(demoProfile.identityExpiry || "").trim() : "",
       deliveryAddress: UNIFIED_FLOW_DEMO ? [demoProfile.addressLine,demoProfile.subdistrict,demoProfile.district,demoProfile.province,demoProfile.postalCode].filter(Boolean).join(" ") : "",
       subdistrict: UNIFIED_FLOW_DEMO ? demoProfile.subdistrict : "",
@@ -8747,6 +8830,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(UNIFIED_FLOW_DEMO && demoFields[event.target.id]){
         demoProfile[demoFields[event.target.id]] = event.target.value;
         if(event.target.id === "demoMaps") state.calc.maps = event.target.value.trim();
+        if(event.target.id === "demoIdentityNumber"){
+          demoProfile.identityDraftLast4 = "";
+          queueIdentityDraft();
+        }
+        if(event.target.id === "demoIdentityExpiry" && demoProfile.identityNumber) queueIdentityDraft();
+        saveDemoProfile();
         clearDemoFieldError(event.target.id);
         if(event.target.id === "demoPostalCode") void onDemoPostalCode(event.target.value);
         if(event.target.id === "demoSubdistrict") onDemoSubdistrict(event.target.value);
@@ -8759,7 +8848,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     });
     document.addEventListener("change", event => {
       if(!UNIFIED_FLOW_DEMO) return;
-      if(event.target.id === "demoTermsOpt"){ demoProfile.termsAccepted = event.target.checked; clearDemoFieldError("demoTermsOpt"); renderStepActions(); }
+      if(event.target.id === "demoTermsOpt"){ demoProfile.termsAccepted = event.target.checked; clearDemoFieldError("demoTermsOpt"); saveDemoProfile(); renderStepActions(); }
       if(event.target.id === "demoSubdistrict"){
         demoProfile.subdistrict = event.target.value;
         clearDemoFieldError("demoSubdistrict");
@@ -9247,9 +9336,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   async function boot(){
     if(await completeLineBookingHandoff()) return;
     loadState();
+    let demoProfileRestored = false;
     if(UNIFIED_FLOW_DEMO){
-      demoProfile.fullName = String(state.calc.demoCustomerName || "");
-      demoProfile.phone = String(state.calc.demoCustomerPhone || "");
+      demoProfileRestored = restoreDemoProfile();
+      void refreshIdentityDraft();
+      demoProfile.fullName = String(state.calc.demoCustomerName || demoProfile.fullName || "");
+      demoProfile.phone = String(state.calc.demoCustomerPhone || demoProfile.phone || "");
       demoProfile.lineUserId = String(localStorage.getItem("aj_line_unique_id") || "");
       demoProfile.lineDisplayName = String(localStorage.getItem("aj_line_display_name") || "");
       state.calc.demoCustomerName = "";
@@ -9269,7 +9361,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const requestedLanguage = new URLSearchParams(location.search).get("lang");
     if(["th","en"].includes(requestedLanguage)) state.lang = requestedLanguage;
     const directBookingEntry = new URLSearchParams(location.search).get("booking") === "1";
-    if(directBookingEntry) state.calc.step = 1;
+    // A shared booking link starts at step 1, except when this device is
+    // part-way through the demo: then the customer returns to where they were.
+    if(directBookingEntry && !(UNIFIED_FLOW_DEMO && demoProfileRestored)) state.calc.step = 1;
     restoreAvailabilityCache();
     state.availability.holds = mergeBookingHolds(state.availability.holds);
     state.beforeRentActive = UNIFIED_FLOW_DEMO ? false : !hasRentalContext();
