@@ -322,3 +322,15 @@ test('each payment option shows "Pay now" and "Pay on delivery" on their own lin
   assert.match(html, /ยอดด้านล่างยังไม่รวมค่าจัดส่ง/);
   assert.match(html, /Amounts below do not yet include delivery\./);
 });
+
+test('re-ticking the returning discount after verifying applies it, through the same rule as the booking page', () => {
+  assert.match(html, /if\(event\.target\.id === "retOpt" \|\| event\.target\.id === "demoReturningOpt"\)\{/);
+  assert.doesNotMatch(html, /if\(event\.target\.id === "demoReturningOpt"\)\{/);
+  assert.match(html, /\$\{state\.calc\.ret \? demoReviewDiscountsHtml\(\) : ""\}/);
+});
+
+test('an agreement that already covers the renter sends step 2 straight to payment', () => {
+  assert.match(html, /function demoIdentityStepSkippable\(\)\{\n    return demoIdentityCoveredByAgreement\(\) \|\| !!state\.calc\.noContract;/);
+  assert.match(html, /UNIFIED_FLOW_DEMO && step === 2 && demoIdentityStepSkippable\(\)\n        \? `<button class="btn primary" id="demoConfirmFromDetails"/);
+  assert.match(html, /if\(targetId === "demoConfirmFromDetails"\)\{\n        if\(!showDemoStep2Problems\(\)\) return;\n        await openDemoOrder\(\);/);
+});

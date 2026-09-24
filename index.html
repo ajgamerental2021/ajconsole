@@ -3808,6 +3808,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function demoIdentityCoveredByAgreement(){
     return state.calc.retVerified && hasVerifiedAgreementRecord() && !demoIdentityExpired();
   }
+  // Nothing is left to do on the identity step when a still-valid agreement
+  // already covers the renter (verified by LINE or as a returning customer,
+  // document not expired, agreement under a year old), or when the renter chose
+  // the no-identity option. Step 2 then goes straight to payment.
+  function demoIdentityStepSkippable(){
+    return demoIdentityCoveredByAgreement() || !!state.calc.noContract;
+  }
   function demoIdentityReady(){
     return demoIdentityCoveredByAgreement() || state.calc.noContract || demoProfile.identitySkipped || demoProfile.identityUploaded || (!!demoProfile.idDocument && !!demoProfile.selfieWithId);
   }
@@ -4014,12 +4021,19 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // The Rental ID page opens with the preparation-time notice at the top of the
   // screen, just under the fixed header, so the renter reads it first.
   function scrollToDemoOrderTop(){
-    const brief = document.querySelector(".prep-time-brief");
-    const target = brief && brief.offsetParent ? brief : byId("demoOrderPage");
-    if(!target) return;
-    const header = document.querySelector("nav")?.getBoundingClientRect().height || 0;
-    const top = target.getBoundingClientRect().top + window.scrollY - header - 12;
-    window.scrollTo({top:Math.max(0, top), behavior:"smooth"});
+    const place = (behavior) => {
+      const brief = document.querySelector(".prep-time-brief");
+      const target = brief && brief.offsetParent ? brief : byId("demoOrderPage");
+      if(!target) return 0;
+      const header = document.querySelector("nav")?.getBoundingClientRect().height || 0;
+      const offset = target.getBoundingClientRect().top - header - 12;
+      if(behavior) window.scrollTo({top:Math.max(0, window.scrollY + offset), behavior});
+      return offset;
+    };
+    place("smooth");
+    // The page can still change height while it scrolls (the delivery quote
+    // arriving, images loading); settle on the notice once it has.
+    window.setTimeout(() => { if(Math.abs(place("")) > 40) place("auto"); }, 900);
   }
   function demoSectionHeadHtml(title, step){
     const en = state.lang === "en";
@@ -4193,9 +4207,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function renderStepActions(){
     const buttons = step => {
       const back = step > 1 ? `<button class="btn" type="button" data-step-go="${step - 1}">${tr("backStep")}</button>` : `<span></span>`;
-      const next = step < 3
+      const confirmLabel = state.lang === "en" ? "Confirm and continue to payment" : "ยืนยันและไปหน้าชำระเงิน";
+      const next = UNIFIED_FLOW_DEMO && step === 2 && demoIdentityStepSkippable()
+        ? `<button class="btn primary" id="demoConfirmFromDetails" type="button">${confirmLabel}</button>`
+        : step < 3
         ? `<button class="btn primary" type="button" data-step-go="${step + 1}" ${stepReady(step) || (UNIFIED_FLOW_DEMO && step === 2) ? "" : "disabled"}>${tr("nextStep")}</button>`
-        : (UNIFIED_FLOW_DEMO ? `<button class="btn primary" id="demoConfirmOrder" type="button" ${stepReady(3) ? "" : "disabled"}>${state.lang === "en" ? "Confirm and continue to payment" : "ยืนยันและไปหน้าชำระเงิน"}</button>` : "");
+        : (UNIFIED_FLOW_DEMO ? `<button class="btn primary" id="demoConfirmOrder" type="button" ${stepReady(3) ? "" : "disabled"}>${confirmLabel}</button>` : "");
       return `${renderStepReadiness(step)}${back}${next}`;
     };
     [1,2,3].forEach(step => {
@@ -9146,7 +9163,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         }
         advanceGuide("accessory");
       }
-      if(event.target.id === "retOpt"){
+      // The booking page and the unified flow share one returning-customer rule.
+      if(event.target.id === "retOpt" || event.target.id === "demoReturningOpt"){
         if(event.target.checked && !state.calc.retVerified){
           event.target.checked = false;
           const lineEligible = await detectLineReturningEligibility();
@@ -9260,10 +9278,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         saveLocal();
         render();
       }
-      if(event.target.id === "demoReturningOpt"){
-        if(event.target.checked && !state.calc.retVerified){ openReturningEligibility(); event.target.checked = false; }
-        else if(!event.target.checked){ state.calc.ret = false; state.calc.reviewGoogle = false; state.calc.reviewFacebook = false; saveLocal(); render(); }
-      }
       if(event.target.id === "demoIdentitySkip"){
         demoProfile.identitySkipped = event.target.checked;
         if(event.target.checked){ demoProfile.idDocument = null; demoProfile.selfieWithId = null; }
@@ -9367,6 +9381,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const exampleTrigger = event.target.closest("[data-identity-example]");
       if(exampleTrigger){ showDemoIdentityExample(exampleTrigger.dataset.identityExample); return; }
       if(targetId === "demoConfirmOrder"){ await openDemoOrder(); return; }
+      if(targetId === "demoConfirmFromDetails"){
+        if(!showDemoStep2Problems()) return;
+        await openDemoOrder();
+        return;
+      }
       const demoEdit = event.target.closest("[data-demo-edit]");
       if(demoEdit){ openDemoEditModal(Number(demoEdit.dataset.demoEdit) || 1); return; }
       if(targetId === "demoEditSave"){ closeDemoEditModal(true); return; }
