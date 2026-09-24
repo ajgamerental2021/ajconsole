@@ -197,7 +197,15 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-option-copy{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
 .payment-option-copy small{font-size:12px;font-weight:800;color:var(--text2)}
 .payment-option-note{display:block;margin-top:7px;color:#8a4b00!important;font-size:11px!important;font-weight:900!important;line-height:1.4}
-.payment-option-amount{display:block;margin-top:5px;color:#b42318!important;font-size:12.5px!important;font-weight:900!important;line-height:1.4}
+.payment-option-amounts{display:block;margin-top:8px;padding:8px 10px;border-radius:10px;background:#fff;border:1px solid #f1d4d4;max-width:320px}
+.payment-amount-line{display:flex!important;justify-content:space-between;gap:12px;font-size:13.5px;line-height:1.6;color:#344054}
+.payment-amount-line b{color:#b42318;font-weight:900}
+.payment-option-amounts small{display:block;color:#667085!important;font-size:11.5px!important;font-weight:700!important}
+.payment-picker-note{margin:0 0 10px;color:#667085;font-size:12.5px;font-weight:700}
+.demo-locate-btn{margin-top:8px;align-self:flex-start}
+.demo-pin-help{margin:6px 0 2px;padding:10px 12px;border-radius:10px;background:#fff8e6;border:1px solid #f5d48a}
+.demo-pin-help p{margin:0 0 8px;font-size:13px;line-height:1.55;color:#7a4b00}
+.demo-pin-actions{display:flex;gap:8px;flex-wrap:wrap}
 .payment-wise-note{max-width:560px;line-height:1.4}
 .payment-option.is-disabled{cursor:not-allowed;opacity:.58}
 .wise-status.blocked{color:#d92d20!important;font-weight:900!important}
@@ -3509,7 +3517,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <div class="field"><label class="label" for="demoDistrict">${en ? "District" : "เขต / อำเภอ"}<span class="req">*</span></label><input class="input" id="demoDistrict" value="${esc(demoProfile.district)}" ${demoAddressFreeEntry ? "" : "readonly"}></div>
         <div class="field"><label class="label" for="demoProvince">${en ? "Province" : "จังหวัด"}<span class="req">*</span></label><input class="input" id="demoProvince" value="${esc(demoProfile.province)}" ${demoAddressFreeEntry ? "" : "readonly"}></div>
         <p class="demo-address-note wide" id="demoAddressNote" role="status" hidden></p>`}
-        <div class="field wide"><label class="label" for="demoMaps">Google Maps<span class="req">*</span></label><input class="input" id="demoMaps" value="${esc(demoProfile.maps)}" placeholder="https://maps.google.com/..."><a class="hint" id="demoMapsSearch" href="${esc(demoMapsSearchUrl())}" target="_blank" rel="noopener">${en ? "Find this address in Google Maps, pin the exact spot and paste the share link here" : "ค้นหาที่อยู่นี้ใน Google Maps ปักหมุดให้ตรง แล้วคัดลอกลิงก์แชร์มาวางที่ช่องนี้"}</a></div>
+        <div class="field wide"><label class="label" for="demoMaps">Google Maps<span class="req">*</span></label><input class="input" id="demoMaps" value="${esc(demoProfile.maps)}" placeholder="https://maps.google.com/..."><button class="btn demo-locate-btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><a class="hint" id="demoMapsSearch" href="${esc(demoMapsSearchUrl())}" target="_blank" rel="noopener">${en ? "Find this address in Google Maps, pin the exact spot and paste the share link here" : "ค้นหาที่อยู่นี้ใน Google Maps ปักหมุดให้ตรง แล้วคัดลอกลิงก์แชร์มาวางที่ช่องนี้"}</a></div>
       </div>
       <p class="hint">${en ? "The district and subdistrict are used to estimate delivery. The final round-trip fee must be confirmed before payment." : "ระบบใช้เขตและแขวงเพื่อประเมินค่าจัดส่ง โดยร้านต้องยืนยันค่าจัดส่งไป-กลับก่อนชำระเงิน"}</p>
       <h3>${en ? "Rental Terms" : "เงื่อนไขการเช่า"}</h3>
@@ -3670,7 +3678,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const en = state.lang === "en";
     return {
       loading: en ? "Calculating…" : "กำลังคำนวณ…",
-      needs_pin: en ? "Map link has no pin — paste a link with the exact location" : "ลิงก์แผนที่ไม่มีพิกัด กรุณาปักหมุดแล้วคัดลอกลิงก์ใหม่",
+      needs_pin: en ? "Map pin needed" : "ต้องปักหมุดแผนที่",
       unavailable: en ? "Awaiting confirmed quote" : "รอยืนยันราคาจริง"
     }[demoDelivery.status] || (en ? "Awaiting confirmed quote" : "รอยืนยันราคาจริง");
   }
@@ -3690,6 +3698,28 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       demoProfile.postalCode = postal[1];
       void onDemoPostalCode(postal[1]);
     }
+  }
+  // Fill the map link from the phone's location. The link carries the
+  // coordinates themselves, so the delivery quote never has to guess.
+  function useDemoCurrentLocation(){
+    const en = state.lang === "en";
+    if(!navigator.geolocation){ toast(en ? "This browser cannot share its location." : "เบราว์เซอร์นี้แชร์ตำแหน่งไม่ได้"); return; }
+    toast(en ? "Finding your location…" : "กำลังหาตำแหน่ง…");
+    navigator.geolocation.getCurrentPosition(position => {
+      const lat = position.coords.latitude.toFixed(6);
+      const lng = position.coords.longitude.toFixed(6);
+      demoProfile.maps = `https://maps.google.com/?q=${lat},${lng}`;
+      state.calc.maps = demoProfile.maps;
+      const input = byId("demoMaps");
+      if(input) input.value = demoProfile.maps;
+      clearDemoFieldError("demoMaps");
+      saveDemoProfile();
+      saveLocal();
+      if(state.calc.demoOrderOpen) renderDemoOrderPage();
+      toast(en ? "Location added. Check that it is the delivery address." : "ใส่ตำแหน่งแล้ว กรุณาตรวจว่าเป็นที่อยู่จัดส่ง");
+    }, () => {
+      toast(en ? "Location not shared. Allow location access, or paste a map link." : "ไม่ได้รับตำแหน่ง กรุณาอนุญาตการเข้าถึงตำแหน่ง หรือวางลิงก์แผนที่แทน");
+    }, {enableHighAccuracy:true, timeout:15000});
   }
   function demoMapsSearchUrl(){
     const query = [demoProfile.addressLine, demoProfile.subdistrict, demoProfile.district, demoProfile.province, demoProfile.postalCode].map(part => String(part || "").trim()).filter(Boolean).join(" ");
@@ -3979,7 +4009,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     saveLocal();
     render();
     renderDemoOrderPage();
-    byId("demoOrderPage")?.scrollIntoView({behavior:"smooth", block:"start"});
+    scrollToDemoOrderTop();
+  }
+  // The Rental ID page opens with the preparation-time notice at the top of the
+  // screen, just under the fixed header, so the renter reads it first.
+  function scrollToDemoOrderTop(){
+    const brief = document.querySelector(".prep-time-brief");
+    const target = brief && brief.offsetParent ? brief : byId("demoOrderPage");
+    if(!target) return;
+    const header = document.querySelector("nav")?.getBoundingClientRect().height || 0;
+    const top = target.getBoundingClientRect().top + window.scrollY - header - 12;
+    window.scrollTo({top:Math.max(0, top), behavior:"smooth"});
   }
   function demoSectionHeadHtml(title, step){
     const en = state.lang === "en";
@@ -4028,7 +4068,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           row(en ? "AJ delivery promotion" : "ส่วนลดค่าจัดส่งจากร้าน", `-${money(quote.discount)}`, "is-discount"),
           row(en ? "Delivery you pay" : "ค่าจัดส่งที่ต้องชำระ", money(quote.total))
         ]
-      : [row(en ? "Round-trip delivery" : "ค่าจัดส่งไป-กลับ", esc(demoDeliveryPendingText()), "is-muted")];
+      : [row(en ? "Round-trip delivery" : "ค่าจัดส่งไป-กลับ", esc(demoDeliveryPendingText()), "is-muted"),
+          ...(demoDelivery.status === "needs_pin" ? [`<div class="demo-pin-help"><p>${esc(en
+            ? "This map link only names a place, so the delivery fee cannot be worked out. In Google Maps, press and hold the exact delivery spot to drop a pin, then share that link — or use your current location."
+            : "ลิงก์แผนที่นี้มีแค่ชื่อสถานที่ ระบบจึงคำนวณค่าส่งไม่ได้ ใน Google Maps ให้กดค้างตรงจุดส่งของจนขึ้นหมุด แล้วกดแชร์ลิงก์นั้น หรือใช้ตำแหน่งปัจจุบัน")}</p><div class="demo-pin-actions"><button class="btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><button class="btn" type="button" data-demo-edit="2">${en ? "Change map link" : "เปลี่ยนลิงก์แผนที่"}</button></div></div>`] : [])];
     return `<div class="demo-order-box demo-total-box">
       <div class="demo-total-group">${charges.join("")}</div>
       ${discounts.length ? `<div class="demo-total-group">${discounts.join("")}</div>` : ""}
@@ -4615,7 +4658,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // group holding the current selection opens; reservation leads by default.
     const fullSelected = ["bank", "wise", "credit", "ewallet"].includes(state.calc.payment);
     const caret = (open) => `<span class="payment-group-caret" aria-hidden="true">${open ? "▾" : "▸"}</span>`;
+    const deliveryNote = demoDelivery.status === "ready" ? "" : `<p class="payment-picker-note">${en ? "Amounts below do not yet include delivery." : "ยอดด้านล่างยังไม่รวมค่าจัดส่ง"}</p>`;
     return `<div class="payment-picker">
+      ${deliveryNote}
       <div class="payment-group ${fullSelected ? "is-collapsed" : ""}">
         <button class="payment-group-title" type="button" data-payment-group="reservation" aria-expanded="${!fullSelected}"><span>${reservationTitle}</span><span class="payment-group-actions"><span class="payment-recommended">${recommended}</span>${caret(!fullSelected)}</span></button>
         <div class="payment-group-body">${option("cash", cashDeliveryOptionHtml())}</div>
@@ -4642,12 +4687,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!(Number(summary.subtotalBeforePaymentFee) > 0)) return "";
     const en = state.lang === "en";
     const amounts = paymentAmountsFor(method, summary);
-    const deliveryPending = demoDelivery.status !== "ready";
-    const parts = method === "cash"
-      ? [`${en ? "Now" : "ตอนนี้"} ${money(amounts.payNow)}`, `${en ? "on delivery" : "ปลายทาง"} ${money(amounts.onDelivery)}`]
-      : [`${en ? "Now" : "ตอนนี้"} ${money(amounts.payNow)}${amounts.fee ? ` (${en ? "incl. fee" : "รวมค่าธรรมเนียม"} ${money(amounts.fee)})` : ""}`];
-    const pending = deliveryPending ? ` · ${en ? "delivery not yet included" : "ยังไม่รวมค่าจัดส่ง"}` : "";
-    return `<small class="payment-option-amount">${esc(parts.join(" · ") + pending)}</small>`;
+    const line = (label, value) => `<span class="payment-amount-line"><span>${esc(label)}</span><b>${money(value)}</b></span>`;
+    return `<span class="payment-option-amounts">
+      ${line(en ? "Pay now" : "ชำระตอนนี้", amounts.payNow)}
+      ${method === "cash" ? line(en ? "Pay on delivery" : "ชำระปลายทาง", amounts.onDelivery) : ""}
+      ${amounts.fee ? `<small>${esc(en ? `Includes ${money(amounts.fee)} fee` : `รวมค่าธรรมเนียม ${money(amounts.fee)} แล้ว`)}</small>` : ""}
+    </span>`;
   }
   function cashDeliveryOptionHtml(){
     const title = state.lang === "en"
@@ -6638,7 +6683,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       state.calc.demoIdentityStatus = demoIdentityStatus();
       saveLocal();
       render();
-      byId("demoOrderPage")?.scrollIntoView({behavior:"smooth", block:"start"});
+      scrollToDemoOrderTop();
     }catch(error){
       showBookingActionError(error);
     }finally{
@@ -8819,6 +8864,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     document.addEventListener("click", event => {
       if(event.target.closest("#siteMenuBtn")){ toggleSiteMenu(); return; }
       if(!event.target.closest("#siteMenu")) toggleSiteMenu(false);
+      if(event.target.closest("[data-demo-locate]")){ useDemoCurrentLocation(); return; }
       const infoPage = event.target.closest("[data-info-page]");
       if(infoPage){ toggleSiteMenu(false); openInfoModal(infoPage.dataset.infoPage); return; }
       if(event.target.closest("[data-faq-rental-terms]")){ openRentalTermsReadOnly(); return; }

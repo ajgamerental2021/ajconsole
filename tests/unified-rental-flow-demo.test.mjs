@@ -137,7 +137,7 @@ test('round-trip delivery price comes from the Bot and is never shown as final w
   assert.match(html, /\/api\/delivery\/quote/);
   assert.match(html, /demoDelivery = \{status:"idle", quote:null, key:""\}/);
   assert.match(html, /Awaiting confirmed quote/);
-  assert.match(html, /Map link has no pin/);
+  assert.ok(html.includes('needs_pin: en ? "Map pin needed" : "ต้องปักหมุดแผนที่"'));
   assert.match(html, /hasLargeItem: \/G29\|Logitech\|VR2\|Racing\/i\.test\(name\)/);
 });
 
@@ -300,4 +300,25 @@ test('the order page asks for a fresh delivery quote after a refresh or an edit'
   assert.match(html, /function demoDeliveryQuoteKey\(\)/);
   assert.match(html, /if\(state\.calc\.demoOrderOpen && demoDelivery\.status !== "loading" && demoDelivery\.key !== demoDeliveryQuoteKey\(\)\)\{\n      void fetchDemoDeliveryQuote\(\);/);
   assert.match(html, /demoDelivery\.key = demoDeliveryQuoteKey\(\);/);
+});
+
+test('the Rental ID page opens at the preparation notice', () => {
+  assert.match(html, /function scrollToDemoOrderTop\(\)/);
+  assert.match(html, /document\.querySelector\("\.prep-time-brief"\)/);
+  assert.doesNotMatch(html, /byId\("demoOrderPage"\)\?\.scrollIntoView/);
+});
+
+test('a map link without a pin explains the fix, and the current location can fill it', () => {
+  assert.match(html, /function useDemoCurrentLocation\(\)/);
+  assert.match(html, /demoProfile\.maps = `https:\/\/maps\.google\.com\/\?q=\$\{lat\},\$\{lng\}`/);
+  assert.match(html, /📍 ใช้ตำแหน่งปัจจุบัน/);
+  assert.match(html, /📍 Use my current location/);
+  assert.match(html, /class="demo-pin-help"/);
+});
+
+test('each payment option shows "Pay now" and "Pay on delivery" on their own lines', () => {
+  assert.match(html, /line\(en \? "Pay now" : "ชำระตอนนี้", amounts\.payNow\)/);
+  assert.match(html, /method === "cash" \? line\(en \? "Pay on delivery" : "ชำระปลายทาง", amounts\.onDelivery\)/);
+  assert.match(html, /ยอดด้านล่างยังไม่รวมค่าจัดส่ง/);
+  assert.match(html, /Amounts below do not yet include delivery\./);
 });
