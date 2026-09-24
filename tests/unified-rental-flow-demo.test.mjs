@@ -147,9 +147,9 @@ test('privacy policy explains that AJ stores no card or e-wallet details', () =>
 });
 
 test('customer-facing contact email uses the AJ domain', () => {
-  assert.match(html, /Email contact@ajgamerental\.com/);
-  assert.match(html, /อีเมล contact@ajgamerental\.com/);
-  assert.match(html, /Email: contact@ajgamerental\.com/);
+  assert.match(html, /href="mailto:contact@ajgamerental\.com"/);
+  assert.match(html, /href="tel:\+66816244715"/);
+  assert.match(html, /lineAddFriendUrl: "https:\/\/lin\.ee\/w4TFyCV"/);
   // The Wise payment account is a bank detail, not a contact address.
   assert.match(html, /wiseEmail: "ajgamerental2021@gmail\.com"/);
 });
@@ -241,4 +241,28 @@ test('the admin panel manages pickup points', () => {
   assert.match(html, /\/api\/admin\/pickup-locations/);
   assert.match(html, /data-pickup-default/);
   assert.match(html, /ใช้จุดนี้เป็นจุดรับของตอนนี้/);
+});
+
+test('the calendar blocks a date only when holds use up every free unit', () => {
+  assert.doesNotMatch(html, /if\(allHolds\.some\(hold => hold\.mine\)\) return \{cls:"busy"/);
+  assert.match(html, /if\(availableUnitsForRange\(matches, start, end\) > holds\.length\) return \{cls:"available"/);
+});
+
+test('payment groups collapse so only one is open at a time', () => {
+  assert.match(html, /data-payment-group="reservation"/);
+  assert.match(html, /data-payment-group="full"/);
+  assert.match(html, /\.payment-group\.is-collapsed \.payment-group-body\{display:none\}/);
+});
+
+test('slow steps show a busy veil and edits open in a dialog', () => {
+  assert.match(html, /function showDemoBusy\(message\)/);
+  assert.match(html, /id="demoEditModal"/);
+  assert.match(html, /function openDemoEditModal\(step\)/);
+});
+
+test('the About page can be edited by the shop and read by everyone', () => {
+  assert.match(html, /\/api\/site-content\/about/);
+  assert.match(html, /\/api\/admin\/site-content\/about/);
+  assert.match(html, /function adminAboutHtml\(\)/);
+  assert.doesNotMatch(html, /info-modal-highlight"><div><strong>\$\{esc\(copy\.aboutSince\)\}/);
 });

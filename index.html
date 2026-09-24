@@ -184,7 +184,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-unavailable{color:#666;text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:#111;text-decoration-skip-ink:auto;white-space:nowrap}
 .payment-picker{display:flex;flex-direction:column;gap:10px;border:1px solid var(--border2);border-radius:12px;background:#fff;padding:10px}
 .payment-group{border:1px solid var(--border);border-radius:10px;background:#fafbfc;overflow:hidden}
-.payment-group-title{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;background:#eef2f7;border-bottom:1px solid var(--border);font-size:12px;font-weight:900;color:var(--text2);line-height:1.35}
+.payment-group-actions{display:flex;align-items:center;gap:8px}
+.payment-group-caret{font-size:13px;color:#667085}
+.payment-group.is-collapsed .payment-group-body{display:none}
+.payment-group.is-collapsed .payment-group-title{border-bottom:0}
+.payment-group-title{width:100%;border:0;text-align:left;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;background:#eef2f7;border-bottom:1px solid var(--border);font-size:12px;font-weight:900;color:var(--text2);line-height:1.35}
 .payment-recommended{flex:0 0 auto;padding:4px 9px;border-radius:999px;background:#ffedb3;color:#8a5a00;font-size:11px;font-weight:900}
 .payment-option{display:flex;align-items:center;gap:10px;min-height:46px;padding:10px 11px;cursor:pointer;font-weight:800;line-height:1.35}
 .payment-option + .payment-option{border-top:1px solid var(--border)}
@@ -695,7 +699,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .info-modal-body ul,.info-modal-body ol{padding-left:24px;margin:10px 0}
 .info-modal-body li{margin:6px 0}
 .info-contact-list{list-style:none;padding-left:0!important;margin:8px 0 0}
-.info-contact-list li{margin:6px 0;font-weight:700}
+.info-contact-list li{margin:8px 0;font-weight:700}
+.info-contact-list a{color:#c90012;text-decoration:none;border-bottom:1px solid rgba(201,0,18,.35)}
 .info-modal-body h2{margin:26px 0 8px;color:#101828;font-size:22px;line-height:1.3}
 .info-modal-body h2:first-child{margin-top:0}
 .info-modal-body h3{margin:20px 0 7px;color:#101828;font-size:17px}
@@ -790,6 +795,17 @@ body.unified-flow-demo .demo-reward-badge{display:inline-grid;place-items:center
 body.unified-flow-demo #demoIdentityCard .option-row,body.unified-flow-demo #demoCustomerCard .option-row{margin:14px 0}
 body.unified-flow-demo .demo-item-details li{margin:2px 0}
 body.unified-flow-demo .demo-order-action{display:flex;justify-content:flex-end;margin-top:12px}
+#demoEditModal{z-index:490}
+.demo-edit-card{width:min(760px,calc(100vw - 28px));height:min(88vh,900px);display:flex;flex-direction:column;overflow:hidden}
+.demo-edit-body{flex:1;min-height:0;overflow:auto;padding:18px 20px;background:#fff}
+.demo-edit-body .pane{display:block!important}
+.demo-edit-body .step-actions{display:none!important}
+.demo-edit-foot{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--border);background:#fff}
+.demo-busy{position:fixed;inset:0;z-index:99998;display:grid;place-items:center;background:rgba(240,242,245,.78);backdrop-filter:blur(1.5px)}
+.demo-busy[hidden]{display:none}
+.demo-busy-card{display:flex;align-items:center;gap:12px;padding:18px 24px;border-radius:14px;background:#fff;box-shadow:0 12px 32px rgba(15,23,42,.16);font-weight:800;color:#344054}
+.demo-busy-spinner{width:20px;height:20px;border-radius:50%;border:3px solid #e4e7ec;border-top-color:#d71920;animation:demoBusySpin .8s linear infinite}
+@keyframes demoBusySpin{to{transform:rotate(360deg)}}
 
 body.unified-flow-demo .demo-status.ok{color:#137333}
 .payment-wise-logo{height:22px;width:auto;display:inline-block;vertical-align:-4px}
@@ -1112,7 +1128,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
         <div class="demo-banner demo-only" id="unifiedDemoBanner"></div>
         <div class="calc-tabs" id="calcTabs"></div>
         <div class="calc-body">
-          <div>
+          <div id="calcPanes">
             <div class="pane active" id="pane1">
               <div class="card">
                 <div class="step1-head"><h3 data-i18n="step1Title">เลือกเครื่องและวันที่</h3><button class="btn danger step-guide-btn" id="stepsBtn" type="button" data-i18n="stepsBtn">ขั้นตอนการเช่า</button></div>
@@ -1227,6 +1243,21 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
     <div class="modal-head"><h3 id="simpleModalTitle"></h3><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="faqLangBtn" type="button" style="display:none"></button><button class="xbtn" id="simpleModalClose" type="button">&times;</button></div></div>
     <div class="calendar-body" id="simpleModalBody"></div>
   </div>
+</div>
+
+<div class="modal-overlay" id="demoEditModal" role="dialog" aria-modal="true" aria-labelledby="demoEditTitle">
+  <div class="modal-card demo-edit-card">
+    <div class="modal-head"><div class="modal-title-copy"><h3 id="demoEditTitle"></h3></div><div class="modal-head-actions"><button class="modal-close" id="demoEditClose" type="button" aria-label="Close">×</button></div></div>
+    <div class="demo-edit-body" id="demoEditBody"></div>
+    <div class="demo-edit-foot">
+      <button class="btn" id="demoEditCancel" type="button"></button>
+      <button class="btn primary" id="demoEditSave" type="button"></button>
+    </div>
+  </div>
+</div>
+
+<div class="demo-busy" id="demoBusy" role="status" aria-live="polite" hidden>
+  <div class="demo-busy-card"><span class="demo-busy-spinner" aria-hidden="true"></span><span id="demoBusyText"></span></div>
 </div>
 
 <div class="modal-overlay" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
@@ -1390,6 +1421,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
     rentalCodeApi: "https://delivery-app-backend-68pm.onrender.com/api/public/rental-code/allocate",
     rentalCodeWebApp: "",
     lineUrl: "https://line.me/R/ti/p/@ajgame",
+    lineAddFriendUrl: "https://lin.ee/w4TFyCV",
     lineOaMessageUrl: "https://line.me/R/oaMessage/%40ajgame/",
     whatsappPhone: "66816244715",
     facebookMessengerUrl: "https://m.me/ajgamerental",
@@ -1484,7 +1516,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
       <h2>สิทธิและความปลอดภัย</h2>
       <p>ลูกค้าขอเข้าถึง แก้ไข คัดค้าน จำกัดการใช้ ถอนความยินยอม หรือขอลบข้อมูลได้เท่าที่กฎหมายอนุญาต AJ จำกัดการเข้าถึงข้อมูลเฉพาะผู้ที่จำเป็นต่อการทำงาน และใช้มาตรการที่เหมาะสมเพื่อป้องกันการเข้าถึงหรือเปิดเผยโดยไม่ได้รับอนุญาต</p>
       <h2>ติดต่อเรื่องข้อมูลส่วนบุคคล</h2>
-      <ul class="info-contact-list"><li>LINE: @ajgame</li><li>โทร: 081-624-4715</li><li>อีเมล: contact@ajgamerental.com</li></ul>`,
+      <!--CONTACT-->`,
     en:`
       <p class="info-modal-lead">AJ collects and uses personal data only as needed to rent out equipment, verify identity, prepare agreements, take payment, deliver and collect equipment, and resolve problems arising from a rental.</p>
       <h2>Data we collect</h2>
@@ -1513,7 +1545,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
       <h2>Your rights and security</h2>
       <p>You may ask to access, correct, object to, restrict or delete your data, or withdraw consent, as far as the law allows. AJ limits access to the people who need it and uses appropriate measures against unauthorised access or disclosure.</p>
       <h2>Privacy contact</h2>
-      <ul class="info-contact-list"><li>LINE: @ajgame</li><li>Tel: 081-624-4715</li><li>Email: contact@ajgamerental.com</li></ul>`
+      <!--CONTACT-->`
   };
   let activeInfoPage = "";
 
@@ -3772,7 +3804,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function demoIdentityArtHtml(){
     const en = state.lang === "en";
     const passport = demoIdentityType() === "passport";
-    const docLabel = passport ? "PASSPORT" : (en ? "THAI ID" : "บัตรประชาชน");
+    const docLabel = en ? "THAI ID / PASSPORT" : "บัตรประชาชน / Passport";
     return `<div class="demo-identity-art" aria-hidden="true">
       <svg viewBox="0 0 320 150" role="img" focusable="false">
         <rect x="0" y="0" width="320" height="150" rx="16" fill="#f7f8fb"></rect>
@@ -3782,7 +3814,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           <rect x="48" y="28" width="48" height="7" rx="3.5" fill="#dfe3ea"></rect>
           <rect x="48" y="41" width="40" height="7" rx="3.5" fill="#dfe3ea"></rect>
           <rect x="48" y="54" width="44" height="7" rx="3.5" fill="#dfe3ea"></rect>
-          <text x="54" y="100" text-anchor="middle" font-size="11" font-weight="700" fill="#667085">${esc(docLabel)}</text>
+          <text x="54" y="100" text-anchor="middle" font-size="10.5" font-weight="700" fill="#667085">${esc(docLabel)}</text>
         </g>
         <g transform="translate(176,16)">
           <circle cx="44" cy="30" r="19" fill="#e4e8f0"></circle>
@@ -3791,7 +3823,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           <circle cx="76" cy="70" r="6" fill="#f0d5d5" transform="rotate(-8 88 73)"></circle>
           <rect x="86" y="64" width="22" height="4" rx="2" fill="#e9c9c9" transform="rotate(-8 88 73)"></rect>
           <rect x="86" y="72" width="18" height="4" rx="2" fill="#e9c9c9" transform="rotate(-8 88 73)"></rect>
-          <text x="44" y="116" text-anchor="middle" font-size="11" font-weight="700" fill="#667085">${en ? "SELFIE + CARD" : "เซลฟี่คู่บัตร"}</text>
+          <text x="44" y="116" text-anchor="middle" font-size="10.5" font-weight="700" fill="#667085">${en ? "SELFIE + THAI ID / PASSPORT" : "เซลฟี่คู่บัตรประชาชน / Passport"}</text>
         </g>
       </svg>
     </div>`;
@@ -3800,6 +3832,59 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const en = state.lang === "en";
     if(demoIdentityType() === "passport") return en ? "Passport number" : "เลข Passport";
     return en ? "Thai ID number" : "เลขบัตรประชาชน";
+  }
+  // The confirm and pay steps talk to several services before the page moves,
+  // so the customer sees that something is happening and cannot double-submit.
+  function showDemoBusy(message){
+    const host = byId("demoBusy");
+    if(!host) return;
+    byId("demoBusyText").textContent = message;
+    host.hidden = false;
+  }
+  function hideDemoBusy(){
+    const host = byId("demoBusy");
+    if(host) host.hidden = true;
+  }
+  // Editing a block borrows the real step markup into a dialog, so the fields,
+  // validation and lookups stay exactly the ones the customer already used.
+  let demoEditStep = 0;
+  let demoEditSnapshot = null;
+  function openDemoEditModal(step){
+    const en = state.lang === "en";
+    const host = byId("demoEditBody");
+    const source = step === 2 ? byId("demoCustomerCard") : byId("pane1");
+    if(!host || !source) return;
+    demoEditStep = step;
+    demoEditSnapshot = {profile:{...demoProfile}, calc:JSON.parse(JSON.stringify(state.calc))};
+    byId("demoEditTitle").textContent = step === 2
+      ? (en ? "Customer and delivery details" : "ข้อมูลลูกค้าและที่อยู่จัดส่ง")
+      : (en ? "Equipment and dates" : "เครื่องและวันเช่า");
+    byId("demoEditSave").textContent = en ? "Save changes" : "ยืนยันการแก้ไข";
+    byId("demoEditCancel").textContent = en ? "Cancel" : "ยกเลิก";
+    host.innerHTML = "";
+    host.appendChild(source);
+    byId("demoEditModal").classList.add("open");
+  }
+  function closeDemoEditModal(save){
+    const modal = byId("demoEditModal");
+    if(!modal?.classList.contains("open")) return;
+    if(!save && demoEditSnapshot){
+      Object.assign(demoProfile, demoEditSnapshot.profile);
+      state.calc = demoEditSnapshot.calc;
+    }
+    modal.classList.remove("open");
+    const borrowed = byId("demoEditBody").firstElementChild;
+    if(borrowed){
+      const home = borrowed.id === "demoCustomerCard" ? byId("pane2") : byId("calcPanes");
+      if(home) home.insertBefore(borrowed, home.firstElementChild);
+    }
+    byId("demoEditBody").innerHTML = "";
+    demoEditStep = 0;
+    demoEditSnapshot = null;
+    saveLocal();
+    render();
+    renderDemoOrderPage();
+    byId("demoOrderPage")?.scrollIntoView({behavior:"smooth", block:"start"});
   }
   function demoSectionHeadHtml(title, step){
     const en = state.lang === "en";
@@ -4401,7 +4486,20 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       : "ชำระปลายทาง (มีโอนจองคิวก่อน ฿200)";
     const fullPaymentTitle = en ? "Pay the full amount before delivery" : "ชำระเต็มจำนวนก่อนจัดส่ง";
     const recommended = en ? "Recommended" : "แนะนำ";
-    return `<div class="payment-picker"><div class="payment-group"><div class="payment-group-title"><span>${reservationTitle}</span><span class="payment-recommended">${recommended}</span></div>${option("cash", cashDeliveryOptionHtml())}</div><div class="payment-group"><div class="payment-group-title"><span>${fullPaymentTitle}</span></div>${fullPayment}</div></div>`;
+    // One group is open at a time so the list reads as a short choice. The
+    // group holding the current selection opens; reservation leads by default.
+    const fullSelected = ["bank", "wise", "credit", "ewallet"].includes(state.calc.payment);
+    const caret = (open) => `<span class="payment-group-caret" aria-hidden="true">${open ? "▾" : "▸"}</span>`;
+    return `<div class="payment-picker">
+      <div class="payment-group ${fullSelected ? "is-collapsed" : ""}">
+        <button class="payment-group-title" type="button" data-payment-group="reservation" aria-expanded="${!fullSelected}"><span>${reservationTitle}</span><span class="payment-group-actions"><span class="payment-recommended">${recommended}</span>${caret(!fullSelected)}</span></button>
+        <div class="payment-group-body">${option("cash", cashDeliveryOptionHtml())}</div>
+      </div>
+      <div class="payment-group ${fullSelected ? "" : "is-collapsed"}">
+        <button class="payment-group-title" type="button" data-payment-group="full" aria-expanded="${fullSelected}"><span>${fullPaymentTitle}</span><span class="payment-group-actions">${caret(fullSelected)}</span></button>
+        <div class="payment-group-body">${fullPayment}</div>
+      </div>
+    </div>`;
   }
   function cashDeliveryOptionHtml(){
     const title = state.lang === "en"
@@ -5165,8 +5263,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const start = isReturnCandidate ? selectedStart : date;
     const end = isReturnCandidate ? date : addDays(date, 3);
     if(isQueueClosed(c, start, end)) return {cls:"busy", note:calendarCellText("unavailable")};
+    // A hold only blocks a date when it uses up the last free unit. The
+    // customer's own hold never blocks them: the server replaces it when they
+    // book again, exactly as it does not count it as a conflict.
     const allHolds = matchingBookingHolds(c, start, end, true);
-    if(allHolds.some(hold => hold.mine)) return {cls:"busy", note:holdMessage("bookingHoldCell", allHolds.filter(hold => hold.mine))};
     if(state.availability.loading && !hasRecentAvailabilitySnapshot()) return {cls:"disabled", note:tr("checking")};
     if(!hasRecentAvailabilitySnapshot()) return {cls:"disabled", note:tr("queueRetryCell")};
     if(!state.availability.rows.length){
@@ -5180,6 +5280,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const holds = activeBookingHolds(c, start, end);
     if(availableUnitsForRange(matches, start, end) > holds.length) return {cls:"available", note:calendarCellText("available")};
     if(holds.length) return {cls:"busy", note:holdMessage("bookingHoldCell", holds)};
+    if(allHolds.length) return {cls:"busy", note:holdMessage("bookingHoldCell", allHolds)};
     return {cls:"busy", note:calendarCellText("unavailable")};
   }
   function calendarCellText(kind){
@@ -6328,6 +6429,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   async function openDemoOrder(){
     if(!UNIFIED_FLOW_DEMO || !stepReady(3)) return;
+    showDemoBusy(state.lang === "en" ? "Preparing your rental…" : "กำลังเตรียมข้อมูลการเช่า…");
     try{
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
@@ -6362,9 +6464,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       byId("demoOrderPage")?.scrollIntoView({behavior:"smooth", block:"start"});
     }catch(error){
       showBookingActionError(error);
+    }finally{
+      hideDemoBusy();
     }
   }
   async function launchDemoBeamPayment(){
+    showDemoBusy(state.lang === "en" ? "Opening the payment page…" : "กำลังเปิดหน้าชำระเงิน…");
     try{
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
@@ -6381,8 +6486,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       renderDemoOrderPage();
       location.href = url;
     }catch(error){
+      hideDemoBusy();
       console.error("Demo Beam payment failed", error);
-      toast(state.lang === "en" ? "Unable to create the test payment link. Please try again." : "สร้างลิงก์ชำระเงินทดสอบไม่สำเร็จ กรุณาลองใหม่");
+      toast(state.lang === "en" ? "Unable to open the payment page. Please try again." : "เปิดหน้าชำระเงินไม่สำเร็จ กรุณาลองใหม่");
     }
   }
   async function notifyDemoLine(){
@@ -6776,16 +6882,54 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       host.setAttribute("aria-label", state.lang === "en" ? "About AJ and website policies" : "ข้อมูลเกี่ยวกับ AJ และนโยบายเว็บไซต์");
     });
   }
+  // The shop can rewrite the About page from the admin panel; whatever it has
+  // not touched falls back to the wording shipped with the site.
+  const aboutOverrides = {th:null, en:null};
+  function aboutCopy(){
+    const base = INFO_COPY[state.lang];
+    const override = aboutOverrides[state.lang];
+    if(!override) return base;
+    return {
+      ...base,
+      aboutLead: override.lead || base.aboutLead,
+      aboutPurpose: override.purpose || base.aboutPurpose,
+      aboutHowTitle: override.howTitle || base.aboutHowTitle,
+      aboutHow: Array.isArray(override.how) && override.how.length ? override.how : base.aboutHow,
+      aboutTruth: override.truth || base.aboutTruth,
+      aboutContactTitle: override.contactTitle || base.aboutContactTitle
+    };
+  }
+  async function loadAboutContent(){
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/site-content/about?_ts=${Date.now()}`, {cache:"no-store"});
+      if(!response.ok) return;
+      const result = await response.json();
+      if(result?.content && typeof result.content === "object"){
+        aboutOverrides.th = result.content.th || null;
+        aboutOverrides.en = result.content.en || null;
+        if(activeInfoPage === "about") renderInfoModal();
+      }
+    }catch(error){
+      console.warn("About content unavailable", error);
+    }
+  }
   function aboutInfoHtml(){
-    const copy = INFO_COPY[state.lang];
-    const activeConsoles = state.consoles.filter(item => item.active !== false);
-    const productCount = activeConsoles.length;
+    const copy = aboutCopy();
     return `<p class="info-modal-lead">${esc(copy.aboutLead)}</p>
       <p>${esc(copy.aboutPurpose)}</p>
-      <div class="info-modal-highlight"><div><strong>${esc(copy.aboutSince)}</strong></div><div><strong>${esc(copy.aboutDelivery)}</strong></div><div><strong>${esc(copy.aboutArea)}</strong><span>${state.lang === "en" ? `More than ${Math.max(20, Math.floor(productCount / 10) * 10)} models available to rent` : `ปัจจุบันมีรายการให้เช่ามากกว่า ${Math.max(20, Math.floor(productCount / 10) * 10)} รุ่น`}</span></div></div>
       <h2>${esc(copy.aboutHowTitle)}</h2><ol>${copy.aboutHow.map(item => `<li>${esc(item)}</li>`).join("")}</ol>
       <h2>${state.lang === "en" ? "Service model" : "รูปแบบการให้บริการ"}</h2><p>${esc(copy.aboutTruth)}</p>
-      <h2>${esc(copy.aboutContactTitle)}</h2><ul class="info-contact-list">${copy.aboutContact.map(line => `<li>${esc(line)}</li>`).join("")}</ul>`;
+      <h2>${esc(copy.aboutContactTitle)}</h2>${contactListHtml()}`;
+  }
+  // One contact block, used by About and by the Privacy page, with every
+  // channel reachable in one tap.
+  function contactListHtml(){
+    const en = state.lang === "en";
+    return `<ul class="info-contact-list">
+      <li>${en ? "Tel" : "โทร"}: <a href="tel:+66816244715">081-624-4715</a></li>
+      <li>LINE: <a href="${CONFIG.lineAddFriendUrl}" target="_blank" rel="noopener">@ajgame</a></li>
+      <li>${en ? "Email" : "อีเมล"}: <a href="mailto:contact@ajgamerental.com">contact@ajgamerental.com</a></li>
+    </ul>`;
   }
   function renderInfoModal(){
     if(!activeInfoPage || !byId("infoModal")?.classList.contains("open")) return;
@@ -6797,7 +6941,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("infoModalLang").textContent = state.lang === "en" ? "TH" : "EN";
     byId("infoModalClose").setAttribute("aria-label", state.lang === "en" ? "Close" : "ปิด");
     if(activeInfoPage === "about") byId("infoModalBody").innerHTML = aboutInfoHtml();
-    if(activeInfoPage === "privacy") byId("infoModalBody").innerHTML = PRIVACY_COPY[state.lang];
+    if(activeInfoPage === "privacy") byId("infoModalBody").innerHTML = PRIVACY_COPY[state.lang].replace("<!--CONTACT-->", contactListHtml());
     if(activeInfoPage === "terms"){
       const url = new URL("/rental-terms/", CONFIG.apiBase);
       url.searchParams.set("lang", state.lang);
@@ -6805,8 +6949,72 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       byId("infoModalBody").innerHTML = `<iframe class="info-modal-frame" title="${esc(copy.termsTitle)}" src="${esc(url.toString())}"></iframe>`;
     }
   }
+  function adminAboutHtml(){
+    const en = state.lang === "en";
+    const field = (lang, key, label, value, rows = 3) => `<div class="field"><label class="label">${esc(label)} (${lang.toUpperCase()})</label><textarea class="input" rows="${rows}" data-about-field="${lang}:${key}">${esc(value)}</textarea></div>`;
+    const copyFor = lang => aboutOverrides[lang] || {
+      lead: INFO_COPY[lang].aboutLead,
+      purpose: INFO_COPY[lang].aboutPurpose,
+      howTitle: INFO_COPY[lang].aboutHowTitle,
+      how: INFO_COPY[lang].aboutHow,
+      truth: INFO_COPY[lang].aboutTruth,
+      contactTitle: INFO_COPY[lang].aboutContactTitle
+    };
+    const block = lang => {
+      const copy = copyFor(lang);
+      return `<div class="card" style="margin:0 0 12px"><h3>${lang === "th" ? "ภาษาไทย" : "English"}</h3>
+        ${field(lang, "lead", en ? "Intro" : "ย่อหน้าแรก", copy.lead)}
+        ${field(lang, "purpose", en ? "Why AJ exists" : "เหตุผลของบริการ", copy.purpose)}
+        ${field(lang, "howTitle", en ? "Steps heading" : "หัวข้อขั้นตอน", copy.howTitle, 1)}
+        ${field(lang, "how", en ? "Steps, one per line" : "ขั้นตอน บรรทัดละข้อ", (copy.how || []).join("\n"), 6)}
+        ${field(lang, "truth", en ? "Service model" : "รูปแบบการให้บริการ", copy.truth, 4)}
+        ${field(lang, "contactTitle", en ? "Contact heading" : "หัวข้อติดต่อ", copy.contactTitle, 1)}
+      </div>`;
+    };
+    return `<div class="card"><h3>${en ? "About page" : "หน้าเกี่ยวกับเรา"}</h3>
+      <p class="hint">${en ? "Saved on AJ's server, so every device and browser shows the same text. Phone, LINE and email in the contact block are fixed links and are not edited here." : "บันทึกบนเซิร์ฟเวอร์ของร้าน ทุกเครื่องและทุกเบราว์เซอร์จะเห็นข้อความเดียวกัน ส่วนเบอร์โทร LINE และอีเมลในกล่องติดต่อเป็นลิงก์ตายตัว ไม่ได้แก้ที่นี่"}</p>
+      ${block("th")}
+      ${block("en")}
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn primary" type="button" id="saveAboutContent">${en ? "Save" : "บันทึก"}</button><button class="btn" type="button" id="resetAboutContent">${en ? "Restore the default text" : "คืนค่าข้อความเดิม"}</button></div>
+      <p class="hint" id="aboutAdminStatus"></p>
+    </div>`;
+  }
+  function readAboutContentFromAdmin(){
+    const content = {th:{}, en:{}};
+    $$("[data-about-field]").forEach(input => {
+      const [lang, key] = input.dataset.aboutField.split(":");
+      content[lang][key] = key === "how"
+        ? input.value.split(/\n+/).map(item => item.trim()).filter(Boolean)
+        : input.value.trim();
+    });
+    return content;
+  }
+  async function saveAboutContentFromAdmin(content){
+    const status = byId("aboutAdminStatus");
+    const en = state.lang === "en";
+    if(status) status.textContent = en ? "Saving…" : "กำลังบันทึก…";
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/admin/site-content/about`, {
+        method:"PUT",
+        headers:{"Content-Type":"application/json",Authorization:`Bearer ${state.adminToken}`},
+        body:JSON.stringify({content})
+      });
+      if(response.status === 401) throw new Error("unauthorized");
+      if(!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json();
+      aboutOverrides.th = result?.content?.th || null;
+      aboutOverrides.en = result?.content?.en || null;
+      renderAdmin();
+      if(activeInfoPage === "about") renderInfoModal();
+      toast(en ? "About page saved" : "บันทึกหน้าเกี่ยวกับเราแล้ว");
+    }catch(error){
+      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
+      else if(status) status.textContent = error.message;
+    }
+  }
   function openInfoModal(page){
     if(!["about","privacy","terms"].includes(page)) return;
+    if(page === "about" && !aboutOverrides.th && !aboutOverrides.en) void loadAboutContent();
     activeInfoPage = page;
     byId("infoModal").classList.add("open");
     renderInfoModal();
@@ -7637,15 +7845,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     renderAdmin();
     fetchQueueClosuresForAdmin();
     void fetchPickupLocationsForAdmin();
+    void loadAboutContent();
   }
   function closeAdmin(){ byId("adminOverlay").classList.remove("open"); }
   function renderAdmin(){
     byId("adminBody").innerHTML = `
       <div class="admin-tabs">
-        ${["queue","pickup","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
+        ${["queue","pickup","about","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
       </div>
       <div class="admin-panel ${state.adminTab==="queue"?"active":""}" id="adminQueue">${adminQueueHtml()}</div>
       <div class="admin-panel ${state.adminTab==="pickup"?"active":""}" id="adminPickup">${adminPickupHtml()}</div>
+      <div class="admin-panel ${state.adminTab==="about"?"active":""}" id="adminAbout">${adminAboutHtml()}</div>
       <div class="admin-panel ${state.adminTab==="consoles"?"active":""}" id="adminConsoles">${adminConsolesHtml()}</div>
       <div class="admin-panel ${state.adminTab==="home"?"active":""}" id="adminHome">${adminHomeHtml()}</div>
       <div class="admin-panel ${state.adminTab==="reviews"?"active":""}" id="adminReviews">${adminReviewsHtml()}</div>
@@ -8229,6 +8439,21 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         goCalcStep(stepBtn.dataset.step);
         return;
       }
+      const paymentGroup = event.target.closest("[data-payment-group]");
+      if(paymentGroup){
+        const group = paymentGroup.closest(".payment-group");
+        const picker = paymentGroup.closest(".payment-picker");
+        if(group && picker){
+          $$(".payment-group", picker).forEach(item => item.classList.toggle("is-collapsed", item !== group));
+          $$("[data-payment-group]", picker).forEach(button => {
+            const open = !button.closest(".payment-group").classList.contains("is-collapsed");
+            button.setAttribute("aria-expanded", String(open));
+            const caret = $(".payment-group-caret", button);
+            if(caret) caret.textContent = open ? "▾" : "▸";
+          });
+        }
+        return;
+      }
       const stepGo = event.target.closest("[data-step-go]");
       if(stepGo){
         if(UNIFIED_FLOW_DEMO && Number(stepGo.dataset.stepGo) === 3 && state.calc.step === 2 && !showDemoStep2Problems()) return;
@@ -8662,14 +8887,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(exampleTrigger){ showDemoIdentityExample(exampleTrigger.dataset.identityExample); return; }
       if(targetId === "demoConfirmOrder"){ await openDemoOrder(); return; }
       const demoEdit = event.target.closest("[data-demo-edit]");
-      if(demoEdit){
-        state.calc.demoOrderOpen = false;
-        state.calc.step = Number(demoEdit.dataset.demoEdit) || 1;
-        saveLocal();
-        render();
-        byId("calcTabs")?.scrollIntoView({behavior:"smooth", block:"start"});
-        return;
-      }
+      if(demoEdit){ openDemoEditModal(Number(demoEdit.dataset.demoEdit) || 1); return; }
+      if(targetId === "demoEditSave"){ closeDemoEditModal(true); return; }
+      if(targetId === "demoEditCancel" || targetId === "demoEditClose"){ closeDemoEditModal(false); return; }
       if(targetId === "demoBeamPay"){ await launchDemoBeamPayment(); return; }
       if(targetId === "demoNotifyLine"){ await notifyDemoLine(); return; }
       if(targetId === "demoNotifyWhatsApp"){ notifyDemoWhatsApp(); return; }
@@ -8709,6 +8929,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(targetId === "saveAddons") saveAddons();
       if(targetId === "saveQueueClosures") await saveQueueClosuresFromAdmin();
       if(targetId === "savePickupLocations"){ void savePickupLocationsFromAdmin(); return; }
+      if(targetId === "saveAboutContent"){ void saveAboutContentFromAdmin(readAboutContentFromAdmin()); return; }
+      if(targetId === "resetAboutContent"){ void saveAboutContentFromAdmin(null); return; }
       if(targetId === "addPickupLocation"){
         state.pickupLocations.items = [...readPickupLocationsFromAdmin(), {id:"", name:"", address:"", lat:"", lng:"", isDefault:state.pickupLocations.items.length === 0}];
         renderAdmin();

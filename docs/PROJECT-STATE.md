@@ -1360,3 +1360,15 @@ paused job shows slightly old numbers rather than an empty section.
 - Pickup points are stored in the `Pickup Locations` sheet and managed from a new admin tab: add, edit, delete, and mark which one is current. Delivery quotations start from the current point, with `LALAMOVE_PICKUP_*` kept as the fallback.
 - `docs/DELIVERY-APP-ID-EXPIRY-PROMPT.md` holds the task description for the delivery app's expiry warnings.
 - Verification: 367/367 Bot and 116/116 website tests, plus a local signed Beam webhook that produced the rental order PDF and a confirmation email addressed to the customer with the booking mailbox copied.
+
+## 2026-09-24 — Calendar capacity fix, collapsible payment, edit dialogs, editable About
+
+- Calendar: a browser's own booking hold no longer marks its dates "In progress" when other units are free. Dates are blocked only when holds use up every free unit, matching the Bot's capacity check (which already ignored the holder's own hold). This was why PS5 showed "In progress" for 24–30 September with four units free.
+- Payment picker (booking page and demo, both languages): the two groups collapse like an accordion; "pay on delivery" opens by default and opening one closes the other.
+- Confirm-and-pay and Pay now show a grey "preparing" veil while the page talks to the services, so the customer cannot double-submit.
+- Edit buttons on the Rental ID page open the real step in a dialog with Save and Cancel; Cancel restores the previous values, and the calendar opens above the dialog.
+- The identity artwork labels both documents (Thai ID / passport).
+- About: the three highlight boxes are gone and the text is editable from a new admin tab, stored in the `Site Content` sheet via `/api/site-content/about` (public read) and `/api/admin/site-content/about` (admin write), so every device sees the same copy.
+- Contact blocks use "label: value" with tap-to-call, the LINE add-friend link `https://lin.ee/w4TFyCV`, and a mailto link.
+- The document expiry date is collected in the LIFF agreement form (prefilled from the booking), printed in the contract PDF and included in the shop notifications. Remaining Thai "Rental Terms" wording now reads "เงื่อนไขการเช่า".
+- Verification: 120/120 website and 367/367 Bot tests; browser walk covering the veil, the accordion, save and cancel in both edit dialogs, the calendar over the dialog, and a simulated own hold that leaves every date free.
