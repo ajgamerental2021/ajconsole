@@ -440,10 +440,18 @@ test('payment groups have large headings with the arrow on the left', () => {
   assert.match(html, /aria-expanded="\$\{!fullSelected\}">\$\{caret\(!fullSelected\)\}<span class="payment-group-label">/);
   assert.match(html, /\.payment-group-title\{[^}]*font-size:15\.5px;font-weight:900;color:#101828/);
   assert.match(html, /\.payment-group-caret\{[^}]*width:36px;height:36px/);
-  assert.match(html, /\.payment-group:not\(\.is-collapsed\) \.payment-group-title\{background:#c90012;color:#fff/);
+  // The open group is outlined, never filled red, so it cannot pass for the pay button.
+  assert.match(html, /\.payment-group:not\(\.is-collapsed\)\{border:2px solid #c90012\}/);
+  assert.match(html, /\.payment-group:not\(\.is-collapsed\) \.payment-group-title\{background:#fff1f1;color:#8b0000/);
+  assert.doesNotMatch(html, /\.payment-group:not\(\.is-collapsed\) \.payment-group-title\{background:#c90012/);
   assert.match(html, /\.payment-group\.is-collapsed \.payment-group-caret svg\{transform:rotate\(-90deg\)\}/);
   assert.doesNotMatch(html, /caret\.textContent = open \? "▾" : "▸"/);
   assert.match(html, /\.payment-recommended\{[^}]*font-size:13\.5px/);
+});
+
+test('the demo pay button is large, solid red and carries a lock icon', () => {
+  assert.match(html, /<button class="btn primary demo-pay-btn" id="demoBeamPay" type="button"><svg viewBox="0 0 24 24" aria-hidden="true">/);
+  assert.match(html, /body\.unified-flow-demo \.demo-pay-btn\{width:100%;min-height:60px;[^}]*font-size:20px;font-weight:900/);
 });
 
 test('a LINE-verified returning renter sees their saved details as one summary with Edit', () => {
