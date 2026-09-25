@@ -4374,7 +4374,20 @@ function platformObjectById(id) {
 ────────────────────────────────────── */
 const DATA_VERSION = '2026-06-ps4ps5-v1'; // bump this when DEFAULT_GAMES changes
 
+// Built-in games the shop deleted. The built-in list is merged back in on
+// every load so new games added in code appear; without this record a
+// deleted built-in game came straight back.
+let deletedGameIds = [];
+function isDeletedGame(id) { return deletedGameIds.includes(id); }
+function loadDeletedGameIds() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('ajgame_deleted') || '[]');
+    deletedGameIds = Array.isArray(stored) ? stored.map(String) : [];
+  } catch (e) { deletedGameIds = []; }
+}
+
 function loadData() {
+  loadDeletedGameIds();
   try {
     // Version check — if data version changed, reset localStorage to pick up new genre/year fields
     const storedVersion = localStorage.getItem('ajgame_version');
@@ -4403,9 +4416,9 @@ function loadData() {
       });
       // Append any new DEFAULT_GAMES not yet in saved (new games added via code update)
       const savedIds = new Set(saved.map(s => s.id));
-      DEFAULT_GAMES.forEach(dg => { if (!savedIds.has(dg.id)) games.push(Object.assign({}, dg)); });
+      DEFAULT_GAMES.forEach(dg => { if (!savedIds.has(dg.id) && !isDeletedGame(dg.id)) games.push(Object.assign({}, dg)); });
     } else {
-      games = JSON.parse(JSON.stringify(DEFAULT_GAMES));
+      games = JSON.parse(JSON.stringify(DEFAULT_GAMES)).filter(dg => !isDeletedGame(dg.id));
     }
     // Migration: split public PS4 / PS5 tabs while keeping a combined admin editor.
     ensurePlayStationPlatforms();
@@ -4416,7 +4429,7 @@ function loadData() {
     faqItems   = fq ? JSON.parse(fq) : JSON.parse(JSON.stringify(DEFAULT_FAQ));
   } catch(e) {
     platforms  = JSON.parse(JSON.stringify(DEFAULT_PLATFORMS));
-    games      = JSON.parse(JSON.stringify(DEFAULT_GAMES));
+    games      = JSON.parse(JSON.stringify(DEFAULT_GAMES)).filter(dg => !isDeletedGame(dg.id));
     ensurePlayStationPlatforms();
     howToSteps = JSON.parse(JSON.stringify(DEFAULT_HOW_TO_USE));
     faqItems   = JSON.parse(JSON.stringify(DEFAULT_FAQ));
@@ -4433,6 +4446,7 @@ function saveData() {
     localStorage.setItem('ajgame_games', JSON.stringify(gamesLean));
     localStorage.setItem('ajgame_howto', JSON.stringify(howToSteps));
     localStorage.setItem('ajgame_faq', JSON.stringify(faqItems));
+    localStorage.setItem('ajgame_deleted', JSON.stringify(deletedGameIds));
   } catch(e) {
     console.warn('saveData failed:', e);
   }
@@ -4864,6 +4878,7 @@ function deleteGame(id) {
   const g = games.find(x => x.id === id);
   showConfirm('🗑', `ลบ "${g.name}"?`, 'ยืนยันการลบเกมนี้ออกจากระบบ', () => {
     games = games.filter(x => x.id !== id);
+    if (!isDeletedGame(id)) deletedGameIds.push(id);
     saveData(); renderAdminPlatforms(); renderAdminGames(); renderPublic();
     showToast('ลบเกมเรียบร้อย');
   });
@@ -6636,7 +6651,7 @@ function importData(input) {
       });
       // Add DEFAULT_GAMES not in imported set
       var importedIds = new Set(bundle.games.map(function(s){ return s.id; }));
-      DEFAULT_GAMES.forEach(function(dg) { if (!importedIds.has(dg.id)) games.push(Object.assign({}, dg)); });
+      DEFAULT_GAMES.forEach(function(dg) { if (!importedIds.has(dg.id) && !isDeletedGame(dg.id)) games.push(Object.assign({}, dg)); });
 
       if (bundle.platforms && Array.isArray(bundle.platforms)) platforms = bundle.platforms;
       ensurePlayStationPlatforms();
@@ -6697,11 +6712,16 @@ function buildDataBundle() {
     }),
     howToSteps: howToSteps,
     faqItems: faqItems,
+    deletedGameIds: deletedGameIds,
   };
 }
 
 function applyDataBundle(bundle) {
   if (!bundle || !Array.isArray(bundle.games)) return false;
+  // Deletions made on any device travel with the synced data.
+  if (Array.isArray(bundle.deletedGameIds)) {
+    bundle.deletedGameIds.forEach(function(id){ if (!isDeletedGame(String(id))) deletedGameIds.push(String(id)); });
+  }
   var defMap = {};
   DEFAULT_GAMES.forEach(function(dg) { defMap[dg.id] = dg; });
   games = bundle.games.map(function(sg) {
@@ -6714,7 +6734,7 @@ function applyDataBundle(bundle) {
     });
   });
   var ids = new Set(bundle.games.map(function(s){ return s.id; }));
-  DEFAULT_GAMES.forEach(function(dg){ if (!ids.has(dg.id)) games.push(Object.assign({}, dg)); });
+  DEFAULT_GAMES.forEach(function(dg){ if (!ids.has(dg.id) && !isDeletedGame(dg.id)) games.push(Object.assign({}, dg)); });
   if (bundle.platforms && bundle.platforms.length) platforms = bundle.platforms;
   ensurePlayStationPlatforms();
   if (bundle.howToSteps) howToSteps = bundle.howToSteps;
@@ -6775,6 +6795,7 @@ function fetchFromJSONBin(options) {
         localStorage.setItem('ajgame_platforms', JSON.stringify(platforms));
         localStorage.setItem('ajgame_howto', JSON.stringify(howToSteps));
         localStorage.setItem('ajgame_faq', JSON.stringify(faqItems));
+        localStorage.setItem('ajgame_deleted', JSON.stringify(deletedGameIds));
       } catch(e) {}
       if (typeof window.ajApplyGameCatalogFilters === 'function') window.ajApplyGameCatalogFilters();
       if (shouldRender) { renderPublic(); renderFAQ(); }
@@ -7543,7 +7564,7 @@ document.addEventListener('touchstart', function(e) {
   function ensureCatalogReady(){
     try{
       if(!Array.isArray(platforms) || !platforms.length) platforms = JSON.parse(JSON.stringify(DEFAULT_PLATFORMS));
-      if(!Array.isArray(games) || !games.length) games = JSON.parse(JSON.stringify(DEFAULT_GAMES));
+      if(!Array.isArray(games) || !games.length) games = JSON.parse(JSON.stringify(DEFAULT_GAMES)).filter(function(dg){ return !isDeletedGame(dg.id); });
     }catch(e){}
   }
   function safePlatformId(requested){

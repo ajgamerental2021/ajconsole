@@ -424,3 +424,14 @@ test('the game picker fits foldables and lets the renter choose the cover size',
   assert.match(picker, /localStorage\.setItem\('aj_pick_size', pickSize\)/);
   assert.match(picker, /\.pick-selected-chips:empty \{ display: none; \}/);
 });
+
+test('a deleted built-in game stays deleted after reload and sync', () => {
+  const picker = fs.readFileSync(new URL('../game_index.html', import.meta.url), 'utf8');
+  assert.match(picker, /if \(!isDeletedGame\(id\)\) deletedGameIds\.push\(id\);/);
+  assert.match(picker, /deletedGameIds: deletedGameIds,/);
+  assert.match(picker, /localStorage\.setItem\('ajgame_deleted', JSON\.stringify\(deletedGameIds\)\);/);
+  // Every place the built-in list is merged back respects the deletions.
+  const merges = picker.match(/DEFAULT_GAMES\.forEach\([^\n]*games\.push/g) || [];
+  assert.ok(merges.length >= 3);
+  for (const line of merges) assert.match(line, /isDeletedGame\(dg\.id\)/);
+});
