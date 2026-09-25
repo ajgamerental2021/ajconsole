@@ -1455,6 +1455,10 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   }
   const PAGE_PARAMS = new URLSearchParams(location.search);
   const UNIFIED_FLOW_DEMO = PAGE_PARAMS.get("flowDemo") === "1";
+  // While the unified flow is on trial, Beam charges ฿1. Set to false to charge
+  // the real amount: the reservation (฿200 / ฿1,000) or the full amount, every
+  // option through Beam except Wise, which is paid by Wise transfer.
+  const UNIFIED_FLOW_TEST_CHARGE = true;
 
   const CONFIG = {
     version: "index2-clean-1",
@@ -4507,7 +4511,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <div>
         <section class="demo-order-section"><h3>${en ? "Identity verification" : "การยืนยันตัวตน"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Status":"สถานะ"}</span><b class="demo-status ${identityTone}">${esc(identityState)}</b></div>${verifyNow?`<div class="demo-order-action"><button class="btn" id="demoVerifyLater" type="button">${en?"Verify now":"ยืนยันตอนนี้"}</button></div>`:""}</div></section>
         <section class="demo-order-section"><h3>${en ? "Payment" : "การชำระเงิน"}</h3>${demoPaymentBreakdownHtml(summary)}</section>
-        <section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${demoPaymentOptionsHtml()}<div class="demo-payment-launch"><button class="btn primary" id="demoBeamPay" type="button">${en?"Pay now":"ชำระเงิน"}</button><p class="hint">${en?"This demo charges ฿1. The payment is still recorded against this Rental ID and follows the existing webhook flow.":"หน้าทดสอบเรียกเก็บ 1 บาท และยังบันทึกผลกับ Rental ID นี้ผ่าน webhook เดิม"}</p></div></section>
+        <section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${demoPaymentOptionsHtml()}<div class="demo-payment-launch"><button class="btn primary" id="demoBeamPay" type="button">${en?"Pay now":"ชำระเงิน"}</button>${UNIFIED_FLOW_TEST_CHARGE ? `<p class="hint">${en?"This demo charges ฿1. The payment is still recorded against this Rental ID and follows the existing webhook flow.":"หน้าทดสอบเรียกเก็บ 1 บาท และยังบันทึกผลกับ Rental ID นี้ผ่าน webhook เดิม"}</p>` : ""}</div></section>
         <p class="hint">${en?"After the payment is confirmed, the success page shows LINE and WhatsApp notification actions. The old booking-message Flex is not sent; Delivery App payment Flex remains unchanged.":"หลังยืนยันยอดชำระ หน้าชำระเงินสำเร็จจะแสดงปุ่มแจ้ง LINE โดยไม่ส่ง Flex ข้อความจองเช่าเดิม และ Flex การชำระเงินของ Delivery App ยังคงเดิม"}</p>
       </div>
     </div>`;
@@ -5121,7 +5125,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return basisPoints ? Math.ceil(((Number(amount) || 0) * basisPoints) / 10000) : 0;
   }
   function paymentLinkAmount(summary){
-    if(UNIFIED_FLOW_DEMO) return 1;
+    if(UNIFIED_FLOW_DEMO){
+      if(UNIFIED_FLOW_TEST_CHARGE) return 1;
+      return state.calc.payment === "wise" ? 0 : paymentAmountsFor(state.calc.payment, summary).payNow;
+    }
     if(state.lang === "en" && state.calc.payment === "cash") return Math.min(1000, Number(summary.total) || 0);
     return ["credit","ewallet"].includes(state.calc.payment) ? Number(summary.total) || 0 : 0;
   }
@@ -5248,7 +5255,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const redirectContext = `lang=${encodeURIComponent(state.lang)}&rentalCode=${encodeURIComponent(rentalCode)}&line=${lineUserId ? "1" : "0"}&amount=${encodeURIComponent(amount)}&method=${encodeURIComponent(state.calc.payment)}${UNIFIED_FLOW_DEMO && state.calc.demoContextToken ? `&ctx=${encodeURIComponent(state.calc.demoContextToken)}` : ""}`;
     const cachedLink = generatedPaymentLink(summary, rentalCode);
     if(cachedLink) return cachedLink;
-    const response = await bookingFetch(UNIFIED_FLOW_DEMO ? CONFIG.beamPaymentApiDemo : CONFIG.beamPaymentApi, {
+    const response = await bookingFetch(UNIFIED_FLOW_DEMO && UNIFIED_FLOW_TEST_CHARGE ? CONFIG.beamPaymentApiDemo : CONFIG.beamPaymentApi, {
       method: "POST",
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify({

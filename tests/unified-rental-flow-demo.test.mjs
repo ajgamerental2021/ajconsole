@@ -388,3 +388,9 @@ test('the deposit refund block matches the LINE form, with Wise details for pass
   // Signing only records the agreement; the contract waits for payment.
   assert.match(html, /if\(!response\.ok \|\| !\(result\.pending \|\| result\.signed\)\)\{/);
 });
+
+test('the trial ฿1 charge is one switch; live, every option but Wise goes through Beam at its real amount', () => {
+  assert.match(html, /const UNIFIED_FLOW_TEST_CHARGE = true;/);
+  assert.match(html, /if\(UNIFIED_FLOW_TEST_CHARGE\) return 1;\n      return state\.calc\.payment === "wise" \? 0 : paymentAmountsFor\(state\.calc\.payment, summary\)\.payNow;/);
+  assert.match(html, /bookingFetch\(UNIFIED_FLOW_DEMO && UNIFIED_FLOW_TEST_CHARGE \? CONFIG\.beamPaymentApiDemo : CONFIG\.beamPaymentApi,/);
+});
