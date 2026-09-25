@@ -291,7 +291,8 @@ test('delivery is part of the total, the card fee covers it, and each option sho
   assert.match(html, /ชำระตอนนี้/);
   assert.match(html, /ชำระตอนรับเครื่อง/);
   assert.match(html, /Pay on delivery/);
-  assert.match(html, /\$\{copy\.replace\(\/<\\\/span>\$\/, `\$\{paymentOptionAmountHtml\(value\)\}<\/span>`\)\}/);
+  // The amounts sit in their own column beside the option's description.
+  assert.ok(html.includes('${copy}${paymentOptionAmountHtml(value)}</label>'));
   // The Beam base amount is the same figure the fee was taken from.
   assert.match(html, /baseAmount: Number\(summary\.subtotalBeforePaymentFee\) \|\| 0/);
 });
@@ -333,4 +334,31 @@ test('an agreement that already covers the renter sends step 2 straight to payme
   assert.match(html, /function demoIdentityStepSkippable\(\)\{\n    return demoIdentityCoveredByAgreement\(\) \|\| !!state\.calc\.noContract;/);
   assert.match(html, /UNIFIED_FLOW_DEMO && step === 2 && demoIdentityStepSkippable\(\)\n        \? `<button class="btn primary" id="demoConfirmFromDetails"/);
   assert.match(html, /if\(targetId === "demoConfirmFromDetails"\)\{\n        if\(!showDemoStep2Problems\(\)\) return;\n        await openDemoOrder\(\);/);
+});
+
+test('a renter without a valid agreement signs one on step 3, through the contract service', () => {
+  assert.match(html, /<div class="card demo-only" id="demoAgreementCard" hidden><\/div>/);
+  assert.match(html, /function demoAgreementNeeded\(\)\{\n    return UNIFIED_FLOW_DEMO && !demoIdentityCoveredByAgreement\(\) && !state\.calc\.noContract;/);
+  assert.match(html, /\/api\/booking-context\/\$\{encodeURIComponent\(contextToken\)\}\/agreement/);
+  assert.match(html, /demoAgreement\.signature = canvas\.toDataURL\("image\/png"\)/);
+  assert.match(html, /if\(step === 3\) return stepReady\(2\) && \(!UNIFIED_FLOW_DEMO \|\| \(demoIdentityReady\(\) && demoAgreementReady\(\)\)\);/);
+  assert.match(html, /await submitDemoAgreement\(handoff\.contextToken\);/);
+  // The signature and account number never reach this browser's storage.
+  const fields = html.match(/const DEMO_PROFILE_FIELDS = \[([^\]]+)\]/)[1];
+  assert.doesNotMatch(fields, /signature|refundAccountNumber|account"/);
+  assert.match(html, /ลายเซ็นนี้ใช้ในสัญญาเช่า \(PDF\)/);
+  assert.match(html, /Your signature goes on the rental agreement PDF/);
+});
+
+test('step 3 has a collapsed guide for preparing ID photos, in both languages', () => {
+  assert.match(html, /<details class="demo-id-guide" id="demoIdGuide" \$\{demoIdGuideOpen \? "open" : ""\}>/);
+  assert.match(html, /ตัวอย่างวิธีการเตรียมบัตร \(กดเพื่ออ่าน\)/);
+  assert.match(html, /How to prepare your ID photos \(tap to read\)/);
+  assert.match(html, /สามารถใช้สำเนาบัตรประชาชนมาถือคู่และถ่ายเซลฟี่ได้/);
+});
+
+test('the reservation note puts the balance rule on its own line', () => {
+  assert.match(html, /\[\]\.concat\(methodNote\)\.map\(esc\)\.join\("<br>"\)/);
+  assert.match(html, /"ยอดที่เหลือชำระตอนรับเครื่อง: เงินโอนไม่มีค่าธรรมเนียม/);
+  assert.match(html, /"Balance on delivery: Thai QR scan with no fee/);
 });
