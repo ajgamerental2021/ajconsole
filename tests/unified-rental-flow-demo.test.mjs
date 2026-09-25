@@ -439,7 +439,10 @@ test('a deleted built-in game stays deleted after reload and sync', () => {
 test('payment groups have large headings with the arrow on the left', () => {
   assert.match(html, /aria-expanded="\$\{!fullSelected\}">\$\{caret\(!fullSelected\)\}<span class="payment-group-label">/);
   assert.match(html, /\.payment-group-title\{[^}]*font-size:15\.5px;font-weight:900;color:#101828/);
-  assert.match(html, /\.payment-group-caret\{[^}]*width:30px;height:30px/);
+  assert.match(html, /\.payment-group-caret\{[^}]*width:36px;height:36px/);
+  assert.match(html, /\.payment-group:not\(\.is-collapsed\) \.payment-group-title\{background:#c90012;color:#fff/);
+  assert.match(html, /\.payment-group\.is-collapsed \.payment-group-caret svg\{transform:rotate\(-90deg\)\}/);
+  assert.doesNotMatch(html, /caret\.textContent = open \? "▾" : "▸"/);
   assert.match(html, /\.payment-recommended\{[^}]*font-size:13\.5px/);
 });
 
@@ -453,4 +456,15 @@ test('a LINE-verified returning renter sees their saved details as one summary w
   assert.match(html, /if\(demoContactCollapsed\(\) && demoStep2Problems\(\)\.some\(problem => DEMO_CONTACT_IDS\.includes\(problem\.id\)\)\)\{/);
   // No blank date for a renter verified from rental history.
   assert.match(html, /ยืนยันตัวตนแล้วจากประวัติการเช่า ครั้งนี้ไม่ต้องส่งรูปบัตรอีก/);
+});
+
+test('the header menu opens rental prices, the game list and the rental steps like their links do', () => {
+  assert.match(html, /\["prices", en \? "Rental prices" : "ราคาเช่า"\], \["games", en \? "Game list" : "รายการเกม"\], \["steps", en \? "How to rent" : "ขั้นตอนการเช่า"\]/);
+  assert.match(html, /if\(action === "prices"\) showAllConsoles\(\);/);
+  assert.match(html, /if\(action === "games"\) openGamePicker\(\{browseOnly:true, consoleId:String\(SPEC\.PS5\)\}\);/);
+  assert.match(html, /if\(action === "steps"\) openStepsPopup\(\);/);
+  // The same functions the ?allConsoles=1, ?games=1 and ?steps=1 links call.
+  assert.match(html, /setTimeout\(showAllConsoles, 120\)/);
+  assert.match(html, /openGamePicker\(\{browseOnly:true, consoleId:requestedConsole\?\.id \|\| ""\}\)/);
+  assert.match(html, /setTimeout\(openStepsPopup, 120\)/);
 });

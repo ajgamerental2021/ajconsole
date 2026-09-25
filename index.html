@@ -186,13 +186,22 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-picker{display:flex;flex-direction:column;gap:10px;border:1px solid var(--border2);border-radius:12px;background:#fff;padding:10px}
 .payment-group{border:1px solid var(--border);border-radius:10px;background:#fafbfc;overflow:hidden}
 .payment-group-actions{display:flex;align-items:center;gap:8px}
-.payment-group-caret{flex:0 0 auto;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#fff;border:1.5px solid #d0d5dd;font-size:17px;line-height:1;color:#c90012;box-shadow:0 1px 2px rgba(16,24,40,.08)}
+.payment-group-caret{flex:0 0 auto;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#fff;border:2px solid #d0d5dd;font-size:22px;line-height:1;color:#475467;box-shadow:0 1px 2px rgba(16,24,40,.08);transition:background .15s,color .15s,border-color .15s}
 .payment-group-label{flex:1 1 auto;min-width:0}
+.payment-group-caret svg{display:block;transition:transform .18s ease}
+.payment-group.is-collapsed .payment-group-caret svg{transform:rotate(-90deg)}
 .payment-group.is-collapsed .payment-group-body{display:none}
 .payment-group.is-collapsed .payment-group-title{border-bottom:0}
 .payment-group-title{width:100%;border:0;text-align:left;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;background:#eef2f7;border-bottom:1px solid var(--border);font-size:15.5px;font-weight:900;color:#101828;line-height:1.35}
-.payment-group-title:hover{background:#e4e9f1}
-.payment-group.is-collapsed .payment-group-title{background:#f8fafc}
+/* Open group: solid red header, white text and arrow badge. Closed: plain
+   white with a grey arrow that turns red on hover, so the two never look alike. */
+.payment-group:not(.is-collapsed) .payment-group-title{background:#c90012;color:#fff;border-bottom-color:#a3000f}
+.payment-group:not(.is-collapsed) .payment-group-caret{background:#fff;border-color:#fff;color:#c90012}
+.payment-group:not(.is-collapsed) .payment-recommended{background:#ffd84d;color:#6b4200}
+.payment-group.is-collapsed .payment-group-title{background:#fff;color:#344054}
+.payment-group.is-collapsed .payment-group-title:hover{background:#fff1f1;color:#c90012}
+.payment-group.is-collapsed .payment-group-title:hover .payment-group-caret{border-color:#c90012;color:#c90012}
+.payment-group.is-collapsed{border-color:#d0d5dd}
 .payment-recommended{flex:0 0 auto;padding:5px 12px;border-radius:999px;background:#ffd84d;color:#6b4200;font-size:13.5px;font-weight:900;box-shadow:0 1px 2px rgba(107,66,0,.18)}
 .payment-option{display:flex;align-items:center;gap:10px;min-height:46px;padding:10px 11px;cursor:pointer;font-weight:800;line-height:1.35}
 .payment-option + .payment-option{border-top:1px solid var(--border)}
@@ -749,6 +758,7 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .site-menu{position:relative}
 .site-menu-list{position:absolute;right:0;top:calc(100% + 6px);z-index:60;min-width:220px;display:flex;flex-direction:column;padding:6px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 12px 32px rgba(15,23,42,.16)}
 .site-menu-list[hidden]{display:none}
+.site-menu-divider{display:block;height:1px;margin:6px 8px;background:#e4e7ec}
 .site-menu-list .site-info-link{display:block;width:100%;text-align:left;padding:11px 12px;border-radius:8px;font-size:14px;color:#1f2937;text-decoration:none}
 .site-menu-list .site-info-link:hover,.site-menu-list .site-info-link:focus-visible{background:#fef2f2;color:#c90012}
 .info-modal-card{width:min(920px,100%);height:min(90vh,860px);display:flex;flex-direction:column;overflow:hidden}
@@ -5091,7 +5101,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // One group is open at a time so the list reads as a short choice. The
     // group holding the current selection opens; reservation leads by default.
     const fullSelected = ["bank", "wise", "credit", "ewallet"].includes(state.calc.payment);
-    const caret = (open) => `<span class="payment-group-caret" aria-hidden="true">${open ? "▾" : "▸"}</span>`;
+    // Drawn chevron: points down when the group is open, right when closed (CSS).
+    const caret = () => `<span class="payment-group-caret" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
     const deliveryNote = demoDelivery.status === "ready" ? "" : `<p class="payment-picker-note">${en ? "Amounts below do not yet include delivery." : "ยอดด้านล่างยังไม่รวมค่าจัดส่ง"}</p>`;
     return `<div class="payment-picker">
       ${deliveryNote}
@@ -7618,8 +7629,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const html = ["about","privacy","terms"].map(key => `<button class="site-info-link" type="button" data-info-page="${key}">${esc(labels[key])}</button>`).join("");
     const menuButton = byId("siteMenuBtn");
     if(menuButton) menuButton.textContent = state.lang === "en" ? "☰ Menu" : "☰ เมนู";
+    // The header menu also opens the rental prices, the game list and the rental
+    // steps, the same pop-ups the ?allConsoles=1, ?games=1 and ?steps=1 links open.
+    const en = state.lang === "en";
+    const menuActions = [["prices", en ? "Rental prices" : "ราคาเช่า"], ["games", en ? "Game list" : "รายการเกม"], ["steps", en ? "How to rent" : "ขั้นตอนการเช่า"]]
+      .map(([action, label]) => `<button class="site-info-link" type="button" role="menuitem" data-menu-action="${action}">${esc(label)}</button>`).join("");
     $$('[data-info-links]').forEach(host => {
-      host.innerHTML = host.id === "siteMenuList" ? html.replaceAll('type="button"', 'type="button" role="menuitem"') : html;
+      host.innerHTML = host.id === "siteMenuList" ? `${menuActions}<span class="site-menu-divider" role="separator"></span>${html.replaceAll('type="button"', 'type="button" role="menuitem"')}` : html;
       host.setAttribute("aria-label", state.lang === "en" ? "About AJ and website policies" : "ข้อมูลเกี่ยวกับ AJ และนโยบายเว็บไซต์");
     });
   }
@@ -9386,6 +9402,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(event.target.closest("[data-demo-locate]")){ useDemoCurrentLocation(); return; }
       const infoPage = event.target.closest("[data-info-page]");
       if(infoPage){ toggleSiteMenu(false); openInfoModal(infoPage.dataset.infoPage); return; }
+      const menuAction = event.target.closest("[data-menu-action]");
+      if(menuAction){
+        toggleSiteMenu(false);
+        const action = menuAction.dataset.menuAction;
+        trackAnalytics("site_menu_opened", {value:action});
+        if(action === "prices") showAllConsoles();
+        if(action === "games") openGamePicker({browseOnly:true, consoleId:String(SPEC.PS5)});
+        if(action === "steps") openStepsPopup();
+        return;
+      }
       if(event.target.closest("[data-faq-rental-terms]")){ openRentalTermsReadOnly(); return; }
       if(event.target.closest("[data-line-booking-help]")){ showLineBookingHelp(); return; }
       if(event.target.closest("[data-line-booking-launch]")){ setShareStatus("line", "opened"); return; }
@@ -9431,8 +9457,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           $$("[data-payment-group]", picker).forEach(button => {
             const open = !button.closest(".payment-group").classList.contains("is-collapsed");
             button.setAttribute("aria-expanded", String(open));
-            const caret = $(".payment-group-caret", button);
-            if(caret) caret.textContent = open ? "▾" : "▸";
+
           });
         }
         return;
