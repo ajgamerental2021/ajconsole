@@ -435,3 +435,22 @@ test('a deleted built-in game stays deleted after reload and sync', () => {
   assert.ok(merges.length >= 3);
   for (const line of merges) assert.match(line, /isDeletedGame\(dg\.id\)/);
 });
+
+test('payment groups have large headings with the arrow on the left', () => {
+  assert.match(html, /aria-expanded="\$\{!fullSelected\}">\$\{caret\(!fullSelected\)\}<span class="payment-group-label">/);
+  assert.match(html, /\.payment-group-title\{[^}]*font-size:15\.5px;font-weight:900;color:#101828/);
+  assert.match(html, /\.payment-group-caret\{[^}]*width:30px;height:30px/);
+  assert.match(html, /\.payment-recommended\{[^}]*font-size:13\.5px/);
+});
+
+test('a LINE-verified returning renter sees their saved details as one summary with Edit', () => {
+  assert.match(html, /function demoContactCollapsed\(\)\{\n    return UNIFIED_FLOW_DEMO && demoContactFromLine && !demoContactEditing && demoContactComplete\(\);/);
+  assert.match(html, /ข้อมูลจากการเช่าครั้งก่อน/);
+  assert.match(html, /Your details from your last rental/);
+  assert.match(html, /if\(targetId === "demoContactEdit"\)\{ demoContactEditing = true; render\(\);/);
+  assert.match(html, /demoContactFromLine = !!\(result\.profile\.fullName \|\| result\.profile\.phone\);/);
+  // A missing required field reopens the form rather than hiding the error.
+  assert.match(html, /if\(demoContactCollapsed\(\) && demoStep2Problems\(\)\.some\(problem => DEMO_CONTACT_IDS\.includes\(problem\.id\)\)\)\{/);
+  // No blank date for a renter verified from rental history.
+  assert.match(html, /ยืนยันตัวตนแล้วจากประวัติการเช่า ครั้งนี้ไม่ต้องส่งรูปบัตรอีก/);
+});

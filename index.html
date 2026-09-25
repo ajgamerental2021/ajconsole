@@ -186,11 +186,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-picker{display:flex;flex-direction:column;gap:10px;border:1px solid var(--border2);border-radius:12px;background:#fff;padding:10px}
 .payment-group{border:1px solid var(--border);border-radius:10px;background:#fafbfc;overflow:hidden}
 .payment-group-actions{display:flex;align-items:center;gap:8px}
-.payment-group-caret{font-size:13px;color:#667085}
+.payment-group-caret{flex:0 0 auto;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#fff;border:1.5px solid #d0d5dd;font-size:17px;line-height:1;color:#c90012;box-shadow:0 1px 2px rgba(16,24,40,.08)}
+.payment-group-label{flex:1 1 auto;min-width:0}
 .payment-group.is-collapsed .payment-group-body{display:none}
 .payment-group.is-collapsed .payment-group-title{border-bottom:0}
-.payment-group-title{width:100%;border:0;text-align:left;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;background:#eef2f7;border-bottom:1px solid var(--border);font-size:12px;font-weight:900;color:var(--text2);line-height:1.35}
-.payment-recommended{flex:0 0 auto;padding:4px 9px;border-radius:999px;background:#ffedb3;color:#8a5a00;font-size:11px;font-weight:900}
+.payment-group-title{width:100%;border:0;text-align:left;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;background:#eef2f7;border-bottom:1px solid var(--border);font-size:15.5px;font-weight:900;color:#101828;line-height:1.35}
+.payment-group-title:hover{background:#e4e9f1}
+.payment-group.is-collapsed .payment-group-title{background:#f8fafc}
+.payment-recommended{flex:0 0 auto;padding:5px 12px;border-radius:999px;background:#ffd84d;color:#6b4200;font-size:13.5px;font-weight:900;box-shadow:0 1px 2px rgba(107,66,0,.18)}
 .payment-option{display:flex;align-items:center;gap:10px;min-height:46px;padding:10px 11px;cursor:pointer;font-weight:800;line-height:1.35}
 .payment-option + .payment-option{border-top:1px solid var(--border)}
 .payment-option input{width:19px;height:19px;margin:0;accent-color:#d71920;flex:0 0 auto}
@@ -215,6 +218,12 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-picker-note{margin:0 0 10px;color:#667085;font-size:12.5px;font-weight:700}
 .demo-locate-btn{margin-top:8px;align-self:flex-start}
 .queue-retry-actions{display:flex;justify-content:flex-end;margin-top:14px}
+.demo-line-summary{margin:14px 0;padding:14px 16px;border:1px solid #b7e3c4;border-radius:14px;background:#f3fbf5}
+.demo-line-summary-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.demo-line-summary-row{display:flex;justify-content:space-between;gap:14px;padding:7px 0;border-top:1px solid #dcefe2;font-size:14px}
+.demo-line-summary-row span{color:#667085;flex:0 0 auto}
+.demo-line-summary-row b{text-align:right}
+.demo-profile-grid.contact-collapsed .field:has(#demoCustomerName),.demo-profile-grid.contact-collapsed .field:has(#demoCustomerPhone),.demo-profile-grid.contact-collapsed .field:has(#demoEmail),.demo-profile-grid.contact-collapsed .field:has(#demoAddressLine),.demo-profile-grid.contact-collapsed .field:has(#demoPostalCode),.demo-profile-grid.contact-collapsed .field:has(#demoSubdistrict),.demo-profile-grid.contact-collapsed .field:has(#demoDistrict),.demo-profile-grid.contact-collapsed .field:has(#demoProvince),.demo-profile-grid.contact-collapsed .field:has(#demoMaps),.demo-profile-grid.contact-collapsed .field:has(#demoNoThaiAddress),.demo-profile-grid.contact-collapsed #demoAddressNote{display:none}
 .paid-notice p{margin:0 0 8px;line-height:1.6}
 .paid-notice b{color:#05603a;font-size:17px}
 body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size:12px;font-weight:700}
@@ -3536,10 +3545,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     card.innerHTML = `<h3>${en ? "Customer and delivery details" : "ข้อมูลลูกค้าและที่อยู่จัดส่ง"}</h3>
       ${demoProfile.lineUserId ? `<div class="demo-contract-status">LINE: ${esc(demoProfile.lineDisplayName || (en ? "Verified account detected" : "ตรวจพบบัญชีที่ยืนยันแล้ว"))}</div>` : `<p class="hint">${en ? "Connect LINE now to securely check returning-customer details, or link it after successful payment." : "เชื่อมต่อ LINE ตอนนี้เพื่อตรวจข้อมูลลูกค้าเก่าอย่างปลอดภัย หรือผูกบัญชีหลังชำระเงินสำเร็จ"}</p><button class="btn" id="lineConnectBtn" type="button">${en ? "Connect LINE" : "เชื่อมต่อ LINE"}</button>`}
       ${state.calc.retVerified && hasVerifiedAgreementRecord() && demoIdentityExpired() ? `<div class="demo-choice-warning">${en ? "Your identity document has expired, so a new rental agreement is required before this rental. Please enter the current document details." : "เอกสารยืนยันตัวตนของคุณหมดอายุแล้ว ต้องทำสัญญาการเช่าใหม่ก่อนเช่าครั้งนี้ กรุณากรอกข้อมูลเอกสารฉบับปัจจุบัน"}</div>` : ""}
-      ${demoIdentityCoveredByAgreement() ? `<div class="demo-contract-status">${en ? `Identity already verified — your agreement is valid until ${esc(formatAgreementDate(state.calc.masterAgreement?.validUntil))}. No documents needed this time.` : `ยืนยันตัวตนแล้ว — สัญญาเดิมใช้ได้ถึง ${esc(formatAgreementDate(state.calc.masterAgreement?.validUntil))} ครั้งนี้ไม่ต้องส่งรูปบัตรอีก`}</div>` : ""}
+      ${demoIdentityCoveredByAgreement() ? `<div class="demo-contract-status">${esc(demoAgreementCoverText())}</div>` : ""}
       <label class="option-row demo-reward-row"><input type="checkbox" id="demoReturningOpt" ${state.calc.ret?"checked":""}><div><b><span class="demo-reward-badge">🏅</span>${en ? "Apply returning-customer discount — 10% off the rental" : "ใช้สิทธิ์ส่วนลดลูกค้าเก่า — ลด 10% ค่าเช่า"}</b><div class="hint">${state.calc.retVerified ? (en ? "Verified" : "ยืนยันสิทธิ์แล้ว") : (en ? "Enter the previous phone / Rental ID in the verification window." : "ยืนยันด้วยเบอร์เดิมหรือ Rental ID ในหน้าต่างตรวจสอบสิทธิ์")}</div></div></label>
       ${state.calc.ret ? demoReviewDiscountsHtml() : ""}
-      <div class="demo-profile-grid">
+      ${demoContactCollapsed() ? demoContactSummaryHtml() : ""}
+      <div class="demo-profile-grid ${demoContactCollapsed() ? "contact-collapsed" : ""}">
         <div class="field"><label class="label" for="demoCustomerName">${en ? "Legal name" : "ชื่อ-นามสกุลจริง"}<span class="req">*</span></label><input class="input" id="demoCustomerName" autocomplete="name" value="${esc(demoProfile.fullName)}"></div>
         <div class="field"><label class="label" for="demoCustomerPhone">${en ? "Phone / WhatsApp" : "เบอร์โทรศัพท์"}<span class="req">*</span></label><input class="input" id="demoCustomerPhone" type="tel" autocomplete="tel" value="${esc(demoProfile.phone)}"></div>
         ${state.calc.noContract || demoIdentityCoveredByAgreement() ? "" : `
@@ -3873,6 +3883,42 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // already covers the renter (verified by LINE or as a returning customer,
   // document not expired, agreement under a year old), or when the renter chose
   // the no-identity option. Step 2 then goes straight to payment.
+  // A returning renter verified from rental history may have no agreement date
+  // on file; say so plainly instead of printing a blank date.
+  function demoAgreementCoverText(){
+    const en = state.lang === "en";
+    const until = state.calc.masterAgreement?.validUntil;
+    const date = until && !Number.isNaN(new Date(until).getTime()) ? formatAgreementDate(until) : "";
+    if(date) return en ? `Identity already verified — your agreement is valid until ${date}. No documents needed this time.` : `ยืนยันตัวตนแล้ว — สัญญาเดิมใช้ได้ถึง ${date} ครั้งนี้ไม่ต้องส่งรูปบัตรอีก`;
+    return en ? "Identity already verified as a returning customer. No documents needed this time." : "ยืนยันตัวตนแล้วจากประวัติการเช่า ครั้งนี้ไม่ต้องส่งรูปบัตรอีก";
+  }
+  // Details filled in from a verified LINE account are shown as one summary
+  // with an Edit button, so a returning renter does not scroll past a form they
+  // never need to touch. Anything missing, or any lookup failure, leaves the
+  // ordinary fields in place.
+  let demoContactFromLine = false;
+  let demoContactEditing = false;
+  const DEMO_CONTACT_IDS = ["demoCustomerName","demoCustomerPhone","demoEmail","demoAddressLine","demoPostalCode","demoSubdistrict","demoDistrict","demoProvince","demoMaps"];
+  function demoContactComplete(){
+    return ["fullName","phone","email","addressLine","postalCode","subdistrict","district","province","maps"].every(key => String(demoProfile[key] || "").trim());
+  }
+  function demoContactCollapsed(){
+    return UNIFIED_FLOW_DEMO && demoContactFromLine && !demoContactEditing && demoContactComplete();
+  }
+  function demoContactSummaryHtml(){
+    const en = state.lang === "en";
+    const address = [demoProfile.addressLine, demoProfile.subdistrict, demoProfile.district, demoProfile.province, demoProfile.postalCode].map(part => String(part || "").trim()).filter(Boolean).join(" ");
+    const row = (label, value) => `<div class="demo-line-summary-row"><span>${esc(label)}</span><b>${value}</b></div>`;
+    return `<div class="demo-line-summary">
+      <div class="demo-line-summary-head"><b>${en ? "Your details from your last rental" : "ข้อมูลจากการเช่าครั้งก่อน"}</b><button class="btn" type="button" id="demoContactEdit">${en ? "Edit" : "แก้ไข"}</button></div>
+      ${row(en ? "Name" : "ชื่อ", esc(demoProfile.fullName))}
+      ${row(en ? "Phone" : "เบอร์โทร", esc(demoProfile.phone))}
+      ${row(en ? "Email" : "อีเมล", esc(demoProfile.email))}
+      ${row(en ? "Delivery address" : "ที่อยู่จัดส่ง", esc(address))}
+      ${row(en ? "Map" : "แผนที่", `<a href="${esc(demoProfile.maps)}" target="_blank" rel="noopener">${en ? "Open map" : "เปิดแผนที่"}</a>`)}
+      <p class="hint">${en ? "Check these are still right for this rental. Tap Edit to change anything." : "ตรวจสอบว่ายังถูกต้องสำหรับการเช่าครั้งนี้ หากต้องการเปลี่ยน กดแก้ไข"}</p>
+    </div>`;
+  }
   function demoIdentityStepSkippable(){
     return demoIdentityCoveredByAgreement() || !!state.calc.noContract;
   }
@@ -4186,7 +4232,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const selfieName = demoProfile.selfieWithId?.name || "";
     if(demoIdentityCoveredByAgreement()){
       card.innerHTML = `<h3>${en ? "Identity verification" : "ยืนยันตัวตน"}</h3>
-      <p>${en ? `You verified your identity with AJ before and your agreement is valid until ${esc(formatAgreementDate(state.calc.masterAgreement?.validUntil))}, so this step is already complete.` : `คุณเคยยืนยันตัวตนกับร้านแล้ว และสัญญาเดิมใช้ได้ถึง ${esc(formatAgreementDate(state.calc.masterAgreement?.validUntil))} ขั้นตอนนี้จึงเสร็จเรียบร้อย`}</p>
+      <p>${esc(demoAgreementCoverText())}</p>
       <div class="demo-contract-status">${en ? "Identity verified — continue to payment." : "ยืนยันตัวตนแล้ว ไปหน้าชำระเงินต่อได้"}</div>`;
       return;
     }
@@ -4276,6 +4322,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
   }
   function showDemoStep2Problems(){
+    if(demoContactCollapsed() && demoStep2Problems().some(problem => DEMO_CONTACT_IDS.includes(problem.id))){
+      demoContactEditing = true;
+      render();
+    }
     const problems = demoStep2Problems();
     for(const id of ["demoCustomerName","demoCustomerPhone","demoIdentityNumber","demoIdentityExpiry","demoEmail","demoAddressLine","demoPostalCode","demoSubdistrict","demoDistrict","demoProvince","demoMaps","demoTermsOpt"]) clearDemoFieldError(id);
     for(const problem of problems){
@@ -5046,11 +5096,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return `<div class="payment-picker">
       ${deliveryNote}
       <div class="payment-group ${fullSelected ? "is-collapsed" : ""}">
-        <button class="payment-group-title" type="button" data-payment-group="reservation" aria-expanded="${!fullSelected}"><span>${reservationTitle}</span><span class="payment-group-actions"><span class="payment-recommended">${recommended}</span>${caret(!fullSelected)}</span></button>
+        <button class="payment-group-title" type="button" data-payment-group="reservation" aria-expanded="${!fullSelected}">${caret(!fullSelected)}<span class="payment-group-label">${reservationTitle}</span><span class="payment-group-actions"><span class="payment-recommended">${recommended}</span></span></button>
         <div class="payment-group-body">${option("cash", cashDeliveryOptionHtml())}</div>
       </div>
       <div class="payment-group ${fullSelected ? "" : "is-collapsed"}">
-        <button class="payment-group-title" type="button" data-payment-group="full" aria-expanded="${fullSelected}"><span>${fullPaymentTitle}</span><span class="payment-group-actions">${caret(fullSelected)}</span></button>
+        <button class="payment-group-title" type="button" data-payment-group="full" aria-expanded="${fullSelected}">${caret(fullSelected)}<span class="payment-group-label">${fullPaymentTitle}</span></button>
         <div class="payment-group-body">${fullPayment}</div>
       </div>
     </div>`;
@@ -8118,6 +8168,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
             demoProfile.identityOnFileLast4 = String(result.profile.identityLast4 || "");
           }
           applyDemoSavedAddress(String(result.profile.address || ""));
+          if(!String(demoProfile.maps || "").trim() && /^https?:\/\//i.test(String(result.profile.maps || ""))) demoProfile.maps = String(result.profile.maps);
+          demoContactFromLine = !!(result.profile.fullName || result.profile.phone);
           demoProfile.lineDisplayName = String(result.profile.lineDisplayName || profile?.displayName || "");
           demoProfile.lineUserId = fallbackLineUserId;
         }
@@ -9866,6 +9918,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(event.target.closest("[data-queue-retry-continue]")){ await retryQueueAndConfirm(); return; }
       if(event.target.closest("[data-queue-back-to-dates]")){ closeModal(); goCalcStep(1, {scrollTabs:true}); return; }
       if(targetId === "demoSignatureClear"){ clearDemoSignature(); return; }
+      if(targetId === "demoContactEdit"){ demoContactEditing = true; render(); byId("demoCustomerName")?.focus(); return; }
       if(targetId === "demoConfirmFromDetails"){
         if(!showDemoStep2Problems()) return;
         await confirmDemoOrder();
