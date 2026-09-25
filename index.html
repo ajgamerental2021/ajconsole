@@ -214,6 +214,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-picker-note{margin:0 0 10px;color:#667085;font-size:12.5px;font-weight:700}
 .demo-locate-btn{margin-top:8px;align-self:flex-start}
 .queue-retry-actions{display:flex;justify-content:flex-end;margin-top:14px}
+body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size:12px;font-weight:700}
 .demo-refund-policy{margin:8px 0 14px;padding:12px 14px;border:1px solid #b7e3c4;border-radius:12px;background:#eefaf2;color:#1d4d2b;font-size:14px}
 .demo-refund-policy ul{margin:6px 0 0;padding-left:20px;line-height:1.6}
 .demo-refund-policy .is-strong{color:#b42318;font-weight:800}
@@ -3545,7 +3546,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <div class="field"><label class="label" for="demoEmail">${en ? "Email" : "อีเมล"}<span class="req">*</span></label><input class="input" id="demoEmail" type="email" autocomplete="email" value="${esc(demoProfile.email)}"></div>
         ${demoIdentityCoveredByAgreement() ? "" : `<div class="field wide">
         <label class="option-row"><input type="checkbox" id="demoNoContractOpt" ${state.calc.noContract?"checked":""}><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b><div class="hint">${en ? "No document number or identity images are required, and no rental agreement is prepared. The security deposit increases: ฿2,000 to ฿10,000 / ฿4,000 to ฿15,000." : "ไม่ต้องกรอกเลขเอกสารและไม่ต้องส่งรูปบัตรประชาชน/Passport และไม่มีการทำสัญญาเช่า ค่าประกันเพิ่มขึ้น: 2,000 บาท เป็น 10,000 บาท / 4,000 บาท เป็น 15,000 บาท"}</div></div></label>
-        ${state.calc.noContract ? `<div class="demo-choice-warning">${en ? "You remain responsible under the accepted Rental Terms. AJ holds the higher deposit instead of identity documents and may still decline a delivery." : "ลูกค้ายังคงต้องรับผิดชอบตามเงื่อนไขการเช่าที่ยอมรับ ร้านใช้ค่าประกันที่สูงขึ้นแทนเอกสารยืนยันตัวตน และขอสงวนสิทธิ์ปฏิเสธการจัดส่งเป็นรายกรณี"}</div>` : ""}
+        ${state.calc.noContract ? `<div class="demo-choice-warning">${en ? "You must still accept AJ's Rental Terms." : "ลูกค้ายังคงต้องยอมรับเงื่อนไขการเช่าของทางร้าน"}</div>` : ""}
         </div>`}
         ${en ? `<div class="field wide"><label class="option-row"><input type="checkbox" id="demoNoThaiAddress" ${demoProfile.noThaiAddress?"checked":""}><div><b>I don't have Thai address details</b><div class="hint">Skip the Thai address fields and give AJ your Google Maps pin instead. AJ confirms the delivery point with you in chat.</div></div></label></div>` : ""}
         ${demoProfile.noThaiAddress ? "" : `
@@ -4450,7 +4451,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return `<div class="demo-order-box demo-total-box">
       <div class="demo-total-group">${charges.join("")}</div>
       ${discounts.length ? `<div class="demo-total-group">${discounts.join("")}</div>` : ""}
-      <div class="demo-total-group">${row(en ? "Security deposit (refunded)" : "ค่าประกัน (คืนเมื่อคืนเครื่อง)", money(summary.deposit), "is-deposit")}</div>
+      <div class="demo-total-group">${row(en ? "Security deposit (refunded)" : "ค่าประกัน (คืนเมื่อคืนเครื่อง)", money(summary.deposit), "is-deposit")}${state.calc.noContract ? `<p class="demo-deposit-note">${en ? "*No identity verification — higher deposit" : "*ไม่ยืนยันตัวตน ค่าประกันสูงขึ้น"}</p>` : ""}</div>
       <div class="demo-total-group">${deliveryRows.join("")}</div>
       <div class="demo-total-group demo-total-final">
         ${summary.paymentFee ? row(paymentFeeLabel(), money(summary.paymentFee)) : ""}
@@ -4499,7 +4500,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       : demoProfile.identityUploaded
       ? (en ? "Images received — awaiting AJ review" : "ส่งรูปแล้ว — รอร้านตรวจสอบ")
       : (en ? "Incomplete — verify later" : "ยังไม่สำเร็จ — ยืนยันภายหลัง");
-    const identityTone = demoIdentityCoveredByAgreement() ? "ok" : demoProfile.identityUploaded ? "pending" : state.calc.noContract ? "" : "is-missing";
+    const identityTone = demoIdentityCoveredByAgreement() ? "ok" : demoProfile.identityUploaded ? "pending" : "is-missing";
     const verifyNow = !demoProfile.identityUploaded && !state.calc.noContract && !demoIdentityCoveredByAgreement();
     host.innerHTML = `<div class="demo-order-grid">
       <div>

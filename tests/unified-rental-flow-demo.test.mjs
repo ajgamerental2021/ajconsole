@@ -374,7 +374,7 @@ test('a failed queue check on confirm opens a retry dialog that carries on to pa
 
 test('status colours, the motorcycle rule and the quoted delivery on the booking', () => {
   assert.match(html, /<b class="demo-status is-awaiting">/);
-  assert.match(html, /state\.calc\.noContract \? "" : "is-missing"/);
+  assert.match(html, /demoProfile\.identityUploaded \? "pending" : "is-missing";/);
   assert.match(html, /\/api\/booking-context\/\$\{encodeURIComponent\(state\.calc\.demoContextToken\)\}\/delivery/);
 });
 
@@ -393,4 +393,11 @@ test('the trial ฿1 charge is one switch; live, every option but Wise goes thro
   assert.match(html, /const UNIFIED_FLOW_TEST_CHARGE = true;/);
   assert.match(html, /if\(UNIFIED_FLOW_TEST_CHARGE\) return 1;\n      return state\.calc\.payment === "wise" \? 0 : paymentAmountsFor\(state\.calc\.payment, summary\)\.payNow;/);
   assert.match(html, /bookingFetch\(UNIFIED_FLOW_DEMO && UNIFIED_FLOW_TEST_CHARGE \? CONFIG\.beamPaymentApiDemo : CONFIG\.beamPaymentApi,/);
+});
+
+test('the no-identity choice reads as a plain rule and the higher deposit is flagged in red', () => {
+  assert.match(html, /"You must still accept AJ's Rental Terms\." : "ลูกค้ายังคงต้องยอมรับเงื่อนไขการเช่าของทางร้าน"/);
+  assert.match(html, /\*ไม่ยืนยันตัวตน ค่าประกันสูงขึ้น/);
+  assert.match(html, /\*No identity verification — higher deposit/);
+  assert.match(html, /\.demo-deposit-note\{margin:2px 0 0;color:#c00000/);
 });
