@@ -143,6 +143,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .input[readonly]{cursor:pointer}
 .hint{font-size:12px;color:var(--text3);margin-top:5px}
 .option-row{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border);border-radius:12px;padding:11px;background:#fff;cursor:pointer}
+.option-row[hidden],.demo-profile-grid[hidden],.demo-wise-panel[hidden]{display:none!important}
 .option-row input{margin-top:5px;accent-color:var(--accent)}
 .review-discount-box{display:flex;flex-direction:column;gap:8px;margin:8px 0 10px 26px}
 .review-discount-box .option-row{background:#fffdfd}
@@ -3901,8 +3902,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function demoAgreementNeeded(){
     return UNIFIED_FLOW_DEMO && !demoIdentityCoveredByAgreement() && !state.calc.noContract;
   }
+  // The Wise refund is offered on English bookings only; a Thai booking always
+  // gives a Thai bank account.
   function demoWiseEligible(){
-    return demoIdentityType() === "passport";
+    return state.lang === "en";
   }
   function demoUsesWise(){
     return demoWiseEligible() && !!demoProfile.noThaiBankAccount;

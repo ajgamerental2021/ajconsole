@@ -379,7 +379,8 @@ test('status colours, the motorcycle rule and the quoted delivery on the booking
 });
 
 test('the deposit refund block matches the LINE form, with Wise details for passport holders', () => {
-  assert.match(html, /function demoWiseEligible\(\)\{\n    return demoIdentityType\(\) === "passport";/);
+  assert.match(html, /function demoWiseEligible\(\)\{\n    return state\.lang === "en";/);
+  assert.match(html, /\.option-row\[hidden\],\.demo-profile-grid\[hidden\],\.demo-wise-panel\[hidden\]\{display:none!important\}/);
   assert.match(html, /Security Deposit Refund Account/);
   assert.match(html, /No cash refunds under any circumstances\./);
   assert.match(html, /Wise Refund Details/);
