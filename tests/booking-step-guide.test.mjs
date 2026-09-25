@@ -36,7 +36,8 @@ test('booking details hide duplicate returning banner and keep the verified agre
 });
 
 test('Thai cash-on-delivery wording distinguishes the section title from the payment choice', () => {
-  assert.match(source, /ชำระปลายทาง \(มีโอนจองคิวก่อน ฿200\)/);
+  assert.match(source, /ชำระปลายทาง <span class="nowrap">\(โอนจองคิว ฿200\)<\/span>/);
+  assert.match(source, /Pay ฿1,000 by card, <span class="nowrap">E-Wallet<\/span> or Thai QR scan/);
   assert.match(source, /โอนจองคิว ฿200 และชำระยอดที่เหลือปลายทาง/);
 });
 

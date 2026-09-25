@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-09-26 — Payment group titles no longer split badly on phones
+
+- Thai reservation group title shortened to “ชำระปลายทาง (โอนจองคิว ฿200)”. The bracketed part never breaks, so “฿200)” can no longer drop onto a line of its own; on a phone it sits as one clean second line.
+- English title keeps “E-Wallet” whole, so a phone no longer leaves “E-” at the end of a line. Wording unchanged.
+- Verification: all test files pass (148); checked with the Sarabun font at 390px and 360px.
+
 ## 2026-09-26 — Green pay button on the demo order page
 
 - The demo order page's pay button (`#demoBeamPay`, `?flowDemo=1`) was the same red as the open payment group above it. It is now green, full width, 60px tall with 20px bold text, a shadow and a lock icon. The payment groups keep their red style; the owner asked for them unchanged.
