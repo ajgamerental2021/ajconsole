@@ -214,6 +214,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-picker-note{margin:0 0 10px;color:#667085;font-size:12.5px;font-weight:700}
 .demo-locate-btn{margin-top:8px;align-self:flex-start}
 .queue-retry-actions{display:flex;justify-content:flex-end;margin-top:14px}
+.paid-notice p{margin:0 0 8px;line-height:1.6}
+.paid-notice b{color:#05603a;font-size:17px}
 body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size:12px;font-weight:700}
 .demo-refund-policy{margin:8px 0 14px;padding:12px 14px;border:1px solid #b7e3c4;border-radius:12px;background:#eefaf2;color:#1d4d2b;font-size:14px}
 .demo-refund-policy ul{margin:6px 0 0;padding-left:20px;line-height:1.6}
@@ -7120,6 +7122,38 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       hideDemoBusy();
     }
   }
+  // Back from a successful payment: the rental is done, so this device starts
+  // a fresh booking, and the renter is told what was received and what is left.
+  function takePaidRentalReturn(){
+    const code = String(PAGE_PARAMS.get("paid") || "").trim().toUpperCase();
+    if(!/^AJ-[A-Z0-9-]{6,40}$/.test(code)) return null;
+    const notice = {code, amount:Number(PAGE_PARAMS.get("paidAmount")) || 0, balance:String(PAGE_PARAMS.get("balance") || "").trim(), emailed:PAGE_PARAMS.get("emailed") === "1"};
+    if(!state.calc.rentalCode || state.calc.rentalCode === code){
+      Object.assign(state.calc, {demoOrderOpen:false, rentalCode:"", rentalCodeSig:"", demoContextToken:"", beamPaymentLink:"", beamPaymentKey:"", beamPaymentExpiresAt:"", step:1});
+      saveLocal();
+    }
+    try{
+      const url = new URL(location.href);
+      ["paid","paidAmount","balance","emailed"].forEach(key => url.searchParams.delete(key));
+      history.replaceState(null, "", url.pathname + url.search + url.hash);
+    }catch{}
+    return notice;
+  }
+  function showPaidRentalNotice({code, amount, balance, emailed}){
+    const en = state.lang === "en";
+    const paid = amount ? `฿${amount.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2})}` : "";
+    const hasBalance = balance && !/^฿?0(\.0+)?$/.test(balance);
+    showModal(en ? "Rental confirmed" : "การเช่าสำเร็จ", `
+      <div class="paid-notice">
+        <p><b>${esc(en ? `Rental ${code} is confirmed.` : `การเช่า ${code} สำเร็จแล้ว`)}</b></p>
+        ${paid ? `<p>${esc(en ? `AJ has received ${paid}.` : `ร้านได้รับยอด ${paid} แล้ว`)}</p>` : ""}
+        <p>${esc(hasBalance ? (en ? `Balance to pay on delivery: ${balance}` : `ยอดคงเหลือชำระตอนรับเครื่อง: ${balance}`) : (en ? "Nothing more to pay." : "ไม่มียอดคงเหลือ"))}</p>
+        <p class="hint">${esc([
+          emailed ? (en ? "A confirmation email with your rental agreement has been sent." : "ร้านส่งอีเมลยืนยันการเช่าพร้อมสัญญาให้แล้ว") : "",
+          en ? "AJ will contact you to arrange the delivery time." : "ร้านจะติดต่อเพื่อนัดเวลาจัดส่ง"
+        ].filter(Boolean).join(" "))}</p>
+      </div>`);
+  }
   async function launchDemoBeamPayment(){
     showDemoBusy(state.lang === "en" ? "Opening the payment page…" : "กำลังเปิดหน้าชำระเงิน…");
     try{
@@ -10237,7 +10271,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(restoredGameList) state.beforeRentActive = false;
     exposeCompatibility();
     void loadRentalTermsVersion();
+    const paidRentalNotice = UNIFIED_FLOW_DEMO ? takePaidRentalReturn() : null;
     bindEvents();
+    if(paidRentalNotice) window.setTimeout(() => showPaidRentalNotice(paidRentalNotice), 300);
     bindBeforeRentSectionAnalytics();
     trackAnalytics("page_view");
     render();

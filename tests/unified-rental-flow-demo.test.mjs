@@ -401,3 +401,25 @@ test('the no-identity choice reads as a plain rule and the higher deposit is fla
   assert.match(html, /\*No identity verification — higher deposit/);
   assert.match(html, /\.demo-deposit-note\{margin:2px 0 0;color:#c00000/);
 });
+
+test('the payment page confirms with AJ, shows what was received and any balance, and the main page says so', () => {
+  const success = fs.readFileSync(new URL('../payment-success.html', import.meta.url), 'utf8');
+  assert.match(success, /api\/payments\/confirm-return/);
+  assert.match(success, /ยอดคงเหลือชำระตอนรับเครื่อง: \$\{result\.onDelivery\}/);
+  assert.match(success, /Balance to pay on delivery: \$\{result\.onDelivery\}/);
+  assert.match(success, /กด LINE เพื่อผูกบัญชีและรับข้อความยืนยันการเช่า/);
+  assert.doesNotMatch(success, /รับ Flex ยืนยันการเช่า/);
+  assert.match(success, /&paid=\$\{encodeURIComponent\(rentalCode\)\}/);
+  assert.match(html, /function takePaidRentalReturn\(\)/);
+  assert.match(html, /function showPaidRentalNotice\(\{code, amount, balance, emailed\}\)/);
+  assert.match(html, /ยอดคงเหลือชำระตอนรับเครื่อง: \$\{balance\}/);
+});
+
+test('the game picker fits foldables and lets the renter choose the cover size', () => {
+  const picker = fs.readFileSync(new URL('../game_index.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(picker, /@media \(max-width: 640px\) \{/);
+  assert.match(picker, /@media \(max-width: 640px\), \(max-width: 900px\) and \(max-height: 960px\) and \(max-aspect-ratio: 6\/5\) \{/);
+  assert.match(picker, /function cyclePickSize\(\)/);
+  assert.match(picker, /localStorage\.setItem\('aj_pick_size', pickSize\)/);
+  assert.match(picker, /\.pick-selected-chips:empty \{ display: none; \}/);
+});
