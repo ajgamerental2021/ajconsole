@@ -138,7 +138,7 @@ test('round-trip delivery price comes from the Bot and is never shown as final w
   assert.match(html, /demoDelivery = \{status:"idle", quote:null, key:""\}/);
   assert.match(html, /Awaiting confirmed quote/);
   assert.ok(html.includes('needs_pin: en ? "Map pin needed" : "ต้องปักหมุดแผนที่"'));
-  assert.match(html, /hasLargeItem: \/G29\|Logitech\|VR2\|Racing\/i\.test\(name\)/);
+  assert.match(html, /hasLargeItem: \/G29\|Logitech\/i\.test\(name\)/);
 });
 
 test('privacy policy explains that AJ stores no card or e-wallet details', () => {
@@ -333,7 +333,7 @@ test('re-ticking the returning discount after verifying applies it, through the 
 test('an agreement that already covers the renter sends step 2 straight to payment', () => {
   assert.match(html, /function demoIdentityStepSkippable\(\)\{\n    return demoIdentityCoveredByAgreement\(\) \|\| !!state\.calc\.noContract;/);
   assert.match(html, /UNIFIED_FLOW_DEMO && step === 2 && demoIdentityStepSkippable\(\)\n        \? `<button class="btn primary" id="demoConfirmFromDetails"/);
-  assert.match(html, /if\(targetId === "demoConfirmFromDetails"\)\{\n        if\(!showDemoStep2Problems\(\)\) return;\n        await openDemoOrder\(\);/);
+  assert.match(html, /if\(targetId === "demoConfirmFromDetails"\)\{\n        if\(!showDemoStep2Problems\(\)\) return;\n        await confirmDemoOrder\(\);/);
 });
 
 test('a renter without a valid agreement signs one on step 3, through the contract service', () => {
@@ -361,4 +361,30 @@ test('the reservation note puts the balance rule on its own line', () => {
   assert.match(html, /\[\]\.concat\(methodNote\)\.map\(esc\)\.join\("<br>"\)/);
   assert.match(html, /"ยอดที่เหลือชำระตอนรับเครื่อง: เงินโอนไม่มีค่าธรรมเนียม/);
   assert.match(html, /"Balance on delivery: Thai QR scan with no fee/);
+});
+
+test('a failed queue check on confirm opens a retry dialog that carries on to payment', () => {
+  assert.match(html, /async function confirmDemoOrder\(\)\{\n    if\(demoQueueCheckFailed\(\)\)\{ showQueueRetryDialog\(\); return; \}/);
+  assert.match(html, /await fetchAvailability\(\)\.catch\(\(\) => \{\}\);/);
+  assert.match(html, /closeModal\(\);\n    render\(\);\n    await openDemoOrder\(\);/);
+  assert.match(html, /if\(String\(error\?\.message \|\| ""\) === "booking_availability_refresh_failed"\)\{ showQueueRetryDialog\(\); return; \}/);
+  assert.match(html, /ลองเช็คคิวอีกครั้ง/);
+  assert.match(html, /Check the queue again/);
+});
+
+test('status colours, the motorcycle rule and the quoted delivery on the booking', () => {
+  assert.match(html, /<b class="demo-status is-awaiting">/);
+  assert.match(html, /state\.calc\.noContract \? "" : "is-missing"/);
+  assert.match(html, /\/api\/booking-context\/\$\{encodeURIComponent\(state\.calc\.demoContextToken\)\}\/delivery/);
+});
+
+test('the deposit refund block matches the LINE form, with Wise details for passport holders', () => {
+  assert.match(html, /function demoWiseEligible\(\)\{\n    return demoIdentityType\(\) === "passport";/);
+  assert.match(html, /Security Deposit Refund Account/);
+  assert.match(html, /No cash refunds under any circumstances\./);
+  assert.match(html, /Wise Refund Details/);
+  assert.match(html, /Do not have these details yet\? Pick one of these instead\./);
+  for (const key of ['wiseFullName','wiseCountry','wiseCurrency','wiseBankName','wiseAccountNumber','wiseSwift','wiseEmail']) assert.ok(html.includes(`"${key}"`), key);
+  // Signing only records the agreement; the contract waits for payment.
+  assert.match(html, /if\(!response\.ok \|\| !\(result\.pending \|\| result\.signed\)\)\{/);
 });

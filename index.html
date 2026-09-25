@@ -213,6 +213,18 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-option-amounts small{display:block;color:#667085!important;font-size:11.5px!important;font-weight:700!important}
 .payment-picker-note{margin:0 0 10px;color:#667085;font-size:12.5px;font-weight:700}
 .demo-locate-btn{margin-top:8px;align-self:flex-start}
+.queue-retry-actions{display:flex;justify-content:flex-end;margin-top:14px}
+.demo-refund-policy{margin:8px 0 14px;padding:12px 14px;border:1px solid #b7e3c4;border-radius:12px;background:#eefaf2;color:#1d4d2b;font-size:14px}
+.demo-refund-policy ul{margin:6px 0 0;padding-left:20px;line-height:1.6}
+.demo-refund-policy .is-strong{color:#b42318;font-weight:800}
+.demo-refund-policy a,.demo-wise-terms a{color:#5b21b6;font-weight:800}
+.demo-wise-panel{margin-top:12px;padding-top:12px;border-top:1px solid #e4e7ec}
+.demo-wise-panel h4{margin:0 0 8px}
+.demo-wise-terms{margin:0 0 8px;padding:10px 12px;border:1px solid #dbe4f0;border-radius:10px;background:#f5f8fc;font-size:13px}
+.demo-wise-choice{margin:12px 0 0;padding:10px 14px;border:1px solid #e4e7ec;border-radius:12px}
+.demo-wise-choice legend{font-size:13px;color:#667085;padding:0 6px}
+.demo-wise-payout{display:flex;align-items:center;gap:10px;padding:6px 0;font-weight:700}
+.demo-wise-help{padding:4px 10px;font-size:12px;min-height:0}
 .demo-id-guide{margin:12px 0;padding:10px 14px;border:1px solid #e4e7ec;border-radius:12px;background:#fafbfc}
 .demo-id-guide summary{cursor:pointer;font-weight:800;color:#344054}
 .demo-id-guide ol{margin:6px 0 10px;padding-left:22px;line-height:1.7;color:#344054}
@@ -851,6 +863,9 @@ body.unified-flow-demo .demo-status.ok{color:#137333}
 .payment-wise-logo{height:22px;width:auto;display:inline-block;vertical-align:-4px}
 .payment-wise-title{display:inline-flex;align-items:center;gap:7px;font-weight:800}
 body.unified-flow-demo .demo-status{font-weight:900;color:#c00000}
+body.unified-flow-demo .demo-order-row b.demo-status.is-missing{color:#c00000}
+body.unified-flow-demo .demo-order-row b.demo-status.pending{color:#b54708}
+body.unified-flow-demo .demo-order-row b.demo-status.is-awaiting{display:inline-block;padding:3px 10px;border-radius:999px;background:#fff4e5;color:#b54708;border:1px solid #f7c98b}
 body.unified-flow-demo .demo-status.ok{color:#137333}
 body.unified-flow-demo .demo-payment-launch{display:grid;gap:10px;margin-top:12px}
 body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
@@ -3677,7 +3692,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           mapsUrl: demoProfile.maps,
           address: [demoProfile.addressLine, demoProfile.subdistrict, demoProfile.district, demoProfile.province, demoProfile.postalCode].filter(Boolean).join(" "),
           deviceCount: 1 + (state.calc.extras?.length ? 1 : 0),
-          hasLargeItem: /G29|Logitech|VR2|Racing/i.test(name),
+          // Only the Logitech G29 wheel needs a car; everything else fits a motorcycle.
+          hasLargeItem: /G29|Logitech/i.test(name),
           days: calcSummary().days,
           lang: state.lang
         })
@@ -3686,6 +3702,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(response.ok && result?.ok){
         demoDelivery.status = "ready";
         demoDelivery.quote = result.quote;
+        void recordDemoDeliveryQuote(result.quote);
       }else{
         demoDelivery.status = result?.error === "delivery_location_unresolved" ? "needs_pin" : "unavailable";
       }
@@ -3694,6 +3711,21 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       demoDelivery.status = "unavailable";
     }
     renderDemoOrderPage();
+  }
+  // Stamp the booking with the quote shown, so the contract made at payment
+  // prints the same delivery fare and discount.
+  async function recordDemoDeliveryQuote(quote){
+    const quotationId = quote?.outbound?.quotationId;
+    if(!quotationId || !state.calc.demoContextToken) return;
+    try{
+      await fetch(new URL(`/api/booking-context/${encodeURIComponent(state.calc.demoContextToken)}/delivery`, CONFIG.apiBase), {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({quotationId})
+      });
+    }catch(error){
+      console.warn("Delivery quote not recorded", error);
+    }
   }
   function demoDeliveryPendingText(){
     const en = state.lang === "en";
@@ -3858,12 +3890,23 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // Agreement the LINE contract form produces (PDF with the signature, Drive,
   // contracts sheet). The signature and the account number stay in page
   // memory only and are never written to this browser's storage.
-  const demoAgreement = {signature:"", ink:0, account:"", banks:[], banksRequested:false, renderedLang:"", submittedFor:"", contractId:"", pdfUrl:"", resize:null};
+  const demoAgreement = {signature:"", ink:0, account:"", banks:[], currencies:[], banksRequested:false, renderedLang:"", renderedWise:null, submittedFor:"", resize:null, wise:{payout:"bank", wiseFullName:"", wiseCountry:"", wiseCurrency:"", wiseBankName:"", wiseAccountNumber:"", wiseSwift:"", wiseEmail:""}};
   function demoAgreementNeeded(){
     return UNIFIED_FLOW_DEMO && !demoIdentityCoveredByAgreement() && !state.calc.noContract;
   }
+  function demoWiseEligible(){
+    return demoIdentityType() === "passport";
+  }
+  function demoUsesWise(){
+    return demoWiseEligible() && !!demoProfile.noThaiBankAccount;
+  }
+  const DEMO_WISE_REQUIRED = {bank:["wiseFullName","wiseCountry","wiseCurrency","wiseBankName","wiseAccountNumber","wiseEmail"], email:["wiseEmail"], link:["wiseEmail"]};
   function demoRefundReady(){
-    if(demoProfile.noThaiBankAccount && state.lang === "en") return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(demoProfile.wiseEmail || demoProfile.email || "").trim());
+    if(demoUsesWise()){
+      const wise = demoAgreement.wise;
+      return (DEMO_WISE_REQUIRED[wise.payout] || DEMO_WISE_REQUIRED.bank).every(key => String(wise[key] || "").trim())
+        && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(wise.wiseEmail || "").trim());
+    }
     return !!demoProfile.refundBankId && /^\d{6,13}$/.test(demoAgreement.account) && !!String(demoProfile.refundAccountName || "").trim();
   }
   function demoAgreementReady(){
@@ -3877,6 +3920,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const response = await fetch(`${CONFIG.apiBase}/api/catalog`, {cache:"no-store"});
       const result = await response.json();
       demoAgreement.banks = Array.isArray(result?.banks) ? result.banks : [];
+      demoAgreement.currencies = Array.isArray(result?.wiseCurrencies) ? result.wiseCurrencies : [];
     }catch(error){
       console.warn("Bank list unavailable", error);
       demoAgreement.banksRequested = false;
@@ -3884,12 +3928,72 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
     const select = byId("demoRefundBank");
     if(select) select.innerHTML = demoBankOptionsHtml();
+    const currency = byId("demoWise_wiseCurrency");
+    if(currency) currency.innerHTML = demoCurrencyOptionsHtml();
   }
   function demoBankOptionsHtml(){
     const en = state.lang === "en";
     const placeholder = demoAgreement.banks.length ? (en ? "Choose a bank" : "เลือกธนาคาร") : (en ? "Loading…" : "กำลังโหลด…");
     return `<option value="">${placeholder}</option>` + demoAgreement.banks
       .map(bank => `<option value="${esc(bank.id)}" ${bank.id === demoProfile.refundBankId ? "selected" : ""}>${esc(en ? bank.en : bank.th)}</option>`).join("");
+  }
+  function demoCurrencyOptionsHtml(){
+    const en = state.lang === "en";
+    const names = (() => { try{ return new Intl.DisplayNames([en ? "en" : "th"], {type:"region"}); }catch{ return null; } })();
+    return `<option value="">${en ? "-- Select currency --" : "-- เลือกสกุลเงิน --"}</option>` + (demoAgreement.currencies || [])
+      .map(([code, region]) => `<option value="${esc(code)}" ${code === demoAgreement.wise.wiseCurrency ? "selected" : ""}>${esc(code)} - ${esc(names?.of(region) || region)}</option>`).join("");
+  }
+  const WISE_LINKS = [
+    ["https://wise.com/help/articles/2524078/how-long-will-my-transfer-take", "Wise transfer time", "เวลาโอน Wise"],
+    ["https://wise.com/help/articles/2971625/how-do-i-cancel-my-transfer", "Wise policy", "นโยบาย Wise"],
+    ["https://wise.com/gb/send-money/", "Where Wise works", "ประเทศที่ใช้ Wise ได้"]
+  ];
+  function demoWiseLinksHtml(){
+    const en = state.lang === "en";
+    return WISE_LINKS.map(([href, labelEn, labelTh]) => `<a href="${href}" target="_blank" rel="noopener noreferrer">${esc(en ? labelEn : labelTh)}</a>`).join('<span aria-hidden="true"> · </span>');
+  }
+  function demoRefundSectionHtml(){
+    const en = state.lang === "en";
+    const wiseField = (key, label, {required = true, type = "text", wide = false, select = false} = {}) => `<div class="field${wide ? " wide" : ""}"><label class="label" for="demoWise_${key}">${esc(label)}${required ? '<span class="req">*</span>' : ""}</label>${select
+      ? `<select class="input" id="demoWise_${key}" data-wise-field="${key}">${demoCurrencyOptionsHtml()}</select>`
+      : `<input class="input" id="demoWise_${key}" data-wise-field="${key}" type="${type}" value="${esc(demoAgreement.wise[key] || "")}">`}</div>`;
+    const payout = demoAgreement.wise.payout;
+    const payoutOption = (value, label, help) => `<label class="demo-wise-payout"><input type="radio" name="demoWisePayout" value="${value}" ${payout === value ? "checked" : ""}><span>${esc(label)}</span>${help ? `<a class="btn demo-wise-help" href="${help}" target="_blank" rel="noopener noreferrer">${en ? "Read more" : "อ่านรายละเอียด"}</a>` : ""}</label>`;
+    return `<h3>${en ? "Security Deposit Refund Account" : "บัญชีรับเงินค่าประกันคืน"}</h3>
+      <div class="demo-refund-policy" role="note">
+        <b>${en ? "Security deposit refund terms" : "เงื่อนไขการคืนเงินประกัน"}</b>
+        <ul>
+          <li class="is-strong">${en ? "No cash refunds under any circumstances." : "ไม่มีการคืนเงินสดทุกกรณี"}</li>
+          <li>${en ? "Thai bank transfer: refunded immediately after AJ receives and completes inspection of the items, within the return date." : "โอนคืนเข้าบัญชีธนาคารไทยทันทีหลังร้านได้รับและตรวจสินค้าเรียบร้อย ภายในวันที่คืนเครื่อง"}</li>
+          <li>${en ? "Deposit refund: Wise (1–3 business days) or Thai bank transfer, if available." : "คืนผ่าน Wise ใช้เวลา 1–3 วันทำการ หรือโอนเข้าบัญชีธนาคารไทยหากมี"} ${demoWiseLinksHtml()}</li>
+        </ul>
+      </div>
+      <label class="option-row" data-refund-wise-choice><input type="checkbox" id="demoNoThaiBank" ${demoProfile.noThaiBankAccount ? "checked" : ""}><div><b>${en ? "I do not have a Thai bank account and would like to receive the security deposit refund through Wise" : "ไม่มีบัญชีธนาคารไทย และต้องการรับเงินค่าประกันคืนผ่าน Wise"}</b></div></label>
+      <div class="demo-profile-grid" data-refund-thai>
+        <div class="field"><label class="label" for="demoRefundBank">${en ? "Bank" : "ธนาคาร"}<span class="req">*</span></label><select class="input" id="demoRefundBank">${demoBankOptionsHtml()}</select></div>
+        <div class="field"><label class="label" for="demoRefundAccount">${en ? "Bank account number" : "เลขที่บัญชี"}<span class="req">*</span></label><input class="input" id="demoRefundAccount" inputmode="numeric" autocomplete="off" maxlength="13" value="${esc(demoAgreement.account)}" placeholder="${en ? "Digits only" : "ตัวเลขเท่านั้น"}"></div>
+        <div class="field wide"><label class="label" for="demoRefundName">${en ? "Bank account name" : "ชื่อบัญชี"}<span class="req">*</span></label><input class="input" id="demoRefundName" value="${esc(demoProfile.refundAccountName || "")}"></div>
+      </div>
+      <div class="demo-wise-panel" data-refund-wise>
+        <h4>${en ? "Wise Refund Details" : "รายละเอียดสำหรับคืนเงินผ่าน Wise"}</h4>
+        <p class="demo-wise-terms"><b>${en ? "** Deposit refund: Wise (1–3 business days)" : "** คืนค่าประกันผ่าน Wise (1–3 วันทำการ)"}</b><br>${demoWiseLinksHtml()}</p>
+        <p class="hint">${en ? "Enter the details of the account that should receive the refund. AJ sends the security deposit back through Wise." : "กรอกข้อมูลให้ตรงกับบัญชีผู้รับเงินของคุณ ทางร้านจะโอนค่าประกันคืนผ่าน Wise"}</p>
+        <div class="demo-profile-grid">
+          ${wiseField("wiseFullName", en ? "Full Name" : "ชื่อ-นามสกุลผู้รับเงิน", {required: payout === "bank"})}
+          ${wiseField("wiseCountry", en ? "Country" : "ประเทศ", {required: payout === "bank"})}
+          ${wiseField("wiseCurrency", en ? "Currency" : "สกุลเงิน", {required: payout === "bank", select: true})}
+          ${wiseField("wiseBankName", en ? "Bank Name" : "ชื่อธนาคาร", {required: payout === "bank"})}
+          ${wiseField("wiseAccountNumber", en ? "Account Number / IBAN" : "เลขที่บัญชี / IBAN", {required: payout === "bank"})}
+          ${wiseField("wiseSwift", en ? "SWIFT/BIC / Routing/Sort Code (if applicable)" : "SWIFT/BIC หรือ Routing/Sort Code (ถ้ามี)", {required: false})}
+          ${wiseField("wiseEmail", en ? "Email" : "อีเมล", {type: "email", wide: true})}
+        </div>
+        <fieldset class="demo-wise-choice">
+          <legend>${en ? "Do not have these details yet? Pick one of these instead." : "ยังไม่มีข้อมูลบัญชีตอนนี้? เลือกวิธีรับเงินแบบอื่นได้"}</legend>
+          ${payoutOption("bank", en ? "Bank transfer using the details above" : "โอนเข้าบัญชีธนาคารตามข้อมูลด้านบน", "")}
+          ${payoutOption("email", en ? "Send money to email" : "ส่งเงินไปที่อีเมล (Send money to email)", "https://wise.com/help/articles/2932105/how-can-i-send-money-to-an-email-address")}
+          ${payoutOption("link", en ? "Send money to link" : "ส่งเงินผ่านลิงก์ (Send money to link)", "https://wise.com/help/articles/2lMLg5SpSbLNtWWA73O2Ot/how-do-i-send-money-with-a-link")}
+        </fieldset>
+      </div>`;
   }
   function renderDemoAgreementCard(){
     const host = byId("demoAgreementCard");
@@ -3900,15 +4004,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const en = state.lang === "en";
     if(demoAgreement.renderedLang !== state.lang){
       demoAgreement.renderedLang = state.lang;
-      host.innerHTML = `<h3>${en ? "Deposit refund account" : "บัญชีรับเงินค่าประกันคืน"}</h3>
-        <p class="hint">${en ? "AJ refunds the deposit to this account after the equipment is returned and checked. No cash refunds." : "ร้านโอนค่าประกันคืนเข้าบัญชีนี้หลังรับเครื่องคืนและตรวจเรียบร้อย ไม่มีการคืนเป็นเงินสด"}</p>
-        ${en ? `<label class="option-row"><input type="checkbox" id="demoNoThaiBank" ${demoProfile.noThaiBankAccount ? "checked" : ""}><div><b>I don't have a Thai bank account</b><div class="hint">Refund by Wise to your email (1–3 business days).</div></div></label>
-        <div class="field" data-refund-wise><label class="label" for="demoWiseEmail">Email for the Wise refund<span class="req">*</span></label><input class="input" id="demoWiseEmail" type="email" value="${esc(demoProfile.wiseEmail || demoProfile.email || "")}"></div>` : ""}
-        <div class="demo-profile-grid" data-refund-thai>
-          <div class="field"><label class="label" for="demoRefundBank">${en ? "Bank" : "ธนาคาร"}<span class="req">*</span></label><select class="input" id="demoRefundBank">${demoBankOptionsHtml()}</select></div>
-          <div class="field"><label class="label" for="demoRefundAccount">${en ? "Account number" : "เลขที่บัญชี"}<span class="req">*</span></label><input class="input" id="demoRefundAccount" inputmode="numeric" autocomplete="off" maxlength="13" value="${esc(demoAgreement.account)}" placeholder="${en ? "Digits only" : "ตัวเลขเท่านั้น"}"></div>
-          <div class="field wide"><label class="label" for="demoRefundName">${en ? "Account name" : "ชื่อบัญชี"}<span class="req">*</span></label><input class="input" id="demoRefundName" value="${esc(demoProfile.refundAccountName || "")}"></div>
-        </div>
+      demoAgreement.renderedWise = null;
+      host.innerHTML = `<div id="demoRefundSection">${demoRefundSectionHtml()}</div>
         <h3>${en ? "Signature" : "ลายเซ็น"}</h3>
         <p class="hint">${en ? "Your signature goes on the rental agreement PDF, together with AJ's." : "ลายเซ็นนี้ใช้ในสัญญาเช่า (PDF) คู่กับลายเซ็นของร้าน"} <button class="link-btn" type="button" data-faq-rental-terms>${en ? "Read the Rental Terms" : "อ่านเงื่อนไขการเช่า"}</button></p>
         <label class="option-row"><input type="checkbox" id="demoAgreementConsent" ${demoProfile.agreementConsent ? "checked" : ""}><div><b>${en ? "I confirm these details are correct, agree to the Rental Terms, and consent to AJ keeping my data under the Privacy Policy." : "ข้าพเจ้ายืนยันว่าข้อมูลถูกต้อง ตกลงตามเงื่อนไขการเช่า และยินยอมให้ร้านเก็บข้อมูลตามนโยบายความเป็นส่วนตัว"}<span class="req">*</span></b></div></label>
@@ -3919,10 +4016,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <div class="demo-signature-actions"><button class="btn" type="button" id="demoSignatureClear">${en ? "Clear signature" : "ล้างลายเซ็น"}</button></div>`;
       setupDemoSignaturePad();
     }
-    const noThai = !!demoProfile.noThaiBankAccount && en;
-    host.querySelector("[data-refund-thai]").hidden = noThai;
-    const wise = host.querySelector("[data-refund-wise]");
-    if(wise) wise.hidden = !noThai;
+    // The refund block is rebuilt when the Wise choice or payout changes; the
+    // signature pad below it is left alone.
+    const wiseState = `${demoWiseEligible()}|${demoUsesWise()}|${demoAgreement.wise.payout}`;
+    if(demoAgreement.renderedWise !== wiseState){
+      demoAgreement.renderedWise = wiseState;
+      const section = byId("demoRefundSection");
+      if(section) section.innerHTML = demoRefundSectionHtml();
+    }
+    host.querySelector("[data-refund-wise-choice]").hidden = !demoWiseEligible();
+    host.querySelector("[data-refund-thai]").hidden = demoUsesWise();
+    host.querySelector("[data-refund-wise]").hidden = !demoUsesWise();
     // The pane is hidden until step 3 opens; size the pad once it can be measured.
     const canvas = byId("demoSignaturePad");
     if(canvas && !canvas.width && canvas.getBoundingClientRect().width) demoAgreement.resize?.();
@@ -3991,8 +4095,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const need = (id, ok, message) => { if(!ok) problems.push({id, message}); };
     need("demoIdDocument", demoIdentityReady(), en ? "Upload both photos, or choose Verify later." : "อัปโหลดรูปทั้ง 2 รูป หรือเลือกยืนยันตัวตนภายหลัง");
     if(demoAgreementNeeded()){
-      if(demoProfile.noThaiBankAccount && en){
-        need("demoWiseEmail", demoRefundReady(), "Enter the email for the Wise refund.");
+      if(demoUsesWise()){
+        const wise = demoAgreement.wise;
+        for(const key of DEMO_WISE_REQUIRED[wise.payout] || DEMO_WISE_REQUIRED.bank){
+          need(`demoWise_${key}`, !!String(wise[key] || "").trim(), en ? "Required for the Wise refund." : "จำเป็นสำหรับการคืนเงินผ่าน Wise");
+        }
+        if(String(wise.wiseEmail || "").trim()) need("demoWise_wiseEmail", /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(wise.wiseEmail.trim()), en ? "Enter a valid email." : "กรอกอีเมลให้ถูกต้อง");
       }else{
         need("demoRefundBank", !!demoProfile.refundBankId, en ? "Choose the bank for the deposit refund." : "เลือกธนาคารสำหรับคืนค่าประกัน");
         need("demoRefundAccount", /^\d{6,13}$/.test(demoAgreement.account), en ? "Enter the account number, digits only." : "กรอกเลขที่บัญชี เป็นตัวเลขเท่านั้น");
@@ -4022,7 +4130,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   async function submitDemoAgreement(contextToken){
     if(!demoAgreementNeeded()) return;
-    if(demoAgreement.contractId && demoAgreement.submittedFor === state.calc.rentalCode) return;
+    if(demoAgreement.submittedFor && demoAgreement.submittedFor === state.calc.rentalCode) return;
     if(!contextToken) throw new Error("agreement_context_unavailable");
     const response = await fetch(`${CONFIG.apiBase}/api/booking-context/${encodeURIComponent(contextToken)}/agreement`, {
       method:"POST",
@@ -4030,21 +4138,30 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       body:JSON.stringify({
         signatureDataUrl: demoAgreement.signature,
         consentAccepted: !!demoProfile.agreementConsent,
-        noThaiBankAccount: state.lang === "en" && !!demoProfile.noThaiBankAccount,
-        wiseEmail: String(demoProfile.wiseEmail || demoProfile.email || "").trim(),
+        noThaiBankAccount: demoUsesWise(),
+        ...(demoUsesWise() ? {
+          wisePayoutMethod: demoAgreement.wise.payout,
+          wiseFullName: demoAgreement.wise.wiseFullName,
+          wiseCountry: demoAgreement.wise.wiseCountry,
+          wiseCurrency: demoAgreement.wise.wiseCurrency,
+          wiseBankName: demoAgreement.wise.wiseBankName,
+          wiseAccountNumber: demoAgreement.wise.wiseAccountNumber,
+          wiseSwift: demoAgreement.wise.wiseSwift,
+          wiseEmail: demoAgreement.wise.wiseEmail
+        } : {}),
         refundBankId: demoProfile.refundBankId,
         refundAccountNumber: demoAgreement.account,
         refundAccountName: String(demoProfile.refundAccountName || "").trim()
       })
     });
     const result = await response.json().catch(() => ({}));
-    if(!response.ok || !result.contractId){
+    // The signature and details are kept until payment; the contract is made
+    // only once the rental is paid.
+    if(!response.ok || !(result.pending || result.signed)){
       const error = new Error(result.error || `HTTP ${response.status}`);
       error.fields = result.fields || [];
       throw error;
     }
-    demoAgreement.contractId = result.contractId;
-    demoAgreement.pdfUrl = result.pdfUrl || "";
     demoAgreement.submittedFor = state.calc.rentalCode;
   }
   function demoIdentityReady(){
@@ -4378,12 +4495,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       : demoProfile.identityUploaded
       ? (en ? "Images received — awaiting AJ review" : "ส่งรูปแล้ว — รอร้านตรวจสอบ")
       : (en ? "Incomplete — verify later" : "ยังไม่สำเร็จ — ยืนยันภายหลัง");
-    const identityTone = demoIdentityCoveredByAgreement() ? "ok" : demoProfile.identityUploaded ? "pending" : "";
+    const identityTone = demoIdentityCoveredByAgreement() ? "ok" : demoProfile.identityUploaded ? "pending" : state.calc.noContract ? "" : "is-missing";
     const verifyNow = !demoProfile.identityUploaded && !state.calc.noContract && !demoIdentityCoveredByAgreement();
     host.innerHTML = `<div class="demo-order-grid">
       <div>
         <section class="demo-order-section">${demoSectionHeadHtml(en ? "Rental item" : "สินค้าที่เช่า", 1)}${demoRentalItemHtml(item, summary)}</section>
-        <section class="demo-order-section"><h3>${en ? "Details" : "รายละเอียด"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Rental ID":"รหัสการเช่า"}</span><b>${esc(state.calc.rentalCode || "-")}</b></div><div class="demo-order-row"><span>${en?"Rental status":"สถานะการเช่า"}</span><b class="demo-status">${en?"Awaiting payment":"รอชำระเงิน"}</b></div></div></section>
+        <section class="demo-order-section"><h3>${en ? "Details" : "รายละเอียด"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Rental ID":"รหัสการเช่า"}</span><b>${esc(state.calc.rentalCode || "-")}</b></div><div class="demo-order-row"><span>${en?"Rental status":"สถานะการเช่า"}</span><b class="demo-status is-awaiting">${en?"Awaiting payment":"รอชำระเงิน"}</b></div></div></section>
         <section class="demo-order-section">${demoSectionHeadHtml(en ? "Customer" : "ข้อมูลลูกค้า", 2)}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Name":"ชื่อ"}</span><b>${esc(demoProfile.fullName)}</b></div>${state.calc.noContract ? "" : `<div class="demo-order-row"><span>${esc(demoIdentityNumberLabel())}</span><b>${esc(demoIdentityDisplay())}</b></div>`}<div class="demo-order-row"><span>${en?"Phone":"เบอร์ติดต่อ"}</span><b>${esc(demoProfile.phone)}</b></div><div class="demo-order-row"><span>${en?"Delivery":"ที่อยู่จัดส่ง"}</span><b>${esc([demoProfile.addressLine,demoProfile.subdistrict,demoProfile.district,demoProfile.province,demoProfile.postalCode].filter(Boolean).join(" ") || (en ? "Google Maps pin only" : "ใช้หมุด Google Maps"))}</b></div></div></section>
         <section class="demo-order-section">${demoSectionHeadHtml(en ? "Rental period" : "ช่วงเวลา", 1)}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Duration":"ระยะเวลา"}</span><b>${summary.days} ${en?"days":"วัน"}</b></div><div class="demo-order-row"><span>${en?"Dates":"วันที่เช่า"}</span><b>${displayDate(state.calc.start)} – ${displayDate(state.calc.end)}</b></div></div></section>
       </div>
@@ -6906,6 +7023,44 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       return false;
     }
   }
+  // The queue has to be checked before the rental can be confirmed. When that
+  // check failed, say so in a dialog with a retry, and carry on to the Rental
+  // ID page by itself as soon as the queue answers.
+  function demoQueueCheckFailed(){
+    return !!state.availability.error || !hasRecentAvailabilitySnapshot();
+  }
+  function showQueueRetryDialog(message = ""){
+    const en = state.lang === "en";
+    showModal(en ? "Queue check failed" : "เช็คคิวไม่สำเร็จ", `
+      <p>${esc(message || (en ? "AJ could not check the queue for your dates just now. Please check again; once it works, you go straight on to payment." : "ตอนนี้ระบบเช็คคิวของวันที่เลือกไม่สำเร็จ กรุณากดเช็คคิวอีกครั้ง เมื่อเช็คผ่านจะไปหน้าชำระเงินให้ทันที"))}</p>
+      <div class="queue-retry-actions"><button class="btn primary" type="button" data-queue-retry-continue>${en ? "Check the queue again" : "ลองเช็คคิวอีกครั้ง"}</button></div>`);
+  }
+  async function confirmDemoOrder(){
+    if(demoQueueCheckFailed()){ showQueueRetryDialog(); return; }
+    if(!stepReady(1)){
+      toast(state.lang === "en" ? "Please check the equipment and dates first." : "กรุณาตรวจเครื่องและวันเช่าอีกครั้ง");
+      goCalcStep(1, {scrollTabs:true});
+      return;
+    }
+    await openDemoOrder();
+  }
+  async function retryQueueAndConfirm(){
+    const en = state.lang === "en";
+    const button = document.querySelector("[data-queue-retry-continue]");
+    if(button){ button.disabled = true; button.textContent = en ? "Checking…" : "กำลังเช็คคิว…"; }
+    await fetchAvailability().catch(() => {});
+    if(demoQueueCheckFailed()){
+      showQueueRetryDialog(en ? "The queue still could not be checked. Please try again in a moment." : "ยังเช็คคิวไม่สำเร็จ กรุณาลองอีกครั้งในอีกสักครู่");
+      return;
+    }
+    if(!stepReady(1)){
+      showModal(en ? "Dates no longer available" : "คิวช่วงนี้ไม่ว่างแล้ว", `<p>${esc(en ? "The queue has changed and these dates are no longer available. Please choose new dates." : "คิวมีการเปลี่ยนแปลง ช่วงวันที่เลือกไม่ว่างแล้ว กรุณาเลือกวันใหม่")}</p><div class="queue-retry-actions"><button class="btn primary" type="button" data-queue-back-to-dates>${en ? "Choose new dates" : "เลือกวันใหม่"}</button></div>`);
+      return;
+    }
+    closeModal();
+    render();
+    await openDemoOrder();
+  }
   async function openDemoOrder(){
     if(!UNIFIED_FLOW_DEMO || !stepReady(3)) return;
     showDemoBusy(state.lang === "en" ? "Preparing your rental…" : "กำลังเตรียมข้อมูลการเช่า…");
@@ -6951,6 +7106,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       render();
       scrollToDemoOrderTop();
     }catch(error){
+      if(String(error?.message || "") === "booking_availability_refresh_failed"){ showQueueRetryDialog(); return; }
       showBookingActionError(error);
     }finally{
       hideDemoBusy();
@@ -9495,8 +9651,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         renderStepActions();
         return;
       }
-      if(UNIFIED_FLOW_DEMO && ["demoRefundName","demoWiseEmail"].includes(event.target.id)){
-        demoProfile[event.target.id === "demoRefundName" ? "refundAccountName" : "wiseEmail"] = event.target.value;
+      if(UNIFIED_FLOW_DEMO && event.target.dataset?.wiseField){
+        demoAgreement.wise[event.target.dataset.wiseField] = event.target.value;
+        clearDemoFieldError(event.target.id);
+        renderStepActions();
+        return;
+      }
+      if(UNIFIED_FLOW_DEMO && ["demoRefundName"].includes(event.target.id)){
+        demoProfile.refundAccountName = event.target.value;
         clearDemoFieldError(event.target.id);
         saveDemoProfile();
         renderStepActions();
@@ -9546,6 +9708,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       }
       if(event.target.id === "demoRefundBank"){ demoProfile.refundBankId = event.target.value; clearDemoFieldError("demoRefundBank"); saveDemoProfile(); renderStepActions(); }
       if(event.target.id === "demoNoThaiBank"){ demoProfile.noThaiBankAccount = event.target.checked; saveDemoProfile(); renderDemoAgreementCard(); renderStepActions(); }
+      if(event.target.name === "demoWisePayout"){ demoAgreement.wise.payout = event.target.value; renderDemoAgreementCard(); renderStepActions(); }
+      if(event.target.dataset?.wiseField === "wiseCurrency"){ demoAgreement.wise.wiseCurrency = event.target.value; clearDemoFieldError(event.target.id); renderStepActions(); }
       if(event.target.id === "demoAgreementConsent"){ demoProfile.agreementConsent = event.target.checked; clearDemoFieldError("demoAgreementConsent"); renderStepActions(); }
       if(event.target.id === "demoIdentitySkip"){
         demoProfile.identitySkipped = event.target.checked;
@@ -9651,13 +9815,15 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(exampleTrigger){ showDemoIdentityExample(exampleTrigger.dataset.identityExample); return; }
       if(targetId === "demoConfirmOrder"){
         if(!showDemoStep3Problems()) return;
-        await openDemoOrder();
+        await confirmDemoOrder();
         return;
       }
+      if(event.target.closest("[data-queue-retry-continue]")){ await retryQueueAndConfirm(); return; }
+      if(event.target.closest("[data-queue-back-to-dates]")){ closeModal(); goCalcStep(1, {scrollTabs:true}); return; }
       if(targetId === "demoSignatureClear"){ clearDemoSignature(); return; }
       if(targetId === "demoConfirmFromDetails"){
         if(!showDemoStep2Problems()) return;
-        await openDemoOrder();
+        await confirmDemoOrder();
         return;
       }
       const demoEdit = event.target.closest("[data-demo-edit]");
