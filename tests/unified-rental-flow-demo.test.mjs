@@ -446,6 +446,13 @@ test('payment groups have large headings with the arrow on the left', () => {
   assert.match(html, /\.payment-recommended\{[^}]*font-size:13\.5px/);
 });
 
+test('the demo pay button is large, green, and carries a lock icon', () => {
+  assert.match(html, /<button class="btn primary demo-pay-btn" id="demoBeamPay" type="button"><svg viewBox="0 0 24 24" aria-hidden="true">/);
+  assert.match(html, /body\.unified-flow-demo \.demo-pay-btn\{width:100%;min-height:60px;[^}]*font-size:20px;font-weight:900/);
+  // Green, so it never matches the red open payment group above it.
+  assert.match(html, /\.demo-pay-btn\{[^}]*background:linear-gradient\(180deg,#1fa34a,#0f7a34\)/);
+});
+
 test('a LINE-verified returning renter sees their saved details as one summary with Edit', () => {
   assert.match(html, /function demoContactCollapsed\(\)\{\n    return UNIFIED_FLOW_DEMO && demoContactFromLine && !demoContactEditing && demoContactComplete\(\);/);
   assert.match(html, /ข้อมูลจากการเช่าครั้งก่อน/);

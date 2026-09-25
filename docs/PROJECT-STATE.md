@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-09-26 — Green pay button on the demo order page
+
+- The demo order page's pay button (`#demoBeamPay`, `?flowDemo=1`) was the same red as the open payment group above it. It is now green, full width, 60px tall with 20px bold text, a shadow and a lock icon. The payment groups keep their red style; the owner asked for them unchanged.
+- Verification: website inline JavaScript syntax check and all test files pass (`unified-rental-flow-demo` 63/63); checked visually at 390px.
+
 ## 2026-09-13 — Rental-window game picker links and no-contract acceptance
 
 - The post-contract game-picker button now opens the same token-backed picker path as booking Flex cards. Fresh tokens restore the saved list and expose both rental dates, so games becoming playable on the start date or during the rental are selectable and retain their bilingual playable-date suffix.

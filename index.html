@@ -891,6 +891,13 @@ body.unified-flow-demo .demo-order-row b.demo-status.pending{color:#b54708}
 body.unified-flow-demo .demo-order-row b.demo-status.is-awaiting{display:inline-block;padding:3px 10px;border-radius:999px;background:#fff4e5;color:#b54708;border:1px solid #f7c98b}
 body.unified-flow-demo .demo-status.ok{color:#137333}
 body.unified-flow-demo .demo-payment-launch{display:grid;gap:10px;margin-top:12px}
+/* The one button on the page that takes money. Green, bigger than the rest,
+   with a lift and a lock icon, so it never looks like the red payment group
+   above it and reads as "pay", not another choice. */
+body.unified-flow-demo .demo-pay-btn{width:100%;min-height:60px;margin-top:6px;gap:10px;border:0;border-radius:14px;background:linear-gradient(180deg,#1fa34a,#0f7a34);color:#fff;font-size:20px;font-weight:900;letter-spacing:.2px;box-shadow:0 8px 20px rgba(15,122,52,.32),inset 0 1px 0 rgba(255,255,255,.22)}
+body.unified-flow-demo .demo-pay-btn:hover,body.unified-flow-demo .demo-pay-btn:focus-visible{background:linear-gradient(180deg,#24b553,#118a3b);color:#fff;transform:translateY(-1px);box-shadow:0 10px 24px rgba(15,122,52,.38),inset 0 1px 0 rgba(255,255,255,.22)}
+body.unified-flow-demo .demo-pay-btn:active{transform:translateY(1px);box-shadow:0 4px 10px rgba(15,122,52,.3)}
+body.unified-flow-demo .demo-pay-btn svg{width:22px;height:22px;flex:0 0 auto}
 body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
   .site-copyright{font-size:12px}
   .site-socials{display:flex;align-items:center;gap:8px}
@@ -4577,7 +4584,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <div>
         <section class="demo-order-section"><h3>${en ? "Identity verification" : "การยืนยันตัวตน"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Status":"สถานะ"}</span><b class="demo-status ${identityTone}">${esc(identityState)}</b></div>${verifyNow?`<div class="demo-order-action"><button class="btn" id="demoVerifyLater" type="button">${en?"Verify now":"ยืนยันตอนนี้"}</button></div>`:""}</div></section>
         <section class="demo-order-section"><h3>${en ? "Payment" : "การชำระเงิน"}</h3>${demoPaymentBreakdownHtml(summary)}</section>
-        <section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${demoPaymentOptionsHtml()}<div class="demo-payment-launch"><button class="btn primary" id="demoBeamPay" type="button">${en?"Pay now":"ชำระเงิน"}</button>${UNIFIED_FLOW_TEST_CHARGE ? `<p class="hint">${en?"This demo charges ฿1. The payment is still recorded against this Rental ID and follows the existing webhook flow.":"หน้าทดสอบเรียกเก็บ 1 บาท และยังบันทึกผลกับ Rental ID นี้ผ่าน webhook เดิม"}</p>` : ""}</div></section>
+        <section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${demoPaymentOptionsHtml()}<div class="demo-payment-launch"><button class="btn primary demo-pay-btn" id="demoBeamPay" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${en?"Pay now":"ชำระเงิน"}</span></button>${UNIFIED_FLOW_TEST_CHARGE ? `<p class="hint">${en?"This demo charges ฿1. The payment is still recorded against this Rental ID and follows the existing webhook flow.":"หน้าทดสอบเรียกเก็บ 1 บาท และยังบันทึกผลกับ Rental ID นี้ผ่าน webhook เดิม"}</p>` : ""}</div></section>
         <p class="hint">${en?"After the payment is confirmed, the success page shows LINE and WhatsApp notification actions. The old booking-message Flex is not sent; Delivery App payment Flex remains unchanged.":"หลังยืนยันยอดชำระ หน้าชำระเงินสำเร็จจะแสดงปุ่มแจ้ง LINE โดยไม่ส่ง Flex ข้อความจองเช่าเดิม และ Flex การชำระเงินของ Delivery App ยังคงเดิม"}</p>
       </div>
     </div>`;
