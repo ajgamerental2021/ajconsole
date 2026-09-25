@@ -1,10 +1,9 @@
 # Project state
 
-## 2026-09-26 — Pay button stands apart from the selected payment group
+## 2026-09-26 — Green pay button on the demo order page
 
-- The open payment group is no longer filled red. It now has a 2px red outline and a light red header with dark red text, so it reads as a selected card and cannot be confused with the pay button. This picker style is shared with the live booking flow.
-- The demo order page's pay button (`#demoBeamPay`, `?flowDemo=1`) is full width, 60px tall with 20px bold text, a deeper red gradient with a shadow, and a lock icon.
-- Verification: website inline JavaScript syntax check and all test files pass (`unified-rental-flow-demo` now 63/63, test updated for the new header style); checked visually at 390px.
+- The demo order page's pay button (`#demoBeamPay`, `?flowDemo=1`) was the same red as the open payment group above it. It is now green, full width, 60px tall with 20px bold text, a shadow and a lock icon. The payment groups keep their red style; the owner asked for them unchanged.
+- Verification: website inline JavaScript syntax check and all test files pass (`unified-rental-flow-demo` 63/63); checked visually at 390px.
 
 ## 2026-09-13 — Rental-window game picker links and no-contract acceptance
 

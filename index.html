@@ -193,12 +193,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-group.is-collapsed .payment-group-body{display:none}
 .payment-group.is-collapsed .payment-group-title{border-bottom:0}
 .payment-group-title{width:100%;border:0;text-align:left;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;background:#eef2f7;border-bottom:1px solid var(--border);font-size:15.5px;font-weight:900;color:#101828;line-height:1.35}
-/* Open group: red outline and a light red header, like a selected card. It is
-   never filled red, so it cannot be mistaken for the solid red pay button below.
-   Closed: plain white with a grey arrow that turns red on hover. */
-.payment-group:not(.is-collapsed){border:2px solid #c90012}
-.payment-group:not(.is-collapsed) .payment-group-title{background:#fff1f1;color:#8b0000;border-bottom-color:#f4c2c2}
-.payment-group:not(.is-collapsed) .payment-group-caret{background:#fff;border-color:#c90012;color:#c90012}
+/* Open group: solid red header, white text and arrow badge. Closed: plain
+   white with a grey arrow that turns red on hover, so the two never look alike. */
+.payment-group:not(.is-collapsed) .payment-group-title{background:#c90012;color:#fff;border-bottom-color:#a3000f}
+.payment-group:not(.is-collapsed) .payment-group-caret{background:#fff;border-color:#fff;color:#c90012}
 .payment-group:not(.is-collapsed) .payment-recommended{background:#ffd84d;color:#6b4200}
 .payment-group.is-collapsed .payment-group-title{background:#fff;color:#344054}
 .payment-group.is-collapsed .payment-group-title:hover{background:#fff1f1;color:#c90012}
@@ -893,11 +891,12 @@ body.unified-flow-demo .demo-order-row b.demo-status.pending{color:#b54708}
 body.unified-flow-demo .demo-order-row b.demo-status.is-awaiting{display:inline-block;padding:3px 10px;border-radius:999px;background:#fff4e5;color:#b54708;border:1px solid #f7c98b}
 body.unified-flow-demo .demo-status.ok{color:#137333}
 body.unified-flow-demo .demo-payment-launch{display:grid;gap:10px;margin-top:12px}
-/* The one button on the page that takes money: bigger than the rest, deeper
-   red with a lift, and a lock icon so it reads as "pay", not another choice. */
-body.unified-flow-demo .demo-pay-btn{width:100%;min-height:60px;margin-top:6px;gap:10px;border:0;border-radius:14px;background:linear-gradient(180deg,#e0001a,#a8000f);color:#fff;font-size:20px;font-weight:900;letter-spacing:.2px;box-shadow:0 8px 20px rgba(168,0,15,.32),inset 0 1px 0 rgba(255,255,255,.22)}
-body.unified-flow-demo .demo-pay-btn:hover,body.unified-flow-demo .demo-pay-btn:focus-visible{background:linear-gradient(180deg,#f0001c,#b80011);color:#fff;transform:translateY(-1px);box-shadow:0 10px 24px rgba(168,0,15,.38),inset 0 1px 0 rgba(255,255,255,.22)}
-body.unified-flow-demo .demo-pay-btn:active{transform:translateY(1px);box-shadow:0 4px 10px rgba(168,0,15,.3)}
+/* The one button on the page that takes money. Green, bigger than the rest,
+   with a lift and a lock icon, so it never looks like the red payment group
+   above it and reads as "pay", not another choice. */
+body.unified-flow-demo .demo-pay-btn{width:100%;min-height:60px;margin-top:6px;gap:10px;border:0;border-radius:14px;background:linear-gradient(180deg,#1fa34a,#0f7a34);color:#fff;font-size:20px;font-weight:900;letter-spacing:.2px;box-shadow:0 8px 20px rgba(15,122,52,.32),inset 0 1px 0 rgba(255,255,255,.22)}
+body.unified-flow-demo .demo-pay-btn:hover,body.unified-flow-demo .demo-pay-btn:focus-visible{background:linear-gradient(180deg,#24b553,#118a3b);color:#fff;transform:translateY(-1px);box-shadow:0 10px 24px rgba(15,122,52,.38),inset 0 1px 0 rgba(255,255,255,.22)}
+body.unified-flow-demo .demo-pay-btn:active{transform:translateY(1px);box-shadow:0 4px 10px rgba(15,122,52,.3)}
 body.unified-flow-demo .demo-pay-btn svg{width:22px;height:22px;flex:0 0 auto}
 body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
   .site-copyright{font-size:12px}
