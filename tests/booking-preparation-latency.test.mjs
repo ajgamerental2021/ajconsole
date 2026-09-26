@@ -14,7 +14,7 @@ function fn(name){
 }
 test('a stalled optional message PATCH does not lose a usable context token', async()=>{
   const calls=[];
-  const context=vm.createContext({URL,console,
+  const context=vm.createContext({URL,console,state:{calc:{demoContextToken:''}},
     CONFIG:{contractWebUrl:'https://bot.example/liff/',contractUrl:'https://liff.line.me/example'},
     bookingStructured:()=>({lang:'EN'}),rentalContractLink:()=> 'https://bot.example/fallback',bookingMessage:()=> 'booking',
     bookingFetch:async(url,options)=>{

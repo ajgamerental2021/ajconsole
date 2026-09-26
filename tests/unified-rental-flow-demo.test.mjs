@@ -19,7 +19,8 @@ test('demo reuses live game and adds customer, identity and payment stages', () 
   assert.match(html, /demoCustomerName/);
   assert.match(html, /demoCustomerPhone/);
   assert.match(html, /demoIdentityNumber/);
-  assert.match(html, /demoSelfieWithId/);
+  assert.match(html, /id="\$\{prefix\}SelfieWithId" data-identity-file="selfie"/);
+  assert.match(html, /\$\{demoIdentityUploadGridHtml\("demo"\)\}/);
   assert.match(html, /demoTermsOpt/);
   assert.match(html, /beamPaymentApiDemo/);
 });
@@ -70,7 +71,7 @@ test('no-contract choice sits with the identity-number fields', () => {
 test('document type is chosen separately from the page language', () => {
   assert.match(html, /name="demoIdentityType" value="passport"/);
   assert.match(html, /return demoProfile\.identityType \|\| \(state\.lang === "en" \? "passport" : "thai_id"\)/);
-  assert.match(html, /demoIdentityType\(\) === "passport" \? \/\^\[A-Z0-9\]\{6,20\}\$\/i\.test\(identity\) : thaiIdValid\(identity\)/);
+  assert.match(html, /demoIdentityType\(\) === "passport" \? \/\^\[A-Z0-9\]\{6,10\}\$\/i\.test\(identity\) : thaiIdValid\(identity\)/);
   assert.match(html, /identityType: UNIFIED_FLOW_DEMO && !state\.calc\.noContract \? demoIdentityType\(\) : ""/);
 });
 
@@ -91,7 +92,7 @@ test('Rental Terms are embedded and acceptance is recorded', () => {
 });
 
 test('identity uploads offer a camera and an example photo', () => {
-  assert.match(html, /data-open-camera="demoIdDocumentCamera"/);
+  assert.match(html, /data-open-camera="\$\{prefix\}IdDocumentCamera"/);
   assert.match(html, /data-identity-example="selfie"/);
   assert.match(html, /capture="user"/);
   assert.match(html, /function showDemoIdentityExample\(kind\)/);
@@ -469,7 +470,10 @@ test('a LINE-verified returning renter sees their saved details as one summary w
 });
 
 test('the header menu opens rental prices, the game list and the rental steps like their links do', () => {
-  assert.match(html, /\["prices", en \? "Rental prices" : "ราคาเช่า"\], \["games", en \? "Game list" : "รายการเกม"\], \["steps", en \? "How to rent" : "ขั้นตอนการเช่า"\]/);
+  assert.match(html, /\["prices", "tag", en \? "Rental prices" : "ราคาเช่า"\], \["games", "gamepad", en \? "Game list" : "รายการเกม"\], \["steps", "steps", en \? "How to rent" : "ขั้นตอนการเช่า"\], \["myRental", "receipt", en \? "Check my rental" : "เช็ครายการเช่า"\]/);
+  // Line icons drawn like the site's other icons, not emoji.
+  assert.match(html, /\$\{icon\(iconName, "site-menu-ico"\)\}<span>\$\{esc\(label\)\}<\/span>/);
+  assert.match(html, /const infoIcons = \{about:"info", privacy:"shield", terms:"doc"\};/);
   assert.match(html, /if\(action === "prices"\) showAllConsoles\(\);/);
   assert.match(html, /if\(action === "games"\) openGamePicker\(\{browseOnly:true, consoleId:String\(SPEC\.PS5\)\}\);/);
   assert.match(html, /if\(action === "steps"\) openStepsPopup\(\);/);
@@ -539,19 +543,51 @@ test('the ID card or passport must expire after the return date, or the renter c
   assert.ok(html.indexOf('need("demoIdentityExpiry"') < html.indexOf('if(!demoProfile.noThaiAddress){\n      need("demoAddressLine"'));
 });
 
-test('a renter checks a rental with its Rental ID and phone number, from the menu, the email link and after paying', () => {
-  assert.match(html, /\["myRental", en \? "Check my rental" : "เช็ครายการเช่า"\]/);
-  assert.match(html, /if\(action === "myRental"\) openMyRentalLookup\(/);
+test('a renter checks a rental without an account: this device, the email link, Rental ID or email plus phone', () => {
+  assert.match(html, /if\(action === "myRental"\) openMyRentalLookup\(\{code:menuAction\.dataset\.myRentalOpen \|\| ""\}\);/);
   assert.match(html, /fetch\(`\$\{CONFIG\.apiBase\}\/api\/rentals\/lookup`/);
-  assert.match(html, /if\(pageParams\.has\("myRental"\)\) setTimeout\(\(\) => openMyRentalLookup\(/);
-  // The paid pop-up shows the rental itself and says where to find it again.
-  const notice = html.slice(html.indexOf('function showPaidRentalNotice('), html.indexOf('async function launchDemoBeamPayment'));
-  assert.match(notice, /lookupMyRental\(code, phone\)\.then\(rental => show\(myRentalDetailsHtml\(rental\)\)\)/);
-  assert.match(notice, /myRentalRevisitHint\(\)/);
+  // A rental made on this device opens with one tap, through its private token.
+  assert.match(html, /if\(token\)\{ void runMyRentalLookup\(\{rentalCode:code, viewToken:token\}\); return; \}/);
+  assert.match(html, /if\(result\.viewToken\) rememberRental\(code, result\.viewToken\);/);
+  // An email address instead of the Rental ID.
+  assert.match(html, /const query = identifier\.includes\("@"\)\n      \? \{email:identifier, phone:myRentalView\.phone\}/);
+  // The email link's token opens the rental and is removed from the address bar.
+  assert.match(html, /url\.searchParams\.delete\("t"\)/);
+  // Language button and a copy-link button, in both languages.
+  assert.match(html, /showModal\(state\.lang === "en" \? "Check my rental" : "เช็ครายการเช่า", myRentalModalBody\(\), \{relocalize:renderMyRentalModal\}\);/);
+  assert.match(html, /if\(targetId === "myRentalCopyUrl"\)\{ void copySectionUrl\("myRental"\); return; \}/);
+  assert.match(html, /en \? "Copy link to this page" : "คัดลอกลิงก์หน้านี้"/);
+  // The paid pop-up shows the rental and can switch language.
+  assert.match(html, /showModal\(state\.lang === "en" \? "Rental confirmed" : "การเช่าสำเร็จ", paidRentalNoticeHtml\(\), \{relocalize:renderPaidRentalNotice\}\);/);
+  assert.match(html, /: "ดูรายการนี้ได้ตลอด ที่ เมนู → เช็ครายการเช่า";/);
+  assert.doesNotMatch(html, /ดูรายการนี้ได้อีกตลอด/);
   for (const label of ['"Equipment" : "เครื่องที่เช่า"', '"Start date" : "วันที่เริ่มเช่า"', '"Return date" : "วันที่คืนเครื่อง"', '"Rental days" : "จำนวนวันเช่า"', '"Rental fee" : "ค่าเช่า"', '"Security deposit" : "ค่าประกัน"', '"Customer name" : "ชื่อลูกค้า"', '"Phone" : "เบอร์โทร"', '"Verify my identity now" : "ยืนยันตัวตนตอนนี้"']) {
     assert.ok(html.includes(label), label);
   }
-  assert.match(html, /rememberRental\(code\);\n      state\.calc\.maps = demoProfile\.maps;/);
+});
+
+test('pop-ups that can switch language share one language button', () => {
+  assert.match(html, /function showModal\(title, bodyHtml, \{relocalize = null\} = \{\}\)\{/);
+  assert.match(html, /byId\("faqLangBtn"\)\.addEventListener\("click", toggleSimpleModalLang\);/);
+  assert.match(html, /showModal\("FAQ", faqModalBody\(\), \{relocalize:draw\}\);/);
+  // The returning-customer check has its own language button and wording.
+  assert.match(html, /id="returningVerifyLang"/);
+  assert.match(html, /returningVerifyNoIdentity:"ไม่เคยทำสัญญาการเช่า"/);
+  assert.match(html, /returningVerifyNoIdentity:"I have never signed a rental agreement"/);
+});
+
+test('Verify now opens the identity photos in a pop-up, not step 3', () => {
+  assert.match(html, /if\(targetId === "demoVerifyLater"\)\{ openVerifyNowModal\(\); return; \}/);
+  assert.match(html, /\$\{demoIdentityUploadGridHtml\("verifyNow"\)\}/);
+  assert.match(html, /await uploadDemoIdentity\(token\);/);
+});
+
+test('the Rental ID stays the same when only the payment choice or delivery quote changes', () => {
+  const signature = html.slice(html.indexOf('function rentalSignature('), html.indexOf('function demoAgreementSignature('));
+  assert.doesNotMatch(signature, /state\.calc\.payment|summary\.total/);
+  assert.match(html, /if\(localStorage\.getItem\(`aj_rental_sheet_submitted_\$\{code\}`\) === contentKey\) return true;/);
+  assert.match(html, /if\(demoAgreementNeeded\(\) && state\.calc\.demoAgreementFor !== code\)\{/);
+  assert.match(html, /previousContextToken:String\(state\.calc\.demoContextToken \|\| ""\)/);
 });
 
 test('the example photos fit the screen', () => {
