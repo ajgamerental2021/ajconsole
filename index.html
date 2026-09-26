@@ -254,6 +254,18 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .demo-line-summary-row b{text-align:right}
 .demo-profile-grid.contact-collapsed .field:has(#demoCustomerName),.demo-profile-grid.contact-collapsed .field:has(#demoCustomerPhone),.demo-profile-grid.contact-collapsed .field:has(#demoEmail),.demo-profile-grid.contact-collapsed .field:has(#demoAddressLine),.demo-profile-grid.contact-collapsed .field:has(#demoPostalCode),.demo-profile-grid.contact-collapsed .field:has(#demoSubdistrict),.demo-profile-grid.contact-collapsed .field:has(#demoDistrict),.demo-profile-grid.contact-collapsed .field:has(#demoProvince),.demo-profile-grid.contact-collapsed .field:has(#demoMaps),.demo-profile-grid.contact-collapsed .field:has(#demoNoThaiAddress),.demo-profile-grid.contact-collapsed #demoAddressNote{display:none}
 .paid-notice p{margin:0 0 8px;line-height:1.6}
+.my-rental{margin-top:10px;border:1px solid #eef0f3;border-radius:14px;padding:4px 16px}
+.my-rental-row{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:10px 0;border-bottom:1px solid #eef0f3}
+.my-rental-row:last-child{border-bottom:0}
+.my-rental-row span{color:#667085}
+.my-rental .my-rental-row b{text-align:right;color:#101828;font-size:15px}
+.my-rental .my-rental-row b.is-ok{color:#137333}
+.my-rental .my-rental-row b.is-missing{color:#c00000}
+.my-rental-verify{display:flex;justify-content:center;margin:6px 0 12px}
+.my-rental-form{display:grid;gap:12px}
+.my-rental-form .field{display:grid;gap:6px}
+.my-rental-recent{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.my-rental-recent span{color:#667085;font-size:14px;width:100%}
 .paid-notice b{color:#05603a;font-size:17px}
 body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size:12px;font-weight:700}
 .demo-refund-policy{margin:8px 0 14px;padding:12px 14px;border:1px solid #b7e3c4;border-radius:12px;background:#eefaf2;color:#1d4d2b;font-size:14px}
@@ -843,7 +855,7 @@ body.unified-flow-demo .demo-upload-file{color:#137333;font-weight:800;min-heigh
 body.unified-flow-demo .demo-upload-actions{display:flex;flex-wrap:wrap;gap:10px}
 body.unified-flow-demo .demo-upload-btn{flex:1 1 150px;padding:11px 14px;font-weight:800}
 body.unified-flow-demo .demo-camera-input{display:none}
-body.unified-flow-demo .demo-example-image{width:100%;height:auto;border-radius:12px;margin-top:10px}
+body.unified-flow-demo .demo-example-image{display:block;max-width:100%;width:auto;height:auto;max-height:calc(100dvh - 190px);object-fit:contain;margin:10px auto 0;border-radius:12px}
 body.unified-flow-demo .demo-order-page{display:none;margin-top:18px}
 body.unified-flow-demo.demo-order-open .calc-shell{display:none}
 body.unified-flow-demo.demo-order-open .demo-order-page{display:block}
@@ -4657,9 +4669,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       : state.calc.noContract
       ? (en ? "Not provided — higher deposit applies" : "ไม่ยืนยันตัวตน — ใช้ค่าประกันสูงขึ้น")
       : demoProfile.identityUploaded
-      ? (en ? "Images received — awaiting AJ review" : "ส่งรูปแล้ว — รอร้านตรวจสอบ")
+      ? (en ? "Identity verification complete" : "ยืนยันตัวตนเรียบร้อยแล้ว")
       : (en ? "Incomplete — verify later" : "ยังไม่สำเร็จ — ยืนยันภายหลัง");
-    const identityTone = demoIdentityCoveredByAgreement() ? "ok" : demoProfile.identityUploaded ? "pending" : "is-missing";
+    const identityTone = demoIdentityCoveredByAgreement() || demoProfile.identityUploaded ? "ok" : "is-missing";
     const verifyNow = !demoProfile.identityUploaded && !state.calc.noContract && !demoIdentityCoveredByAgreement();
     host.innerHTML = `<div class="demo-order-grid">
       <div>
@@ -7242,6 +7254,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     try{
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
+      rememberRental(code);
       state.calc.maps = demoProfile.maps;
       const handoff = await prepareContractHandoff(code, "web");
       if(handoff.contextToken) state.calc.demoContextToken = handoff.contextToken;
@@ -7254,20 +7267,22 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
             .catch(retryError => console.error("Rental sheet append failed twice", retryError));
         });
       void sheetWrite;
-      if(!state.calc.noContract && !demoProfile.identitySkipped && !demoProfile.identityUploaded && demoProfile.idDocument && demoProfile.selfieWithId){
-        try{
-          if(!handoff.contextToken) throw new Error("identity_context_unavailable");
-          await uploadDemoIdentity(handoff.contextToken);
-        }catch(error){
-          console.error("Identity upload failed", error);
-          toast(state.lang === "en" ? "The identity images could not be sent. Please try again, or choose Verify later." : "ส่งรูปยืนยันตัวตนไม่สำเร็จ กรุณาลองใหม่ หรือเลือกยืนยันตัวตนภายหลัง");
-          return;
-        }
+      // The identity images and the signed agreement are sent at the same time.
+      const sendsIdentity = !state.calc.noContract && !demoProfile.identitySkipped && !demoProfile.identityUploaded && !!demoProfile.idDocument && !!demoProfile.selfieWithId;
+      if(sendsIdentity) showDemoBusy(state.lang === "en" ? "Sending your identity photos and agreement…" : "กำลังส่งรูปยืนยันตัวตนและสัญญา…");
+      const [identitySent, agreementSaved] = await Promise.allSettled([
+        sendsIdentity
+          ? (handoff.contextToken ? uploadDemoIdentity(handoff.contextToken) : Promise.reject(new Error("identity_context_unavailable")))
+          : Promise.resolve(),
+        submitDemoAgreement(handoff.contextToken)
+      ]);
+      if(identitySent.status === "rejected"){
+        console.error("Identity upload failed", identitySent.reason);
+        toast(state.lang === "en" ? "The identity images could not be sent. Please try again, or choose Verify later." : "ส่งรูปยืนยันตัวตนไม่สำเร็จ กรุณาลองใหม่ หรือเลือกยืนยันตัวตนภายหลัง");
+        return;
       }
-      try{
-        await submitDemoAgreement(handoff.contextToken);
-      }catch(error){
-        console.error("Agreement could not be made", error);
+      if(agreementSaved.status === "rejected"){
+        console.error("Agreement could not be made", agreementSaved.reason);
         toast(state.lang === "en"
           ? "The agreement could not be saved. Check the refund account and signature, then try again."
           : "บันทึกสัญญาไม่สำเร็จ กรุณาตรวจบัญชีรับเงินคืนและลายเซ็น แล้วลองใหม่");
@@ -7304,8 +7319,122 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }catch{}
     return notice;
   }
+  // A renter checks a rental at any time with its Rental ID and the phone
+  // number they booked with: from the menu, from the link in the confirmation
+  // email and right after paying. No account is needed; this device also
+  // remembers the Rental IDs it made, so they are one tap away.
+  const MY_RENTALS_KEY = "aj_my_rentals";
+  const RENTAL_CODE_PATTERN = /^AJ-[A-Z0-9-]{6,40}$/;
+  function rememberedRentals(){
+    try{
+      const list = JSON.parse(localStorage.getItem(MY_RENTALS_KEY) || "[]");
+      return Array.isArray(list) ? list.map(String).filter(code => RENTAL_CODE_PATTERN.test(code)).slice(0, 10) : [];
+    }catch{ return []; }
+  }
+  function rememberRental(code){
+    const value = String(code || "").trim().toUpperCase();
+    if(!RENTAL_CODE_PATTERN.test(value)) return;
+    try{ localStorage.setItem(MY_RENTALS_KEY, JSON.stringify([value, ...rememberedRentals().filter(item => item !== value)].slice(0, 10))); }catch{}
+  }
+  async function lookupMyRental(code, phone){
+    const response = await fetch(`${CONFIG.apiBase}/api/rentals/lookup`, {
+      method:"POST",
+      cache:"no-store",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({rentalCode:String(code || "").trim().toUpperCase(), phone:String(phone || "").trim()})
+    });
+    const result = await response.json().catch(() => ({}));
+    if(response.ok && result?.rental) return result.rental;
+    throw new Error(response.status === 404 ? "not_found" : response.status === 429 ? "too_many" : response.status === 400 ? "incomplete" : "unavailable");
+  }
+  function myRentalErrorText(error){
+    const en = state.lang === "en";
+    const reason = String(error?.message || "");
+    if(reason === "not_found") return en ? "No rental matches this Rental ID and phone number. Please check both." : "ไม่พบรายการที่ตรงกับรหัสการเช่าและเบอร์โทรนี้ กรุณาตรวจสอบอีกครั้ง";
+    if(reason === "too_many") return en ? "Too many tries. Please wait 15 minutes, or contact AJ on LINE." : "ลองหลายครั้งเกินไป กรุณารอ 15 นาที หรือติดต่อร้านทาง LINE";
+    if(reason === "incomplete") return en ? "Enter the Rental ID and the phone number you booked with." : "กรอกรหัสการเช่าและเบอร์โทรที่ใช้จอง";
+    return en ? "The rental could not be loaded right now. Please try again." : "ตอนนี้โหลดรายการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+  }
+  function myRentalDetailsHtml(rental){
+    const en = state.lang === "en";
+    const row = (label, value, cls = "") => value ? `<div class="my-rental-row"><span>${esc(label)}</span><b${cls ? ` class="${cls}"` : ""}>${esc(value)}</b></div>` : "";
+    const identity = rental.identity === "complete"
+      ? {cls:"is-ok", text:en ? "Identity verification complete" : "ยืนยันตัวตนเรียบร้อยแล้ว"}
+      : rental.identity === "not_required"
+      ? {cls:"is-ok", text:en ? "Not required (higher deposit)" : "ไม่ต้องยืนยันตัวตน (ค่าประกันสูงขึ้น)"}
+      : {cls:"is-missing", text:en ? "Not verified yet" : "ยังไม่ได้ยืนยันตัวตน"};
+    const payment = rental.paid
+      ? `${en ? "Paid" : "ชำระแล้ว"}${rental.paidAmount ? ` ${rental.paidAmount}` : ""}`
+      : (en ? "Awaiting payment" : "รอชำระเงิน");
+    const verifyUrl = /^https:\/\//.test(String(rental.verifyUrl || "")) ? rental.verifyUrl : "";
+    return `<div class="my-rental">
+      ${row(en ? "Rental ID" : "รหัสการเช่า", rental.rentalCode)}
+      ${row(en ? "Payment" : "การชำระเงิน", payment, rental.paid ? "is-ok" : "is-missing")}
+      ${row(en ? "Equipment" : "เครื่องที่เช่า", rental.deviceName)}
+      ${row(en ? "Start date" : "วันที่เริ่มเช่า", rental.startDate)}
+      ${row(en ? "Return date" : "วันที่คืนเครื่อง", rental.endDate)}
+      ${row(en ? "Rental days" : "จำนวนวันเช่า", rental.days ? `${rental.days} ${en ? "days" : "วัน"}` : "")}
+      ${row(en ? "Rental fee" : "ค่าเช่า", rental.rentalFee)}
+      ${row(en ? "Security deposit" : "ค่าประกัน", rental.securityDeposit)}
+      ${row(en ? "Balance on delivery" : "ยอดคงเหลือชำระตอนรับเครื่อง", rental.paid ? rental.onDelivery : "")}
+      ${row(en ? "Customer name" : "ชื่อลูกค้า", rental.customerName)}
+      ${row(en ? "Phone" : "เบอร์โทร", rental.phone)}
+      ${row(en ? "Identity verification" : "การยืนยันตัวตน", identity.text, identity.cls)}
+      ${verifyUrl ? `<div class="my-rental-verify"><a class="btn primary" href="${esc(verifyUrl)}" target="_blank" rel="noopener">${en ? "Verify my identity now" : "ยืนยันตัวตนตอนนี้"}</a></div>` : ""}
+    </div>`;
+  }
+  function myRentalRevisitHint(){
+    return state.lang === "en"
+      ? "You can check this rental again at any time: Menu → Check my rental, with your Rental ID and phone number."
+      : "ดูรายการนี้ได้อีกตลอด ที่ เมนู → เช็ครายการเช่า ด้วยรหัสการเช่าและเบอร์โทร";
+  }
+  function openMyRentalLookup(code = ""){
+    const en = state.lang === "en";
+    const recent = rememberedRentals();
+    const phone = String(demoProfile?.phone || "").trim();
+    showModal(en ? "Check my rental" : "เช็ครายการเช่า", `
+      <form class="my-rental-form" id="myRentalForm" novalidate>
+        <p class="hint">${esc(en ? "Enter your Rental ID and the phone number you booked with. No account is needed." : "กรอกรหัสการเช่าและเบอร์โทรที่ใช้จอง ไม่ต้องสมัครสมาชิก")}</p>
+        ${recent.length ? `<div class="my-rental-recent"><span>${esc(en ? "Rentals made on this device" : "รายการที่ทำบนเครื่องนี้")}</span>${recent.map(item => `<button class="btn" type="button" data-my-rental-code="${esc(item)}">${esc(item)}</button>`).join("")}</div>` : ""}
+        <label class="field"><span class="label">${esc(en ? "Rental ID" : "รหัสการเช่า")}</span><input class="input" id="myRentalCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="AJ-20260926-R0001" value="${esc(code)}"></label>
+        <label class="field"><span class="label">${esc(en ? "Phone number used to book" : "เบอร์โทรที่ใช้จอง")}</span><input class="input" id="myRentalPhone" type="tel" autocomplete="tel" value="${esc(phone)}"></label>
+        <button class="btn primary" type="submit" id="myRentalSubmit">${esc(en ? "Check rental" : "ตรวจสอบรายการ")}</button>
+        <p class="field-error" id="myRentalError" hidden></p>
+      </form>
+      <div id="myRentalResult"></div>`);
+    const form = byId("myRentalForm");
+    const run = async () => {
+      const error = byId("myRentalError");
+      const button = byId("myRentalSubmit");
+      error.hidden = true;
+      button.disabled = true;
+      button.textContent = en ? "Checking…" : "กำลังตรวจสอบ…";
+      try{
+        const rental = await lookupMyRental(byId("myRentalCode").value, byId("myRentalPhone").value);
+        rememberRental(rental.rentalCode);
+        byId("myRentalResult").innerHTML = myRentalDetailsHtml(rental);
+      }catch(problem){
+        byId("myRentalResult").innerHTML = "";
+        error.textContent = myRentalErrorText(problem);
+        error.hidden = false;
+      }finally{
+        button.disabled = false;
+        button.textContent = en ? "Check rental" : "ตรวจสอบรายการ";
+      }
+    };
+    form.addEventListener("submit", event => { event.preventDefault(); void run(); });
+    form.addEventListener("click", event => {
+      const pick = event.target.closest("[data-my-rental-code]");
+      if(!pick) return;
+      byId("myRentalCode").value = pick.dataset.myRentalCode;
+      if(byId("myRentalPhone").value.trim()) void run();
+      else byId("myRentalPhone").focus();
+    });
+    if(code && phone) void run();
+  }
   function showPaidRentalNotice({code, amount, balance, emailed}){
     const en = state.lang === "en";
+    rememberRental(code);
     const paid = amount ? `฿${amount.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2})}` : "";
     const hasBalance = balance && !/^฿?0(\.0+)?$/.test(balance);
     showModal(en ? "Rental confirmed" : "การเช่าสำเร็จ", `
@@ -7313,11 +7442,18 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <p><b>${esc(en ? `Rental ${code} is confirmed.` : `การเช่า ${code} สำเร็จแล้ว`)}</b></p>
         ${paid ? `<p>${esc(en ? `AJ has received ${paid}.` : `ร้านได้รับยอด ${paid} แล้ว`)}</p>` : ""}
         <p>${esc(hasBalance ? (en ? `Balance to pay on delivery: ${balance}` : `ยอดคงเหลือชำระตอนรับเครื่อง: ${balance}`) : (en ? "Nothing more to pay." : "ไม่มียอดคงเหลือ"))}</p>
+        <div id="paidRentalDetails"><p class="hint">${esc(en ? "Loading the rental details…" : "กำลังโหลดรายละเอียดการเช่า…")}</p></div>
         <p class="hint">${esc([
           emailed ? (en ? "A confirmation email with your rental agreement has been sent." : "ร้านส่งอีเมลยืนยันการเช่าพร้อมสัญญาให้แล้ว") : "",
-          en ? "AJ will contact you to arrange the delivery time." : "ร้านจะติดต่อเพื่อนัดเวลาจัดส่ง"
+          en ? "AJ will contact you to arrange the delivery time." : "ร้านจะติดต่อเพื่อนัดเวลาจัดส่ง",
+          myRentalRevisitHint()
         ].filter(Boolean).join(" "))}</p>
       </div>`);
+    const phone = String(demoProfile?.phone || "").trim();
+    const show = html => { const host = byId("paidRentalDetails"); if(host) host.innerHTML = html; };
+    const fallback = `<div class="my-rental-verify"><button class="btn" type="button" data-menu-action="myRental" data-my-rental-open="${esc(code)}">${esc(en ? "Show rental details" : "ดูรายละเอียดการเช่า")}</button></div>`;
+    if(!phone){ show(fallback); return; }
+    lookupMyRental(code, phone).then(rental => show(myRentalDetailsHtml(rental))).catch(() => show(fallback));
   }
   async function launchDemoBeamPayment(){
     showDemoBusy(state.lang === "en" ? "Opening the payment page…" : "กำลังเปิดหน้าชำระเงิน…");
@@ -7733,7 +7869,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // The header menu also opens the rental prices, the game list and the rental
     // steps, the same pop-ups the ?allConsoles=1, ?games=1 and ?steps=1 links open.
     const en = state.lang === "en";
-    const menuActions = [["prices", en ? "Rental prices" : "ราคาเช่า"], ["games", en ? "Game list" : "รายการเกม"], ["steps", en ? "How to rent" : "ขั้นตอนการเช่า"]]
+    const menuActions = [["prices", en ? "Rental prices" : "ราคาเช่า"], ["games", en ? "Game list" : "รายการเกม"], ["steps", en ? "How to rent" : "ขั้นตอนการเช่า"], ["myRental", en ? "Check my rental" : "เช็ครายการเช่า"]]
       .map(([action, label]) => `<button class="site-info-link" type="button" role="menuitem" data-menu-action="${action}">${esc(label)}</button>`).join("");
     $$('[data-info-links]').forEach(host => {
       host.innerHTML = host.id === "siteMenuList" ? `${menuActions}<span class="site-menu-divider" role="separator"></span>${html.replaceAll('type="button"', 'type="button" role="menuitem"')}` : html;
@@ -9640,6 +9776,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         if(action === "prices") showAllConsoles();
         if(action === "games") openGamePicker({browseOnly:true, consoleId:String(SPEC.PS5)});
         if(action === "steps") openStepsPopup();
+        if(action === "myRental") openMyRentalLookup(menuAction.dataset.myRentalOpen || rememberedRentals()[0] || "");
         return;
       }
       if(event.target.closest("[data-faq-rental-terms]")){ openRentalTermsReadOnly(); return; }
@@ -10629,6 +10766,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
       setTimeout(openStepsPopup, 120);
     }
     if(new URLSearchParams(location.search).get("lineGuide") === "1") showLineBookingHelp();
+    const requestedRental = String(pageParams.get("myRental") || "").trim().toUpperCase();
+    if(pageParams.has("myRental")) setTimeout(() => openMyRentalLookup(RENTAL_CODE_PATTERN.test(requestedRental) ? requestedRental : ""), 120);
     fetchAvailability().catch(() => {});
     detectLineReturningEligibility().catch(() => {});
     gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {});

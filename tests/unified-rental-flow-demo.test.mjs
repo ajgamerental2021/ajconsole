@@ -108,7 +108,10 @@ test('identity images are uploaded to the booking context before the Rental ID p
   assert.match(html, /\/api\/booking-context\/\$\{encodeURIComponent\(contextToken\)\}\/identity/);
   const openOrder = html.slice(html.indexOf('async function openDemoOrder'), html.indexOf('async function launchDemoBeamPayment'));
   assert.ok(openOrder.indexOf('uploadDemoIdentity(') < openOrder.indexOf('state.calc.demoOrderOpen = true'));
-  assert.match(html, /Images received — awaiting AJ review/);
+  assert.match(html, /\? \(en \? "Identity verification complete" : "ยืนยันตัวตนเรียบร้อยแล้ว"\)/);
+  assert.match(html, /const identityTone = demoIdentityCoveredByAgreement\(\) \|\| demoProfile\.identityUploaded \? "ok" : "is-missing";/);
+  // Sent together with the agreement, not one after the other.
+  assert.match(openOrder, /await Promise\.allSettled\(\[\n        sendsIdentity/);
   assert.doesNotMatch(html, /are not uploaded by the demo/);
 });
 
@@ -342,7 +345,7 @@ test('a renter without a valid agreement signs one on step 3, through the contra
   assert.match(html, /\/api\/booking-context\/\$\{encodeURIComponent\(contextToken\)\}\/agreement/);
   assert.match(html, /demoAgreement\.signature = canvas\.toDataURL\("image\/png"\)/);
   assert.match(html, /if\(step === 3\) return stepReady\(2\) && \(!UNIFIED_FLOW_DEMO \|\| \(demoIdentityReady\(\) && demoAgreementReady\(\)\)\);/);
-  assert.match(html, /await submitDemoAgreement\(handoff\.contextToken\);/);
+  assert.match(html, /\n        submitDemoAgreement\(handoff\.contextToken\)\n      \]\);/);
   // The signature and account number never reach this browser's storage.
   const fields = html.match(/const DEMO_PROFILE_FIELDS = \[([^\]]+)\]/)[1];
   assert.doesNotMatch(fields, /signature|refundAccountNumber|account"/);
@@ -374,7 +377,7 @@ test('a failed queue check on confirm opens a retry dialog that carries on to pa
 
 test('status colours, the motorcycle rule and the quoted delivery on the booking', () => {
   assert.match(html, /<b class="demo-status is-awaiting">/);
-  assert.match(html, /demoProfile\.identityUploaded \? "pending" : "is-missing";/);
+  assert.match(html, /demoProfile\.identityUploaded \? "ok" : "is-missing";/);
   assert.match(html, /\/api\/booking-context\/\$\{encodeURIComponent\(state\.calc\.demoContextToken\)\}\/delivery/);
 });
 
@@ -534,4 +537,23 @@ test('the ID card or passport must expire after the return date, or the renter c
   assert.match(html, /Your Thai ID card or passport must remain valid from the start date through the return date, in every case\./);
   // Checked for every renter, including one without a Thai address.
   assert.ok(html.indexOf('need("demoIdentityExpiry"') < html.indexOf('if(!demoProfile.noThaiAddress){\n      need("demoAddressLine"'));
+});
+
+test('a renter checks a rental with its Rental ID and phone number, from the menu, the email link and after paying', () => {
+  assert.match(html, /\["myRental", en \? "Check my rental" : "เช็ครายการเช่า"\]/);
+  assert.match(html, /if\(action === "myRental"\) openMyRentalLookup\(/);
+  assert.match(html, /fetch\(`\$\{CONFIG\.apiBase\}\/api\/rentals\/lookup`/);
+  assert.match(html, /if\(pageParams\.has\("myRental"\)\) setTimeout\(\(\) => openMyRentalLookup\(/);
+  // The paid pop-up shows the rental itself and says where to find it again.
+  const notice = html.slice(html.indexOf('function showPaidRentalNotice('), html.indexOf('async function launchDemoBeamPayment'));
+  assert.match(notice, /lookupMyRental\(code, phone\)\.then\(rental => show\(myRentalDetailsHtml\(rental\)\)\)/);
+  assert.match(notice, /myRentalRevisitHint\(\)/);
+  for (const label of ['"Equipment" : "เครื่องที่เช่า"', '"Start date" : "วันที่เริ่มเช่า"', '"Return date" : "วันที่คืนเครื่อง"', '"Rental days" : "จำนวนวันเช่า"', '"Rental fee" : "ค่าเช่า"', '"Security deposit" : "ค่าประกัน"', '"Customer name" : "ชื่อลูกค้า"', '"Phone" : "เบอร์โทร"', '"Verify my identity now" : "ยืนยันตัวตนตอนนี้"']) {
+    assert.ok(html.includes(label), label);
+  }
+  assert.match(html, /rememberRental\(code\);\n      state\.calc\.maps = demoProfile\.maps;/);
+});
+
+test('the example photos fit the screen', () => {
+  assert.match(html, /\.demo-example-image\{display:block;max-width:100%;width:auto;height:auto;max-height:calc\(100dvh - 190px\);object-fit:contain/);
 });
