@@ -1374,6 +1374,25 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
     <div class="site-announcement-actions"><button class="btn primary" type="button" id="siteAnnouncementOk">รับทราบ · OK</button></div>
   </div>
 </div>
+<script>
+// The notice opens as the page is drawn, from what this browser was shown last
+// time, and the current one is asked for straight away; the main script brings
+// the pop-up up to date (or closes it) when the answer arrives.
+(() => {
+  try{
+    const saved = JSON.parse(localStorage.getItem("aj_site_announcement") || "null");
+    const host = document.getElementById("siteAnnouncement");
+    if(saved && saved.enabled === true && typeof saved.html === "string" && saved.html){
+      document.getElementById("siteAnnouncementBody").innerHTML = saved.html;
+      host.classList.add("open");
+      host.setAttribute("aria-hidden", "false");
+    }
+  }catch(error){}
+  window.__ajAnnouncementRequest = fetch(`https://aj-line-oa-bot.onrender.com/api/site-content/announcement?_ts=${Date.now()}`, {cache:"no-store"})
+    .then(response => response.ok ? response.json() : null)
+    .catch(() => null);
+})();
+</script>
 <div class="modal-overlay" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
   <div class="modal-card info-modal-card">
     <div class="modal-head"><div class="modal-title-copy"><h3 id="infoModalTitle"></h3><p id="infoModalSubtitle"></p></div><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="infoModalLang" type="button"></button><button class="xbtn" id="infoModalClose" type="button" aria-label="Close">&times;</button></div></div>
@@ -8056,14 +8075,19 @@ Once conditions improve and delivery services can operate safely again, we will 
 We apologize for the inconvenience and hope everyone stays safe.`
   };
   let siteAnnouncement = null;
+  let siteAnnouncementDismissed = false;
+  const ANNOUNCEMENT_STORAGE_KEY = "aj_site_announcement";
   function announcementContent(){
     return siteAnnouncement || DEFAULT_ANNOUNCEMENT;
   }
+  // The request the page started while it was still loading, or a new one.
   async function loadSiteAnnouncement(){
     try{
-      const response = await fetch(`${CONFIG.apiBase}/api/site-content/announcement?_ts=${Date.now()}`, {cache:"no-store"});
-      if(!response.ok) return announcementContent();
-      const result = await response.json();
+      const early = window.__ajAnnouncementRequest;
+      window.__ajAnnouncementRequest = null;
+      const result = early
+        ? await early
+        : await fetch(`${CONFIG.apiBase}/api/site-content/announcement?_ts=${Date.now()}`, {cache:"no-store"}).then(response => response.ok ? response.json() : null);
       const content = result?.content;
       if(content && typeof content === "object" && typeof content.th === "string" && typeof content.en === "string") siteAnnouncement = {enabled:content.enabled === true, th:content.th, en:content.en};
     }catch(error){
@@ -8077,11 +8101,18 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const title = lines.shift() || "";
     return `<section class="announcement-column" lang="${lang}"><h3>${richInlineHtml(title)}</h3>${richTextHtml(lines.join("\n"))}</section>`;
   }
+  function announcementHtml(content){
+    return `${announcementColumnHtml(content.th, "th")}${announcementColumnHtml(content.en, "en")}`;
+  }
   function showSiteAnnouncement(content = announcementContent(), {preview = false} = {}){
     if(!content || (!content.enabled && !preview)) return;
     const host = byId("siteAnnouncement");
-    if(!host) return;
-    byId("siteAnnouncementBody").innerHTML = `${announcementColumnHtml(content.th, "th")}${announcementColumnHtml(content.en, "en")}`;
+    const body = byId("siteAnnouncementBody");
+    if(!host || !body) return;
+    const html = announcementHtml(content);
+    const alreadyOpen = host.classList.contains("open");
+    if(body.innerHTML !== html) body.innerHTML = html;
+    if(alreadyOpen) return;
     host.classList.add("open");
     host.setAttribute("aria-hidden", "false");
     // Start at the top (the Thai notice on a phone); focus without scrolling.
@@ -8089,8 +8120,19 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(card) card.scrollTop = 0;
     window.setTimeout(() => byId("siteAnnouncementOk")?.focus({preventScroll:true}), 50);
   }
-  function closeSiteAnnouncement(){
+  // The current notice, once known: remembered so the next visit opens it
+  // while the page is still loading, and shown, updated or closed now.
+  function applySiteAnnouncement(content){
+    try{
+      localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, JSON.stringify({enabled: !!content?.enabled, html: content?.enabled ? announcementHtml(content) : ""}));
+    }catch(error){}
+    if(siteAnnouncementDismissed) return;
+    if(content?.enabled) showSiteAnnouncement(content);
+    else closeSiteAnnouncement({dismissed:false});
+  }
+  function closeSiteAnnouncement({dismissed = true} = {}){
     const host = byId("siteAnnouncement");
+    if(dismissed && host?.classList.contains("open")) siteAnnouncementDismissed = true;
     host?.classList.remove("open");
     host?.setAttribute("aria-hidden", "true");
   }
@@ -8126,6 +8168,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(response.status === 401) throw new Error("unauthorized");
       if(!response.ok) throw new Error(`HTTP ${response.status}`);
       siteAnnouncement = content;
+      applySiteAnnouncement(content);
       renderAdmin();
       toast(content.enabled ? (en ? "Announcement saved and shown" : "บันทึกและเปิดแสดงประกาศแล้ว") : (en ? "Announcement saved and hidden" : "บันทึกแล้ว ปิดการแสดงประกาศ"));
     }catch(error){
@@ -10526,7 +10569,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const paidRentalNotice = UNIFIED_FLOW_DEMO ? takePaidRentalReturn() : null;
     bindEvents();
     // Shown first on every visit, above whatever pop-up the link opens.
-    void loadSiteAnnouncement().then(content => showSiteAnnouncement(content));
+    void loadSiteAnnouncement().then(applySiteAnnouncement);
     if(paidRentalNotice) window.setTimeout(() => showPaidRentalNotice(paidRentalNotice), 300);
     bindBeforeRentSectionAnalytics();
     trackAnalytics("page_view");

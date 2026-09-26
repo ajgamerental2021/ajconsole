@@ -496,7 +496,14 @@ test('a day-range queue closure blocks deliveries and returns on those days only
 test('the site announcement shows on every visit, Thai left and English right, and is edited in Admin', () => {
   assert.match(html, /<div class="site-announcement" id="siteAnnouncement" role="alertdialog"/);
   assert.match(html, /<span class="site-announcement-icon" aria-hidden="true">⚠️<\/span>/);
-  assert.match(html, /void loadSiteAnnouncement\(\)\.then\(content => showSiteAnnouncement\(content\)\);/);
+  assert.match(html, /void loadSiteAnnouncement\(\)\.then\(applySiteAnnouncement\);/);
+  // It opens while the page loads, from this browser's last copy, and the
+  // current notice is requested before the main script runs.
+  const early = html.indexOf('window.__ajAnnouncementRequest = fetch(');
+  assert.ok(early > html.indexOf('id="siteAnnouncementOk"') && early < html.indexOf('const CONFIG'));
+  assert.match(html, /localStorage\.getItem\("aj_site_announcement"\)/);
+  assert.match(html, /localStorage\.setItem\(ANNOUNCEMENT_STORAGE_KEY, JSON\.stringify\(\{enabled: !!content\?\.enabled/);
+  assert.match(html, /if\(siteAnnouncementDismissed\) return;/);
   assert.match(html, /\$\{announcementColumnHtml\(content\.th, "th"\)\}\$\{announcementColumnHtml\(content\.en, "en"\)\}/);
   assert.match(html, /\.site-announcement\{position:fixed;inset:0;z-index:100000/);
   assert.match(html, /\/api\/admin\/site-content\/announcement/);
