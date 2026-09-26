@@ -3627,7 +3627,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     localizeDemoAddress();
     card.innerHTML = `<h3>${en ? "Customer and delivery details" : "ข้อมูลลูกค้าและที่อยู่จัดส่ง"}</h3>
       ${demoProfile.lineUserId ? `<div class="demo-contract-status">LINE: ${esc(demoProfile.lineDisplayName || (en ? "Verified account detected" : "ตรวจพบบัญชีที่ยืนยันแล้ว"))}</div>` : `<p class="hint">${en ? "Connect LINE now to securely check returning-customer details, or link it after successful payment." : "เชื่อมต่อ LINE ตอนนี้เพื่อตรวจข้อมูลลูกค้าเก่าอย่างปลอดภัย หรือผูกบัญชีหลังชำระเงินสำเร็จ"}</p><button class="btn" id="lineConnectBtn" type="button">${en ? "Connect LINE" : "เชื่อมต่อ LINE"}</button>`}
-      ${state.calc.retVerified && hasVerifiedAgreementRecord() && demoIdentityExpired() ? `<div class="demo-choice-warning">${en ? "Your identity document has expired, so a new rental agreement is required before this rental. Please enter the current document details." : "เอกสารยืนยันตัวตนของคุณหมดอายุแล้ว ต้องทำสัญญาการเช่าใหม่ก่อนเช่าครั้งนี้ กรุณากรอกข้อมูลเอกสารฉบับปัจจุบัน"}</div>` : ""}
+      ${state.calc.retVerified && hasVerifiedAgreementRecord() && demoIdentityExpired() ? `<div class="demo-choice-warning">${en ? "The ID card or passport on your agreement has expired, or expires before the return date, so a new rental agreement is required before this rental. Please enter your current document details." : "บัตรประชาชนหรือ Passport ในสัญญาเดิมหมดอายุแล้ว หรือหมดอายุก่อนวันคืนเครื่อง ต้องทำสัญญาการเช่าใหม่ก่อนเช่าครั้งนี้ กรุณากรอกข้อมูลเอกสารฉบับปัจจุบัน"}</div>` : ""}
       ${demoIdentityCoveredByAgreement() ? `<div class="demo-contract-status">${esc(demoAgreementCoverText())}</div>` : ""}
       <label class="option-row demo-reward-row"><input type="checkbox" id="demoReturningOpt" ${state.calc.ret?"checked":""}><div><b><span class="demo-reward-badge">🏅</span>${en ? "Apply returning-customer discount — 10% off the rental" : "ใช้สิทธิ์ส่วนลดลูกค้าเก่า — ลด 10% ค่าเช่า"}</b><div class="hint">${state.calc.retVerified ? (en ? "Verified" : "ยืนยันสิทธิ์แล้ว") : (en ? "Enter the previous phone / Rental ID in the verification window." : "ยืนยันด้วยเบอร์เดิมหรือ Rental ID ในหน้าต่างตรวจสอบสิทธิ์")}</div></div></label>
       ${state.calc.ret ? demoReviewDiscountsHtml() : ""}
@@ -3638,7 +3638,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         ${state.calc.noContract || demoIdentityCoveredByAgreement() ? "" : `
         <div class="field wide"><span class="label">${en ? "Identity document" : "ประเภทบัตร"}<span class="req">*</span></span><div class="demo-id-type" role="radiogroup"><label><input type="radio" name="demoIdentityType" value="thai_id" ${demoIdentityType()==="thai_id"?"checked":""}>${en ? "Thai ID card" : "บัตรประชาชน"}</label><label><input type="radio" name="demoIdentityType" value="passport" ${demoIdentityType()==="passport"?"checked":""}>${en ? "Passport" : "Passport (ชาวต่างชาติ)"}</label></div></div>
         <div class="field"><label class="label" for="demoIdentityNumber">${demoIdentityType()==="passport" ? (en ? "Passport number" : "เลข Passport") : (en ? "Thai ID number" : "เลขบัตรประชาชน")}<span class="req">*</span></label><input class="input" id="demoIdentityNumber" autocomplete="off" ${demoIdentityType()==="passport" ? "maxlength=20 autocapitalize=characters" : "inputmode=numeric maxlength=13"} value="${esc(demoProfile.identityNumber)}" placeholder="${demoProfile.identityDraftLast4 && !demoProfile.identityNumber ? esc(`${"•".repeat(8)}${demoProfile.identityDraftLast4}`) : ""}">${demoProfile.identityDraftLast4 && !demoProfile.identityNumber ? `<p class="hint">${en ? `Saved securely (ending ${esc(demoProfile.identityDraftLast4)}). Type a new number only to change it.` : `บันทึกไว้แล้วอย่างปลอดภัย (ลงท้าย ${esc(demoProfile.identityDraftLast4)}) พิมพ์ใหม่เฉพาะเมื่อต้องการเปลี่ยน`}</p>` : ""}</div>
-        <div class="field"><label class="label" for="demoIdentityExpiry">${demoIdentityType()==="passport" ? (en ? "Passport expiry date" : "วันหมดอายุ Passport") : (en ? "Thai ID expiry date" : "วันหมดอายุบัตรประชาชน")}<span class="req">*</span></label><input class="input" id="demoIdentityExpiry" type="date" value="${esc(demoProfile.identityExpiry)}"><p class="hint">${en ? "AJ must hold a document that is still valid. An expired document means a new agreement before the next rental." : "เอกสารต้องยังไม่หมดอายุ หากหมดอายุต้องทำสัญญาการเช่าใหม่ก่อนเช่าครั้งถัดไป"}</p></div>`}
+        <div class="field"><label class="label" for="demoIdentityExpiry">${demoIdentityType()==="passport" ? (en ? "Passport expiry date" : "วันหมดอายุ Passport") : (en ? "Thai ID expiry date" : "วันหมดอายุบัตรประชาชน")}<span class="req">*</span></label><input class="input${demoIdentityExpired() ? " is-invalid" : ""}" id="demoIdentityExpiry" type="date" value="${esc(demoProfile.identityExpiry)}"><p class="hint">${en ? "Your Thai ID card or passport must remain valid from the start date through the return date, in every case. If you have rented before and your ID card or passport has expired, a new rental agreement is required before your next rental." : "บัตรประชาชนหรือ Passport ต้องยังไม่หมดอายุ ตั้งแต่วันที่เริ่มเช่าจนถึงวันคืนเครื่องในทุกกรณี หากเคยเช่าแล้วและบัตรหรือ Passport หมดอายุ ต้องทำสัญญาการเช่าใหม่ทุกกรณีก่อนเช่าครั้งถัดไป"}</p>${demoIdentityExpired() ? `<p class="field-error">${esc(demoIdentityExpiryMessage())}</p>` : ""}</div>`}
         <div class="field"><label class="label" for="demoEmail">${en ? "Email" : "อีเมล"}<span class="req">*</span></label><input class="input" id="demoEmail" type="email" autocomplete="email" value="${esc(demoProfile.email)}"></div>
         ${demoIdentityCoveredByAgreement() ? "" : `<div class="field wide">
         <label class="option-row"><input type="checkbox" id="demoNoContractOpt" ${state.calc.noContract?"checked":""}><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b><div class="hint">${en ? "No document number or identity images are required, and no rental agreement is prepared. The security deposit increases: ฿2,000 to ฿10,000 / ฿4,000 to ฿15,000." : "ไม่ต้องกรอกเลขเอกสารและไม่ต้องส่งรูปบัตรประชาชน/Passport และไม่มีการทำสัญญาเช่า ค่าประกันเพิ่มขึ้น: 2,000 บาท เป็น 10,000 บาท / 4,000 บาท เป็น 15,000 บาท"}</div></div></label>
@@ -3952,11 +3952,34 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <label class="option-row demo-reward-row"><input type="checkbox" id="reviewFacebookOpt" ${state.calc.reviewFacebook?"checked":""}><div><b><span class="demo-reward-badge">🎁</span>${facebookLabel}</b><div class="hint">${tr("reviewFacebookHelp")}</div></div></label>
     </div>`;
   }
-  function demoIdentityExpired(){
+  // The ID card or passport must stay valid from the start date through the
+  // return date: it has to expire after the return date, in every case.
+  function demoIdentityExpiryIssue(){
     const value = String(demoProfile.identityExpiry || "").trim();
-    if(!value) return false;
-    const expiry = new Date(`${value}T23:59:59`);
-    return !Number.isNaN(expiry.getTime()) && expiry.getTime() < Date.now();
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(value)) return "";
+    const start = String(state.calc.start || ""), end = String(state.calc.end || "");
+    if(value < todayIso()) return "expired";
+    if(start && value < start) return "before_start";
+    if(end && value < end) return "during_rental";
+    if(end && value === end) return "on_return";
+    return "";
+  }
+  function demoIdentityExpired(){
+    return !!demoIdentityExpiryIssue();
+  }
+  function demoIdentityExpiryMessage(){
+    const issue = demoIdentityExpiryIssue();
+    if(!issue) return "";
+    const en = state.lang === "en";
+    const passport = demoIdentityType() === "passport";
+    const documentName = en ? (passport ? "passport" : "Thai ID card") : (passport ? "Passport" : "บัตรประชาชน");
+    const end = state.calc.end ? displayDate(state.calc.end) : "";
+    const when = en
+      ? {expired:"has expired", before_start:"expires before the start date", during_rental:"expires during the rental", on_return:"expires on the return date"}[issue]
+      : {expired:"หมดอายุแล้ว", before_start:"หมดอายุก่อนวันเริ่มเช่า", during_rental:"หมดอายุระหว่างการเช่า", on_return:"หมดอายุตรงกับวันคืนเครื่อง"}[issue];
+    return en
+      ? `⚠️ Warning: this ${documentName} ${when}. You cannot continue: ${end ? `the expiry date must be after the return date (${end}).` : "the document must still be valid."}`
+      : `⚠️ แจ้งเตือน: ${documentName}${when} ไม่สามารถทำรายการต่อได้ ${end ? `วันหมดอายุต้องอยู่หลังวันคืนเครื่อง (${end}) เท่านั้น` : "เอกสารต้องยังไม่หมดอายุ"}`;
   }
   // An agreement only stands while the document behind it is still valid.
   function demoIdentityCoveredByAgreement(){
@@ -4371,16 +4394,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           ? (en ? "Enter the passport number as printed." : "กรอกเลข Passport ตามที่ระบุในเล่ม")
           : (en ? "Enter all 13 digits of the Thai ID number." : "กรอกเลขบัตรประชาชน 13 หลักให้ถูกต้อง"));
     }
-    if(!demoProfile.noThaiAddress){
-      if(!state.calc.noContract && !demoIdentityCoveredByAgreement()){
+    if(!state.calc.noContract && !demoIdentityCoveredByAgreement()){
       const expiry = String(demoProfile.identityExpiry || "").trim();
       need("demoIdentityExpiry", !!expiry && !demoIdentityExpired(),
-        expiry
-          ? (en ? "This document has expired. AJ needs a valid document and a new agreement." : "เอกสารหมดอายุแล้ว ต้องใช้เอกสารที่ยังไม่หมดอายุและทำสัญญาการเช่าใหม่")
-          : (en ? "Enter the document's expiry date." : "กรอกวันหมดอายุของเอกสาร"));
+        expiry ? demoIdentityExpiryMessage() : (en ? "Enter the document's expiry date." : "กรอกวันหมดอายุของเอกสาร"));
     }
     need("demoEmail", /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(demoProfile.email.trim()), en ? "Enter the email address for the rental confirmation." : "กรอกอีเมลสำหรับรับรายละเอียดและยืนยันการเช่า");
-    need("demoAddressLine", demoProfile.addressLine.trim().length >= 1, en ? "Enter the house or building number and street." : "กรอกบ้านเลขที่ อาคาร และถนน");
+    if(!demoProfile.noThaiAddress){
+      need("demoAddressLine", demoProfile.addressLine.trim().length >= 1, en ? "Enter the house or building number and street." : "กรอกบ้านเลขที่ อาคาร และถนน");
       need("demoPostalCode", /^\d{5}$/.test(String(demoProfile.postalCode || "").trim()), en ? "Enter the 5-digit postal code." : "กรอกรหัสไปรษณีย์ 5 หลัก");
       need("demoSubdistrict", !!demoProfile.subdistrict.trim(), en ? "Choose the subdistrict." : "เลือกแขวง / ตำบล");
       need("demoDistrict", !!demoProfile.district.trim(), en ? "Enter the district." : "กรอกเขต / อำเภอ");
@@ -4708,10 +4729,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const buttons = step => {
       const back = step > 1 ? `<button class="btn" type="button" data-step-go="${step - 1}">${tr("backStep")}</button>` : `<span></span>`;
       const confirmLabel = state.lang === "en" ? "Confirm and continue to payment" : "ยืนยันและไปหน้าชำระเงิน";
+      // A document that is not valid through the return date stops the rental here.
+      const identityBlocked = UNIFIED_FLOW_DEMO && step === 2 && !state.calc.noContract && demoIdentityExpired();
       const next = UNIFIED_FLOW_DEMO && step === 2 && demoIdentityStepSkippable()
-        ? `<button class="btn primary" id="demoConfirmFromDetails" type="button">${confirmLabel}</button>`
+        ? `<button class="btn primary" id="demoConfirmFromDetails" type="button" ${identityBlocked ? "disabled" : ""}>${confirmLabel}</button>`
         : step < 3
-        ? `<button class="btn primary" type="button" data-step-go="${step + 1}" ${stepReady(step) || (UNIFIED_FLOW_DEMO && step === 2) ? "" : "disabled"}>${tr("nextStep")}</button>`
+        ? `<button class="btn primary" type="button" data-step-go="${step + 1}" ${!identityBlocked && (stepReady(step) || (UNIFIED_FLOW_DEMO && step === 2)) ? "" : "disabled"}>${tr("nextStep")}</button>`
         : (UNIFIED_FLOW_DEMO ? `<button class="btn primary" id="demoConfirmOrder" type="button" ${stepReady(2) ? "" : "disabled"}>${confirmLabel}</button>` : "");
       return `${renderStepReadiness(step)}${back}${next}`;
     };
@@ -4734,6 +4757,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       return {tone:"ready", text:tr("stepReadyDates")};
     }
     if(step === 2 && UNIFIED_FLOW_DEMO){
+      if(!state.calc.noContract && demoIdentityExpired()) return {tone:"error", text:demoIdentityExpiryMessage()};
       const problems = demoStep2Problems();
       if(problems.length) return {tone:"info", text:problems[0].message};
       return {tone:"ready", text:state.lang === "en" ? "Customer and delivery details are ready." : "ข้อมูลลูกค้าและการจัดส่งพร้อมแล้ว"};
@@ -10004,6 +10028,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
         if(event.target.id === "demoIdentityExpiry" && demoProfile.identityNumber) queueIdentityDraft();
         saveDemoProfile();
         clearDemoFieldError(event.target.id);
+        if(event.target.id === "demoIdentityExpiry"){
+          const message = demoIdentityExpiryMessage();
+          event.target.classList.toggle("is-invalid", !!message);
+          if(message) event.target.closest(".field")?.insertAdjacentHTML("beforeend", `<p class="field-error">${esc(message)}</p>`);
+        }
         if(event.target.id === "demoPostalCode") void onDemoPostalCode(event.target.value);
         if(event.target.id === "demoSubdistrict") onDemoSubdistrict(event.target.value);
         if(["demoAddressLine","demoSubdistrict","demoDistrict","demoProvince","demoPostalCode"].includes(event.target.id)){

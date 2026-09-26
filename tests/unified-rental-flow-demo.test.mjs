@@ -218,7 +218,7 @@ test('the demo asks for the document expiry and refuses an expired one', () => {
   assert.match(html, /id="demoIdentityExpiry"/);
   assert.match(html, /function demoIdentityExpired\(\)/);
   assert.match(html, /hasVerifiedAgreementRecord\(\) && !demoIdentityExpired\(\)/);
-  assert.match(html, /เอกสารหมดอายุแล้ว ต้องใช้เอกสารที่ยังไม่หมดอายุและทำสัญญาการเช่าใหม่/);
+  assert.match(html, /expiry \? demoIdentityExpiryMessage\(\) : \(en \? "Enter the document's expiry date\." : "กรอกวันหมดอายุของเอกสาร"\)/);
 });
 
 test('email is required because the confirmation is sent there', () => {
@@ -510,4 +510,28 @@ test('the site announcement shows on every visit, Thai left and English right, a
   assert.match(html, /📢 แจ้งหยุดรับจองเครื่องเช่าชั่วคราว/);
   assert.match(html, /📢 Temporary Rental Booking Notice/);
   assert.match(html, /announcement: en \? "Announcement" : "ประกาศ"/);
+});
+
+test('the ID card or passport must expire after the return date, or the renter cannot continue', () => {
+  const start = html.indexOf('function demoIdentityExpiryIssue(){');
+  const end = html.indexOf('function demoIdentityExpired(){', start);
+  const body = html.slice(start, end).replace('function demoIdentityExpiryIssue(){', '').replace(/}\s*\/\/[^\n]*\n?\s*$/, '').trim().replace(/}$/, '');
+  const issue = (expiry, calc) => new Function('demoProfile', 'state', 'todayIso', body)({identityExpiry: expiry}, {calc}, () => '2026-09-26');
+  const rental = {start: '2026-10-28', end: '2026-10-31'};
+  assert.equal(issue('2026-09-25', rental), 'expired');
+  assert.equal(issue('2026-10-27', rental), 'before_start');
+  assert.equal(issue('2026-10-29', rental), 'during_rental');
+  assert.equal(issue('2026-10-31', rental), 'on_return');
+  assert.equal(issue('2026-11-01', rental), '');
+  assert.equal(issue('', rental), '');
+  // Warned in red in both languages, and both buttons stay disabled.
+  assert.match(html, /`⚠️ แจ้งเตือน: \$\{documentName\}\$\{when\} ไม่สามารถทำรายการต่อได้ \$\{end \? `วันหมดอายุต้องอยู่หลังวันคืนเครื่อง \(\$\{end\}\) เท่านั้น`/);
+  assert.match(html, /`⚠️ Warning: this \$\{documentName\} \$\{when\}\. You cannot continue: /);
+  assert.match(html, /const identityBlocked = UNIFIED_FLOW_DEMO && step === 2 && !state\.calc\.noContract && demoIdentityExpired\(\);/);
+  assert.match(html, /id="demoConfirmFromDetails" type="button" \$\{identityBlocked \? "disabled" : ""\}/);
+  assert.match(html, /if\(!state\.calc\.noContract && demoIdentityExpired\(\)\) return \{tone:"error", text:demoIdentityExpiryMessage\(\)\};/);
+  assert.match(html, /บัตรประชาชนหรือ Passport ต้องยังไม่หมดอายุ ตั้งแต่วันที่เริ่มเช่าจนถึงวันคืนเครื่องในทุกกรณี หากเคยเช่าแล้วและบัตรหรือ Passport หมดอายุ ต้องทำสัญญาการเช่าใหม่ทุกกรณีก่อนเช่าครั้งถัดไป/);
+  assert.match(html, /Your Thai ID card or passport must remain valid from the start date through the return date, in every case\./);
+  // Checked for every renter, including one without a Thai address.
+  assert.ok(html.indexOf('need("demoIdentityExpiry"') < html.indexOf('if(!demoProfile.noThaiAddress){\n      need("demoAddressLine"'));
 });
