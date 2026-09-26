@@ -228,6 +228,25 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-picker-note{margin:0 0 10px;color:#667085;font-size:12.5px;font-weight:700}
 .demo-locate-btn{margin-top:8px;align-self:flex-start}
 .queue-retry-actions{display:flex;justify-content:flex-end;margin-top:14px}
+/* Site announcement: above every other pop-up, Thai left / English right. */
+.site-announcement{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(16,24,40,.62)}
+.site-announcement.open{display:flex}
+.site-announcement-card{width:min(980px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:20px;border:3px solid #f5b400;box-shadow:0 24px 64px rgba(16,24,40,.35)}
+.site-announcement-head{display:flex;align-items:center;gap:12px;padding:16px 22px;background:#fff4cc;border-bottom:2px solid #f5b400;font-size:18px;color:#7a4b00}
+.site-announcement-icon{font-size:40px;line-height:1}
+.site-announcement-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.announcement-column{padding:18px 22px;line-height:1.65;color:#1f2937}
+.announcement-column + .announcement-column{border-left:1px solid #f1e3b3}
+.announcement-column h3{margin:0 0 10px;font-size:19px;color:#b42318}
+.announcement-column p{margin:0 0 10px}
+.site-announcement-actions{position:sticky;bottom:0;display:flex;justify-content:center;padding:14px 22px 20px;border-top:1px solid #eef0f3;background:#fff}
+.site-announcement-actions .btn{min-width:180px}
+@media(max-width:700px){
+  .site-announcement-body{grid-template-columns:1fr}
+  .announcement-column + .announcement-column{border-left:0;border-top:1px solid #f1e3b3}
+  .site-announcement-head{font-size:16px}
+  .site-announcement-icon{font-size:32px}
+}
 .demo-line-summary{margin:14px 0;padding:14px 16px;border:1px solid #b7e3c4;border-radius:14px;background:#f3fbf5}
 .demo-line-summary-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
 .demo-line-summary-row{display:flex;justify-content:space-between;gap:14px;padding:7px 0;border-top:1px solid #dcefe2;font-size:14px}
@@ -1348,6 +1367,13 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   <div class="demo-busy-card"><span class="demo-busy-spinner" aria-hidden="true"></span><span id="demoBusyText"></span></div>
 </div>
 
+<div class="site-announcement" id="siteAnnouncement" role="alertdialog" aria-modal="true" aria-labelledby="siteAnnouncementTitle" aria-hidden="true">
+  <div class="site-announcement-card">
+    <div class="site-announcement-head"><span class="site-announcement-icon" aria-hidden="true">⚠️</span><b id="siteAnnouncementTitle">ประกาศจากร้าน · Notice</b></div>
+    <div class="site-announcement-body" id="siteAnnouncementBody"></div>
+    <div class="site-announcement-actions"><button class="btn primary" type="button" id="siteAnnouncementOk">รับทราบ · OK</button></div>
+  </div>
+</div>
 <div class="modal-overlay" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
   <div class="modal-card info-modal-card">
     <div class="modal-head"><div class="modal-title-copy"><h3 id="infoModalTitle"></h3><p id="infoModalSubtitle"></p></div><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="infoModalLang" type="button"></button><button class="xbtn" id="infoModalClose" type="button" aria-label="Close">&times;</button></div></div>
@@ -2512,17 +2538,37 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const rule = value && typeof value === "object" ? value : {closed:value};
     return {closed:rule.closed === true,startAt:String(rule.startAt || ""),endAt:String(rule.endAt || "")};
   }
+  // A calendar day as "YYYY-MM-DD": a picked Date by its own date, anything
+  // else by the day it falls on in Bangkok.
+  function bangkokDayOf(value){
+    const time = value instanceof Date ? value.getTime() : (typeof value === "number" ? value : Date.parse(value || ""));
+    if(!Number.isFinite(time)) return "";
+    return new Intl.DateTimeFormat("en-CA", {timeZone:"Asia/Bangkok", year:"numeric", month:"2-digit", day:"2-digit"}).format(new Date(time));
+  }
+  function rentalDayOf(value){
+    if(value instanceof Date) return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2,"0")}-${String(value.getDate()).padStart(2,"0")}`;
+    const text = String(value || "");
+    return /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : bangkokDayOf(text);
+  }
+  // Two kinds of closure. With a reopen date it closes those days only: a
+  // rental cannot be delivered or collected on a closed day, but the console
+  // stays bookable for any other dates, including rentals that span the
+  // closed days. With no reopen date the queue is shut and nothing is booked.
   function queueRuleOverlaps(rule, startValue, endValue){
     if(!rule?.closed) return false;
-    const start = startValue instanceof Date ? startValue.getTime() : Date.parse(startValue || "");
-    const end = endValue instanceof Date ? endValue.getTime() : Date.parse(endValue || "");
     const ruleStart = Date.parse(rule.startAt || "");
     const ruleEnd = Date.parse(rule.endAt || "");
-    if(!Number.isFinite(start) || !Number.isFinite(end)){
-      const now = Date.now();
-      return (!Number.isFinite(ruleStart) || now >= ruleStart) && (!Number.isFinite(ruleEnd) || now < ruleEnd);
+    const hasDates = startValue && endValue;
+    if(!Number.isFinite(ruleEnd)){
+      if(!hasDates) return !Number.isFinite(ruleStart) || Date.now() >= ruleStart;
+      const end = endValue instanceof Date ? endValue.getTime() : Date.parse(endValue || "");
+      return !Number.isFinite(ruleStart) || !Number.isFinite(end) || end > ruleStart;
     }
-    return (!Number.isFinite(ruleEnd) || start < ruleEnd) && (!Number.isFinite(ruleStart) || end > ruleStart);
+    if(!hasDates) return false;
+    const firstClosed = Number.isFinite(ruleStart) ? bangkokDayOf(ruleStart) : "0000-00-00";
+    const lastClosed = bangkokDayOf(ruleEnd - 60000);
+    const onClosedDay = day => !!day && day >= firstClosed && day <= lastClosed;
+    return onClosedDay(rentalDayOf(startValue)) || onClosedDay(rentalDayOf(endValue));
   }
   function queueRulesForItem(item){
     if(!item) return [];
@@ -5917,7 +5963,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const isReturnCandidate = state.calendar.mode === "end" && selectedStart && date > selectedStart;
     const start = isReturnCandidate ? selectedStart : date;
     const end = isReturnCandidate ? date : addDays(date, 3);
-    if(isQueueClosed(c, start, end)) return {cls:"busy", note:calendarCellText("unavailable")};
+    // Choosing a start date, only that delivery day matters for a closure; the
+    // return day is checked when it is picked.
+    if(isQueueClosed(c, start, isReturnCandidate ? end : start)) return {cls:"busy", note:calendarCellText("closed")};
     // A hold only blocks a date when it uses up the last free unit. The
     // customer's own hold never blocks them: the server replaces it when they
     // book again, exactly as it does not count it as a conflict.
@@ -5940,8 +5988,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   function calendarCellText(kind){
     const labels = state.lang === "en"
-      ? {available:"Free", unavailable:"Full", disabled:"Past", cutoff:tr("cutoffStartCell"), before:"Not selectable", min:"Min. 3 days", start:"Start", range:"Rental", end:"Return"}
-      : {available:"ว่าง", unavailable:"ไม่ว่าง", disabled:"ผ่านมาแล้ว", cutoff:tr("cutoffStartCell"), before:"เลือกไม่ได้", min:"ขั้นต่ำ 3 วัน", start:"เริ่มเช่า", range:"ช่วงเช่า", end:"คืนเครื่อง"};
+      ? {available:"Free", unavailable:"Full", closed:"Closed", disabled:"Past", cutoff:tr("cutoffStartCell"), before:"Not selectable", min:"Min. 3 days", start:"Start", range:"Rental", end:"Return"}
+      : {available:"ว่าง", unavailable:"ไม่ว่าง", closed:"ปิดคิว", disabled:"ผ่านมาแล้ว", cutoff:tr("cutoffStartCell"), before:"เลือกไม่ได้", min:"ขั้นต่ำ 3 วัน", start:"เริ่มเช่า", range:"ช่วงเช่า", end:"คืนเครื่อง"};
     return labels[kind] || "";
   }
   function calendarRangeAvailable(startValue, endValue){
@@ -7985,6 +8033,106 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       renderAdmin();
     }
   }
+  // ---- Site announcement -----------------------------------------------------
+  // A notice shown over the page on every visit, whatever link brought the
+  // customer in, until the shop turns it off in Admin → Announcement. It is
+  // kept on AJ's server (site content "announcement"); this text is used until
+  // the shop has saved its own.
+  const DEFAULT_ANNOUNCEMENT = {
+    enabled: true,
+    th: `📢 แจ้งหยุดรับจองเครื่องเช่าชั่วคราว
+เนื่องจากสถานการณ์ฝนตกหนักและน้ำท่วมในหลายพื้นที่ ส่งผลให้ทางร้านไม่สามารถเรียกรถเพื่อจัดส่งเครื่องได้ตามปกติ
+ทาง AJ จึงขอ **ปิดรับการจองเครื่องเกมสำหรับการจัดส่งในช่วงนี้ชั่วคราว** จนกว่าสถานการณ์จะกลับสู่ปกติ 🙏
+📅 **ยังสามารถจองล่วงหน้าได้ตามปกติ**
+หากสถานการณ์ดีขึ้นและสามารถเรียกรถขนส่งได้ ทางร้านจะกลับมาจัดส่งตามปกติทันที
+🎮 **บริการเช่า ID PS5 ยังเปิดให้บริการตามปกติ**
+ขออภัยในความไม่สะดวก และขอให้ทุกท่านเดินทางอย่างปลอดภัยครับ`,
+    en: `📢 Temporary Rental Booking Notice
+Due to heavy rain and flooding in several areas, we are currently unable to arrange delivery services as usual.
+AJ Game Rental will therefore **temporarily stop accepting console rental bookings for immediate delivery** until the situation improves. 🙏
+📅 **Advance bookings are still available as usual.**
+Once conditions improve and delivery services can operate safely again, we will resume normal deliveries.
+🎮 **PS5 ID rental service remains available as usual.**
+We apologize for the inconvenience and hope everyone stays safe.`
+  };
+  let siteAnnouncement = null;
+  function announcementContent(){
+    return siteAnnouncement || DEFAULT_ANNOUNCEMENT;
+  }
+  async function loadSiteAnnouncement(){
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/site-content/announcement?_ts=${Date.now()}`, {cache:"no-store"});
+      if(!response.ok) return announcementContent();
+      const result = await response.json();
+      const content = result?.content;
+      if(content && typeof content === "object" && typeof content.th === "string" && typeof content.en === "string") siteAnnouncement = {enabled:content.enabled === true, th:content.th, en:content.en};
+    }catch(error){
+      console.warn("Announcement unavailable", error);
+    }
+    return announcementContent();
+  }
+  // Each language in its own column: Thai on the left, English on the right.
+  function announcementColumnHtml(text, lang){
+    const lines = String(text || "").split("\n").map(line => line.trim()).filter(Boolean);
+    const title = lines.shift() || "";
+    return `<section class="announcement-column" lang="${lang}"><h3>${richInlineHtml(title)}</h3>${richTextHtml(lines.join("\n"))}</section>`;
+  }
+  function showSiteAnnouncement(content = announcementContent(), {preview = false} = {}){
+    if(!content || (!content.enabled && !preview)) return;
+    const host = byId("siteAnnouncement");
+    if(!host) return;
+    byId("siteAnnouncementBody").innerHTML = `${announcementColumnHtml(content.th, "th")}${announcementColumnHtml(content.en, "en")}`;
+    host.classList.add("open");
+    host.setAttribute("aria-hidden", "false");
+    // Start at the top (the Thai notice on a phone); focus without scrolling.
+    const card = host.querySelector(".site-announcement-card");
+    if(card) card.scrollTop = 0;
+    window.setTimeout(() => byId("siteAnnouncementOk")?.focus({preventScroll:true}), 50);
+  }
+  function closeSiteAnnouncement(){
+    const host = byId("siteAnnouncement");
+    host?.classList.remove("open");
+    host?.setAttribute("aria-hidden", "true");
+  }
+  function adminAnnouncementHtml(){
+    const en = state.lang === "en";
+    const content = announcementContent();
+    const box = (lang, label) => `<div class="field"><label class="label">${esc(label)}</label><textarea class="input" rows="12" data-announcement-field="${lang}">${esc(content[lang])}</textarea></div>`;
+    return `<div class="card"><h3>${en ? "Site announcement" : "ประกาศหน้าเว็บ"}</h3>
+      <p class="hint">${en ? "Shown as a pop-up on every visit, before anything else, in Thai (left) and English (right). The first line is the heading. " : "ขึ้นเป็นหน้าต่างทุกครั้งที่เข้าเว็บ ก่อนหน้าอื่น ภาษาไทยซ้าย อังกฤษขวา บรรทัดแรกคือหัวข้อ "}${richTextFormatHint(en)}</p>
+      <label class="option-row"><input type="checkbox" id="announcementEnabled" ${content.enabled ? "checked" : ""}><div><b>${en ? "Show the announcement" : "เปิดแสดงประกาศ"}</b><div class="hint">${en ? "Untick to stop showing it; the text is kept." : "เอาติ๊กออกเพื่อปิดประกาศ ข้อความยังเก็บไว้"}</div></div></label>
+      <div class="grid2" style="margin-top:12px">${box("th", en ? "Thai" : "ภาษาไทย")}${box("en", en ? "English" : "ภาษาอังกฤษ")}</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn primary" type="button" id="saveAnnouncement">${en ? "Save" : "บันทึก"}</button><button class="btn" type="button" id="previewAnnouncement">${en ? "Preview" : "ดูตัวอย่าง"}</button><button class="btn" type="button" id="resetAnnouncement">${en ? "Load the original text" : "โหลดข้อความเริ่มต้น"}</button></div>
+      <p class="hint" id="announcementAdminStatus"></p>
+    </div>`;
+  }
+  function readAnnouncementFromAdmin(){
+    const content = {enabled: !!byId("announcementEnabled")?.checked, th:"", en:""};
+    $$("[data-announcement-field]").forEach(input => { content[input.dataset.announcementField] = input.value.trim(); });
+    return content;
+  }
+  async function saveAnnouncementFromAdmin(){
+    const en = state.lang === "en";
+    const content = readAnnouncementFromAdmin();
+    const status = byId("announcementAdminStatus");
+    if(!content.th || !content.en){ if(status) status.textContent = en ? "Both languages need text." : "ต้องมีข้อความทั้งภาษาไทยและอังกฤษ"; return; }
+    if(status) status.textContent = en ? "Saving…" : "กำลังบันทึก…";
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/admin/site-content/announcement`, {
+        method:"PUT",
+        headers:{"Content-Type":"application/json",Authorization:`Bearer ${state.adminToken}`},
+        body:JSON.stringify({content})
+      });
+      if(response.status === 401) throw new Error("unauthorized");
+      if(!response.ok) throw new Error(`HTTP ${response.status}`);
+      siteAnnouncement = content;
+      renderAdmin();
+      toast(content.enabled ? (en ? "Announcement saved and shown" : "บันทึกและเปิดแสดงประกาศแล้ว") : (en ? "Announcement saved and hidden" : "บันทึกแล้ว ปิดการแสดงประกาศ"));
+    }catch(error){
+      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
+      else if(status) status.textContent = error.message;
+    }
+  }
   function openInfoModal(page){
     if(!["about","privacy","terms"].includes(page)) return;
     if(page === "about" && !aboutOverrides.th && !aboutOverrides.en) void loadAboutContent();
@@ -8839,9 +8987,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     $$("[data-terms-field]").forEach(input => { adminTerms[input.dataset.termsField] = input.value; });
     byId("adminBody").innerHTML = `
       <div class="admin-tabs">
-        ${["queue","pickup","about","privacy","terms","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
+        ${["queue","announcement","pickup","about","privacy","terms","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
       </div>
       <div class="admin-panel ${state.adminTab==="queue"?"active":""}" id="adminQueue">${adminQueueHtml()}</div>
+      <div class="admin-panel ${state.adminTab==="announcement"?"active":""}" id="adminAnnouncement">${adminAnnouncementHtml()}</div>
       <div class="admin-panel ${state.adminTab==="pickup"?"active":""}" id="adminPickup">${adminPickupHtml()}</div>
       <div class="admin-panel ${state.adminTab==="about"?"active":""}" id="adminAbout">${adminAboutHtml()}</div>
       <div class="admin-panel ${state.adminTab==="privacy"?"active":""}" id="adminPrivacy">${adminPrivacyHtml()}</div>
@@ -8858,6 +9007,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const en = state.lang === "en";
     return ({
       queue: en ? "Close queue" : "ปิดคิว",
+      announcement: en ? "Announcement" : "ประกาศ",
       pickup: en ? "Pickup points" : "จุดรับของ",
       about: en ? "About Us" : "เกี่ยวกับเรา",
       privacy: en ? "Privacy Policy" : "นโยบายความเป็นส่วนตัว",
@@ -8883,21 +9033,21 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const rules = scope === "all" ? {"*":state.queueClosures.rules.all} : state.queueClosures.rules[scope === "type" ? "types" : "devices"];
     const rule = normalizeQueueRule(rules?.[String(target).toLowerCase()] || emptyQueueRule());
     const key = `${scope}:${String(target).toLowerCase()}`;
-    const startLabel = state.lang === "en" ? "Close from (optional)" : "เริ่มปิด (ไม่ระบุ = ปิดทันที)";
-    const endLabel = state.lang === "en" ? "Reopen at (optional)" : "เปิดกลับ (ไม่ระบุ = ปิดต่อเนื่อง)";
+    const startLabel = state.lang === "en" ? "Closed from (blank = today)" : "ปิดตั้งแต่วันที่ (ไม่ระบุ = วันนี้)";
+    const endLabel = state.lang === "en" ? "Closed until, inclusive (blank = no bookings at all)" : "ถึงวันที่ รวมวันนี้ด้วย (ไม่ระบุ = ไม่รับจองเลย)";
     return `<div class="card" data-queue-rule="${esc(key)}" style="padding:14px">
       <label class="option-row"><input type="checkbox" data-queue-enabled ${rule.closed?"checked":""} ${disabled?"disabled":""}><div><b>${esc(label)}</b></div></label>
       <div class="grid2" style="margin-top:10px">
-        <div class="field"><label class="label">${startLabel}</label><input class="input" type="datetime-local" data-queue-start value="${esc(queueDateTimeValue(rule.startAt))}" ${disabled?"disabled":""}></div>
-        <div class="field"><label class="label">${endLabel}</label><input class="input" type="datetime-local" data-queue-end value="${esc(queueDateTimeValue(rule.endAt))}" ${disabled?"disabled":""}></div>
+        <div class="field"><label class="label">${startLabel}</label><input class="input" type="date" data-queue-start value="${esc(bangkokDayOf(rule.startAt))}" ${disabled?"disabled":""}></div>
+        <div class="field"><label class="label">${endLabel}</label><input class="input" type="date" data-queue-end value="${esc(rule.endAt ? bangkokDayOf(Date.parse(rule.endAt) - 60000) : "")}" ${disabled?"disabled":""}></div>
       </div>
     </div>`;
   }
   function adminQueueHtml(){
     const en = state.lang === "en";
     const labels = en
-      ? {title:"Rental queue controls",help:"Close all devices, a device type, or one device. Optional start/end times use Bangkok time.",all:"Close all device queues",types:"Close by device type",devices:"Close by device name",save:"Save queue schedule",loading:"Loading queue schedule..."}
-      : {title:"ควบคุมการปิดคิวเช่า",help:"ปิดได้ทั้งทุกเครื่อง ตามประเภท หรือรายเครื่อง พร้อมกำหนดวันและเวลา (เวลาไทย)",all:"ปิดคิวทุกเครื่อง",types:"ปิดตามประเภทเครื่อง",devices:"ปิดเป็นรายเครื่อง",save:"บันทึกเวลาปิดคิว",loading:"กำลังโหลดเวลาปิดคิว..."};
+      ? {title:"Rental queue controls",help:"Close all devices, a device type, or one device. With an end date, only those days are closed: nothing is delivered or collected on them, and customers can still book other dates. With no end date, no bookings are taken at all.",all:"Close all device queues",types:"Close by device type",devices:"Close by device name",save:"Save queue schedule",loading:"Loading queue schedule..."}
+      : {title:"ควบคุมการปิดคิวเช่า",help:"ปิดได้ทั้งทุกเครื่อง ตามประเภท หรือรายเครื่อง ถ้าใส่ \"ถึงวันที่\" จะปิดเฉพาะวันนั้น: ไม่มีส่งหรือรับคืนเครื่องในวันที่ปิด แต่ลูกค้ายังจองวันอื่นล่วงหน้าได้ ถ้าไม่ใส่ \"ถึงวันที่\" จะไม่รับจองเลย",all:"ปิดคิวทุกเครื่อง",types:"ปิดตามประเภทเครื่อง",devices:"ปิดเป็นรายเครื่อง",save:"บันทึกเวลาปิดคิว",loading:"กำลังโหลดเวลาปิดคิว..."};
     const types = [["console",tr("type_console")],["vr",tr("type_vr")],["handheld",tr("type_handheld")],["racing",tr("type_racing")]];
     return `<div class="card"><h3>${labels.title}</h3><p class="hint">${labels.help}</p>
       <div style="margin-top:12px">${queueRuleHtml("all","*",labels.all)}</div>
@@ -8940,8 +9090,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
   }
   function queueRulePayload(box){
-    const localIso = input => input ? new Date(`${input}:00+07:00`).toISOString() : "";
-    return {closed:Boolean($("[data-queue-enabled]",box)?.checked),startAt:localIso($("[data-queue-start]",box)?.value),endAt:localIso($("[data-queue-end]",box)?.value)};
+    // Whole Bangkok days: closed from the start of the first day to the end of
+    // the last day given.
+    const dayStart = day => day ? new Date(`${day}T00:00:00+07:00`).toISOString() : "";
+    const dayAfter = day => day ? new Date(new Date(`${day}T00:00:00+07:00`).getTime() + 86400000).toISOString() : "";
+    return {closed:Boolean($("[data-queue-enabled]",box)?.checked),startAt:dayStart($("[data-queue-start]",box)?.value),endAt:dayAfter($("[data-queue-end]",box)?.value)};
   }
   async function saveQueueClosuresFromAdmin(){
     const status = byId("queueAdminStatus");
@@ -8949,8 +9102,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const types = {}, devices = {};
     $$('[data-queue-rule^="type:"]').forEach(box => { types[box.dataset.queueRule.split(":")[1]] = queueRulePayload(box); });
     $$('[data-queue-rule^="device:"]').forEach(box => { devices[box.dataset.queueRule.split(":")[1]] = queueRulePayload(box); });
-    if(all.startAt && all.endAt && all.endAt <= all.startAt) return alert(state.lang === "en" ? "Reopen time must be after close time." : "เวลาเปิดกลับต้องอยู่หลังเวลาเริ่มปิด");
-    for(const rule of [...Object.values(types),...Object.values(devices)]) if(rule.startAt && rule.endAt && rule.endAt <= rule.startAt) return alert(state.lang === "en" ? "Reopen time must be after close time." : "เวลาเปิดกลับต้องอยู่หลังเวลาเริ่มปิด");
+    if(all.startAt && all.endAt && all.endAt <= all.startAt) return alert(state.lang === "en" ? "The last closed day must be on or after the first." : "วันสุดท้ายที่ปิดต้องไม่ก่อนวันเริ่มปิด");
+    for(const rule of [...Object.values(types),...Object.values(devices)]) if(rule.startAt && rule.endAt && rule.endAt <= rule.startAt) return alert(state.lang === "en" ? "The last closed day must be on or after the first." : "วันสุดท้ายที่ปิดต้องไม่ก่อนวันเริ่มปิด");
     if(status) status.textContent = state.lang === "en" ? "Saving..." : "กำลังบันทึก...";
     const button = byId("saveQueueClosures"); if(button) button.disabled = true;
     try{
@@ -9591,6 +9744,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(event.key === "Escape" && byId("allConsolesModal")?.classList.contains("open")) closeAllConsoles();
       if(event.key === "Escape" && byId("infoModal")?.classList.contains("open")) closeInfoModal();
       if(event.key === "Escape") toggleSiteMenu(false);
+      if(event.key === "Escape" && byId("siteAnnouncement")?.classList.contains("open")) closeSiteAnnouncement();
     });
     window.addEventListener("scroll", () => { updateFloatButton(); renderGuide(); }, {passive:true});
     window.addEventListener("resize", () => {
@@ -9953,6 +10107,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(event.target.closest("[data-queue-retry-continue]")){ await retryQueueAndConfirm(); return; }
       if(event.target.closest("[data-queue-back-to-dates]")){ closeModal(); goCalcStep(1, {scrollTabs:true}); return; }
       if(targetId === "demoSignatureClear"){ clearDemoSignature(); return; }
+      if(targetId === "siteAnnouncementOk"){ closeSiteAnnouncement(); return; }
+      if(targetId === "saveAnnouncement"){ void saveAnnouncementFromAdmin(); return; }
+      if(targetId === "previewAnnouncement"){ showSiteAnnouncement(readAnnouncementFromAdmin(), {preview:true}); return; }
+      if(targetId === "resetAnnouncement"){
+        $$("[data-announcement-field]").forEach(input => { input.value = DEFAULT_ANNOUNCEMENT[input.dataset.announcementField]; });
+        return;
+      }
       if(targetId === "demoContactEdit"){ demoContactEditing = true; render(); byId("demoCustomerName")?.focus(); return; }
       if(targetId === "demoConfirmFromDetails"){
         if(!showDemoStep2Problems()) return;
@@ -10364,6 +10525,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     void loadRentalTermsVersion();
     const paidRentalNotice = UNIFIED_FLOW_DEMO ? takePaidRentalReturn() : null;
     bindEvents();
+    // Shown first on every visit, above whatever pop-up the link opens.
+    void loadSiteAnnouncement().then(content => showSiteAnnouncement(content));
     if(paidRentalNotice) window.setTimeout(() => showPaidRentalNotice(paidRentalNotice), 300);
     bindBeforeRentSectionAnalytics();
     trackAnalytics("page_view");

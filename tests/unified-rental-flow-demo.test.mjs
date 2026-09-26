@@ -475,3 +475,32 @@ test('the header menu opens rental prices, the game list and the rental steps li
   assert.match(html, /openGamePicker\(\{browseOnly:true, consoleId:requestedConsole\?\.id \|\| ""\}\)/);
   assert.match(html, /setTimeout\(openStepsPopup, 120\)/);
 });
+
+test('a day-range queue closure blocks deliveries and returns on those days only', () => {
+  const start = html.indexOf('  function bangkokDayOf(value){');
+  const end = html.indexOf('  function queueRulesForItem(item){');
+  const overlaps = new Function(`${html.slice(start, end)}; return queueRuleOverlaps;`)();
+  const rule = { closed: true, startAt: new Date('2026-09-26T00:00:00+07:00').toISOString(), endAt: new Date('2026-09-28T00:00:00+07:00').toISOString() };
+  assert.equal(overlaps(rule, '2026-09-26', '2026-09-29'), true);  // delivery on a closed day
+  assert.equal(overlaps(rule, '2026-09-24', '2026-09-27'), true);  // return on a closed day
+  assert.equal(overlaps(rule, '2026-09-25', '2026-09-28'), false); // spans the closed days
+  assert.equal(overlaps(rule, '2026-09-28', '2026-10-01'), false); // after
+  assert.equal(overlaps(rule), false); // the console stays bookable for other dates
+  const shut = { closed: true, startAt: '', endAt: '' };
+  assert.equal(overlaps(shut), true);
+  assert.equal(overlaps(shut, '2026-12-01', '2026-12-04'), true);
+  assert.match(html, /<input class="input" type="date" data-queue-start/);
+  assert.match(html, /const dayAfter = day => day \?/);
+});
+
+test('the site announcement shows on every visit, Thai left and English right, and is edited in Admin', () => {
+  assert.match(html, /<div class="site-announcement" id="siteAnnouncement" role="alertdialog"/);
+  assert.match(html, /<span class="site-announcement-icon" aria-hidden="true">⚠️<\/span>/);
+  assert.match(html, /void loadSiteAnnouncement\(\)\.then\(content => showSiteAnnouncement\(content\)\);/);
+  assert.match(html, /\$\{announcementColumnHtml\(content\.th, "th"\)\}\$\{announcementColumnHtml\(content\.en, "en"\)\}/);
+  assert.match(html, /\.site-announcement\{position:fixed;inset:0;z-index:100000/);
+  assert.match(html, /\/api\/admin\/site-content\/announcement/);
+  assert.match(html, /📢 แจ้งหยุดรับจองเครื่องเช่าชั่วคราว/);
+  assert.match(html, /📢 Temporary Rental Booking Notice/);
+  assert.match(html, /announcement: en \? "Announcement" : "ประกาศ"/);
+});
