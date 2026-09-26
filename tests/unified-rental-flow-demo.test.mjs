@@ -557,3 +557,10 @@ test('a renter checks a rental with its Rental ID and phone number, from the men
 test('the example photos fit the screen', () => {
   assert.match(html, /\.demo-example-image\{display:block;max-width:100%;width:auto;height:auto;max-height:calc\(100dvh - 190px\);object-fit:contain/);
 });
+
+test('Admin → Rentals finds a rental and sends its confirmation email again', () => {
+  assert.match(html, /rentals: en \? "Rentals" : "รายการเช่า",/);
+  assert.match(html, /adminRentalRequest\(`\/api\/admin\/rentals\/\$\{encodeURIComponent\(adminRental\.code\)\}\/resend-confirmation`, \{method:"POST", body:JSON\.stringify\(\{email\}\)\}\)/);
+  assert.match(html, /en \? "Send confirmation email again" : "ส่งอีเมลยืนยันอีกครั้ง"/);
+  assert.match(html, /Authorization:`Bearer \$\{state\.adminToken\}`/);
+});

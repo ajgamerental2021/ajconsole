@@ -8296,6 +8296,81 @@ We apologize for the inconvenience and hope everyone stays safe.`
     host?.classList.remove("open");
     host?.setAttribute("aria-hidden", "true");
   }
+  // Admin → Rentals: find a rental and send its confirmation email again, with
+  // the agreement made from a waiting signature when there is no contract yet.
+  const adminRental = {code:"", rental:null, message:"", tone:"", busy:false};
+  function adminRentalsHtml(){
+    const en = state.lang === "en";
+    const rental = adminRental.rental;
+    const row = (label, value) => `<div class="my-rental-row"><span>${esc(label)}</span><b>${esc(value || "-")}</b></div>`;
+    const agreement = rental
+      ? (rental.contractId || rental.masterAgreementId
+        ? (rental.contractId || rental.masterAgreementId)
+        : rental.noContract ? (en ? "Not required (no agreement chosen)" : "ไม่ทำสัญญา (ลูกค้าเลือกไม่ทำ)")
+        : rental.agreementWaiting ? (en ? "Signed, not made yet: sending again makes it" : "เซ็นแล้วแต่ยังไม่ได้สร้าง: กดส่งอีกครั้งจะสร้างให้")
+        : (en ? "None" : "ไม่มี"))
+      : "";
+    const emailStatus = rental
+      ? (rental.emailStatus === "sent" ? (en ? `Sent to ${rental.emailSentTo}` : `ส่งแล้วถึง ${rental.emailSentTo}`)
+        : rental.emailStatus ? (en ? `Not sent (${rental.emailStatus})` : `ส่งไม่สำเร็จ (${rental.emailStatus})`)
+        : (en ? "No record" : "ไม่มีบันทึก"))
+      : "";
+    return `<div class="card"><h3>${en ? "Rentals: send the confirmation again" : "รายการเช่า: ส่งอีเมลยืนยันอีกครั้ง"}</h3>
+      <p class="hint">${en ? "Find a rental by its Rental ID. If the renter did not get the confirmation email, send it again; a signed agreement that was not made yet is made first and attached as a PDF." : "ค้นหาด้วยรหัสการเช่า ถ้าลูกค้าไม่ได้รับอีเมลยืนยัน กดส่งอีกครั้งได้ ถ้าลูกค้าเซ็นแล้วแต่ยังไม่มีสัญญา ระบบจะสร้างสัญญาก่อนแล้วแนบ PDF ไปด้วย"}</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end"><div class="field" style="flex:1;min-width:220px"><label class="label" for="adminRentalCode">${en ? "Rental ID" : "รหัสการเช่า"}</label><input class="input" id="adminRentalCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="AJ-20260926-R0001" value="${esc(adminRental.code)}"></div><button class="btn primary" type="button" id="adminRentalFind" ${adminRental.busy ? "disabled" : ""}>${en ? "Find" : "ค้นหา"}</button></div>
+      ${rental ? `${myRentalDetailsHtml(rental)}
+      <div class="my-rental">${row(en ? "Customer email" : "อีเมลลูกค้า", rental.email)}${row(en ? "Rental agreement" : "สัญญาเช่า", agreement)}${row(en ? "Confirmation email" : "อีเมลยืนยัน", emailStatus)}</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:12px"><div class="field" style="flex:1;min-width:220px"><label class="label" for="adminRentalEmail">${en ? "Send to" : "ส่งถึงอีเมล"}</label><input class="input" id="adminRentalEmail" type="email" value="${esc(rental.email)}"></div><button class="btn primary" type="button" id="adminRentalResend" ${adminRental.busy ? "disabled" : ""}>${en ? "Send confirmation email again" : "ส่งอีเมลยืนยันอีกครั้ง"}</button></div>` : ""}
+      ${adminRental.message ? `<p class="${adminRental.tone === "error" ? "field-error" : "hint"}" style="margin-top:10px">${esc(adminRental.message)}</p>` : ""}
+    </div>`;
+  }
+  async function adminRentalRequest(path, options = {}){
+    const response = await fetch(`${CONFIG.apiBase}${path}`, {cache:"no-store", ...options, headers:{"Content-Type":"application/json", Authorization:`Bearer ${state.adminToken}`}});
+    if(response.status === 401){ state.adminToken = ""; closeAdmin(); openAdminLogin(); throw new Error("unauthorized"); }
+    const result = await response.json().catch(() => ({}));
+    if(!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
+    return result;
+  }
+  async function findAdminRental(){
+    const en = state.lang === "en";
+    adminRental.code = String(byId("adminRentalCode")?.value || "").trim().toUpperCase();
+    Object.assign(adminRental, {rental:null, message:en ? "Searching…" : "กำลังค้นหา…", tone:"", busy:true});
+    renderAdmin();
+    try{
+      const result = await adminRentalRequest(`/api/admin/rentals/${encodeURIComponent(adminRental.code)}`);
+      Object.assign(adminRental, {rental:result.rental, message:"", tone:""});
+    }catch(error){
+      if(error.message === "unauthorized") return;
+      Object.assign(adminRental, {message:error.message === "not_found" ? (en ? "No rental with this Rental ID." : "ไม่พบรายการเช่านี้") : error.message, tone:"error"});
+    }finally{
+      adminRental.busy = false;
+      if(state.adminToken) renderAdmin();
+    }
+  }
+  async function resendAdminRentalConfirmation(){
+    const en = state.lang === "en";
+    const email = String(byId("adminRentalEmail")?.value || "").trim();
+    Object.assign(adminRental, {message:en ? "Sending…" : "กำลังส่ง…", tone:"", busy:true});
+    renderAdmin();
+    try{
+      const result = await adminRentalRequest(`/api/admin/rentals/${encodeURIComponent(adminRental.code)}/resend-confirmation`, {method:"POST", body:JSON.stringify({email})});
+      adminRental.rental = result.rental;
+      const parts = [
+        result.sent ? (en ? `Email sent to ${result.to}.` : `ส่งอีเมลถึง ${result.to} แล้ว`) : (en ? `Email not sent: ${result.error}` : `ส่งอีเมลไม่สำเร็จ: ${result.error}`),
+        result.agreementCreated ? (en ? "The rental agreement was made." : "สร้างสัญญาเช่าแล้ว") : "",
+        result.agreementProblem ? (en ? `The agreement could not be made: ${result.agreementProblem}` : `สร้างสัญญาไม่สำเร็จ: ${result.agreementProblem}`) : "",
+        result.sent ? (result.attached ? (en ? "The agreement PDF is attached." : "แนบ PDF สัญญาไปด้วยแล้ว") : (en ? "No agreement PDF was attached." : "ไม่ได้แนบ PDF สัญญา")) : ""
+      ].filter(Boolean);
+      Object.assign(adminRental, {message:parts.join(" "), tone:result.sent && !result.agreementProblem ? "" : "error"});
+      if(result.sent) toast(en ? "Confirmation email sent" : "ส่งอีเมลยืนยันแล้ว");
+    }catch(error){
+      if(error.message === "unauthorized") return;
+      Object.assign(adminRental, {message:error.message === "invalid_email" ? (en ? "Check the email address." : "ตรวจสอบอีเมลอีกครั้ง") : error.message, tone:"error"});
+    }finally{
+      adminRental.busy = false;
+      if(state.adminToken) renderAdmin();
+    }
+  }
   function adminAnnouncementHtml(){
     const en = state.lang === "en";
     const content = announcementContent();
@@ -9190,10 +9265,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
     $$("[data-terms-field]").forEach(input => { adminTerms[input.dataset.termsField] = input.value; });
     byId("adminBody").innerHTML = `
       <div class="admin-tabs">
-        ${["queue","announcement","pickup","about","privacy","terms","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
+        ${["queue","announcement","rentals","pickup","about","privacy","terms","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
       </div>
       <div class="admin-panel ${state.adminTab==="queue"?"active":""}" id="adminQueue">${adminQueueHtml()}</div>
       <div class="admin-panel ${state.adminTab==="announcement"?"active":""}" id="adminAnnouncement">${adminAnnouncementHtml()}</div>
+      <div class="admin-panel ${state.adminTab==="rentals"?"active":""}" id="adminRentals">${adminRentalsHtml()}</div>
       <div class="admin-panel ${state.adminTab==="pickup"?"active":""}" id="adminPickup">${adminPickupHtml()}</div>
       <div class="admin-panel ${state.adminTab==="about"?"active":""}" id="adminAbout">${adminAboutHtml()}</div>
       <div class="admin-panel ${state.adminTab==="privacy"?"active":""}" id="adminPrivacy">${adminPrivacyHtml()}</div>
@@ -9211,6 +9287,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     return ({
       queue: en ? "Close queue" : "ปิดคิว",
       announcement: en ? "Announcement" : "ประกาศ",
+      rentals: en ? "Rentals" : "รายการเช่า",
       pickup: en ? "Pickup points" : "จุดรับของ",
       about: en ? "About Us" : "เกี่ยวกับเรา",
       privacy: en ? "Privacy Policy" : "นโยบายความเป็นส่วนตัว",
@@ -10318,6 +10395,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "demoSignatureClear"){ clearDemoSignature(); return; }
       if(targetId === "siteAnnouncementOk"){ closeSiteAnnouncement(); return; }
       if(targetId === "saveAnnouncement"){ void saveAnnouncementFromAdmin(); return; }
+      if(targetId === "adminRentalFind"){ void findAdminRental(); return; }
+      if(targetId === "adminRentalResend"){ void resendAdminRentalConfirmation(); return; }
       if(targetId === "previewAnnouncement"){ showSiteAnnouncement(readAnnouncementFromAdmin(), {preview:true}); return; }
       if(targetId === "resetAnnouncement"){
         $$("[data-announcement-field]").forEach(input => { input.value = DEFAULT_ANNOUNCEMENT[input.dataset.announcementField]; });

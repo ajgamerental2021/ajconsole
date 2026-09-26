@@ -43,7 +43,7 @@ test('About restores the founding date and model count with the shorter intro', 
 });
 
 test('admin tabs are named in both languages and edit Privacy and the Rental Terms', () => {
-  assert.match(html, /\["queue","announcement","pickup","about","privacy","terms","consoles"/);
+  assert.match(html, /\["queue","announcement","rentals","pickup","about","privacy","terms","consoles"/);
   for (const label of ['pickup: en ? "Pickup points" : "จุดรับของ"', 'about: en ? "About Us" : "เกี่ยวกับเรา"', 'privacy: en ? "Privacy Policy" : "นโยบายความเป็นส่วนตัว"', 'terms: en ? "Terms & Conditions" : "ข้อกำหนดและเงื่อนไข"']) {
     assert.ok(html.includes(label), label);
   }
