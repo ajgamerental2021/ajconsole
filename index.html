@@ -815,8 +815,8 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .info-modal-frame{display:block;width:100%;min-height:720px;border:0;background:#fff}
 .demo-only{display:none!important}
 body.unified-flow-demo .demo-only{display:block!important}
-body.unified-flow-demo .demo-banner{margin:0 0 18px;padding:14px 16px;border:1px solid #f2c94c;border-radius:12px;background:#fff8dc;color:#714f00;font-weight:800;line-height:1.5}
-body.unified-flow-demo #beforeRentBack,body.unified-flow-demo #homeSections,body.unified-flow-demo #consoles,body.unified-flow-demo #bookingExtrasToggle,body.unified-flow-demo #faqSection{display:none!important}
+body.unified-flow-demo .demo-banner{display:none!important}
+body.unified-flow-demo #homeSections,body.unified-flow-demo #consoles,body.unified-flow-demo #bookingExtrasToggle,body.unified-flow-demo #faqSection{display:none!important}
 body.unified-flow-demo .calc-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
 body.unified-flow-demo .demo-customer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 body.unified-flow-demo .demo-contract-frame{width:100%;height:760px;border:1px solid #d0d5dd;border-radius:12px;background:#fff}
@@ -2212,13 +2212,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     retEnabled: false,
     boardGameEnabled: false,
     filter: {type:"all", brand:"all", sort:"brand"},
-    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,retVerified:false,retVerificationMethod:"",retVerifiedLineUserId:"",retVerificationToken:"",masterAgreement:null,masterAgreementAccepted:false,masterAgreementAcceptedAt:"",reviewGoogle:false,reviewFacebook:false,noContract:false,rentalTermsAccepted:false,rentalTermsAcceptedAt:"",rentalTermsVersion:"",rentalTermsLanguage:"",payment:"cash",maps:"",games:[],later:true,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",beamPaymentExpiresAt:"",contractSignature:"",demoCustomerName:"",demoCustomerPhone:"",demoContractCompleted:false,demoContractSignature:"",demoOrderOpen:false,demoIdentitySkipped:false,demoIdentityStatus:"",demoContextToken:"",demoAgreementFor:"",guideDone:{},guideConsoleId:""},
+    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,retVerified:false,retVerificationMethod:"",retVerifiedLineUserId:"",retVerificationToken:"",vip:null,masterAgreement:null,masterAgreementAccepted:false,masterAgreementAcceptedAt:"",reviewGoogle:false,reviewFacebook:false,noContract:false,rentalTermsAccepted:false,rentalTermsAcceptedAt:"",rentalTermsVersion:"",rentalTermsLanguage:"",payment:"cash",maps:"",games:[],later:true,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",beamPaymentExpiresAt:"",contractSignature:"",demoCustomerName:"",demoCustomerPhone:"",demoContractCompleted:false,demoContractSignature:"",demoOrderOpen:false,demoIdentitySkipped:false,demoIdentityStatus:"",demoContextToken:"",demoAgreementFor:"",guideDone:{},guideConsoleId:""},
     availability: {rows:[],holds:[],loading:false,error:"",lastSync:0,stale:false,gate:{mode:"idle",pass:true}},
     queueClosures: {allClosed:false,types:{console:false,vr:false,handheld:false,racing:false},devices:{},rules:{all:{closed:false,startAt:"",endAt:""},types:{},devices:{}},loading:false,error:"",updatedAt:""},
     calendar: {open:false,mode:"start",base:new Date(),draftStart:"",draftEnd:""},
     faqExpanded: false,
     adminTab: "queue",
     pickupLocations: {loading:false, error:"", items:[]},
+    vipCustomers: {loading:false, error:"", items:[]},
     adminToken: "",
     beforeRentActive: true,
     bookingExtrasOpen: false,
@@ -2659,21 +2660,24 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return Math.round(subtotal * value / 100);
   }
   const AFTER_WORK_PROMO_PRICES = Object.freeze({300:777, 350:888, 400:999, 500:1299});
-  // VIP rules are intentionally data-driven: additional customers and device
-  // exceptions can be added without changing the pricing algorithm.
-  const VIP_CUSTOMERS = Object.freeze([
-    {id:"vip-treetip",name:"ตรีทิพย์ โรจน์ประเสริฐกุล",phone:"0905145645",depositByBase:{2000:1000,4000:2000},deviceRates:{}},
-    {id:"vip-prutthi",name:"พฤทธิ เกษร",phone:"0952509905",depositByBase:{2000:1000,4000:2000},deviceRates:{ps5:{daily:300,weekly:1500}}}
-  ]);
-  function normalizedThaiPhone(value){
-    const digits = String(value || "").replace(/\D/g, "");
-    return digits.startsWith("66") && digits.length === 11 ? `0${digits.slice(2)}` : digits;
+  // The server returns only the signed-in renter's own VIP entitlement. The
+  // private member list and phone numbers never ship in this public document.
+  function normalizeVipEntitlement(value){
+    if(!value || typeof value !== "object" || Array.isArray(value)) return null;
+    const depositByBase = value.depositByBase && typeof value.depositByBase === "object" ? value.depositByBase : {};
+    const deviceRates = value.deviceRates && typeof value.deviceRates === "object" ? value.deviceRates : {};
+    return {
+      id:String(value.id || "").slice(0,60),
+      name:String(value.name || "").slice(0,160),
+      depositAllDevices:value.depositAllDevices !== false,
+      depositDeviceIds:Array.isArray(value.depositDeviceIds) ? value.depositDeviceIds.map(String).slice(0,100) : [],
+      depositByBase,
+      deviceRates
+    };
   }
   function activeVip(){
     if(!state.calc.retVerified) return null;
-    const phone = normalizedThaiPhone(demoProfile.phone);
-    const supplied = state.calc.vip && typeof state.calc.vip === "object" ? state.calc.vip : null;
-    return VIP_CUSTOMERS.find(item => item.phone === phone || item.id === supplied?.id) || null;
+    return normalizeVipEntitlement(state.calc.vip);
   }
   function vipDeviceKey(c){
     const text = `${c?.id || ""} ${c?.name || ""} ${c?.nameEn || ""}`.toLowerCase();
@@ -2698,12 +2702,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
     const regular = {daily, weekly, deposit};
     const vip = activeVip();
-    const vipRates = !bundleName && vip?.deviceRates?.[vipDeviceKey(c)];
+    const deviceId = String(c?.id || "");
+    const vipRates = !bundleName && (vip?.deviceRates?.[deviceId] || vip?.deviceRates?.[vipDeviceKey(c)] || vip?.deviceRates?.["*"]);
     if(vipRates){
       daily = Number(vipRates.daily) || daily;
       weekly = Number(vipRates.weekly) || weekly;
     }
-    if(vip?.depositByBase?.[deposit] != null) deposit = Number(vip.depositByBase[deposit]);
+    const vipDepositApplies = vip && (vip.depositAllDevices || vip.depositDeviceIds.includes(deviceId));
+    if(vipDepositApplies && vip?.depositByBase?.[deposit] != null) deposit = Number(vip.depositByBase[deposit]);
     return {daily, weekly, deposit, bundleName, regular, vip, vipRateApplied:Boolean(vipRates), vipDepositApplied:deposit !== regular.deposit};
   }
   function afterWorkPromotion(startValue, endValue, regularRental, dailyRate){
@@ -2903,6 +2909,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     state.calc.retVerificationMethod = ["line","manual"].includes(state.calc.retVerificationMethod) ? state.calc.retVerificationMethod : "";
     state.calc.retVerifiedLineUserId = String(state.calc.retVerifiedLineUserId || "");
     state.calc.retVerificationToken = String(state.calc.retVerificationToken || "");
+    state.calc.vip = normalizeVipEntitlement(state.calc.vip);
     state.calc.masterAgreement = state.calc.masterAgreement && typeof state.calc.masterAgreement === "object" ? state.calc.masterAgreement : null;
     state.calc.masterAgreementAccepted = !!state.calc.masterAgreementAccepted && ["valid","legacy_verified"].includes(state.calc.masterAgreement?.status);
     // Bookings saved before Rental Terms acknowledgement existed must not keep
@@ -2922,6 +2929,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       state.calc.retVerificationMethod = "";
       state.calc.retVerifiedLineUserId = "";
       state.calc.retVerificationToken = "";
+      state.calc.vip = null;
       state.calc.ret = false;
     }
     if(state.calc.ret && !state.calc.retVerified) state.calc.ret = false;
@@ -5153,6 +5161,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       state.calc.retVerificationMethod = "manual";
       state.calc.retVerifiedLineUserId = "";
       state.calc.retVerificationToken = String(result.verificationToken || "");
+      state.calc.vip = normalizeVipEntitlement(result.vip);
       state.calc.masterAgreement = result.masterAgreement || {status:"none"};
       state.calc.masterAgreementAccepted = false;
       state.calc.masterAgreementAcceptedAt = "";
@@ -8914,6 +8923,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
           state.calc.retVerificationMethod = "line";
           state.calc.retVerifiedLineUserId = fallbackLineUserId;
           state.calc.retVerificationToken = "";
+          state.calc.vip = normalizeVipEntitlement(result.vip);
           state.calc.masterAgreement = result.masterAgreement || {status:"none"};
           state.calc.masterAgreementAccepted = false;
           state.calc.masterAgreementAcceptedAt = "";
@@ -8927,6 +8937,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
           state.calc.retVerificationMethod = "";
           state.calc.retVerifiedLineUserId = "";
           state.calc.retVerificationToken = "";
+          state.calc.vip = null;
           state.calc.ret = false;
           state.calc.reviewGoogle = false;
           state.calc.reviewFacebook = false;
@@ -9562,6 +9573,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     renderAdmin();
     fetchQueueClosuresForAdmin();
     void fetchPickupLocationsForAdmin();
+    void fetchVipCustomersForAdmin();
     void loadAboutContent();
     void loadPrivacyContent();
     if(state.adminTab === "terms" && !adminTerms.loaded) void loadAdminTerms();
@@ -9572,11 +9584,12 @@ We apologize for the inconvenience and hope everyone stays safe.`
     $$("[data-terms-field]").forEach(input => { adminTerms[input.dataset.termsField] = input.value; });
     byId("adminBody").innerHTML = `
       <div class="admin-tabs">
-        ${["queue","announcement","rentals","pickup","about","privacy","terms","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
+        ${["queue","announcement","rentals","vip","pickup","about","privacy","terms","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
       </div>
       <div class="admin-panel ${state.adminTab==="queue"?"active":""}" id="adminQueue">${adminQueueHtml()}</div>
       <div class="admin-panel ${state.adminTab==="announcement"?"active":""}" id="adminAnnouncement">${adminAnnouncementHtml()}</div>
       <div class="admin-panel ${state.adminTab==="rentals"?"active":""}" id="adminRentals">${adminRentalsHtml()}</div>
+      <div class="admin-panel ${state.adminTab==="vip"?"active":""}" id="adminVip">${adminVipHtml()}</div>
       <div class="admin-panel ${state.adminTab==="pickup"?"active":""}" id="adminPickup">${adminPickupHtml()}</div>
       <div class="admin-panel ${state.adminTab==="about"?"active":""}" id="adminAbout">${adminAboutHtml()}</div>
       <div class="admin-panel ${state.adminTab==="privacy"?"active":""}" id="adminPrivacy">${adminPrivacyHtml()}</div>
@@ -9595,6 +9608,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       queue: en ? "Close queue" : "ปิดคิว",
       announcement: en ? "Announcement" : "ประกาศ",
       rentals: en ? "Rentals" : "รายการเช่า",
+      vip: en ? "VIP members" : "สมาชิก VIP",
       pickup: en ? "Pickup points" : "จุดรับของ",
       about: en ? "About Us" : "เกี่ยวกับเรา",
       privacy: en ? "Privacy Policy" : "นโยบายความเป็นส่วนตัว",
@@ -9789,6 +9803,124 @@ We apologize for the inconvenience and hope everyone stays safe.`
       toast(en ? "Pickup points saved" : "บันทึกจุดรับของแล้ว");
     }catch(error){
       if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
+      else if(status) status.textContent = error.message;
+    }
+  }
+  function vipRateForConsole(customer, consoleItem){
+    return customer?.deviceRates?.[String(consoleItem.id)] || customer?.deviceRates?.[vipDeviceKey(consoleItem)] || {};
+  }
+  function adminVipHtml(){
+    const en = state.lang === "en";
+    const box = state.vipCustomers;
+    const rows = box.items.map((customer, index) => {
+      const depositIds = Array.isArray(customer.depositDeviceIds) ? customer.depositDeviceIds.map(String) : [];
+      const rateRows = state.consoles.map(consoleItem => {
+        const rate = vipRateForConsole(customer, consoleItem);
+        const enabled = Number(rate.daily) > 0 || Number(rate.weekly) > 0;
+        return `<div class="card" data-vip-rate-row="${esc(String(consoleItem.id))}" style="padding:12px;margin:8px 0">
+          <label class="option-row" style="margin:0"><input type="checkbox" data-vip-rate-enabled ${enabled?"checked":""}><div><b>${esc(cName(consoleItem))}</b></div></label>
+          <div class="grid2" style="margin-top:8px">
+            <div class="field"><label class="label">${en?"VIP daily rate":"ค่าเช่า VIP รายวัน"}</label><input class="input" data-vip-rate-daily type="number" min="0" step="1" value="${enabled?esc(Number(rate.daily)||""):""}"></div>
+            <div class="field"><label class="label">${en?"VIP weekly rate":"ค่าเช่า VIP รายสัปดาห์"}</label><input class="input" data-vip-rate-weekly type="number" min="0" step="1" value="${enabled?esc(Number(rate.weekly)||""):""}"></div>
+          </div>
+        </div>`;
+      }).join("");
+      const depositDevices = state.consoles.map(consoleItem => `<label class="option-row" style="margin:6px 0"><input type="checkbox" data-vip-deposit-device="${esc(String(consoleItem.id))}" ${depositIds.includes(String(consoleItem.id))?"checked":""} ${customer.depositAllDevices!==false?"disabled":""}><div>${esc(cName(consoleItem))}</div></label>`).join("");
+      const allRate = customer.deviceRates?.["*"] || {};
+      const allRateEnabled = Number(allRate.daily)>0 || Number(allRate.weekly)>0;
+      return `<div class="card" data-vip-row="${index}" style="margin:0 0 14px">
+        <div class="grid2">
+          <div class="field"><label class="label">${en?"Customer name":"ชื่อลูกค้า"}</label><input class="input" data-vip-field="name" value="${esc(customer.name||"")}"></div>
+          <div class="field"><label class="label">${en?"Phone":"เบอร์โทร"}</label><input class="input" data-vip-field="phone" type="tel" inputmode="numeric" maxlength="10" value="${esc(customer.phone||"")}"></div>
+          <div class="field"><label class="label">LINE Unique ID (${en?"optional":"ไม่บังคับ"})</label><input class="input" data-vip-field="lineUserId" value="${esc(customer.lineUserId||"")}"></div>
+          <label class="option-row"><input type="checkbox" data-vip-field="active" ${customer.active!==false?"checked":""}><div><b>${en?"Active":"เปิดใช้สิทธิ์"}</b></div></label>
+        </div>
+        <h4>${en?"Security-deposit benefit":"สิทธิ์ค่าประกัน"}</h4>
+        <label class="option-row"><input type="checkbox" data-vip-field="depositAllDevices" ${customer.depositAllDevices!==false?"checked":""}><div><b>${en?"Apply to every device":"ใช้กับทุกเครื่อง"}</b></div></label>
+        <div class="grid2" style="margin-top:8px">
+          <div class="field"><label class="label">${en?"Normal ฿2,000 → VIP":"ปกติ 2,000 → VIP"}</label><input class="input" data-vip-deposit-base="2000" type="number" min="0" step="1" value="${esc(customer.depositByBase?.[2000]??"")}"></div>
+          <div class="field"><label class="label">${en?"Normal ฿4,000 → VIP":"ปกติ 4,000 → VIP"}</label><input class="input" data-vip-deposit-base="4000" type="number" min="0" step="1" value="${esc(customer.depositByBase?.[4000]??"")}"></div>
+        </div>
+        <details><summary>${en?"Choose deposit devices":"เลือกเครื่องสำหรับค่าประกัน"}</summary><div class="grid2" style="margin-top:8px">${depositDevices}</div></details>
+        <details><summary>${en?"Set special rental rates":"กำหนดค่าเช่าพิเศษ"}</summary>
+          <div class="card" style="padding:12px;margin:8px 0">
+            <label class="option-row" style="margin:0"><input type="checkbox" data-vip-rate-all ${allRateEnabled?"checked":""}><div><b>${en?"Use one VIP rental rate for every device":"ใช้ค่าเช่า VIP นี้กับทุกเครื่อง"}</b></div></label>
+            <div class="grid2" style="margin-top:8px">
+              <div class="field"><label class="label">${en?"All-device daily rate":"ค่าเช่าทุกเครื่องรายวัน"}</label><input class="input" data-vip-rate-all-daily type="number" min="0" step="1" value="${allRateEnabled?esc(Number(allRate.daily)||""):""}"></div>
+              <div class="field"><label class="label">${en?"All-device weekly rate":"ค่าเช่าทุกเครื่องรายสัปดาห์"}</label><input class="input" data-vip-rate-all-weekly type="number" min="0" step="1" value="${allRateEnabled?esc(Number(allRate.weekly)||""):""}"></div>
+            </div>
+          </div>
+          <p class="hint">${en?"Optional per-device rates below override the all-device rate.":"หากกำหนดราคารายเครื่องด้านล่าง ระบบจะใช้ราคารายเครื่องแทนราคาทุกเครื่อง"}</p>${rateRows}</details>
+        <button class="btn danger" type="button" data-vip-remove="${index}" style="margin-top:12px">${en?"Delete member":"ลบสมาชิก"}</button>
+      </div>`;
+    }).join("");
+    return `<div class="card"><h3>${en?"VIP members":"สมาชิก VIP"}</h3>
+      <p class="hint">${en?"Private member data is stored on the server. Set deposit benefits for every device or selected devices, and optional rental rates per device.":"ข้อมูลสมาชิกเก็บในระบบหลังบ้าน เลือกสิทธิ์ค่าประกันได้ทั้งทุกเครื่องหรือเฉพาะเครื่อง และกำหนดค่าเช่าพิเศษแยกรายเครื่องได้"}</p>
+      ${box.loading?`<p class="hint">${en?"Loading…":"กำลังโหลด…"}</p>`:""}
+      ${box.error?`<p class="hint" style="color:#b42318">${esc(box.error)}</p>`:""}
+      ${rows||`<p class="hint">${en?"No VIP member yet.":"ยังไม่มีสมาชิก VIP"}</p>`}
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="addVipCustomer" type="button">${en?"Add VIP member":"เพิ่มสมาชิก VIP"}</button><button class="btn primary" id="saveVipCustomers" type="button">${en?"Save VIP members":"บันทึกสมาชิก VIP"}</button></div>
+      <p class="hint" id="vipAdminStatus"></p>
+    </div>`;
+  }
+  async function fetchVipCustomersForAdmin(){
+    if(!state.adminToken) return;
+    state.vipCustomers.loading = true;
+    renderAdmin();
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/admin/vip-customers?_ts=${Date.now()}`, {headers:{Authorization:`Bearer ${state.adminToken}`},cache:"no-store"});
+      if(response.status === 401) throw new Error("unauthorized");
+      if(!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json();
+      state.vipCustomers.items = Array.isArray(result.customers) ? result.customers : [];
+      state.vipCustomers.error = "";
+    }catch(error){
+      state.vipCustomers.error = error.message;
+      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); return; }
+    }finally{
+      state.vipCustomers.loading = false;
+      if(byId("adminOverlay").classList.contains("open")) renderAdmin();
+    }
+  }
+  function readVipCustomersFromAdmin(){
+    return $$('[data-vip-row]').map(row => {
+      const current = state.vipCustomers.items[Number(row.dataset.vipRow)] || {};
+      const depositByBase = {};
+      $$('[data-vip-deposit-base]',row).forEach(input => { if(input.value !== "") depositByBase[input.dataset.vipDepositBase] = Math.max(0,Number(input.value)||0); });
+      const deviceRates = {};
+      if($('[data-vip-rate-all]',row)?.checked){
+        deviceRates["*"] = {daily:Math.max(0,Number($('[data-vip-rate-all-daily]',row)?.value)||0),weekly:Math.max(0,Number($('[data-vip-rate-all-weekly]',row)?.value)||0)};
+      }
+      $$('[data-vip-rate-row]',row).forEach(rateRow => {
+        if(!$('[data-vip-rate-enabled]',rateRow)?.checked) return;
+        deviceRates[rateRow.dataset.vipRateRow] = {daily:Math.max(0,Number($('[data-vip-rate-daily]',rateRow)?.value)||0),weekly:Math.max(0,Number($('[data-vip-rate-weekly]',rateRow)?.value)||0)};
+      });
+      return {
+        id:current.id||"", name:$('[data-vip-field="name"]',row)?.value||"", phone:$('[data-vip-field="phone"]',row)?.value||"", lineUserId:$('[data-vip-field="lineUserId"]',row)?.value||"",
+        active:Boolean($('[data-vip-field="active"]',row)?.checked), depositAllDevices:Boolean($('[data-vip-field="depositAllDevices"]',row)?.checked),
+        depositDeviceIds:$$('[data-vip-deposit-device]:checked',row).map(input=>input.dataset.vipDepositDevice), depositByBase, deviceRates
+      };
+    });
+  }
+  async function saveVipCustomersFromAdmin(){
+    const customers = readVipCustomersFromAdmin();
+    const status = byId("vipAdminStatus");
+    const en = state.lang === "en";
+    if(customers.some(customer => !customer.name.trim() || !/^0\d{9}$/.test(customer.phone.replace(/\D/g,"")))){
+      if(status) status.textContent = en?"Every member needs a name and a 10-digit Thai phone number.":"สมาชิกทุกคนต้องมีชื่อและเบอร์โทรไทย 10 หลัก";
+      return;
+    }
+    if(status) status.textContent = en?"Saving…":"กำลังบันทึก…";
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/admin/vip-customers`, {method:"PUT",headers:{"Content-Type":"application/json",Authorization:`Bearer ${state.adminToken}`},body:JSON.stringify({customers})});
+      const result = await response.json().catch(()=>({}));
+      if(response.status === 401) throw new Error("unauthorized");
+      if(!response.ok) throw new Error(result.error||`HTTP ${response.status}`);
+      state.vipCustomers.items = Array.isArray(result.customers)?result.customers:[];
+      renderAdmin();
+      toast(en?"VIP members saved":"บันทึกสมาชิก VIP แล้ว");
+    }catch(error){
+      if(error.message === "unauthorized"){ state.adminToken=""; closeAdmin(); openAdminLogin(); }
       else if(status) status.textContent = error.message;
     }
   }
@@ -10411,6 +10543,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
       }
     });
     document.addEventListener("change", async event => {
+      if(event.target.matches('[data-vip-field="depositAllDevices"]')){
+        const row = event.target.closest('[data-vip-row]');
+        $$('[data-vip-deposit-device]',row).forEach(input => { input.disabled = event.target.checked; });
+        return;
+      }
       if(event.target.id === "rentalTermsAccept"){
         byId("rentalTermsConfirm").disabled = !event.target.checked;
         return;
@@ -10767,6 +10904,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "saveAddons") saveAddons();
       if(targetId === "saveQueueClosures") await saveQueueClosuresFromAdmin();
       if(targetId === "savePickupLocations"){ void savePickupLocationsFromAdmin(); return; }
+      if(targetId === "saveVipCustomers"){ void saveVipCustomersFromAdmin(); return; }
       if(targetId === "saveAboutContent"){ void saveAboutContentFromAdmin(readAboutContentFromAdmin()); return; }
       if(targetId === "resetAboutContent"){ void saveAboutContentFromAdmin(null); return; }
       if(targetId === "savePrivacyContent"){ void savePrivacyContentFromAdmin(readPrivacyFromAdmin()); return; }
@@ -10775,6 +10913,18 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "loadDefaultRentalTerms"){ void loadAdminTerms(true); return; }
       if(targetId === "addPickupLocation"){
         state.pickupLocations.items = [...readPickupLocationsFromAdmin(), {id:"", name:"", address:"", lat:"", lng:"", isDefault:state.pickupLocations.items.length === 0}];
+        renderAdmin();
+        return;
+      }
+      if(targetId === "addVipCustomer"){
+        state.vipCustomers.items = [...readVipCustomersFromAdmin(), {id:"",name:"",phone:"",lineUserId:"",active:true,depositAllDevices:true,depositDeviceIds:[],depositByBase:{2000:1000,4000:2000},deviceRates:{}}];
+        renderAdmin();
+        return;
+      }
+      const vipRemove = event.target.closest("[data-vip-remove]");
+      if(vipRemove){
+        const index = Number(vipRemove.dataset.vipRemove);
+        state.vipCustomers.items = readVipCustomersFromAdmin().filter((_,position)=>position!==index);
         renderAdmin();
         return;
       }
@@ -11119,7 +11269,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(directBookingEntry && !(UNIFIED_FLOW_DEMO && demoProfileRestored)) state.calc.step = 1;
     restoreAvailabilityCache();
     state.availability.holds = mergeBookingHolds(state.availability.holds);
-    state.beforeRentActive = UNIFIED_FLOW_DEMO ? false : !hasRentalContext();
+    // A normal visit always starts with the Before rent page. Deep links that
+    // already carry a selected rental context still open the relevant step.
+    state.beforeRentActive = !hasRentalContext();
     if(new URLSearchParams(location.search).get("admin") === "1") byId("adminBtn").hidden = false;
     const viewCode = new URLSearchParams(location.search).get("viewMsg");
     if(viewCode){ renderBookingViewer(viewCode.trim()); return; }
@@ -11148,8 +11300,6 @@ We apologize for the inconvenience and hope everyone stays safe.`
       const requestedConsole = deepLinkedConsole();
       setTimeout(() => openGamePicker({browseOnly:true, consoleId:requestedConsole?.id || ""}), 120);
     }else if(!openedFromLink && directBookingEntry){
-      setTimeout(() => byId("calcHeading").scrollIntoView({block:"start"}), 80);
-    }else if(!openedFromLink && UNIFIED_FLOW_DEMO){
       setTimeout(() => byId("calcHeading").scrollIntoView({block:"start"}), 80);
     }else if(!openedFromLink && (location.hash === "#calculator" || pageParams.get("go") === "calc")){
       setTimeout(() => byId("calculator").scrollIntoView(), 80);
