@@ -2255,7 +2255,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,retVerified:false,retVerificationMethod:"",retVerifiedLineUserId:"",retVerificationToken:"",vip:null,masterAgreement:null,masterAgreementAccepted:false,masterAgreementAcceptedAt:"",reviewGoogle:false,reviewFacebook:false,noContract:false,rentalTermsAccepted:false,rentalTermsAcceptedAt:"",rentalTermsVersion:"",rentalTermsLanguage:"",payment:"cash",maps:"",games:[],later:true,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",beamPaymentExpiresAt:"",contractSignature:"",demoCustomerName:"",demoCustomerPhone:"",demoContractCompleted:false,demoContractSignature:"",demoOrderOpen:false,demoIdentitySkipped:false,demoIdentityStatus:"",demoContextToken:"",demoAgreementFor:"",guideDone:{},guideConsoleId:""},
     availability: {rows:[],holds:[],loading:false,error:"",lastSync:0,stale:false,gate:{mode:"idle",pass:true}},
     queueClosures: {allClosed:false,types:{console:false,vr:false,handheld:false,racing:false},devices:{},rules:{all:{closed:false,startAt:"",endAt:""},types:{},devices:{}},loading:false,error:"",updatedAt:""},
-    calendar: {open:false,mode:"start",base:new Date(),draftStart:"",draftEnd:""},
+    calendar: {open:false,mode:"start",base:new Date(),draftStart:"",draftEnd:"",fromOrder:false},
     faqExpanded: false,
     adminTab: "queue",
     pickupLocations: {loading:false, error:"", items:[]},
@@ -4869,7 +4869,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <section class="demo-order-section">${demoSectionHeadHtml(en ? "Rental item" : "สินค้าที่เช่า", 1)}${demoRentalItemHtml(item, summary)}</section>
         <section class="demo-order-section"><h3>${en ? "Details" : "รายละเอียด"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Rental ID":"รหัสการเช่า"}</span><b>${esc(state.calc.rentalCode || "-")}</b></div><div class="demo-order-row"><span>${en?"Rental status":"สถานะการเช่า"}</span><b class="demo-status is-awaiting">${en?"Awaiting payment":"รอชำระเงิน"}</b></div></div></section>
         <section class="demo-order-section">${demoSectionHeadHtml(en ? "Customer" : "ข้อมูลลูกค้า", 2)}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Name":"ชื่อ"}</span><b>${esc(demoProfile.fullName)}</b></div>${state.calc.noContract ? "" : `<div class="demo-order-row"><span>${esc(demoIdentityNumberLabel())}</span><b>${esc(demoIdentityDisplay())}</b></div>`}<div class="demo-order-row"><span>${en?"Phone":"เบอร์ติดต่อ"}</span><b>${esc(demoProfile.phone)}</b></div><div class="demo-order-row"><span>${en?"Delivery":"ที่อยู่จัดส่ง"}</span><b>${esc([demoProfile.addressLine,demoProfile.subdistrict,demoProfile.district,demoProfile.province,demoProfile.postalCode].filter(Boolean).join(" ") || (en ? "Google Maps pin only" : "ใช้หมุด Google Maps"))}</b></div><div class="demo-order-row"><span>Google Maps</span><b><a href="${esc(safeHref(demoProfile.maps))}" target="_blank" rel="noopener">${en?"Open map":"เปิดแผนที่"}</a></b></div></div></section>
-        <section class="demo-order-section">${demoSectionHeadHtml(en ? "Rental period" : "ช่วงเวลา", 1)}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Duration":"ระยะเวลา"}</span><b>${summary.days} ${en?"days":"วัน"}</b></div><div class="demo-order-row"><span>${en?"Dates":"วันที่เช่า"}</span><b>${displayDate(state.calc.start)} – ${displayDate(state.calc.end)}</b></div></div></section>
+        <section class="demo-order-section">${demoSectionHeadHtml(en ? "Rental period" : "ช่วงเวลา", "dates")}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Duration":"ระยะเวลา"}</span><b>${summary.days} ${en?"days":"วัน"}</b></div><div class="demo-order-row"><span>${en?"Dates":"วันที่เช่า"}</span><b>${displayDate(state.calc.start)} – ${displayDate(state.calc.end)}</b></div></div></section>
       </div>
       <div>
         <section class="demo-order-section"><h3>${en ? "Identity verification" : "การยืนยันตัวตน"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Status":"สถานะ"}</span><b class="demo-status ${identityTone}">${esc(identityState)}</b></div>${verifyNow?`<div class="demo-order-action"><button class="btn" id="demoVerifyLater" type="button">${en?"Verify now":"ยืนยันตอนนี้"}</button></div>`:""}</div></section>
@@ -6136,9 +6136,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     else host.textContent = "";
   }
 
-  function openCalendar(mode){
+  // From the Rental ID page the calendar edits the dates on its own: nothing on
+  // the page changes until the renter presses OK, so clearing or closing
+  // leaves the booking as it was.
+  function openCalendar(mode, options={}){
     state.calendar.open = true;
     state.calendar.mode = mode;
+    state.calendar.fromOrder = !!options.fromOrder;
     const invalidStart = state.calc.start && !startDateAllowed(state.calc.start);
     state.calendar.draftStart = invalidStart ? "" : state.calc.start;
     state.calendar.draftEnd = invalidStart ? "" : state.calc.end;
@@ -6154,7 +6158,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     startBookingHoldPolling();
     renderCalendar();
   }
-  function closeCalendar(){ state.calendar.open = false; stopBookingHoldPolling(); byId("calendarModal").classList.remove("open"); }
+  function closeCalendar(){ state.calendar.open = false; state.calendar.fromOrder = false; stopBookingHoldPolling(); byId("calendarModal").classList.remove("open"); }
   function toggleCalendarLang(){
     state.lang = state.lang === "en" ? "th" : "en";
     render();
@@ -6369,6 +6373,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     render();
   }
   function clearCalendarRange(){
+    if(state.calendar.fromOrder){
+      state.calendar.draftStart = "";
+      state.calendar.draftEnd = "";
+      state.calendar.mode = "start";
+      renderCalendar();
+      return;
+    }
     const previousCode = state.calc.rentalCode || "";
     state.calendar.draftStart = "";
     state.calendar.draftEnd = "";
@@ -10912,7 +10923,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
         return;
       }
       const demoEdit = event.target.closest("[data-demo-edit]");
-      if(demoEdit){ openDemoEditModal(Number(demoEdit.dataset.demoEdit) || 1); return; }
+      if(demoEdit){
+        if(demoEdit.dataset.demoEdit === "dates") openCalendar("start", {fromOrder:true});
+        else openDemoEditModal(Number(demoEdit.dataset.demoEdit) || 1);
+        return;
+      }
       if(targetId === "demoEditSave"){ closeDemoEditModal(true); return; }
       if(targetId === "demoEditCancel" || targetId === "demoEditClose"){ closeDemoEditModal(false); return; }
       if(event.target.closest("[data-delivery-quote-retry]")){ await fetchDemoDeliveryQuote(); return; }

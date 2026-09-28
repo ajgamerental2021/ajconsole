@@ -636,3 +636,10 @@ test('Admin → Rentals finds a rental and sends its confirmation email again', 
   assert.match(html, /en \? "Send confirmation email again" : "ส่งอีเมลยืนยันอีกครั้ง"/);
   assert.match(html, /Authorization:`Bearer \$\{state\.adminToken\}`/);
 });
+
+test('editing the rental period on the Rental ID page opens only the queue calendar', () => {
+  assert.match(html, /demoSectionHeadHtml\(en \? "Rental period" : "ช่วงเวลา", "dates"\)/);
+  assert.match(html, /if\(demoEdit\.dataset\.demoEdit === "dates"\) openCalendar\("start", \{fromOrder:true\}\)/);
+  // Clearing inside that calendar must not drop the booking's dates or Rental ID.
+  assert.match(html, /function clearCalendarRange\(\)\{\n    if\(state\.calendar\.fromOrder\)\{/);
+});

@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-09-28 — Rental period edits open the calendar only; owner copied on confirmation emails
+
+- On the Rental ID page, Edit / แก้ไข beside Rental period / ช่วงเวลา now opens the queue calendar by itself instead of the whole step-1 pane. OK updates the duration and dates on the page (fee and delivery quote follow through the normal render). Inside this calendar, Clear selected dates / ล้างวันที่ที่เลือก only clears the draft, and closing without OK leaves the booking's dates and Rental ID untouched. Edit beside Rental item / สินค้าที่เช่า still opens the full equipment pane.
+- Bot: every rental confirmation email (paid rental and Admin resend) now CCs `ajgamerental2021@gmail.com` in addition to `BOOKING_EMAIL_CC` (contact@ajgamerental.com), deduplicated. Overridable with `RENTAL_CONFIRMATION_CC`; an empty value falls back to the owner inbox.
+- Verification: 167/167 website tests and 415/415 Bot tests pass; website inline JavaScript passes `node --check`. Walked in headless Chromium with the APIs mocked: 28–31/10 (3 days) changed to 03–08/11 (5 days) through the calendar and the Rental period card updated; clear + close kept 28–31/10 and the Rental ID.
+- Note: the header above still says the unified flow is behind `?flowDemo=1`; it is now the default (`legacyFlow=1` for the old flow) and `UNIFIED_FLOW_TEST_CHARGE` is `false`.
+
 ## 2026-09-28 — Returning-customer autofill, retained identity photos, and live delivery quotes
 
 - The unified flow now restores the latest known name, phone, email, delivery address and map pin after a verified LINE sign-in or successful returning-customer lookup. Existing customer edits win: autofill only fills blank fields. The browser keeps those contact/delivery fields for 24 hours, while full identity numbers and images remain out of localStorage; the server returns only the document's last four characters.
