@@ -7,6 +7,7 @@
 - Root cause of the stuck “Awaiting confirmed quote” / “รอยืนยันราคาจริง” state: the production service was configured to call Lalamove's sandbox base URL. The Render blueprint now uses the live endpoint, and the Bot also chooses the live/sandbox host from the production/test key prefix so the two cannot silently drift again.
 - A failed live quote now gives a clear bilingual explanation and Calculate again / ตรวจสอบข้อมูลจัดส่ง actions. Checkout stays disabled until a confirmed delivery quote is present, and the payment launcher rechecks the quote before it creates a Beam link.
 - Verification: 161/161 website tests and 409/409 Bot tests pass; website inline JavaScript and changed server modules pass syntax checks; both repositories pass `git diff --check`.
+- Production verification: Bot commit `7430828` is live. A real quote request for one ordinary device returned HTTP 200, `MOTORCYCLE`, round-trip subtotal ฿212, AJ discount ฿100, customer delivery total ฿112 and valid quotation IDs. Both `ajgamerental.com` and `ajgamerental.onrender.com` serve the updated bilingual retry/retained-photo UI.
 
 ## 2026-09-28 — Catalogue Admin username no longer disclosed
 
