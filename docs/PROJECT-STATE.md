@@ -1,5 +1,14 @@
 # Project state
 
+## 2026-09-28 — Passkey Admin access and monochrome contract logo
+
+- Admin sign-in on the booking page, game catalogue, and AJ Game ID catalogue now offers Passkey in Thai and English. Existing password sign-in remains as the bootstrap/recovery path, and an authenticated Admin can add a passkey from each surface.
+- WebAuthn ceremonies are verified by the Bot, require user verification, expire after five minutes, are origin/RP-bound, and share the existing Admin login rate limit. Credential public keys and counters are kept in the private `Admin Passkeys` Google Sheet; the public site-content API cannot read them. The old catalogue credentials embedded in public HTML were removed.
+- A passkey registered on `ajgamerental.onrender.com` covers all three production pages there. The standalone GitHub Pages AJ Game ID origin has a different RP ID and needs its own registration if that deployment remains in use.
+- The contract logo is now a deterministic grayscale asset and sits 18 pt from the top-right edge on physical pages 1 and 2 only. All six pages of representative Thai and English contracts were rendered and visually checked; page 3 remains unbranded.
+- Updated Nodemailer to 10.0.11 after the production dependency audit found a high-severity issue in the previous release. `npm audit --omit=dev` now reports zero vulnerabilities.
+- Verification: 407/407 Bot tests and 160/160 website tests pass; all changed browser scripts and server modules pass syntax checks; both sites pass `git diff --check`.
+
 ## 2026-09-28 — AJ logo on the first two contract pages
 
 - The bilingual Master Agreement PDF now places the existing AJ logo in the upper-right corner of physical pages 1 and 2 only. Later terms pages remain unbranded, and the Rental Order PDF is unchanged.

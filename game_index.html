@@ -2954,6 +2954,7 @@
       <input class="field-input" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <button class="btn-login" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <button class="login-cancel" id="catalog-passkey-login" onclick="loginWithPasskey()">เข้าสู่ระบบด้วย Passkey</button>
     <button class="login-cancel" onclick="hideLogin()">ยกเลิก</button>
   </div>
 </div>
@@ -2966,6 +2967,7 @@
       <button class="btn btn-secondary btn-sm" onclick="exportData()" title="Export ข้อมูลทั้งหมดเป็นไฟล์ JSON">📤 Export</button>
       <button class="btn btn-secondary btn-sm" onclick="document.getElementById('import-file-input').click()" title="Import ข้อมูลจากไฟล์ JSON">📥 Import</button>
       <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="importData(this)">
+      <button class="btn btn-secondary btn-sm" id="catalog-passkey-register" onclick="registerPasskey()">เพิ่ม Passkey</button>
       <button class="btn-logout" onclick="logout()">Logout</button>
     </div>
   </div>
@@ -3274,6 +3276,8 @@
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<script src="assets/vendor/simplewebauthn-browser-14.0.0.umd.min.js"></script>
+<script src="assets/admin-passkey.js"></script>
 <script>
 /* ──────────────────────────────────────
    DEFAULT DATA
@@ -4599,38 +4603,79 @@ function closeTrailer(e) {
    LOGIN
 ────────────────────────────────────── */
 document.getElementById('catalog-admin-btn').hidden = new URLSearchParams(window.location.search).get('admin') !== '1';
+const ADMIN_API_BASE = 'https://aj-line-oa-bot.onrender.com';
+const CATALOG_ADMIN_TOKEN_KEY = 'aj_catalog_admin_token';
+let catalogAdminToken = sessionStorage.getItem(CATALOG_ADMIN_TOKEN_KEY) || '';
 function showLogin() {
+  if (catalogAdminToken) {
+    openAdmin();
+    return;
+  }
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
   document.getElementById('login-error').style.display = 'none';
+  document.getElementById('catalog-passkey-login').hidden = !window.AJAdminPasskey?.supported?.();
   document.getElementById('login-overlay').classList.add('open');
   setTimeout(() => document.getElementById('login-user').focus(), 100);
 }
 function hideLogin() {
   document.getElementById('login-overlay').classList.remove('open');
 }
-// Credentials stored as simple hash — not plaintext
-const _a = [97,106,103,97,109,101];        
-const _b = [84,64,110,111,115,101,64,50,48,50,54];
-function _chk(u, p) {
-  const eu = u.split('').map(c=>c.charCodeAt(0));
-  const ep = p.split('').map(c=>c.charCodeAt(0));
-  if (eu.length !== _a.length || ep.length !== _b.length) return false;
-  return eu.every((v,i)=>v===_a[i]) && ep.every((v,i)=>v===_b[i]);
-}
-function doLogin() {
+async function doLogin() {
   const u = document.getElementById('login-user').value.trim();
   const p = document.getElementById('login-pass').value;
-  if (_chk(u, p)) {
+  try {
+    const response = await fetch(`${ADMIN_API_BASE}/api/admin/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: u, password: p }),
+    });
+    if (!response.ok) throw new Error('invalid');
+    const result = await response.json();
+    catalogAdminToken = String(result.token || '');
+    if (!catalogAdminToken) throw new Error('invalid');
+    sessionStorage.setItem(CATALOG_ADMIN_TOKEN_KEY, catalogAdminToken);
     hideLogin();
     openAdmin();
-  } else {
+  } catch (error) {
     document.getElementById('login-error').style.display = 'block';
     document.getElementById('login-pass').value = '';
     document.getElementById('login-pass').focus();
   }
 }
+async function loginWithPasskey() {
+  const error = document.getElementById('login-error');
+  error.style.display = 'none';
+  try {
+    const result = await window.AJAdminPasskey.login(ADMIN_API_BASE);
+    catalogAdminToken = String(result.token || '');
+    if (!catalogAdminToken) throw new Error('invalid');
+    sessionStorage.setItem(CATALOG_ADMIN_TOKEN_KEY, catalogAdminToken);
+    hideLogin();
+    openAdmin();
+  } catch (loginError) {
+    console.error('Catalogue Passkey login failed', loginError);
+    error.textContent = currentLang === 'en' ? 'Passkey could not be used. Try again or use your password.' : 'ไม่สามารถใช้ Passkey ได้ กรุณาลองใหม่หรือใช้รหัสผ่าน';
+    error.style.display = 'block';
+  }
+}
+async function registerPasskey() {
+  const button = document.getElementById('catalog-passkey-register');
+  const label = window.prompt(currentLang === 'en' ? 'Passkey name (for example, MacBook or iPhone)' : 'ชื่อ Passkey เช่น MacBook หรือ iPhone', '') ?? '';
+  button.disabled = true;
+  try {
+    await window.AJAdminPasskey.register(ADMIN_API_BASE, catalogAdminToken, label);
+    showToast(currentLang === 'en' ? 'Passkey added' : 'เพิ่ม Passkey เรียบร้อยแล้ว');
+  } catch (error) {
+    console.error('Catalogue Passkey registration failed', error);
+    showToast(currentLang === 'en' ? 'Passkey could not be added' : 'เพิ่ม Passkey ไม่สำเร็จ');
+  } finally {
+    button.disabled = false;
+  }
+}
 function logout() {
+  catalogAdminToken = '';
+  sessionStorage.removeItem(CATALOG_ADMIN_TOKEN_KEY);
   document.getElementById('admin-panel').classList.remove('open');
   showToast('ออกจากระบบแล้ว');
 }
@@ -5983,6 +6028,10 @@ function toggleLang() {
 
 function applyLang() {
   const T = TRANSLATIONS[currentLang];
+  const passkeyLogin = document.getElementById('catalog-passkey-login');
+  const passkeyRegister = document.getElementById('catalog-passkey-register');
+  if (passkeyLogin) passkeyLogin.textContent = currentLang === 'en' ? 'Sign in with Passkey' : 'เข้าสู่ระบบด้วย Passkey';
+  if (passkeyRegister) passkeyRegister.textContent = currentLang === 'en' ? 'Add Passkey' : 'เพิ่ม Passkey';
 
   // Switch logo text
   const logoText = document.getElementById('logo-text');
