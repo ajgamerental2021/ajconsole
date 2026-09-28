@@ -1,5 +1,73 @@
 # Project state
 
+## 2026-09-27 — Open items after the Claude Code sessions of 24–27 September (read first)
+
+State at website `5a2189a`, Bot `869d766`; website 157/157 and Bot 402/402 tests pass. Everything below is deployed. The unified flow is still behind `?flowDemo=1` and still charges ฿1.
+
+Waiting on the shop owner:
+- Apps Script: paste the current `google-apps-script/DriveUploadWebApp.gs` (Bot repo), run `authorizeGmail` once and allow Gmail, then Deploy → Manage deployments → New version. Until then the Render log shows "The script does not have permission…" for sends from contact@; the Bot retries from the Gmail account itself, so customers do get the email, just not from contact@ajgamerental.com.
+- Top up Lalamove and set the pickup point (delivery quotes).
+- Delete test rentals: AJ-20260924-R0056, R0057, R0085; AJ-20260925-R0011, R0026; the duplicate ฿1 delivery-app payment for R0064; AJ-20260926-R0039, R0049, R0054 and other test rows from 26/09.
+- Turn off the flood announcement (Admin → ประกาศ) when deliveries resume.
+- Delivery-app side of identity holds: `docs/DELIVERY-APP-ID-EXPIRY-PROMPT.md` in the Bot repo.
+
+Not yet verified on production (needs a real ฿1 payment, owner's device):
+- Upload identity photos on step 3, change the payment method on the Rental ID page, pay: the Rental ID must stay the same and the email must carry the AJ logo and the agreement PDF. Then Menu → Check my rental with email + phone must find it.
+- Admin → Rentals resend against real sheet data; confirm-step speed with real Drive uploads.
+
+To switch the unified flow live (only when the owner says so): set `UNIFIED_FLOW_TEST_CHARGE = false`, remove the "Demo … ทดสอบ 1 บาท" banner, make the unified flow the default instead of `?flowDemo=1`, and re-check the non-demo path.
+
+Known: R0054 has no contract. Its signature was filed under R0049 (the old Rental ID bug below), so Admin resend reports no signed agreement waiting. A new test booking is needed for a contract.
+
+## 2026-09-27 — A paid web rental always gets its contract; Check my rental; pop-up language buttons
+
+- Root cause of "paid but no contract / no PDF" (R0039, R0054): `rentalSignature()` included the payment method and total, so choosing a payment method or receiving the delivery quote on the Rental ID page allocated a new Rental ID. The signed agreement and identity photos stayed with the old ID. Fixed:
+  - payment and total no longer change the Rental ID;
+  - the Console Pending row is rewritten whenever its content changes (content key in `aj_rental_sheet_submitted_<code>`);
+  - before payment the page files the agreement under the current ID (`state.calc.demoAgreementFor`), or sends the renter back to sign if the signature is no longer in memory;
+  - identity photos move to a new ID through `previousContextToken` (same document only);
+  - identity upload and agreement, sent in parallel, no longer overwrite each other on the Bot.
+- A paid rental without a contract alerts the shop on LINE with the reason (`agreementProblems`).
+- Passport numbers limited to 6–10 characters, matching the contract schema.
+- Check my rental (Menu, and `?myRental=CODE&t=TOKEN` from the email): `POST /api/rentals/lookup` accepts a private view token (issued with the booking context and in the email link), Rental ID + phone, or email + phone (lists that renter's rentals). 20 tries per 15 minutes per IP. Rentals made on the device open with one tap. Language button and copy-link button.
+- Pop-ups share one language button: `showModal(title, body, {relocalize})` (FAQ, Check my rental, paid notice, Verify now). The returning-customer dialog has its own button and now says "ไม่เคยทำสัญญาการเช่า" / "I have never signed a rental agreement".
+- "ยืนยันตอนนี้" / "Verify now" on the Rental ID page opens the two-photo upload in a pop-up (`demoIdentityUploadGridHtml(prefix)`, shared with step 3) instead of reopening step 3.
+- Paid pop-up shows the full rental (equipment, dates, days, fee, deposit, name, phone, identity status, verify button) and can switch language.
+- Confirmation email: AJ logo on the right of the heading (`public/assets/aj-email-logo.png`, shown only for an https base URL). English bookings get an English email.
+- Menu has line icons (not emoji); more space above the Rental Terms; identity-sent state survives a reload.
+- Verification: local end-to-end runs with mock Beam and mock Apps Script (Thai verify-later with payment change, English with photos on step 3, dates edited after signing) all produced the contract PDF attached to the email.
+
+## 2026-09-26 — Identity expiry rule, confirmation email reliability, Admin → Rentals
+
+- ID card or passport must expire after the return date (expired, before start, during the rental or on the return date all block). The website shows a red warning and disables continuing and paying. The LINE contract form shows a warning pop-up. The Bot checks it on new signings only (`idExpiresTooEarly`), so the shop can still edit and rebuild older contracts. Also fixed: renters without a Thai address had skipped the expiry and email checks.
+- Faster confirm step: both identity images go to Drive in parallel, and the signature's Drive backup happens after the renter is answered (`backUpPendingSignature`).
+- Confirmation email:
+  - fee, deposit and a Check-my-rental link added;
+  - if sending as contact@ fails, the Bot retries from the account;
+  - a failed send alerts the shop on Discord and LINE;
+  - the outcome is stored as `rentalConfirmationEmailStatus`.
+  - Apps Script falls back to MailApp when GmailApp is not authorised, and gained `authorizeGmail()`.
+- Admin → Rentals (รายการเช่า): find a rental and "Send confirmation email again". A signed agreement still waiting is made into the contract first and its PDF attached; an existing contract's PDF is rebuilt and attached. Endpoints: `GET /api/admin/rentals/:code`, `POST /api/admin/rentals/:code/resend-confirmation`.
+- Identity photos sent show green "ยืนยันตัวตนเรียบร้อยแล้ว" to the renter (the shop still sees "awaiting review"). Example photos fit the screen.
+
+## 2026-09-26 — Site announcement pop-up and day-range queue closures
+
+- Announcement pop-up on every page load, above any linked pop-up. Thai on the left, English on the right, with ⚠️. It is edited and switched on/off in Admin → ประกาศ (site-content key `announcement`) and currently shows the flood notice.
+- It opens while the page loads from the browser's last copy (localStorage), and the current copy is fetched before the main script runs. The Bot keeps site content in memory for 60 s; a save updates it at once.
+- Queue closures in Admin take dates (Bangkok days). A closure with an end date blocks deliveries and returns on those days only; rentals spanning them are allowed. No end date keeps the old "no bookings" behaviour. Calendar cells show "ปิดคิว" / "Closed".
+
+## 2026-09-25 — Agreement at payment, Beam return confirmation, menu and payment layout
+
+- The web agreement (Master Agreement, same as the LINE form) is signed on step 3 and made into the contract only when the rental is paid.
+- Paid rentals confirm themselves from the Beam webhook (`charge.succeeded` and `payment_link.paid`) or from the return page (`/api/payments/confirm-return`), without running twice after a restart.
+- The confirmation is an HTML email with the agreement PDF attached, CC contact@ajgamerental.com.
+- `UNIFIED_FLOW_TEST_CHARGE` switches between the ฿1 trial charge and real amounts.
+- Header menu: Rental prices / Game list / How to rent (same pop-ups as `?allConsoles=1`, `?games=1`, `?steps=1`).
+- Payment groups have prominent headings.
+- LINE-verified details show as a summary card with Edit; returning LINE renters are filled from their last booking too.
+- The Wise deposit refund is offered on English bookings only.
+- Deleted built-in games stay deleted.
+
 ## 2026-09-26 — Payment group titles no longer split badly on phones
 
 - Thai reservation group title shortened to “ชำระปลายทาง (โอนจองคิว ฿200)”. The bracketed part never breaks, so “฿200)” can no longer drop onto a line of its own; on a phone it sits as one clean second line.
