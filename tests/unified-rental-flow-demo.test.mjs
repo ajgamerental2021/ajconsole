@@ -36,7 +36,15 @@ test('demo customer details are included in the real booking context', () => {
 test('demo identity data stays in page memory and no-contract deposit uses the proposed tiers', () => {
   assert.match(html, /const demoProfile = \{/);
   assert.match(html, /if\(UNIFIED_FLOW_DEMO\) return Number\(base\) >= 4000 \? 15000 : 10000/);
-  assert.match(html, /Identity numbers, addresses and images deliberately stay out of localStorage/);
+  assert.match(html, /Full identity numbers and images deliberately stay out of localStorage/);
+});
+
+test('verify later keeps already selected identity photos', () => {
+  assert.match(html, /Your selected photos are still kept on this page/);
+  assert.match(html, /รูปที่เลือกไว้ยังอยู่ในหน้านี้/);
+  const skipHandler = html.slice(html.indexOf('if(event.target.id === "demoIdentitySkip")'), html.indexOf('if(event.target.classList?.contains("demo-camera-input"'));
+  assert.doesNotMatch(skipHandler, /idDocument\s*=\s*null/);
+  assert.doesNotMatch(skipHandler, /selfieWithId\s*=\s*null/);
 });
 
 test('payment success handoff can request confirmation-only LINE Flex', () => {
@@ -139,10 +147,13 @@ test('the guide never moves the demo customer between steps', () => {
 
 test('round-trip delivery price comes from the Bot and is never shown as final when missing', () => {
   assert.match(html, /\/api\/delivery\/quote/);
-  assert.match(html, /demoDelivery = \{status:"idle", quote:null, key:""\}/);
-  assert.match(html, /Awaiting confirmed quote/);
+  assert.match(html, /demoDelivery = \{status:"idle", quote:null, key:"", error:""\}/);
+  assert.match(html, /Waiting for the live delivery price/);
   assert.ok(html.includes('needs_pin: en ? "Map pin needed" : "ต้องปักหมุดแผนที่"'));
   assert.match(html, /hasLargeItem: \/G29\|Logitech\/i\.test\(name\)/);
+  assert.match(html, /data-delivery-quote-retry/);
+  assert.match(html, /The live delivery price is not ready\. Please calculate it again before paying\./);
+  assert.match(html, /ยังไม่ได้ราคาค่าส่งจริง กรุณาคำนวณค่าส่งอีกครั้งก่อนชำระเงิน/);
 });
 
 test('privacy policy explains that AJ stores no card or e-wallet details', () => {
@@ -190,8 +201,11 @@ test('a live Master Agreement replaces identity verification for the rental', ()
 });
 
 test('a verified LINE sign-in fills the saved email and address', () => {
-  assert.match(html, /demoProfile\.email = String\(result\.profile\.email/);
-  assert.match(html, /applyDemoSavedAddress\(String\(result\.profile\.address \|\| ""\)\)/);
+  assert.match(html, /function applyDemoReturningProfile\(profile/);
+  assert.match(html, /applyDemoSavedAddress\(profile\.address\)/);
+  assert.match(html, /fill\("email", profile\.email\)/);
+  assert.match(html, /saveDemoProfile\(\)/);
+  assert.match(html, /applyDemoReturningProfile\(result\.profile/);
 });
 
 test('multi-line catalogue details render as separate lines everywhere', () => {
@@ -203,7 +217,8 @@ test('multi-line catalogue details render as separate lines everywhere', () => {
 test('checkout goes straight to the payment provider, which refuses framing', () => {
   assert.match(html, /location\.href = url;/);
   assert.doesNotMatch(html, /demoPayModal/);
-  assert.match(html, /en\?"Pay now":"ชำระเงิน"/);
+  assert.match(html, /en \? "Pay now" : "ชำระเงิน"/);
+  assert.match(html, /id="demoBeamPay" type="button" \$\{deliveryReady \? "" : "disabled"\}/);
   assert.doesNotMatch(html, /Create payment link/);
 });
 
@@ -215,7 +230,7 @@ test('the Wise option leads with its logo', () => {
 test('a returning customer sees the document AJ already holds', () => {
   assert.match(html, /function demoIdentityDisplay\(\)/);
   assert.match(html, /demoProfile\.identityOnFileLast4/);
-  assert.match(html, /result\.profile\.identityLast4/);
+  assert.match(html, /profile\.identityLast4/);
 });
 
 test('the demo asks for the document expiry and refuses an expired one', () => {
@@ -451,7 +466,7 @@ test('payment groups have large headings with the arrow on the left', () => {
 });
 
 test('the demo pay button is large, green, and carries a lock icon', () => {
-  assert.match(html, /<button class="btn primary demo-pay-btn" id="demoBeamPay" type="button"><svg viewBox="0 0 24 24" aria-hidden="true">/);
+  assert.match(html, /<button class="btn primary demo-pay-btn" id="demoBeamPay" type="button" \$\{deliveryReady \? "" : "disabled"\}><svg viewBox="0 0 24 24" aria-hidden="true">/);
   assert.match(html, /body\.unified-flow-demo \.demo-pay-btn\{width:100%;min-height:60px;[^}]*font-size:20px;font-weight:900/);
   // Green, so it never matches the red open payment group above it.
   assert.match(html, /\.demo-pay-btn\{[^}]*background:linear-gradient\(180deg,#1fa34a,#0f7a34\)/);
@@ -462,7 +477,7 @@ test('a LINE-verified returning renter sees their saved details as one summary w
   assert.match(html, /ข้อมูลจากการเช่าครั้งก่อน/);
   assert.match(html, /Your details from your last rental/);
   assert.match(html, /if\(targetId === "demoContactEdit"\)\{ demoContactEditing = true; render\(\);/);
-  assert.match(html, /demoContactFromLine = !!\(result\.profile\.fullName \|\| result\.profile\.phone\);/);
+  assert.match(html, /demoContactFromLine = !!\(demoProfile\.fullName \|\| demoProfile\.phone\);/);
   // A missing required field reopens the form rather than hiding the error.
   assert.match(html, /if\(demoContactCollapsed\(\) && demoStep2Problems\(\)\.some\(problem => DEMO_CONTACT_IDS\.includes\(problem\.id\)\)\)\{/);
   // No blank date for a renter verified from rental history.

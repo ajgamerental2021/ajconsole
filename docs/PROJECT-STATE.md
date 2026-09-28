@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-09-28 — Returning-customer autofill, retained identity photos, and live delivery quotes
+
+- The unified flow now restores the latest known name, phone, email, delivery address and map pin after a verified LINE sign-in or successful returning-customer lookup. Existing customer edits win: autofill only fills blank fields. The browser keeps those contact/delivery fields for 24 hours, while full identity numbers and images remain out of localStorage; the server returns only the document's last four characters.
+- Choosing “Verify later” / “ยืนยันตัวตนภายหลัง” no longer clears identity photos already selected in the current page. A bilingual notice explains that the files are still held and can be submitted by unticking the option.
+- Root cause of the stuck “Awaiting confirmed quote” / “รอยืนยันราคาจริง” state: the production service was configured to call Lalamove's sandbox base URL. The Render blueprint now uses the live endpoint, and the Bot also chooses the live/sandbox host from the production/test key prefix so the two cannot silently drift again.
+- A failed live quote now gives a clear bilingual explanation and Calculate again / ตรวจสอบข้อมูลจัดส่ง actions. Checkout stays disabled until a confirmed delivery quote is present, and the payment launcher rechecks the quote before it creates a Beam link.
+- Verification: 161/161 website tests and 409/409 Bot tests pass; website inline JavaScript and changed server modules pass syntax checks; both repositories pass `git diff --check`.
+
 ## 2026-09-28 — Catalogue Admin username no longer disclosed
 
 - Removed the real Admin username from the public `game_index.html` login placeholder. The username field now opens empty and disables autocapitalization and spellcheck while retaining the browser's standard username autocomplete behavior.
