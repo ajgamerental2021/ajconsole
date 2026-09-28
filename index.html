@@ -9935,6 +9935,43 @@ We apologize for the inconvenience and hope everyone stays safe.`
   function vipRateForConsole(customer, consoleItem){
     return customer?.deviceRates?.[String(consoleItem.id)] || customer?.deviceRates?.[vipDeviceKey(consoleItem)] || {};
   }
+  // The Bot fills a blank LINE Unique ID from the shop's sheets when the phone
+  // (or an unambiguous name) matches; say where it came from.
+  function vipLineMatchHintHtml(match){
+    if(!match?.source) return "";
+    const en = state.lang === "en";
+    const source = {
+      contract: en ? "rental contracts" : "สัญญาเช่า",
+      booking: en ? "booking log" : "ประวัติการจอง",
+      delivery_customer: en ? "Delivery App customers" : "ลูกค้า Delivery App"
+    }[match.source] || match.source;
+    const by = match.matchedBy === "name" ? (en ? "name matched" : "ชื่อตรงกัน") : (en ? "phone matched" : "เบอร์โทรตรงกัน");
+    return `<p class="hint" data-vip-line-hint style="color:#176331">${esc(en ? `Filled automatically from ${source} (${by})` : `ใส่อัตโนมัติจาก${source} (${by})`)}</p>`;
+  }
+  async function lookupVipLineForRow(row){
+    const lineInput = $('[data-vip-field="lineUserId"]', row);
+    if(!lineInput || lineInput.value.trim()) return;
+    const index = Number(row.dataset.vipRow);
+    const customers = readVipCustomersFromAdmin();
+    const mine = customers[index];
+    if(!mine || (!mine.name.trim() && !mine.phone.trim())) return;
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/admin/vip-customers/line-lookup`, {
+        method:"POST",
+        headers:{"Content-Type":"application/json",Authorization:`Bearer ${state.adminToken}`},
+        body:JSON.stringify({customers})
+      });
+      if(!response.ok) return;
+      const match = (await response.json().catch(() => ({}))).matches?.[index];
+      if(!match?.lineUserId || lineInput.value.trim() || !row.isConnected) return;
+      lineInput.value = match.lineUserId;
+      lineInput.dataset.vipLineSource = match.source || "";
+      lineInput.dataset.vipLineBy = match.matchedBy || "";
+      $('[data-vip-line-hint]', row)?.remove();
+      lineInput.insertAdjacentHTML("afterend", vipLineMatchHintHtml(match));
+      toast(state.lang === "en" ? "LINE Unique ID found. Press Save VIP members to keep it." : "พบ LINE Unique ID แล้ว กดบันทึกสมาชิก VIP เพื่อเก็บไว้");
+    }catch{}
+  }
   function adminVipHtml(){
     const en = state.lang === "en";
     const box = state.vipCustomers;
@@ -9958,7 +9995,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         <div class="grid2">
           <div class="field"><label class="label">${en?"Customer name":"ชื่อลูกค้า"}</label><input class="input" data-vip-field="name" value="${esc(customer.name||"")}"></div>
           <div class="field"><label class="label">${en?"Phone":"เบอร์โทร"}</label><input class="input" data-vip-field="phone" type="tel" inputmode="numeric" maxlength="10" value="${esc(customer.phone||"")}"></div>
-          <div class="field"><label class="label">LINE Unique ID (${en?"optional":"ไม่บังคับ"})</label><input class="input" data-vip-field="lineUserId" value="${esc(customer.lineUserId||"")}"></div>
+          <div class="field"><label class="label">LINE Unique ID (${en?"optional":"ไม่บังคับ"})</label><input class="input" data-vip-field="lineUserId" value="${esc(customer.lineUserId||"")}" data-vip-line-source="${esc(customer.lineMatch?.source||"")}" data-vip-line-by="${esc(customer.lineMatch?.matchedBy||"")}">${vipLineMatchHintHtml(customer.lineMatch)}</div>
           <label class="option-row"><input type="checkbox" data-vip-field="active" ${customer.active!==false?"checked":""}><div><b>${en?"Active":"เปิดใช้สิทธิ์"}</b></div></label>
         </div>
         <h4>${en?"Security-deposit benefit":"สิทธิ์ค่าประกัน"}</h4>
@@ -9998,7 +10035,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(response.status === 401) throw new Error("unauthorized");
       if(!response.ok) throw new Error(`HTTP ${response.status}`);
       const result = await response.json();
-      state.vipCustomers.items = Array.isArray(result.customers) ? result.customers : [];
+      const lineMatches = result.lineMatches && typeof result.lineMatches === "object" ? result.lineMatches : {};
+      state.vipCustomers.items = (Array.isArray(result.customers) ? result.customers : [])
+        .map(customer => lineMatches[customer.id] ? {...customer, lineMatch:lineMatches[customer.id]} : customer);
       state.vipCustomers.error = "";
     }catch(error){
       state.vipCustomers.error = error.message;
@@ -10021,8 +10060,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
         if(!$('[data-vip-rate-enabled]',rateRow)?.checked) return;
         deviceRates[rateRow.dataset.vipRateRow] = {daily:Math.max(0,Number($('[data-vip-rate-daily]',rateRow)?.value)||0),weekly:Math.max(0,Number($('[data-vip-rate-weekly]',rateRow)?.value)||0)};
       });
+      const lineInput = $('[data-vip-field="lineUserId"]',row);
+      const lineMatch = lineInput?.value && lineInput.dataset.vipLineSource ? {source:lineInput.dataset.vipLineSource, matchedBy:lineInput.dataset.vipLineBy||""} : null;
       return {
-        id:current.id||"", name:$('[data-vip-field="name"]',row)?.value||"", phone:$('[data-vip-field="phone"]',row)?.value||"", lineUserId:$('[data-vip-field="lineUserId"]',row)?.value||"",
+        ...(lineMatch ? {lineMatch} : {}),
+        id:current.id||"", name:$('[data-vip-field="name"]',row)?.value||"", phone:$('[data-vip-field="phone"]',row)?.value||"", lineUserId:lineInput?.value||"",
         active:Boolean($('[data-vip-field="active"]',row)?.checked), depositAllDevices:Boolean($('[data-vip-field="depositAllDevices"]',row)?.checked),
         depositDeviceIds:$$('[data-vip-deposit-device]:checked',row).map(input=>input.dataset.vipDepositDevice), depositByBase, deviceRates
       };
@@ -10669,6 +10711,15 @@ We apologize for the inconvenience and hope everyone stays safe.`
       }
     });
     document.addEventListener("change", async event => {
+      if(event.target.matches('[data-vip-field="name"],[data-vip-field="phone"]')){
+        void lookupVipLineForRow(event.target.closest('[data-vip-row]'));
+        return;
+      }
+      if(event.target.matches('[data-vip-field="lineUserId"]')){
+        event.target.dataset.vipLineSource = "";
+        event.target.closest('.field')?.querySelector('[data-vip-line-hint]')?.remove();
+        return;
+      }
       if(event.target.matches('[data-vip-field="depositAllDevices"]')){
         const row = event.target.closest('[data-vip-row]');
         $$('[data-vip-deposit-device]',row).forEach(input => { input.disabled = event.target.checked; });

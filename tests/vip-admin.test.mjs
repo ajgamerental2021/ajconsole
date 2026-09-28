@@ -32,3 +32,13 @@ test('normal visits start at Before rent while direct rental links keep their co
   assert.doesNotMatch(html, /body\.unified-flow-demo #beforeRentBack/);
   assert.match(html, /body\.unified-flow-demo \.demo-banner\{display:none!important\}/);
 });
+
+test('VIP members show a LINE Unique ID the Bot filled from the sheets, and look one up while typing', () => {
+  assert.match(html, /function vipLineMatchHintHtml\(match\)/);
+  assert.match(html, /ใส่อัตโนมัติจาก\$\{source\} \(\$\{by\}\)/);
+  assert.match(html, /Filled automatically from \$\{source\} \(\$\{by\}\)/);
+  assert.match(html, /\/api\/admin\/vip-customers\/line-lookup/);
+  assert.match(html, /if\(event\.target\.matches\('\[data-vip-field="name"\],\[data-vip-field="phone"\]'\)\)\{\n        void lookupVipLineForRow/);
+  // A value already in the field is never replaced.
+  assert.match(html, /if\(!lineInput \|\| lineInput\.value\.trim\(\)\) return;/);
+});

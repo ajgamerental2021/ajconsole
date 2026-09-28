@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-09-28 — VIP members get their LINE Unique ID automatically
+
+- Opening Admin → VIP: for every member whose LINE Unique ID is blank, the Bot searches the contracts, the booking log (`Line / WhatsApp LOGs`, including the booking JSON) and the Delivery App customer sheet. A phone match wins (newest row in that priority order; `+66` and dashes are normalised). A name match (titles such as คุณ/นาย and spacing ignored) is used only when every row with that name points at the same LINE account. An account already held by another member is never offered, and an existing value is never overwritten. Found IDs are saved to the `VIP Customers` sheet straight away, so LINE sign-ins are recognised as VIP without pressing Save; the form shows a green "ใส่อัตโนมัติจาก… (เบอร์โทรตรงกัน / ชื่อตรงกัน)" note.
+- Typing a new member's name or phone (on leaving the field) asks `POST /api/admin/vip-customers/line-lookup` and fills the blank LINE field; that one is kept only after Save VIP members.
+- Verification: Bot 417/417 (matcher unit test covers phone, +66, name with title, ambiguous name, taken account, existing value); website 169/169; inline JS `node --check`; Admin VIP tab walked in headless Chromium with the Bot mocked.
+
 ## 2026-09-28 — LINE connect returns to the booking, email format enforced, no-contract reminder removed
 
 - Connect LINE / เชื่อมต่อ LINE on step 2 called `liff.login()` with no return address, so outside the LIFF browser LINE sent the customer to the LIFF's home (the Before rent screen) and the booking looked lost. It now saves the draft and the current step (`aj_line_connect_return_v1`, 15 minutes), logs in with `redirectUri` = the booking URL (`?booking=1&lang=…`), and on return finishes the login inside the normal eligibility check, reopens the same step, shows "LINE: <name>" on the customer card, toasts "เชื่อมต่อ LINE แล้ว" / "LINE connected", and removes LINE's login parameters from the address bar. The shop announcement is not reopened on that return (it was seen before leaving).
