@@ -25,6 +25,7 @@ test('catalogue Admin credentials are no longer embedded in public HTML', () => 
   assert.doesNotMatch(ids, /ADMIN_PASS_HASH/);
   assert.match(games, /\/api\/admin\/login/);
   assert.match(ids, /\/api\/admin\/login/);
+  assert.doesNotMatch(games, /id="login-user"[^>]*placeholder="ajgame"/);
 });
 
 test('the shared helper binds ceremonies to the page origin and keeps bearer authorization on registration', () => {
@@ -34,4 +35,3 @@ test('the shared helper binds ceremonies to the page origin and keeps bearer aut
   assert.match(helper, /\/api\/admin\/passkeys\/registration\/options/);
   assert.match(helper, /Authorization: `Bearer \$\{adminToken\}`/);
 });
-

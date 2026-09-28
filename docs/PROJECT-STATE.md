@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-09-28 — Catalogue Admin username no longer disclosed
+
+- Removed the real Admin username from the public `game_index.html` login placeholder. The username field now opens empty and disables autocapitalization and spellcheck while retaining the browser's standard username autocomplete behavior.
+- Bumped the embedded game-picker cache version on the production and demo booking pages, and added a regression assertion preventing the real username from returning as a public placeholder.
+
 ## 2026-09-28 — Passkey Admin access and monochrome contract logo
 
 - Admin sign-in on the booking page, game catalogue, and AJ Game ID catalogue now offers Passkey in Thai and English. Existing password sign-in remains as the bootstrap/recovery path, and an authenticated Admin can add a passkey from each surface.
