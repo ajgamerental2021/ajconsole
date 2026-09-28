@@ -130,7 +130,7 @@ test('the in-progress rental session expires after 24 hours on each device', () 
   const boot = html.slice(html.indexOf('async function boot(){'));
   assert.ok(boot.indexOf('const expiredRentalProgress = clearExpiredRentalSession();') < boot.indexOf('loadState();'));
   assert.match(boot, /cleanBookingUrl\.searchParams\.set\("booking", "1"\)/);
-  assert.match(boot, /state\.beforeRentActive = expiredRentalProgress \? false : !hasRentalContext\(\)/);
+  assert.match(boot, /state\.beforeRentActive = expiredRentalProgress \|\| lineConnectReturn \? false : !hasRentalContext\(\)/);
 });
 
 test('identity images are uploaded to the booking context before the Rental ID page opens', () => {
@@ -261,7 +261,14 @@ test('the demo asks for the document expiry and refuses an expired one', () => {
 });
 
 test('email is required because the confirmation is sent there', () => {
-  assert.match(html, /need\("demoEmail", \/\^\[\^\\s@\]\+@/);
+  assert.match(html, /need\("demoEmail", demoEmailValid\(demoProfile\.email\), demoEmailMessage\(\)\);/);
+  assert.match(html, /รูปแบบอีเมลไม่ถูกต้อง กรุณาตรวจสอบ เช่น name@gmail\.com/);
+  assert.match(html, /This email address is not valid\. Check it, for example name@gmail\.com\./);
+  assert.match(html, /if\(event\.target\.id === "demoEmail"\) showDemoEmailError\(\);/);
+  const body = html.match(/function demoEmailValid\(value\)\{\n    return (\/.*\/i)\.test/)[1];
+  const valid = new Function(`return ${body}`)();
+  for (const good of ['name@gmail.com', 'a.b+c@mail.co.th', 'x@sub.example.org']) assert.ok(valid.test(good), good);
+  for (const bad of ['jsbdhxgxhxhxhxhxbbxjx', 'name@gmail', 'name@gmail.c', 'name@.com', 'name@gmail.123', 'a b@x.com', '@x.com']) assert.ok(!valid.test(bad), bad);
 });
 
 test('the Rental ID page can send the customer back to fix a section', () => {
@@ -436,7 +443,8 @@ test('the trial ฿1 charge is one switch; live, every option but Wise goes thro
 });
 
 test('the no-identity choice reads as a plain rule and the higher deposit is flagged in red', () => {
-  assert.match(html, /"You must still accept AJ's Rental Terms\." : "ลูกค้ายังคงต้องยอมรับเงื่อนไขการเช่าของทางร้าน"/);
+  // The owner removed the extra "you must still accept the Rental Terms" box.
+  assert.doesNotMatch(html, /ลูกค้ายังคงต้องยอมรับเงื่อนไขการเช่าของทางร้าน/);
   assert.match(html, /\*ไม่ยืนยันตัวตน ค่าประกันสูงขึ้น/);
   assert.match(html, /\*No identity verification — higher deposit/);
   assert.match(html, /\.demo-deposit-note\{margin:2px 0 0;color:#c00000/);
@@ -642,4 +650,15 @@ test('editing the rental period on the Rental ID page opens only the queue calen
   assert.match(html, /if\(demoEdit\.dataset\.demoEdit === "dates"\) openCalendar\("start", \{fromOrder:true\}\)/);
   // Clearing inside that calendar must not drop the booking's dates or Rental ID.
   assert.match(html, /function clearCalendarRange\(\)\{\n    if\(state\.calendar\.fromOrder\)\{/);
+});
+
+test('connecting LINE comes back to the booking step and says LINE is connected', () => {
+  assert.match(html, /const LINE_CONNECT_RETURN_KEY = "aj_line_connect_return_v1"/);
+  assert.match(html, /liff\.login\(\{redirectUri:lineConnectReturnUrl\(\)\}\)/);
+  assert.doesNotMatch(html, /if\(!liff\.isLoggedIn\(\)\)\{ liff\.login\(\); return; \}/);
+  const boot = html.slice(html.indexOf('async function boot(){'));
+  assert.match(boot, /if\(lineConnectReturn\)\{\n      state\.calc\.step = lineConnectReturn\.step;\n      siteAnnouncementDismissed = true;/);
+  assert.match(html, /if\(!backFromLine && saved && saved\.enabled === true/);
+  assert.match(boot, /detectLineReturningEligibility\(\)\.catch\(\(\) => false\)\.then\(\(\) => \{ if\(lineConnectReturn\) finishLineConnectReturn\(\); \}\)/);
+  assert.match(html, /toast\(state\.lang === "en" \? "LINE connected" : "เชื่อมต่อ LINE แล้ว"\)/);
 });

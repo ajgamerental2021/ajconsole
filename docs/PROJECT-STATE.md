@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-09-28 — LINE connect returns to the booking, email format enforced, no-contract reminder removed
+
+- Connect LINE / เชื่อมต่อ LINE on step 2 called `liff.login()` with no return address, so outside the LIFF browser LINE sent the customer to the LIFF's home (the Before rent screen) and the booking looked lost. It now saves the draft and the current step (`aj_line_connect_return_v1`, 15 minutes), logs in with `redirectUri` = the booking URL (`?booking=1&lang=…`), and on return finishes the login inside the normal eligibility check, reopens the same step, shows "LINE: <name>" on the customer card, toasts "เชื่อมต่อ LINE แล้ว" / "LINE connected", and removes LINE's login parameters from the address bar. The shop announcement is not reopened on that return (it was seen before leaving).
+- Email must look like name@domain.tld (letters-only ending). A wrong address shows "รูปแบบอีเมลไม่ถูกต้อง กรุณาตรวจสอบ เช่น name@gmail.com" / "This email address is not valid…" as soon as the customer leaves the field, and continuing stays blocked as before.
+- Removed the "ลูกค้ายังคงต้องยอมรับเงื่อนไขการเช่าของทางร้าน" / "You must still accept AJ's Rental Terms." box under the no-identity choice.
+- Verification: 168/168 website tests; inline JavaScript passes `node --check`; walked in headless Chromium at 400px with APIs mocked (bad email flagged on blur and cleared when fixed; simulated LINE return lands on step 2 with typed details kept, LINE name shown and the toast). Real LINE sign-in still needs a check on a phone: the LIFF app's endpoint URL must be a prefix of `https://ajgamerental.com/?booking=1…` for LINE to accept the return address.
+
 ## 2026-09-28 — Rental period edits open the calendar only; owner copied on confirmation emails
 
 - On the Rental ID page, Edit / แก้ไข beside Rental period / ช่วงเวลา now opens the queue calendar by itself instead of the whole step-1 pane. OK updates the duration and dates on the page (fee and delivery quote follow through the normal render). Inside this calendar, Clear selected dates / ล้างวันที่ที่เลือก only clears the draft, and closing without OK leaves the booking's dates and Rental ID untouched. Edit beside Rental item / สินค้าที่เช่า still opens the full equipment pane.
