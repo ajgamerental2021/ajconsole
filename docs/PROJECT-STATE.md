@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-09-28 — "คิวเช่าของฉัน / My rental" as a no-sign-in link (email, Admin, Delivery App)
+
+- One link per rental: `https://aj-line-oa-bot.onrender.com/my-rental/<token>?lang=th|en`. The token is deterministic, signed with the secret the Bot and Delivery App already share (`AJ_RENTAL_WEBHOOK_SECRET`, HMAC-SHA256 over `"aj-my-rental:" + payload`, payload `{"v":1,"r":"<Rental ID>"}` or `{"v":1,"b":"<Booking ID>"}`), carries no phone or LINE id, and binds nothing. Bot module `src/services/my-rental-link.js`.
+- The confirmation email now has a red "คิวเช่าของฉัน" / "My rental" button (text version too) instead of the old "เช็ครายการเช่า" link. Admin → Rentals shows the link with Open (ไทย / English) and Copy buttons. The website's own Menu item and pop-up are renamed "คิวเช่าของฉัน" / "My rental".
+- Where the link lands is `MY_RENTAL_PAGE` on the Bot: `website` (default now) redirects to the booking site's rental page (`?myRental=…&t=…`); `delivery-app` redirects to the Delivery App's `/c/my/r/<token>`. Booking-ID tokens always go to the Delivery App. A bad token gets a bilingual notice (410). The LINE rich-menu page is untouched and still asks the binding questions.
+- **Waiting on the Delivery App:** prompt at `docs/DELIVERY-APP-MY-RENTAL-LINK-PROMPT.md` in the Bot repo (token spec with test vector, `/c/my/r/:token` page with the same data/design as `/c/my`, token-scoped actions, open/copy buttons on the booking and customer screens). After it ships, set `MY_RENTAL_PAGE=delivery-app` on the Bot in Render.
+- Verification: Bot 422/422 (token round-trip, forgery, fixed vector, email button TH/EN, route and Admin fields); website 170/170; inline JS `node --check`; local Bot run: Rental-ID link → 302 to the booking site rental page, Booking-ID link → 302 to the Delivery App, bad token → 410 notice.
+
 ## 2026-09-28 — VIP members get their LINE Unique ID automatically
 
 - Opening Admin → VIP: for every member whose LINE Unique ID is blank, the Bot searches the contracts, the booking log (`Line / WhatsApp LOGs`, including the booking JSON) and the Delivery App customer sheet. A phone match wins (newest row in that priority order; `+66` and dashes are normalised). A name match (titles such as คุณ/นาย and spacing ignored) is used only when every row with that name points at the same LINE account. An account already held by another member is never offered, and an existing value is never overwritten. Found IDs are saved to the `VIP Customers` sheet straight away, so LINE sign-ins are recognised as VIP without pressing Save; the form shows a green "ใส่อัตโนมัติจาก… (เบอร์โทรตรงกัน / ชื่อตรงกัน)" note.

@@ -513,7 +513,7 @@ test('a LINE-verified returning renter sees their saved details as one summary w
 });
 
 test('the header menu opens rental prices, the game list and the rental steps like their links do', () => {
-  assert.match(html, /\["prices", "tag", en \? "Rental prices" : "ราคาเช่า"\], \["games", "gamepad", en \? "Game list" : "รายการเกม"\], \["steps", "steps", en \? "How to rent" : "ขั้นตอนการเช่า"\], \["myRental", "receipt", en \? "Check my rental" : "เช็ครายการเช่า"\]/);
+  assert.match(html, /\["prices", "tag", en \? "Rental prices" : "ราคาเช่า"\], \["games", "gamepad", en \? "Game list" : "รายการเกม"\], \["steps", "steps", en \? "How to rent" : "ขั้นตอนการเช่า"\], \["myRental", "receipt", en \? "My rental" : "คิวเช่าของฉัน"\]/);
   // Line icons drawn like the site's other icons, not emoji.
   assert.match(html, /\$\{icon\(iconName, "site-menu-ico"\)\}<span>\$\{esc\(label\)\}<\/span>/);
   assert.match(html, /const infoIcons = \{about:"info", privacy:"shield", terms:"doc"\};/);
@@ -597,13 +597,13 @@ test('a renter checks a rental without an account: this device, the email link, 
   // The email link's token opens the rental and is removed from the address bar.
   assert.match(html, /url\.searchParams\.delete\("t"\)/);
   // Language button and a copy-link button, in both languages.
-  assert.match(html, /showModal\(state\.lang === "en" \? "Check my rental" : "เช็ครายการเช่า", myRentalModalBody\(\), \{relocalize:renderMyRentalModal\}\);/);
+  assert.match(html, /showModal\(state\.lang === "en" \? "My rental" : "คิวเช่าของฉัน", myRentalModalBody\(\), \{relocalize:renderMyRentalModal\}\);/);
   assert.match(html, /if\(targetId === "myRentalCopyUrl"\)\{ void copySectionUrl\("myRental"\); return; \}/);
   assert.match(html, /en \? "Copy link to this page" : "คัดลอกลิงก์หน้านี้"/);
   // The paid pop-up shows the rental and can switch language.
   assert.match(html, /showModal\(state\.lang === "en" \? "Rental confirmed" : "การเช่าสำเร็จ", paidRentalNoticeHtml\(\), \{relocalize:renderPaidRentalNotice\}\);/);
   assert.match(html, /WhatsApp customers: take a screenshot of this page and send it to the chat where you contacted AJ\./);
-  assert.match(html, /: "ดูรายการนี้ได้ตลอด ที่ เมนู → เช็ครายการเช่า";/);
+  assert.match(html, /: "ดูรายการนี้ได้ตลอด ที่ เมนู → คิวเช่าของฉัน";/);
   assert.doesNotMatch(html, /ดูรายการนี้ได้อีกตลอด/);
   for (const label of ['"Equipment" : "เครื่องที่เช่า"', '"Start date" : "วันที่เริ่มเช่า"', '"Return date" : "วันที่คืนเครื่อง"', '"Rental days" : "จำนวนวันเช่า"', '"Rental fee" : "ค่าเช่า"', '"Security deposit" : "ค่าประกัน"', '"Customer name" : "ชื่อลูกค้า"', '"Phone" : "เบอร์โทร"', '"Verify my identity now" : "ยืนยันตัวตนตอนนี้"']) {
     assert.ok(html.includes(label), label);
@@ -661,4 +661,13 @@ test('connecting LINE comes back to the booking step and says LINE is connected'
   assert.match(html, /if\(!backFromLine && saved && saved\.enabled === true/);
   assert.match(boot, /detectLineReturningEligibility\(\)\.catch\(\(\) => false\)\.then\(\(\) => \{ if\(lineConnectReturn\) finishLineConnectReturn\(\); \}\)/);
   assert.match(html, /toast\(state\.lang === "en" \? "LINE connected" : "เชื่อมต่อ LINE แล้ว"\)/);
+});
+
+test('Admin → Rentals offers the renter\'s own My rental link in Thai and English', () => {
+  assert.match(html, /function adminMyRentalLinksHtml\(rental\)/);
+  assert.match(html, /\$\{adminMyRentalLinksHtml\(rental\)\}/);
+  assert.match(html, /open\(rental\.myRentalUrlTh, "คิวเช่าของฉัน \(ไทย\)"\)/);
+  assert.match(html, /open\(rental\.myRentalUrlEn, "My rental \(English\)"\)/);
+  assert.match(html, /data-copy-my-rental="\$\{lang\}"/);
+  assert.match(html, /rel="noopener noreferrer"/);
 });

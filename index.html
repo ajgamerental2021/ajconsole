@@ -7667,8 +7667,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   function myRentalRevisitHint(){
     return state.lang === "en"
-      ? "You can check this rental at any time: Menu → Check my rental."
-      : "ดูรายการนี้ได้ตลอด ที่ เมนู → เช็ครายการเช่า";
+      ? "You can check this rental at any time: Menu → My rental."
+      : "ดูรายการนี้ได้ตลอด ที่ เมนู → คิวเช่าของฉัน";
   }
   // What the check pop-up shows, kept so switching language redraws it as is.
   const myRentalView = {identifier:"", phone:"", rentals:[], selected:"", error:"", busy:false, direct:false};
@@ -7698,7 +7698,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   function renderMyRentalModal(){
     if(!byId("myRentalForm") && !byId("myRentalResult")) return;
-    byId("simpleModalTitle").textContent = state.lang === "en" ? "Check my rental" : "เช็ครายการเช่า";
+    byId("simpleModalTitle").textContent = state.lang === "en" ? "My rental" : "คิวเช่าของฉัน";
     byId("simpleModalBody").innerHTML = myRentalModalBody();
   }
   async function runMyRentalLookup(query){
@@ -7733,7 +7733,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   function openMyRentalLookup({code = "", token = ""} = {}){
     Object.assign(myRentalView, {identifier:code || myRentalView.identifier, phone:myRentalView.phone || String(demoProfile?.phone || "").trim(), rentals:[], selected:"", error:"", busy:false, direct:false});
-    showModal(state.lang === "en" ? "Check my rental" : "เช็ครายการเช่า", myRentalModalBody(), {relocalize:renderMyRentalModal});
+    showModal(state.lang === "en" ? "My rental" : "คิวเช่าของฉัน", myRentalModalBody(), {relocalize:renderMyRentalModal});
     const viewToken = token || (code ? rentalViewToken(code) : "");
     if(viewToken) void runMyRentalLookup({rentalCode:code, viewToken});
   }
@@ -7854,7 +7854,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const code = state.calc.rentalCode || "-";
     const token = rentalViewToken(code);
     const rentalUrl = token ? `https://ajgamerental.com/?myRental=${encodeURIComponent(code)}&t=${encodeURIComponent(token)}&lang=en` : "https://ajgamerental.com/?myRental=1&lang=en";
-    const message = `AJ Game Rental payment confirmation\nRental ID: ${code}\nI have completed payment. I will attach the successful-payment screenshot in this chat. Please confirm my rental details.\n\nCheck my rental: ${rentalUrl}`;
+    const message = `AJ Game Rental payment confirmation\nRental ID: ${code}\nI have completed payment. I will attach the successful-payment screenshot in this chat. Please confirm my rental details.\n\nMy rental: ${rentalUrl}`;
     location.href = whatsappShareUrl(message);
   }
   function unicodeSafeText(value){
@@ -8227,7 +8227,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // The header menu also opens the rental prices, the game list and the rental
     // steps, the same pop-ups the ?allConsoles=1, ?games=1 and ?steps=1 links open.
     const en = state.lang === "en";
-    const menuActions = [["prices", "tag", en ? "Rental prices" : "ราคาเช่า"], ["games", "gamepad", en ? "Game list" : "รายการเกม"], ["steps", "steps", en ? "How to rent" : "ขั้นตอนการเช่า"], ["myRental", "receipt", en ? "Check my rental" : "เช็ครายการเช่า"]]
+    const menuActions = [["prices", "tag", en ? "Rental prices" : "ราคาเช่า"], ["games", "gamepad", en ? "Game list" : "รายการเกม"], ["steps", "steps", en ? "How to rent" : "ขั้นตอนการเช่า"], ["myRental", "receipt", en ? "My rental" : "คิวเช่าของฉัน"]]
       .map(([action, iconName, label]) => `<button class="site-info-link" type="button" role="menuitem" data-menu-action="${action}">${icon(iconName, "site-menu-ico")}<span>${esc(label)}</span></button>`).join("");
     $$('[data-info-links]').forEach(host => {
       host.innerHTML = host.id === "siteMenuList" ? `${menuActions}<span class="site-menu-divider" role="separator"></span>${menuInfo}` : html;
@@ -8657,6 +8657,39 @@ We apologize for the inconvenience and hope everyone stays safe.`
   // Admin → Rentals: find a rental and send its confirmation email again, with
   // the agreement made from a waiting signature when there is no contract yet.
   const adminRental = {code:"", rental:null, message:"", tone:"", busy:false};
+  // "คิวเช่าของฉัน / My rental": the renter's own page, opened by link with
+  // nothing to type — the same link the confirmation email carries. The LINE
+  // menu's page is separate and still asks the customer to identify themselves.
+  function adminMyRentalLinksHtml(rental){
+    if(!rental?.myRentalUrlTh && !rental?.myRentalUrlEn) return "";
+    const en = state.lang === "en";
+    const open = (url, label) => url ? `<a class="btn" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>` : "";
+    const copy = (lang, label) => (lang === "en" ? rental.myRentalUrlEn : rental.myRentalUrlTh) ? `<button class="btn" type="button" data-copy-my-rental="${lang}">${icon("link")} ${esc(label)}</button>` : "";
+    return `<div class="my-rental" style="margin-top:12px">
+        <div class="my-rental-row"><span>คิวเช่าของฉัน / My rental</span><b>${esc(en ? "Opens with no sign-in" : "เปิดได้เลย ไม่ต้องกรอกข้อมูล")}</b></div>
+        <p class="hint" style="margin:6px 0 10px">${esc(en ? "The same link is in the confirmation email. Send it only to this renter: anyone with it can see this rental." : "ลิงก์เดียวกับในอีเมลยืนยัน ส่งให้เฉพาะลูกค้ารายนี้ เพราะใครมีลิงก์ก็เปิดดูรายการนี้ได้")}</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">${open(rental.myRentalUrlTh, "คิวเช่าของฉัน (ไทย)")}${open(rental.myRentalUrlEn, "My rental (English)")}${copy("th", en ? "Copy Thai link" : "คัดลอกลิงก์ไทย")}${copy("en", en ? "Copy English link" : "คัดลอกลิงก์อังกฤษ")}</div>
+      </div>`;
+  }
+  async function copyAdminMyRentalLink(lang){
+    const rental = adminRental.rental;
+    const value = lang === "en" ? rental?.myRentalUrlEn : rental?.myRentalUrlTh;
+    if(!value) return;
+    try{
+      await navigator.clipboard.writeText(value);
+    }catch(error){
+      const input = document.createElement("textarea");
+      input.value = value;
+      input.setAttribute("readonly", "");
+      input.style.position = "fixed";
+      input.style.opacity = "0";
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      input.remove();
+    }
+    toast(state.lang === "en" ? "Link copied" : "คัดลอกลิงก์แล้ว");
+  }
   function adminRentalsHtml(){
     const en = state.lang === "en";
     const rental = adminRental.rental;
@@ -8678,6 +8711,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end"><div class="field" style="flex:1;min-width:220px"><label class="label" for="adminRentalCode">${en ? "Rental ID" : "รหัสการเช่า"}</label><input class="input" id="adminRentalCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="AJ-20260926-R0001" value="${esc(adminRental.code)}"></div><button class="btn primary" type="button" id="adminRentalFind" ${adminRental.busy ? "disabled" : ""}>${en ? "Find" : "ค้นหา"}</button></div>
       ${rental ? `${myRentalDetailsHtml(rental)}
       <div class="my-rental">${row(en ? "Customer email" : "อีเมลลูกค้า", rental.email)}${row(en ? "Rental agreement" : "สัญญาเช่า", agreement)}${row(en ? "Confirmation email" : "อีเมลยืนยัน", emailStatus)}</div>
+      ${adminMyRentalLinksHtml(rental)}
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:12px"><div class="field" style="flex:1;min-width:220px"><label class="label" for="adminRentalEmail">${en ? "Send to" : "ส่งถึงอีเมล"}</label><input class="input" id="adminRentalEmail" type="email" value="${esc(rental.email)}"></div><button class="btn primary" type="button" id="adminRentalResend" ${adminRental.busy ? "disabled" : ""}>${en ? "Send confirmation email again" : "ส่งอีเมลยืนยันอีกครั้ง"}</button></div>` : ""}
       ${adminRental.message ? `<p class="${adminRental.tone === "error" ? "field-error" : "hint"}" style="margin-top:10px">${esc(adminRental.message)}</p>` : ""}
     </div>`;
@@ -11040,6 +11074,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
       const foundPick = event.target.closest("[data-my-rental-pick]");
       if(foundPick){ myRentalView.selected = foundPick.dataset.myRentalPick; renderMyRentalModal(); return; }
       if(targetId === "adminRentalResend"){ void resendAdminRentalConfirmation(); return; }
+      const myRentalCopy = event.target.closest("[data-copy-my-rental]");
+      if(myRentalCopy){ void copyAdminMyRentalLink(myRentalCopy.dataset.copyMyRental); return; }
       if(targetId === "previewAnnouncement"){ showSiteAnnouncement(readAnnouncementFromAdmin(), {preview:true}); return; }
       if(targetId === "resetAnnouncement"){
         $$("[data-announcement-field]").forEach(input => { input.value = DEFAULT_ANNOUNCEMENT[input.dataset.announcementField]; });
