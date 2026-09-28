@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-09-28 — AJ logo on the first two contract pages
+
+- The bilingual Master Agreement PDF now places the existing AJ logo in the upper-right corner of physical pages 1 and 2 only. Later terms pages remain unbranded, and the Rental Order PDF is unchanged.
+- Verified by rendering and visually inspecting all three pages of representative Thai and English signed contracts. The logo does not overlap headings, party details, terms, signatures, or page numbers.
+- Bot verification: 403/403 tests pass, including a regression that limits the logo draw to the first two pages; `src/services/pdf.js` passes `node --check` and `git diff --check` passes.
+- Owner decisions recorded: keep the flood announcement on; Gmail permission has been granted; keep the unified flow at the ฿1 test charge and retain the Demo banner until the final production test is complete.
+- Test-row cleanup remains an explicit production operation. The target Rental IDs are the handover list from 24–26 September plus the duplicate ฿1 payment for R0064; cloud deletion must be confirmed at the final action and verified across every affected sheet.
+
 ## 2026-09-27 — Open items after the Claude Code sessions of 24–27 September (read first)
 
 State at website `5a2189a`, Bot `869d766`; website 157/157 and Bot 402/402 tests pass. Everything below is deployed. The unified flow is still behind `?flowDemo=1` and still charges ฿1.
