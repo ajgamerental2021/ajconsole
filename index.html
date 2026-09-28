@@ -1719,6 +1719,8 @@ You may ask to access, correct, object to, restrict or delete your data, or with
     gameHandoff: "aj_game_picker_handoff_v1",
     social: "aj_social_proof_v2"
   };
+  const RENTAL_SESSION_KEY = "aj_rental_session_v1";
+  const RENTAL_SESSION_TTL_MS = 24 * 60 * 60 * 1000;
 
   const SPEC = { PS4:1, PS5:11, PS5P:18, SW1:4, SW2:12, VLP:10, VLU:16, VB:17 };
   const SWITCH_IDS = new Set([SPEC.SW1, SPEC.SW2]);
@@ -2168,6 +2170,35 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   const todayIso = () => bangkokNow().iso;
   const readJson = (key, fallback) => { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : clone(fallback); } catch { return clone(fallback); } };
   const writeJson = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+  function clearExpiredRentalSession(){
+    const now = Date.now();
+    let startedAt = 0;
+    try{
+      const session = JSON.parse(localStorage.getItem(RENTAL_SESSION_KEY) || "null");
+      const legacyDraft = JSON.parse(localStorage.getItem(LS.draft) || "null");
+      startedAt = Number(session?.startedAt || legacyDraft?.at || now);
+    }catch{
+      startedAt = now;
+    }
+    const expired = !Number.isFinite(startedAt) || now - startedAt >= RENTAL_SESSION_TTL_MS;
+    if(expired){
+      localStorage.removeItem(LS.draft);
+      localStorage.removeItem("aj_demo_profile_v1");
+      localStorage.removeItem("aj_booking_own_hold");
+      startedAt = now;
+    }
+    localStorage.setItem(RENTAL_SESSION_KEY, JSON.stringify({startedAt}));
+    window.setTimeout(() => {
+      try{
+        localStorage.removeItem(LS.draft);
+        localStorage.removeItem("aj_demo_profile_v1");
+        localStorage.removeItem("aj_booking_own_hold");
+        localStorage.setItem(RENTAL_SESSION_KEY, JSON.stringify({startedAt:Date.now()}));
+      }catch{}
+      location.reload();
+    }, Math.max(1_000, RENTAL_SESSION_TTL_MS - (now - startedAt)));
+    return expired;
+  }
 
   function dateOnly(date){ return new Date(date.getFullYear(), date.getMonth(), date.getDate()); }
   function parseDate(value){
@@ -3709,7 +3740,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <label class="option-row"><input type="checkbox" id="demoNoContractOpt" ${state.calc.noContract?"checked":""}><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b><div class="hint">${en ? "No document number or identity images are required, and no rental agreement is prepared. The security deposit increases: ฿2,000 to ฿10,000 / ฿4,000 to ฿15,000." : "ไม่ต้องกรอกเลขเอกสารและไม่ต้องส่งรูปบัตรประชาชน/Passport และไม่มีการทำสัญญาเช่า ค่าประกันเพิ่มขึ้น: 2,000 บาท เป็น 10,000 บาท / 4,000 บาท เป็น 15,000 บาท"}</div></div></label>
         ${state.calc.noContract ? `<div class="demo-choice-warning">${en ? "You must still accept AJ's Rental Terms." : "ลูกค้ายังคงต้องยอมรับเงื่อนไขการเช่าของทางร้าน"}</div>` : ""}
         </div>`}
-        ${en ? `<div class="field wide"><label class="option-row"><input type="checkbox" id="demoNoThaiAddress" ${demoProfile.noThaiAddress?"checked":""}><div><b>I don't have Thai address details</b><div class="hint">Skip the Thai address fields and give AJ your Google Maps pin instead. AJ confirms the delivery point with you in chat.</div></div></label></div>` : ""}
+        <div class="field wide"><label class="option-row"><input type="checkbox" id="demoNoThaiAddress" ${demoProfile.noThaiAddress?"checked":""}><div><b>${en ? "I don't need to enter an address — the Google Maps link is exact" : "ไม่ต้องการระบุที่อยู่ ตำแหน่งจากลิงก์ Google Maps ถูกต้องแล้ว"}</b><div class="hint">${en ? "Skip the address fields and use the exact Google Maps pin for delivery and the delivery quote." : "ข้ามช่องที่อยู่และใช้หมุด Google Maps ที่ระบุสำหรับจัดส่งและคำนวณค่าส่ง"}</div></div></label></div>
         ${demoProfile.noThaiAddress ? "" : `
         <div class="field wide"><label class="label" for="demoAddressLine">${en ? "Building, house number, street and delivery notes" : "บ้านเลขที่ อาคาร ถนน และรายละเอียดการจัดส่ง"}<span class="req">*</span></label><textarea class="input" id="demoAddressLine" rows="3">${esc(demoProfile.addressLine)}</textarea></div>
         <div class="field"><label class="label" for="demoPostalCode">${en ? "Postal code" : "รหัสไปรษณีย์"}<span class="req">*</span></label><input class="input" id="demoPostalCode" inputmode="numeric" maxlength="5" autocomplete="postal-code" value="${esc(demoProfile.postalCode)}"></div>
@@ -3721,7 +3752,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <p class="demo-address-note wide" id="demoAddressNote" role="status" hidden></p>`}
         <div class="field wide"><label class="label" for="demoMaps">Google Maps<span class="req">*</span></label><input class="input" id="demoMaps" value="${esc(demoProfile.maps)}" placeholder="https://maps.google.com/..."><button class="btn demo-locate-btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><a class="hint" id="demoMapsSearch" href="${esc(demoMapsSearchUrl())}" target="_blank" rel="noopener">${en ? "Find this address in Google Maps, pin the exact spot and paste the share link here" : "ค้นหาที่อยู่นี้ใน Google Maps ปักหมุดให้ตรง แล้วคัดลอกลิงก์แชร์มาวางที่ช่องนี้"}</a></div>
       </div>
-      <p class="hint">${en ? "The district and subdistrict are used to estimate delivery. The final round-trip fee must be confirmed before payment." : "ระบบใช้เขตและแขวงเพื่อประเมินค่าจัดส่ง โดยร้านต้องยืนยันค่าจัดส่งไป-กลับก่อนชำระเงิน"}</p>
+      <p class="hint">${demoProfile.noThaiAddress ? (en ? "The exact Google Maps pin is used for the delivery quote. The final round-trip fee must be confirmed before payment." : "ระบบใช้หมุด Google Maps ที่ระบุเพื่อคำนวณค่าส่ง โดยต้องยืนยันค่าจัดส่งไป-กลับก่อนชำระเงิน") : (en ? "The district and subdistrict are used to estimate delivery. The final round-trip fee must be confirmed before payment." : "ระบบใช้เขตและแขวงเพื่อประเมินค่าจัดส่ง โดยต้องยืนยันค่าจัดส่งไป-กลับก่อนชำระเงิน")}</p>
       <h3 class="demo-terms-heading">${en ? "Rental Terms" : "เงื่อนไขการเช่า"}</h3>
       <iframe class="demo-terms-frame" title="Rental Terms" src="${esc(`${CONFIG.apiBase}/rental-terms/?lang=${en?"en":"th"}&embed=1`)}"></iframe>
       <p class="hint"><a href="${esc(`${CONFIG.apiBase}/rental-terms/?lang=${en?"en":"th"}`)}" target="_blank" rel="opener">${en ? "Open the Rental Terms in a new tab" : "เปิดอ่านเงื่อนไขการเช่าในแท็บใหม่"}</a></p>
@@ -4828,7 +4859,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <div>
         <section class="demo-order-section">${demoSectionHeadHtml(en ? "Rental item" : "สินค้าที่เช่า", 1)}${demoRentalItemHtml(item, summary)}</section>
         <section class="demo-order-section"><h3>${en ? "Details" : "รายละเอียด"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Rental ID":"รหัสการเช่า"}</span><b>${esc(state.calc.rentalCode || "-")}</b></div><div class="demo-order-row"><span>${en?"Rental status":"สถานะการเช่า"}</span><b class="demo-status is-awaiting">${en?"Awaiting payment":"รอชำระเงิน"}</b></div></div></section>
-        <section class="demo-order-section">${demoSectionHeadHtml(en ? "Customer" : "ข้อมูลลูกค้า", 2)}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Name":"ชื่อ"}</span><b>${esc(demoProfile.fullName)}</b></div>${state.calc.noContract ? "" : `<div class="demo-order-row"><span>${esc(demoIdentityNumberLabel())}</span><b>${esc(demoIdentityDisplay())}</b></div>`}<div class="demo-order-row"><span>${en?"Phone":"เบอร์ติดต่อ"}</span><b>${esc(demoProfile.phone)}</b></div><div class="demo-order-row"><span>${en?"Delivery":"ที่อยู่จัดส่ง"}</span><b>${esc([demoProfile.addressLine,demoProfile.subdistrict,demoProfile.district,demoProfile.province,demoProfile.postalCode].filter(Boolean).join(" ") || (en ? "Google Maps pin only" : "ใช้หมุด Google Maps"))}</b></div></div></section>
+        <section class="demo-order-section">${demoSectionHeadHtml(en ? "Customer" : "ข้อมูลลูกค้า", 2)}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Name":"ชื่อ"}</span><b>${esc(demoProfile.fullName)}</b></div>${state.calc.noContract ? "" : `<div class="demo-order-row"><span>${esc(demoIdentityNumberLabel())}</span><b>${esc(demoIdentityDisplay())}</b></div>`}<div class="demo-order-row"><span>${en?"Phone":"เบอร์ติดต่อ"}</span><b>${esc(demoProfile.phone)}</b></div><div class="demo-order-row"><span>${en?"Delivery":"ที่อยู่จัดส่ง"}</span><b>${esc([demoProfile.addressLine,demoProfile.subdistrict,demoProfile.district,demoProfile.province,demoProfile.postalCode].filter(Boolean).join(" ") || (en ? "Google Maps pin only" : "ใช้หมุด Google Maps"))}</b></div><div class="demo-order-row"><span>Google Maps</span><b><a href="${esc(safeHref(demoProfile.maps))}" target="_blank" rel="noopener">${en?"Open map":"เปิดแผนที่"}</a></b></div></div></section>
         <section class="demo-order-section">${demoSectionHeadHtml(en ? "Rental period" : "ช่วงเวลา", 1)}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Duration":"ระยะเวลา"}</span><b>${summary.days} ${en?"days":"วัน"}</b></div><div class="demo-order-row"><span>${en?"Dates":"วันที่เช่า"}</span><b>${displayDate(state.calc.start)} – ${displayDate(state.calc.end)}</b></div></div></section>
       </div>
       <div>
@@ -10718,6 +10749,10 @@ We apologize for the inconvenience and hope everyone stays safe.`
       }
       if(event.target.id === "demoNoThaiAddress"){
         demoProfile.noThaiAddress = event.target.checked;
+        if(demoProfile.noThaiAddress){
+          ["addressLine","postalCode","subdistrict","district","province"].forEach(key => { demoProfile[key] = ""; });
+        }
+        saveDemoProfile();
         render();
       }
       if(event.target.name === "demoIdentityType"){ demoProfile.identityType = event.target.value; render(); }
@@ -11238,6 +11273,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
 
   async function boot(){
     if(await completeLineBookingHandoff()) return;
+    clearExpiredRentalSession();
     loadState();
     let demoProfileRestored = false;
     if(UNIFIED_FLOW_DEMO){

@@ -110,8 +110,24 @@ test('identity uploads offer a camera and an example photo', () => {
 
 test('a visitor without Thai address details can rely on the map pin', () => {
   assert.match(html, /id="demoNoThaiAddress"/);
-  assert.match(html, /I don't have Thai address details/);
+  assert.match(html, /ไม่ต้องการระบุที่อยู่ ตำแหน่งจากลิงก์ Google Maps ถูกต้องแล้ว/);
+  assert.match(html, /I don't need to enter an address — the Google Maps link is exact/);
   assert.match(html, /if\(!demoProfile\.noThaiAddress\)\{/);
+  assert.match(html, /need\("demoMaps", \/\^https\?:\\\/\\\//);
+  assert.match(html, /demoProfile\.noThaiAddress = event\.target\.checked;[\s\S]*?saveDemoProfile\(\);\n\s*render\(\);/);
+  assert.match(html, /<span>Google Maps<\/span><b><a href="\$\{esc\(safeHref\(demoProfile\.maps\)\)\}"/);
+  assert.match(html, /\["addressLine","postalCode","subdistrict","district","province"\]\.forEach/);
+});
+
+test('the in-progress rental session expires after 24 hours on each device', () => {
+  assert.match(html, /const RENTAL_SESSION_KEY = "aj_rental_session_v1"/);
+  assert.match(html, /const RENTAL_SESSION_TTL_MS = 24 \* 60 \* 60 \* 1000/);
+  assert.match(html, /function clearExpiredRentalSession\(\)/);
+  assert.match(html, /localStorage\.removeItem\(LS\.draft\)/);
+  assert.match(html, /localStorage\.removeItem\("aj_demo_profile_v1"\)/);
+  assert.match(html, /location\.reload\(\)/);
+  const boot = html.slice(html.indexOf('async function boot(){'));
+  assert.ok(boot.indexOf('clearExpiredRentalSession();') < boot.indexOf('loadState();'));
 });
 
 test('identity images are uploaded to the booking context before the Rental ID page opens', () => {

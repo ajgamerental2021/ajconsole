@@ -1525,3 +1525,9 @@ paused job shows slightly old numbers rather than an empty section.
 - Removed the empty yellow demo strip above the three booking steps. The production flow still uses real payment amounts and the legacy rollback flag is unchanged.
 - The return-day Flex warning now forces “หรือระหว่างขนส่ง” / “or during transport” onto its own line without changing the charges or other reminder content.
 - Verification: 165/165 website tests, 414/414 Bot tests, Delivery App TypeScript build and 25/25 return-day tests. Browser QA confirmed Before rent is the initial Thai page, the booking page has no yellow strip, and the back button returns to Before rent.
+
+## 2026-09-28 — Map-pin-only address and 24-hour rental session
+
+- Step 2 now has an always-visible bilingual checkbox for customers whose exact Google Maps pin is sufficient. When selected, the street/postcode/subdistrict/district/province fields are skipped, while a valid Google Maps link remains required and is used for the delivery quote.
+- The customer summary on the Rental ID page includes the submitted Google Maps link. A pin-only customer is labelled accordingly instead of showing a blank delivery address.
+- Each device now gets one fixed 24-hour in-progress rental session. At expiry the selected equipment/dates, customer form, Rental ID/order screen and that device's temporary booking hold are cleared and the page reloads at the normal starting state. Language, LINE linkage, saved My Rental access and admin/site data are not cleared.
