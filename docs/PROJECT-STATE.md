@@ -1498,3 +1498,10 @@ paused job shows slightly old numbers rather than an empty section.
 - Delivery App attaches that LINE account to the Booking and sends its existing “ยืนยันการจองเรียบร้อยแล้ว” card. The send is once-only, rejects a conflicting LINE account, retries while the payment webhook is still creating the Booking, and does not expose the LINE ID in logs or responses.
 - If an idempotent payment webhook finds an existing Booking, Delivery App also performs the same once-only LINE confirmation when the payment already carries a LINE ID.
 - The English paid-rental pop-up now tells WhatsApp customers to screenshot that page and send it to the AJ chat they used; the notice is intentionally absent in Thai.
+
+## 2026-09-28 — Padlock-code charges in the terms and return-day reminder
+
+- Rental Terms version `2026-09-28` adds the bilingual rule for a changed padlock code: ฿300 when AJ can recover the code, or ฿1,500 when the lock must be cut/destroyed or an AirTag or installed equipment is damaged. The shared terms source feeds the public terms page, LIFF agreement, contract PDF, and Rental Order PDF.
+- The built-in `2026-09-23` wording remains available for documents already accepted under that version. Records created before the new version's effective time continue to resolve to the old terms when rebuilt.
+- Delivery App's same-day return Flex now tells the renter to turn every digit away from the original code, explicitly forbids changing the combination, and shows both charges below the grey code box. Thai and English use the same structure; the existing return details, codes, and Extend Rental button are unchanged.
+- Verification: 410/410 Bot tests; Delivery App TypeScript build plus 23/23 return-day, 6/6 reminder-language, and 54/54 delivery-card checks; Thai and English three-page contract PDFs rendered and inspected page by page.
