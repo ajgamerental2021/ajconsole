@@ -2173,9 +2173,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function clearExpiredRentalSession(){
     const now = Date.now();
     let startedAt = 0;
+    let hadRentalProgress = false;
     try{
       const session = JSON.parse(localStorage.getItem(RENTAL_SESSION_KEY) || "null");
       const legacyDraft = JSON.parse(localStorage.getItem(LS.draft) || "null");
+      hadRentalProgress = !!legacyDraft || !!localStorage.getItem("aj_demo_profile_v1");
       startedAt = Number(session?.startedAt || legacyDraft?.at || now);
     }catch{
       startedAt = now;
@@ -2189,15 +2191,22 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
     localStorage.setItem(RENTAL_SESSION_KEY, JSON.stringify({startedAt}));
     window.setTimeout(() => {
+      let shouldReturnToStepOne = false;
       try{
+        shouldReturnToStepOne = !!localStorage.getItem(LS.draft) || !!localStorage.getItem("aj_demo_profile_v1");
         localStorage.removeItem(LS.draft);
         localStorage.removeItem("aj_demo_profile_v1");
         localStorage.removeItem("aj_booking_own_hold");
         localStorage.setItem(RENTAL_SESSION_KEY, JSON.stringify({startedAt:Date.now()}));
       }catch{}
-      location.reload();
+      if(shouldReturnToStepOne){
+        const url = new URL(location.href);
+        url.searchParams.set("booking", "1");
+        url.hash = "";
+        location.replace(url.href);
+      }
     }, Math.max(1_000, RENTAL_SESSION_TTL_MS - (now - startedAt)));
-    return expired;
+    return expired && hadRentalProgress;
   }
 
   function dateOnly(date){ return new Date(date.getFullYear(), date.getMonth(), date.getDate()); }
@@ -11273,7 +11282,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
 
   async function boot(){
     if(await completeLineBookingHandoff()) return;
-    clearExpiredRentalSession();
+    const expiredRentalProgress = clearExpiredRentalSession();
     loadState();
     let demoProfileRestored = false;
     if(UNIFIED_FLOW_DEMO){
@@ -11297,6 +11306,12 @@ We apologize for the inconvenience and hope everyone stays safe.`
       state.calc.demoContractSignature = "";
       state.calc.demoOrderOpen = false;
     }
+    if(expiredRentalProgress){
+      const cleanBookingUrl = new URL(location.href);
+      cleanBookingUrl.searchParams.set("booking", "1");
+      cleanBookingUrl.hash = "";
+      history.replaceState(null, "", cleanBookingUrl.href);
+    }
     const requestedLanguage = new URLSearchParams(location.search).get("lang");
     if(["th","en"].includes(requestedLanguage)) state.lang = requestedLanguage;
     const directBookingEntry = new URLSearchParams(location.search).get("booking") === "1";
@@ -11307,7 +11322,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     state.availability.holds = mergeBookingHolds(state.availability.holds);
     // A normal visit always starts with the Before rent page. Deep links that
     // already carry a selected rental context still open the relevant step.
-    state.beforeRentActive = !hasRentalContext();
+    state.beforeRentActive = expiredRentalProgress ? false : !hasRentalContext();
     if(new URLSearchParams(location.search).get("admin") === "1") byId("adminBtn").hidden = false;
     const viewCode = new URLSearchParams(location.search).get("viewMsg");
     if(viewCode){ renderBookingViewer(viewCode.trim()); return; }
