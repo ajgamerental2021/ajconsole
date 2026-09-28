@@ -574,6 +574,7 @@ test('a renter checks a rental without an account: this device, the email link, 
   assert.match(html, /en \? "Copy link to this page" : "คัดลอกลิงก์หน้านี้"/);
   // The paid pop-up shows the rental and can switch language.
   assert.match(html, /showModal\(state\.lang === "en" \? "Rental confirmed" : "การเช่าสำเร็จ", paidRentalNoticeHtml\(\), \{relocalize:renderPaidRentalNotice\}\);/);
+  assert.match(html, /WhatsApp customers: take a screenshot of this page and send it to the chat where you contacted AJ\./);
   assert.match(html, /: "ดูรายการนี้ได้ตลอด ที่ เมนู → เช็ครายการเช่า";/);
   assert.doesNotMatch(html, /ดูรายการนี้ได้อีกตลอด/);
   for (const label of ['"Equipment" : "เครื่องที่เช่า"', '"Start date" : "วันที่เริ่มเช่า"', '"Return date" : "วันที่คืนเครื่อง"', '"Rental days" : "จำนวนวันเช่า"', '"Rental fee" : "ค่าเช่า"', '"Security deposit" : "ค่าประกัน"', '"Customer name" : "ชื่อลูกค้า"', '"Phone" : "เบอร์โทร"', '"Verify my identity now" : "ยืนยันตัวตนตอนนี้"']) {

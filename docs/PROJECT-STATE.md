@@ -1490,3 +1490,11 @@ paused job shows slightly old numbers rather than an empty section.
 - The shop's payment notice now states the identity position, including "จ่ายแล้ว / ยังไม่ยืนยันตัวตน ห้ามส่ง". The delivery app receives `dispatchHold` with the payment and an `identity-updated` event when photos arrive; `docs/DELIVERY-APP-ID-EXPIRY-PROMPT.md` in the Bot repo describes the delivery app's side.
 - The demo form is kept on the device for 24 hours and restores after a refresh or a closed tab, returning to the saved step. The document number is not stored in the browser: it goes to a server-side draft (24 hours, in memory) and the page keeps only the draft id and last four characters. The payment-success page clears the saved form.
 - Verification: 122/122 website and 376/376 Bot tests; local end-to-end run with a signed payment webhook, the confirmation email carrying the link (copied to booking@), an upload through the link (Drive files dated one year after return, shop notified, link then reports "already sent"), a forged link rejected, a refresh restoring every field with the number masked from the draft, and the success page showing the identity request in English.
+
+## 2026-09-28 — Delivery App owns paid-booking confirmation
+
+- Removed the Bot's paid-rental `bookingFlexMessage` send, which produced the obsolete “ส่งข้อมูลจองแล้ว” card after payment. The Bot still sends the separate identity follow-up when the renter chose to verify later.
+- Verified payments continue to move Console Pending into Booking through Delivery App. When LINE was not known until the customer tapped LINE on the success page, the Bot now forwards the verified LINE Unique ID through a signed `/api/integrations/aj-rental/line-linked` call.
+- Delivery App attaches that LINE account to the Booking and sends its existing “ยืนยันการจองเรียบร้อยแล้ว” card. The send is once-only, rejects a conflicting LINE account, retries while the payment webhook is still creating the Booking, and does not expose the LINE ID in logs or responses.
+- If an idempotent payment webhook finds an existing Booking, Delivery App also performs the same once-only LINE confirmation when the payment already carries a LINE ID.
+- The English paid-rental pop-up now tells WhatsApp customers to screenshot that page and send it to the AJ chat they used; the notice is intentionally absent in Thai.
