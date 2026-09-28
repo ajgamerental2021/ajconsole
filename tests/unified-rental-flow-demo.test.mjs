@@ -5,10 +5,10 @@ import fs from 'node:fs';
 const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const entry = fs.readFileSync(new URL('../rental-flow-demo.html', import.meta.url), 'utf8');
 
-test('separate demo entry enables the feature-gated unified flow', () => {
+test('unified flow is the production default and legacy flow remains available for rollback', () => {
   assert.match(entry, /flowDemo', '1'/);
   assert.match(entry, /booking', '1'/);
-  assert.match(html, /const UNIFIED_FLOW_DEMO = PAGE_PARAMS\.get\("flowDemo"\) === "1"/);
+  assert.match(html, /const UNIFIED_FLOW_DEMO = PAGE_PARAMS\.get\("legacyFlow"\) !== "1"/);
   assert.match(html, /body\.classList\.add\("unified-flow-demo"\)/);
 });
 
@@ -51,7 +51,8 @@ test('payment success handoff can request confirmation-only LINE Flex', () => {
   const success = fs.readFileSync(new URL('../payment-success.html', import.meta.url), 'utf8');
   assert.match(success, /confirmationOnly/);
   assert.match(success, /flowDemo/);
-  assert.match(html, /confirmationOnly:params\.get\("confirmationOnly"\) === "1"/);
+  assert.match(html, /const confirmationOnly = params\.get\("confirmationOnly"\) === "1"/);
+  assert.match(html, /JSON\.stringify\(\{lineAccessToken:accessToken, confirmationOnly\}\)/);
 });
 
 test('demo does not reopen with an expired rental draft', () => {
@@ -410,7 +411,7 @@ test('the deposit refund block matches the LINE form, with Wise details for pass
 });
 
 test('the trial ฿1 charge is one switch; live, every option but Wise goes through Beam at its real amount', () => {
-  assert.match(html, /const UNIFIED_FLOW_TEST_CHARGE = true;/);
+  assert.match(html, /const UNIFIED_FLOW_TEST_CHARGE = false;/);
   assert.match(html, /if\(UNIFIED_FLOW_TEST_CHARGE\) return 1;\n      return state\.calc\.payment === "wise" \? 0 : paymentAmountsFor\(state\.calc\.payment, summary\)\.payNow;/);
   assert.match(html, /bookingFetch\(UNIFIED_FLOW_DEMO && UNIFIED_FLOW_TEST_CHARGE \? CONFIG\.beamPaymentApiDemo : CONFIG\.beamPaymentApi,/);
 });

@@ -15,7 +15,7 @@ test('delivery and no-contract FAQs are bilingual and inserted contextually', ()
   assert.match(source, /qTh:"ส่งเครื่องและคืนเครื่องอย่างไร"/);
   assert.match(source, /AJ arranges the driver for both delivery and return/);
   assert.match(source, /qTh:"ไม่ทำสัญญาการเช่าได้ไหม\?"/);
-  assert.match(source, /deposit increases from ฿2,000 → ฿5,000 or ฿4,000 → ฿8,000/);
+  assert.match(source, /deposit increases from ฿2,000 → ฿10,000 or ฿4,000 → ฿15,000/);
   assert.match(source, /deliveryMethodIndex >= 0 \? deliveryMethodIndex \+ 1/);
   assert.match(source, /safeContractIndex >= 0 \? safeContractIndex/);
 });

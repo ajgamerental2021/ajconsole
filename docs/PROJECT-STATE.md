@@ -1505,3 +1505,14 @@ paused job shows slightly old numbers rather than an empty section.
 - The built-in `2026-09-23` wording remains available for documents already accepted under that version. Records created before the new version's effective time continue to resolve to the old terms when rebuilt.
 - Delivery App's same-day return Flex now tells the renter to turn every digit away from the original code, explicitly forbids changing the combination, and shows both charges below the grey code box. Thai and English use the same structure; the existing return details, codes, and Extend Rental button are unchanged.
 - Verification: 410/410 Bot tests; Delivery App TypeScript build plus 23/23 return-day, 6/6 reminder-language, and 54/54 delivery-card checks; Thai and English three-page contract PDFs rendered and inspected page by page.
+
+## 2026-09-28 — Unified rental flow production default, resilient checkout, VIP pricing
+
+- The unified rental flow is now the default production experience. The ฿1 test charge is disabled and the demo-charge notice is hidden. The previous flow remains available temporarily with `?legacyFlow=1` for rollback.
+- Checkout waits longer for Beam and shows bilingual failure feedback instead of remaining behind a permanent loading veil. LINE handoff now shows bilingual instructions before opening LINE and uses one signed handoff, so customers do not need to press the button twice.
+- Delivery and return guidance now states that the return pickup uses the same time of day as the original delivery unless AJ agrees otherwise. Delivery App carries that exact time into an automatically created Booking.
+- Web booking data now carries the quoted round-trip delivery fee, full delivery address and Google Maps link through Console Pending into Booking, the confirmation Flex, confirmation email and My Rental detail.
+- The payment-success WhatsApp message includes the customer's signed direct My Rental link. A signed email/WhatsApp link opens the rental directly without asking for the booking credentials again; the ordinary lookup still requires them.
+- Completing identity upload forwards the customer's LINE identity to Delivery App, which sends a bilingual receipt Flex confirming that AJ received the documents. The existing dispatch hold and human-review rules remain unchanged.
+- VIP pricing is data-driven and initially includes the two owner-supplied profiles. It is applied only after returning-customer/LINE verification, supports all-device deposit overrides and device-specific rental rates, does not expose the VIP list in the page, and labels the entitlement in Thai and English.
+- Current scope of the signed public My Rental link is secure direct viewing. Customer mutations still use Delivery App's authenticated LINE My Rental actions; WhatsApp cannot attach a generated image through a `wa.me` prefilled message without a WhatsApp Business media API.

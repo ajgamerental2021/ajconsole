@@ -4,12 +4,14 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
-test('Console Pending submissions use the acknowledged Bot upsert and are awaited', () => {
+test('Console Pending submissions use the acknowledged Bot upsert and survive checkout navigation', () => {
   assert.match(html, /new URL\("\/api\/console-pending-submissions", CONFIG\.contractWebUrl\)/);
   assert.doesNotMatch(html, /fetch\(endpoint, \{method:"POST", mode:"no-cors"/);
-  // The demo's own write is retried in the background instead of being awaited,
-  // so a cold Bot cannot strand a customer between identity and payment.
-  assert.equal((html.match(/await submitRentalToSheet\(/g) || []).length, 6);
+  // Checkout writes Console Pending in parallel with Beam. keepalive lets the
+  // write finish after navigation, so a slow Sheet cannot strand payment.
+  assert.equal((html.match(/await submitRentalToSheet\(/g) || []).length, 5);
+  assert.match(html, /keepalive:true/);
+  assert.match(html, /const pendingWrite = submitRentalToSheet/);
   assert.match(html, /Rental sheet append will be retried/);
   assert.match(html, /if\(!response\.ok \|\| !result\?\.ok\) throw new Error/);
 });
