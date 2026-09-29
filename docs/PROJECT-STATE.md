@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-09-29 — Console Pending shows the delivery fee; names with digits caught on the page (website `35ee401`, Delivery App `b12281c`)
+
+- Case: AJ-20260929-R0027 (PS4, 18:32) appeared in Console Pending while the renter could not get past "ยืนยันและไปหน้าชำระเงิน". Console Pending is written by design the moment step 3 is confirmed (status Pending / รอโอนเงิน), before the agreement and payment, so the shop can follow up on renters who do not finish. The renter's tries (18:32–18:44) were all before the step-3 fixes above went live (~18:45); their phone was first +66635399435 (refused then). Their name ended in "0" (ปริวัฒน์ ภิรมย์บูรณ์0): the contract takes that, but the refund account name must be letters only, so the same name there would also be refused. The signature running outside the box does not matter.
+- Delivery fee: the website only fetched the live price after the order page opened, so a renter stuck at step 3 left ค่าจัดส่ง 0; and the Delivery App card always started ค่าจัดส่ง empty (and wrote it back empty on Confirm) even when the request had a fee. Now the quote starts with the agreement, the Console Pending row is written again when it arrives (`queueConsolePendingUpsert`, sequential writes, prices re-read from `bookingStructured`), and the card starts with the quoted fee.
+- Step 2 refuses digits in the name ("ชื่อ-นามสกุลต้องไม่มีตัวเลข / The name must not contain numbers."); step 3 checks the refund account name with the Bot's letters-only rule ("ชื่อบัญชีต้องเป็นตัวอักษรเท่านั้น ตามที่ธนาคารแสดง"). Phones typed +66 / 0066 / 66… are sent as 0… (`thaiPhoneText`).
+- Verification: website 185/185; headless Chromium with the APIs mocked: the name and account-name errors show, then with fixed names the confirm writes Console Pending twice — first total 2,900 / fee 0, then 3,028 / fee 128 after the quote — phone sent as 0635399435. Delivery App frontend has no installed toolchain here (tsc not run); the change is two lines.
+
 ## 2026-09-29 — Step 3 "บันทึกสัญญาไม่สำเร็จ" fixed at the causes (Bot `d7fb5aa`, website `c74d96d`)
 
 - The toast "บันทึกสัญญาไม่สำเร็จ กรุณาตรวจบัญชีรับเงินคืนและลายเซ็น แล้วลองใหม่" was shown for every refusal of `POST /api/booking-context/:token/agreement`, whatever the real field. Three real causes, none about the refund account or signature:
