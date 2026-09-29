@@ -671,3 +671,29 @@ test('Admin → Rentals offers the renter\'s own My rental link in Thai and Engl
   assert.match(html, /data-copy-my-rental="\$\{lang\}"/);
   assert.match(html, /rel="noopener noreferrer"/);
 });
+
+test('a returning renter\'s saved address fills the area fields and shows the summary card', () => {
+  const body = html.match(/function demoAddressGuess\(text, candidates\)\{[\s\S]*?\n  \}\n/)[0];
+  const demoAddressGuess = new Function(`${body}; return demoAddressGuess;`)();
+  const c = (sub, district) => ({ sub: [sub, sub], district: [district, district], province: ['กรุงเทพมหานคร', 'Bangkok'] });
+  const zip10510 = [c('มีนบุรี', 'เขตมีนบุรี'), c('แสนแสบ', 'เขตมีนบุรี'), c('ทรายกองดิน', 'เขตคลองสามวา'), c('ทรายกองดินใต้', 'เขตคลองสามวา'), c('บางชัน', 'เขตคลองสามวา')];
+  assert.equal(demoAddressGuess('Djcj ทรายกองดิน เขตคลองสามวา กรุงเทพมหานคร 10510', zip10510).sub[0], 'ทรายกองดิน');
+  assert.equal(demoAddressGuess('99 แขวงทรายกองดินใต้ คลองสามวา', zip10510).sub[0], 'ทรายกองดินใต้');
+  assert.equal(demoAddressGuess('บ้านเลขที่ 1 กรุงเทพ', zip10510), null);
+  assert.match(html, /const guess = demoAddressGuess\(demoProfile\.addressLine, demoAddressCandidates\);/);
+  // A saved one-line address is enough when it cannot be split, and is sent once, not doubled.
+  assert.match(html, /demoProfile\.addressFromProfile = true;/);
+  assert.match(html, /: demoAddressFromProfileOnly\(\) \? \["fullName","phone","email","addressLine","maps"\]/);
+  assert.match(html, /deliveryAddress: UNIFIED_FLOW_DEMO \? demoAddressText\(\) : "",/);
+  // After a reload the postal code's areas come back and the summary stays.
+  assert.match(html, /if\(\/\^\\d\{5\}\$\/\.test\(String\(demoProfile\.postalCode \|\| ""\)\.trim\(\)\)\) void onDemoPostalCode\(demoProfile\.postalCode\);/);
+  assert.match(html, /if\(state\.calc\.retVerified && \(demoProfile\.fullName \|\| demoProfile\.phone\)\) demoContactFromLine = true;/);
+});
+
+test('the identity step is greyed out and cannot be opened when nothing is left to verify', () => {
+  assert.match(html, /const skipped = UNIFIED_FLOW_DEMO && n === 3 && demoIdentityStepSkippable\(\);/);
+  assert.match(html, /\$\{skipped\?'disabled data-step-disabled="1"':""\}/);
+  assert.match(html, /"Not needed" : "ไม่ต้องยืนยัน"/);
+  assert.match(html, /if\(UNIFIED_FLOW_DEMO && state\.calc\.step === 3 && demoIdentityStepSkippable\(\)\) state\.calc\.step = 2;/);
+  assert.match(html, /\.step-tab\.skipped,\.step-tab\.skipped\.done\{background:#f2f4f7!important/);
+});

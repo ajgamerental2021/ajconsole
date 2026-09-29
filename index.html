@@ -128,6 +128,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .step-tab.active{background:#fff7f7;color:#8b0000}
 .step-tab.done .num{background:var(--ok)}
 .step-tab.locked{opacity:.45;cursor:not-allowed}
+/* Identity step with nothing to do (valid agreement on file, or no-identity choice). */
+.step-tab.skipped,.step-tab.skipped.done{background:#f2f4f7!important;border-color:#d0d5dd!important;color:#667085!important;cursor:not-allowed}
+.step-tab.skipped .num{background:#98a2b3!important}
+.step-tab.skipped:after{color:#98a2b3!important}
+.step-tab .step-skip-note{display:block;font-size:11px;font-weight:700;color:#667085;margin-top:2px}
 .step-tab .num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:999px;background:#111;color:#fff;font-size:12px;font-weight:900;margin-right:7px}
 .step-tab b{font-size:13px}
 .rental-days-hint{display:none;grid-column:1/-1;color:var(--ok);font-size:13px;font-weight:900;padding-top:2px}
@@ -2360,7 +2365,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     fullName:"", phone:"", email:"", identityNumber:"", addressLine:"",
     subdistrict:"", district:"", province:"Bangkok", postalCode:"", maps:"",
     lineDisplayName:"", lineUserId:"", idDocument:null, selfieWithId:null,
-    termsAccepted:false, identitySkipped:false, noThaiAddress:false, refundBankId:"", refundAccountName:"", noThaiBankAccount:false, wiseEmail:"", agreementConsent:false,
+    termsAccepted:false, identitySkipped:false, noThaiAddress:false, addressFromProfile:false, refundBankId:"", refundAccountName:"", noThaiBankAccount:false, wiseEmail:"", agreementConsent:false,
     // "" follows the page language (Thai → Thai ID, English → passport) until
     // the customer picks one; a foreign renter can use Thai and still pick passport.
     identityType:"", identityUploaded:false, identityOnFileLast4:"", identityExpiry:"",
@@ -2371,7 +2376,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // the page keeps only that draft's id and last four characters.
   const DEMO_PROFILE_KEY = "aj_demo_profile_v1";
   const DEMO_PROFILE_TTL_MS = 24 * 60 * 60 * 1000;
-  const DEMO_PROFILE_FIELDS = ["refundBankId","refundAccountName","noThaiBankAccount","wiseEmail","fullName","phone","email","addressLine","subdistrict","district","province","postalCode","maps","termsAccepted","identitySkipped","noThaiAddress","identityType","identityUploaded","identityExpiry","identityDraftId","identityDraftLast4","identityOnFileLast4"];
+  const DEMO_PROFILE_FIELDS = ["refundBankId","refundAccountName","noThaiBankAccount","wiseEmail","fullName","phone","email","addressLine","subdistrict","district","province","postalCode","maps","termsAccepted","identitySkipped","noThaiAddress","identityType","identityUploaded","identityExpiry","identityDraftId","identityDraftLast4","identityOnFileLast4","addressFromProfile"];
   let demoProfileSaveTimer = 0;
   function saveDemoProfile(options={}){
     if(!UNIFIED_FLOW_DEMO) return;
@@ -3773,14 +3778,18 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
 
   function renderCalc(){
     state.calc.step = Math.min(3, Math.max(1, Number(state.calc.step) || 1));
+    if(UNIFIED_FLOW_DEMO && state.calc.step === 3 && demoIdentityStepSkippable()) state.calc.step = 2;
     document.body.dataset.calcStep = String(state.calc.step);
     const steps = UNIFIED_FLOW_DEMO
       ? (state.lang === "en" ? ["Equipment & dates","Customer & delivery","Identity verification"] : ["เครื่องและวันเช่า","ข้อมูลลูกค้าและจัดส่ง","ยืนยันตัวตน"])
       : [tr("step1"),tr("step2"),tr("step3")];
     byId("calcTabs").innerHTML = steps.map((label,i) => {
       const n = i+1;
-      const locked = n > 1 && !stepReady(n - 1);
-      return `<button class="step-tab ${state.calc.step===n?"active":""} ${stepReady(n)?"done":""} ${locked?"locked":""}" data-step="${n}" ${state.calc.step===n?'aria-current="step"':""} ${locked?'aria-disabled="true"':""} type="button"><span class="num">${n}</span><b>${esc(label)}</b></button>`;
+      // Identity step with nothing left to do: greyed out and not pressable.
+      const skipped = UNIFIED_FLOW_DEMO && n === 3 && demoIdentityStepSkippable();
+      const locked = !skipped && n > 1 && !stepReady(n - 1);
+      const skipNote = skipped ? `<span class="step-skip-note">${esc(state.lang === "en" ? "Not needed" : "ไม่ต้องยืนยัน")}</span>` : "";
+      return `<button class="step-tab ${state.calc.step===n&&!skipped?"active":""} ${stepReady(n)&&!skipped?"done":""} ${locked?"locked":""} ${skipped?"skipped":""}" data-step="${n}" ${state.calc.step===n&&!skipped?'aria-current="step"':""} ${locked||skipped?'aria-disabled="true"':""} ${skipped?'disabled data-step-disabled="1"':""} type="button"><span class="num">${n}</span><b>${esc(label)}${skipNote}</b></button>`;
     }).join("");
     $$(".pane").forEach((pane,i) => pane.classList.toggle("active", i+1 === state.calc.step));
     renderCalcFields();
@@ -3904,6 +3913,40 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       return {sub:[row[1], row[2]], district:[district[0], district[1]], province:demoAddressData.provinces[district[2]]};
     });
   }
+  // The delivery address as one line. An address carried over from the last
+  // rental arrives as one line already, with the area names inside it.
+  function demoAddressText(){
+    if(demoProfile.addressFromProfile && String(demoProfile.addressLine || "").trim()) return String(demoProfile.addressLine).trim();
+    return [demoProfile.addressLine, demoProfile.subdistrict, demoProfile.district, demoProfile.province, demoProfile.postalCode]
+      .map(part => String(part || "").trim()).filter(Boolean).join(" ");
+  }
+  // The saved one-line address stands on its own when the postal-code lookup
+  // could not split it into subdistrict, district and province.
+  function demoAddressFromProfileOnly(){
+    return !!demoProfile.addressFromProfile && !!String(demoProfile.addressLine || "").trim()
+      && !["subdistrict","district","province"].every(key => String(demoProfile[key] || "").trim());
+  }
+  // Which of a postal code's areas the address text names: "ทรายกองดิน" or
+  // "แขวงทรายกองดิน" picks that subdistrict, "เขตคลองสามวา" narrows to that
+  // district. Used only while the customer has not chosen one.
+  function demoAddressGuess(text, candidates){
+    const plain = value => String(value || "").toLowerCase().replace(/\s+/g, "");
+    const hay = plain(text);
+    if(!hay || !candidates.length) return null;
+    const subHit = candidate => Math.max(0, ...candidate.sub.map(name => plain(name)).filter(name => name.length >= 3 && hay.includes(name)).map(name => name.length));
+    const bySub = candidates.filter(candidate => subHit(candidate) > 0);
+    if(bySub.length === 1) return bySub[0];
+    // "ทรายกองดินใต้" also contains "ทรายกองดิน": the longer name wins.
+    const longest = Math.max(0, ...bySub.map(subHit));
+    const best = bySub.filter(candidate => subHit(candidate) === longest);
+    if(best.length === 1) return best[0];
+    const pool = bySub.length ? bySub : candidates;
+    const byDistrict = pool.filter(candidate => candidate.district.some(name => {
+      const bare = plain(name).replace(/^(เขต|อำเภอ|อ\.)/, "");
+      return bare.length >= 3 && hay.includes(bare);
+    }));
+    return byDistrict.length === 1 ? byDistrict[0] : null;
+  }
   function demoAddressName(pair){
     return state.lang === "en" ? pair[1] : pair[0];
   }
@@ -3936,7 +3979,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         if(districts.length === 1) setDemoField("demoDistrict", "district", districts[0]);
         if(subdistricts.length === 1) setDemoField("demoSubdistrict", "subdistrict", subdistricts[0]);
         else if(subdistricts.includes(demoProfile.subdistrict)) onDemoSubdistrict(demoProfile.subdistrict);
-        else{ setDemoField("demoSubdistrict", "subdistrict", ""); demoAddressNote = "pick"; }
+        else{
+          const guess = demoAddressGuess(demoProfile.addressLine, demoAddressCandidates);
+          if(guess){
+            setDemoField("demoSubdistrict", "subdistrict", demoAddressName(guess.sub));
+            onDemoSubdistrict(demoProfile.subdistrict);
+            if(byId("demoSubdistrict")?.tagName === "SELECT") renderDemoAddressAssist();
+          }else{ setDemoField("demoSubdistrict", "subdistrict", ""); demoAddressNote = "pick"; }
+        }
+        // The summary card may now be complete.
+        if(demoContactFromLine && !demoContactEditing) render();
       }
     }
     renderDemoAddressAssist();
@@ -3980,7 +4032,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({
           mapsUrl: demoProfile.maps,
-          address: [demoProfile.addressLine, demoProfile.subdistrict, demoProfile.district, demoProfile.province, demoProfile.postalCode].filter(Boolean).join(" "),
+          address: demoAddressText(),
           deviceCount: 1 + (state.calc.extras?.length ? 1 : 0),
           // Only the Logitech G29 wheel needs a car; everything else fits a motorcycle.
           hasLargeItem: /G29|Logitech/i.test(name),
@@ -4038,6 +4090,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const text = String(saved || "").trim();
     if(!text || demoProfile.addressLine.trim()) return;
     demoProfile.addressLine = text;
+    demoProfile.addressFromProfile = true;
     const postal = text.match(/(\d{5})(?!.*\d{5})/);
     if(postal){
       demoProfile.postalCode = postal[1];
@@ -4089,7 +4142,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }, {enableHighAccuracy:true, timeout:15000});
   }
   function demoMapsSearchUrl(){
-    const query = [demoProfile.addressLine, demoProfile.subdistrict, demoProfile.district, demoProfile.province, demoProfile.postalCode].map(part => String(part || "").trim()).filter(Boolean).join(" ");
+    const query = demoAddressText();
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query || "Bangkok")}`;
   }
   function renderDemoAddressAssist(){
@@ -4270,14 +4323,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   let demoContactEditing = false;
   const DEMO_CONTACT_IDS = ["demoCustomerName","demoCustomerPhone","demoEmail","demoAddressLine","demoPostalCode","demoSubdistrict","demoDistrict","demoProvince","demoMaps"];
   function demoContactComplete(){
-    return ["fullName","phone","email","addressLine","postalCode","subdistrict","district","province","maps"].every(key => String(demoProfile[key] || "").trim());
+    const keys = demoProfile.noThaiAddress ? ["fullName","phone","email","maps"]
+      : demoAddressFromProfileOnly() ? ["fullName","phone","email","addressLine","maps"]
+      : ["fullName","phone","email","addressLine","postalCode","subdistrict","district","province","maps"];
+    return keys.every(key => String(demoProfile[key] || "").trim());
   }
   function demoContactCollapsed(){
     return UNIFIED_FLOW_DEMO && demoContactFromLine && !demoContactEditing && demoContactComplete();
   }
   function demoContactSummaryHtml(){
     const en = state.lang === "en";
-    const address = [demoProfile.addressLine, demoProfile.subdistrict, demoProfile.district, demoProfile.province, demoProfile.postalCode].map(part => String(part || "").trim()).filter(Boolean).join(" ");
+    const address = demoAddressText();
     const row = (label, value) => `<div class="demo-line-summary-row"><span>${esc(label)}</span><b>${value}</b></div>`;
     return `<div class="demo-line-summary">
       <div class="demo-line-summary-head"><b>${en ? "Your details from your last rental" : "ข้อมูลจากการเช่าครั้งก่อน"}</b><button class="btn" type="button" id="demoContactEdit">${en ? "Edit" : "แก้ไข"}</button></div>
@@ -4677,7 +4733,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         expiry ? demoIdentityExpiryMessage() : (en ? "Enter the document's expiry date." : "กรอกวันหมดอายุของเอกสาร"));
     }
     need("demoEmail", demoEmailValid(demoProfile.email), demoEmailMessage());
-    if(!demoProfile.noThaiAddress){
+    if(!demoProfile.noThaiAddress && demoAddressFromProfileOnly()){
+      need("demoAddressLine", demoProfile.addressLine.trim().length >= 1, en ? "Enter the house or building number and street." : "กรอกบ้านเลขที่ อาคาร และถนน");
+    }else if(!demoProfile.noThaiAddress){
       need("demoAddressLine", demoProfile.addressLine.trim().length >= 1, en ? "Enter the house or building number and street." : "กรอกบ้านเลขที่ อาคาร และถนน");
       need("demoPostalCode", /^\d{5}$/.test(String(demoProfile.postalCode || "").trim()), en ? "Enter the 5-digit postal code." : "กรอกรหัสไปรษณีย์ 5 หลัก");
       need("demoSubdistrict", !!demoProfile.subdistrict.trim(), en ? "Choose the subdistrict." : "เลือกแขวง / ตำบล");
@@ -4970,7 +5028,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <div>
         <section class="demo-order-section">${demoSectionHeadHtml(en ? "Rental item" : "สินค้าที่เช่า", 1)}${demoRentalItemHtml(item, summary)}</section>
         <section class="demo-order-section"><h3>${en ? "Details" : "รายละเอียด"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Rental ID":"รหัสการเช่า"}</span><b>${esc(state.calc.rentalCode || "-")}</b></div><div class="demo-order-row"><span>${en?"Rental status":"สถานะการเช่า"}</span><b class="demo-status is-awaiting">${en?"Awaiting payment":"รอชำระเงิน"}</b></div></div></section>
-        <section class="demo-order-section">${demoSectionHeadHtml(en ? "Customer" : "ข้อมูลลูกค้า", 2)}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Name":"ชื่อ"}</span><b>${esc(demoProfile.fullName)}</b></div>${state.calc.noContract ? "" : `<div class="demo-order-row"><span>${esc(demoIdentityNumberLabel())}</span><b>${esc(demoIdentityDisplay())}</b></div>`}<div class="demo-order-row"><span>${en?"Phone":"เบอร์ติดต่อ"}</span><b>${esc(demoProfile.phone)}</b></div><div class="demo-order-row"><span>${en?"Delivery":"ที่อยู่จัดส่ง"}</span><b>${esc([demoProfile.addressLine,demoProfile.subdistrict,demoProfile.district,demoProfile.province,demoProfile.postalCode].filter(Boolean).join(" ") || (en ? "Google Maps pin only" : "ใช้หมุด Google Maps"))}</b></div><div class="demo-order-row"><span>Google Maps</span><b><a href="${esc(safeHref(demoProfile.maps))}" target="_blank" rel="noopener">${en?"Open map":"เปิดแผนที่"}</a></b></div></div></section>
+        <section class="demo-order-section">${demoSectionHeadHtml(en ? "Customer" : "ข้อมูลลูกค้า", 2)}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Name":"ชื่อ"}</span><b>${esc(demoProfile.fullName)}</b></div>${state.calc.noContract ? "" : `<div class="demo-order-row"><span>${esc(demoIdentityNumberLabel())}</span><b>${esc(demoIdentityDisplay())}</b></div>`}<div class="demo-order-row"><span>${en?"Phone":"เบอร์ติดต่อ"}</span><b>${esc(demoProfile.phone)}</b></div><div class="demo-order-row"><span>${en?"Delivery":"ที่อยู่จัดส่ง"}</span><b>${esc(demoAddressText() || (en ? "Google Maps pin only" : "ใช้หมุด Google Maps"))}</b></div><div class="demo-order-row"><span>Google Maps</span><b><a href="${esc(safeHref(demoProfile.maps))}" target="_blank" rel="noopener">${en?"Open map":"เปิดแผนที่"}</a></b></div></div></section>
         <section class="demo-order-section">${demoSectionHeadHtml(en ? "Rental period" : "ช่วงเวลา", "dates")}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Duration":"ระยะเวลา"}</span><b>${summary.days} ${en?"days":"วัน"}</b></div><div class="demo-order-row"><span>${en?"Dates":"วันที่เช่า"}</span><b>${displayDate(state.calc.start)} – ${displayDate(state.calc.end)}</b></div></div></section>
       </div>
       <div>
@@ -6768,7 +6826,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       identityLast4: UNIFIED_FLOW_DEMO && !state.calc.noContract ? (String(demoProfile.identityNumber || "").trim().slice(-4) || demoProfile.identityDraftLast4) : "",
       identityDraftId: UNIFIED_FLOW_DEMO && !state.calc.noContract ? demoProfile.identityDraftId : "",
       identityExpiry: UNIFIED_FLOW_DEMO && !state.calc.noContract ? String(demoProfile.identityExpiry || "").trim() : "",
-      deliveryAddress: UNIFIED_FLOW_DEMO ? [demoProfile.addressLine,demoProfile.subdistrict,demoProfile.district,demoProfile.province,demoProfile.postalCode].filter(Boolean).join(" ") : "",
+      deliveryAddress: UNIFIED_FLOW_DEMO ? demoAddressText() : "",
       subdistrict: UNIFIED_FLOW_DEMO ? demoProfile.subdistrict : "",
       district: UNIFIED_FLOW_DEMO ? demoProfile.district : "",
       province: UNIFIED_FLOW_DEMO ? demoProfile.province : "",
@@ -11238,6 +11296,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         if(event.target.id === "demoPostalCode") void onDemoPostalCode(event.target.value);
         if(event.target.id === "demoSubdistrict") onDemoSubdistrict(event.target.value);
         if(["demoAddressLine","demoSubdistrict","demoDistrict","demoProvince","demoPostalCode"].includes(event.target.id)){
+          demoProfile.addressFromProfile = false;
           const search = byId("demoMapsSearch");
           if(search) search.href = demoMapsSearchUrl();
         }
@@ -11798,6 +11857,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
       demoProfile.lineDisplayName = String(localStorage.getItem("aj_line_display_name") || "");
       state.calc.demoCustomerName = "";
       state.calc.demoCustomerPhone = "";
+      // A verified returning renter keeps the short summary after a reload.
+      if(state.calc.retVerified && (demoProfile.fullName || demoProfile.phone)) demoContactFromLine = true;
+      // Reload the postal code's areas, or the subdistrict list stays empty
+      // ("กรอกรหัสไปรษณีย์ก่อน") next to a filled-in postal code.
+      if(/^\d{5}$/.test(String(demoProfile.postalCode || "").trim())) void onDemoPostalCode(demoProfile.postalCode);
     }
     if(UNIFIED_FLOW_DEMO && state.calc.end && state.calc.end < todayIso()){
       state.calc.start = "";

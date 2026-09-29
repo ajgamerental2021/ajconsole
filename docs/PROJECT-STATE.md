@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-09-29 — Returning LINE renters see their saved details; identity step greyed when not needed
+
+- Root cause of "LINE connected and discount verified, but the whole form is still open": the saved address arrives as one line; the postal code filled in, but a postal code with several subdistricts (10510 has seven, in two districts) left แขวง/ตำบล blank, so the details counted as incomplete and the summary card never showed. After a reload the subdistrict list was also never reloaded ("กรอกรหัสไปรษณีย์ก่อน" beside 10510).
+- Now: the area names in the address text pick the subdistrict and district (`demoAddressGuess`; longest name wins, e.g. ทรายกองดินใต้ over ทรายกองดิน); if it still cannot be split, the saved one-line address is accepted on its own (`addressFromProfile`, persisted; cleared once the customer edits any address field) and sent once, not doubled with the area fields (`demoAddressText`). The postal lookup re-runs on load, and a verified returning renter keeps the summary card after a reload. The no-address option now also counts as complete.
+- Step 3 "ยืนยันตัวตน / Identity verification" is grey, disabled and labelled "ไม่ต้องยืนยัน / Not needed" whenever `demoIdentityStepSkippable()` (valid agreement on file, which already excludes an agreement over a year old or an expired document, or the no-identity choice). The page never stays on step 3 in that case.
+- Verification: website 179/179; inline JS `node --check`; walked in headless Chromium at 420px with a mocked returning LINE profile (address "Djcj ทรายกองดิน เขตคลองสามวา กรุงเทพมหานคร 10510" → ทรายกองดิน / เขตคลองสามวา, summary card shown, only the Rental Terms tick left; step 3 disabled for valid agreement and for no-identity, enabled otherwise).
+
 ## 2026-09-29 — "คัดลอกลิงก์" shows that it is working
 
 - Making the link is a call to the Bot and can take several seconds (longer when Render has put it to sleep). The popup now opens the moment the button is pressed, in a busy state: grey backdrop, spinner, "กำลังสร้างลิงก์และคัดลอก…" / "Creating and copying the link…" and "รอสักครู่ อาจใช้เวลาหลายวินาที" / "One moment, this can take a few seconds." There is no button, and backdrop, Escape and the picker behind cannot be used. When the link is on the clipboard it becomes "คัดลอกลิงก์แล้ว" with "รับทราบ" / "Got it". If the Bot fails or takes over 45 s, the popup closes with "สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง". A second press while busy is ignored.
