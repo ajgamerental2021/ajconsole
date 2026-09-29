@@ -662,6 +662,12 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .game-pick-link-card h3{font-size:18px}
 .game-pick-link-card p{font-size:14px;line-height:1.6;color:#344054}
 .game-pick-link-card .btn{width:100%;min-height:44px;margin-top:4px}
+/* While the link is being made: a spinner where the icon goes, and no button
+   — the rest of the page stays behind the grey backdrop until it is ready. */
+.game-pick-link-modal[data-state="busy"] #gamePickLinkOk{display:none}
+.game-pick-link-spinner{width:26px;height:26px;border:3px solid #abefc6;border-top-color:#067647;border-radius:50%;animation:gamePickLinkSpin .8s linear infinite}
+@keyframes gamePickLinkSpin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.game-pick-link-spinner{animation-duration:2.4s}}
 .game-picker-attention{justify-self:start;max-width:100%;border:1px solid #f0a000;border-radius:9px;background:#fff8dd;color:#6b3900;padding:7px 10px;font-size:12px;font-weight:900;line-height:1.25;white-space:nowrap;overflow-x:auto;scrollbar-width:none}
 .game-picker-attention::-webkit-scrollbar{display:none}
 @media(max-width:900px){
@@ -1545,8 +1551,8 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
     <iframe class="picker-frame" id="gamePickerFrame" title="Game picker"></iframe>
   </div>
 </div>
-<div class="modal-overlay game-pick-link-modal" id="gamePickLinkModal" role="dialog" aria-modal="true" aria-labelledby="gamePickLinkTitle">
-  <div class="modal-card game-pick-link-card">
+<div class="modal-overlay game-pick-link-modal" id="gamePickLinkModal" role="dialog" aria-modal="true" aria-labelledby="gamePickLinkTitle" data-state="done">
+  <div class="modal-card game-pick-link-card" aria-live="polite">
     <div class="game-pick-link-icon" id="gamePickLinkIcon"></div>
     <h3 id="gamePickLinkTitle"></h3>
     <p id="gamePickLinkText"></p>
@@ -1974,6 +1980,8 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       gamePickLinkCopied:"คัดลอกลิงก์แล้ว",
       gamePickLinkCopiedText:"ส่งลิงก์นี้ให้เพื่อน หรือเปิดในอีกเครื่องได้เลย เกมที่แตะเลือกหรือเอาออกจะบันทึกลงลิงก์นี้ทันที ไม่ต้องกดบันทึก ลิงก์เก็บไว้ 7 วันนับจากการแก้ไขครั้งล่าสุด เลือกเสร็จแล้วกด \"ใช้รายการเกมนี้\" เพื่อจองต่อได้ทันที",
       gamePickLinkOk:"รับทราบ",
+      gamePickLinkBusy:"กำลังสร้างลิงก์และคัดลอก…",
+      gamePickLinkBusyText:"รอสักครู่ อาจใช้เวลาหลายวินาที",
       gamePickLinkFailed:"สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง",
       gamePickLinkExpired:"ลิงก์เลือกเกมนี้หมดอายุแล้ว หรือไม่มีอยู่",
       gamePickSaveFailed:"บันทึกไม่สำเร็จ แตะเกมนั้นอีกครั้ง",
@@ -2095,6 +2103,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       gamePickLinkCopied:"Link copied",
       gamePickLinkCopiedText:"Send this link to a friend or open it on another device. Every game you tap or remove is saved to it at once, with no save button. The link is kept for 7 days after its last change. When the list is ready, tap \"Use This Game List\" to continue booking.",
       gamePickLinkOk:"Got it",
+      gamePickLinkBusy:"Creating and copying the link…",
+      gamePickLinkBusyText:"One moment, this can take a few seconds.",
       gamePickLinkFailed:"Could not create the link. Please try again.",
       gamePickLinkExpired:"This game list link has expired or does not exist.",
       gamePickSaveFailed:"Not saved — tap that game again",
@@ -8261,16 +8271,28 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       .map(([platformId, ids]) => [platformId, (ids || []).slice(0,10)])
       .filter(([, ids]) => ids.length));
   }
-  function showGamePickLinkPopup(){
-    byId("gamePickLinkIcon").innerHTML = icon("link");
-    byId("gamePickLinkTitle").textContent = tr("gamePickLinkCopied");
-    byId("gamePickLinkText").textContent = tr("gamePickLinkCopiedText");
+  /**
+   * The copy-link popup. "busy" opens the moment the button is pressed — the
+   * link is made on the Bot and that can take a few seconds, longer when it
+   * has been asleep — and "done" replaces it once the link is on the
+   * clipboard. Only "done" can be closed.
+   */
+  function showGamePickLinkPopup(phase){
+    const modal = byId("gamePickLinkModal");
+    const busy = phase === "busy";
+    modal.dataset.state = busy ? "busy" : "done";
+    modal.setAttribute("aria-busy", String(busy));
+    byId("gamePickLinkIcon").innerHTML = busy ? `<span class="game-pick-link-spinner" aria-hidden="true"></span>` : icon("link");
+    byId("gamePickLinkTitle").textContent = tr(busy ? "gamePickLinkBusy" : "gamePickLinkCopied");
+    byId("gamePickLinkText").textContent = tr(busy ? "gamePickLinkBusyText" : "gamePickLinkCopiedText");
     byId("gamePickLinkOk").textContent = tr("gamePickLinkOk");
-    byId("gamePickLinkModal").classList.add("open");
-    byId("gamePickLinkOk").focus();
+    modal.classList.add("open");
+    if(!busy) byId("gamePickLinkOk").focus();
   }
   function closeGamePickLinkPopup(){
-    byId("gamePickLinkModal").classList.remove("open");
+    const modal = byId("gamePickLinkModal");
+    if(modal.dataset.state === "busy") return;
+    modal.classList.remove("open");
   }
   function adoptGamePickSession(session){
     state.gamePickSession = {id:session.id, updatedAt:session.updatedAt};
@@ -8311,11 +8333,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
     return value;
   }
+  const GAME_PICK_CREATE_TIMEOUT_MS = 45000;
   async function createGamePickLink(){
     const response = await fetch(gamePickApi(), {
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({selections:nonEmptyPicks()})
+      body:JSON.stringify({selections:nonEmptyPicks()}),
+      signal:AbortSignal.timeout(GAME_PICK_CREATE_TIMEOUT_MS)
     });
     const data = await response.json().catch(() => ({}));
     if(!response.ok || !data.session?.id) throw new Error(data.error || "session_failed");
@@ -8324,15 +8348,19 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   async function copyGamePickLink(){
     const button = byId("gamePickerCopyUrl");
+    if(button?.disabled) return;
     if(button) button.disabled = true;
+    showGamePickLinkPopup("busy");
     try{
       const link = await copyTextFrom(createGamePickLink());
       // The address bar follows, so reloading this page stays on the same list.
       try{ history.replaceState(null, "", link); }catch{}
       trackAnalytics("game_pick_link_created", {value:String(Object.keys(nonEmptyPicks()).length)});
-      showGamePickLinkPopup();
+      showGamePickLinkPopup("done");
       startGamePickPolling();
     }catch(error){
+      byId("gamePickLinkModal").dataset.state = "done";
+      closeGamePickLinkPopup();
       toast(tr("gamePickLinkFailed"));
     }finally{
       if(button) button.disabled = false;
@@ -10961,6 +10989,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(event.key === "Escape" && byId("infoModal")?.classList.contains("open")) closeInfoModal();
       if(event.key === "Escape") toggleSiteMenu(false);
       if(event.key === "Escape" && byId("siteAnnouncement")?.classList.contains("open")) closeSiteAnnouncement();
+      if(event.key === "Escape" && byId("gamePickLinkModal")?.classList.contains("open")) closeGamePickLinkPopup();
     });
     window.addEventListener("scroll", () => { updateFloatButton(); renderGuide(); }, {passive:true});
     window.addEventListener("resize", () => {
