@@ -5423,8 +5423,18 @@ function pickCapNotice() {
     : `เลือกครบ ${MAX_PICK} เกมแล้ว เอาเกมเดิมออกก่อนถ้าอยากเปลี่ยน`);
 }
 
+/**
+ * Tell the page hosting the picker that the list just changed, one tap at a
+ * time. The booking site saves it to a shared "Copy link" list the moment it
+ * happens, so nobody has to press a save button.
+ */
+function notifyPickChange(change) {
+  if (typeof window.ajOnPickChange === 'function') window.ajOnPickChange(pickedGames.slice(), change);
+}
+
 function togglePick(gameId) {
-  if (pickedGames.includes(gameId)) {
+  const selected = !pickedGames.includes(gameId);
+  if (!selected) {
     pickedGames = pickedGames.filter(id => id !== gameId);
   } else {
     if (pickedGames.length >= MAX_PICK) { pickCapNotice(); return; }
@@ -5434,6 +5444,21 @@ function togglePick(gameId) {
   renderPickBody();
   renderPickFooter();
   syncPickModalScrollState();
+  notifyPickChange({ gameId, selected });
+}
+
+/**
+ * Show a list someone else changed (a friend on the same shared link), without
+ * touching the search, sort or scroll position the renter is using.
+ */
+function applyPickedFromHost(gameIds) {
+  const known = new Set(games.map(g => g.id));
+  const next = (Array.isArray(gameIds) ? gameIds : []).filter(id => known.has(id)).slice(0, MAX_PICK);
+  if (next.length === pickedGames.length && next.every((id, i) => id === pickedGames[i])) return;
+  pickedGames = next;
+  renderPickPlatformTabs();
+  renderPickBody();
+  renderPickFooter();
 }
 
 /**
@@ -5480,6 +5505,7 @@ function clearAllPicked() {
   renderPickFooter();
   syncPickModalScrollState();
   document.getElementById('pick-copy-panel').classList.remove('show');
+  notifyPickChange({ clear: true });
 }
 
 /* ──────────────────────────────────────
@@ -7104,6 +7130,12 @@ document.addEventListener('touchstart', function(e) {
     };
   }
   window.ajSetLangSafe = function(next){ setLangSafe(next); };
+  // Each tap goes to the booking site, which keeps the shared list. The
+  // Delivery App's ?t= picker sends its list with its own button instead.
+  window.ajOnPickChange = function(gameIds, change){
+    if(!isPicker() || isContractCardPicker() || window.parent === window) return;
+    post('AJ_PICKER_CHANGED', { platformId: bridgePlatformId, gameIds: gameIds, change: change || null });
+  };
   function setLangSafe(nextLang){
     if(!nextLang || typeof currentLang === 'undefined' || currentLang === nextLang) return;
     if(typeof toggleLang === 'function'){
@@ -7328,6 +7360,10 @@ document.addEventListener('touchstart', function(e) {
     }
     if(data.type === 'AJ_PICKER_OPEN'){
       openPickerFromParent(data);
+      return;
+    }
+    if(data.type === 'AJ_PICKER_SET_SELECTION'){
+      if(isPicker() && (!data.platformId || data.platformId === bridgePlatformId)) applyPickedFromHost(data.gameIds);
       return;
     }
     if(data.type === 'AJ_PICKER_CLOSE'){
