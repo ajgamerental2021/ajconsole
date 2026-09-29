@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-09-29 — Game picker fits a phone: grid gets the height, nothing overlaps
+
+- A customer's screenshot (LINE in-app browser, booking site → เลือกเกม, all consoles) showed one cut-off row of games that could not be scrolled, the "คัดลอก URL เลือกเกม" button on top of "ล้างทั้งหมด", three-line footer buttons and oversized text.
+- `index.html`: the copy-URL button moved into the picker header (icon only on a phone). On a phone the storage warning is one line under the title, and the console chips are smaller. All consoles are still listed at once (the earlier decision not to hide them in a scrolling row stands). `html{text-size-adjust:100%}` stops iOS from enlarging text on its own.
+- `game_index.html`: covers default to small (`aj_pick_size`, when the renter never chose). Inside the booking-site window on a phone, the sort chips are one scrollable row and the footer buttons are one row of small text. A phone opens with the how-to box folded (`aj_pick_details_collapsed_v1` unset); "แสดงวิธีเลือกเกมอีกครั้ง" brings it back. `gamePickerVersion` → `20260929-1`.
+- Measured at iPhone 13 size: grid height 179px → 298px in the booking-site window, and 43px → 361px for the Delivery App's `?t=` picker link. Touch-drag scrolling of the grid is verified. Desktop is unchanged apart from the copy button now sitting in the header.
+- Verification: 170/170 tests (two version pins updated to `20260929-1`), inline JS `node --check`, headless Chromium at 390×664, 390×560 and 1366×820.
+
 ## 2026-09-28 — "คิวเช่าของฉัน / My rental" as a no-sign-in link (email, Admin, Delivery App)
 
 - One link per rental: `https://aj-line-oa-bot.onrender.com/my-rental/<token>?lang=th|en`. The token is deterministic, signed with the secret the Bot and Delivery App already share (`AJ_RENTAL_WEBHOOK_SECRET`, HMAC-SHA256 over `"aj-my-rental:" + payload`, payload `{"v":1,"r":"<Rental ID>"}` or `{"v":1,"b":"<Booking ID>"}`), carries no phone or LINE id, and binds nothing. Bot module `src/services/my-rental-link.js`.

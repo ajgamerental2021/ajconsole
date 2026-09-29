@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 :root{
   --bg:#f6f6f6;--surface:#fff;--surface2:#f0f0f0;--text:#101010;--text2:#555;--text3:#888;
   --accent:#cc0000;--accent2:#ef0000;--ok:#16803a;--warn:#ad6a00;--danger:#b42318;
@@ -640,7 +641,9 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .copy-section-url{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:max-content;max-width:100%;padding:7px 11px;border:1px solid #cfd4dc;border-radius:9px;background:#fff;color:#344054;font-size:12px;font-weight:800;cursor:pointer}
 .copy-section-url:hover{border-color:#d60000;color:#a50000;background:#fff7f7}
 .modal-copy-row{padding:8px 18px 0;background:#fff}
-.game-picker-copy-url{position:absolute;left:14px;bottom:10px;z-index:5;box-shadow:0 3px 12px rgba(16,24,40,.18)}
+/* In the header with the other actions. It used to float over the picker's
+   footer and sat on top of "ล้างทั้งหมด" on a phone. */
+.game-picker-copy-url{flex:0 0 auto}
 .game-picker-attention{justify-self:start;max-width:100%;border:1px solid #f0a000;border-radius:9px;background:#fff8dd;color:#6b3900;padding:7px 10px;font-size:12px;font-weight:900;line-height:1.25;white-space:nowrap;overflow-x:auto;scrollbar-width:none}
 .game-picker-attention::-webkit-scrollbar{display:none}
 @media(max-width:900px){
@@ -735,7 +738,20 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
   .game-picker-head .faq-lang-btn{padding:6px 9px;font-size:12px}
   .game-picker-head .xbtn{font-size:24px}
   .game-picker-attention{max-width:none;white-space:normal;overflow:visible;font-size:10px;line-height:1.25;padding:5px 8px}
-  .game-picker-copy-url{left:8px;bottom:74px;padding:6px 9px;font-size:11px}
+  /* Icon only on a phone: the header has no room for the words. */
+  .game-picker-copy-url{padding:6px 8px}
+  .game-picker-copy-url span{display:none}
+  .game-picker-head .faq-lang-btn{padding:6px 8px}
+  #gamePickerHowToBtn span{font-size:11.5px}
+  /* Every console stays on screen, just smaller: two short rows rather than
+     three tall ones, so the games get the height instead. */
+  .game-picker-platform-rail .game-picker-platforms{gap:4px 5px;padding:6px 10px}
+  .game-picker-platform-rail .game-picker-platform-label{font-size:11px}
+  .game-picker-platform-rail .game-picker-platform-btn{padding:3px 8px;font-size:11px;font-weight:700;line-height:1.3}
+  /* The storage warning gets its own one-line row under the title instead of
+     a four-line box squeezed between the title and the buttons. */
+  .game-picker-head{grid-template-columns:minmax(0,1fr) auto;row-gap:6px;padding:8px 12px}
+  .game-picker-head .game-picker-attention{grid-column:1 / -1;grid-row:2;justify-self:stretch;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:4px 8px}
   .calendar-modal .modal-card{height:calc(100vh - 16px);height:calc(100dvh - 16px);border-radius:18px}
   .calendar-modal .modal-head{padding:12px 14px}
   .calendar-modal .modal-head h3{font-size:17px;line-height:1.25}
@@ -1499,12 +1515,11 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 
 <div class="picker-overlay" id="gamePickerOverlay">
   <div class="picker-card">
-    <div class="modal-head game-picker-head"><h3 id="gamePickerTitle" data-i18n="gamePickerTitle">เลือกเกม</h3><div class="game-picker-attention" data-i18n="gameStorageWarning">⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ</div><div class="game-picker-actions"><button class="btn faq-lang-btn" id="gamePickerHowToBtn" type="button"></button><button class="btn primary faq-lang-btn" id="gamePickerLangBtn" type="button"></button><button class="xbtn" id="gamePickerClose" type="button">&times;</button></div></div>
+    <div class="modal-head game-picker-head"><h3 id="gamePickerTitle" data-i18n="gamePickerTitle">เลือกเกม</h3><div class="game-picker-attention" data-i18n="gameStorageWarning">⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ</div><div class="game-picker-actions"><button class="copy-section-url game-picker-copy-url" id="gamePickerCopyUrl" type="button"></button><button class="btn faq-lang-btn" id="gamePickerHowToBtn" type="button"></button><button class="btn primary faq-lang-btn" id="gamePickerLangBtn" type="button"></button><button class="xbtn" id="gamePickerClose" type="button">&times;</button></div></div>
     <div class="game-picker-platform-rail" id="gamePickerPlatformRail" hidden>
       <div class="game-picker-platforms" id="gamePickerPlatforms"></div>
     </div>
     <iframe class="picker-frame" id="gamePickerFrame" title="Game picker"></iframe>
-    <button class="copy-section-url game-picker-copy-url" id="gamePickerCopyUrl" type="button"></button>
   </div>
 </div>
 
@@ -1561,7 +1576,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 
   const CONFIG = {
     version: "index2-clean-1",
-    gamePickerVersion: "20260928-1",
+    gamePickerVersion: "20260929-1",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",

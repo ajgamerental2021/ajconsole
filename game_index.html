@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@700;800&display=swap" rel="stylesheet">
 <style>
+  html { -webkit-text-size-adjust:100%; text-size-adjust:100%; }
   :root {
     /* AJ Brand: White · Black · Red */
     --bg: #f5f5f5;
@@ -5324,7 +5325,14 @@ function openPickModal() {
   document.getElementById('pick-copy-panel').classList.remove('show');
   document.getElementById('btn-generate-copy').style.display = 'none';
   document.getElementById('pick-tutorial').style.display = '';
-  try { pickDetailsCollapsed = localStorage.getItem(PICK_DETAILS_STATE_KEY) === '1'; } catch(e) { pickDetailsCollapsed = false; }
+  // A phone starts with the instructions folded away: open, they filled the
+  // screen and left one cut-off row of games. The button right above the games
+  // brings them back, and whatever the renter chose is kept.
+  const onPhone = (() => { try { return window.matchMedia('(max-width: 640px), (max-width: 900px) and (max-height: 960px) and (max-aspect-ratio: 6/5)').matches; } catch(e) { return false; } })();
+  try {
+    const saved = localStorage.getItem(PICK_DETAILS_STATE_KEY);
+    pickDetailsCollapsed = saved === null ? onPhone : saved === '1';
+  } catch(e) { pickDetailsCollapsed = onPhone; }
   updatePickDetailsToggle();
   document.getElementById('pick-overlay').classList.add('open');
   syncPickModalScrollState();
@@ -6366,7 +6374,9 @@ function doCopy() {
 // Cover size for the game grid, chosen by the renter and kept on this device:
 // small fits many more games on a large or unusual screen (e.g. a foldable).
 const PICK_SIZES = ['s', 'm', 'l'];
-let pickSize = (() => { try { return PICK_SIZES.includes(localStorage.getItem('aj_pick_size')) ? localStorage.getItem('aj_pick_size') : 'm'; } catch { return 'm'; } })();
+// Small by default: on a phone it shows three or four covers a row instead of
+// one tall row, and the renter can still make them bigger.
+let pickSize = (() => { try { return PICK_SIZES.includes(localStorage.getItem('aj_pick_size')) ? localStorage.getItem('aj_pick_size') : 's'; } catch { return 's'; } })();
 function applyPickSize() {
   PICK_SIZES.forEach((size) => document.body.classList.toggle(`pick-size-${size}`, size === pickSize));
   const isEn = currentLang === 'en';
@@ -7287,6 +7297,25 @@ document.addEventListener('touchstart', function(e) {
       body.aj-embed-compact #pick-overlay .pick-tutorial { display:none !important; }
       body.aj-embed-compact.aj-howto-open #pick-overlay .pick-tutorial { display:block !important; }
       body.aj-embed-compact-tabs #pick-overlay #pick-platform-tabs { display:none !important; }
+      /* Inside the booking site's picker window on a phone the grid is what the
+         renter came for, and it was left one cut-off row between a two-row
+         filter bar and a footer of three-line buttons. Everything around it is
+         made one line tall. */
+      @media (max-width: 640px), (max-width: 900px) and (max-height: 960px) and (max-aspect-ratio: 6/5) {
+        body.aj-embed-picker #pick-overlay .pick-search-filter { padding:8px 10px; gap:6px; flex-wrap:wrap; }
+        body.aj-embed-picker #pick-overlay .pick-search-wrap { min-width:0; flex:1 1 100%; padding:0 10px; }
+        body.aj-embed-picker #pick-overlay .pick-search-input { padding:6px; font-size:16px; }
+        body.aj-embed-picker #pick-overlay .pick-filter-sort { flex-wrap:nowrap; overflow-x:auto; width:100%; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+        body.aj-embed-picker #pick-overlay .pick-filter-sort::-webkit-scrollbar { display:none; }
+        body.aj-embed-picker #pick-overlay .pick-fsort-btn { padding:4px 9px; flex:0 0 auto; }
+        body.aj-embed-picker #pick-overlay .pick-body { padding:8px 10px; }
+        body.aj-embed-picker #pick-overlay .pick-footer { padding:6px 10px 10px; }
+        body.aj-embed-picker #pick-overlay .pick-selected-bar { margin-bottom:4px; }
+        body.aj-embed-picker #pick-overlay .pick-selected-label { font-size:12px; }
+        body.aj-embed-picker #pick-overlay .pick-selected-chips { min-height:0; margin-bottom:4px; max-height:44px; }
+        body.aj-embed-picker #pick-overlay .pick-footer-actions { flex-wrap:nowrap; gap:6px; margin-top:4px; }
+        body.aj-embed-picker #pick-overlay .pick-footer-actions .btn { flex:1 1 0; min-width:0; font-size:12px; line-height:1.25; padding:8px 6px; min-height:0; white-space:normal; }
+      }
       body.aj-embed-admin > header,
       body.aj-embed-admin > main,
       body.aj-embed-admin > #pick-overlay,
