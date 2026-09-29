@@ -38,7 +38,7 @@ test('a copied link is explained in a popup closed with "รับทราบ",
   assert.match(site, /id="gamePickLinkModal"/);
   assert.match(site, /gamePickLinkOk:"รับทราบ"/);
   assert.match(site, /gamePickLinkOk:"Got it"/);
-  assert.match(site, /showGamePickLinkPopup\(\);\n\s*startGamePickPolling\(\);/);
+  assert.match(site, /showGamePickLinkPopup\("done"\);\n\s*startGamePickPolling\(\);/);
   assert.doesNotMatch(site, /id="gamePickerSync"/);
 });
 
