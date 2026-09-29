@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-09-29 — My rental: missing Rental ID recovered, verify button shows (Delivery App `e805957`)
+
+- Root cause of "no ยืนยันตัวตนเพื่อลดค่าประกัน button" on booking 541: its Booking Log row had no Rental ID (it is R0057). The verify link, like the game list and contract lookup, is keyed on the Rental ID, so none was built — and the page had no code to show either. Why that row was saved blank is not known (every creation path in the code writes it); worth checking how 541 was made.
+- A running rental with no Rental ID now recovers it from the Bot's request log (`Line / WhatsApp LOGs`): same phone (from ข้อมูลจอง) and same start date, not cancelled, not already on another booking, exactly one answer (`rentalIdForUncodedBooking`). The code is written back to the booking row, so this happens once. The verify button, games and contract lookup then work.
+- The Rental ID row now always leads the rental's details, above เลขที่การจอง / Booking no. ("-" when there truly is none), on the customer's page (LINE and link) and the shop preview.
+- Verification: `test:my-rental-link` 108/108 (recovery from a fake log with a cancelled row, another customer's row and an already-booked code; write-back; verify URL; row order), `tsc` clean, all other Delivery App test scripts unchanged.
+
 ## 2026-09-29 — My rental: "Pick games again"; a no-identity renter can verify later and lower the deposit (Bot `5c48ec7`, Delivery App `93dabff`)
 
 - Delivery App My rental (LINE rich menu and the no-sign-in link alike): the games button reads "🎮 เลือกเกมใหม่ / Pick games again" once the rental has games (`selectedGamesFor`, shared with `getSelectionState`).
