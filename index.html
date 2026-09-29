@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 :root{
   --bg:#f6f6f6;--surface:#fff;--surface2:#f0f0f0;--text:#101010;--text2:#555;--text3:#888;
   --accent:#cc0000;--accent2:#ef0000;--ok:#16803a;--warn:#ad6a00;--danger:#b42318;
@@ -633,6 +634,8 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .game-picker-platform-label{flex:0 0 auto;font-weight:800;font-size:13px}
 .game-picker-platform-btn{flex:0 0 auto;border:1px solid #d0d5dd;border-radius:999px;background:#fff;padding:6px 11px;font-size:12.5px;font-weight:800;cursor:pointer}
 .game-picker-platform-btn.active{border-color:#c90012;background:#fff1f2;color:#c90012}
+.game-picker-platform-more{flex:0 0 auto;border:1px dashed #98a2b3;border-radius:999px;background:#f9fafb;color:#344054;padding:6px 11px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.game-picker-platform-more:hover{border-color:#c90012;color:#c90012}
 .game-picker-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px}
 .game-picker-actions{display:flex;align-items:center;gap:8px}
 #gamePickerHowToBtn{display:inline-flex;align-items:center;gap:6px}
@@ -640,7 +643,9 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .copy-section-url{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:max-content;max-width:100%;padding:7px 11px;border:1px solid #cfd4dc;border-radius:9px;background:#fff;color:#344054;font-size:12px;font-weight:800;cursor:pointer}
 .copy-section-url:hover{border-color:#d60000;color:#a50000;background:#fff7f7}
 .modal-copy-row{padding:8px 18px 0;background:#fff}
-.game-picker-copy-url{position:absolute;left:14px;bottom:10px;z-index:5;box-shadow:0 3px 12px rgba(16,24,40,.18)}
+/* In the header with the other actions. It used to float over the picker's
+   footer and sat on top of "ล้างทั้งหมด" on a phone. */
+.game-picker-copy-url{flex:0 0 auto}
 .game-picker-attention{justify-self:start;max-width:100%;border:1px solid #f0a000;border-radius:9px;background:#fff8dd;color:#6b3900;padding:7px 10px;font-size:12px;font-weight:900;line-height:1.25;white-space:nowrap;overflow-x:auto;scrollbar-width:none}
 .game-picker-attention::-webkit-scrollbar{display:none}
 @media(max-width:900px){
@@ -735,7 +740,21 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
   .game-picker-head .faq-lang-btn{padding:6px 9px;font-size:12px}
   .game-picker-head .xbtn{font-size:24px}
   .game-picker-attention{max-width:none;white-space:normal;overflow:visible;font-size:10px;line-height:1.25;padding:5px 8px}
-  .game-picker-copy-url{left:8px;bottom:74px;padding:6px 9px;font-size:11px}
+  /* Icon only on a phone: the header has no room for the words. */
+  .game-picker-copy-url{padding:6px 8px}
+  .game-picker-copy-url span{display:none}
+  .game-picker-head .faq-lang-btn{padding:6px 8px}
+  #gamePickerHowToBtn span{font-size:11.5px}
+  /* Every console stays on screen, just smaller: two short rows rather than
+     three tall ones, so the games get the height instead. */
+  .game-picker-platform-rail .game-picker-platforms{gap:4px 5px;padding:6px 10px}
+  .game-picker-platform-rail .game-picker-platform-label{font-size:11px}
+  .game-picker-platform-rail .game-picker-platform-btn,
+  .game-picker-platform-rail .game-picker-platform-more{padding:3px 8px;font-size:11px;font-weight:700;line-height:1.3}
+  /* The storage warning gets its own one-line row under the title instead of
+     a four-line box squeezed between the title and the buttons. */
+  .game-picker-head{grid-template-columns:minmax(0,1fr) auto;row-gap:6px;padding:8px 12px}
+  .game-picker-head .game-picker-attention{grid-column:1 / -1;grid-row:2;justify-self:stretch;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:4px 8px}
   .calendar-modal .modal-card{height:calc(100vh - 16px);height:calc(100dvh - 16px);border-radius:18px}
   .calendar-modal .modal-head{padding:12px 14px}
   .calendar-modal .modal-head h3{font-size:17px;line-height:1.25}
@@ -1499,12 +1518,11 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 
 <div class="picker-overlay" id="gamePickerOverlay">
   <div class="picker-card">
-    <div class="modal-head game-picker-head"><h3 id="gamePickerTitle" data-i18n="gamePickerTitle">เลือกเกม</h3><div class="game-picker-attention" data-i18n="gameStorageWarning">⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ</div><div class="game-picker-actions"><button class="btn faq-lang-btn" id="gamePickerHowToBtn" type="button"></button><button class="btn primary faq-lang-btn" id="gamePickerLangBtn" type="button"></button><button class="xbtn" id="gamePickerClose" type="button">&times;</button></div></div>
+    <div class="modal-head game-picker-head"><h3 id="gamePickerTitle" data-i18n="gamePickerTitle">เลือกเกม</h3><div class="game-picker-attention" data-i18n="gameStorageWarning">⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ</div><div class="game-picker-actions"><button class="copy-section-url game-picker-copy-url" id="gamePickerCopyUrl" type="button"></button><button class="btn faq-lang-btn" id="gamePickerHowToBtn" type="button"></button><button class="btn primary faq-lang-btn" id="gamePickerLangBtn" type="button"></button><button class="xbtn" id="gamePickerClose" type="button">&times;</button></div></div>
     <div class="game-picker-platform-rail" id="gamePickerPlatformRail" hidden>
       <div class="game-picker-platforms" id="gamePickerPlatforms"></div>
     </div>
     <iframe class="picker-frame" id="gamePickerFrame" title="Game picker"></iframe>
-    <button class="copy-section-url game-picker-copy-url" id="gamePickerCopyUrl" type="button"></button>
   </div>
 </div>
 
@@ -1561,7 +1579,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 
   const CONFIG = {
     version: "index2-clean-1",
-    gamePickerVersion: "20260928-1",
+    gamePickerVersion: "20260929-1",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",
@@ -1920,6 +1938,8 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       beforeRentTerms:"เช่าขั้นต่ำ <b>3 วัน</b> · ฟรีค่าส่งสูงสุด <b>฿100/เที่ยว</b> (3–6 วัน ฟรีขากลับ · 7+ วัน ฟรีไป-กลับ) · <b>ส่งเฉพาะกรุงเทพฯ–ปริมณฑล</b>",
       beforeRentStartDevice:"ดูคิวและราคา",
       gamePickerAllPlatforms:"👉 เลือกเครื่อง",
+      gamePickerMoreConsoles:"เครื่องอื่น +{n}",
+      gamePickerFewerConsoles:"ย่อ",
       gamePickerScrollHint:"เลื่อนดูเครื่องอื่น →",
       gamePickerHowTo:"วิธีเลือก",
       copyGameUrl:"คัดลอก URL เลือกเกม",
@@ -2032,6 +2052,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       beforeRentTerms:"<b>3-day</b> minimum · free delivery up to <b>฿100/trip</b> (3–6 days: free return · 7+ days: both trips free) · <b>Bangkok metropolitan area only</b>",
       beforeRentStartDevice:"Check dates & price",
       gamePickerAllPlatforms:"👉 Pick a console",
+      gamePickerMoreConsoles:"More consoles +{n}",
+      gamePickerFewerConsoles:"Show fewer",
       gamePickerScrollHint:"Swipe for more →",
       gamePickerHowTo:"How to",
       copyGameUrl:"Copy game-picker URL",
@@ -2272,6 +2294,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     social: clone(DEFAULT_SOCIAL),
     gamePickerBrowseOnly: false,
     gamePickerHowTo: false,
+    gamePickerPlatformsOpen: false,
     gamePickerPlatformId: "",
     autoPushTimer: 0
   };
@@ -8026,6 +8049,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function pickerSelectedIds(){
     return state.gamePickerBrowseOnly ? [] : state.calc.games.map(game => game.id).filter(Boolean);
   }
+  /** Shown before "More consoles": the two most rented, by game platform. */
+  const GAME_PICKER_FEATURED_PLATFORMS = ["ps5", "switch2"];
   function renderGamePickerPlatforms(){
     const host = byId("gamePickerPlatforms");
     const rail = byId("gamePickerPlatformRail");
@@ -8033,8 +8058,24 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     rail.hidden = !state.gamePickerBrowseOnly;
     if(!state.gamePickerBrowseOnly){ host.innerHTML = ""; return; }
     const consoles = gameCatalogConsoles();
-    host.innerHTML = `<span class="game-picker-platform-label">${esc(tr("gamePickerAllPlatforms"))}</span>${consoles.map(item => `<button class="game-picker-platform-btn ${String(item.id) === String(state.gamePickerPlatformId) ? "active" : ""}" type="button" data-game-platform="${esc(item.id)}">${esc(pickerChipName(item))}</button>`).join("")}`;
+    // Folded to the two consoles most people rent (plus the one being viewed),
+    // with the rest one tap away: every console at once took three rows of a
+    // phone screen before a single game was visible.
+    const isActive = item => String(item.id) === String(state.gamePickerPlatformId);
+    const featured = item => GAME_PICKER_FEATURED_PLATFORMS.includes(item.gamePlatform || guessPlatform(item));
+    const shown = state.gamePickerPlatformsOpen ? consoles : consoles.filter(item => featured(item) || isActive(item));
+    const hiddenCount = consoles.length - shown.length;
+    const toggle = state.gamePickerPlatformsOpen
+      ? `<button class="game-picker-platform-more" type="button" data-game-platform-toggle aria-expanded="true">${esc(tr("gamePickerFewerConsoles"))} ▴</button>`
+      : hiddenCount > 0
+        ? `<button class="game-picker-platform-more" type="button" data-game-platform-toggle aria-expanded="false">${esc(tr("gamePickerMoreConsoles").replace("{n}", String(hiddenCount)))} ▾</button>`
+        : "";
+    host.innerHTML = `<span class="game-picker-platform-label">${esc(tr("gamePickerAllPlatforms"))}</span>${shown.map(item => `<button class="game-picker-platform-btn ${isActive(item) ? "active" : ""}" type="button" data-game-platform="${esc(item.id)}">${esc(pickerChipName(item))}</button>`).join("")}${toggle}`;
     host.querySelectorAll("[data-game-platform]").forEach(button => button.addEventListener("click", () => switchBrowseGamePlatform(button.dataset.gamePlatform)));
+    host.querySelector("[data-game-platform-toggle]")?.addEventListener("click", () => {
+      state.gamePickerPlatformsOpen = !state.gamePickerPlatformsOpen;
+      renderGamePickerPlatforms();
+    });
   }
   function livePickerRentalRange(){
     const calcEnd = state.calc.end || "";
@@ -8111,13 +8152,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
     style.textContent = `.pick-details-bar,.pick-tutorial-close,.pick-tutorial-note,.pick-sub{display:none!important}
       ${state.gamePickerBrowseOnly ? "#pick-platform-tabs{display:none!important}" : ""}
-      body .pick-box.pick-details-collapsed .pick-tutorial,
       .pick-tutorial{display:${state.gamePickerHowTo ? "block" : "none"}!important}`;
-    const box = doc.querySelector(".pick-box");
-    if(box && !box.classList.contains("pick-details-collapsed")){
-      try{ byId("gamePickerFrame").contentWindow.togglePickDetails(); }
-      catch(error){ box.classList.add("pick-details-collapsed"); }
-    }
   }
   function refreshGamePickerHowToBtn(){
     const button = byId("gamePickerHowToBtn");
@@ -8188,6 +8223,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const first = current && gameUrl(current) ? current : catalogs[0];
     if(!first) return;
     state.gamePickerPlatformId = browseOnly ? String(first.id) : "";
+    state.gamePickerPlatformsOpen = false;
     state.gamePickerHowTo = false;
     refreshGamePickerLangBtn();
     refreshGamePickerHowToBtn();
@@ -8200,6 +8236,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("gamePickerOverlay").classList.remove("open");
     state.gamePickerBrowseOnly = false;
     state.gamePickerPlatformId = "";
+    state.gamePickerPlatformsOpen = false;
     state.gamePickerHowTo = false;
     refreshGamePickerHowToBtn();
     refreshSectionCopyButtons();
