@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-09-29 — Verify-identity page: faster, step-2 address, step-3 refund (Bot `d71dad7`)
+
+- Slow "กำลังโหลด…": the page waited for the history mirror through Apps Script, then the device sheet, one after the other. It now reads Console Pending directly, waits at most 1.5 s for the history mirror, and reads devices in parallel (`fetchBookingForPage`). Submit still reads the full record.
+- Rental ID / Device / Rental period (รหัสการเช่า / เครื่อง / ช่วงเช่า) on separate lines.
+- Address (only when the booking has none): same as booking step 2 — postal code → subdistrict list → district and province filled in (free entry outside the list), house/building line, and the booking's Google Maps link prefilled. "ไม่ต้องการระบุที่อยู่ ตำแหน่งจากลิงก์ Google Maps ถูกต้องแล้ว / I don't need to enter an address — the Google Maps link is exact" hides the address fields; the pin becomes the contract address. The postal data is a copy of the website's `assets/data/service-area-addresses.json` at `public/assets/data/` in the Bot — update both together.
+- Refund: same as booking step 3 — the refund-terms box, Thai bank (6–13 digits), and on English bookings "I do not have a Thai bank account and would like to receive the security deposit refund through Wise" with the Wise Refund Details (Full Name, Country, Currency, Bank Name, Account Number / IBAN, SWIFT, Email) and bank / email / link payout.
+- Verification: Bot 449/449; headless Chromium at 390px, Thai with address, English with the pin only and Wise, English with address and Wise — all submit the expected payload.
+
 ## 2026-09-29 — My rental: missing Rental ID recovered, verify button shows (Delivery App `e805957`)
 
 - Root cause of "no ยืนยันตัวตนเพื่อลดค่าประกัน button" on booking 541: its Booking Log row had no Rental ID (it is R0057). The verify link, like the game list and contract lookup, is keyed on the Rental ID, so none was built — and the page had no code to show either. Why that row was saved blank is not known (every creation path in the code writes it); worth checking how 541 was made.
