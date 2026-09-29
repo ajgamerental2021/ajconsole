@@ -469,7 +469,7 @@ test('the game picker fits foldables and lets the renter choose the cover size',
   assert.match(picker, /@media \(max-width: 640px\), \(max-width: 900px\) and \(max-height: 960px\) and \(max-aspect-ratio: 6\/5\) \{/);
   assert.match(picker, /function cyclePickSize\(\)/);
   assert.match(picker, /localStorage\.setItem\('aj_pick_size', pickSize\)/);
-  assert.match(picker, /\.pick-selected-chips:empty \{ display: none; \}/);
+  assert.match(picker, /\.pick-selected-list:empty \{ display: none; \}/);
 });
 
 test('a deleted built-in game stays deleted after reload and sync', () => {
@@ -696,4 +696,29 @@ test('the identity step is greyed out and cannot be opened when nothing is left 
   assert.match(html, /"Not needed" : "ไม่ต้องยืนยัน"/);
   assert.match(html, /if\(UNIFIED_FLOW_DEMO && state\.calc\.step === 3 && demoIdentityStepSkippable\(\)\) state\.calc\.step = 2;/);
   assert.match(html, /\.step-tab\.skipped,\.step-tab\.skipped\.done\{background:#f2f4f7!important/);
+});
+
+test('every picked game stays in view on a phone, buttons are one line, covers carry the pick number', () => {
+  const picker = fs.readFileSync(new URL('../game_index.html', import.meta.url), 'utf8');
+  // One list component, no height cap or inner scroll anywhere (base, phone or embed).
+  assert.match(picker, /<ol class="pick-selected-list" id="pick-chips"><\/ol>/);
+  assert.doesNotMatch(picker, /pick-selected-chips|pick-chip-num|max-height:44px/);
+  assert.doesNotMatch(picker, /\.pick-selected-list \{[^}]*max-height/);
+  assert.match(picker, /\.pick-selected-list \{ display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
+  assert.match(picker, /<button type="button" class="pick-selected-remove"/);
+  // Short labels live once, in both languages.
+  for (const [key, th, en] of [['btn_generate', 'แจ้งร้าน', 'Notify AJ'], ['btn_send_games', 'ส่งรายการเกม', 'Send games'], ['btn_send_update', 'ส่งรายการใหม่', 'Send update'], ['btn_use_list', '✅ ใช้รายการนี้', '✅ Use this list']]) {
+    assert.match(picker, new RegExp(`${key}: '${th}'`));
+    assert.match(picker, new RegExp(`${key}: '${en}'`));
+  }
+  assert.doesNotMatch(picker, /สร้างข้อความเพื่อแจ้งทางร้าน|Send selected games|ส่งรายการเกมที่แก้ไข|ใช้รายการเกมนี้/);
+  assert.match(picker, /\.pick-footer-actions \.btn \{ white-space: nowrap; \}/);
+  assert.match(picker, /onclick="pickPrimaryAction\(\)" id="btn-generate-copy"/);
+  assert.match(picker, /btn\.textContent = pickText\('btn_use_list'\);/);
+  // The token send keeps its states through one renderer.
+  assert.match(picker, /pickSubmitState = 'sending';\n  renderPickActions\(\);/);
+  assert.match(picker, /pickSubmitState = 'saved';\n    renderPickActions\(\);/);
+  // Covers and list rows show the order number.
+  assert.match(picker, /<div class="pick-check">\$\{sel \? pickedGames\.indexOf\(g\.id\) \+ 1 : ''\}<\/div>/);
+  assert.match(picker, /<span class="pick-list-order">\$\{pickedGames\.indexOf\(g\.id\) \+ 1\}<\/span>/);
 });

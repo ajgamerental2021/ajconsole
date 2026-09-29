@@ -738,11 +738,19 @@
     color: #fff;
     display: none;
     align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
     font-size: 12px;
     font-weight: 700;
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   }
   .pick-card.selected .pick-check { display: flex; }
+  /* List view: the same pick number, in the same badge. */
+  .pick-list-order {
+    flex-shrink: 0; min-width: 22px; height: 22px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
 
   .pick-footer {
     padding: 16px 24px;
@@ -769,45 +777,68 @@
     border-radius: 100px;
   }
   .pick-selected-count.at-max { background: var(--accent2-light); color: var(--accent2); border-color: #f0ceaa; }
-  .pick-selected-chips {
+  /* The picked games, numbered in the order chosen — the same number the cover
+     carries. Every pick stays in view: the list grows a row at a time and never
+     scrolls inside a box. Wide screens show each full name; phones use two
+     even columns (see the phone block) and cut a long name short. */
+  .pick-selected-list {
+    list-style: none;
+    margin: 0 0 14px;
+    padding: 0;
     display: flex;
-    gap: 6px;
     flex-wrap: wrap;
-    min-height: 28px;
-    margin-bottom: 14px;
+    gap: 6px;
   }
-  .pick-chip {
+  .pick-selected-list:empty { display: none; }
+  .pick-selected-item {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
+    min-width: 0;
+    max-width: 100%;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 100px;
-    padding: 4px 10px 4px 8px;
-    font-size: 12px;
+    border-radius: 10px;
+    padding: 3px 3px 3px 6px;
+    font-size: 13px;
     font-weight: 500;
     color: var(--text);
     transition: var(--transition);
   }
-  .pick-chip:hover { border-color: var(--danger); }
-  .pick-chip-remove {
-    cursor: pointer;
+  .pick-selected-item:hover { border-color: var(--danger); }
+  .pick-selected-num {
+    flex: 0 0 auto;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pick-selected-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pick-selected-remove {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
     color: var(--text3);
     font-size: 13px;
     line-height: 1;
-    transition: color 0.15s;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
   }
-  .pick-chip:hover .pick-chip-remove { color: var(--danger); }
-  .pick-chip-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    background: var(--bg2);
-    padding: 1px 5px;
-    border-radius: 6px;
-    color: var(--text3);
-  }
+  .pick-selected-remove:hover, .pick-selected-remove:focus-visible { color: var(--danger); background: var(--danger-light); }
 
+  /* Footer buttons: one line each, labels kept short in TRANSLATIONS. */
   .pick-footer-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+  .pick-footer-actions .btn { white-space: nowrap; }
   .btn-pick-clear { background: transparent; border: 1px solid var(--border); color: var(--text2); }
   .btn-pick-clear:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-light); }
 
@@ -1111,8 +1142,6 @@
   }
   .gamepass-notice a:hover { border-bottom-style: solid; }
 
-  /* No games picked yet: no empty chip strip taking screen height. */
-  .pick-selected-chips:empty { display: none; }
   /* Renter-chosen cover size (see cyclePickSize) */
   body.pick-size-s .pick-body, body.pick-size-s .game-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)) !important; gap: 6px !important; }
   body.pick-size-l .pick-body, body.pick-size-l .game-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important; }
@@ -2344,15 +2373,17 @@
       padding: 10px 14px 14px;
       border-top: 1px solid var(--border);
     }
-    .pick-selected-chips { max-height: 52px; overflow-y: auto; }
+    .pick-selected-bar { margin-bottom: 6px; }
+    .pick-selected-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin-bottom: 8px; }
+    .pick-selected-item { padding: 2px 2px 2px 5px; }
     .copy-text-area { min-height: 60px; max-height: 80px; font-size: 12px; }
     .pick-footer-actions {
       display: flex;
       flex-direction: row;
-      gap: 8px;
-      margin-top: 8px;
+      flex-wrap: nowrap;
+      gap: 6px;
     }
-    .pick-footer-actions .btn { flex: 1; font-size: 13px; padding: 10px 8px; text-align: center; justify-content: center; }
+    .pick-footer-actions .btn { flex: 1 1 0; min-width: 0; font-size: 13px; line-height: 1.25; padding: 10px 6px; text-align: center; justify-content: center; overflow: hidden; text-overflow: ellipsis; }
   }
 
   /* ─── Inline search below tabs ─── */
@@ -2753,7 +2784,7 @@
             <li data-i18n="tut_2">คลิกที่รูปเกมเพื่อเลือก ✓ — คลิกซ้ำเพื่อยกเลิก</li>
             <li data-i18n="tut_3">เลือกได้สูงสุด 10 เกม จากทุกประเภท</li>
             <li data-i18n="tut_4_html">กด <strong>"ใช้รายการนี้"</strong> เพื่อแนบรายการเกมไปในข้อความแจ้งให้ทางร้านติดตั้ง</li>
-            <li data-i18n="tut_5_html">หรือ กด <strong>"สร้างข้อความเพื่อแจ้งทางร้าน"</strong> และกด <strong>"Copy รายการ"</strong> แล้วส่งมาที่ Line <strong>@ajgame</strong></li>
+            <li data-i18n="tut_5_html">หรือ กด <strong>"📋 แจ้งร้าน"</strong> และกด <strong>"Copy รายการ"</strong> แล้วส่งมาที่ Line <strong>@ajgame</strong></li>
           </ol>
         </div>
         <button class="pick-tutorial-close" onclick="showPickTutorial(false)">✕</button>
@@ -2792,7 +2823,7 @@
         <span class="pick-selected-label" data-i18n="pick_selected_label">เกมที่เลือก</span>
         <span class="pick-selected-count" id="pick-count-badge">0 / 10</span>
       </div>
-      <div class="pick-selected-chips" id="pick-chips"></div>
+      <ol class="pick-selected-list" id="pick-chips"></ol>
 
       <!-- Copy panel -->
       <div class="pick-copy-panel" id="pick-copy-panel">
@@ -2807,8 +2838,8 @@
 
       <div class="pick-footer-actions">
         <button class="btn btn-secondary btn-pick-clear" onclick="clearAllPicked()" data-i18n="btn_clear_all">ล้างทั้งหมด</button>
-        <button class="btn btn-primary" onclick="generateCopyText()" id="btn-generate-copy" style="display:none">
-          📋 <span data-i18n="btn_generate">สร้างข้อความเพื่อแจ้งทางร้าน</span>
+        <button class="btn btn-primary" onclick="pickPrimaryAction()" id="btn-generate-copy" style="display:none">
+          <span id="pick-primary-label">📋 แจ้งร้าน</span>
         </button>
       </div>
     </div>
@@ -3216,7 +3247,7 @@ const DEFAULT_PLATFORMS = [
 const DEFAULT_HOW_TO_USE = [
   { id: 'h1', icon: '🔍', title_th: 'ดูรายการเกม', title_en: 'Browse Games', desc_th: 'เลื่อนดูรายการเกมทั้งหมดได้เลย แบ่งตามประเภทเครื่องเกม กดที่ปุ่มประเภทเครื่องเพื่อกรองให้เหลือเฉพาะที่ต้องการ', desc_en: 'Scroll through all available games organized by console type. Tap a console tab to filter the list.' },
   { id: 'h2', icon: '🎯', title_th: 'เลือกเกมที่ต้องการ', title_en: 'Pick Your Games', desc_th: 'กดปุ่ม "เลือกเกม" หรือกดปุ่มลอยด้านขวาล่าง จากนั้นคลิกรูปเกมที่ต้องการเพื่อเลือก สามารถเลือกได้สูงสุด 10 เกม จากหลายประเภทเครื่อง', desc_en: 'Tap the "Pick Games" button or the floating button at the bottom right. Click on a game cover to select it — up to 10 games across all consoles.' },
-  { id: 'h3', icon: '📋', title_th: 'สร้างข้อความเพื่อแจ้งทางร้าน', title_en: 'Create Message to Notify AJ', desc_th: 'เมื่อเลือกเกมครบแล้ว กดปุ่ม "สร้างข้อความเพื่อแจ้งทางร้าน" จากนั้นกด "Copy รายการ" เพื่อคัดลอกข้อความ', desc_en: 'Once you have selected your games, tap \"Create Message to Notify AJ\" then \"Copy List\" to copy your selection.' },
+  { id: 'h3', icon: '📋', title_th: 'แจ้งร้าน', title_en: 'Notify AJ', desc_th: 'เมื่อเลือกเกมครบแล้ว กดปุ่ม "📋 แจ้งร้าน" จากนั้นกด "Copy รายการ" เพื่อคัดลอกข้อความ', desc_en: 'Once you have selected your games, tap \"📋 Notify AJ\" then \"Copy List\" to copy your selection.' },
   { id: 'h4', icon: '💬', title_th: 'ส่งมาที่ Line @ajgame', title_en: 'Send via Line @ajgame', desc_th: 'วางข้อความที่คัดลอกมาแล้วส่งมาที่ Line Official ของร้าน @ajgame พร้อมแจ้งวันที่ต้องการเช่าและที่อยู่จัดส่ง', desc_en: 'Paste your copied message and send it to our Line Official @ajgame along with your rental dates and delivery address.' },
   { id: 'h5', icon: '🚚', title_th: 'รอรับเครื่องที่บ้าน', title_en: 'Receive at Your Door', desc_th: 'ทางร้านจัดส่งผ่าน Lalamove หรือ Grab ให้ถึงบ้านคุณ มาพร้อมเกม 2 จอย และอุปกรณ์ต่อทีวีครบชุด', desc_en: 'We deliver via Lalamove or Grab straight to your door, complete with games, 2 controllers, and TV connection equipment.' },
 ];
@@ -5461,41 +5492,74 @@ function applyPickedFromHost(gameIds) {
   renderPickFooter();
 }
 
+function pickText(key) {
+  const T = TRANSLATIONS[currentLang] || TRANSLATIONS.th;
+  return (key in T ? T[key] : TRANSLATIONS.th[key]) || '';
+}
+
 /**
- * Re-arm the send button once the list differs from what was saved.
- *
- * It used to read "✓ Saved" and stay disabled for the rest of the session, so a
- * customer who saved and then changed their mind had no way to send the new
- * list — the picker looked finished while their edit sat there unsent.
+ * Where the token picker's send stands: 'idle', 'sending', 'saved', or
+ * 'changed' (saved, then edited). A saved list stays sendable again once it
+ * differs from what was saved — it used to read "✓ Saved" for the rest of the
+ * session, so a customer who changed their mind could not send the new list.
  */
-function refreshSubmitButtonState() {
-  if (typeof selectionToken === 'undefined' || !selectionToken) return;
-  const btn = document.getElementById('btn-generate-copy');
-  if (!btn || !btn.disabled) return;
-  const changed = pickedGames.length !== pickBaselineIds.length
+let pickSubmitState = 'idle';
+
+function pickListChangedSinceSave() {
+  return pickedGames.length !== pickBaselineIds.length
     || pickedGames.some((id, i) => id !== pickBaselineIds[i]);
-  if (!changed || !pickedGames.length) return;
-  btn.disabled = false;
-  btn.textContent = (currentLang === 'en') ? 'Send updated games' : 'ส่งรายการเกมที่แก้ไข';
+}
+
+/** The Delivery App's token link and the booking card's picker send the list themselves. */
+function pickSendsList() {
+  return isTokenGamePicker() || document.body.classList.contains('aj-contract-card-picker');
+}
+
+function pickPrimaryAction() {
+  if (pickSendsList()) sendContractCardGameList();
+  else generateCopyText();
+}
+
+function pickPrimaryLabel() {
+  if (!pickSendsList()) return `📋 ${pickText('btn_generate')}`;
+  if (isTokenGamePicker()) {
+    if (pickSubmitState === 'sending') return pickText('btn_sending');
+    if (pickSubmitState === 'saved') return pickText('btn_saved');
+    if (pickSubmitState === 'changed') return pickText('btn_send_update');
+  }
+  return pickText('btn_send_games');
+}
+
+function renderPickActions() {
+  if (isTokenGamePicker() && pickSubmitState === 'saved' && pickedGames.length && pickListChangedSinceSave()) {
+    pickSubmitState = 'changed';
+  }
+  const btn = document.getElementById('btn-generate-copy');
+  if (!btn) return;
+  btn.style.display = pickedGames.length > 0 ? '' : 'none';
+  btn.disabled = pickSubmitState === 'sending' || pickSubmitState === 'saved';
+  const label = document.getElementById('pick-primary-label');
+  if (label) label.textContent = pickPrimaryLabel();
 }
 
 function renderPickFooter() {
   const badge = document.getElementById('pick-count-badge');
   badge.textContent = `${pickedGames.length} / ${MAX_PICK}`;
   badge.className = 'pick-selected-count' + (pickedGames.length >= MAX_PICK ? ' at-max' : '');
-  const chips = document.getElementById('pick-chips');
-  chips.innerHTML = pickedGames.map((id, i) => {
+  const list = document.getElementById('pick-chips');
+  const removeLabel = pickText('pick_remove');
+  list.innerHTML = pickedGames.map((id, i) => {
     const g = games.find(x => x.id === id);
     if (!g) return '';
-    return `<div class="pick-chip">
-      <span class="pick-chip-num">${i+1}</span>
-      ${escHtml(g.name)}
-      <span class="pick-chip-remove" onclick="togglePick('${g.id}')">✕</span>
-    </div>`;
+    const name = escHtml(g.name);
+    return `<li class="pick-selected-item" title="${name}">
+      <span class="pick-selected-num">${i + 1}</span>
+      <span class="pick-selected-name">${name}</span>
+      <button type="button" class="pick-selected-remove" onclick="togglePick('${g.id}')" aria-label="${escHtml(removeLabel)} ${name}">✕</button>
+    </li>`;
   }).join('');
-  document.getElementById('btn-generate-copy').style.display = pickedGames.length > 0 ? '' : 'none';
   document.getElementById('pick-copy-panel').classList.remove('show');
-  try { refreshSubmitButtonState(); } catch (e) {}
+  renderPickActions();
 }
 
 function clearAllPicked() {
@@ -5700,8 +5764,8 @@ async function submitSelectionToken() {
   const names = pickedGames
     .map(id => gameSelectionName(games.find(x => x.id === id)))
     .filter(Boolean);
-  const btn = document.getElementById('btn-generate-copy');
-  if (btn) { btn.disabled = true; btn.textContent = currentLang === 'en' ? 'Sending…' : 'กำลังส่ง...'; }
+  pickSubmitState = 'sending';
+  renderPickActions();
   try {
     const res = await fetch(`${GAME_API_BASE}/api/game-selection/submit/${encodeURIComponent(selectionToken)}`, {
       method: 'POST',
@@ -5714,17 +5778,20 @@ async function submitSelectionToken() {
         ? (currentLang === 'en' ? `Please pick at most ${data.maxGames} games.` : `เลือกได้ไม่เกิน ${data.maxGames} เกมครับ`)
         : (currentLang === 'en' ? 'Could not save — please try again.' : 'บันทึกไม่สำเร็จ ลองใหม่อีกครั้งครับ');
       showToast(msg);
-      if (btn) { btn.disabled = false; btn.textContent = currentLang === 'en' ? 'Send selected games' : 'ส่งรายการเกมที่เลือก'; }
+      pickSubmitState = 'idle';
+      renderPickActions();
       return;
     }
     showToast(currentLang === 'en' ? '✓ Your game selection has been saved' : '✓ บันทึกรายการเกมเรียบร้อยแล้ว');
     // What is saved is now the baseline, so a further edit re-arms the button.
     pickBaselineIds = pickedGames.slice();
     if (selectionContext) selectionContext.selectedGames = names;
-    if (btn) { btn.disabled = true; btn.textContent = currentLang === 'en' ? '✓ Saved' : '✓ บันทึกแล้ว'; }
+    pickSubmitState = 'saved';
+    renderPickActions();
   } catch (e) {
     showToast(currentLang === 'en' ? 'Network error — please try again.' : 'เชื่อมต่อไม่ได้ ลองใหม่อีกครั้งครับ');
-    if (btn) { btn.disabled = false; btn.textContent = currentLang === 'en' ? 'Send selected games' : 'ส่งรายการเกมที่เลือก'; }
+    pickSubmitState = 'idle';
+    renderPickActions();
   }
 }
 
@@ -5734,7 +5801,7 @@ function isContractCardGamePicker() {
 }
 
 function contractCardCopyButtonLabel() {
-  return currentLang === 'en' ? 'Send selected games' : 'ส่งรายการเกมที่เลือก';
+  return pickText('btn_send_games');
 }
 
 function gameCopyButtonLabel(fallbackLabel) {
@@ -5841,12 +5908,18 @@ const TRANSLATIONS = {
     tut_2: 'คลิกที่รูปเกมเพื่อเลือก ✓ — คลิกซ้ำเพื่อยกเลิก',
     tut_3: 'เลือกได้สูงสุด 10 เกม จากทุกประเภท',
     tut_4_html: 'กด <strong>"ใช้รายการนี้"</strong> เพื่อแนบรายการเกมไปในข้อความแจ้งให้ทางร้านติดตั้ง',
-    tut_5_html: 'หรือ กด <strong>"สร้างข้อความเพื่อแจ้งทางร้าน"</strong> และกด <strong>"Copy รายการ"</strong> แล้วส่งมาที่ Line <strong>@ajgame</strong>',
+    tut_5_html: 'หรือ กด <strong>"📋 แจ้งร้าน"</strong> และกด <strong>"Copy รายการ"</strong> แล้วส่งมาที่ Line <strong>@ajgame</strong>',
     pick_selected_label: 'เกมที่เลือก',
     copy_send_to: 'ส่งข้อความนี้ไปที่ Line:',
     btn_copy_list: 'Copy รายการ',
     btn_clear_all: 'ล้างทั้งหมด',
-    btn_generate: 'สร้างข้อความเพื่อแจ้งทางร้าน',
+    btn_generate: 'แจ้งร้าน',
+    btn_send_games: 'ส่งรายการเกม',
+    btn_send_update: 'ส่งรายการใหม่',
+    btn_sending: 'กำลังส่ง...',
+    btn_saved: '✓ บันทึกแล้ว',
+    btn_use_list: '✅ ใช้รายการนี้',
+    pick_remove: 'เอาออก',
     pick_empty: 'ยังไม่มีเกมในประเภทนี้',
     copy_toast: '✓ Copy แล้ว! วางส่งใน Line @ajgame ได้เลย 🎮',
     copy_greeting: 'รายการเกมที่ต้องการครับ/ค่ะ 😊',
@@ -5900,12 +5973,18 @@ const TRANSLATIONS = {
     tut_2: 'Click a game card to select ✓ — click again to deselect',
     tut_3: 'You can pick up to 10 games across all categories',
     tut_4_html: 'Tap <strong>"Use this list"</strong> to attach the game list to the message for the shop to install',
-    tut_5_html: 'Or tap <strong>"Create Message to Notify AJ"</strong> then <strong>"Copy List"</strong> and send it to Line <strong>@ajgame</strong>',
+    tut_5_html: 'Or tap <strong>"📋 Notify AJ"</strong> then <strong>"Copy List"</strong> and send it to Line <strong>@ajgame</strong>',
     pick_selected_label: 'Selected Games',
     copy_send_to: 'Send this message to Line:',
     btn_copy_list: 'Copy List',
-    btn_clear_all: 'Clear All',
-    btn_generate: 'Create message to notify AJ',
+    btn_clear_all: 'Clear all',
+    btn_generate: 'Notify AJ',
+    btn_send_games: 'Send games',
+    btn_send_update: 'Send update',
+    btn_sending: 'Sending…',
+    btn_saved: '✓ Saved',
+    btn_use_list: '✅ Use this list',
+    pick_remove: 'Remove',
     pick_empty: 'No games in this category yet',
     copy_toast: '✓ Copied! Paste it into Line @ajgame 🎮',
     copy_greeting: 'Hello! 🎮 I would like to have the following games:',
@@ -5955,6 +6034,8 @@ function toggleLang() {
 
 function applyLang() {
   const T = TRANSLATIONS[currentLang];
+  // The picked list's remove labels and the footer buttons follow the language.
+  try { renderPickFooter(); } catch (e) {}
   const passkeyLogin = document.getElementById('catalog-passkey-login');
   const passkeyRegister = document.getElementById('catalog-passkey-register');
   if (passkeyLogin) passkeyLogin.textContent = currentLang === 'en' ? 'Sign in with Passkey' : 'เข้าสู่ระบบด้วย Passkey';
@@ -6363,7 +6444,9 @@ function renderPickBody() {
         onclick="${isUnavailL ? '' : atMaxL ? 'pickCapNotice()' : `togglePick('${g.id}')`}"
         style="${disabled ? `opacity:0.45;cursor:${atMaxL ? 'pointer' : 'not-allowed'};` : ''}${sel ? 'background:var(--accent-light);' : ''}">
         <span class="game-list-num">${String(i+1).padStart(2,'0')}</span>
-        <span style="font-size:16px;flex-shrink:0">${isUnavailL ? '⚠️' : (sel ? '✓' : '○')}</span>
+        ${sel
+          ? `<span class="pick-list-order">${pickedGames.indexOf(g.id) + 1}</span>`
+          : `<span style="font-size:16px;flex-shrink:0">${isUnavailL ? '⚠️' : '○'}</span>`}
         <span class="game-list-name" style="${sel?'color:var(--accent)':''}">${escHtml(g.name)}</span>
         ${unavailBadge}
         ${rentalReadyBadge}
@@ -6407,7 +6490,7 @@ function renderPickBody() {
           <div class="pick-card-placeholder" style="${placeholderStyle}">🎮</div>
           ${rentalReadyOverlay}
         </div>
-        ${!isUnavail ? '<div class="pick-check">✓</div>' : ''}
+        ${!isUnavail ? `<div class="pick-check">${sel ? pickedGames.indexOf(g.id) + 1 : ''}</div>` : ''}
         <div class="pick-card-name">${genreTag}<br>${escHtml(g.name)}</div>
       </div>`;
     }).join('');
@@ -7123,7 +7206,6 @@ document.addEventListener('touchstart', function(e) {
   function bridgeText(){
     const isEn = (typeof currentLang !== 'undefined' && currentLang === 'en');
     return {
-      useList: isEn ? '✅ Use This Game List' : '✅ ใช้รายการเกมนี้',
       chooseOne: isEn ? 'Choose at least 1 game first' : 'เลือกเกมอย่างน้อย 1 เกมก่อน',
       sub: isEn ? 'Choose up to 10 games, then send the selected list back to the booking page.' : 'เลือกได้สูงสุด 10 เกม แล้วส่งรายการที่เลือกกลับไปยังหน้าจองเช่า',
       adminReady: isEn ? 'Game admin is ready' : 'หน้าแก้ไขเกมพร้อมแล้ว'
@@ -7161,21 +7243,8 @@ document.addEventListener('touchstart', function(e) {
       view.textContent = listMode ? (isEn ? 'Grid' : 'กริด') : (isEn ? 'List' : 'รายชื่อ');
     }
     if(typeof applyPickSize === 'function') applyPickSize();
-    const selected = document.querySelector('.pick-selected-label');
-    if(selected) selected.textContent = isEn ? 'Selected Games' : 'เกมที่เลือก';
-    const clear = document.querySelector('[data-i18n="btn_clear_all"], .btn-pick-clear');
-    if(clear) clear.textContent = isEn ? 'Clear All' : 'ล้างทั้งหมด';
-    const generate = document.getElementById('btn-generate-copy');
-    if(generate){
-      const span = generate.querySelector('[data-i18n="btn_generate"]');
-      if(isContractCardPicker()){
-        if(span) span.textContent = isEn ? 'Send selected games' : 'ส่งรายการเกมที่เลือก';
-        generate.onclick = function(){ sendContractCardGameList(); };
-      }else{
-        if(span) span.textContent = isEn ? 'Create message to notify AJ' : 'สร้างข้อความเพื่อแจ้งทางร้าน';
-        generate.onclick = function(){ generateCopyText(); };
-      }
-    }
+    // Footer labels and the primary action come from renderPickActions().
+    if(typeof renderPickActions === 'function') renderPickActions();
     const howto = document.getElementById('btn-howto-label');
     if(howto) howto.textContent = isEn ? 'How to use' : 'วิธีใช้';
   }
@@ -7233,11 +7302,7 @@ document.addEventListener('touchstart', function(e) {
         body.aj-embed-picker #pick-overlay .pick-fsort-btn { padding:4px 9px; flex:0 0 auto; }
         body.aj-embed-picker #pick-overlay .pick-body { padding:8px 10px; }
         body.aj-embed-picker #pick-overlay .pick-footer { padding:6px 10px 10px; }
-        body.aj-embed-picker #pick-overlay .pick-selected-bar { margin-bottom:4px; }
         body.aj-embed-picker #pick-overlay .pick-selected-label { font-size:12px; }
-        body.aj-embed-picker #pick-overlay .pick-selected-chips { min-height:0; margin-bottom:4px; max-height:44px; }
-        body.aj-embed-picker #pick-overlay .pick-footer-actions { flex-wrap:nowrap; gap:6px; margin-top:4px; }
-        body.aj-embed-picker #pick-overlay .pick-footer-actions .btn { flex:1 1 0; min-width:0; font-size:12px; line-height:1.25; padding:8px 6px; min-height:0; white-space:normal; }
       }
       body.aj-embed-admin > header,
       body.aj-embed-admin > main,
@@ -7271,7 +7336,7 @@ document.addEventListener('touchstart', function(e) {
       btn.onclick = function(){ confirmSelection(); };
       actions.appendChild(btn);
     }
-    btn.textContent = bridgeText().useList;
+    btn.textContent = pickText('btn_use_list');
     const selectedIds = getPickedGamesSafe();
     btn.disabled = selectedIds.length === 0;
     btn.style.opacity = btn.disabled ? '.55' : '';

@@ -1,5 +1,14 @@
 # Project state
 
+## 2026-09-29 — Game picker: every picked game visible on phones, one-line buttons, numbered covers
+
+- Root cause (iPhone/Android): the picked-games chips sat in a box capped at `max-height: 52px` (44px inside the booking site's embedded picker) with its own scroll, and "สร้างข้อความเพื่อแจ้งทางร้าน" wrapped the button row to two lines. Only the first row of picks showed.
+- Rebuilt rather than overridden: one `<ol class="pick-selected-list">` component; phones use two even columns (number · name cut with … · ✕ button), wide screens keep full names wrapping as before. No height cap or inner scroll in the base, phone or embed CSS — the embed layer's own footer sizing was removed so the phone block is the single source. 10 picks = 5 rows ≈ 176px at 390px.
+- Button labels live once in `TRANSLATIONS` (th/en) and are rendered by `renderPickActions()` for every mode: "ล้างทั้งหมด / Clear all", "📋 แจ้งร้าน / 📋 Notify AJ", "✅ ใช้รายการนี้ / ✅ Use this list", and for the Delivery App token / booking-card picker "ส่งรายการเกม / Send games", "กำลังส่ง... / Sending…", "✓ บันทึกแล้ว / ✓ Saved", "ส่งรายการใหม่ / Send update" (state `pickSubmitState`). The embed script no longer keeps its own copies of these labels or swaps the button's onclick; `pickPrimaryAction()` decides. How-to text updated to the new label.
+- Selected covers (grid and list view) show the pick number instead of ✓, matching the list.
+- `gamePickerVersion` → `20260929-3` on the production and demo booking pages.
+- Verification: 180/180 website tests; every inline script in game_index.html passes `node --check`; headless Chromium at 390×844, 412×915, 360×740 (TH and EN, and a token link): 10/10 names visible, buttons one line (38px), no horizontal scroll; tapping numbers covers in order and removing one renumbers; PC 1030px keeps full names.
+
 ## 2026-09-29 — Returning LINE renters see their saved details; identity step greyed when not needed
 
 - Root cause of "LINE connected and discount verified, but the whole form is still open": the saved address arrives as one line; the postal code filled in, but a postal code with several subdistricts (10510 has seven, in two districts) left แขวง/ตำบล blank, so the details counted as incomplete and the summary card never showed. After a reload the subdistrict list was also never reloaded ("กรอกรหัสไปรษณีย์ก่อน" beside 10510).
