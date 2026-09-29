@@ -1,5 +1,16 @@
 # Project state
 
+## 2026-09-29 — Step 3 "บันทึกสัญญาไม่สำเร็จ" fixed at the causes (Bot `d7fb5aa`, website `c74d96d`)
+
+- The toast "บันทึกสัญญาไม่สำเร็จ กรุณาตรวจบัญชีรับเงินคืนและลายเซ็น แล้วลองใหม่" was shown for every refusal of `POST /api/booking-context/:token/agreement`, whatever the real field. Three real causes, none about the refund account or signature:
+  1. The full ID number lives only in the Bot's memory (`identityDrafts`, 24 h); today's restarts/deploys emptied it while open pages still showed "บันทึกไว้แล้ว (ลงท้าย …)", so the contract had no `idNumber`. The page now checks the saved number before sending (`ensureIdentityDraftAlive`: re-saves a number typed on the page, or `GET /api/identity-drafts/:id`); if the Bot no longer has it, the renter is taken to step 2 to type it again. No agreement request is made in that case.
+  2. "ไม่ต้องการระบุที่อยู่ ตำแหน่งจากลิงก์ Google Maps ถูกต้องแล้ว" sent an empty address and the contract requires one — every such booking failed. The contract now reads "ตามหมุด Google Maps / As pinned on Google Maps" with the pin's link beside it.
+  3. A phone written as +66… (11 digits), or a number from abroad on a Thai-language booking, failed the contract's phone rule. `thaiPhoneDigits` turns +66 / 0066 / 66… into 0…; a foreign number is kept as the contact (`noThaiPhoneNumber`) in either language — the schema no longer ties that flag to English (the LINE form still only offers it in English). This also fixes the verify-identity page for renters like +33….
+- The toast now names the field and moves to it, in Thai and English (ID number/expiry, name, phone, email, address/Maps → step 2; console/dates → step 1; refund, signature, consent, timed-out session → step 3). The same handling applies when the agreement is re-sent at payment for a changed rental. Toasts can stay longer (`toast(msg, ms)`; these stay 5 s).
+- The Bot logs `Agreement incomplete for <Rental ID>: <fields>` (field names only) so the next refusal is visible in the logs.
+- Not changed: drafts are still memory-only by design (no ID numbers on disk). Which of the three hit the customer in the owner's screenshot is not known.
+- Verification: Bot 453/453 (new: +66/0066/66/foreign numbers in TH and EN, pin-only address TH/EN, log line); website 182/182 incl. new `agreement-error-recovery.test.mjs`; headless Chromium 400px TH/EN: a dead draft id at step 3 → one `GET /api/identity-drafts/…` 404, no agreement POST, back to step 2 with the ID field marked and the bilingual toast; a refused `phone` → step 2 with the phone field marked.
+
 ## 2026-09-29 — Verify-identity page: faster, step-2 address, step-3 refund (Bot `d71dad7`)
 
 - Slow "กำลังโหลด…": the page waited for the history mirror through Apps Script, then the device sheet, one after the other. It now reads Console Pending directly, waits at most 1.5 s for the history mirror, and reads devices in parallel (`fetchBookingForPage`). Submit still reads the full record.
