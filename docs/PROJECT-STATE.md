@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-09-29 — "คัดลอกลิงก์" shows that it is working
+
+- Making the link is a call to the Bot and can take several seconds (longer when Render has put it to sleep). The popup now opens the moment the button is pressed, in a busy state: grey backdrop, spinner, "กำลังสร้างลิงก์และคัดลอก…" / "Creating and copying the link…" and "รอสักครู่ อาจใช้เวลาหลายวินาที" / "One moment, this can take a few seconds." There is no button, and backdrop, Escape and the picker behind cannot be used. When the link is on the clipboard it becomes "คัดลอกลิงก์แล้ว" with "รับทราบ" / "Got it". If the Bot fails or takes over 45 s, the popup closes with "สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง". A second press while busy is ignored.
+- Verification: 177/177 tests. Headless Chromium at iPhone size, TH and EN, with a Bot delayed 3 s: busy at 0.4 s, still busy after a backdrop tap and Escape, the picker's close button covered, then done with the button. With a failing Bot: closes with the error toast.
+
 ## 2026-09-29 — Shared game list: "คัดลอกลิงก์ / Copy link" saves every tap
 
 - In the booking site's game picker, the copy button now reads "คัดลอกลิงก์" / "Copy link" (with text on a phone too). Pressing it saves the games picked so far (every console) into a **new private list** on the Bot and copies `?games=1&console=…&pick=<id>`. Every press makes another, separate list.

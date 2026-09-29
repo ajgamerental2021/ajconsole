@@ -38,7 +38,7 @@ test('a copied link is explained in a popup closed with "รับทราบ",
   assert.match(site, /id="gamePickLinkModal"/);
   assert.match(site, /gamePickLinkOk:"รับทราบ"/);
   assert.match(site, /gamePickLinkOk:"Got it"/);
-  assert.match(site, /showGamePickLinkPopup\(\);\n\s*startGamePickPolling\(\);/);
+  assert.match(site, /showGamePickLinkPopup\("done"\);\n\s*startGamePickPolling\(\);/);
   assert.doesNotMatch(site, /id="gamePickerSync"/);
 });
 
@@ -46,4 +46,15 @@ test('the folded console row stays on one line with "More" beside the consoles',
   assert.match(site, /host\.classList\.toggle\("is-folded", !state\.gamePickerPlatformsOpen\)/);
   assert.match(site, /\.game-picker-platforms\.is-folded\{flex-wrap:nowrap/);
   assert.match(site, /\.game-picker-platforms\.is-folded \.game-picker-platform-more\{position:sticky;right:0/);
+});
+
+test('Copy link opens a busy popup at once, and only its finished state can be closed', () => {
+  assert.match(site, /gamePickLinkBusy:"กำลังสร้างลิงก์และคัดลอก…"/);
+  assert.match(site, /gamePickLinkBusy:"Creating and copying the link…"/);
+  assert.equal((site.match(/\bgamePickLinkBusyText:"/g) || []).length, 2);
+  assert.match(site, /showGamePickLinkPopup\("busy"\);\n\s*try\{\n\s*const link = await copyTextFrom\(createGamePickLink\(\)\);/);
+  assert.match(site, /showGamePickLinkPopup\("done"\);/);
+  assert.match(site, /if\(modal\.dataset\.state === "busy"\) return;/);
+  assert.match(site, /\.game-pick-link-modal\[data-state="busy"\] #gamePickLinkOk\{display:none\}/);
+  assert.match(site, /signal:AbortSignal\.timeout\(GAME_PICK_CREATE_TIMEOUT_MS\)/);
 });
