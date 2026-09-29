@@ -21,7 +21,7 @@ test('Copy link makes a new private shared list each time and saves every tap to
 });
 
 test('every sync string exists in Thai and English', () => {
-  for (const key of ['gamePickLinkCopied', 'gamePickLinkFailed', 'gamePickLinkExpired', 'gamePickSyncIntro', 'gamePickSaving', 'gamePickSaved', 'gamePickSaveFailed', 'gamePickConsoleFull']) {
+  for (const key of ['gamePickLinkCopied', 'gamePickLinkCopiedText', 'gamePickLinkOk', 'gamePickLinkFailed', 'gamePickLinkExpired', 'gamePickSaveFailed', 'gamePickConsoleFull', 'gamePickerMoreConsoles', 'gamePickerFewerConsoles']) {
     assert.equal((site.match(new RegExp(`\\b${key}:"`, 'g')) || []).length, 2, key);
   }
 });
@@ -32,4 +32,18 @@ test('the picker reports each tap and takes a friend\'s changes back', () => {
   assert.match(picker, /notifyPickChange\(\{ clear: true \}\);/);
   assert.match(picker, /post\('AJ_PICKER_CHANGED'/);
   assert.match(picker, /data\.type === 'AJ_PICKER_SET_SELECTION'[\s\S]{0,160}applyPickedFromHost\(data\.gameIds\)/);
+});
+
+test('a copied link is explained in a popup closed with "รับทราบ", not a bar over the games', () => {
+  assert.match(site, /id="gamePickLinkModal"/);
+  assert.match(site, /gamePickLinkOk:"รับทราบ"/);
+  assert.match(site, /gamePickLinkOk:"Got it"/);
+  assert.match(site, /showGamePickLinkPopup\(\);\n\s*startGamePickPolling\(\);/);
+  assert.doesNotMatch(site, /id="gamePickerSync"/);
+});
+
+test('the folded console row stays on one line with "More" beside the consoles', () => {
+  assert.match(site, /host\.classList\.toggle\("is-folded", !state\.gamePickerPlatformsOpen\)/);
+  assert.match(site, /\.game-picker-platforms\.is-folded\{flex-wrap:nowrap/);
+  assert.match(site, /\.game-picker-platforms\.is-folded \.game-picker-platform-more\{position:sticky;right:0/);
 });

@@ -648,11 +648,20 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .game-picker-copy-url{flex:0 0 auto}
 #gamePickerHowToBtn{padding:6px 10px;font-size:12px;line-height:1.2}
 #gamePickerHowToBtn .ico{width:14px;height:14px}
-.game-picker-sync{flex:0 0 auto;padding:6px 14px;background:#ecfdf3;border-bottom:1px solid #abefc6;color:#05603a;font-size:12px;line-height:1.35}
-.game-picker-sync[hidden]{display:none}
-.game-picker-sync strong{white-space:nowrap}
-.game-picker-sync.is-error{background:#fef3f2;border-color:#fecdca;color:#b42318}
-.game-picker-platform-count{margin-left:4px;font-size:10.5px;font-weight:900;background:#c90012;color:#fff;border-radius:999px;padding:0 6px}
+.game-picker-platform-count{margin-left:3px;font-size:10px;font-weight:900;background:#c90012;color:#fff;border-radius:999px;padding:0 5px}
+/* Folded, the row is one line: the consoles shown and "More" beside them.
+   If a narrow screen still runs out of room the chips scroll under "More",
+   which stays pinned at the end so it can always be tapped. */
+.game-picker-platforms.is-folded{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.game-picker-platforms.is-folded .game-picker-platform-more{position:sticky;right:0;box-shadow:-10px 0 8px -2px #fff}
+/* Above the picker window it is shown over. */
+.modal-overlay.game-pick-link-modal{z-index:520;align-items:center;justify-content:center;padding:18px}
+.game-pick-link-card{width:min(400px,100%);height:auto;border-radius:20px;padding:22px 20px 18px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.game-pick-link-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:999px;background:#ecfdf3;color:#067647}
+.game-pick-link-icon .ico{width:24px;height:24px}
+.game-pick-link-card h3{font-size:18px}
+.game-pick-link-card p{font-size:14px;line-height:1.6;color:#344054}
+.game-pick-link-card .btn{width:100%;min-height:44px;margin-top:4px}
 .game-picker-attention{justify-self:start;max-width:100%;border:1px solid #f0a000;border-radius:9px;background:#fff8dd;color:#6b3900;padding:7px 10px;font-size:12px;font-weight:900;line-height:1.25;white-space:nowrap;overflow-x:auto;scrollbar-width:none}
 .game-picker-attention::-webkit-scrollbar{display:none}
 @media(max-width:900px){
@@ -751,7 +760,11 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
   .game-picker-head .faq-lang-btn{padding:5px 8px}
   #gamePickerHowToBtn{padding:5px 8px;font-size:11px}
   #gamePickerHowToBtn .ico{width:13px;height:13px}
-  .game-picker-sync{padding:5px 12px;font-size:11px}
+  .game-picker-platform-rail .game-picker-platforms{gap:4px}
+  .game-picker-platform-rail .game-picker-platform-btn,
+  .game-picker-platform-rail .game-picker-platform-more{padding:3px 7px}
+  .modal-overlay.game-pick-link-modal{padding:18px}
+  .game-pick-link-card{width:min(400px,100%);height:auto;max-height:calc(100dvh - 36px);border-radius:20px}
   /* Every console stays on screen, just smaller: two short rows rather than
      three tall ones, so the games get the height instead. */
   .game-picker-platform-rail .game-picker-platforms{gap:4px 5px;padding:6px 10px}
@@ -1526,11 +1539,18 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 <div class="picker-overlay" id="gamePickerOverlay">
   <div class="picker-card">
     <div class="modal-head game-picker-head"><h3 id="gamePickerTitle" data-i18n="gamePickerTitle">เลือกเกม</h3><div class="game-picker-attention" data-i18n="gameStorageWarning">⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ</div><div class="game-picker-actions"><button class="copy-section-url game-picker-copy-url" id="gamePickerCopyUrl" type="button"></button><button class="btn faq-lang-btn" id="gamePickerHowToBtn" type="button"></button><button class="btn primary faq-lang-btn" id="gamePickerLangBtn" type="button"></button><button class="xbtn" id="gamePickerClose" type="button">&times;</button></div></div>
-    <div class="game-picker-sync" id="gamePickerSync" hidden><span id="gamePickerSyncIntro"></span> <strong id="gamePickerSyncState"></strong></div>
     <div class="game-picker-platform-rail" id="gamePickerPlatformRail" hidden>
       <div class="game-picker-platforms" id="gamePickerPlatforms"></div>
     </div>
     <iframe class="picker-frame" id="gamePickerFrame" title="Game picker"></iframe>
+  </div>
+</div>
+<div class="modal-overlay game-pick-link-modal" id="gamePickLinkModal" role="dialog" aria-modal="true" aria-labelledby="gamePickLinkTitle">
+  <div class="modal-card game-pick-link-card">
+    <div class="game-pick-link-icon" id="gamePickLinkIcon"></div>
+    <h3 id="gamePickLinkTitle"></h3>
+    <p id="gamePickLinkText"></p>
+    <button class="btn primary" id="gamePickLinkOk" type="button"></button>
   </div>
 </div>
 
@@ -1952,11 +1972,10 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       gamePickerHowTo:"วิธีเลือก",
       copyGameUrl:"คัดลอกลิงก์",
       gamePickLinkCopied:"คัดลอกลิงก์แล้ว",
+      gamePickLinkCopiedText:"ส่งลิงก์นี้ให้เพื่อน หรือเปิดในอีกเครื่องได้เลย เกมที่แตะเลือกหรือเอาออกจะบันทึกลงลิงก์นี้ทันที ไม่ต้องกดบันทึก ลิงก์เก็บไว้ 7 วันนับจากการแก้ไขครั้งล่าสุด เลือกเสร็จแล้วกด \"ใช้รายการเกมนี้\" เพื่อจองต่อได้ทันที",
+      gamePickLinkOk:"รับทราบ",
       gamePickLinkFailed:"สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง",
       gamePickLinkExpired:"ลิงก์เลือกเกมนี้หมดอายุแล้ว หรือไม่มีอยู่",
-      gamePickSyncIntro:"ลิงก์นี้ส่งให้เพื่อนหรือเปิดอีกเครื่องได้ เกมที่แตะเลือกหรือเอาออกจะบันทึกทันที · เก็บไว้ 7 วัน",
-      gamePickSaving:"กำลังบันทึก…",
-      gamePickSaved:"บันทึกแล้ว",
       gamePickSaveFailed:"บันทึกไม่สำเร็จ แตะเกมนั้นอีกครั้ง",
       gamePickConsoleFull:"เครื่องนี้มีครบ 10 เกมในลิงก์แล้ว",
       copyFaqUrl:"คัดลอก URL คำถามที่พบบ่อย",
@@ -2068,17 +2087,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       beforeRentTerms:"<b>3-day</b> minimum · free delivery up to <b>฿100/trip</b> (3–6 days: free return · 7+ days: both trips free) · <b>Bangkok metropolitan area only</b>",
       beforeRentStartDevice:"Check dates & price",
       gamePickerAllPlatforms:"👉 Pick a console",
-      gamePickerMoreConsoles:"More consoles +{n}",
+      gamePickerMoreConsoles:"More +{n}",
       gamePickerFewerConsoles:"Show fewer",
       gamePickerScrollHint:"Swipe for more →",
       gamePickerHowTo:"How to",
       copyGameUrl:"Copy link",
       gamePickLinkCopied:"Link copied",
+      gamePickLinkCopiedText:"Send this link to a friend or open it on another device. Every game you tap or remove is saved to it at once, with no save button. The link is kept for 7 days after its last change. When the list is ready, tap \"Use This Game List\" to continue booking.",
+      gamePickLinkOk:"Got it",
       gamePickLinkFailed:"Could not create the link. Please try again.",
       gamePickLinkExpired:"This game list link has expired or does not exist.",
-      gamePickSyncIntro:"Share this link or open it on another device. Every game you tap or remove is saved at once · kept for 7 days",
-      gamePickSaving:"Saving…",
-      gamePickSaved:"Saved",
       gamePickSaveFailed:"Not saved — tap that game again",
       gamePickConsoleFull:"This console already has 10 games in the link",
       copyFaqUrl:"Copy FAQ URL",
@@ -8108,6 +8126,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         ? `<button class="game-picker-platform-more" type="button" data-game-platform-toggle aria-expanded="false">${esc(tr("gamePickerMoreConsoles").replace("{n}", String(hiddenCount)))} ▾</button>`
         : "";
     const pickedCount = item => (state.gamePickerPicks[pickerPlatformOf(item)] || []).length;
+    host.classList.toggle("is-folded", !state.gamePickerPlatformsOpen);
     host.innerHTML = `<span class="game-picker-platform-label">${esc(tr("gamePickerAllPlatforms"))}</span>${shown.map(item => `<button class="game-picker-platform-btn ${isActive(item) ? "active" : ""}" type="button" data-game-platform="${esc(item.id)}">${esc(pickerChipName(item))}${pickedCount(item) ? `<span class="game-picker-platform-count">${pickedCount(item)}</span>` : ""}</button>`).join("")}${toggle}`;
     host.querySelectorAll("[data-game-platform]").forEach(button => button.addEventListener("click", () => switchBrowseGamePlatform(button.dataset.gamePlatform)));
     host.querySelector("[data-game-platform-toggle]")?.addEventListener("click", () => {
@@ -8133,12 +8152,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const rentalRange = livePickerRentalRange();
     const params = new URLSearchParams({embed:"picker", lang:state.lang, platformId, selected:selectedIds.join(","), browse:browseOnly?"1":"0", chrome:"compact", startDate:rentalRange.startDate, endDate:rentalRange.endDate, v:CONFIG.gamePickerVersion});
     const src = `${CONFIG.gamePage}?${params.toString()}`;
+    // The list is read when it is sent, not when the console was chosen: a
+    // friend's change to a shared list can arrive while the window reloads.
     const send = () => frame.contentWindow?.postMessage({
       type:"AJ_PICKER_OPEN",
       requestId:"index2-" + Date.now(),
       platformId,
       lang:state.lang,
-      selectedGameIds:selectedIds,
+      selectedGameIds:pickerSelectedIds(),
       browseOnly,
       startDate:rentalRange.startDate,
       endDate:rentalRange.endDate
@@ -8226,8 +8247,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   const GAME_PICK_POLL_MS = 5000;
   let gamePickPoll = 0;
   let gamePickSavesInFlight = 0;
-  let gamePickSyncKey = "";
-  let gamePickSyncError = false;
+
   function gamePickApi(path = ""){
     return `${CONFIG.apiBase}/api/game-selection/sessions${path}`;
   }
@@ -8241,15 +8261,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       .map(([platformId, ids]) => [platformId, (ids || []).slice(0,10)])
       .filter(([, ids]) => ids.length));
   }
-  function setGamePickSyncState(key, isError = false){
-    gamePickSyncKey = key;
-    gamePickSyncError = !!isError;
-    const bar = byId("gamePickerSync");
-    if(!bar) return;
-    bar.hidden = !state.gamePickSession;
-    bar.classList.toggle("is-error", !!isError);
-    byId("gamePickerSyncIntro").textContent = tr("gamePickSyncIntro");
-    byId("gamePickerSyncState").textContent = key ? tr(key) : "";
+  function showGamePickLinkPopup(){
+    byId("gamePickLinkIcon").innerHTML = icon("link");
+    byId("gamePickLinkTitle").textContent = tr("gamePickLinkCopied");
+    byId("gamePickLinkText").textContent = tr("gamePickLinkCopiedText");
+    byId("gamePickLinkOk").textContent = tr("gamePickLinkOk");
+    byId("gamePickLinkModal").classList.add("open");
+    byId("gamePickLinkOk").focus();
+  }
+  function closeGamePickLinkPopup(){
+    byId("gamePickLinkModal").classList.remove("open");
   }
   function adoptGamePickSession(session){
     state.gamePickSession = {id:session.id, updatedAt:session.updatedAt};
@@ -8309,8 +8330,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       // The address bar follows, so reloading this page stays on the same list.
       try{ history.replaceState(null, "", link); }catch{}
       trackAnalytics("game_pick_link_created", {value:String(Object.keys(nonEmptyPicks()).length)});
-      toast(tr("gamePickLinkCopied"));
-      setGamePickSyncState("gamePickSaved");
+      showGamePickLinkPopup();
       startGamePickPolling();
     }catch(error){
       toast(tr("gamePickLinkFailed"));
@@ -8326,7 +8346,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       : {platformId, gameId:String(change.gameId || ""), selected:!!change.selected};
     if(!change.clear && !body.gameId) return;
     gamePickSavesInFlight += 1;
-    setGamePickSyncState("gamePickSaving");
     try{
       const response = await fetch(gamePickApi(`/${encodeURIComponent(session.id)}`), {
         method:"PATCH",
@@ -8337,7 +8356,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(response.status === 404){
         state.gamePickSession = null;
         stopGamePickPolling();
-        setGamePickSyncState("");
         toast(tr("gamePickLinkExpired"));
         return;
       }
@@ -8348,11 +8366,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           showSharedPicksOnScreen();
         }
       }
-      if(response.status === 409){ toast(tr("gamePickConsoleFull")); setGamePickSyncState("gamePickSaved"); return; }
+      if(response.status === 409){ toast(tr("gamePickConsoleFull")); return; }
       if(!response.ok) throw new Error(data.error || "save_failed");
-      setGamePickSyncState("gamePickSaved");
     }catch(error){
-      setGamePickSyncState("gamePickSaveFailed", true);
+      toast(tr("gamePickSaveFailed"));
     }finally{
       gamePickSavesInFlight -= 1;
     }
@@ -8365,7 +8382,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(response.status === 404){
         state.gamePickSession = null;
         stopGamePickPolling();
-        setGamePickSyncState("");
         toast(tr("gamePickLinkExpired"));
         return;
       }
@@ -8455,7 +8471,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // A shared list keeps what it holds; otherwise the window starts from the
     // booking's own games (or nothing, when just browsing).
     if(!options.keepPicks && !state.gamePickSession) state.gamePickerPicks = {};
-    setGamePickSyncState(state.gamePickSession ? "gamePickSaved" : "");
     startGamePickPolling();
     refreshGamePickerLangBtn();
     refreshGamePickerHowToBtn();
@@ -8482,7 +8497,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     state.lang = state.lang === "en" ? "th" : "en";
     render();
     refreshGamePickerLangBtn();
-    setGamePickSyncState(gamePickSyncKey, gamePickSyncError);
     refreshGamePickerHowToBtn();
     renderGamePickerPlatforms();
     byId("gamePickerFrame").contentWindow?.postMessage({type:"AJ_SET_LANG", lang:state.lang}, pickerTargetOrigin());
@@ -10917,6 +10931,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("gamePickerLangBtn").addEventListener("click", toggleGamePickerLang);
     byId("gamePickerHowToBtn").addEventListener("click", toggleGamePickerHowTo);
     byId("gamePickerCopyUrl").addEventListener("click", () => { void copyGamePickLink(); });
+    byId("gamePickLinkOk").addEventListener("click", closeGamePickLinkPopup);
+    byId("gamePickLinkModal").addEventListener("click", event => { if(event.target === event.currentTarget) closeGamePickLinkPopup(); });
     byId("adminBtn").addEventListener("click", () => openAdmin(false));
     byId("adminClose").addEventListener("click", closeAdmin);
     byId("adminLoginClose").addEventListener("click", closeAdminLogin);
