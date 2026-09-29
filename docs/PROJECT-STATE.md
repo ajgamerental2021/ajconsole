@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-09-29 — Rental extension priced on the whole rental (Delivery App `48f9fd0`)
+
+- "เช่าต่อ / Extend" (Rich menu, My rental and the reminder card all open `/c/extension`) used to charge daily rate × extra days. It now prices the whole rental — days already covered (Booking Log start → current return date) + the extra days — on the booking site's rate card (`rentalTariff`: 30 days at the monthly price for ฿300/350/400/500 daily rates, then weeks at the unit's Inventory weekly rate, then days), and charges only the difference. PS4 3 days + 4 = 7 days: ฿1,500 − ฿900 = ฿600, not 4 × ฿300. The returning 10% and the payment fee still apply to that difference, so the page shows ฿540 for that example — say if the 10% should not apply to extensions.
+- The day list marks choices that make the rental whole weeks or a month: "4 วัน · รวม 7 วัน เรทรายสัปดาห์" / "4 days · 7 in total, weekly rate". The rate row shows day and week prices; the summary shows "ค่าเช่ารวม 7 วัน (เรทรายสัปดาห์)", "หักค่าเช่า 3 วันเดิม", then the discount, fee and total. The shop/customer card's first money row is now "ค่าเช่าก่อนส่วนลด / Rental before discount".
+- "Already covered" uses the list price, not what was actually paid (VIP or promotions are not re-read), and a unit with no weekly rate uses seven daily rates. Like the booking site, 13 days can cost more than 14.
+- Verification: new `test:extension-pricing` 20/20, `test:extension-queue` 11/11, `tsc` clean; the demo page (`/c/extension?demo=1`) checked in headless Chromium at 400px in Thai and English, including switching language on the page.
+
 ## 2026-09-29 — Console Pending shows the delivery fee; names with digits caught on the page (website `35ee401`, Delivery App `b12281c`)
 
 - Case: AJ-20260929-R0027 (PS4, 18:32) appeared in Console Pending while the renter could not get past "ยืนยันและไปหน้าชำระเงิน". Console Pending is written by design the moment step 3 is confirmed (status Pending / รอโอนเงิน), before the agreement and payment, so the shop can follow up on renters who do not finish. The renter's tries (18:32–18:44) were all before the step-3 fixes above went live (~18:45); their phone was first +66635399435 (refused then). Their name ended in "0" (ปริวัฒน์ ภิรมย์บูรณ์0): the contract takes that, but the refund account name must be letters only, so the same name there would also be refused. The signature running outside the box does not matter.
