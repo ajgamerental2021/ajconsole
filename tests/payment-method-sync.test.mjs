@@ -11,7 +11,9 @@ test('Console Pending submissions use the acknowledged Bot upsert and survive ch
   // write finish after navigation, so a slow Sheet cannot strand payment.
   assert.equal((html.match(/await submitRentalToSheet\(/g) || []).length, 5);
   assert.match(html, /keepalive:true/);
-  assert.match(html, /const pendingWrite = submitRentalToSheet/);
+  // Web rental writes are queued so an older row never lands after a newer one.
+  assert.match(html, /consolePendingRental = \{code, handoff, channel:"demo-payment"\};\n      const pendingWrite = queueConsolePendingUpsert\(\);/);
+  assert.match(html, /return submitRentalToSheet\(calcSummary\(\), rental\.code, rental\.channel, message, data, 25000\);/);
   assert.match(html, /Rental sheet append will be retried/);
   assert.match(html, /if\(!response\.ok \|\| !result\?\.ok\) throw new Error/);
 });

@@ -4072,6 +4072,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         demoDelivery.status = "ready";
         demoDelivery.quote = result.quote;
         void recordDemoDeliveryQuote(result.quote);
+        void queueConsolePendingUpsert();
       }else{
         demoDelivery.status = result?.error === "delivery_location_unresolved" ? "needs_pin" : "unavailable";
         demoDelivery.error = String(result?.reason || result?.error || "");
@@ -4416,7 +4417,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       return (DEMO_WISE_REQUIRED[wise.payout] || DEMO_WISE_REQUIRED.bank).every(key => String(wise[key] || "").trim())
         && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(wise.wiseEmail || "").trim());
     }
-    return !!demoProfile.refundBankId && /^\d{6,13}$/.test(demoAgreement.account) && !!String(demoProfile.refundAccountName || "").trim();
+    return !!demoProfile.refundBankId && /^\d{6,13}$/.test(demoAgreement.account) && demoAccountNameValid(demoProfile.refundAccountName);
   }
   function demoAgreementReady(){
     if(!demoAgreementNeeded()) return true;
@@ -4613,7 +4614,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       }else{
         need("demoRefundBank", !!demoProfile.refundBankId, en ? "Choose the bank for the deposit refund." : "เลือกธนาคารสำหรับคืนค่าประกัน");
         need("demoRefundAccount", /^\d{6,13}$/.test(demoAgreement.account), en ? "Enter the account number, digits only." : "กรอกเลขที่บัญชี เป็นตัวเลขเท่านั้น");
-        need("demoRefundName", !!String(demoProfile.refundAccountName || "").trim(), en ? "Enter the account name." : "กรอกชื่อบัญชี");
+        const accountName = String(demoProfile.refundAccountName || "").trim();
+        need("demoRefundName", !!accountName, en ? "Enter the account name." : "กรอกชื่อบัญชี");
+        if(accountName) need("demoRefundName", demoAccountNameValid(accountName), en ? "The account name must be letters only, as shown by the bank." : "ชื่อบัญชีต้องเป็นตัวอักษรเท่านั้น ตามที่ธนาคารแสดง");
       }
       need("demoAgreementConsent", !!demoProfile.agreementConsent, en ? "Tick to confirm and agree." : "ติ๊กยืนยันและยอมรับ");
       need("demoSignaturePad", !!demoAgreement.signature, en ? "Sign inside the box." : "เซ็นลายเซ็นในกรอบ");
@@ -4791,6 +4794,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const need = (id, ok, message) => { if(!ok) problems.push({id, message}); };
     const identity = String(demoProfile.identityNumber || "").trim();
     need("demoCustomerName", demoProfile.fullName.trim().length >= 2, en ? "Enter your legal name." : "กรอกชื่อ-นามสกุลจริง");
+    if(demoProfile.fullName.trim().length >= 2) need("demoCustomerName", !/\d/.test(demoProfile.fullName), en ? "The name must not contain numbers." : "ชื่อ-นามสกุลต้องไม่มีตัวเลข");
     need("demoCustomerPhone", String(demoProfile.phone || "").replace(/\D/g, "").length >= 9, en ? "Enter a phone number AJ can reach you on." : "กรอกเบอร์โทรศัพท์ที่ติดต่อได้");
     if(!state.calc.noContract && !demoIdentityCoveredByAgreement()){
       need("demoIdentityNumber", (!identity && demoProfile.identityDraftLast4) || (demoIdentityType() === "passport" ? /^[A-Z0-9]{6,10}$/i.test(identity) : thaiIdValid(identity)),
@@ -4819,6 +4823,21 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   // The confirmation and the agreement PDF are sent to this address, so it must
   // look like one: name@domain.tld, with a letters-only ending.
+  // A Thai number written as +66 / 0066 / 66… is sent as 0…, the way AJ and
+  // the contract write it; a number from abroad is sent as typed.
+  function thaiPhoneText(value){
+    const raw = String(value || "").trim();
+    let digits = raw.replace(/\D/g, "");
+    const international = /^(\+|00)/.test(raw.replace(/[\s()-]/g, ""));
+    if(international && digits.startsWith("00")) digits = digits.slice(2);
+    if((international || digits.length === 11) && /^66[1-9]\d{7,8}$/.test(digits)) return `0${digits.slice(2)}`;
+    return raw;
+  }
+  // The names on the contract and the refund account: letters, not digits.
+  // The account name follows the Bot's rule exactly (letters, spaces, . ' -).
+  function demoAccountNameValid(value){
+    return /^[\p{L}\p{M}\s.'’-]+$/u.test(String(value || "").trim());
+  }
   function demoEmailValid(value){
     return /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[a-z]{2,}$/i.test(String(value || "").trim());
   }
@@ -6891,7 +6910,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       lang: en ? "EN" : "TH",
       customerName: String(UNIFIED_FLOW_DEMO ? demoProfile.fullName : state.calc.demoCustomerName || "").trim(),
       fullName: String(UNIFIED_FLOW_DEMO ? demoProfile.fullName : state.calc.demoCustomerName || "").trim(),
-      phone: String(UNIFIED_FLOW_DEMO ? demoProfile.phone : state.calc.demoCustomerPhone || "").trim(),
+      phone: thaiPhoneText(UNIFIED_FLOW_DEMO ? demoProfile.phone : state.calc.demoCustomerPhone),
       email: UNIFIED_FLOW_DEMO ? String(demoProfile.email || "").trim() : "",
       identityType: UNIFIED_FLOW_DEMO && !state.calc.noContract ? demoIdentityType() : "",
       identityLast4: UNIFIED_FLOW_DEMO && !state.calc.noContract ? (String(demoProfile.identityNumber || "").trim().slice(-4) || demoProfile.identityDraftLast4) : "",
@@ -7190,6 +7209,32 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       console.warn("Rental sheet append skipped", error);
       throw error;
     }
+  }
+  // The web rental's Console Pending row, written again whenever what it shows
+  // changes (the live delivery price, the payment step). Writes run one after
+  // another so an older row can never land after a newer one.
+  let consolePendingRental = null;
+  let consolePendingWrites = Promise.resolve();
+  function queueConsolePendingUpsert(){
+    const rental = consolePendingRental;
+    if(!rental || rental.code !== state.calc.rentalCode) return consolePendingWrites;
+    const write = () => {
+      const fresh = bookingStructured(rental.code) || {};
+      const prepared = rental.handoff.data || {};
+      // The prices and delivery are read now; the contract link and order PDF
+      // come from the booking context made for this rental.
+      const data = {...prepared, ...fresh, rentalOrderId:prepared.rentalOrderId || fresh.rentalOrderId, rentalOrderPdfUrl:prepared.rentalOrderPdfUrl || "", contractUrl:prepared.contractUrl || ""};
+      const message = rental.handoff.contextToken ? bookingMessage(rental.code, rental.handoff.url) : rental.handoff.message;
+      return submitRentalToSheet(calcSummary(), rental.code, rental.channel, message, data, 25000);
+    };
+    consolePendingWrites = consolePendingWrites
+      .then(write)
+      .catch(error => {
+        console.warn("Rental sheet append will be retried", error);
+        return write();
+      })
+      .catch(error => console.error("Rental sheet append failed twice", error));
+    return consolePendingWrites;
   }
   function lineUniqueId(){
     try{
@@ -7735,15 +7780,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       state.calc.maps = demoProfile.maps;
       const handoff = await prepareContractHandoff(code, "web");
       if(handoff.contextToken) state.calc.demoContextToken = handoff.contextToken;
-      // A slow sheet write (the Bot can be cold) must not strand the customer on
-      // step 3: keep the retry in the background and continue to payment.
-      const sheetWrite = submitRentalToSheet(summary, code, "unified-flow-demo", handoff.message, handoff.data, 25000)
-        .catch(error => {
-          console.warn("Rental sheet append will be retried", error);
-          return submitRentalToSheet(summary, code, "unified-flow-demo", handoff.message, handoff.data, 25000)
-            .catch(retryError => console.error("Rental sheet append failed twice", retryError));
-        });
-      void sheetWrite;
+      // The rental shows in Console Pending as soon as it is confirmed here, so
+      // AJ can follow up even if payment is never finished. A slow sheet write
+      // (the Bot can be cold) runs in the background and never holds step 3.
+      consolePendingRental = {code, handoff, channel:"unified-flow-demo"};
+      void queueConsolePendingUpsert();
+      // The live delivery price is fetched alongside the agreement; when it
+      // arrives the Console Pending row is written again with the fee.
+      if(demoDelivery.status !== "loading" && !(demoDelivery.status === "ready" && demoDelivery.key === demoDeliveryQuoteKey())) void fetchDemoDeliveryQuote();
       // The identity images and the signed agreement are sent at the same time.
       const sendsIdentity = !state.calc.noContract && !demoProfile.identitySkipped && !demoProfile.identityUploaded && !!demoProfile.idDocument && !!demoProfile.selfieWithId;
       if(sendsIdentity) showDemoBusy(state.lang === "en" ? "Sending your identity photos and agreement…" : "กำลังส่งรูปยืนยันตัวตนและสัญญา…");
@@ -7763,7 +7807,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         return;
       }
       state.calc.demoOrderOpen = true;
-      void fetchDemoDeliveryQuote();
       state.calc.demoIdentitySkipped = demoProfile.identitySkipped;
       state.calc.demoIdentityStatus = demoIdentityStatus();
       saveLocal();
@@ -8030,8 +8073,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       // Pending in parallel. `keepalive` lets the Sheet upsert finish after the
       // browser leaves for Beam, so a slow Sheet can no longer strand checkout.
       await ensureBookingHold(code);
-      const pendingWrite = submitRentalToSheet(summary, code, "demo-payment", handoff.message, handoff.data, 25000)
-        .catch(error => console.warn("Rental sheet upsert will be recovered from payment context", error));
+      consolePendingRental = {code, handoff, channel:"demo-payment"};
+      const pendingWrite = queueConsolePendingUpsert();
       const url = await ensureBeamPaymentLink(summary, code, {holdAcquired:true});
       if(!url) throw new Error("Beam payment link unavailable");
       void pendingWrite;

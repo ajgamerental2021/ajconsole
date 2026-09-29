@@ -27,7 +27,7 @@ test('demo reuses live game and adds customer, identity and payment stages', () 
 
 test('demo customer details are included in the real booking context', () => {
   assert.match(html, /customerName: String\(UNIFIED_FLOW_DEMO \? demoProfile\.fullName/);
-  assert.match(html, /phone: String\(UNIFIED_FLOW_DEMO \? demoProfile\.phone/);
+  assert.match(html, /phone: thaiPhoneText\(UNIFIED_FLOW_DEMO \? demoProfile\.phone/);
   assert.match(html, /identityVerificationStatus/);
   assert.match(html, /deliveryAddress/);
   assert.match(html, /customerDataSource: UNIFIED_FLOW_DEMO/);

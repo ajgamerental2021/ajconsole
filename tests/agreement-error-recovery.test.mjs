@@ -49,3 +49,35 @@ test('the ID number held by the Bot is checked before the agreement is sent', ()
   // Signing again for a changed rental at payment gets the same guidance.
   assert.match(html, /await submitDemoAgreement\(handoff\.contextToken\);\n        \}catch\(error\)\{\n          hideDemoBusy\(\);\n          showDemoAgreementProblem\(error\);/);
 });
+
+test('a +66 number is sent as 0…, a number from abroad as typed', () => {
+  const context = {};
+  vm.runInNewContext(`${extract('thaiPhoneText')}; this.run = thaiPhoneText;`, context);
+  assert.equal(context.run('+66635399435'), '0635399435');
+  assert.equal(context.run('+66 81 234 5678'), '0812345678');
+  assert.equal(context.run('66812345678'), '0812345678');
+  assert.equal(context.run('081-234-5678'), '081-234-5678');
+  assert.equal(context.run('+33 7 88 33 58 14'), '+33 7 88 33 58 14');
+});
+
+test('names with numbers are caught on the page, before the Bot refuses them', () => {
+  const context = {};
+  vm.runInNewContext(`${extract('demoAccountNameValid')}; this.run = demoAccountNameValid;`, context);
+  assert.equal(context.run('ปริวัฒน์ ภิรมย์บูรณ์'), true);
+  assert.equal(context.run("Anne-Marie O'Neil"), true);
+  assert.equal(context.run('ปริวัฒน์ ภิรมย์บูรณ์0'), false);
+  assert.match(extract('demoStep2Problems'), /need\("demoCustomerName", !\/\\d\/\.test\(demoProfile\.fullName\), en \? "The name must not contain numbers\." : "ชื่อ-นามสกุลต้องไม่มีตัวเลข"\)/);
+  assert.match(extract('demoStep3Problems'), /demoAccountNameValid\(accountName\)/);
+  assert.match(extract('demoRefundReady'), /demoAccountNameValid\(demoProfile\.refundAccountName\)/);
+});
+
+test('Console Pending gets the live delivery fee once it is quoted', () => {
+  const order = extract('openDemoOrder');
+  assert.match(order, /consolePendingRental = \{code, handoff, channel:"unified-flow-demo"\};\n      void queueConsolePendingUpsert\(\);/);
+  // The quote starts with the agreement, not after the order page opens.
+  assert.ok(order.indexOf('void fetchDemoDeliveryQuote()') < order.indexOf('Promise.allSettled'));
+  assert.match(extract('fetchDemoDeliveryQuote'), /void recordDemoDeliveryQuote\(result\.quote\);\n        void queueConsolePendingUpsert\(\);/);
+  const queue = extract('queueConsolePendingUpsert');
+  assert.match(queue, /const fresh = bookingStructured\(rental\.code\) \|\| \{\};/);
+  assert.match(queue, /consolePendingWrites = consolePendingWrites\n      \.then\(write\)/);
+});
