@@ -2451,6 +2451,33 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       render();
     }catch{}
   }
+  // The full number lives only in the Bot's memory, which a restart empties.
+  // Before the agreement is sent, make sure the number the page points to is
+  // still held: a number typed on this page is saved again; a lost one is
+  // asked for again on step 2 rather than failing the agreement.
+  async function ensureIdentityDraftAlive(){
+    if(state.calc.noContract || demoIdentityCoveredByAgreement()) return true;
+    if(String(demoProfile.identityNumber || "").trim()){
+      await saveIdentityDraft();
+      return !!demoProfile.identityDraftId;
+    }
+    if(!demoProfile.identityDraftId) return false;
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/identity-drafts/${encodeURIComponent(demoProfile.identityDraftId)}`, {cache:"no-store"});
+      if(response.ok) return true;
+      if(response.status !== 404) return true;
+    }catch{
+      // Offline or the Bot is waking: the agreement request will say so.
+      return true;
+    }
+    forgetIdentityDraft();
+    return false;
+  }
+  function forgetIdentityDraft(){
+    demoProfile.identityDraftId = "";
+    demoProfile.identityDraftLast4 = "";
+    saveDemoProfile();
+  }
   const GUIDE_ORDER = ["console","start","end","ps5bundle","accessory","next1","games","next2","bg","maps","ret","contractChoice","contractLink","payment","next3","share"];
   const GUIDE_KEY = "aj_index2_guide_stage";
   const AUTO_GUIDE_ENABLED = false;
@@ -4609,6 +4636,50 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const first = problems[0] && (problems[0].id === "demoSignaturePad" ? byId("demoSignatureBox") : byId(problems[0].id));
     if(first) first.scrollIntoView({behavior:"smooth", block:"center"});
     return problems.length === 0;
+  }
+  // What the Bot refused, in words the renter can act on, and the step that
+  // holds the field. The fields are the contract's own names.
+  function demoAgreementProblem(error){
+    const en = state.lang === "en";
+    const code = String(error?.message || "");
+    const fields = Array.isArray(error?.fields) ? error.fields : [];
+    const has = (...names) => names.some(name => fields.includes(name));
+    const passport = demoIdentityType() === "passport";
+    if(code === "id_expires_before_return" || has("idExpiry")) return {step:2, field:"demoIdentityExpiry", message: en ? "The identity document expires before the return date. Please use a document valid through the rental." : "เอกสารยืนยันตัวตนหมดอายุก่อนวันคืนเครื่อง กรุณาใช้เอกสารที่ยังไม่หมดอายุตลอดการเช่า"};
+    if(has("idNumber")) return {step:2, field:"demoIdentityNumber", forgetDraft:true, message: passport
+      ? (en ? "Please enter your passport number again. The saved one has expired from our system." : "กรุณากรอกเลข Passport อีกครั้ง เลขที่บันทึกไว้หมดเวลาในระบบแล้ว")
+      : (en ? "Please enter your Thai ID number again. The saved one has expired from our system." : "กรุณากรอกเลขบัตรประชาชนอีกครั้ง เลขที่บันทึกไว้หมดเวลาในระบบแล้ว")};
+    if(has("fullName")) return {step:2, field:"demoCustomerName", message: en ? "Please check your full name on step 2." : "กรุณาตรวจชื่อ-นามสกุลในขั้นตอนที่ 2"};
+    if(has("phone")) return {step:2, field:"demoCustomerPhone", message: en ? "Please check your phone number on step 2." : "กรุณาตรวจเบอร์โทรศัพท์ในขั้นตอนที่ 2"};
+    if(has("email")) return {step:2, field:"demoEmail", message: en ? "Please check your email address on step 2." : "กรุณาตรวจอีเมลในขั้นตอนที่ 2"};
+    if(has("address", "pickupLocation", "returnLocation", "pickupMapUrl", "returnMapUrl")) return {step:2, field:"demoMaps", message: en ? "Please check the delivery address and Google Maps link on step 2." : "กรุณาตรวจที่อยู่จัดส่งและลิงก์ Google Maps ในขั้นตอนที่ 2"};
+    if(has("deviceId", "deviceName", "rentalStart", "rentalEnd", "rentalDays", "rentalFee", "securityDeposit")) return {step:1, message: en ? "The rental details are incomplete. Please check the console and dates on step 1." : "ข้อมูลการเช่าไม่ครบ กรุณาตรวจเครื่องและวันที่ในขั้นตอนที่ 1"};
+    if(fields.some(name => /^(refund|wise|noThaiBankAccount)/.test(name))) return {step:3, message: en ? "Please check the refund account details." : "กรุณาตรวจข้อมูลบัญชีรับเงินคืนค่าประกัน"};
+    if(has("signatureDataUrl")) return {step:3, message: en ? "Please sign inside the box again." : "กรุณาเซ็นลายเซ็นในกรอบอีกครั้ง"};
+    if(has("consentAccepted", "privacyAccepted", "termsAccepted")) return {step:3, message: en ? "Please tick to confirm and agree to the agreement." : "กรุณาติ๊กยืนยันและยอมรับสัญญา"};
+    if(code === "booking_context_not_found" || code === "agreement_context_unavailable") return {step:3, message: en ? "The booking session timed out. Please press confirm again." : "ข้อมูลการจองหมดเวลา กรุณากดยืนยันอีกครั้ง"};
+    return {step:3, message: en ? "The agreement could not be saved right now. Please try again in a moment." : "บันทึกสัญญาไม่สำเร็จในขณะนี้ กรุณาลองใหม่อีกครั้ง"};
+  }
+  // Takes the renter to the field to fix and says what is wrong with it.
+  function showDemoAgreementProblem(error){
+    console.error("Agreement could not be made", error);
+    const problem = demoAgreementProblem(error);
+    if(problem.forgetDraft) forgetIdentityDraft();
+    state.calc.demoOrderOpen = false;
+    saveLocal();
+    if(state.calc.step !== problem.step) goCalcStep(problem.step, {scrollTabs:true});
+    else render();
+    if(problem.step === 2) showDemoStep2Problems();
+    else if(problem.step === 3) showDemoStep3Problems();
+    if(problem.field){
+      const field = byId(problem.field);
+      if(field && !field.classList.contains("is-invalid")){
+        field.classList.add("is-invalid");
+        field.closest(".field")?.insertAdjacentHTML("beforeend", `<p class="field-error">${esc(problem.message)}</p>`);
+        field.scrollIntoView({behavior:"smooth", block:"center"});
+      }
+    }
+    toast(problem.message, 5000);
   }
   async function submitDemoAgreement(contextToken){
     if(!demoAgreementNeeded()) return;
@@ -7654,6 +7725,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!UNIFIED_FLOW_DEMO || !stepReady(3)) return;
     showDemoBusy(state.lang === "en" ? "Preparing your rental…" : "กำลังเตรียมข้อมูลการเช่า…");
     try{
+      if(demoAgreementNeeded() && !(await ensureIdentityDraftAlive())){
+        showDemoAgreementProblem(Object.assign(new Error("agreement_incomplete"), {fields:["idNumber"]}));
+        return;
+      }
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
       rememberRental(code);
@@ -7684,10 +7759,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         return;
       }
       if(agreementSaved.status === "rejected"){
-        console.error("Agreement could not be made", agreementSaved.reason);
-        toast(state.lang === "en"
-          ? "The agreement could not be saved. Check the refund account and signature, then try again."
-          : "บันทึกสัญญาไม่สำเร็จ กรุณาตรวจบัญชีรับเงินคืนและลายเซ็น แล้วลองใหม่");
+        showDemoAgreementProblem(agreementSaved.reason);
         return;
       }
       state.calc.demoOrderOpen = true;
@@ -7943,7 +8015,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           toast(state.lang === "en" ? "Your rental changed. Please sign the agreement again before paying." : "รายการเช่ามีการเปลี่ยนแปลง กรุณาเซ็นสัญญาอีกครั้งก่อนชำระเงิน");
           return;
         }
-        await submitDemoAgreement(handoff.contextToken);
+        try{
+          await submitDemoAgreement(handoff.contextToken);
+        }catch(error){
+          hideDemoBusy();
+          showDemoAgreementProblem(error);
+          return;
+        }
       }
       state.calc.beamPaymentLink = "";
       state.calc.beamPaymentKey = "";
@@ -9782,11 +9860,13 @@ We apologize for the inconvenience and hope everyone stays safe.`
     renderStepsBody();
   }
 
-  function toast(msg){
+  let toastTimer = 0;
+  function toast(msg, duration=2200){
     const el = byId("toast");
     el.textContent = msg;
     el.classList.add("show");
-    setTimeout(() => el.classList.remove("show"), 2200);
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => el.classList.remove("show"), duration);
   }
   function updateFloatButton(){
     const btn = byId("floatCalc");
