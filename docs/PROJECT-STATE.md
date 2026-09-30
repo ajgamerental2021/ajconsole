@@ -1,5 +1,14 @@
 # Project state
 
+## 2026-09-30 — VIP deposit and rate on the card, My rental and email; every discount itemised; wireframe (website `25d0cb6`, Delivery App `a40a548`, Bot `fe65d0b`)
+
+- Root cause (booking 543, AJ-20260930-R0021): the Delivery App's Rental Fee and Deposit are sheet formulas from the catalogue, and nothing carried the VIP rate or VIP deposit (฿1,000) from the website, so the card and My rental showed catalogue prices. The website's costs also showed the VIP price as "ค่าเช่า" and then subtracted the VIP discount again (double-counted in the rows, total was right).
+- Website: the rental row is now the list price (`regularRental`) with a "ส่วนลดราคาเช่า VIP / VIP rental rate discount" row; `bookingStructured` carries `vip.deposit` and `deliveryQuote {subtotal, discount, total, serviceType}`.
+- Delivery App: new Booking Log columns `VIP Rental Discount`, `VIP Deposit`, `Delivery Discount` (created on the next schema read). `bookingCharges` takes the VIP discount off before the returning 10%, and uses the VIP deposit instead of the catalogue deposit (no-contract step-up from it). Console Pending confirm passes them on (VIP rate dropped if the dates were moved; delivery discount only if the fee is unchanged; the quote warns). Confirmation card and My rental (`costLines`) list: rental, VIP rate discount, returning 10%, each review discount, add-ons/bundles, deposit "(VIP)", Lalamove round trip, ส่วนลดค่าจัดส่ง, ค่าจัดส่งที่ชำระ — Thai and English. `test:vip-charges` 23/23.
+- Bot: confirmation email money rows come from `rentalChargeLines` (website cost rows by name + rental total + deposit + delivery fare/discount/paid + payment fee), TH/EN. Bot 459/459.
+- Booking 543 already exists: enter `1000` in its `VIP Deposit` cell (and any VIP rate discount) by hand; older VIP-rate requests in the log still carry the double-counted rows.
+- Wireframe of the whole system in Thai (website 7 pages, Bot contract/verify/LINE cards/email, customer LINE pages, Delivery App shop pages, system map and journey, boards linked to each other): https://claude.ai/artifact/MAhsAv7eorH1A9DV5AHzp7 (private until shared from its Share menu).
+
 ## 2026-09-30 — Verify-now full step 3, return check, per-device quote prices, picker at large text (website `5386223`/`b967401`, Delivery App `c59d8fa`/`d732b10`, Bot `e619aa1`)
 
 - Confirmation email CC: now ajgamerental2021@gmail.com only (contact@ajgamerental.com dropped — same mailbox, so every email arrived twice). Render's `RENTAL_CONFIRMATION_CC`, if set, overrides the default.
