@@ -100,3 +100,12 @@ test('"Verify now" asks for everything step 3 does: photos, refund account (Wise
   assert.match(refund, /I do not have a Thai bank account and would like to receive the security deposit refund through Wise/);
   for (const key of ['wiseFullName', 'wiseCountry', 'wiseCurrency', 'wiseBankName', 'wiseAccountNumber', 'wiseSwift', 'wiseEmail']) assert.match(refund, new RegExp(`wiseField\\("${key}"`));
 });
+
+test('a VIP rate is the list price plus its own discount row, and the booking carries the VIP deposit and delivery quote', () => {
+  assert.match(html, /costs\.push\(\{label: en \? `\$\{cName\(c\)\} rental` : `ค่าเช่า \$\{cName\(c\)\}`, value: money\(s\.regularRental\)\}\);/);
+  assert.match(html, /if\(s\.vipRentalDisc\) costs\.push\(\{label: en \? "VIP rental rate discount" : "ส่วนลดราคาเช่า VIP"/);
+  assert.match(html, /"ยอดค่าเช่า": Math\.max\(0, Number\(summary\.regularRental\|\|0\)/);
+  assert.match(html, /vip: s\.vip \? \{id:s\.vip\.id, name:s\.vip\.name, rentalDiscount:s\.vipRentalDisc, depositDiscount:s\.vipDepositApplied, deposit:s\.vipDeposit\} : null,/);
+  assert.match(html, /deliveryQuote: demoDelivery\.status === "ready" && demoDelivery\.quote \? \{subtotal:/);
+  assert.match(html, /vipDeposit:terms\.vipDepositApplied \? deposit : 0,/);
+});

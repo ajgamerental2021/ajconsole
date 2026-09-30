@@ -5105,7 +5105,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const quote = demoDelivery.status === "ready" ? demoDelivery.quote : null;
     const row = (label, value, cls = "") => `<div class="demo-order-row ${cls}"><span>${esc(label)}</span><b>${value}</b></div>`;
     const charges = [
-      row(en ? "Rental" : "ค่าเช่า", money(summary.rental)),
+      // The list price, then the VIP rate as a discount: the rows add up.
+      row(en ? "Rental" : "ค่าเช่า", money(summary.regularRental)),
       ...(summary.addons ? [row(en ? "Accessories" : "อุปกรณ์เสริม", money(summary.addons))] : []),
       ...(summary.bgSubtotal ? [row(en ? "Board game rental" : "ค่าเช่าบอร์ดเกม", money(summary.bgSubtotal))] : [])
     ];
@@ -6057,7 +6058,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       {label:tr("startDate"), value:displayDate(state.calc.start)},
       {label:tr("endDate"), value:displayDate(state.calc.end)},
       {label:tr("rentalDays"), value:`${summary.days || 0} ${tr("day")}`},
-      {label:`${tr("rental")} ${cName(c)}`, value:money(summary.rental)},
+      {label:`${tr("rental")} ${cName(c)}`, value:money(summary.regularRental)},
       ...(summary.addons ? [{label:tr("accessories"), value:money(summary.addons)}] : []),
       ...(summary.extras?.length ? [{label:tr("accessories"), value:numberedSummaryList(summary.extras.map(x => state.lang==="en"?x.en:x.th)), html:true}] : []),
       ...(summary.bgSubtotal ? [{label:tr("boardGameRental"), value:money(summary.bgSubtotal)}] : []),
@@ -6066,6 +6067,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ...(hasGameCatalog && state.calc.later ? [{label:state.lang==="en"?"Game list":"รายชื่อเกม", value:tr("sendLater")}] : []),
       ...(summary.afterWorkDisc ? [{label:afterWorkPromotionLabel(summary.afterWorkPrice), value:`-${money(summary.afterWorkDisc)}`, cls:"discount"}] : []),
       ...(summary.promoDisc ? [{label:tr("consoleDiscount"), value:`-${money(summary.promoDisc)}`, cls:"discount"}] : []),
+      ...(summary.vipRentalDisc ? [{label:state.lang==="en" ? "VIP rental rate discount" : "ส่วนลดราคาเช่า VIP", value:`-${money(summary.vipRentalDisc)}`, cls:"discount"}] : []),
       ...(summary.reviewGoogleDisc ? [{label:tr("reviewGoogleDiscount"), value:`-${money(summary.reviewGoogleDisc)}`, cls:"discount"}] : []),
       ...(summary.reviewFacebookDisc ? [{label:tr("reviewFacebookDiscount"), value:`-${money(summary.reviewFacebookDisc)}`, cls:"discount"}] : []),
       ...(summary.retDisc ? [{label:tr("returningDiscount"), value:`-${money(summary.retDisc)}`, cls:"discount"}] : []),
@@ -6156,7 +6158,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       upfront = total;
       onDelivery = 0;
     }
-    return {days,rental,regularRental,vipRentalDisc,vip:terms.vip,vipDepositApplied:terms.vipDepositApplied,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,reviewGoogleDisc,reviewFacebookDisc,promoDisc,afterWorkDisc,afterWorkPrice,discounts:retDisc+reviewGoogleDisc+reviewFacebookDisc+promoDisc+afterWorkDisc+bgDisc+vipRentalDisc,deposit:depositTotal,delivery,totalBeforeDelivery,subtotalBeforePaymentFee,paymentFee,total,upfront,onDelivery,bundleName,extras,bgItems};
+    return {days,rental,regularRental,vipRentalDisc,vip:terms.vip,vipDepositApplied:terms.vipDepositApplied,vipDeposit:terms.vipDepositApplied ? deposit : 0,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,reviewGoogleDisc,reviewFacebookDisc,promoDisc,afterWorkDisc,afterWorkPrice,discounts:retDisc+reviewGoogleDisc+reviewFacebookDisc+promoDisc+afterWorkDisc+bgDisc+vipRentalDisc,deposit:depositTotal,delivery,totalBeforeDelivery,subtotalBeforePaymentFee,paymentFee,total,upfront,onDelivery,bundleName,extras,bgItems};
   }
   const MONTHLY_RATE = {500:8500, 400:6500, 350:5000, 300:4000};
   function monthlyRate(daily){ return MONTHLY_RATE[Number(daily) || 0] || 0; }
@@ -6967,7 +6969,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // The demo accepts the terms with its own checkbox; the version is the one in force.
     const acceptedTermsVersion = state.calc.rentalTermsVersion || (UNIFIED_FLOW_DEMO && demoProfile.termsAccepted ? RENTAL_TERMS_VERSION : "");
     const costs = [];
-    costs.push({label: en ? `${cName(c)} rental` : `ค่าเช่า ${cName(c)}`, value: money(s.rental)});
+    // The list price; a VIP rate follows as its own discount row, so the rows
+    // add up to what the customer pays (the contract and the shop read them).
+    costs.push({label: en ? `${cName(c)} rental` : `ค่าเช่า ${cName(c)}`, value: money(s.regularRental)});
     if(s.bundleName) costs.push({label:`Bundle ${s.bundleName}`, value: en ? "included" : "รวมในค่าเช่า"});
     if(s.addons) costs.push({label: en ? "Accessories" : "อุปกรณ์เสริม", value: money(s.addons)});
     if(s.bgSubtotal) costs.push({label: en ? "Board game rental" : "ค่าเช่าบอร์ดเกม", value: money(s.bgSubtotal)});
@@ -7019,7 +7023,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       onDelivery: money(s.onDelivery),
       paymentOption: state.calc.payment,
       paymentOptionLabel: en ? paymentOptionMessageLabelEn() : paymentOptionMessageLabelTh(),
-      vip: s.vip ? {id:s.vip.id, name:s.vip.name, rentalDiscount:s.vipRentalDisc, depositDiscount:s.vipDepositApplied} : null,
+      vip: s.vip ? {id:s.vip.id, name:s.vip.name, rentalDiscount:s.vipRentalDisc, depositDiscount:s.vipDepositApplied, deposit:s.vipDeposit} : null,
+      // The live quote behind the delivery fee: Lalamove's round trip, AJ's
+      // discount, and what the customer pays, for the shop's booking and card.
+      deliveryQuote: demoDelivery.status === "ready" && demoDelivery.quote ? {subtotal:Number(demoDelivery.quote.subtotal) || 0, discount:Number(demoDelivery.quote.discount) || 0, total:Number(demoDelivery.quote.total) || 0, serviceType:String(demoDelivery.quote.serviceType || "")} : null,
       paymentLink: generatedPaymentLink(s, code),
       paymentLinkLabel: paymentLinkLabel(),
       paymentBankAccount: CONFIG.reservationBankAccount,
@@ -7239,7 +7246,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           ...(hasGameCatalog ? (state.calc.games || []).map(g => g.name || g.title || g.id) : []),
           hasGameCatalog && state.calc.later ? (state.lang==="en" ? "Send game list later" : "แจ้งรายชื่อเกมภายหลัง") : ""
         ].filter(Boolean).join(" | "),
-        "ยอดค่าเช่า": Math.max(0, Number(summary.rental||0) + Number(summary.addons||0) + Number(summary.bgSubtotal||0) - Number(summary.discounts||0)),
+        "ยอดค่าเช่า": Math.max(0, Number(summary.regularRental||0) + Number(summary.addons||0) + Number(summary.bgSubtotal||0) - Number(summary.discounts||0)),
         "ค่าประกัน": summary.deposit,
         "ยอดรวมทั้งหมด": summary.total,
         "Google Maps": state.calc.maps || "",
@@ -7398,7 +7405,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ...(s.onDelivery > 0 ? [`🚚 Pay on delivery: ${money(s.onDelivery)}`] : [])
     ];
     const costLinesTh = [
-      `  - ค่าเช่า ${cName(c)}: ${money(s.rental)}`,
+      `  - ค่าเช่า ${cName(c)}: ${money(s.regularRental)}`,
       s.bundleName ? `  - Bundle ${s.bundleName}: รวมในค่าเช่า` : "",
       s.addons ? `  - อุปกรณ์เสริม: ${money(s.addons)}` : "",
       s.bgSubtotal ? `  - ค่าเช่าบอร์ดเกม: ${money(s.bgSubtotal)}` : "",
@@ -7407,12 +7414,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       s.reviewGoogleDisc ? `  - ส่วนลดรีวิว Google Maps: -${money(s.reviewGoogleDisc)}` : "",
       s.reviewFacebookDisc ? `  - ส่วนลดรีวิว Facebook: -${money(s.reviewFacebookDisc)}` : "",
       s.retDisc ? `  - ส่วนลดลูกค้าเก่า 10%: -${money(s.retDisc)}` : "",
+      s.vipRentalDisc ? `  - ส่วนลดราคาเช่า VIP: -${money(s.vipRentalDisc)}` : "",
       s.bgDisc ? `  - ส่วนลดบอร์ดเกม: -${money(s.bgDisc)}` : "",
       `  - ค่าประกัน ${cName(c)}: ${money(s.deposit)}${noContractSuffixTh}`,
       ...(state.calc.noContract ? [`  ✅ ลูกค้ารับทราบเงื่อนไขการเช่าแล้ว`, `  🔗 อ่านเงื่อนไขการเช่า: ${termsLink}`] : [])
     ].filter(Boolean);
     const costLinesEn = [
-      `  - ${cName(c)} rental: ${money(s.rental)}`,
+      `  - ${cName(c)} rental: ${money(s.regularRental)}`,
       s.bundleName ? `  - Bundle ${s.bundleName}: included in rental` : "",
       s.addons ? `  - Accessories: ${money(s.addons)}` : "",
       s.bgSubtotal ? `  - Board game rental: ${money(s.bgSubtotal)}` : "",
@@ -7421,6 +7429,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       s.reviewGoogleDisc ? `  - Google Maps review discount: -${money(s.reviewGoogleDisc)}` : "",
       s.reviewFacebookDisc ? `  - Facebook review discount: -${money(s.reviewFacebookDisc)}` : "",
       s.retDisc ? `  - Returning customer 10% discount: -${money(s.retDisc)}` : "",
+      s.vipRentalDisc ? `  - VIP rental rate discount: -${money(s.vipRentalDisc)}` : "",
       s.bgDisc ? `  - Board game discount: -${money(s.bgDisc)}` : "",
       `  - ${cName(c)} deposit: ${money(s.deposit)}${noContractSuffixEn}`,
       ...(state.calc.noContract ? [`  ✅ Customer has acknowledged the Rental Terms`, `  🔗 View Rental Terms: ${termsLink}`] : []),
