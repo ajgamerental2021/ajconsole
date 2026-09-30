@@ -81,3 +81,22 @@ test('Console Pending gets the live delivery fee once it is quoted', () => {
   assert.match(queue, /const fresh = bookingStructured\(rental\.code\) \|\| \{\};/);
   assert.match(queue, /consolePendingWrites = consolePendingWrites\n      \.then\(write\)/);
 });
+
+test('"Verify now" asks for everything step 3 does: photos, refund account (Wise in English), consent and signature', () => {
+  const body = extract('verifyNowBodyHtml');
+  assert.match(body, /demoIdentityUploadGridHtml\("verifyNow"\)/);
+  assert.match(body, /id="verifyNowAgreementHost"/);
+  // The step-3 card itself is lent to the pop-up and handed back when it closes.
+  assert.match(extract('openVerifyNowModal'), /lendAgreementCard\(\);/);
+  assert.match(extract('lendAgreementCard'), /host\.appendChild\(card\);/);
+  assert.match(extract('closeModal'), /returnAgreementCard\(\);/);
+  assert.match(extract('showModal'), /returnAgreementCard\(\);/);
+  // Nothing missing is sent: the same checks as step 3, plus both photos.
+  assert.match(extract('verifyNowProblems'), /demoStep3Problems\(\)\.filter\(problem => problem\.id !== "demoIdDocument"\)/);
+  const submit = extract('submitVerifyNow');
+  assert.ok(submit.indexOf('await submitDemoAgreement(token)') < submit.indexOf('await uploadDemoIdentity(token)'));
+  // The refund block offers Wise on English bookings, with its full details.
+  const refund = extract('demoRefundSectionHtml');
+  assert.match(refund, /I do not have a Thai bank account and would like to receive the security deposit refund through Wise/);
+  for (const key of ['wiseFullName', 'wiseCountry', 'wiseCurrency', 'wiseBankName', 'wiseAccountNumber', 'wiseSwift', 'wiseEmail']) assert.match(refund, new RegExp(`wiseField\\("${key}"`));
+});

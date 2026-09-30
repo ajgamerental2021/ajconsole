@@ -4220,29 +4220,76 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // Kept on this device, so a reload still shows the photos as sent.
     saveDemoProfile();
   }
-  // "Verify now" on the Rental ID page: the two photos in a pop-up, sent for
-  // the rental already prepared, without going back to step 3.
+  // "Verify now" on the Rental ID page, for a renter who chose "Verify later":
+  // everything step 3 asks for, in a pop-up — the two photos, the deposit
+  // refund account (a Thai bank, or on English bookings Wise with its full
+  // details), consent and the signature. The refund and signature part is the
+  // step-3 card itself, lent to the pop-up while it is open, so the two can
+  // never differ; it goes back to step 3 when the pop-up closes.
   let verifyNowBusy = false;
+  let agreementCardHome = null;
   function verifyNowBodyHtml(){
     const en = state.lang === "en";
-    const ready = !!demoProfile.idDocument && !!demoProfile.selfieWithId;
     return `<div class="verify-now">
-      <p class="hint">${en ? "Upload a clear image of your identity document and a selfie holding the same document. AJ reviews them before delivery." : "อัปโหลดรูปเอกสารที่อ่านได้ชัดเจน และรูปเซลฟี่คู่เอกสารใบเดียวกัน ร้านจะตรวจสอบก่อนจัดส่ง"}</p>
+      <p class="hint">${en ? "Upload a clear image of your identity document and a selfie holding the same document, then check the deposit refund account and sign. AJ reviews everything before delivery." : "อัปโหลดรูปเอกสารที่อ่านได้ชัดเจน และรูปเซลฟี่คู่เอกสารใบเดียวกัน แล้วตรวจบัญชีรับเงินค่าประกันคืนและเซ็นชื่อ ร้านจะตรวจสอบก่อนจัดส่ง"}</p>
       ${demoIdentityUploadGridHtml("verifyNow")}
-      <div class="my-rental-verify"><button class="btn primary" type="button" id="verifyNowSubmit" ${ready && !verifyNowBusy ? "" : "disabled"}>${verifyNowBusy ? (en ? "Sending…" : "กำลังส่ง…") : (en ? "Send identity photos" : "ส่งรูปยืนยันตัวตน")}</button></div>
+      <div class="card verify-now-agreement" id="verifyNowAgreementHost"></div>
+      <div class="my-rental-verify"><button class="btn primary" type="button" id="verifyNowSubmit" ${verifyNowBusy ? "disabled" : ""}>${verifyNowBusy ? (en ? "Sending…" : "กำลังส่ง…") : (en ? "Send identity verification" : "ส่งยืนยันตัวตน")}</button></div>
     </div>`;
+  }
+  // The step-3 card moves into the pop-up and back; its fields keep their ids,
+  // handlers and the signature already drawn.
+  function lendAgreementCard(){
+    const card = byId("demoAgreementCard");
+    const host = byId("verifyNowAgreementHost");
+    if(!card || !host) return;
+    if(!agreementCardHome){
+      agreementCardHome = document.createComment("demoAgreementCard");
+      card.parentNode.insertBefore(agreementCardHome, card);
+    }
+    host.appendChild(card);
+    card.classList.remove("card");
+    renderDemoAgreementCard();
+    demoAgreement.resize?.();
+  }
+  function returnAgreementCard(){
+    const card = byId("demoAgreementCard");
+    if(!card || !agreementCardHome?.parentNode) return;
+    card.classList.add("card");
+    agreementCardHome.parentNode.insertBefore(card, agreementCardHome);
+    agreementCardHome.remove();
+    agreementCardHome = null;
+    window.requestAnimationFrame(() => demoAgreement.resize?.());
   }
   function renderVerifyNowModal(){
     if(!byId("simpleModalBody")?.querySelector(".verify-now")) return;
+    returnAgreementCard();
     byId("simpleModalTitle").textContent = state.lang === "en" ? "Verify your identity" : "ยืนยันตัวตน";
     byId("simpleModalBody").innerHTML = verifyNowBodyHtml();
+    lendAgreementCard();
   }
   function openVerifyNowModal(){
     showModal(state.lang === "en" ? "Verify your identity" : "ยืนยันตัวตน", verifyNowBodyHtml(), {relocalize:renderVerifyNowModal});
+    lendAgreementCard();
+  }
+  // What is still missing in the pop-up, marked on the fields themselves.
+  function verifyNowProblems(){
+    const en = state.lang === "en";
+    const problems = demoStep3Problems().filter(problem => problem.id !== "demoIdDocument");
+    if(!demoProfile.idDocument || !demoProfile.selfieWithId){
+      problems.unshift({id: demoProfile.idDocument ? "verifyNowSelfieWithId" : "verifyNowIdDocument", message: en ? "Upload both photos." : "อัปโหลดรูปทั้ง 2 รูป"});
+    }
+    return problems;
   }
   async function submitVerifyNow(){
     const en = state.lang === "en";
-    if(!demoProfile.idDocument || !demoProfile.selfieWithId || verifyNowBusy) return;
+    if(verifyNowBusy) return;
+    const problems = verifyNowProblems();
+    if(problems.length){
+      showDemoStep3Problems(problems, ".verify-now");
+      toast(problems[0].message, 4000);
+      return;
+    }
     verifyNowBusy = true;
     renderVerifyNowModal();
     try{
@@ -4252,21 +4299,37 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         token = state.calc.demoContextToken = handoff.contextToken || "";
       }
       if(!token) throw new Error("identity_context_unavailable");
+      // The agreement is sent again with the refund account and signature as
+      // they stand now, then the photos; either one failing says which.
+      demoAgreement.submittedFor = "";
+      state.calc.demoAgreementFor = "";
+      try{
+        await submitDemoAgreement(token);
+      }catch(error){
+        verifyNowBusy = false;
+        renderVerifyNowModal();
+        const problem = demoAgreementProblem(error);
+        toast(problem.message, 5000);
+        return;
+      }
       await uploadDemoIdentity(token);
       demoProfile.identitySkipped = false;
       state.calc.demoIdentitySkipped = false;
       state.calc.demoIdentityStatus = demoIdentityStatus();
       saveDemoProfile();
       saveLocal();
+      verifyNowBusy = false;
       closeModal();
       render();
-      toast(en ? "Identity photos sent" : "ส่งรูปยืนยันตัวตนแล้ว");
+      toast(en ? "Identity verification sent" : "ส่งยืนยันตัวตนแล้ว");
     }catch(error){
       console.error("Verify now failed", error);
       toast(en ? "The photos could not be sent. Please try again." : "ส่งรูปไม่สำเร็จ กรุณาลองใหม่");
     }finally{
-      verifyNowBusy = false;
-      renderVerifyNowModal();
+      if(verifyNowBusy){
+        verifyNowBusy = false;
+        renderVerifyNowModal();
+      }
     }
   }
   // AJ's own example photos live with the contract service, next to the
@@ -4623,10 +4686,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
     return problems;
   }
-  function showDemoStep3Problems(){
-    const problems = demoStep3Problems();
-    document.querySelectorAll("#pane3 .field-error").forEach(node => node.remove());
-    document.querySelectorAll("#pane3 .is-invalid").forEach(node => node.classList.remove("is-invalid"));
+  function showDemoStep3Problems(problems = demoStep3Problems(), scope = "#pane3"){
+    document.querySelectorAll(`${scope} .field-error`).forEach(node => node.remove());
+    document.querySelectorAll(`${scope} .is-invalid`).forEach(node => node.classList.remove("is-invalid"));
     for(const problem of problems){
       const field = byId(problem.id);
       if(!field) continue;
@@ -9322,6 +9384,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
   // it then gets the language button in its header.
   let simpleModalRelocalize = null;
   function showModal(title, bodyHtml, {relocalize = null} = {}){
+    returnAgreementCard();
     byId("simpleModalTitle").textContent = title;
     byId("simpleModalBody").innerHTML = bodyHtml;
     simpleModalRelocalize = typeof relocalize === "function" ? relocalize : null;
@@ -9339,7 +9402,10 @@ We apologize for the inconvenience and hope everyone stays safe.`
     simpleModalRelocalize();
     refreshModalLangBtn();
   }
-  function closeModal(){ byId("simpleModal").classList.remove("open"); }
+  function closeModal(){
+    returnAgreementCard();
+    byId("simpleModal").classList.remove("open");
+  }
   function loadLineSdk(){
     if(window.liff) return Promise.resolve(window.liff);
     return new Promise((resolve,reject) => {
