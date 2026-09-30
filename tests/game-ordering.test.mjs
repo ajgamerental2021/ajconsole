@@ -47,5 +47,5 @@ test('not-ready games require a date in Thai and English', () => {
 });
 
 test('booking page cache-buster points clients to the new picker version', () => {
-  assert.match(booking, /gamePickerVersion: "20260929-3"/);
+  assert.match(booking, /gamePickerVersion: "20260930-1"/);
 });

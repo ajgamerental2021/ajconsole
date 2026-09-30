@@ -2385,6 +2385,14 @@
     }
     .pick-footer-actions .btn { flex: 1 1 0; min-width: 0; font-size: 13px; line-height: 1.25; padding: 10px 6px; text-align: center; justify-content: center; overflow: hidden; text-overflow: ellipsis; }
   }
+  /* A larger text size in LINE or Safari zooms the page, so a phone lays out
+     like a 260–340px screen and three buttons on one line cut their labels.
+     There they take two lines: the first two side by side, the last one
+     ("Use this list" / "Send games") the full width underneath. */
+  @media (max-width: 340px) {
+    .pick-footer-actions { flex-wrap: wrap; }
+    .pick-footer-actions .btn { flex: 1 1 calc(50% - 3px); white-space: normal; overflow: visible; }
+  }
 
   /* ─── Inline search below tabs ─── */
   .inline-search-bar {

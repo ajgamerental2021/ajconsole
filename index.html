@@ -1147,6 +1147,21 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
     body.unified-flow-demo .demo-upload-btn{flex:1 1 100%}
     body.unified-flow-demo .demo-contract-frame{height:78vh}
   }
+/* A phone with a larger text size in LINE or Safari zooms the whole page, so
+   an iPhone 15 lays out like a 260–330px screen. The picker window is laid
+   out for that width rather than squeezed: the title keeps its own row with
+   the close button, the three small buttons get a row of their own, the
+   warning wraps instead of being cut, and the consoles wrap onto lines rather
+   than scrolling under the "more" button. */
+@media (max-width: 360px){
+  .game-picker-head{grid-template-columns:minmax(0,1fr);row-gap:6px;padding:8px 10px}
+  .game-picker-head #gamePickerTitle{grid-column:1;grid-row:1;white-space:normal;overflow-wrap:anywhere;font-size:15px;padding-right:36px}
+  .game-picker-head .game-picker-actions{grid-column:1;grid-row:2;flex-wrap:wrap;gap:6px}
+  .game-picker-head .game-picker-actions .xbtn{position:absolute;top:6px;right:8px}
+  .game-picker-head .game-picker-attention{grid-column:1;grid-row:3;white-space:normal;overflow:visible;text-overflow:clip}
+  .game-picker-platforms.is-folded{flex-wrap:wrap;overflow-x:visible}
+  .game-picker-platforms.is-folded .game-picker-platform-more{position:static;box-shadow:none}
+}
 </style>
 </head>
 <body>
@@ -1618,7 +1633,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 
   const CONFIG = {
     version: "index2-clean-1",
-    gamePickerVersion: "20260929-3",
+    gamePickerVersion: "20260930-1",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",
