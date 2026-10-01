@@ -1,5 +1,14 @@
 # Project state
 
+## 2026-10-01 — VIP prices on every booking, not only website ones (Delivery App `4463b33`, Bot `82e7329`)
+
+- Booking 543 still showed ค่าประกัน ฿2,000: it was created before `a40a548`, and the booking form had no way to set a VIP deposit. The Edit/Add Booking form now has a "👑 สิทธิ์ VIP" section: ค่าประกัน VIP (blank = normal) and ส่วนลดราคาเช่า VIP, saved to the `VIP Deposit` / `VIP Rental Discount` columns, so the confirmation card and "คิวเช่าของฉัน" (TH/EN) follow. Summary shows ส่วนลดราคาเช่า VIP, ค่าประกัน (VIP), and the delivery discount (new field ส่วนลดค่าจัดส่ง).
+- Members are looked up automatically: Bot `GET /api/vip-entitlement?phone=&lineUserId=` (HMAC of `vip-entitlement|phone|line` with `AJ_RENTAL_WEBHOOK_SECRET`); Delivery App `vipService` prices it like the website (VIP rate per catalogue id / ps5 / *, never on a bundle; deposit by normal deposit for all or ticked devices; catalogue matched by model name from the gist). The extras offer carries `vip`; a new booking or a clone is filled automatically (re-priced as dates/device change, until the shop types); a saved booking gets a "ใช้ราคา VIP ของลูกค้า" button.
+- Console Pending: website requests keep the website's figures (what the customer paid); a request the website did not price (LINE chat, payment-only) looks the member up.
+- A VIP rate replaces the returning 10% (backend `bookingCharges` and form), as on the website; a VIP deposit alone keeps the 10%.
+- Not changed: extensions (เช่าต่อ) still use catalogue rates.
+- Verification: `test:vip-charges` 36/36, Delivery App backend/frontend `tsc` clean, console-pending/confirm/my-rental suites pass; Bot 460/460. Booking form not rendered in a browser here.
+
 ## 2026-09-30 — VIP deposit and rate on the card, My rental and email; every discount itemised; wireframe (website `25d0cb6`, Delivery App `a40a548`, Bot `fe65d0b`)
 
 - Root cause (booking 543, AJ-20260930-R0021): the Delivery App's Rental Fee and Deposit are sheet formulas from the catalogue, and nothing carried the VIP rate or VIP deposit (฿1,000) from the website, so the card and My rental showed catalogue prices. The website's costs also showed the VIP price as "ค่าเช่า" and then subtracted the VIP discount again (double-counted in the rows, total was right).
