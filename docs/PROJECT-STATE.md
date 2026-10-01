@@ -1,5 +1,14 @@
 # Project state
 
+## 2026-10-01 — Pay later without a button; queue pop-up on the link; shop preview (website `91e849f`, Bot `5975ea7`, Delivery App `54fd13b`)
+
+- The "ชำระภายหลัง / Pay later" button is removed. After "ยืนยันและไปหน้าชำระเงิน", once the live delivery price is in and the Console Pending row with it is written, the page asks the Bot to send the pay-later email (`maybeSendPayLaterEmail`, once per Rental ID — the Bot refuses a second automatic send even after a reload). The Bot's held copy of the rental now follows the page's re-upserts (`pricingFieldsOf`), so the email and the payment page carry the delivery fee. No email if the delivery price never loads (the customer cannot pay then either).
+- Under the pay button, once sent: "สามารถชำระเงินภายหลังได้ ทางร้านส่งอีเมลพร้อมรายละเอียดและลิงก์ชำระเงินให้แล้ว (email)" / "You can also pay later. AJ has emailed the details and a payment link to …".
+- Email, under the payment link: "เมื่อกดลิงก์ ระบบจะเช็คคิวว่างอีกครั้ง หากคิวเต็มแล้วจะมีข้อความแจ้งเตือน" / "When you open the link, the queue is checked again. If the dates are no longer available, you will see a notice."
+- Payment page (`?pay=`): the queue is checked as soon as it loads; taken dates → pop-up "คิวช่วงนี้ไม่ว่างแล้ว / These dates are no longer available" with "ติดต่อร้านทาง LINE", and the pay button is disabled. The same pop-up if the queue fills at the moment of paying (hold conflict).
+- Delivery App Console Pending: the 📧 button opens a preview (recipient, subject, total, pay-now per method, payment link, full email text, "sent before" warning) with ยกเลิก / Cancel and ยืนยันส่ง / Send (sends even if sent before). Bot signed `/api/integrations/delivery-app/pay-later-preview`.
+- Verification: Bot 478/478, website 194/194, Delivery App tsc; headless Chromium: queue full TH/EN → pop-up + disabled button; queue free → hold → link call → redirect. The Delivery App preview panel was not rendered in a browser.
+
 ## 2026-10-01 — Pay later: summary email + private payment page; payment status on the paid confirmation (website `b3e67ba`, Bot `3ce4131`, Delivery App `3835a02`)
 
 - Order page: "ชำระภายหลัง — ส่งลิงก์ชำระเงินทางอีเมล / Pay later — email me a payment link". It saves the rental exactly as the pay button does (agreement filed under the Rental ID, Console Pending upsert) but holds no queue and charges nothing, then `POST /api/rentals/pay-later {contextToken}`. The note "หลังยืนยันยอดชำระ Delivery App จะย้าย… / After payment is confirmed, Delivery App creates…" is removed.
