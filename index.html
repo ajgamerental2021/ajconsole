@@ -912,6 +912,11 @@ body.unified-flow-demo .demo-example-image{display:block;max-width:100%;width:au
 body.unified-flow-demo .demo-order-page{display:none;margin-top:18px}
 body.unified-flow-demo.demo-order-open .calc-shell{display:none}
 body.unified-flow-demo.demo-order-open .demo-order-page{display:block}
+#payResumeSection{display:none;padding:18px 0 40px}
+body.pay-resume-open #payResumeSection{display:block}
+body.pay-resume-open main > section:not(#payResumeSection){display:none!important}
+.pay-resume-title{margin:0 0 14px;font-size:22px}
+body.unified-flow-demo .demo-pay-later-btn{width:100%;margin-top:10px;min-height:48px;font-weight:800}
 body.unified-flow-demo .demo-order-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
 body.unified-flow-demo .demo-order-section{margin-bottom:16px;padding:0}
 /* The demo pays from the Rental ID page; the old chat booking message is not offered. */
@@ -1181,6 +1186,12 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 </nav>
 
 <main>
+  <section id="payResumeSection" aria-labelledby="payResumeTitle">
+    <div class="container">
+      <h2 class="pay-resume-title" id="payResumeTitle">ทำรายการชำระเงินต่อ</h2>
+      <div class="pay-resume" id="payResume"></div>
+    </div>
+  </section>
   <section class="before-rent-section" id="beforeRentSection">
     <div class="container">
       <div class="before-rent-panel">
@@ -3321,6 +3332,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(byId("allConsolesModal")?.classList.contains("open")) renderAllConsolesModal();
     updateFloatButton();
     renderGuide();
+    if(payResume.active) renderPayResume();
   }
   function hasRentalContext(){
     const query = new URLSearchParams(location.search);
@@ -5202,8 +5214,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <div>
         <section class="demo-order-section"><h3>${en ? "Identity verification" : "การยืนยันตัวตน"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Status":"สถานะ"}</span><b class="demo-status ${identityTone}">${esc(identityState)}</b></div>${verifyNow?`<div class="demo-order-action"><button class="btn" id="demoVerifyLater" type="button">${en?"Verify now":"ยืนยันตอนนี้"}</button></div>`:""}</div></section>
         <section class="demo-order-section"><h3>${en ? "Payment" : "การชำระเงิน"}</h3>${demoPaymentBreakdownHtml(summary)}</section>
-        <section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${demoPaymentOptionsHtml()}<div class="demo-payment-launch"><button class="btn primary demo-pay-btn" id="demoBeamPay" type="button" ${deliveryReady ? "" : "disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${payLabel}</span></button>${UNIFIED_FLOW_TEST_CHARGE ? `<p class="hint">${en?"This demo charges ฿1. The payment is still recorded against this Rental ID and follows the existing webhook flow.":"หน้าทดสอบเรียกเก็บ 1 บาท และยังบันทึกผลกับ Rental ID นี้ผ่าน webhook เดิม"}</p>` : ""}</div></section>
-        <p class="hint">${en?"After payment is confirmed, Delivery App creates the Booking from Console Pending. Link LINE on the success page to receive the confirmed-booking Flex card; WhatsApp customers can send the success-page screenshot to AJ.":"หลังยืนยันยอดชำระ Delivery App จะย้ายรายการจาก Console Pending เข้า Booking และส่ง Flex ยืนยันการจองเรียบร้อยแล้วไปยัง LINE ที่เชื่อมไว้"}</p>
+        <section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${demoPaymentOptionsHtml()}<div class="demo-payment-launch"><button class="btn primary demo-pay-btn" id="demoBeamPay" type="button" ${deliveryReady ? "" : "disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${payLabel}</span></button><button class="btn demo-pay-later-btn" id="demoPayLater" type="button" ${deliveryReady ? "" : "disabled"}>${en ? "Pay later — email me a payment link" : "ชำระภายหลัง — ส่งลิงก์ชำระเงินทางอีเมล"}</button>${UNIFIED_FLOW_TEST_CHARGE ? `<p class="hint">${en?"This demo charges ฿1. The payment is still recorded against this Rental ID and follows the existing webhook flow.":"หน้าทดสอบเรียกเก็บ 1 บาท และยังบันทึกผลกับ Rental ID นี้ผ่าน webhook เดิม"}</p>` : ""}</div></section>
       </div>
     </div>`;
   }
@@ -5726,15 +5737,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   ];
   // One payment picker for the booking page and the demo's Rental ID page, so
   // the logos, fees and refund notes can never drift apart.
-  function paymentPickerHtml({disabled = "", wiseStatus = null} = {}){
+  // The booking page's picker; the pay-later page passes its own selection,
+  // the amounts the server worked out, and inputs of its own (no Wise there).
+  function paymentPickerHtml({disabled = "", wiseStatus = null, selected = state.calc.payment, amountHtml = paymentOptionAmountHtml, choiceAttr = "data-payment-choice", inputName = "paymentChoice", allowWise = state.lang === "en", deliveryReady = demoDelivery.status === "ready"} = {}){
     const en = state.lang === "en";
     const status = wiseStatus || (en ? wisePaymentAvailability() : {available:true, reason:"", iso:bangkokNow().iso});
     const wiseDisabled = disabled || !status.available ? "disabled" : "";
     const option = (value, copy, extraClass = "", optionDisabled = disabled) =>
-      `<label class="payment-option ${extraClass}"><input type="radio" name="paymentChoice" data-payment-choice="${value}" ${state.calc.payment === value ? "checked" : ""} ${optionDisabled}>${copy}${paymentOptionAmountHtml(value)}</label>`;
+      `<label class="payment-option ${extraClass}"><input type="radio" name="${inputName}" ${choiceAttr}="${value}" ${selected === value ? "checked" : ""} ${optionDisabled}>${copy}${amountHtml(value)}</label>`;
     const fullPayment = [
       option("bank", `<span class="payment-option-copy"><span>${en ? "🏦 Thai Bank Transfer: pay full amount" : "🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน"}</span></span>`),
-      ...(en ? [option("wise", wiseOptionHtml(status), status.available ? "" : "is-disabled", wiseDisabled)] : []),
+      ...(en && allowWise ? [option("wise", wiseOptionHtml(status), status.available ? "" : "is-disabled", wiseDisabled)] : []),
       option("credit", creditOptionHtml()),
       option("ewallet", ewalletOptionHtml())
     ].join("");
@@ -5747,10 +5760,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const recommended = en ? "Recommended" : "แนะนำ";
     // One group is open at a time so the list reads as a short choice. The
     // group holding the current selection opens; reservation leads by default.
-    const fullSelected = ["bank", "wise", "credit", "ewallet"].includes(state.calc.payment);
+    const fullSelected = ["bank", "wise", "credit", "ewallet"].includes(selected);
     // Drawn chevron: points down when the group is open, right when closed (CSS).
     const caret = () => `<span class="payment-group-caret" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
-    const deliveryNote = demoDelivery.status === "ready" ? "" : `<p class="payment-picker-note">${en ? "Amounts below do not yet include delivery." : "ยอดด้านล่างยังไม่รวมค่าจัดส่ง"}</p>`;
+    const deliveryNote = deliveryReady ? "" : `<p class="payment-picker-note">${en ? "Amounts below do not yet include delivery." : "ยอดด้านล่างยังไม่รวมค่าจัดส่ง"}</p>`;
     return `<div class="payment-picker">
       ${deliveryNote}
       <div class="payment-group ${fullSelected ? "is-collapsed" : ""}">
@@ -5865,9 +5878,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const active = Number.isFinite(expiresAt) && expiresAt > Date.now();
     return key && active && state.calc.beamPaymentKey === key ? (state.calc.beamPaymentLink || "") : "";
   }
-  function selectedBundleHoldDevice(){
-    if(Number(state.calc.consoleId) !== SPEC.PS5 || !state.calc.bundleId) return null;
-    const bundle = state.bundles.find(item => String(item.id) === String(state.calc.bundleId));
+  // The rental the queue is checked for: the one being booked, or one passed
+  // in — the pay-later page checks a rental saved earlier the same way.
+  function calcRentalContext(){
+    return {consoleId:state.calc.consoleId, start:state.calc.start, end:state.calc.end, bundleId:state.calc.bundleId};
+  }
+  function selectedBundleHoldDevice(ctx = calcRentalContext()){
+    if(Number(ctx.consoleId) !== SPEC.PS5 || !ctx.bundleId) return null;
+    const bundle = state.bundles.find(item => String(item.id) === String(ctx.bundleId));
     if(!bundle) return null;
     const identity = norm([bundle.id, bundle.th, bundle.en].join(" "));
     const targetName = identity.includes("portal") ? "PS Portal"
@@ -5878,21 +5896,21 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return state.consoles.find(item => availabilityAliases(item).has(norm(targetName)))
       || {name:targetName, nameEn:targetName};
   }
-  function bookingHoldDevicePayload(){
-    const primary = consoleById(state.calc.consoleId);
+  function bookingHoldDevicePayload(ctx = calcRentalContext()){
+    const primary = consoleById(ctx.consoleId);
     if(!primary) return [];
-    const devices = [primary, selectedBundleHoldDevice()].filter(Boolean);
+    const devices = [primary, selectedBundleHoldDevice(ctx)].filter(Boolean);
     return devices.map(device => {
       const aliases = availabilityAliases(device);
       const capacity = Math.max(1, state.availability.rows.filter(row => aliases.has(norm(row.deviceName))).length);
       return {deviceName:cName(device), capacity};
     });
   }
-  async function acquireBookingHold(rentalCode){
-    const c = consoleById(state.calc.consoleId);
-    const start = parseDate(state.calc.start), end = parseDate(state.calc.end);
+  async function acquireBookingHold(rentalCode, ctx = calcRentalContext()){
+    const c = consoleById(ctx.consoleId);
+    const start = parseDate(ctx.start), end = parseDate(ctx.end);
     if(!c || !start || !end) throw new Error("booking_hold_invalid");
-    const devices = bookingHoldDevicePayload();
+    const devices = bookingHoldDevicePayload(ctx);
     const response = await bookingFetch(`${CONFIG.apiBase}/api/booking-holds`, {
       method:"POST",
       cache:"no-store",
@@ -5937,20 +5955,20 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       console.warn("Booking hold release skipped", error);
     }
   }
-  async function ensureBookingHold(rentalCode){
-    const initialGate = evaluateAvailability();
+  async function ensureBookingHold(rentalCode, ctx = calcRentalContext()){
+    const initialGate = evaluateAvailability(ctx);
     if(!initialGate.pass){
       const error = new Error(initialGate.message || "booking_hold_conflict");
       error.code = "booking_hold_conflict";
       throw error;
     }
-    const hold = await acquireBookingHold(rentalCode);
+    const hold = await acquireBookingHold(rentalCode, ctx);
     const refreshed = await fetchAvailability();
     if(!refreshed?.fresh){
       await releaseBookingHold(rentalCode);
       throw new Error("booking_availability_refresh_failed");
     }
-    const freshGate = evaluateAvailability();
+    const freshGate = evaluateAvailability(ctx);
     if(!freshGate.pass){
       await releaseBookingHold(rentalCode);
       const error = new Error(freshGate.message || "booking_hold_conflict");
@@ -6317,8 +6335,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function availableUnitsForRange(matches, start, end){
     return matches.filter(row => rowAvailableForRange(row, start, end)).length;
   }
-  function selectedBundleAvailabilityGate(start, end){
-    const device = selectedBundleHoldDevice();
+  function selectedBundleAvailabilityGate(start, end, ctx = calcRentalContext()){
+    const device = selectedBundleHoldDevice(ctx);
     if(!device) return {pass:true};
     if(isQueueClosed(device, start, end)) return {pass:false, message:tr("queueClosed")};
     const aliases = availabilityAliases(device);
@@ -6345,15 +6363,15 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(row.availableDate && start < row.availableDate) return false;
     return !(row.bookingRanges || []).some(range => range.startDate && range.returnDate && start < range.returnDate && end > range.startDate);
   }
-  function evaluateAvailability(){
-    const c = consoleById(state.calc.consoleId);
-    const start = parseDate(state.calc.start), end = parseDate(state.calc.end);
+  function evaluateAvailability(ctx = calcRentalContext()){
+    const c = consoleById(ctx.consoleId);
+    const start = parseDate(ctx.start), end = parseDate(ctx.end);
     if(!c || !start || !end) return {mode:"idle",pass:true};
     if(isQueueClosed(c, start, end)) return {mode:"closed",pass:false,message:tr("queueClosed")};
     if(!startDateAllowed(start)) return {mode:"cutoff",pass:false,message:tr("cutoffStartNotice")};
     if(diffDays(start,end) < 3) return {mode:"min",pass:false,message:tr("minDays")};
     if(!state.availability.rows.length) return {mode:"fallback",pass:true,message:""};
-    const bundleGate = selectedBundleAvailabilityGate(start, end);
+    const bundleGate = selectedBundleAvailabilityGate(start, end, ctx);
     if(!bundleGate.pass) return {mode:bundleGate.holds?.length ? "hold" : "busy",pass:false,message:bundleGate.message};
     const aliases = availabilityAliases(c);
     const matches = state.availability.rows.filter(row => aliases.has(norm(row.deviceName)));
@@ -7005,6 +7023,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       identityVerificationStatus: UNIFIED_FLOW_DEMO ? demoIdentityStatus() : "",
       customerDataSource: UNIFIED_FLOW_DEMO ? "unified-flow-demo" : "",
       deviceName: cName(c),
+      // The catalogue ids and ISO dates, so the pay-later page can check the
+      // queue for this rental the way the booking page does.
+      consoleId: String(c.id || ""),
+      bundleId: String(state.calc.bundleId || ""),
+      startIso: String(state.calc.start || ""),
+      endIso: String(state.calc.end || ""),
       category,
       startDate: displayDate(state.calc.start),
       endDate: displayDate(state.calc.end),
@@ -8172,6 +8196,252 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       hideDemoBusy();
       console.error("Demo Beam payment failed", error);
       toast(state.lang === "en" ? "Unable to open the payment page. Please try again." : "เปิดหน้าชำระเงินไม่สำเร็จ กรุณาลองใหม่");
+    }
+  }
+  // "Pay later": the rental is saved as on the way to payment (agreement,
+  // Console Pending), and the Bot emails the summary with a private link back
+  // to a payment page for this rental. Nothing is charged and no queue is held.
+  async function requestDemoPayLater(){
+    const en = state.lang === "en";
+    const email = String(demoProfile.email || "").trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){
+      toast(en ? "Add your email in step 2 first — the payment link is sent there." : "กรุณากรอกอีเมลในขั้นตอนที่ 2 ก่อน ระบบจะส่งลิงก์ชำระเงินไปที่อีเมลนี้");
+      openDemoEditModal(2);
+      return;
+    }
+    showDemoBusy(en ? "Sending your payment link…" : "กำลังส่งลิงก์ชำระเงิน…");
+    try{
+      if(demoDelivery.status !== "ready" || !demoDelivery.quote){
+        await fetchDemoDeliveryQuote();
+        if(demoDelivery.status !== "ready" || !demoDelivery.quote){
+          hideDemoBusy();
+          toast(en ? "The live delivery price is not ready. Please calculate it again first." : "ยังไม่ได้ราคาค่าส่งจริง กรุณาคำนวณค่าส่งอีกครั้งก่อน");
+          return;
+        }
+      }
+      const summary = calcSummary();
+      const code = await ensureRentalCode(summary);
+      const handoff = await prepareContractHandoff(code, "web");
+      if(!handoff.contextToken) throw new Error("booking_context_unavailable");
+      state.calc.demoContextToken = handoff.contextToken;
+      // The signed agreement is filed under this Rental ID now, so it becomes
+      // the contract when the rental is paid from the link.
+      if(demoAgreementNeeded() && state.calc.demoAgreementFor !== code){
+        if(!demoAgreement.signature){
+          hideDemoBusy();
+          state.calc.demoOrderOpen = false;
+          saveLocal();
+          render();
+          goCalcStep(3, {scrollTabs:true});
+          toast(en ? "Your rental changed. Please sign the agreement again." : "รายการเช่ามีการเปลี่ยนแปลง กรุณาเซ็นสัญญาอีกครั้ง");
+          return;
+        }
+        try{
+          await submitDemoAgreement(handoff.contextToken);
+        }catch(error){
+          hideDemoBusy();
+          showDemoAgreementProblem(error);
+          return;
+        }
+      }
+      consolePendingRental = {code, handoff, channel:"demo-payment"};
+      await queueConsolePendingUpsert();
+      const response = await bookingFetch(`${CONFIG.apiBase}/api/rentals/pay-later`, {
+        method:"POST",
+        cache:"no-store",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({contextToken:handoff.contextToken})
+      }, 30000);
+      const result = await response.json().catch(() => ({}));
+      hideDemoBusy();
+      if(!response.ok || !result.sent){
+        const reason = result.error || "";
+        toast(reason === "already_paid"
+          ? (en ? "This rental is already paid." : "รายการนี้ชำระเงินแล้ว")
+          : reason === "no_email"
+          ? (en ? "AJ has no email for this rental. Please check step 2." : "ไม่พบอีเมลของรายการนี้ กรุณาตรวจสอบขั้นตอนที่ 2")
+          : (en ? "The email could not be sent. Please try again, or pay now." : "ส่งอีเมลไม่สำเร็จ กรุณาลองใหม่ หรือชำระเงินตอนนี้"), 5000);
+        return;
+      }
+      showModal(en ? "Payment link sent" : "ส่งลิงก์ชำระเงินแล้ว", `<div class="paid-notice">
+        <p><b>${esc(en ? `Rental ${code} is saved.` : `บันทึกรายการเช่า ${code} แล้ว`)}</b></p>
+        <p>${esc(en ? `The summary and a link to pay have been sent to ${email}. Open it whenever you are ready to pay.` : `ส่งสรุปรายการและลิงก์สำหรับชำระเงินไปที่ ${email} แล้ว กดลิงก์ในอีเมลเพื่อกลับมาชำระเงินได้ตลอด`)}</p>
+        <p class="hint">${esc(en ? "Your rental is confirmed once payment is complete, subject to the queue being free then." : "การเช่าจะยืนยันเมื่อชำระเงินเรียบร้อย โดยขึ้นกับคิวว่างในตอนนั้น")}</p>
+      </div>`);
+    }catch(error){
+      hideDemoBusy();
+      console.error("Pay later failed", error);
+      toast(en ? "Could not save the rental for later. Please try again." : "บันทึกรายการเพื่อชำระภายหลังไม่สำเร็จ กรุณาลองใหม่");
+    }
+  }
+
+  // The private payment page (`?pay=<Rental ID>&t=<token>`, from the pay-later
+  // email): the rental as it was quoted, read from the Bot, and the same
+  // payment choices as the booking page. The Bot works out what each choice
+  // costs and makes the payment link; the queue is checked here first, the same
+  // way as before any payment.
+  const payResume = {active:false, code:"", token:"", loading:false, error:"", rental:null, method:"cash"};
+  const PAY_RESUME_TOKEN_KEY = "aj_pay_resume_v1";
+  function openPayResume(code, token){
+    Object.assign(payResume, {active:true, code, token, loading:true, error:"", rental:null});
+    document.body.classList.add("pay-resume-open");
+    try{ sessionStorage.setItem(PAY_RESUME_TOKEN_KEY, JSON.stringify({code, token})); }catch{}
+    renderPayResume();
+    window.scrollTo(0, 0);
+    fetch(`${CONFIG.apiBase}/api/rentals/payment-page`, {
+      method:"POST",
+      cache:"no-store",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({rentalCode:code, token})
+    }).then(async response => {
+      const result = await response.json().catch(() => ({}));
+      if(!response.ok || !result.rental) throw new Error(result.error || "unavailable");
+      payResume.rental = result.rental;
+      const chosen = String(result.rental.paymentOption || "");
+      payResume.method = result.rental.plan?.methods?.[chosen] ? chosen : "cash";
+    }).catch(error => {
+      payResume.error = error.message === "link_invalid" || error.message === "rental_not_found" ? "link_invalid" : "unavailable";
+    }).finally(() => {
+      payResume.loading = false;
+      renderPayResume();
+    });
+  }
+  function payResumeContext(rental){
+    const wanted = norm(rental.deviceName);
+    const item = consoleById(rental.consoleId) || state.consoles.find(c => [c.name, c.nameEn, cName(c)].some(name => norm(name) === wanted));
+    const iso = (isoValue, shown) => {
+      if(/^\d{4}-\d{2}-\d{2}$/.test(String(isoValue || ""))) return isoValue;
+      const m = String(shown || "").match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      return m ? `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}` : "";
+    };
+    return {item, ctx:{consoleId:item ? String(item.id) : "", start:iso(rental.startIso, rental.startDate), end:iso(rental.endIso, rental.endDate), bundleId:String(rental.bundleId || "")}};
+  }
+  function payResumeAmountHtml(method){
+    const amounts = payResume.rental?.plan?.methods?.[method];
+    if(!amounts) return "";
+    const en = state.lang === "en";
+    const line = (label, value) => `<span class="payment-amount-line"><span>${esc(label)}</span><b>${money(value)}</b></span>`;
+    return `<span class="payment-option-amounts">
+      ${line(en ? "Pay now" : "ชำระตอนนี้", amounts.payNow)}
+      ${method === "cash" ? line(en ? "Pay on delivery" : "ชำระปลายทาง", amounts.onDelivery) : ""}
+      ${amounts.fee ? `<small>${esc(en ? `Includes ${money(amounts.fee)} fee` : `รวมค่าธรรมเนียม ${money(amounts.fee)} แล้ว`)}</small>` : ""}
+    </span>`;
+  }
+  function payResumeHtml(){
+    const en = state.lang === "en";
+    if(payResume.loading) return `<p class="hint">${esc(en ? "Loading your rental…" : "กำลังโหลดรายการเช่า…")}</p>`;
+    if(payResume.error || !payResume.rental){
+      return `<div class="demo-order-box"><p><b>${esc(payResume.error === "link_invalid"
+        ? (en ? "This payment link no longer opens a rental." : "ลิงก์ชำระเงินนี้ใช้ไม่ได้แล้ว")
+        : (en ? "The rental could not be loaded right now. Please try again." : "ตอนนี้โหลดรายการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"))}</b></p><p class="hint">${esc(en ? "Please contact AJ on LINE @ajgame." : "กรุณาติดต่อร้านทาง LINE @ajgame")}</p></div>`;
+    }
+    const r = payResume.rental;
+    const {item} = payResumeContext(r);
+    const row = (label, value, cls = "") => `<div class="demo-order-row ${cls}"><span>${esc(label)}</span><b>${value}</b></div>`;
+    const statusRow = (label, text, tone) => `<div class="demo-order-row"><span>${esc(label)}</span><b class="demo-status ${tone}">${esc(text)}</b></div>`;
+    const image = item ? getConsoleImage(item) : "";
+    const isDelivery = c => /ค่าจัดส่ง|delivery/i.test(c.label);
+    const isFee = c => /payment fee|ค่าธรรมเนียม/i.test(c.label);
+    const isDeposit = c => /ค่าประกัน|deposit/i.test(c.label);
+    const rentalRow = r.costs.find(c => !isDelivery(c) && !isFee(c) && !isDeposit(c) && !c.discount);
+    const details = [
+      ...r.extras.map(extra => `${tr("accessories")}: ${extra}`),
+      ...r.games.map((game, index) => `${en ? "Game" : "เกม"} ${index + 1}: ${game}`),
+      ...(r.later && !r.games.length ? [en ? "Game list: sent later" : "รายชื่อเกม: แจ้งภายหลัง"] : [])
+    ];
+    const quote = r.deliveryQuote && r.deliveryQuote.subtotal > 0 ? r.deliveryQuote : null;
+    const deliveryRow = r.costs.find(isDelivery);
+    const charges = r.costs.filter(c => !isDelivery(c) && !isFee(c) && !isDeposit(c) && !c.discount).map(c => row(c.label, esc(c.value)));
+    const discounts = r.costs.filter(c => c.discount).map(c => row(c.label, esc(c.value), "is-discount"));
+    const deposits = r.costs.filter(isDeposit).map(c => row(en ? "Security deposit (refunded)" : "ค่าประกัน (คืนเมื่อคืนเครื่อง)", esc(c.value), "is-deposit"));
+    const deliveryRows = quote
+      ? [row(en ? "Round-trip delivery" : "ค่าจัดส่งไป-กลับ", money(quote.subtotal)),
+         row(en ? "Vehicle" : "ประเภทรถ", esc(quote.serviceType === "CAR" ? (en ? "Car" : "รถยนต์") : (en ? "Motorcycle" : "มอเตอร์ไซค์")), "is-muted"),
+         ...(quote.discount ? [row(en ? "AJ delivery promotion" : "ส่วนลดค่าจัดส่งจากร้าน", `-${money(quote.discount)}`, "is-discount")] : []),
+         row(en ? "Delivery you pay" : "ค่าจัดส่งที่ต้องชำระ", money(quote.total))]
+      : deliveryRow ? [row(en ? "Round-trip delivery" : "ค่าจัดส่งไป-กลับ", esc(deliveryRow.value))] : [];
+    const identity = r.noContract
+      ? (en ? "Not provided — higher deposit applies" : "ไม่ยืนยันตัวตน — ใช้ค่าประกันสูงขึ้น")
+      : r.identity === "complete"
+      ? (en ? "Identity verification complete" : "ยืนยันตัวตนเรียบร้อยแล้ว")
+      : (en ? "Incomplete — verify later" : "ยังไม่สำเร็จ — ยืนยันภายหลัง");
+    const identityLabel = r.identityType === "passport" ? (en ? "Passport number" : "เลข Passport") : (en ? "Thai ID number" : "เลขบัตรประชาชน");
+    const paidRows = r.paid
+      ? [row(en ? "Payment status" : "สถานะการชำระเงิน", esc(r.payment.kind === "reservation" ? (en ? "Paid (reservation)" : "ชำระเงินแล้ว (ยอดจอง)") : (en ? "Paid (full amount)" : "ชำระเงินแล้ว (ยอดเต็ม)")), "is-ok"),
+         ...(r.payment.amount ? [row(en ? "Amount paid" : "ยอดที่ชำระ", money(r.payment.amount))] : []),
+         ...(r.payment.balance ? [row(en ? "Balance due" : "ยอดคงเหลือ", money(r.payment.balance))] : [])]
+      : [];
+    const canPay = !r.paid && Object.keys(r.plan?.methods || {}).length > 0;
+    return `<div class="demo-order-grid">
+      <div>
+        <section class="demo-order-section"><h3>${en ? "Rental item" : "สินค้าที่เช่า"}</h3><div class="demo-order-box demo-item-box">
+          <div class="demo-item-head">
+            ${image ? `<img class="demo-item-thumb" src="${esc(image)}" alt="${esc(r.deviceName)}">` : `<span class="demo-item-thumb demo-item-thumb-icon">${esc(item?.icon || "🎮")}</span>`}
+            <div><b>${esc(item ? cName(item) : r.deviceName)}</b><div class="hint">${r.days} ${en ? "days" : "วัน"}${rentalRow ? ` · ${esc(rentalRow.value)}` : ""}</div></div>
+          </div>
+          ${details.length ? `<ul class="demo-item-details">${details.map(line => `<li>${esc(line)}</li>`).join("")}</ul>` : ""}
+        </div></section>
+        <section class="demo-order-section"><h3>${en ? "Details" : "รายละเอียด"}</h3><div class="demo-order-box">${row(en ? "Rental ID" : "รหัสการเช่า", esc(r.rentalCode))}${statusRow(en ? "Rental status" : "สถานะการเช่า", r.paid ? (en ? "Paid" : "ชำระเงินแล้ว") : (en ? "Awaiting payment" : "รอชำระเงิน"), r.paid ? "ok" : "is-awaiting")}</div></section>
+        <section class="demo-order-section"><h3>${en ? "Customer" : "ข้อมูลลูกค้า"}</h3><div class="demo-order-box">
+          ${row(en ? "Name" : "ชื่อ", esc(r.customerName || "-"))}
+          ${r.noContract ? "" : row(identityLabel, esc(r.identityLast4 ? `${"•".repeat(8)}${r.identityLast4}` : (en ? "On file with AJ" : "มีอยู่กับร้านแล้ว")))}
+          ${row(en ? "Phone" : "เบอร์ติดต่อ", esc(r.phone || "-"))}
+          ${row(en ? "Delivery" : "ที่อยู่จัดส่ง", esc(r.deliveryAddress || (en ? "Google Maps pin only" : "ใช้หมุด Google Maps")))}
+          ${r.maps ? row("Google Maps", `<a href="${esc(safeHref(r.maps))}" target="_blank" rel="noopener">${en ? "Open map" : "เปิดแผนที่"}</a>`) : ""}
+        </div></section>
+        <section class="demo-order-section"><h3>${en ? "Rental period" : "ช่วงเวลา"}</h3><div class="demo-order-box">${row(en ? "Duration" : "ระยะเวลา", `${r.days} ${en ? "days" : "วัน"}`)}${row(en ? "Dates" : "วันที่เช่า", `${esc(r.startDate)} – ${esc(r.endDate)}`)}</div></section>
+      </div>
+      <div>
+        <section class="demo-order-section"><h3>${en ? "Identity verification" : "การยืนยันตัวตน"}</h3><div class="demo-order-box">${statusRow(en ? "Status" : "สถานะ", identity, r.identity === "complete" || r.noContract ? "ok" : "is-missing")}</div></section>
+        <section class="demo-order-section"><h3>${en ? "Payment" : "การชำระเงิน"}</h3><div class="demo-order-box demo-total-box">
+          <div class="demo-total-group">${charges.join("")}</div>
+          ${discounts.length ? `<div class="demo-total-group">${discounts.join("")}</div>` : ""}
+          ${deposits.length ? `<div class="demo-total-group">${deposits.join("")}</div>` : ""}
+          ${deliveryRows.length ? `<div class="demo-total-group">${deliveryRows.join("")}</div>` : ""}
+          <div class="demo-total-group demo-total-final">${row(en ? "Total including delivery" : "ยอดรวมทั้งหมด (รวมค่าจัดส่ง)", money(r.plan?.base || 0), "is-grand")}</div>
+          ${paidRows.length ? `<div class="demo-total-group">${paidRows.join("")}</div>` : ""}
+        </div></section>
+        ${canPay ? `<section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${paymentPickerHtml({selected:payResume.method, amountHtml:payResumeAmountHtml, choiceAttr:"data-pay-resume-choice", inputName:"payResumeChoice", allowWise:false, deliveryReady:true})}<div class="demo-payment-launch"><button class="btn primary demo-pay-btn" id="payResumePay" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${en ? "Pay now" : "ชำระเงิน"}</span></button></div></section>`
+          : r.paid ? `<p class="hint">${esc(en ? "This rental has been paid. Thank you." : "รายการนี้ชำระเงินเรียบร้อยแล้ว ขอบคุณที่ใช้บริการ")}</p>` : ""}
+      </div>
+    </div>`;
+  }
+  function renderPayResume(){
+    const host = byId("payResume");
+    if(!host || !payResume.active) return;
+    byId("payResumeTitle").textContent = state.lang === "en" ? "Continue to payment" : "ทำรายการชำระเงินต่อ";
+    host.innerHTML = payResumeHtml();
+  }
+  async function launchPayResume(){
+    const en = state.lang === "en";
+    const r = payResume.rental;
+    if(!r || r.paid) return;
+    showDemoBusy(en ? "Checking the queue and opening the payment page…" : "กำลังตรวจคิวและเปิดหน้าชำระเงิน…");
+    try{
+      // The queue may have filled since the rental was saved.
+      const {ctx} = payResumeContext(r);
+      if(ctx.consoleId && ctx.start && ctx.end){
+        if(!state.availability.rows.length) await fetchAvailability().catch(() => null);
+        await ensureBookingHold(r.rentalCode, ctx);
+      }
+      const response = await bookingFetch(`${CONFIG.apiBase}/api/rentals/payment-page/link`, {
+        method:"POST",
+        cache:"no-store",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({token:payResume.token, method:payResume.method})
+      }, 30000);
+      const result = await response.json().catch(() => ({}));
+      if(!response.ok || !result.url) throw Object.assign(new Error(result.error || "payment_unavailable"), {code:result.error || ""});
+      location.href = result.url;
+    }catch(error){
+      hideDemoBusy();
+      console.error("Pay-later payment failed", error);
+      if(error?.code === "booking_hold_conflict"){
+        toast(`${error.message} ${en ? "Please contact AJ on LINE @ajgame to choose new dates." : "กรุณาติดต่อร้านทาง LINE @ajgame เพื่อเลือกวันใหม่"}`, 7000);
+        return;
+      }
+      if(error?.code === "already_paid"){ openPayResume(payResume.code, payResume.token); return; }
+      toast(en ? "Unable to open the payment page. Please try again." : "เปิดหน้าชำระเงินไม่สำเร็จ กรุณาลองใหม่");
     }
   }
   async function notifyDemoLine(){
@@ -11442,6 +11712,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
         saveLocal();
         render();
       }
+      if(event.target.dataset.payResumeChoice){
+        payResume.method = event.target.dataset.payResumeChoice;
+        renderPayResume();
+        return;
+      }
       if(event.target.dataset.paymentChoice){
         if(paymentSelectionLocked()){
           toast("Payment option is locked after opening the rental contract.");
@@ -11693,6 +11968,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "demoEditCancel" || targetId === "demoEditClose"){ closeDemoEditModal(false); return; }
       if(event.target.closest("[data-delivery-quote-retry]")){ await fetchDemoDeliveryQuote(); return; }
       if(targetId === "demoBeamPay"){ await launchDemoBeamPayment(); return; }
+      if(targetId === "demoPayLater"){ await requestDemoPayLater(); return; }
+      if(targetId === "payResumePay"){ await launchPayResume(); return; }
       if(targetId === "demoNotifyLine"){ await notifyDemoLine(); return; }
       if(targetId === "demoNotifyWhatsApp"){ notifyDemoWhatsApp(); return; }
       if(targetId === "demoVerifyLater"){ openVerifyNowModal(); return; }
@@ -12117,10 +12394,25 @@ We apologize for the inconvenience and hope everyone stays safe.`
     exposeCompatibility();
     void loadRentalTermsVersion();
     const paidRentalNotice = UNIFIED_FLOW_DEMO ? takePaidRentalReturn() : null;
+    // The pay-later email's link. The token is kept for this tab and taken out
+    // of the address bar, like the My rental link.
+    const payParams = new URLSearchParams(location.search);
+    let payLink = null;
+    if(payParams.has("pay")){
+      const code = String(payParams.get("pay") || "").trim().toUpperCase();
+      let token = String(payParams.get("t") || "").trim();
+      if(!token){ try{ const saved = JSON.parse(sessionStorage.getItem(PAY_RESUME_TOKEN_KEY) || "null"); if(saved?.code === code) token = saved.token; }catch{} }
+      if(RENTAL_CODE_PATTERN.test(code) && token){
+        payLink = {code, token};
+        state.beforeRentActive = false;
+        try{ const url = new URL(location.href); url.searchParams.delete("t"); history.replaceState(null, "", url.pathname + url.search + url.hash); }catch{}
+      }
+    }
     bindEvents();
     // Shown first on every visit, above whatever pop-up the link opens.
     void loadSiteAnnouncement().then(applySiteAnnouncement);
     if(paidRentalNotice) window.setTimeout(() => showPaidRentalNotice(paidRentalNotice), 300);
+    if(payLink) openPayResume(payLink.code, payLink.token);
     bindBeforeRentSectionAnalytics();
     trackAnalytics("page_view");
     render();

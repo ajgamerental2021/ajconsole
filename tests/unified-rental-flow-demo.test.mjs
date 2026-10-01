@@ -206,7 +206,7 @@ test('the payment breakdown separates charges, discounts, delivery and totals', 
 });
 
 test('the demo and the booking page share one payment picker', () => {
-  assert.match(html, /function paymentPickerHtml\(\{disabled = "", wiseStatus = null\} = \{\}\)/);
+  assert.match(html, /function paymentPickerHtml\(\{disabled = "", wiseStatus = null, selected = state\.calc\.payment, amountHtml = paymentOptionAmountHtml,/);
   assert.match(html, /function demoPaymentOptionsHtml\(\)\{\n\s*return paymentPickerHtml\(\);/);
   assert.doesNotMatch(html, /via Beam \(test charge/);
   assert.match(html, /payment-wise-logo/);
@@ -338,7 +338,7 @@ test('delivery is part of the total, the card fee covers it, and each option sho
   assert.match(html, /ชำระตอนรับเครื่อง/);
   assert.match(html, /Pay on delivery/);
   // The amounts sit in their own column beside the option's description.
-  assert.ok(html.includes('${copy}${paymentOptionAmountHtml(value)}</label>'));
+  assert.ok(html.includes('${copy}${amountHtml(value)}</label>'));
   // The Beam base amount is the same figure the fee was taken from.
   assert.match(html, /baseAmount: Number\(summary\.subtotalBeforePaymentFee\) \|\| 0/);
 });
