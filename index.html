@@ -2330,9 +2330,67 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function diffDays(start, end){ const s=parseDate(start), e=parseDate(end); return s&&e ? Math.round((e-s)/86400000) : null; }
   function displayDate(value){ const d=parseDate(value); return d ? `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}` : "-"; }
   // The day's last order time (Bangkok): after it, a rental starts tomorrow at
-  // the earliest. One setting, read everywhere the cutoff is used or shown, so
-  // it can later be set from Admin; fixed at 18:00 for now.
-  let rentalCutoffTime = "18:00";
+  // the earliest. One setting, read everywhere the cutoff is used or shown. Set
+  // from Admin → ปิดคิว and kept on the Bot (site content "booking-settings");
+  // 18:00 until that has loaded, or when it was never set.
+  const RENTAL_CUTOFF_DEFAULT = "18:00";
+  const RENTAL_CUTOFF_CACHE_KEY = "aj_rental_cutoff_v1";
+  const validCutoffTime = value => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(value || "").trim());
+  let rentalCutoffTime = (() => {
+    try{ const saved = localStorage.getItem(RENTAL_CUTOFF_CACHE_KEY); return validCutoffTime(saved) ? saved : RENTAL_CUTOFF_DEFAULT; }catch{ return RENTAL_CUTOFF_DEFAULT; }
+  })();
+  function applyRentalCutoffTime(value){
+    const next = validCutoffTime(value) ? String(value).trim() : RENTAL_CUTOFF_DEFAULT;
+    try{ localStorage.setItem(RENTAL_CUTOFF_CACHE_KEY, next); }catch{}
+    const changed = next !== rentalCutoffTime;
+    rentalCutoffTime = next;
+    return changed;
+  }
+  async function loadBookingSettings(){
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/site-content/booking-settings?_ts=${Date.now()}`, {cache:"no-store"});
+      if(!response.ok) return;
+      const result = await response.json().catch(() => null);
+      if(applyRentalCutoffTime(result?.content?.rentalCutoffTime)) render();
+    }catch(error){
+      console.warn("Booking settings unavailable", error);
+    }
+  }
+  async function saveRentalCutoffFromAdmin(){
+    const en = state.lang === "en";
+    const input = byId("rentalCutoffInput");
+    const status = byId("rentalCutoffStatus");
+    const value = String(input?.value || "").trim();
+    if(!validCutoffTime(value)){ if(status) status.textContent = en ? "Enter a time such as 18:00." : "กรอกเวลา เช่น 18:00"; return; }
+    if(status) status.textContent = en ? "Saving…" : "กำลังบันทึก…";
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/admin/site-content/booking-settings`, {
+        method:"PUT",
+        headers:{"Content-Type":"application/json",Authorization:`Bearer ${state.adminToken}`},
+        body:JSON.stringify({content:{rentalCutoffTime:value}})
+      });
+      if(response.status === 401) throw new Error("unauthorized");
+      if(!response.ok) throw new Error(`HTTP ${response.status}`);
+      applyRentalCutoffTime(value);
+      render();
+      renderAdmin();
+      toast(en ? `Same-day cutoff saved: ${value}` : `บันทึกเวลาตัดรอบแล้ว: ${value} น.`);
+    }catch(error){
+      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
+      else if(status) status.textContent = error.message;
+    }
+  }
+  function adminRentalCutoffHtml(){
+    const en = state.lang === "en";
+    return `<div class="card" style="margin-bottom:14px"><h3>${en ? "Same-day cutoff" : "เวลาตัดรอบเช่าวันเดียวกัน"}</h3>
+      <p class="hint">${en ? "After this time (Bangkok), today can no longer be chosen in the calendar; rentals start tomorrow at the earliest. Applies to every visitor once saved." : "หลังเวลานี้ (เวลาไทย) จะเลือกวันนี้ในปฏิทินไม่ได้ เริ่มเช่าได้วันถัดไปเป็นต้นไป บันทึกแล้วมีผลกับลูกค้าทุกคน"}</p>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px">
+        <input class="input" type="time" id="rentalCutoffInput" value="${esc(rentalCutoffTime)}" step="300" style="max-width:160px">
+        <button class="btn primary" type="button" id="saveRentalCutoff">${en ? "Save cutoff time" : "บันทึกเวลาตัดรอบ"}</button>
+        <span class="hint" id="rentalCutoffStatus">${esc(en ? `In use now: ${rentalCutoffTime}` : `ใช้อยู่ตอนนี้: ${rentalCutoffTime} น.`)}</span>
+      </div>
+    </div>`;
+  }
   function rentalCutoffMinutes(){
     const m = String(rentalCutoffTime || "").match(/^(\d{1,2}):(\d{2})$/);
     return m ? Number(m[1]) * 60 + Number(m[2]) : 18 * 60;
@@ -10604,7 +10662,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       <div class="admin-tabs">
         ${["queue","announcement","rentals","vip","pickup","about","privacy","terms","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
       </div>
-      <div class="admin-panel ${state.adminTab==="queue"?"active":""}" id="adminQueue">${adminQueueHtml()}</div>
+      <div class="admin-panel ${state.adminTab==="queue"?"active":""}" id="adminQueue">${adminRentalCutoffHtml()}${adminQueueHtml()}</div>
       <div class="admin-panel ${state.adminTab==="announcement"?"active":""}" id="adminAnnouncement">${adminAnnouncementHtml()}</div>
       <div class="admin-panel ${state.adminTab==="rentals"?"active":""}" id="adminRentals">${adminRentalsHtml()}</div>
       <div class="admin-panel ${state.adminTab==="vip"?"active":""}" id="adminVip">${adminVipHtml()}</div>
@@ -11941,6 +11999,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "demoSignatureClear"){ clearDemoSignature(); return; }
       if(targetId === "siteAnnouncementOk"){ closeSiteAnnouncement(); return; }
       if(targetId === "saveAnnouncement"){ void saveAnnouncementFromAdmin(); return; }
+      if(targetId === "saveRentalCutoff"){ void saveRentalCutoffFromAdmin(); return; }
       if(targetId === "adminRentalFind"){ void findAdminRental(); return; }
       if(targetId === "myRentalCopyUrl"){ void copySectionUrl("myRental"); return; }
       const rememberedPick = event.target.closest("[data-my-rental-code]");
@@ -12413,6 +12472,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     bindEvents();
     // Shown first on every visit, above whatever pop-up the link opens.
     void loadSiteAnnouncement().then(applySiteAnnouncement);
+    void loadBookingSettings();
     if(paidRentalNotice) window.setTimeout(() => showPaidRentalNotice(paidRentalNotice), 300);
     if(payLink) openPayResume(payLink.code, payLink.token);
     bindBeforeRentSectionAnalytics();

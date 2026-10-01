@@ -74,7 +74,12 @@ test('no floating "เช็คคิว & คำนวณค่าเช่า"
 });
 
 test('same-day rentals close at 18:00, from one setting, in both languages', () => {
-  assert.match(html, /let rentalCutoffTime = "18:00";/);
+  assert.match(html, /const RENTAL_CUTOFF_DEFAULT = "18:00";/);
+  assert.match(html, /\/api\/site-content\/booking-settings/);
+  assert.match(html, /\/api\/admin\/site-content\/booking-settings/);
+  assert.match(html, /body:JSON\.stringify\(\{content:\{rentalCutoffTime:value\}\}\)/);
+  assert.match(html, /id="adminQueue">\$\{adminRentalCutoffHtml\(\)\}/);
+  assert.match(html, /void loadBookingSettings\(\);/);
   assert.match(html, /current\.hour \* 60 \+ current\.minute >= rentalCutoffMinutes\(\)/);
   assert.doesNotMatch(html, />= 20 \* 60/);
   assert.match(html, /cutoffStartNotice:"หลัง \{time\} น\. เริ่มเช่าได้วันถัดไป"/);
