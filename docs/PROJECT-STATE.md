@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-10-01 — Pay-later email waits 15 minutes, sheet-backed (Bot `eb184f9`, website `cc9ed38`)
+
+- `/api/rentals/pay-later` (called by the order page after step 3 + live delivery price) now queues instead of sending: a row in the new sheet tab **Pay Later Emails** (Rental ID, Email, Language, Created At, Due At, Status, Sent At, Attempts, Note), due 15 minutes later. The Bot works the queue every minute (`pay-later-queue.js`) and reads pending rows back at start-up, so restarts/deploys lose nothing.
+- At the due time it sends only if still unpaid: skipped when paid (server memory or the stored record — Beam, LINE slip), when the request is cancelled, or with no email. Statuses: sent / skipped_paid / skipped_cancelled / skipped_no_email / failed (3 tries, 5 min apart; the shop can still send from Console Pending). "Confirmed" in the request sheet is not a skip — it only means the contract was finished.
+- Note under the pay button: before sending "หากยังไม่สะดวกชำระตอนนี้ ร้านจะส่งอีเมลพร้อมรายละเอียดและลิงก์ชำระเงินให้ภายใน 15 นาที (email)" / "Not ready to pay now? AJ will email you the details and a payment link within 15 minutes"; if it was already sent, the "ส่งให้แล้ว / has emailed" wording.
+- The Delivery App's preview → send stays immediate (and the queued one then counts as already sent).
+- Bot 484/484 (`pay-later-queue.test.js`: not before 15 min, once, paid → skipped, restart reload, retries), website 194/194.
+
 ## 2026-10-01 — Pay later without a button; queue pop-up on the link; shop preview (website `91e849f`, Bot `5975ea7`, Delivery App `54fd13b`)
 
 - The "ชำระภายหลัง / Pay later" button is removed. After "ยืนยันและไปหน้าชำระเงิน", once the live delivery price is in and the Console Pending row with it is written, the page asks the Bot to send the pay-later email (`maybeSendPayLaterEmail`, once per Rental ID — the Bot refuses a second automatic send even after a reload). The Bot's held copy of the rental now follows the page's re-upserts (`pricingFieldsOf`), so the email and the payment page carry the delivery fee. No email if the delivery price never loads (the customer cannot pay then either).
