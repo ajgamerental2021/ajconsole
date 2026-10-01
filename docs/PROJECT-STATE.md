@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-10-01 — Quick quote: no identity verification (Bot `8779cde`)
+
+- Tick box "ไม่ยืนยันตัวตน / No identity verification" (shown once a device is chosen): the deposit becomes ฿15,000 when the normal deposit is ฿4,000 or more (bundles included), else ฿10,000 — the website's unified-flow `noContractDeposit`. The hint shows "ค่าประกันเพิ่มเป็น ฿X (ปกติ ฿Y)"; the summary line reads "ค่าประกัน ไม่ยืนยันตัวตน". The old greyed no-ID row is gone.
+- Bot tests green; headless TH/EN: PS5 ฿2,000 → ฿10,000, PS5+G29 ฿4,000 → ฿15,000, untick restores.
+
 ## 2026-10-01 — Quick quote: After Work, accessories, PS5 bundles, current location (Bot `d3f4773`, `0b8228a`, `992df84`)
 
 - After Work 3 Nights: for 3 days on a device whose rate has a promo price (300→777, 350→888, 400→999, 500→1,299), a tick box "เริ่มเช่าวันจันทร์หรืออังคาร / Starts on a Monday or Tuesday" applies it as its own discount line. Not on a bundle rate.
