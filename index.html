@@ -8201,18 +8201,25 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
   }
   // The pay-later email: once the renter confirms step 3 and the order page has
-  // its live delivery price, the Bot emails the summary with a private link
-  // back to a payment page for this rental, so they can pay now or come back
-  // any time. Sent once per Rental ID, after the Console Pending row with the
-  // final figures is written (the Bot's copy of the rental follows that row).
-  const payLaterEmail = {code:"", to:"", sending:false};
+  // its live delivery price, the Bot queues the summary with a private link
+  // back to a payment page for this rental. It goes 15 minutes later, and only
+  // if the rental is still unpaid then — a renter who pays now gets the
+  // confirmation alone. Queued once per Rental ID, after the Console Pending
+  // row with the final figures is written (the Bot's copy follows that row).
+  const payLaterEmail = {code:"", to:"", sent:false, sending:false};
   function demoPayLaterNoteHtml(){
     const code = state.calc.rentalCode;
     if(!code || payLaterEmail.code !== code) return "";
     const en = state.lang === "en";
-    return `<p class="demo-pay-later-note" role="status">${esc(en
-      ? `You can also pay later. AJ has emailed the details and a payment link${payLaterEmail.to ? ` to ${payLaterEmail.to}` : ""}.`
-      : `สามารถชำระเงินภายหลังได้ ทางร้านส่งอีเมลพร้อมรายละเอียดและลิงก์ชำระเงินให้แล้ว${payLaterEmail.to ? ` (${payLaterEmail.to})` : ""}`)}</p>`;
+    const to = payLaterEmail.to;
+    const text = payLaterEmail.sent
+      ? (en
+        ? `You can also pay later. AJ has emailed the details and a payment link${to ? ` to ${to}` : ""}.`
+        : `สามารถชำระเงินภายหลังได้ ทางร้านส่งอีเมลพร้อมรายละเอียดและลิงก์ชำระเงินให้แล้ว${to ? ` (${to})` : ""}`)
+      : (en
+        ? `Not ready to pay now? AJ will email you the details and a payment link within 15 minutes${to ? ` (${to})` : ""}.`
+        : `หากยังไม่สะดวกชำระตอนนี้ ร้านจะส่งอีเมลพร้อมรายละเอียดและลิงก์ชำระเงินให้ภายใน 15 นาที${to ? ` (${to})` : ""}`);
+    return `<p class="demo-pay-later-note" role="status">${esc(text)}</p>`;
   }
   function maybeSendPayLaterEmail(){
     const code = state.calc.rentalCode;
@@ -8231,8 +8238,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       }, 30000))
       .then(async response => {
         const result = await response.json().catch(() => ({}));
-        if(response.ok && result.sent && state.calc.rentalCode === code){
-          Object.assign(payLaterEmail, {code, to:String(demoProfile.email || "").trim()});
+        if(response.ok && (result.scheduled || result.sent) && state.calc.rentalCode === code){
+          Object.assign(payLaterEmail, {code, to:String(demoProfile.email || "").trim(), sent:Boolean(result.sent)});
           renderDemoOrderPage();
         }else if(!response.ok){
           console.warn("Pay-later email not sent", result.error || response.status);

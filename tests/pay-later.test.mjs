@@ -22,8 +22,11 @@ test('no extra button: the pay-later email goes out after step 3 is confirmed', 
   assert.match(html, /void queueConsolePendingUpsert\(\);\n\s*maybeSendPayLaterEmail\(\);/);
 });
 
-test('under the pay button: you can pay later, the email has been sent (TH/EN)', () => {
+test('under the pay button: the email comes in 15 minutes, or has been sent (TH/EN)', () => {
   assert.match(html, /\$\{demoPayLaterNoteHtml\(\)\}/);
+  assert.match(html, /หากยังไม่สะดวกชำระตอนนี้ ร้านจะส่งอีเมลพร้อมรายละเอียดและลิงก์ชำระเงินให้ภายใน 15 นาที/);
+  assert.match(html, /Not ready to pay now\? AJ will email you the details and a payment link within 15 minutes/);
+  assert.match(html, /result\.scheduled \|\| result\.sent/);
   assert.match(html, /สามารถชำระเงินภายหลังได้ ทางร้านส่งอีเมลพร้อมรายละเอียดและลิงก์ชำระเงินให้แล้ว/);
   assert.match(html, /You can also pay later\. AJ has emailed the details and a payment link/);
 });
