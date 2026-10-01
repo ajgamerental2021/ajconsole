@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-10-01 — Quick quote: After Work, accessories, PS5 bundles, current location (Bot `d3f4773`, `0b8228a`, `992df84`)
+
+- After Work 3 Nights: for 3 days on a device whose rate has a promo price (300→777, 350→888, 400→999, 500→1,299), a tick box "เริ่มเช่าวันจันทร์หรืออังคาร / Starts on a Monday or Tuesday" applies it as its own discount line. Not on a bundle rate.
+- Accessories as on the booking site (`extrasForConsole`): Switch extras built in (side extras after "extra controllers" on Switch 2), catalogue `rentalAccessories` by device, the dock as a flat charge per rental. PS5 `rentalBundles` replace rate/weekly/deposit; a G29 bundle asks Lalamove for a car; add-ons count as a second item for delivery.
+- "📍 ใช้ตำแหน่งปัจจุบัน / Use my current location" fills the map link from the phone and prices the delivery at once.
+- Returning 10% / review discounts: not added — recommended as plain tick boxes without verification, awaiting the owner.
+- Bot 491/491; headless TH/EN: PS5+G29 7 days ฿4,000 + deposit ฿4,000 + car; Switch 2 extras; Viture dock ฿200 flat; location → quote.
+
 ## 2026-10-01 — Quick quote: private rough-price page (Bot `65485a5`)
 
 - `https://aj-line-oa-bot.onrender.com/quick-quote/q7Hk2mVx9Rt4Wp` (unlisted; `QUICK_QUOTE_KEY` on Render replaces the key; wrong key → 404; noindex). Not linked from the website or the Delivery App.
