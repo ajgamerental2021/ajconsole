@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-10-01 — Same-day cutoff editable in Admin (website `387bdd5`)
+
+- Admin → ปิดคิว now starts with "เวลาตัดรอบเช่าวันเดียวกัน / Same-day cutoff": a time field + save. Stored on the Bot as site content `booking-settings` = `{"rentalCutoffTime":"HH:MM"}` (generic `/api/admin/site-content/:key`, no Bot change), read on every visit (`loadBookingSettings`) and cached in localStorage (`aj_rental_cutoff_v1`) for the next visit. Default 18:00 when never set. The calendar, the queue gate and the notice "หลัง HH:MM น. เริ่มเช่าได้วันถัดไป / After HH:MM, choose tomorrow or later." follow it.
+- Website 197/197; headless: a saved 10:30 is loaded and applied.
+
 ## 2026-10-01 — Payment page faster and fuller; floating button gone; cutoff 18:00; clickable contacts in emails (website `897397c`, Bot `98a58e4`, Bot `1d438af`)
 
 - Slow "กำลังโหลดรายการเช่า…": `/api/rentals/payment-page` and `/payment-page/link` read Console Pending directly and wait at most 1.5 s for the Apps Script history mirror (`rentalForPayment(code, { forPage: true })` → `fetchBookingForPage`). A cold Render start can still add time.
