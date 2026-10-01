@@ -1,5 +1,14 @@
 # Project state
 
+## 2026-10-01 — Payment page faster and fuller; floating button gone; cutoff 18:00; clickable contacts in emails (website `897397c`, Bot `98a58e4`, Bot `1d438af`)
+
+- Slow "กำลังโหลดรายการเช่า…": `/api/rentals/payment-page` and `/payment-page/link` read Console Pending directly and wait at most 1.5 s for the Apps Script history mirror (`rentalForPayment(code, { forPage: true })` → `fetchBookingForPage`). A cold Render start can still add time.
+- Payment page "สินค้าที่เช่า" lists the device's own detail lines (2 controllers, cables, game count…) from the catalogue, then accessories/games, as the order page does.
+- The floating "เช็คคิว & คำนวณค่าเช่า" button (bottom right on scroll) is removed (`updateFloatButton` is a no-op).
+- Same-day cutoff: one setting `rentalCutoffTime` (website) = "18:00" (was 20:00), used by `rentalCutoffPassed` and the notice "หลัง 18:00 น. เริ่มเช่าได้วันถัดไป / After 18:00, choose tomorrow or later." Not yet editable from Admin — the next step is a site-content key read into that variable.
+- Emails (Bot `1d438af`): 081-624-4715 → tel:+66816244715, LINE @ajgame → https://lin.ee/5GGXU1T, contact@ → mailto:, in the confirmation / pay-later / identity-update emails and the My rental change email.
+- Bot 487/487, website 197/197; headless: payment page item lines TH/EN, no float button.
+
 ## 2026-10-01 — Pay-later email waits 15 minutes, sheet-backed (Bot `eb184f9`, website `cc9ed38`)
 
 - `/api/rentals/pay-later` (called by the order page after step 3 + live delivery price) now queues instead of sending: a row in the new sheet tab **Pay Later Emails** (Rental ID, Email, Language, Created At, Due At, Status, Sent At, Attempts, Note), due 15 minutes later. The Bot works the queue every minute (`pay-later-queue.js`) and reads pending rows back at start-up, so restarts/deploys lose nothing.
