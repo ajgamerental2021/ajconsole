@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-10-01 — Quick quote: private rough-price page (Bot `65485a5`)
+
+- `https://aj-line-oa-bot.onrender.com/quick-quote/q7Hk2mVx9Rt4Wp` (unlisted; `QUICK_QUOTE_KEY` on Render replaces the key; wrong key → 404; noindex). Not linked from the website or the Delivery App.
+- Choose a device (website catalogue from the gist, same defaults as `normalizeConsole`), days (3/7/14/30 chips, 3-day minimum) and a Google Maps link → rental (monthly/weekly/daily, as `rentalCost`), deposit, no-ID deposit (฿10,000/15,000, shown greyed), Lalamove round trip via `/api/delivery/quote` (fare, AJ discount, pay; car for G29), total. No queue check, promotions, discounts or accessories. TH/EN switch, "copy the quote" text for chat.
+- Bot 489/489; headless TH/EN: PS5 7 days ฿2,500 weekly, 30 days ฿6,500 monthly, <3 days blocked, delivery rows.
+
 ## 2026-10-01 — Same-day cutoff editable in Admin (website `387bdd5`)
 
 - Admin → ปิดคิว now starts with "เวลาตัดรอบเช่าวันเดียวกัน / Same-day cutoff": a time field + save. Stored on the Bot as site content `booking-settings` = `{"rentalCutoffTime":"HH:MM"}` (generic `/api/admin/site-content/:key`, no Bot change), read on every visit (`loadBookingSettings`) and cached in localStorage (`aj_rental_cutoff_v1`) for the next visit. Default 18:00 when never set. The calendar, the queue gate and the notice "หลัง HH:MM น. เริ่มเช่าได้วันถัดไป / After HH:MM, choose tomorrow or later." follow it.
