@@ -609,8 +609,6 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .home-card p{color:#eee;font-size:13px;margin-top:5px}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);opacity:0;background:#111;color:#fff;padding:12px 16px;border-radius:999px;z-index:1000;transition:.22s;font-weight:800}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.float-calc{position:fixed;right:16px;bottom:16px;z-index:180;display:none}
-.float-calc.show{display:inline-flex}
 .picker-card{position:relative;background:#fff;width:min(1180px,100%);height:min(92vh,900px);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow2)}
 .picker-frame{flex:1;border:0;background:#fff}
 .game-picker-platform-rail{position:relative;flex:0 0 auto;background:#fff;border-bottom:1px solid #eef0f2}
@@ -1411,7 +1409,6 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   </div>
 </footer>
 
-<button class="btn primary float-calc" id="floatCalc" type="button" data-i18n="calcCta">เช็คคิว & คำนวณค่าเช่า</button>
 
 <div class="calendar-modal" id="calendarModal">
   <div class="modal-card">
@@ -2051,7 +2048,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       boardGameCollapsed:"ต้องการเพิ่มบอร์ดเกม? กดเพื่อขยายและเลือกเข้าชุดเช่า", ps5BundleCollapsed:"ต้องการ Bundle? กดเพื่อจับคู่ PS5 กับอุปกรณ์อื่น",
       boardGameBundle:"Bundle บอร์ดเกม", chooseBoardGame:"-- เลือกบอร์ดเกม --", addBoardGame:"เพิ่มบอร์ดเกม", boardGames:"บอร์ดเกม", selectedDates:"วันที่เลือก", confirmRange:"ตกลง", selectReturnDate:"เลือกวันคืนเครื่อง", remove:"ลบ",
       boardGameBundleHelp:"เพิ่มบอร์ดเกมเข้าชุดเช่า — ราคาเรท 3 วัน + เพิ่มตามจำนวนวันตามแพ็กของแต่ละเกม", boardGameImageHint:"💡 คลิกที่รูปเพื่อดูรายละเอียดของบอร์ดเกมนั้นๆ", viewDetails:"ดูรายละเอียด",
-      calTitle:"📅 ปฏิทินเช็คคิวเครื่อง", calClear:"ล้างวันที่ที่เลือก", calStartSub:"เลือกแล้ว", calEndSub:"เลือกแล้ว", calAvailable:"ว่าง", calUnavailable:"ไม่ว่าง", calPartial:"เช่าได้สั้นกว่า", calDisabled:"ผ่านมาแล้ว / เลือกไม่ได้", calMinDisabled:"เลือกไม่ได้ ขั้นต่ำ 3 วัน", calStartDay:"เริ่มเช่า", calRangeDay:"ช่วงเช่า", calEndDay:"คืนเครื่อง", cutoffStartCell:"เลยเวลา เริ่มพรุ่งนี้", cutoffStartNotice:"หลัง 20:00 เริ่มเช่าได้วันถัดไป", afterWorkPromoCell:"โปร 3 วัน {price}", afterWorkPromoDiscount:"โปรโมชั่น After Work 3 Nights",
+      calTitle:"📅 ปฏิทินเช็คคิวเครื่อง", calClear:"ล้างวันที่ที่เลือก", calStartSub:"เลือกแล้ว", calEndSub:"เลือกแล้ว", calAvailable:"ว่าง", calUnavailable:"ไม่ว่าง", calPartial:"เช่าได้สั้นกว่า", calDisabled:"ผ่านมาแล้ว / เลือกไม่ได้", calMinDisabled:"เลือกไม่ได้ ขั้นต่ำ 3 วัน", calStartDay:"เริ่มเช่า", calRangeDay:"ช่วงเช่า", calEndDay:"คืนเครื่อง", cutoffStartCell:"เลยเวลา เริ่มพรุ่งนี้", cutoffStartNotice:"หลัง {time} น. เริ่มเช่าได้วันถัดไป", afterWorkPromoCell:"โปร 3 วัน {price}", afterWorkPromoDiscount:"โปรโมชั่น After Work 3 Nights",
       guideTitle:"ขั้นตอนถัดไป", guideConsole:"เลือกเครื่องเกม", guideStart:"เลือกวันที่เริ่มเช่า", guideEnd:"เลือกวันคืนเครื่อง", guideAccessory:"เลือกอุปกรณ์เสริม ถ้าไม่ต้องการให้ข้ามได้เลย", guidePs5Bundle:"เลือก Bundle ของ PS5 ถ้าต้องการ", guideNextStep:"กดไปขั้นตอนถัดไป", guideBg:"เลือก Bundle บอร์ดเกม ถ้าต้องการเพิ่ม", guideRet:"เคยเช่ากับทางร้านไหม?", guideContractChoice:"ต้องการทำสัญญาการเช่าหรือไม่?", guideContractLink:"กดลิงก์ทำสัญญาการเช่า หรือเลือกทำทีหลัง", guidePayment:"เลือกช่องทางชำระเงิน", guideMaps:"วางลิงก์ Google Maps สำหรับเช็คค่าจัดส่ง", guideGames:"เลือกเกมจากรายการ หรือเลือกแจ้งภายหลัง", guideShare:"เช็ครายละเอียดการเช่าทางด้านบน แล้วกดจองผ่านช่องทางที่สะดวก", guideCopy:"คัดลอกข้อความจองเช่า", guideLine:"จองผ่าน Line", guideWa:"จองผ่าน WhatsApp", guideMessenger:"จองผ่าน Messenger",
       guideDoContract:"ทำสัญญา", guideNoContract:"ไม่ทำสัญญา", guideLater:"ทำทีหลัง", guideSkip:"ข้าม", guideGameLater:"เลือกทีหลัง", guideNext:"ต่อไป", guideRetYes:"เคย", guideRetNo:"ไม่เคย",
       pickGames:"เลือก / แก้ไขรายชื่อเกม", sendLater:"แจ้งรายชื่อเกมภายหลัง", clearGames:"ล้างรายชื่อเกม", noGameList:"รุ่นนี้ไม่มีรายการเกมให้เลือกในระบบ",
@@ -2174,7 +2171,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       boardGameCollapsed:"Want board games? Expand to add them to this rental.", ps5BundleCollapsed:"Want a bundle? Expand to pair PS5 with another device.",
       boardGameBundle:"Board Game Bundle", chooseBoardGame:"-- Choose board game --", addBoardGame:"Add board game", boardGames:"Board games", selectedDates:"Selected dates", confirmRange:"Confirm", selectReturnDate:"Choose return date", remove:"Remove",
       boardGameBundleHelp:"Add board games to this rental set — 3-day package rate, then extend by each game's package rules.", boardGameImageHint:"💡 Click the image to view board game details.", viewDetails:"View details",
-      calTitle:"📅 Queue Calendar", calClear:"Clear selected dates", calStartSub:"Selected", calEndSub:"Selected", calAvailable:"Available", calUnavailable:"Unavailable", calPartial:"Shorter rental only", calDisabled:"Past / unavailable", calMinDisabled:"Unavailable, minimum 3 days", calStartDay:"Start", calRangeDay:"Rental period", calEndDay:"Return", cutoffStartCell:"Start tomorrow", cutoffStartNotice:"After 8 PM, choose tomorrow or later.", afterWorkPromoCell:"3-day promo {price}", afterWorkPromoDiscount:"After Work 3 Nights promotion",
+      calTitle:"📅 Queue Calendar", calClear:"Clear selected dates", calStartSub:"Selected", calEndSub:"Selected", calAvailable:"Available", calUnavailable:"Unavailable", calPartial:"Shorter rental only", calDisabled:"Past / unavailable", calMinDisabled:"Unavailable, minimum 3 days", calStartDay:"Start", calRangeDay:"Rental period", calEndDay:"Return", cutoffStartCell:"Start tomorrow", cutoffStartNotice:"After {time}, choose tomorrow or later.", afterWorkPromoCell:"3-day promo {price}", afterWorkPromoDiscount:"After Work 3 Nights promotion",
       guideTitle:"Next step", guideConsole:"Choose console", guideStart:"Choose start date", guideEnd:"Choose return date", guideAccessory:"Choose accessories if needed, or skip.", guidePs5Bundle:"Choose a PS5 bundle if needed.", guideNextStep:"Go to the next step.", guideBg:"Add a board game bundle if needed.", guideRet:"Have you rented with us before?", guideContractChoice:"Would you like to complete the rental contract?", guideContractLink:"Open the rental agreement link, or do it later.", guidePayment:"Choose payment option.", guideMaps:"Paste your Google Maps link for delivery check.", guideGames:"Pick games from the catalog, or send later.", guideShare:"Check the rental details above, then book through your preferred channel.", guideCopy:"Copy booking message", guideLine:"Book via LINE", guideWa:"Book via WhatsApp", guideMessenger:"Book via Messenger",
       guideDoContract:"Do contract", guideNoContract:"No contract", guideLater:"Later", guideSkip:"Skip", guideGameLater:"Choose later", guideNext:"Next", guideRetYes:"Yes", guideRetNo:"No",
       pickGames:"Choose / Edit games", sendLater:"Send game list later", clearGames:"Clear games", noGameList:"This model has no game catalog in the system.",
@@ -2332,9 +2329,20 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function addDays(date, days){ const d = dateOnly(date); d.setDate(d.getDate()+Number(days||0)); return d; }
   function diffDays(start, end){ const s=parseDate(start), e=parseDate(end); return s&&e ? Math.round((e-s)/86400000) : null; }
   function displayDate(value){ const d=parseDate(value); return d ? `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}` : "-"; }
+  // The day's last order time (Bangkok): after it, a rental starts tomorrow at
+  // the earliest. One setting, read everywhere the cutoff is used or shown, so
+  // it can later be set from Admin; fixed at 18:00 for now.
+  let rentalCutoffTime = "18:00";
+  function rentalCutoffMinutes(){
+    const m = String(rentalCutoffTime || "").match(/^(\d{1,2}):(\d{2})$/);
+    return m ? Number(m[1]) * 60 + Number(m[2]) : 18 * 60;
+  }
   function rentalCutoffPassed(now){
     const current = bangkokNow(now);
-    return current.hour * 60 + current.minute >= 20 * 60;
+    return current.hour * 60 + current.minute >= rentalCutoffMinutes();
+  }
+  function cutoffStartNotice(){
+    return tr("cutoffStartNotice").replace("{time}", rentalCutoffTime);
   }
   function earliestRentalStartIso(now){
     const current = bangkokNow(now);
@@ -3735,7 +3743,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         label.textContent = tr(label.dataset.i18n);
       }
     }
-    byId("floatCalc")?.classList.toggle("before-rent-hidden", active);
     if(active){
       hideGuideVisuals();
       renderBeforeRentDiscovery();
@@ -6369,7 +6376,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const start = parseDate(ctx.start), end = parseDate(ctx.end);
     if(!c || !start || !end) return {mode:"idle",pass:true};
     if(isQueueClosed(c, start, end)) return {mode:"closed",pass:false,message:tr("queueClosed")};
-    if(!startDateAllowed(start)) return {mode:"cutoff",pass:false,message:tr("cutoffStartNotice")};
+    if(!startDateAllowed(start)) return {mode:"cutoff",pass:false,message:cutoffStartNotice()};
     if(diffDays(start,end) < 3) return {mode:"min",pass:false,message:tr("minDays")};
     if(!state.availability.rows.length) return {mode:"fallback",pass:true,message:""};
     const bundleGate = selectedBundleAvailabilityGate(start, end, ctx);
@@ -6548,7 +6555,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         : (!rangeAvailable && state.calendar.draftEnd
           ? tr("calUnavailable")
           : (state.calendar.mode === "start" && rentalCutoffPassed()
-            ? tr("cutoffStartNotice")
+            ? cutoffStartNotice()
             : (state.calendar.mode === "start" ? tr("startDate") : tr("selectReturnDate"))));
     }
     byId("calendarPicked").innerHTML = `<small>${tr("selectedDates")}</small>${displayDate(state.calendar.draftStart)} - ${displayDate(state.calendar.draftEnd)}${Number.isFinite(days) && days > 0 ? ` (${days} ${tr("day")})` : ""}`;
@@ -8340,7 +8347,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const isFee = c => /payment fee|ค่าธรรมเนียม/i.test(c.label);
     const isDeposit = c => /ค่าประกัน|deposit/i.test(c.label);
     const rentalRow = r.costs.find(c => !isDelivery(c) && !isFee(c) && !isDeposit(c) && !c.discount);
+    // The device's own lines (controllers, cables, games included), as on the
+    // booking page's order summary.
     const details = [
+      ...(item ? splitDetailLines(en ? (item.detailsEn || []) : (item.detailsTh || [])) : []),
       ...r.extras.map(extra => `${tr("accessories")}: ${extra}`),
       ...r.games.map((game, index) => `${en ? "Game" : "เกม"} ${index + 1}: ${game}`),
       ...(r.later && !r.games.length ? [en ? "Game list: sent later" : "รายชื่อเกม: แจ้งภายหลัง"] : [])
@@ -10267,11 +10277,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
     window.clearTimeout(toastTimer);
     toastTimer = window.setTimeout(() => el.classList.remove("show"), duration);
   }
-  function updateFloatButton(){
-    const btn = byId("floatCalc");
-    const calc = byId("calculator").getBoundingClientRect();
-    btn.classList.toggle("show", scrollY > 360 && !(calc.top < innerHeight*.7 && calc.bottom > 120));
-  }
+  // The floating "เช็คคิว & คำนวณค่าเช่า" button is gone; kept as a no-op for
+  // the scroll and render paths that still call it.
+  function updateFloatButton(){}
   function guideStage(){ return sessionStorage.getItem(GUIDE_KEY) || "console"; }
   function markGuideDone(stage){
     if(!stage || /^next|share|console|start|end$/.test(stage)) return;
@@ -11513,7 +11521,6 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("infoModalLang").addEventListener("click", () => { state.lang = state.lang === "en" ? "th" : "en"; render(); });
     byId("infoModal").addEventListener("click", event => { if(event.target === byId("infoModal")) closeInfoModal(); });
     byId("gamePickerClose").addEventListener("click", closeGamePicker);
-    byId("floatCalc").addEventListener("click", () => byId("calculator").scrollIntoView({behavior:"smooth"}));
     byId("prevMonth").addEventListener("click", () => moveCalendarMonth(-1));
     byId("nextMonth").addEventListener("click", () => moveCalendarMonth(1));
     byId("calendarApply").addEventListener("click", applyCalendarRange);

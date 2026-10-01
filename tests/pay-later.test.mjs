@@ -62,3 +62,22 @@ test('the queue check takes the rental it is asked about', () => {
   assert.match(html, /async function ensureBookingHold\(rentalCode, ctx = calcRentalContext\(\)\)/);
   assert.match(html, /consoleId: String\(c\.id \|\| ""\),/);
 });
+
+test('the payment page lists the device\'s own lines, as the booking page does', () => {
+  const page = html.slice(html.indexOf('function payResumeHtml()'), html.indexOf('function renderPayResume()'));
+  assert.match(page, /splitDetailLines\(en \? \(item\.detailsEn \|\| \[\]\) : \(item\.detailsTh \|\| \[\]\)\)/);
+});
+
+test('no floating "เช็คคิว & คำนวณค่าเช่า" button', () => {
+  assert.doesNotMatch(html, /id="floatCalc"/);
+  assert.doesNotMatch(html, /\.float-calc/);
+});
+
+test('same-day rentals close at 18:00, from one setting, in both languages', () => {
+  assert.match(html, /let rentalCutoffTime = "18:00";/);
+  assert.match(html, /current\.hour \* 60 \+ current\.minute >= rentalCutoffMinutes\(\)/);
+  assert.doesNotMatch(html, />= 20 \* 60/);
+  assert.match(html, /cutoffStartNotice:"หลัง \{time\} น\. เริ่มเช่าได้วันถัดไป"/);
+  assert.match(html, /cutoffStartNotice:"After \{time\}, choose tomorrow or later\."/);
+  assert.doesNotMatch(html, /tr\("cutoffStartNotice"\)(?!\.replace)/);
+});
