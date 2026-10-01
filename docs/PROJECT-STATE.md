@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-10-01 — VIP rate on extensions; Blacklistseller screening built but off (Delivery App `7493b03`/`7871994`, Bot `91f075c`)
+
+- "เช่าต่อ": a VIP member (looked up on the Bot) extends on their VIP daily/weekly rate for the device, with no returning 10% on top (website rule); never for a bundle. Page, server quote, request and the extension card ("ค่าเช่าราคา VIP") follow. Everyone else unchanged. Preview `/c/extension?demo=1&vip=1`. `test:extension-pricing` 26/26.
+- Blacklistseller (paid credit) — OFF until `BLACKLISTSELLER_ENABLED=true` + `BLACKLISTSELLER_API_KEY` on the Bot's Render. When on, every identity submission (booking flow photos, and verify-later) runs: idcard-summary (Thai 13-digit ID; passports by name only) and fullname-summary (`fullname` + `firstname`/`lastname`), plus earlier rentals with AJ from the contracts sheet (same ID, phone or full name). Result → email/Telegram/Discord ("🚨 พบรายงานใน Blacklistseller" / "🛡️ ผลเช็คตัวตนผู้เช่า", ID masked), logged in tab "Blacklistseller Checks", forwarded to Delivery App `/api/integrations/aj-rental/blacklist-check` → push to shop devices + Fraud Report finding when reports found (ID strong, name weak).
+- Past customers on demand only: `POST /api/admin/blacklistseller/check-past` (admin token) `{limit, dryRun}` — dry run by default (lists who, no credit); skips people already in the checks tab.
+- Not verified against the real API: the docs site and API are blocked from the sandbox. Field names come from the docs screenshot (`idcard`); the fullname body and the response shape are assumed — the count is read from any total/count field and the raw answer is shown when unknown. Confirm with the docs' Request Parameters / sample response before switching on.
+- Bot 469/469 (`blacklistseller.test.js`), Delivery App `test:blacklist-intake` 5/5, `tsc` clean.
+
 ## 2026-10-01 — VIP prices on every booking, not only website ones (Delivery App `4463b33`, Bot `82e7329`)
 
 - Booking 543 still showed ค่าประกัน ฿2,000: it was created before `a40a548`, and the booking form had no way to set a VIP deposit. The Edit/Add Booking form now has a "👑 สิทธิ์ VIP" section: ค่าประกัน VIP (blank = normal) and ส่วนลดราคาเช่า VIP, saved to the `VIP Deposit` / `VIP Rental Discount` columns, so the confirmation card and "คิวเช่าของฉัน" (TH/EN) follow. Summary shows ส่วนลดราคาเช่า VIP, ค่าประกัน (VIP), and the delivery discount (new field ส่วนลดค่าจัดส่ง).
