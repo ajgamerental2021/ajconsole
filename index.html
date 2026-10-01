@@ -916,7 +916,7 @@ body.unified-flow-demo.demo-order-open .demo-order-page{display:block}
 body.pay-resume-open #payResumeSection{display:block}
 body.pay-resume-open main > section:not(#payResumeSection){display:none!important}
 .pay-resume-title{margin:0 0 14px;font-size:22px}
-body.unified-flow-demo .demo-pay-later-btn{width:100%;margin-top:10px;min-height:48px;font-weight:800}
+body.unified-flow-demo .demo-pay-later-note{margin:10px 0 0;padding:10px 12px;border-radius:10px;background:#f0f9f2;border:1px solid #cfe9d6;color:#14532d;font-size:14px;line-height:1.5}
 body.unified-flow-demo .demo-order-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
 body.unified-flow-demo .demo-order-section{margin-bottom:16px;padding:0}
 /* The demo pays from the Rental ID page; the old chat booking message is not offered. */
@@ -4100,6 +4100,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         demoDelivery.quote = result.quote;
         void recordDemoDeliveryQuote(result.quote);
         void queueConsolePendingUpsert();
+        maybeSendPayLaterEmail();
       }else{
         demoDelivery.status = result?.error === "delivery_location_unresolved" ? "needs_pin" : "unavailable";
         demoDelivery.error = String(result?.reason || result?.error || "");
@@ -5214,7 +5215,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <div>
         <section class="demo-order-section"><h3>${en ? "Identity verification" : "การยืนยันตัวตน"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Status":"สถานะ"}</span><b class="demo-status ${identityTone}">${esc(identityState)}</b></div>${verifyNow?`<div class="demo-order-action"><button class="btn" id="demoVerifyLater" type="button">${en?"Verify now":"ยืนยันตอนนี้"}</button></div>`:""}</div></section>
         <section class="demo-order-section"><h3>${en ? "Payment" : "การชำระเงิน"}</h3>${demoPaymentBreakdownHtml(summary)}</section>
-        <section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${demoPaymentOptionsHtml()}<div class="demo-payment-launch"><button class="btn primary demo-pay-btn" id="demoBeamPay" type="button" ${deliveryReady ? "" : "disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${payLabel}</span></button><button class="btn demo-pay-later-btn" id="demoPayLater" type="button" ${deliveryReady ? "" : "disabled"}>${en ? "Pay later — email me a payment link" : "ชำระภายหลัง — ส่งลิงก์ชำระเงินทางอีเมล"}</button>${UNIFIED_FLOW_TEST_CHARGE ? `<p class="hint">${en?"This demo charges ฿1. The payment is still recorded against this Rental ID and follows the existing webhook flow.":"หน้าทดสอบเรียกเก็บ 1 บาท และยังบันทึกผลกับ Rental ID นี้ผ่าน webhook เดิม"}</p>` : ""}</div></section>
+        <section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${demoPaymentOptionsHtml()}<div class="demo-payment-launch"><button class="btn primary demo-pay-btn" id="demoBeamPay" type="button" ${deliveryReady ? "" : "disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${payLabel}</span></button>${demoPayLaterNoteHtml()}${UNIFIED_FLOW_TEST_CHARGE ? `<p class="hint">${en?"This demo charges ฿1. The payment is still recorded against this Rental ID and follows the existing webhook flow.":"หน้าทดสอบเรียกเก็บ 1 บาท และยังบันทึกผลกับ Rental ID นี้ผ่าน webhook เดิม"}</p>` : ""}</div></section>
       </div>
     </div>`;
   }
@@ -7922,6 +7923,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       saveLocal();
       render();
       scrollToDemoOrderTop();
+      maybeSendPayLaterEmail();
     }catch(error){
       if(String(error?.message || "") === "booking_availability_refresh_failed"){ showQueueRetryDialog(); return; }
       showBookingActionError(error);
@@ -8198,81 +8200,46 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       toast(state.lang === "en" ? "Unable to open the payment page. Please try again." : "เปิดหน้าชำระเงินไม่สำเร็จ กรุณาลองใหม่");
     }
   }
-  // "Pay later": the rental is saved as on the way to payment (agreement,
-  // Console Pending), and the Bot emails the summary with a private link back
-  // to a payment page for this rental. Nothing is charged and no queue is held.
-  async function requestDemoPayLater(){
+  // The pay-later email: once the renter confirms step 3 and the order page has
+  // its live delivery price, the Bot emails the summary with a private link
+  // back to a payment page for this rental, so they can pay now or come back
+  // any time. Sent once per Rental ID, after the Console Pending row with the
+  // final figures is written (the Bot's copy of the rental follows that row).
+  const payLaterEmail = {code:"", to:"", sending:false};
+  function demoPayLaterNoteHtml(){
+    const code = state.calc.rentalCode;
+    if(!code || payLaterEmail.code !== code) return "";
     const en = state.lang === "en";
-    const email = String(demoProfile.email || "").trim();
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){
-      toast(en ? "Add your email in step 2 first — the payment link is sent there." : "กรุณากรอกอีเมลในขั้นตอนที่ 2 ก่อน ระบบจะส่งลิงก์ชำระเงินไปที่อีเมลนี้");
-      openDemoEditModal(2);
-      return;
-    }
-    showDemoBusy(en ? "Sending your payment link…" : "กำลังส่งลิงก์ชำระเงิน…");
-    try{
-      if(demoDelivery.status !== "ready" || !demoDelivery.quote){
-        await fetchDemoDeliveryQuote();
-        if(demoDelivery.status !== "ready" || !demoDelivery.quote){
-          hideDemoBusy();
-          toast(en ? "The live delivery price is not ready. Please calculate it again first." : "ยังไม่ได้ราคาค่าส่งจริง กรุณาคำนวณค่าส่งอีกครั้งก่อน");
-          return;
-        }
-      }
-      const summary = calcSummary();
-      const code = await ensureRentalCode(summary);
-      const handoff = await prepareContractHandoff(code, "web");
-      if(!handoff.contextToken) throw new Error("booking_context_unavailable");
-      state.calc.demoContextToken = handoff.contextToken;
-      // The signed agreement is filed under this Rental ID now, so it becomes
-      // the contract when the rental is paid from the link.
-      if(demoAgreementNeeded() && state.calc.demoAgreementFor !== code){
-        if(!demoAgreement.signature){
-          hideDemoBusy();
-          state.calc.demoOrderOpen = false;
-          saveLocal();
-          render();
-          goCalcStep(3, {scrollTabs:true});
-          toast(en ? "Your rental changed. Please sign the agreement again." : "รายการเช่ามีการเปลี่ยนแปลง กรุณาเซ็นสัญญาอีกครั้ง");
-          return;
-        }
-        try{
-          await submitDemoAgreement(handoff.contextToken);
-        }catch(error){
-          hideDemoBusy();
-          showDemoAgreementProblem(error);
-          return;
-        }
-      }
-      consolePendingRental = {code, handoff, channel:"demo-payment"};
-      await queueConsolePendingUpsert();
-      const response = await bookingFetch(`${CONFIG.apiBase}/api/rentals/pay-later`, {
+    return `<p class="demo-pay-later-note" role="status">${esc(en
+      ? `You can also pay later. AJ has emailed the details and a payment link${payLaterEmail.to ? ` to ${payLaterEmail.to}` : ""}.`
+      : `สามารถชำระเงินภายหลังได้ ทางร้านส่งอีเมลพร้อมรายละเอียดและลิงก์ชำระเงินให้แล้ว${payLaterEmail.to ? ` (${payLaterEmail.to})` : ""}`)}</p>`;
+  }
+  function maybeSendPayLaterEmail(){
+    const code = state.calc.rentalCode;
+    const contextToken = state.calc.demoContextToken;
+    if(!UNIFIED_FLOW_DEMO || !state.calc.demoOrderOpen || !code || !contextToken) return;
+    if(payLaterEmail.code === code || payLaterEmail.sending) return;
+    if(demoDelivery.status !== "ready" || !demoDelivery.quote) return;
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(demoProfile.email || "").trim())) return;
+    payLaterEmail.sending = true;
+    Promise.resolve(consolePendingWrites)
+      .then(() => bookingFetch(`${CONFIG.apiBase}/api/rentals/pay-later`, {
         method:"POST",
         cache:"no-store",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({contextToken:handoff.contextToken})
-      }, 30000);
-      const result = await response.json().catch(() => ({}));
-      hideDemoBusy();
-      if(!response.ok || !result.sent){
-        const reason = result.error || "";
-        toast(reason === "already_paid"
-          ? (en ? "This rental is already paid." : "รายการนี้ชำระเงินแล้ว")
-          : reason === "no_email"
-          ? (en ? "AJ has no email for this rental. Please check step 2." : "ไม่พบอีเมลของรายการนี้ กรุณาตรวจสอบขั้นตอนที่ 2")
-          : (en ? "The email could not be sent. Please try again, or pay now." : "ส่งอีเมลไม่สำเร็จ กรุณาลองใหม่ หรือชำระเงินตอนนี้"), 5000);
-        return;
-      }
-      showModal(en ? "Payment link sent" : "ส่งลิงก์ชำระเงินแล้ว", `<div class="paid-notice">
-        <p><b>${esc(en ? `Rental ${code} is saved.` : `บันทึกรายการเช่า ${code} แล้ว`)}</b></p>
-        <p>${esc(en ? `The summary and a link to pay have been sent to ${email}. Open it whenever you are ready to pay.` : `ส่งสรุปรายการและลิงก์สำหรับชำระเงินไปที่ ${email} แล้ว กดลิงก์ในอีเมลเพื่อกลับมาชำระเงินได้ตลอด`)}</p>
-        <p class="hint">${esc(en ? "Your rental is confirmed once payment is complete, subject to the queue being free then." : "การเช่าจะยืนยันเมื่อชำระเงินเรียบร้อย โดยขึ้นกับคิวว่างในตอนนั้น")}</p>
-      </div>`);
-    }catch(error){
-      hideDemoBusy();
-      console.error("Pay later failed", error);
-      toast(en ? "Could not save the rental for later. Please try again." : "บันทึกรายการเพื่อชำระภายหลังไม่สำเร็จ กรุณาลองใหม่");
-    }
+        body:JSON.stringify({contextToken})
+      }, 30000))
+      .then(async response => {
+        const result = await response.json().catch(() => ({}));
+        if(response.ok && result.sent && state.calc.rentalCode === code){
+          Object.assign(payLaterEmail, {code, to:String(demoProfile.email || "").trim()});
+          renderDemoOrderPage();
+        }else if(!response.ok){
+          console.warn("Pay-later email not sent", result.error || response.status);
+        }
+      })
+      .catch(error => console.warn("Pay-later email failed", error))
+      .finally(() => { payLaterEmail.sending = false; });
   }
 
   // The private payment page (`?pay=<Rental ID>&t=<token>`, from the pay-later
@@ -8280,10 +8247,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // payment choices as the booking page. The Bot works out what each choice
   // costs and makes the payment link; the queue is checked here first, the same
   // way as before any payment.
-  const payResume = {active:false, code:"", token:"", loading:false, error:"", rental:null, method:"cash"};
+  const payResume = {active:false, code:"", token:"", loading:false, error:"", rental:null, method:"cash", queueBlocked:""};
   const PAY_RESUME_TOKEN_KEY = "aj_pay_resume_v1";
   function openPayResume(code, token){
-    Object.assign(payResume, {active:true, code, token, loading:true, error:"", rental:null});
+    Object.assign(payResume, {active:true, code, token, loading:true, error:"", rental:null, queueBlocked:""});
     document.body.classList.add("pay-resume-open");
     try{ sessionStorage.setItem(PAY_RESUME_TOKEN_KEY, JSON.stringify({code, token})); }catch{}
     renderPayResume();
@@ -8304,7 +8271,29 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }).finally(() => {
       payResume.loading = false;
       renderPayResume();
+      if(payResume.rental && !payResume.rental.paid) void checkPayResumeQueue();
     });
+  }
+  // Opening the link checks the queue at once: dates taken since the rental was
+  // saved are said in a pop-up before the renter chooses how to pay.
+  function showPayResumeQueuePopup(message){
+    const en = state.lang === "en";
+    payResume.queueBlocked = message || (en ? "These dates are no longer available." : "คิวช่วงวันที่นี้ไม่ว่างแล้ว");
+    renderPayResume();
+    showModal(en ? "These dates are no longer available" : "คิวช่วงนี้ไม่ว่างแล้ว", `<p>${esc(payResume.queueBlocked)}</p><p class="hint">${esc(en ? "This rental can no longer be paid for these dates. Please contact AJ on LINE @ajgame to choose new dates." : "รายการนี้ไม่สามารถชำระเงินสำหรับวันที่เดิมได้แล้ว กรุณาติดต่อร้านทาง LINE @ajgame เพื่อเลือกวันใหม่")}</p><div class="queue-retry-actions"><a class="btn primary" href="https://line.me/R/ti/p/@ajgame" target="_blank" rel="noopener">${esc(en ? "Contact AJ on LINE" : "ติดต่อร้านทาง LINE")}</a></div>`);
+  }
+  async function checkPayResumeQueue(){
+    const r = payResume.rental;
+    if(!r) return;
+    // The catalogue may still be loading on a device that never booked here.
+    let found = payResumeContext(r);
+    if(!found.item){ await gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {}); found = payResumeContext(r); }
+    const {ctx} = found;
+    if(!ctx.consoleId || !ctx.start || !ctx.end) return;
+    await fetchAvailability().catch(() => null);
+    if(payResume.rental !== r) return;
+    const gate = evaluateAvailability(ctx);
+    if(!gate.pass) showPayResumeQueuePopup(gate.message);
   }
   function payResumeContext(rental){
     const wanted = norm(rental.deviceName);
@@ -8401,7 +8390,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           <div class="demo-total-group demo-total-final">${row(en ? "Total including delivery" : "ยอดรวมทั้งหมด (รวมค่าจัดส่ง)", money(r.plan?.base || 0), "is-grand")}</div>
           ${paidRows.length ? `<div class="demo-total-group">${paidRows.join("")}</div>` : ""}
         </div></section>
-        ${canPay ? `<section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${paymentPickerHtml({selected:payResume.method, amountHtml:payResumeAmountHtml, choiceAttr:"data-pay-resume-choice", inputName:"payResumeChoice", allowWise:false, deliveryReady:true})}<div class="demo-payment-launch"><button class="btn primary demo-pay-btn" id="payResumePay" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${en ? "Pay now" : "ชำระเงิน"}</span></button></div></section>`
+        ${canPay ? `<section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${paymentPickerHtml({selected:payResume.method, amountHtml:payResumeAmountHtml, choiceAttr:"data-pay-resume-choice", inputName:"payResumeChoice", allowWise:false, deliveryReady:true})}<div class="demo-payment-launch">${payResume.queueBlocked ? `<p class="field-error" role="alert">${esc(payResume.queueBlocked)} ${esc(en ? "Please contact AJ on LINE @ajgame." : "กรุณาติดต่อร้านทาง LINE @ajgame")}</p>` : ""}<button class="btn primary demo-pay-btn" id="payResumePay" type="button" ${payResume.queueBlocked ? "disabled" : ""}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${en ? "Pay now" : "ชำระเงิน"}</span></button></div></section>`
           : r.paid ? `<p class="hint">${esc(en ? "This rental has been paid. Thank you." : "รายการนี้ชำระเงินเรียบร้อยแล้ว ขอบคุณที่ใช้บริการ")}</p>` : ""}
       </div>
     </div>`;
@@ -8415,7 +8404,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   async function launchPayResume(){
     const en = state.lang === "en";
     const r = payResume.rental;
-    if(!r || r.paid) return;
+    if(!r || r.paid || payResume.queueBlocked) return;
     showDemoBusy(en ? "Checking the queue and opening the payment page…" : "กำลังตรวจคิวและเปิดหน้าชำระเงิน…");
     try{
       // The queue may have filled since the rental was saved.
@@ -8437,7 +8426,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       hideDemoBusy();
       console.error("Pay-later payment failed", error);
       if(error?.code === "booking_hold_conflict"){
-        toast(`${error.message} ${en ? "Please contact AJ on LINE @ajgame to choose new dates." : "กรุณาติดต่อร้านทาง LINE @ajgame เพื่อเลือกวันใหม่"}`, 7000);
+        showPayResumeQueuePopup(error.message);
         return;
       }
       if(error?.code === "already_paid"){ openPayResume(payResume.code, payResume.token); return; }
@@ -11968,7 +11957,6 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "demoEditCancel" || targetId === "demoEditClose"){ closeDemoEditModal(false); return; }
       if(event.target.closest("[data-delivery-quote-retry]")){ await fetchDemoDeliveryQuote(); return; }
       if(targetId === "demoBeamPay"){ await launchDemoBeamPayment(); return; }
-      if(targetId === "demoPayLater"){ await requestDemoPayLater(); return; }
       if(targetId === "payResumePay"){ await launchPayResume(); return; }
       if(targetId === "demoNotifyLine"){ await notifyDemoLine(); return; }
       if(targetId === "demoNotifyWhatsApp"){ notifyDemoWhatsApp(); return; }

@@ -9,17 +9,34 @@ test('the order page no longer explains the Delivery App, in either language', (
   assert.doesNotMatch(html, /After payment is confirmed, Delivery App creates the Booking from Console Pending/);
 });
 
-test('pay later: saved like a payment, then the Bot emails the payment link', () => {
-  assert.match(html, /id="demoPayLater"/);
-  assert.match(html, /ชำระภายหลัง — ส่งลิงก์ชำระเงินทางอีเมล/);
-  assert.match(html, /Pay later — email me a payment link/);
-  const fn = html.slice(html.indexOf('async function requestDemoPayLater()'), html.indexOf('const payResume = {'));
-  assert.match(fn, /await submitDemoAgreement\(handoff\.contextToken\)/);
-  assert.match(fn, /await queueConsolePendingUpsert\(\);/);
+test('no extra button: the pay-later email goes out after step 3 is confirmed', () => {
+  assert.doesNotMatch(html, /id="demoPayLater"/);
+  assert.doesNotMatch(html, /ชำระภายหลัง — ส่งลิงก์ชำระเงินทางอีเมล/);
+  assert.doesNotMatch(html, /Pay later — email me a payment link/);
+  const fn = html.slice(html.indexOf('function maybeSendPayLaterEmail()'), html.indexOf('const payResume = {'));
+  assert.match(fn, /demoDelivery\.status !== "ready"/, 'waits for the live delivery price');
+  assert.match(fn, /Promise\.resolve\(consolePendingWrites\)/, 'after the row with the final figures');
   assert.match(fn, /\/api\/rentals\/pay-later/);
-  assert.match(fn, /contextToken:handoff\.contextToken/);
-  assert.doesNotMatch(fn, /ensureBookingHold|ensureBeamPaymentLink/, 'no queue held, nothing charged');
-  assert.match(html, /if\(targetId === "demoPayLater"\)\{ await requestDemoPayLater\(\); return; \}/);
+  assert.doesNotMatch(fn, /ensureBookingHold|ensureBeamPaymentLink/);
+  assert.match(html, /scrollToDemoOrderTop\(\);\n\s*maybeSendPayLaterEmail\(\);/);
+  assert.match(html, /void queueConsolePendingUpsert\(\);\n\s*maybeSendPayLaterEmail\(\);/);
+});
+
+test('under the pay button: you can pay later, the email has been sent (TH/EN)', () => {
+  assert.match(html, /\$\{demoPayLaterNoteHtml\(\)\}/);
+  assert.match(html, /สามารถชำระเงินภายหลังได้ ทางร้านส่งอีเมลพร้อมรายละเอียดและลิงก์ชำระเงินให้แล้ว/);
+  assert.match(html, /You can also pay later\. AJ has emailed the details and a payment link/);
+});
+
+test('opening the payment link checks the queue at once and says so in a pop-up', () => {
+  assert.match(html, /if\(payResume\.rental && !payResume\.rental\.paid\) void checkPayResumeQueue\(\);/);
+  const check = html.slice(html.indexOf('async function checkPayResumeQueue()'), html.indexOf('function payResumeContext('));
+  assert.match(check, /evaluateAvailability\(ctx\)/);
+  assert.match(check, /showPayResumeQueuePopup\(gate\.message\)/);
+  assert.match(html, /คิวช่วงนี้ไม่ว่างแล้ว/);
+  assert.match(html, /These dates are no longer available/);
+  assert.match(html, /showPayResumeQueuePopup\(error\.message\)/);
+  assert.match(html, /id="payResumePay" type="button" \$\{payResume\.queueBlocked \? "disabled" : ""\}/);
 });
 
 test('the payment page opens from the email link and pays through the server', () => {
