@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-10-02 — ID rental message: ครับ/ค่ะ and no-refund note (website `4c414ad`)
+
+- The message copied from `/ajgameid/` and `/ajgameid/switch/` greets "สวัสดีครับ/ค่ะ" and closes "...ให้หน่อยครับ/ค่ะ".
+- It ends with the shop's terms: "⚠️ หลังชำระเงินแล้ว ทางร้านขอสงวนสิทธิ์ไม่คืนเงินครับ แต่สามารถเปลี่ยนไอดีเกมอื่นแทนได้ ...". The English message carries the same note.
+- Removed the dead builders `buildMessage` and `handleLine`. `handleLineShare` is the only place the message is built.
+
 ## 2026-10-02 — A failed delivery price no longer stops a payment; gold calculator button (website `d6b87fc`, `386b1b9`; Bot `7bad28c`; Delivery App `ee1614e`)
 
 - **Incident.** A customer could not pay: the order-page button stayed on "รอราคาค่าส่ง". Payment was hard-locked until Lalamove returned a live price. Any failure locked the button with no way forward: a Lalamove error, a map link with no pin, or a slow server. The retry text sat far up the page. The exact cause for this customer is unknown: no logs are reachable from here (Render logs and `.env` are not in this environment).
