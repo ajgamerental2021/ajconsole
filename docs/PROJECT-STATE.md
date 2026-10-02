@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-10-02 — Rental calculator: same-page booking, ?quote=1, menu "คำนวณค่าเช่า"
+
+- In the pop-up, "เช็คคิวและจองเครื่องนี้" postMessages `AJ_QUOTE_BOOK` (consoleId, bundleId) to the parent. The parent accepts it only from `#quoteFrame`, closes the pop-up, runs `selectCalcConsole` and sets the bundle, then scrolls to step 1. On the standalone /quote/ page the link opens in the same tab (no `target=_blank`).
+- `https://ajgamerental.com/?quote=1` (or `#quote`) opens the pop-up on load. The pop-up has `#quoteCopyUrl`, which runs `copySectionUrl("quote")` and gives `?quote=1&lang=…`.
+- The menu item is now "คำนวณค่าเช่า" / "Rental calculator". The step-1 button and the pop-up title still say "คำนวณค่าเช่าคร่าวๆ".
+- New event `quick_quote_popup_booked` (allowed on the Bot).
+
 ## 2026-10-02 — Balance payment no longer creates a booking; quick price pop-up on the booking page (Delivery App `1783a35`, website, Bot)
 
 - Booking 547 cause: the balance for 545 confirmed the same customer's old, never-booked request (16–19/09) as a new booking, and a card was sent.
