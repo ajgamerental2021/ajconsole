@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-10-02 — Switched-off announcement no longer reappears
+
+- Cause: `DEFAULT_ANNOUNCEMENT` had `enabled: true`, and `loadSiteAnnouncement` fell back to it whenever the Bot did not answer (cold start or network). The flood notice came back even though Admin had turned it off.
+- Fix: the default is now `enabled:false` and is used only to pre-fill the admin form. `loadSiteAnnouncement` returns null when the Bot's answer is unknown, and `applySiteAnnouncement(null)` closes the notice. Test: tests/announcement-off.test.mjs.
+
 ## 2026-10-02 — Device card buttons aligned; card "เช็คคิวและจอง" opens the calendar
 
 - `renderConsoleGrid` wraps the games, calculator and book buttons in `.con-actions` (`margin-top:auto`). Before, only the book button had it, which left gaps on short cards.
