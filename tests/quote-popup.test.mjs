@@ -44,9 +44,9 @@ test('"check the queue and book" never opens a new tab: in the pop-up it carries
   assert.match(quote, /<a class="btn book" id="book" href="#" data-t="book"><\/a>/);
   assert.match(quote, /window\.parent\.postMessage\(\{ type: 'AJ_QUOTE_BOOK', consoleId: String\(c\.id\), bundleId: b \? b\.id : '' \}, '\*'\);/);
   const handler = html.slice(html.indexOf('event.data?.type === "AJ_QUOTE_BOOK"'), html.indexOf('trackAnalytics("quick_quote_popup_booked"'));
-  assert.match(handler, /event\.source === byId\("quoteFrame"\)\?\.contentWindow/.source ? /closeQuotePopup\(\);/ : /x/);
-  assert.match(handler, /selectCalcConsole\(pickedConsole\.id\);/);
-  assert.match(handler, /state\.calc\.bundleId = bundle\.id;/);
+  assert.match(handler, /closeQuotePopup\(\);/);
+  assert.match(handler, /startBookingWithCalendar\(pickedConsole/);
+  assert.match(html, /state\.calc\.bundleId = bundle\.id;/);
   assert.match(html, /if\(event\.source === byId\("quoteFrame"\)\?\.contentWindow && event\.data\?\.type === "AJ_QUOTE_BOOK"\)/);
 });
 
@@ -60,9 +60,11 @@ test('one name everywhere: menu, step 1, pop-up title and the page itself (TH/EN
 
 test('book from the pop-up, even on the before-rent page: to the rental steps with that device\'s calendar open', () => {
   const handler = html.slice(html.indexOf('event.data?.type === "AJ_QUOTE_BOOK"'), html.indexOf('trackAnalytics("quick_quote_popup_booked"'));
-  assert.match(handler, /setBeforeRent\(false, \{startGuide:true, scrollTo:false\}\);/);
-  assert.match(handler, /state\.calc\.step = 1;/);
-  assert.match(handler, /window\.setTimeout\(\(\) => openCalendar\("start"\), 120\);/);
+  assert.match(handler, /startBookingWithCalendar\(pickedConsole, String\(event\.data\.bundleId \|\| ""\)\);/);
+  const start = html.slice(html.indexOf('function startBookingWithCalendar('), html.indexOf('function openStepsPopup()'));
+  assert.match(start, /setBeforeRent\(false, \{startGuide:true, scrollTo:false\}\);/);
+  assert.match(start, /state\.calc\.step = 1;/);
+  assert.match(start, /window\.setTimeout\(\(\) => openCalendar\("start"\), 120\);/);
 });
 
 test('the all-devices pop-up has the calculator button too; booking from it closes both', () => {
@@ -78,4 +80,13 @@ test('every bookable device card has its own calculator button, opening with tha
   assert.match(html, /if\(cardQuote\)\{ openQuotePopup\("card", cardQuote\.dataset\.cardQuote\); return; \}/);
   assert.match(html, /&device=\$\{encodeURIComponent\(device\)\}/);
   assert.match(html, /postMessage\(\{type:"AJ_SET_DEVICE", consoleId:device\}, quoteFrameOrigin\(\)\)/);
+});
+
+test('device cards: every button sits together at the bottom; "check the queue and book" opens that device\'s calendar', () => {
+  assert.match(html, /\.con-actions\{margin-top:auto;display:flex;flex-direction:column;gap:inherit\}/);
+  assert.match(html, /\.all-consoles-book\{width:100%;min-height:38px/);
+  assert.match(html, /<div class="con-actions">\n\s+\$\{gameButtonVisible/);
+  const handler = html.slice(html.indexOf('const allConsoleBook = event.target.closest'), html.indexOf('const typeBtn = event.target.closest'));
+  assert.match(handler, /closeAllConsoles\(\);/);
+  assert.match(handler, /startBookingWithCalendar\(selectedConsole\);/);
 });

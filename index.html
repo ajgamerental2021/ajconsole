@@ -123,6 +123,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .con-img .emoji{font-size:58px}
 .ready-ribbon{position:absolute;inset:auto 10px 10px;background:rgba(0,0,0,.78);color:#fff;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:900;text-align:center}
 .con-body{padding:15px;display:flex;flex-direction:column;gap:10px;flex:1}
+/* The card's buttons stay together at the bottom, so every card in a row lines
+   them up, however many detail lines it has above. */
+.con-actions{margin-top:auto;display:flex;flex-direction:column;gap:inherit}
 .con-name{font-size:18px;font-weight:900}
 .price-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .price-cell{background:#f7f7f7;border:1px solid var(--border);border-radius:12px;padding:9px}
@@ -420,7 +423,7 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .all-consoles-list .details{gap:3px;font-size:10.5px}
 .all-consoles-list .details div{padding:5px 6px;border-radius:7px}
 .all-consoles-list .btn.soft{padding:7px 8px;font-size:11px}
-.all-consoles-book{width:100%;margin-top:auto;min-height:38px;padding:8px 10px;font-size:12px}
+.all-consoles-book{width:100%;min-height:38px;padding:8px 10px;font-size:12px}
 .all-consoles-copy-url{white-space:nowrap}
 .all-consoles-empty{padding:40px 16px;text-align:center;color:var(--text3);font-weight:800}
 .step1-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
@@ -3913,9 +3916,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           <div class="price-row"><div class="price-cell"><small>${tr("daily")}</small><b>${money(c.rate)}</b></div><div class="price-cell"><small>${tr("weekly")}</small><b>${money(c.weekly)}</b></div></div>
           <div class="dep">${tr("deposit")} ${money(c.deposit)}</div>
           <div class="details">${details.map(x=>`<div>${esc(x)}</div>`).join("")}</div>
+          <div class="con-actions">
           ${gameButtonVisible ? `<button class="btn soft" data-card-game="${esc(String(c.id))}" type="button">${tr("pickGames")}</button>` : ""}
           ${ready ? `<button class="btn soft card-quote-btn" data-card-quote="${esc(String(c.id))}" type="button">${esc(tr("quoteBtn"))}</button>` : ""}
           ${options.bookingButton ? `<button class="btn primary all-consoles-book" data-all-console-book="${esc(String(c.id))}" type="button">${esc(tr("allConsolesBook"))}</button>` : ""}
+          </div>
         </div>
       </article>`;
     }).join("")}</div>`;
@@ -10380,6 +10385,21 @@ We apologize for the inconvenience and hope everyone stays safe.`
     renderQuoteHead();
     byId("quoteFrame").contentWindow?.postMessage({type:"AJ_SET_LANG", lang:state.lang}, quoteFrameOrigin());
   }
+  // "Check the queue and book" from a device card or the calculator: to the
+  // rental steps, from the before-rent page too, with the device (and bundle)
+  // chosen and its calendar open, ready to check the queue.
+  function startBookingWithCalendar(consoleItem, bundleId = ""){
+    if(!consoleItem || !isConsoleSelectable(consoleItem)) return false;
+    selectCalcConsole(consoleItem.id);
+    const bundle = Number(consoleItem.id) === SPEC.PS5 && bundleId && state.bundles.find(item => item.id === bundleId);
+    if(bundle && isReady(bundle)){ state.calc.bundleId = bundle.id; state.calc.bundleOpen = true; }
+    state.calc.step = 1;
+    saveLocal();
+    setBeforeRent(false, {startGuide:true, scrollTo:false});
+    byId("calculator").scrollIntoView({block:"start"});
+    window.setTimeout(() => openCalendar("start"), 120);
+    return true;
+  }
   function openStepsPopup(){
     stepsIndex = 0;
     byId("stepsModal").classList.add("open");
@@ -11504,8 +11524,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         if(!selectedConsole) return;
         closeAllConsoles();
         state.calc.type = selectedConsole.type || "";
-        selectCalcConsole(selectedConsole.id);
-        setBeforeRent(false, {startGuide:true});
+        startBookingWithCalendar(selectedConsole);
         return;
       }
       const typeBtn = event.target.closest("[data-type]");
@@ -11689,14 +11708,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         closeQuotePopup();
         if(byId("allConsolesModal")?.classList.contains("open")) closeAllConsoles();
         if(pickedConsole && isConsoleSelectable(pickedConsole)){
-          selectCalcConsole(pickedConsole.id);
-          const bundle = Number(pickedConsole.id) === SPEC.PS5 && state.bundles.find(item => item.id === String(event.data.bundleId || ""));
-          if(bundle && isReady(bundle)){ state.calc.bundleId = bundle.id; state.calc.bundleOpen = true; }
-          state.calc.step = 1;
-          saveLocal();
-          setBeforeRent(false, {startGuide:true, scrollTo:false});
-          byId("calculator").scrollIntoView({block:"start"});
-          window.setTimeout(() => openCalendar("start"), 120);
+          startBookingWithCalendar(pickedConsole, String(event.data.bundleId || ""));
         }else{
           setBeforeRent(false, {scrollTo:false});
           byId("calculator").scrollIntoView({block:"start"});

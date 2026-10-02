@@ -19,7 +19,7 @@ test('every popup console card has a device-specific availability and booking ac
   assert.match(source, /allConsolesBook:"เช็คคิวและจอง"/);
   assert.match(source, /allConsolesBook:"Check availability & book"/);
   assert.match(source, /state\.calc\.type = selectedConsole\.type/);
-  assert.match(source, /selectCalcConsole\(selectedConsole\.id\)/);
+  assert.match(source, /startBookingWithCalendar\(selectedConsole\)/);
 });
 
 test('a standalone URL opens the all-console popup immediately', () => {
