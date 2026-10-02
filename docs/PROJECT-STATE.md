@@ -1,5 +1,21 @@
 # Project state
 
+## 2026-10-02 — Nintendo Switch game ID list at /ajgameid/switch/ (website `5caa8eb`, Bot `f817e57`)
+
+- New page https://ajgamerental.com/ajgameid/switch/ works like the PS5 list. It starts with one sample ID, Mario Kart 8 Deluxe, with a placeholder cover. **Owner:** add the real games in its admin (`?admin=1`). The first save from that admin creates `aj-switch-game-id-data.json` in the same Gist. The page reuses the GitHub token already saved for the PS5 list in that browser.
+- The Switch page is **generated** from `ajgameid/index.html` by `node scripts/build-switch-id-page.mjs`, so never edit it by hand. After any change to the PS5 page, run the script; `tests/ajgameid-switch.test.mjs` fails until you do.
+- Both lists number their IDs from 1, so requests are now kept apart:
+  - The ID Pending sheet has a `platform` column (R). Blank means PS5.
+  - `GET /api/id-pending?platform=switch` returns only Switch requests; without the parameter it returns PS5 only.
+  - The customer's LINE card has a new "เครื่อง" row.
+- A Gist pull now reads only the named file. Before, it fell back to any JSON file.
+- Each page has a PS5 | Nintendo Switch switcher at the top.
+- **Owner to check:**
+  - Switch help text for ไอดีร้าน / ไอดีลูกค้า (Nintendo Account, own user, saves; one console at a time).
+  - Step 6 of "วิธีการแจ้งเช่าไอดี", which now says the shop will guide the sign-in in the chat. It replaces the PS5 QR video; send a Switch video if you want one.
+  - The rent-step screenshots are shared with the PS5 page.
+- Not verified on a real LINE device: LIFF on `/ajgameid/switch/`. It works if the ID-rental LIFF endpoint is `https://ajgamerental.com/ajgameid` (a path prefix). Without it, the page falls back to copying the message.
+
 ## 2026-10-02 — Quotation: "x 3 วัน", green notes first, notes in the message (Delivery App `451e08e`)
 
 - Item lines now read "จำนวน N เครื่อง x D วัน", and accessories read "x D วัน".
