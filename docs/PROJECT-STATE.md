@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-10-02 — LIFF quote send fixed; step-1 calculator button removed
+
+- The LIFF app now reads `?qq=` first, before `bootstrapLiff`, and stores it in sessionStorage as `ajQuickQuote` so it survives login. It shows a full-screen `#quickQuoteScreen` (sending / sent / failed) over the contract form and sends right after LIFF init. Texts come from `quickQuoteTexts()`, a function, because the screen draws before later constants exist. Script version is `20261002-quick-quote-2`.
+- The step-1 "คำนวณค่าเช่า" button is removed. The calculator stays in the menu, on device cards, in the all-devices pop-up and at ?quote=1.
+
 ## 2026-10-02 — Switched-off announcement no longer reappears
 
 - Cause: `DEFAULT_ANNOUNCEMENT` had `enabled: true`, and `loadSiteAnnouncement` fell back to it whenever the Bot did not answer (cold start or network). The flood notice came back even though Admin had turned it off.
