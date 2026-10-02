@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-10-02 — Bundle on the confirmation card; no-ID deposit ฿10,000 / ฿15,000 everywhere (Delivery App `939e748`, Bot `406f685`, website `25178a8`)
+
+- Booking 545 (PS5 + Logitech G29) was confirmed as a bare PS5: ฿1,200 rent and a ฿2,000 deposit, while the balance (฿4,771) already carried the pair's ฿450 and ฿3,000 deposit. Cause: a request filed from the payment webhook (`createPendingFromPayment`) kept only the name and phone. It now keeps the website's rental (`orderFromPayment`: costs, bundleId(s), extras, discounts, …; no identity fields). Paid ledger items read it too. `findBundleByWebsiteId` maps `ps5_g29`→g29, `ps5_vr2`→psvr2 when no cost line names the partner. Card deposit label: "ค่าประกัน (Bundle PS5)" / "Deposit (PS5 bundle)". Test: `npm run test:bundle-from-payment`.
+- Booking 545 itself is not fixed by this: the shop has to edit it (tick the bundle) or resend after editing.
+- No-ID rule, now one rule in all three repos: under ฿4,000 → ฿10,000, ฿4,000 and up → ฿15,000, any PS5 bundle → ฿15,000; ≥฿10,000 is left alone (already stepped up). Bot `noContractDepositAmount(base,{bundle})` + `isBundleRental`; DA `noContractDeposit(base, bundle)` in backend and BookingLogScreen; website old flow uses the same rule. Active no-ID bookings in the Delivery App now show the new figure.
+- Pre-existing DA test failures, not from this change: test:header-guard, bind-rental-code, sheet-write-race (need live Sheets), flex-ledger (blacklist-check version gate).
+
 ## 2026-10-02 — PS5 + Logitech G29 delivered by car; padlock warning line break (website `79aadaa`, Delivery App `ba58566`, Bot `8672087`)
 
 - Website step 3 delivery quote: `deliveryNeedsCar()` counts the chosen PS5 bundle (PS5 + Logitech G29 → `hasLargeItem` → Lalamove CAR). The quote key includes `bundleId`, so changing the bundle quotes again. The quick-quote page already sent the bundle name; now covered by a test.
