@@ -5247,7 +5247,7 @@ function showPickTutorial(show) {
   if (tutorial) tutorial.hidden = !show;
 }
 
-function openPickModal() {
+function openPickModal(options = {}) {
   pickedGames = [];
   pickActivePlatform = null;
   pickSortMode = 'manual';
@@ -5258,13 +5258,16 @@ function openPickModal() {
   document.getElementById('pick-genre-row').classList.remove('show');
   updatePickFilterButtons();
   renderPickPlatformTabs();
-  // Show choose-platform prompt
-  const body = document.getElementById('pick-body');
-  const isEnLang = currentLang === 'en';
-  body.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px 24px;color:var(--text3);font-size:14px">
+  // Show the choose-platform prompt, unless the caller is about to show a
+  // console's games: wiping the covers only to draw them again made them flash.
+  if (!options.platformPending) {
+    const body = document.getElementById('pick-body');
+    const isEnLang = currentLang === 'en';
+    body.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px 24px;color:var(--text3);font-size:14px">
     <div style="font-size:40px;margin-bottom:12px">👆</div>
     ${isEnLang ? 'Select a console type above to browse games' : 'เลือกประเภทเครื่องเกมด้านบนก่อนนะครับ'}
   </div>`;
+  }
   renderPickFooter();
   document.getElementById('pick-copy-panel').classList.remove('show');
   document.getElementById('btn-generate-copy').style.display = 'none';
@@ -5274,6 +5277,7 @@ function openPickModal() {
 
 function closePickModal() {
   document.getElementById('pick-overlay').classList.remove('open');
+  lastPickerOpen = { key: '', at: 0, missing: [] };
 }
 
 function renderPickPlatformTabs() {
@@ -6434,9 +6438,13 @@ function morphChildren(from, to){
   const newNodes = Array.from(to.childNodes);
   const keyed = new Map();
   oldNodes.forEach(node => { const key = morphKey(node); if(key !== null && !keyed.has(key)) keyed.set(key, node); });
+  // Pair each new node with an old one first, then drop the old nodes nobody
+  // took, and only then put things in order. Dropping first keeps the
+  // survivors in place: with a stale node still in the row, every card after
+  // it would be moved one by one.
   const used = new Set();
   let cursor = 0;
-  newNodes.forEach((next, index) => {
+  const pairs = newNodes.map(next => {
     const key = morphKey(next);
     let match = null;
     if(key !== null){
@@ -6448,12 +6456,16 @@ function morphChildren(from, to){
       const candidate = oldNodes[cursor];
       if(candidate && candidate.nodeName === next.nodeName){ match = candidate; cursor++; }
     }
+    if(match) used.add(match);
+    return [next, match];
+  });
+  oldNodes.forEach(node => { if(!used.has(node)) from.removeChild(node); });
+  pairs.forEach(([next, match], index) => {
     let node = next;
-    if(match){ used.add(match); morphNode(match, next); node = match; }
+    if(match){ morphNode(match, next); node = match; }
     const at = from.childNodes[index];
     if(at !== node) from.insertBefore(node, at || null);
   });
-  while(from.childNodes.length > newNodes.length) from.removeChild(from.lastChild);
 }
 function morphNode(from, to){
   if(from.nodeType !== 1){
@@ -6468,6 +6480,61 @@ function morphNode(from, to){
     if(from !== document.activeElement && from.type !== "file" && from.nodeName !== "SELECT" && from.value !== to.value) from.value = to.value;
   }
   morphChildren(from, to);
+}
+
+// One opening of the picker, applied once.
+//
+// The booking page asks the picker to open several times for a single
+// opening: when the frame loads, again 500 ms later, and when the picker
+// reports ready. The safety net at the end of this file repeats each ask
+// twice more. Every ask used to reset the grid to the "choose a console"
+// prompt and draw every cover again, so the covers flashed over and over
+// while the window opened. The same ask, while the picker already shows
+// games and within a few seconds, is now skipped. A different ask, or
+// closing the picker, starts a fresh opening.
+var lastPickerOpen = { key: '', at: 0, missing: [] };
+function pickerOpenKey(data) {
+  const platform = data && data.platformId === PLAYSTATION_ADMIN_ID ? 'ps5' : String((data && data.platformId) || '');
+  return JSON.stringify([
+    platform,
+    String((data && data.lang) || 'th'),
+    Array.isArray(data && data.selectedGameIds) ? data.selectedGameIds : [],
+    !!(data && data.browseOnly),
+    String((data && data.startDate) || ''),
+    String((data && (data.endDate || data.returnDate)) || ''),
+  ]);
+}
+function isRepeatPickerOpen(data) {
+  const key = pickerOpenKey(data);
+  const overlay = document.getElementById('pick-overlay');
+  const showingGames = !!(overlay && overlay.classList.contains('open') && document.querySelector('#pick-body .pick-card, #pick-body .game-list-row'));
+  if (showingGames && key === lastPickerOpen.key && Date.now() - lastPickerOpen.at < 4000) return true;
+  lastPickerOpen = { key, at: Date.now(), missing: [] };
+  return false;
+}
+// The games the booking already had that the catalogue did not know yet
+// when the picker opened (it opens on the cached list, the Gist comes later).
+function rememberMissingPicks(requested) {
+  const known = id => (Array.isArray(games) ? games : []).some(g => g.id === id);
+  lastPickerOpen.missing = (Array.isArray(requested) ? requested : []).filter(id => !known(id));
+}
+// The full catalogue arrived while the picker is open: show the new games in
+// place (patched, so the covers already shown stay put) and tick the booking's
+// games that only the full catalogue knows.
+function refreshPickerAfterCatalog() {
+  const overlay = document.getElementById('pick-overlay');
+  if (!overlay || !overlay.classList.contains('open') || !pickActivePlatform) return;
+  const known = id => (Array.isArray(games) ? games : []).some(g => g.id === id);
+  (lastPickerOpen.missing || []).forEach(id => {
+    if (known(id) && !pickedGames.includes(id) && pickedGames.length < MAX_PICK) {
+      pickedGames.push(id);
+      try { if (Array.isArray(pickBaselineIds) && !pickBaselineIds.includes(id)) pickBaselineIds.push(id); } catch (e) {}
+    }
+  });
+  lastPickerOpen.missing = (lastPickerOpen.missing || []).filter(id => !known(id));
+  renderPickPlatformTabs();
+  renderPickBody();
+  renderPickFooter();
 }
 
 // Covers that failed to load. The card is then drawn with its placeholder,
@@ -7041,6 +7108,7 @@ window.ajGameCatalogReady = fetchFromJSONBin({ render:false }).then(function(loa
   if (typeof window.ajApplyGameCatalogFilters === 'function') window.ajApplyGameCatalogFilters();
   renderPublic();
   if (typeof renderFAQ === 'function') renderFAQ();
+  if (loadedFromGist) refreshPickerAfterCatalog();
   return loadedFromGist;
 }).catch(function(e){
   console.warn('[AJGame] Catalog init failed:', e);
@@ -7463,6 +7531,7 @@ document.addEventListener('touchstart', function(e) {
   }
   function openPickerFromParent(data){
     if(!isPicker()) return;
+    if(isRepeatPickerOpen(data)) return;
     ensureEmbedStyles();
     document.body.classList.add('aj-embed-picker');
     if(isContractCardPicker()) document.body.classList.add('aj-contract-card-picker');
@@ -7470,8 +7539,9 @@ document.addEventListener('touchstart', function(e) {
     bridgePlatformId = data.platformId === PLAYSTATION_ADMIN_ID ? 'ps5' : (data.platformId || '');
     setPickerRentalRange(data.startDate, data.endDate || data.returnDate);
     setLangSafe(data.lang || 'th');
-    if(typeof openPickModal === 'function') openPickModal();
+    if(typeof openPickModal === 'function') openPickModal({ platformPending: !!bridgePlatformId });
     pickedGames = Array.isArray(data.selectedGameIds) ? data.selectedGameIds.filter(id => getGamesSafe().some(g => g.id === id)).slice(0,10) : [];
+    rememberMissingPicks(data.selectedGameIds);
     // Ticking the booking's own games is not the customer editing; a later
     // applyPreselection must still be allowed to report what it could not find.
     try { pickBaselineIds = pickedGames.slice(); } catch(e){}
@@ -7723,11 +7793,13 @@ document.addEventListener('touchstart', function(e) {
   }
   function forceRenderPicker(request){
     ensureCatalogReady();
+    if(isRepeatPickerOpen(request)) return;
     try{
       setPickerRentalRange(request.startDate, request.endDate || request.returnDate);
-      if(typeof openPickModal === 'function') openPickModal();
-      pickedGames = Array.isArray(request.selectedGameIds) ? request.selectedGameIds.filter(function(id){ return (Array.isArray(games)?games:[]).some(function(g){ return g.id === id; }); }).slice(0,10) : [];
       const pid = safePlatformId(request.platformId || '');
+      if(typeof openPickModal === 'function') openPickModal({ platformPending: !!pid });
+      pickedGames = Array.isArray(request.selectedGameIds) ? request.selectedGameIds.filter(function(id){ return (Array.isArray(games)?games:[]).some(function(g){ return g.id === id; }); }).slice(0,10) : [];
+      rememberMissingPicks(request.selectedGameIds);
       if(pid && typeof setPickPlatform === 'function') setPickPlatform(pid);
       if(typeof renderPickPlatformTabs === 'function') renderPickPlatformTabs();
       if(typeof renderPickBody === 'function') renderPickBody();

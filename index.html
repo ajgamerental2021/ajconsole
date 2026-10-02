@@ -1687,7 +1687,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 
   const CONFIG = {
     version: "index2-clean-1",
-    gamePickerVersion: "20261002-1",
+    gamePickerVersion: "20261002-2",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",
@@ -3482,9 +3482,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const newNodes = Array.from(to.childNodes);
     const keyed = new Map();
     oldNodes.forEach(node => { const key = morphKey(node); if(key !== null && !keyed.has(key)) keyed.set(key, node); });
+    // Pair each new node with an old one first, then drop the old nodes nobody
+    // took, and only then put things in order. Dropping first keeps the
+    // survivors in place: with a stale node still in the row, every card after
+    // it would be moved one by one.
     const used = new Set();
     let cursor = 0;
-    newNodes.forEach((next, index) => {
+    const pairs = newNodes.map(next => {
       const key = morphKey(next);
       let match = null;
       if(key !== null){
@@ -3496,12 +3500,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         const candidate = oldNodes[cursor];
         if(candidate && candidate.nodeName === next.nodeName){ match = candidate; cursor++; }
       }
+      if(match) used.add(match);
+      return [next, match];
+    });
+    oldNodes.forEach(node => { if(!used.has(node)) from.removeChild(node); });
+    pairs.forEach(([next, match], index) => {
       let node = next;
-      if(match){ used.add(match); morphNode(match, next); node = match; }
+      if(match){ morphNode(match, next); node = match; }
       const at = from.childNodes[index];
       if(at !== node) from.insertBefore(node, at || null);
     });
-    while(from.childNodes.length > newNodes.length) from.removeChild(from.lastChild);
   }
   function morphNode(from, to){
     if(from.nodeType !== 1){
@@ -9310,6 +9318,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   function closeGamePicker(){
     byId("gamePickerOverlay").classList.remove("open");
+    // The next opening starts fresh, even with the same console and games.
+    try{ byId("gamePickerFrame")?.contentWindow?.postMessage({type:"AJ_PICKER_CLOSE"}, pickerTargetOrigin()); }catch{}
     state.gamePickerBrowseOnly = false;
     state.gamePickerPlatformId = "";
     state.gamePickerPlatformsOpen = false;

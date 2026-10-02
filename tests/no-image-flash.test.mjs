@@ -40,3 +40,22 @@ test('the game picker patches its grid, so picking a game does not reload every 
   assert.match(body, /onerror="pickImageFailed\(this\)"/);
   assert.match(picker, /const pickBrokenImages = new Set\(\);/);
 });
+
+test('opening the picker is applied once, without wiping the covers to the prompt', () => {
+  assert.match(picker, /function isRepeatPickerOpen\(data\)/);
+  assert.match(picker, /function openPickerFromParent\(data\)\{\n\s+if\(!isPicker\(\)\) return;\n\s+if\(isRepeatPickerOpen\(data\)\) return;/);
+  assert.match(picker, /function forceRenderPicker\(request\)\{\n\s+ensureCatalogReady\(\);\n\s+if\(isRepeatPickerOpen\(request\)\) return;/);
+  assert.match(picker, /function openPickModal\(options = \{\}\)/);
+  assert.match(picker, /if \(!options\.platformPending\) \{/);
+  assert.match(picker, /openPickModal\(\{ platformPending: !!bridgePlatformId \}\)/);
+  assert.match(picker, /openPickModal\(\{ platformPending: !!pid \}\)/);
+  assert.match(picker, /var lastPickerOpen = /);
+  assert.match(page, /postMessage\(\{type:"AJ_PICKER_CLOSE"\}, pickerTargetOrigin\(\)\)/);
+});
+
+test('the full catalogue arriving refreshes an open picker in place and ticks late-known games', () => {
+  assert.match(picker, /function refreshPickerAfterCatalog\(\)/);
+  assert.match(picker, /if \(loadedFromGist\) refreshPickerAfterCatalog\(\);/);
+  assert.match(picker, /rememberMissingPicks\(data\.selectedGameIds\);/);
+  assert.match(picker, /rememberMissingPicks\(request\.selectedGameIds\);/);
+});
