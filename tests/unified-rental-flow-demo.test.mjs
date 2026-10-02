@@ -35,7 +35,8 @@ test('demo customer details are included in the real booking context', () => {
 
 test('demo identity data stays in page memory and no-contract deposit uses the proposed tiers', () => {
   assert.match(html, /const demoProfile = \{/);
-  assert.match(html, /if\(UNIFIED_FLOW_DEMO\) return Number\(base\) >= 4000 \? 15000 : 10000/);
+  assert.match(html, /function noContractDeposit\(base\)\{\n    return Number\(base\) >= 4000 \? 15000 : 10000;\n  \}/);
+  assert.doesNotMatch(html, /\? 8000 : 5000/);
   assert.match(html, /Full identity numbers and images deliberately stay out of localStorage/);
 });
 

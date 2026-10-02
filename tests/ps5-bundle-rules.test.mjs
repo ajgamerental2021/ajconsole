@@ -21,3 +21,10 @@ test('PS5 + Logitech G29 is quoted for a car, and a bundle change re-quotes', ()
   const bundles = html.slice(html.indexOf('{id:"ps5_g29"'), html.indexOf('{id:"ps5_g29"') + 80);
   assert.match(bundles, /en:"PS5 \+ Logitech G29"/);
 });
+
+test('every page that explains the no-identity deposit names the PS5 bundle figure (TH/EN)', () => {
+  assert.match(html, /Bundle PS5 ทุกรายการ ฿15,000/);
+  assert.match(html, /any PS5 bundle: ฿15,000/);
+  assert.match(html, /PS5 bundle ฿15,000/);
+  assert.match(html, /Bundle PS5 15,000 บาท/);
+});
