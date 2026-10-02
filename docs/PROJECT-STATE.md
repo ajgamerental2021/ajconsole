@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-10-02 — Device card buttons aligned; card "เช็คคิวและจอง" opens the calendar
+
+- `renderConsoleGrid` wraps the games, calculator and book buttons in `.con-actions` (`margin-top:auto`). Before, only the book button had it, which left gaps on short cards.
+- `startBookingWithCalendar(consoleItem, bundleId)` is shared by the card's book button and the calculator's `AJ_QUOTE_BOOK`. It selects the device, sets step 1, leaves the before-rent page and calls `openCalendar("start")`.
+
 ## 2026-10-02 — Greeting-button statistics on /analytics (Bot `9e454fd`)
 
 - `greeting_button_clicked` is posted by aj-detached-omnichannel-bot when a customer taps a button on the daily greeting (LINE/Messenger). It is accepted and excluded from the website figures (`isGreeting`).
