@@ -1,5 +1,9 @@
 # Project state
 
+## 2026-10-02 — Calculator button in the all-devices pop-up
+
+- `#allConsolesQuote` sits in the `#allConsolesModal` header (before "คัดลอก URL") and calls `openQuotePopup("all_consoles")`. The calculator opens on top of the list, and closing it returns to the list. Booking from the calculator closes both pop-ups and opens the queue calendar.
+
 ## 2026-10-02 — Calculator: one name; booking opens the queue calendar
 
 - The menu, the step-1 button, the pop-up title and the quote page title all say "คำนวณค่าเช่า" / "Rental calculator". "คำนวณค่าเช่าคร่าวๆ" is gone from index.html.
