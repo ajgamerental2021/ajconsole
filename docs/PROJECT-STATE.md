@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-10-02 — Quick quote moved to ajgamerental.com/quote/ (website `fc6da56`, Bot `4f99de1`)
+
+- The page now lives in this repo at `quote/index.html`, so the URL is **https://ajgamerental.com/quote/** (add `?src=line|messenger|whatsapp|web`). It calls the Bot (`API = https://aj-line-oa-bot.onrender.com`) for `/api/delivery/quote`, `/api/queue-closures`, `/api/quick-quote` and `/api/analytics/event`; `/api/quick-quote` was added to the Bot's CORS list.
+- The old Bot link `/quick-quote/:key` 301-redirects to the new URL, keeping `src` and `lang`. Bot `public/quick-quote/` is removed, and the page tests moved to `tests/quick-quote-page.test.mjs`.
+- Devices are listed in the booking page's order: `BRAND_ORDER`, then `RANK` (a test checks that it equals index.html's `consoleRank` list), then the higher rate.
+- A device whose Ready Date is in the future, or whose queue is shut in Admin → ปิดคิว (a closure with no reopen date), is shown disabled as "⛔ … - พร้อมวันที่ DD/MM/YYYY" or "ปิดคิวในช่วงเวลานี้", and opens by itself. Bundles that are not ready yet are disabled the same way.
+
 ## 2026-10-02 — Delivery card balance bigger; quick quote answered on LINE with a Flex card; readable copy text (Delivery App `9575897`, Bot `fa8758b`)
 
 - Delivery card (`deliveryMessage.ts` `balanceBlock`): the amount to pay on delivery sits in a tinted box with a bold label, the amount in 3xl red, and a one-line instruction. Applies to bank, cash and card/e-wallet.
