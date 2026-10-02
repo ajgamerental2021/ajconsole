@@ -712,8 +712,8 @@
         statusPlaceholder: 'เช่น ว่าง หรือ ยังไม่ว่าง\nพร้อมใช้งานวันที่ 30/04/2026',
         deleteConfirm: 'ลบรายการ ID #{{id}} ใช่ไหม?',
         resetConfirm: 'รีเซ็ตกลับเป็นข้อมูลตั้งต้นจากไฟล์ Excel ใช่ไหม?',
-        lineMessageRentIntro: '🎮 สวัสดีครับ สนใจเช่าไอดีเกม PS5',
-        lineMessageReserveIntro: '📅 สวัสดีครับ สนใจจองล่วงหน้าไอดีเกม PS5',
+        lineMessageRentIntro: '🎮 สวัสดีครับ/ค่ะ สนใจเช่าไอดีเกม PS5',
+        lineMessageReserveIntro: '📅 สวัสดีครับ/ค่ะ สนใจจองล่วงหน้าไอดีเกม PS5',
         lineFieldGame: '🎮 เกม',
         lineFieldId: '🆔 ลำดับไอดี',
         lineFieldType: '👤 ประเภท',
@@ -722,7 +722,8 @@
         lineFieldStatus: '📌 สถานะหน้าเว็บ',
         lineFieldStart: '▶️ วันเริ่มเช่าโดยประมาณ',
         lineFieldEnd: '⏹️ วันสิ้นสุดโดยประมาณ',
-        lineMessageFooter: '🙏 รบกวนแอดมินเช็กคิวและยืนยันให้หน่อยครับ',
+        lineMessageFooter: '🙏 รบกวนแอดมินเช็กคิวและยืนยันให้หน่อยครับ/ค่ะ',
+        lineMessageRefundNote: '⚠️ หลังชำระเงินแล้ว ทางร้านขอสงวนสิทธิ์ไม่คืนเงินครับ แต่สามารถเปลี่ยนไอดีเกมอื่นแทนได้ รบกวนตรวจสอบรายละเอียดก่อนเช่านะครับ 🙏',
         loginSecureNote: ''
       },
       en: {
@@ -879,14 +880,15 @@
         lineMessageRentIntro: '🎮 Hello, I would like to rent a PS5 game ID.',
         lineMessageReserveIntro: '📅 Hello, I would like to reserve a PS5 game ID in advance.',
         lineFieldGame: '🎮 Game',
-        lineFieldId: 'ID number',
+        lineFieldId: '🆔 ID number',
         lineFieldType: '👤 Type',
         lineFieldDays: '🗓️ Duration',
         lineFieldPrice: '💵 Price',
-        lineFieldStatus: 'Website status',
+        lineFieldStatus: '📌 Website status',
         lineFieldStart: '▶️ Estimated start date',
         lineFieldEnd: '⏹️ Estimated end date',
-        lineMessageFooter: 'Please help check the queue and confirm it for me. Thank you.',
+        lineMessageFooter: '🙏 Please help check the queue and confirm it for me. Thank you.',
+        lineMessageRefundNote: '⚠️ Once paid, the rental is non-refundable, but you can switch to another game ID instead. Please check the details before renting. 🙏',
         loginSecureNote: 'Note: this login hides credentials as hashes in the HTML file, not with a real server-side auth system.'
       }
     };
@@ -1793,25 +1795,6 @@
       return getRentalWindow(offer, item);
     }
 
-    function buildMessage(item, offer) {
-      const offerState = getOfferState(offer);
-      const windowInfo = getRentalWindow(offer, item);
-      const intro = item?.notReady ? tr('lineMessageReserveIntro') : (windowInfo.mode === 'rent' ? tr('lineMessageRentIntro') : tr('lineMessageReserveIntro'));
-      return [
-        intro,
-        `${tr('lineFieldGame')}: ${item.title}`,
-        `${tr('lineFieldId')}: ${item.idNo}`,
-        `${tr('lineFieldType')}: ${localizeTypeLabel(offerState.typeLabel)}`,
-        `${tr('lineFieldDays')}: ${offerState.days} ${tr('daysUnit')}`,
-        `${tr('lineFieldPrice')}: ${offerState.price} ${tr('baht')}`,
-        `${tr('lineFieldStatus')}: ${getMessageStatusText(item, offerState)}`,
-        `${tr('lineFieldStart')}: ${windowInfo.start}`,
-        `${tr('lineFieldEnd')}: ${windowInfo.end}`,
-        '',
-        tr('lineMessageFooter')
-      ].join('\n');
-    }
-
     async function copyText(text) {
       try {
         await navigator.clipboard.writeText(text);
@@ -2104,60 +2087,6 @@
       if (type) openInfoModal(type, false);
     }
 
-    async function handleLine(item, offer) {
-      const offerState = getOfferState(offer);
-      const windowInfo = getBookingWindow(offer, item);
-      const intro = item?.notReady
-        ? tr('lineMessageReserveIntro')
-        : (windowInfo.mode === 'rent' ? tr('lineMessageRentIntro') : tr('lineMessageReserveIntro'));
-
-      const message = [
-        intro,
-        '',
-        `${tr('lineFieldGame')}: ${item.title}`,
-        `${tr('lineFieldId')}: ID #${item.idNo}`,
-        `${tr('lineFieldType')}: ${localizeTypeLabel(offer.typeLabel)}`,
-        `${tr('lineFieldDays')}: ${offer.days} ${tr('daysUnit')}`,
-        `${tr('lineFieldPrice')}: ${formatPrice(offer.price)}`,
-        `${tr('lineFieldStatus')}: ${getMessageStatusText(item, offerState)}`,
-        `${tr('lineFieldStart')}: ${windowInfo.start}`,
-        `${tr('lineFieldEnd')}: ${windowInfo.end}`,
-        '',
-        tr('lineMessageFooter')
-      ].join('\\n');
-
-      let copied = false;
-      try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(message);
-          copied = true;
-        }
-      } catch (err) {
-        console.warn('clipboard failed', err);
-      }
-
-      if (!copied) {
-        try {
-          const ta = document.createElement('textarea');
-          ta.value = message;
-          ta.setAttribute('readonly', '');
-          ta.style.position = 'fixed';
-          ta.style.opacity = '0';
-          ta.style.pointerEvents = 'none';
-          document.body.appendChild(ta);
-          ta.focus();
-          ta.select();
-          copied = document.execCommand('copy');
-          ta.remove();
-        } catch (err) {
-          console.warn('fallback copy failed', err);
-        }
-      }
-
-      showToast(copied ? tr('lineToastCopied') : tr('lineToastOpen'));
-      showCopyModal();
-    }
-
     function filterItems() {
       const keyword = normalize(el.searchInput.value);
       let items = sortItems(state);
@@ -2226,7 +2155,9 @@
           `${tr('lineFieldStart')}: ${windowInfo.start}`,
           `${tr('lineFieldEnd')}: ${windowInfo.end}`,
           '',
-          tr('lineMessageFooter')
+          tr('lineMessageFooter'),
+          '',
+          tr('lineMessageRefundNote')
         ].join('\n');
 
         const saved = await addBookingRequest(item, offer, Number(offerIndex), windowInfo);

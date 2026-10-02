@@ -54,3 +54,14 @@ test('the Switch starter data is one sample ID with a cover that exists', () => 
   assert.equal(data.ids[0].platform, 'Nintendo Switch');
   assert.ok(read(`ajgameid/switch/${data.ids[0].images[0]}`).includes('<svg'));
 });
+
+test('the copied ID-rental message greets for either gender and ends with the no-refund note (TH/EN)', () => {
+  assert.match(ps5, /lineMessageRentIntro: '🎮 สวัสดีครับ\/ค่ะ สนใจเช่าไอดีเกม PS5'/);
+  assert.match(ps5, /lineMessageReserveIntro: '📅 สวัสดีครับ\/ค่ะ สนใจจองล่วงหน้าไอดีเกม PS5'/);
+  assert.match(ps5, /lineMessageFooter: '🙏 รบกวนแอดมินเช็กคิวและยืนยันให้หน่อยครับ\/ค่ะ'/);
+  assert.match(ps5, /lineMessageRefundNote: '⚠️ หลังชำระเงินแล้ว ทางร้านขอสงวนสิทธิ์ไม่คืนเงินครับ แต่สามารถเปลี่ยนไอดีเกมอื่นแทนได้ รบกวนตรวจสอบรายละเอียดก่อนเช่านะครับ 🙏'/);
+  assert.match(ps5, /lineMessageRefundNote: '⚠️ Once paid, the rental is non-refundable, but you can switch to another game ID instead\./);
+  assert.match(ps5, /tr\('lineMessageFooter'\),\n\s+'',\n\s+tr\('lineMessageRefundNote'\)\n\s+\]\.join\('\\n'\)/);
+  assert.match(sw, /lineMessageRentIntro: '🎮 สวัสดีครับ\/ค่ะ สนใจเช่าไอดีเกม Nintendo Switch'/);
+  assert.match(sw, /tr\('lineMessageRefundNote'\)/);
+});

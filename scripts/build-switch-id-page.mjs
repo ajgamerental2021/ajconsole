@@ -83,8 +83,8 @@ export function buildSwitchPage(ps5Html = read('ajgameid/index.html'), sourceDat
   replace("siteTitle: 'PS5 Game ID List',", "siteTitle: 'Nintendo Switch Game ID List',");
   replace("heroTitle: 'PS5 Game ID List',", "heroTitle: 'Nintendo Switch Game ID List',");
   replace("platformFallback: 'PS5',", "platformFallback: 'Nintendo Switch',", 2);
-  replace("lineMessageRentIntro: '🎮 สวัสดีครับ สนใจเช่าไอดีเกม PS5',", "lineMessageRentIntro: '🎮 สวัสดีครับ สนใจเช่าไอดีเกม Nintendo Switch',");
-  replace("lineMessageReserveIntro: '📅 สวัสดีครับ สนใจจองล่วงหน้าไอดีเกม PS5',", "lineMessageReserveIntro: '📅 สวัสดีครับ สนใจจองล่วงหน้าไอดีเกม Nintendo Switch',");
+  replace("lineMessageRentIntro: '🎮 สวัสดีครับ/ค่ะ สนใจเช่าไอดีเกม PS5',", "lineMessageRentIntro: '🎮 สวัสดีครับ/ค่ะ สนใจเช่าไอดีเกม Nintendo Switch',");
+  replace("lineMessageReserveIntro: '📅 สวัสดีครับ/ค่ะ สนใจจองล่วงหน้าไอดีเกม PS5',", "lineMessageReserveIntro: '📅 สวัสดีครับ/ค่ะ สนใจจองล่วงหน้าไอดีเกม Nintendo Switch',");
   replace("lineMessageRentIntro: '🎮 Hello, I would like to rent a PS5 game ID.',", "lineMessageRentIntro: '🎮 Hello, I would like to rent a Nintendo Switch game ID.',");
   replace("lineMessageReserveIntro: '📅 Hello, I would like to reserve a PS5 game ID in advance.',", "lineMessageReserveIntro: '📅 Hello, I would like to reserve a Nintendo Switch game ID in advance.',");
   replace('placeholder="พิมพ์ชื่อเกม เช่น Saros, Spider-Man 2, Ghost of Yotei..."', 'placeholder="พิมพ์ชื่อเกม เช่น Mario Kart, Zelda, Pokémon..."');
