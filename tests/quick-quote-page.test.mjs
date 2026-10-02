@@ -69,7 +69,7 @@ test('under the total: the returning and review discounts are named, claimed on 
 });
 
 test('the page: a code per quote at the end of the LINE message, saved as LINE opens', () => {
-  assert.match(page, /'\\n\\n🔖 ' \+ t\('quoteCode'\) \+ ' ' \+ codeFor\(text\)/);
+  assert.match(page, /'\\n\\n🔖 ' \+ t\('quoteCode'\) \+ ' ' \+ code\);/);
   assert.match(page, /\$\('sendLine'\)\.addEventListener\('click', function \(\) \{ saveForLine\(\);/);
   assert.match(page, /fetch\(API \+ '\/api\/quick-quote', \{ method: 'POST'[^\n]*keepalive: true \}\)/);
   assert.match(page, /var CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';/);
@@ -102,4 +102,17 @@ test('a shared link shows what the page is, not "Google Maps"', () => {
   assert.match(page, /<meta property="og:description" content="เช็คราคาเช่าเครื่องเกมคร่าวๆ ด้วยตัวเอง/);
   assert.match(page, /<meta name="description" content="เช็คราคาเช่าเครื่องเกมคร่าวๆ/);
   assert.ok(page.includes('og:image" content="https://ajgamerental.com/assets/aj-share-logo.jpg"'));
+});
+
+test('"send this price on LINE" goes through AJ\'s LIFF app, which proves the LINE account before the card is sent', () => {
+  assert.match(page, /fetch\(API \+ '\/api\/config'/);
+  assert.match(page, /'https:\/\/liff\.line\.me\/' \+ liffId \+ '\/\?qq=' \+ encodeURIComponent\(code\) \+ '&lang=' \+ lang/);
+  assert.match(page, /id="sendLine" href="#" target="_top"/);
+});
+
+test('a device can be chosen for the page: ?device= or a message from the booking page', () => {
+  assert.match(page, /var wantedDevice = String\(params\.get\('device'\) \|\| ''\);/);
+  assert.match(page, /if \(data\.type === 'AJ_SET_DEVICE'\) chooseDevice\(data\.consoleId\);/);
+  assert.match(page, /if \(!option \|\| option\.disabled\) return;/, 'a closed device is not chosen');
+  assert.match(page, /renderAddOns\(\);\n      chooseDevice\(wantedDevice\);/);
 });

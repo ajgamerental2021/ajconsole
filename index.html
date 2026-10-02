@@ -3914,6 +3914,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           <div class="dep">${tr("deposit")} ${money(c.deposit)}</div>
           <div class="details">${details.map(x=>`<div>${esc(x)}</div>`).join("")}</div>
           ${gameButtonVisible ? `<button class="btn soft" data-card-game="${esc(String(c.id))}" type="button">${tr("pickGames")}</button>` : ""}
+          ${ready ? `<button class="btn soft card-quote-btn" data-card-quote="${esc(String(c.id))}" type="button">${esc(tr("quoteBtn"))}</button>` : ""}
           ${options.bookingButton ? `<button class="btn primary all-consoles-book" data-all-console-book="${esc(String(c.id))}" type="button">${esc(tr("allConsolesBook"))}</button>` : ""}
         </div>
       </article>`;
@@ -10360,10 +10361,14 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("quoteClose").setAttribute("aria-label", en ? "Close" : "ปิด");
     refreshSectionCopyButtons();
   }
-  function openQuotePopup(from = ""){
+  function openQuotePopup(from = "", consoleId = ""){
     const frame = byId("quoteFrame");
-    if(!frame.getAttribute("src")) frame.setAttribute("src", `${quoteFrameOrigin()}/quote/?embed=1&src=web&lang=${state.lang === "en" ? "en" : "th"}`);
-    else frame.contentWindow?.postMessage({type:"AJ_SET_LANG", lang:state.lang}, quoteFrameOrigin());
+    const device = String(consoleId || "");
+    if(!frame.getAttribute("src")) frame.setAttribute("src", `${quoteFrameOrigin()}/quote/?embed=1&src=web&lang=${state.lang === "en" ? "en" : "th"}${device ? `&device=${encodeURIComponent(device)}` : ""}`);
+    else{
+      frame.contentWindow?.postMessage({type:"AJ_SET_LANG", lang:state.lang}, quoteFrameOrigin());
+      if(device) frame.contentWindow?.postMessage({type:"AJ_SET_DEVICE", consoleId:device}, quoteFrameOrigin());
+    }
     renderQuoteHead();
     byId("quoteModal").classList.add("open");
     trackAnalytics("quick_quote_popup_opened", {value:from});
@@ -11490,6 +11495,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
         renderAllConsolesModal();
         return;
       }
+      // The calculator for this one device: it opens with the device chosen.
+      const cardQuote = event.target.closest("[data-card-quote]");
+      if(cardQuote){ openQuotePopup("card", cardQuote.dataset.cardQuote); return; }
       const allConsoleBook = event.target.closest("[data-all-console-book]");
       if(allConsoleBook){
         const selectedConsole = consoleById(allConsoleBook.dataset.allConsoleBook);

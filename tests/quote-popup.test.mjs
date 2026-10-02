@@ -72,3 +72,10 @@ test('the all-devices pop-up has the calculator button too; booking from it clos
   assert.match(html, /if\(byId\("allConsolesModal"\)\?\.classList\.contains\("open"\)\) closeAllConsoles\(\);/);
   assert.ok(html.indexOf('id="quoteModal"') > html.indexOf('id="allConsolesModal"'), 'the calculator sits above the list');
 });
+
+test('every bookable device card has its own calculator button, opening with that device', () => {
+  assert.match(html, /\$\{ready \? `<button class="btn soft card-quote-btn" data-card-quote="\$\{esc\(String\(c\.id\)\)\}" type="button">\$\{esc\(tr\("quoteBtn"\)\)\}<\/button>` : ""\}/);
+  assert.match(html, /if\(cardQuote\)\{ openQuotePopup\("card", cardQuote\.dataset\.cardQuote\); return; \}/);
+  assert.match(html, /&device=\$\{encodeURIComponent\(device\)\}/);
+  assert.match(html, /postMessage\(\{type:"AJ_SET_DEVICE", consoleId:device\}, quoteFrameOrigin\(\)\)/);
+});

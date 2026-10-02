@@ -113,7 +113,7 @@
     <p class="perks" data-t="perks"></p>
     <p class="note" data-t="note"></p>
     <a class="btn book" id="book" href="#" data-t="book"></a>
-    <a class="btn line" id="sendLine" href="#" target="_blank" rel="noopener" data-t="sendLine"></a>
+    <a class="btn line" id="sendLine" href="#" target="_top" rel="noopener" data-t="sendLine"></a>
     <button class="btn secondary" id="copy" type="button" data-t="copy"></button>
   </div>
 </div>
@@ -198,6 +198,7 @@
     if (!/^https:\/\/(www\.)?ajgamerental\.com$|^https:\/\/ajgamerental\.onrender\.com$|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(event.origin)) return;
     var data = event.data || {};
     if (data.type === 'AJ_SET_LANG' && (data.lang === 'th' || data.lang === 'en') && data.lang !== lang) { lang = data.lang; applyLanguage(); }
+    if (data.type === 'AJ_SET_DEVICE') chooseDevice(data.consoleId);
   });
   var consoles = [];
   // The booking site's add-ons (extrasForConsole): Switch extras are built in,
@@ -517,10 +518,31 @@
       totalLabel: quote ? t('total') : t('totalNoDelivery'), total: money(L.total), deliveryIncluded: !!quote, bookUrl: bookUrl()
     };
   }
+  // AJ's LIFF app (its id from the Bot): LINE signs the customer in, and the
+  // Bot sends the quote card into their chat with the shop. Without it, the
+  // quote goes as a typed LINE message with its code, as before.
+  var liffId = '';
+  fetch(API + '/api/config', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : {}; })
+    .then(function (config) { liffId = /^\d+-[A-Za-z0-9]+$/.test(String(config && config.liffId || '')) ? config.liffId : ''; renderLinks(); })
+    .catch(function () {});
   function renderLinks() {
     $('book').href = bookUrl() || '#';
     var text = quoteText();
-    $('sendLine').href = 'https://line.me/R/oaMessage/%40ajgame/?' + encodeURIComponent(t('lineHead') + '\n\n' + text + '\n\n🔖 ' + t('quoteCode') + ' ' + codeFor(text));
+    var code = codeFor(text);
+    $('sendLine').href = liffId
+      ? 'https://liff.line.me/' + liffId + '/?qq=' + encodeURIComponent(code) + '&lang=' + lang
+      : 'https://line.me/R/oaMessage/%40ajgame/?' + encodeURIComponent(t('lineHead') + '\n\n' + text + '\n\n🔖 ' + t('quoteCode') + ' ' + code);
+  }
+  // A device chosen for the page: ?device= or the booking page's card button.
+  var wantedDevice = String(params.get('device') || '');
+  function chooseDevice(id) {
+    wantedDevice = String(id || '');
+    if (!wantedDevice || !consoles.length) return;
+    var option = Array.prototype.find.call($('device').options, function (o) { return o.value === wantedDevice; });
+    if (!option || option.disabled) return;
+    $('device').value = wantedDevice;
+    quote = null; picked = []; $('bundle').value = '';
+    renderAddOns(); render();
   }
   function saveForLine() {
     var body = savedQuote();
@@ -601,6 +623,7 @@
       }).filter(function (b) { return b.id && b.rate > 0; });
       fillDevices();
       renderAddOns();
+      chooseDevice(wantedDevice);
     })
     .catch(function () { $('device').innerHTML = '<option value="">' + t('catalogueFail') + '</option>'; });
   // The shop's queue closures, from the same place the booking page reads them.
