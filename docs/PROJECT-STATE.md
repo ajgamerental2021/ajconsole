@@ -1,5 +1,22 @@
 # Project state
 
+## 2026-10-02 — PS5 bundle: second device as its own booking; quick-quote discount note (Delivery App `6d20c8d`, Bot `323cf75`)
+
+- A PS5 booking with a bundle gets a second booking on the partner device (G29 / PSVR2 / PS Portal). It is a clone with the same customer, phone, dates, times, places and address, plus a new Booking Log column **"Bundle Parent ID"** set to the PS5 Booking ID (header auto-created). Code is in `bundlePartnerService.ts`. `BookingService.syncBundlePartnerOf` runs from `addBooking` (when a bundle is set) and from `writeBookingRow` (when either side has a bundle):
+  - it creates the second booking, mirrors changes, cancels and un-cancels it, switches the device when the bundle changes, and releases it when the bundle is removed;
+  - it works one parent at a time, so the second booking is never created twice;
+  - `deleteBooking` removes it too (bottom-up), and `setDone` marks it done with the PS5 booking.
+- No money on the second booking: `bookingCharges` returns zero for it, and `FinanceService.upsertEntryFromBooking` skips it. Its sheet **Rental Fee cell still shows the formula's partner-device price**; ignore it.
+- The customer never sees it. `sendBookingConfirm` refuses it (`bundle_partner`). `withoutBundlePartners` filters it out of My rental, customerActions, customerRentalChange, paymentRentalResolver, game selection, LINE identity, contract lookup/signed, profileToBookings, fraud, analytics, agentTools, paidBookingLine, rentalChangeService and consolePending.
+- The driver's queue already groups same customer, date and type into one job ("PS5-2, G29").
+- Queue checks:
+  - `conflictFor` ignores the edited booking's own second booking.
+  - `findUnitForDates` and `startDayOptions` require the partner device to be free.
+  - Extension `maxDays` takes the tighter of the PS5 and partner-device queues.
+- App: the second booking shows "📦 Bundle ของ #545 · ยอดเงินทั้งหมดอยู่ที่ #545" with no customer buttons.
+- Existing booking 545 gets its second booking on its next edit with the bundle selected.
+- Quick quote: a green line under the total, "🎁 ลูกค้าเก่าลด 10% · รีวิวลดเพิ่ม — ยืนยันสิทธิได้ตอนกดจอง" (EN too), also included in the copied and LINE text. No tick boxes.
+
 ## 2026-10-02 — Confirmation email: grand total, vehicle, highlighted payment rows (Bot `7c4ae88`)
 
 - `rentalChargeLines` (rental-lookup.js): "ค่าจัดส่งไป-กลับ (รถยนต์/มอเตอร์ไซค์)" from `deliveryQuote.serviceType`, then "ยอดรวมทั้งหมด / Grand total" = rental after discounts + deposit + delivery paid + payment fee.
