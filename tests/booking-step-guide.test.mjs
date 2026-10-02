@@ -30,7 +30,8 @@ test('preparation timing is shown above the calculator and after game selection 
 });
 
 test('booking details hide duplicate returning banner and keep the verified agreement status', () => {
-  const optionRows = source.match(/byId\("optionRows"\)\.innerHTML = `([\s\S]*?)`;\n  }/)?.[1] || '';
+  const optionRows = source.match(/patchHTML\(byId\("optionRows"\), `([\s\S]*?)`\);\n  }/)?.[1] || '';
+  assert.ok(optionRows.length > 100, 'option rows template found');
   assert.doesNotMatch(optionRows, /returningVerifiedHtml/);
   assert.match(optionRows, /agreementActionHtml/);
 });
