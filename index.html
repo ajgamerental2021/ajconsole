@@ -9528,8 +9528,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // customer in, until the shop turns it off in Admin → Announcement. It is
   // kept on AJ's server (site content "announcement"); this text is used until
   // the shop has saved its own.
+  // Only the text the admin form starts from. Never shown by itself: a notice
+  // goes up only when the Bot says it is on (see loadSiteAnnouncement).
   const DEFAULT_ANNOUNCEMENT = {
-    enabled: true,
+    enabled: false,
     th: `📢 แจ้งหยุดรับจองเครื่องเช่าชั่วคราว
 เนื่องจากสถานการณ์ฝนตกหนักและน้ำท่วมในหลายพื้นที่ ส่งผลให้ทางร้านไม่สามารถเรียกรถเพื่อจัดส่งเครื่องได้ตามปกติ
 ทาง AJ จึงขอ **ปิดรับการจองเครื่องเกมสำหรับการจัดส่งในช่วงนี้ชั่วคราว** จนกว่าสถานการณ์จะกลับสู่ปกติ 🙏
@@ -9560,11 +9562,17 @@ We apologize for the inconvenience and hope everyone stays safe.`
         ? await early
         : await fetch(`${CONFIG.apiBase}/api/site-content/announcement?_ts=${Date.now()}`, {cache:"no-store"}).then(response => response.ok ? response.json() : null);
       const content = result?.content;
-      if(content && typeof content === "object" && typeof content.th === "string" && typeof content.en === "string") siteAnnouncement = {enabled:content.enabled === true, th:content.th, en:content.en};
+      if(content && typeof content === "object" && typeof content.th === "string" && typeof content.en === "string"){
+        siteAnnouncement = {enabled:content.enabled === true, th:content.th, en:content.en};
+        return siteAnnouncement;
+      }
     }catch(error){
       console.warn("Announcement unavailable", error);
     }
-    return announcementContent();
+    // Not known (the Bot did not answer): show nothing. Falling back to the
+    // built-in notice put a switched-off notice back up whenever the Bot was
+    // slow to wake.
+    return null;
   }
   // Each language in its own column: Thai on the left, English on the right.
   function announcementColumnHtml(text, lang){
@@ -9594,6 +9602,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
   // The current notice, once known: remembered so the next visit opens it
   // while the page is still loading, and shown, updated or closed now.
   function applySiteAnnouncement(content){
+    if(!content){ closeSiteAnnouncement({dismissed:false}); return; }
     try{
       localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, JSON.stringify({enabled: !!content?.enabled, html: content?.enabled ? announcementHtml(content) : ""}));
     }catch(error){}
