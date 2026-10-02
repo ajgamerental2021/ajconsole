@@ -170,7 +170,7 @@ test('round-trip delivery price comes from the Bot and is never shown as final w
   assert.match(html, /demoDelivery = \{status:"idle", quote:null, key:"", error:""\}/);
   assert.match(html, /Waiting for the live delivery price/);
   assert.ok(html.includes('needs_pin: en ? "Map pin needed" : "ต้องปักหมุดแผนที่"'));
-  assert.match(html, /hasLargeItem: \/G29\|Logitech\/i\.test\(name\)/);
+  assert.match(html, /hasLargeItem: deliveryNeedsCar\(\)/);
   assert.match(html, /data-delivery-quote-retry/);
   assert.match(html, /The live delivery price is not ready\. Please calculate it again before paying\./);
   assert.match(html, /ยังไม่ได้ราคาค่าส่งจริง กรุณาคำนวณค่าส่งอีกครั้งก่อนชำระเงิน/);

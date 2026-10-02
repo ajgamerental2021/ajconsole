@@ -4134,11 +4134,18 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // What the quote depends on. A refresh, an edited address or new dates
   // change it, and the order page asks for a fresh quote.
   function demoDeliveryQuoteKey(){
-    return [demoProfile.maps, state.calc.consoleId, state.calc.extras?.length ? 1 : 0, state.calc.start, state.calc.end].join("|");
+    return [demoProfile.maps, state.calc.consoleId, state.calc.bundleId || "", state.calc.extras?.length ? 1 : 0, state.calc.start, state.calc.end].join("|");
+  }
+  // A Logitech G29 needs a car: rented on its own or in a PS5 bundle
+  // (PS5 + Logitech G29). Everything else fits a motorcycle.
+  function deliveryNeedsCar(){
+    const consoleItem = consoleById(state.calc.consoleId);
+    if(!consoleItem) return false;
+    const bundle = Number(consoleItem.id) === SPEC.PS5 && state.calc.bundleId ? state.bundles.find(item => item.id === state.calc.bundleId) : null;
+    const name = [consoleItem.name, consoleItem.nameEn, consoleItem.brand, bundle?.id, bundle?.th, bundle?.en].filter(Boolean).join(" ");
+    return /G29|Logitech/i.test(name);
   }
   async function fetchDemoDeliveryQuote(){
-    const consoleItem = consoleById(state.calc.consoleId);
-    const name = consoleItem ? `${cName(consoleItem)} ${consoleItem.brand || ""}` : "";
     demoDelivery.key = demoDeliveryQuoteKey();
     demoDelivery.status = "loading";
     demoDelivery.quote = null;
@@ -4153,8 +4160,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           mapsUrl: demoProfile.maps,
           address: demoAddressText(),
           deviceCount: 1 + (state.calc.extras?.length ? 1 : 0),
-          // Only the Logitech G29 wheel needs a car; everything else fits a motorcycle.
-          hasLargeItem: /G29|Logitech/i.test(name),
+          hasLargeItem: deliveryNeedsCar(),
           days: calcSummary().days,
           lang: state.lang
         })
