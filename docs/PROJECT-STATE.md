@@ -1,5 +1,14 @@
 # Project state
 
+## 2026-10-02 — Quick quote: book/LINE buttons, stats on /analytics, rate limit; PS5 bundle no-ID ฿15,000 (Bot `31dc2fb`, website `c8d3430`)
+
+- Quote page buttons: "เช็คคิวและจองเครื่องนี้" opens `https://ajgamerental.com/?consoleId=<id>&lang=..&utm_source=quick_quote`; "ส่งราคานี้ให้ร้านทาง LINE" opens @ajgame (`line.me/R/oaMessage/%40ajgame/`) with the quote typed in.
+- Channel tag: add `?src=line|messenger|whatsapp|web` to the link given out on each channel.
+- Events: `quick_quote_opened/calculated/delivery_failed/book_clicked/line_clicked/copied` go to the analytics sheet. `/analytics/` has tabs "🌐 เว็บไซต์" and "🧮 หน้าคำนวณราคา" (devices, days, channels, add-ons, delivery fees, vehicles, failures, actions by device). Website stats leave these events out.
+- `/api/delivery/quote`: 30 per 15 minutes per IP → 429.
+- No identity verification + any PS5 bundle → deposit ฿15,000 (quote page and website `calcSummary`/badge).
+- Open: Bot `no-contract.js`/`line.js` and the Delivery App `noContractDeposit` still use 5,000/8,000, while the website charges 10,000/15,000. Waiting on the owner. Also waiting: whether to add returning-10%/review tick boxes to the quote page.
+
 ## 2026-10-01 — Quick quote: no identity verification (Bot `8779cde`)
 
 - Tick box "ไม่ยืนยันตัวตน / No identity verification" (shown once a device is chosen): the deposit becomes ฿15,000 when the normal deposit is ฿4,000 or more (bundles included), else ฿10,000 — the website's unified-flow `noContractDeposit`. The hint shows "ค่าประกันเพิ่มเป็น ฿X (ปกติ ฿Y)"; the summary line reads "ค่าประกัน ไม่ยืนยันตัวตน". The old greyed no-ID row is gone.
