@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-10-02 — Cancel button on Console Pending and ID Pending (Delivery App `73c5b04`, Bot `a3979ee`)
+
+- Each request has a red "ยกเลิกรายการ" button next to Confirm. It asks first and makes no booking.
+- **Console Pending:** writes "ยกเลิก" into the request log's สถานะ column (`POST /api/console-pending/cancel`, checked against the Rental ID). A paid request is warned that cancelling refunds nothing.
+- **ID Pending:** the bot's new `{action:'cancel'}` sets status `cancelled`. The list skips it; the Gist is not touched.
+- Nothing is deleted. To undo, clear the status cell in the sheet.
+- **Fixed with it:** DA's ID Pending had only seen PS5 requests since the platform split. It now asks for both lists and groups by console and ID number. Confirming a Switch request writes `aj-switch-game-id-data.json`.
+
 ## 2026-10-02 — Late-order delivery times (Delivery App `f972103`)
 
 - Booking 548 got 22:00 for delivery and return. `deliveryTimeFor` in `deliveryTiming.ts` now applies the shop's rules:
