@@ -1,5 +1,18 @@
 # Project state
 
+## 2026-10-02 — Pictures no longer flash (website `b1ab684`, `9360e11`)
+
+- **Cause.** Every render set `innerHTML`, which recreated every `<img>`. The page renders several times as data arrives (Gist, availability, reviews, board games), and the picker re-rendered its grid on each pick.
+- **Fix.** `patchHTML(host, html)` morphs in place, in both `index.html` and `game_index.html`:
+  - children are keyed by `data-key` / `data-id`;
+  - an image whose src is unchanged is never touched.
+- **Applied to:** the landing rails, home cards, console grid, all-devices pop-up, booking option rows (payment logos), order page, and the picker grid and list.
+- **Rule for future work:** a host updated with patchHTML must not bind listeners to its children on each render; use one delegated listener on the host. The landing rails now do this (`bindBeforeRentDiscoveryClicks`).
+- The device rail resets its scroll only when the type filter changes.
+- `pickBrokenImages` stops a patch from bringing back a broken cover.
+- `gamePickerVersion` is now `20261002-1`.
+- **Measured:** landing page, 3 re-renders: 75 images recreated before, 0 after. Picker, 3 taps: 813 before, 0 after.
+
 ## 2026-10-02 — ID rental message: ครับ/ค่ะ and no-refund note (website `4c414ad`)
 
 - The message copied from `/ajgameid/` and `/ajgameid/switch/` greets "สวัสดีครับ/ค่ะ" and closes "...ให้หน่อยครับ/ค่ะ".
