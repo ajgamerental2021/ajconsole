@@ -64,3 +64,11 @@ test('book from the pop-up, even on the before-rent page: to the rental steps wi
   assert.match(handler, /state\.calc\.step = 1;/);
   assert.match(handler, /window\.setTimeout\(\(\) => openCalendar\("start"\), 120\);/);
 });
+
+test('the all-devices pop-up has the calculator button too; booking from it closes both', () => {
+  assert.match(html, /<button class="copy-section-url all-consoles-quote" id="allConsolesQuote" type="button"><\/button><button class="copy-section-url all-consoles-copy-url" id="allConsolesCopyUrl"/);
+  assert.match(html, /byId\("allConsolesQuote"\)\.textContent = tr\("quoteBtn"\);/);
+  assert.match(html, /byId\("allConsolesQuote"\)\.addEventListener\("click", \(\) => openQuotePopup\("all_consoles"\)\);/);
+  assert.match(html, /if\(byId\("allConsolesModal"\)\?\.classList\.contains\("open"\)\) closeAllConsoles\(\);/);
+  assert.ok(html.indexOf('id="quoteModal"') > html.indexOf('id="allConsolesModal"'), 'the calculator sits above the list');
+});

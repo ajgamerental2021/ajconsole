@@ -1506,7 +1506,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 
 <div class="modal-overlay" id="allConsolesModal" role="dialog" aria-modal="true" aria-labelledby="allConsolesTitle">
   <div class="modal-card all-consoles-card">
-    <div class="modal-head"><div class="modal-title-copy"><h3 id="allConsolesTitle"></h3><p id="allConsolesSubtitle"></p></div><div class="modal-head-actions"><button class="copy-section-url all-consoles-copy-url" id="allConsolesCopyUrl" type="button"></button><button class="btn primary faq-lang-btn" id="allConsolesLangBtn" type="button"></button><button class="xbtn" id="allConsolesClose" type="button">&times;</button></div></div>
+    <div class="modal-head"><div class="modal-title-copy"><h3 id="allConsolesTitle"></h3><p id="allConsolesSubtitle"></p></div><div class="modal-head-actions"><button class="copy-section-url all-consoles-quote" id="allConsolesQuote" type="button"></button><button class="copy-section-url all-consoles-copy-url" id="allConsolesCopyUrl" type="button"></button><button class="btn primary faq-lang-btn" id="allConsolesLangBtn" type="button"></button><button class="xbtn" id="allConsolesClose" type="button">&times;</button></div></div>
     <div class="all-consoles-body">
       <div class="all-consoles-toolbar">
         <div class="all-consoles-filter-row all-consoles-collapsible"><button class="all-consoles-filter-summary" id="allConsolesTypeToggle" type="button" data-all-console-filter-toggle="type" aria-controls="allConsolesTypeTabs"><strong id="allConsolesTypeLabel"></strong><span class="all-consoles-filter-current" id="allConsolesTypeCurrent"></span></button><div class="tabs all-consoles-filter-options" id="allConsolesTypeTabs"></div></div>
@@ -3694,6 +3694,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!brands.includes(filter.brand)) filter.brand = "all";
     byId("allConsolesTitle").textContent = tr("allConsolesTitle");
     byId("allConsolesSubtitle").textContent = tr("allConsolesSubtitle").replace("{n}", String(active.length));
+    byId("allConsolesQuote").textContent = tr("quoteBtn");
     byId("allConsolesCopyUrl").innerHTML = `${icon("link")}<span>${esc(tr("allConsolesCopyUrl"))}</span>`;
     byId("allConsolesLangBtn").textContent = state.lang === "en" ? "ไทย" : "EN";
     byId("allConsolesTypeLabel").textContent = tr("filterType");
@@ -11592,6 +11593,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("langBtn").addEventListener("click", () => { state.lang = state.lang === "en" ? "th" : "en"; trackAnalytics("language_changed", {value:state.lang}); render(); });
     byId("allConsolesLangBtn").addEventListener("click", toggleAllConsolesLanguage);
     byId("allConsolesCopyUrl").addEventListener("click", () => copySectionUrl("allConsoles"));
+    // Over the device list; closing the calculator comes back to it.
+    byId("allConsolesQuote").addEventListener("click", () => openQuotePopup("all_consoles"));
     byId("allConsolesClose").addEventListener("click", closeAllConsoles);
     byId("allConsolesModal").addEventListener("click", event => { if(event.target === byId("allConsolesModal")) closeAllConsoles(); });
     byId("allConsolesSort").addEventListener("change", event => { state.allConsolesFilter.sort = event.target.value; renderAllConsolesModal(); });
@@ -11676,6 +11679,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         // open, ready to check the queue.
         const pickedConsole = consoleById(String(event.data.consoleId || ""));
         closeQuotePopup();
+        if(byId("allConsolesModal")?.classList.contains("open")) closeAllConsoles();
         if(pickedConsole && isConsoleSelectable(pickedConsole)){
           selectCalcConsole(pickedConsole.id);
           const bundle = Number(pickedConsole.id) === SPEC.PS5 && state.bundles.find(item => item.id === String(event.data.bundleId || ""));
