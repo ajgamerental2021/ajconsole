@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-10-02 — Calculator on every device card; quote sent to the shop via LIFF
+
+- Device cards (`renderConsoleGrid`, so both the main page and the all-devices pop-up) show `data-card-quote` when the device is bookable, which calls `openQuotePopup("card", id)`. The quote page accepts `?device=` or the postMessage `AJ_SET_DEVICE` and selects that device unless it is closed.
+- The LINE button now points to `https://liff.line.me/<LINE_LIFF_ID>/?qq=QQ-XXXXXX&lang=…` (`target=_top`, liffId read from the Bot's `/api/config`). If the id is unavailable it falls back to the old oaMessage text.
+- The LIFF app (`public/liff/app.js`): `quickQuoteHandoffCode` / `sendQuickQuoteViaLine` log in if needed, then POST `{code, lineAccessToken}` to `/api/quick-quote/line-send` and close the window.
+- Bot: `getVerifiedLineProfile`, then push `quickQuoteFlex` to that userId (deduped per user+code), then `markQuickQuoteSent`, then `notifyAdmin` with the display name and masked id. The LIFF script version is now `20261002-quick-quote`.
+- Assumes the LIFF endpoint is the existing `/liff/` app (same as the contract LINE hand-off).
+
 ## 2026-10-02 — Calculator button in the all-devices pop-up
 
 - `#allConsolesQuote` sits in the `#allConsolesModal` header (before "คัดลอก URL") and calls `openQuotePopup("all_consoles")`. The calculator opens on top of the list, and closing it returns to the list. Booking from the calculator closes both pop-ups and opens the queue calendar.
