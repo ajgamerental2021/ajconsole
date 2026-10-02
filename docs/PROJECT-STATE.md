@@ -1,5 +1,9 @@
 # Project state
 
+## 2026-10-02 — Booking card cost labels wrap (Delivery App `3262474`)
+
+- `costBox` in bookingConfirmFlex.ts: every label has `wrap: true` (before, only the bold ones did), so long labels such as "ค่าประกัน (Bundle PS5)" and "📦 เช่าพร้อม Logitech G29" no longer end in "...". The amount stays on the first line (`gravity: 'top'`).
+
 ## 2026-10-02 — PS5 bundle: second device as its own booking; quick-quote discount note (Delivery App `6d20c8d`, Bot `323cf75`)
 
 - A PS5 booking with a bundle gets a second booking on the partner device (G29 / PSVR2 / PS Portal). It is a clone with the same customer, phone, dates, times, places and address, plus a new Booking Log column **"Bundle Parent ID"** set to the PS5 Booking ID (header auto-created). Code is in `bundlePartnerService.ts`. `BookingService.syncBundlePartnerOf` runs from `addBooking` (when a bundle is set) and from `writeBookingRow` (when either side has a bundle):
