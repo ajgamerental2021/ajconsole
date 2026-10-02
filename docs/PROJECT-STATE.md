@@ -1,5 +1,16 @@
 # Project state
 
+## 2026-10-02 — Late-order delivery times (Delivery App `f972103`)
+
+- Booking 548 got 22:00 for delivery and return. `deliveryTimeFor` in `deliveryTiming.ts` now applies the shop's rules:
+  - after 22:00, and through the night until 06:00: 13:00;
+  - from the cutoff up to 22:00: 10:00;
+  - 19:00–19:59, before the cutoff: +1 h;
+  - otherwise: +3 h for a console with games, +1 h for a headset or wheel, rounded up to the half hour, not before 10:00.
+- The return keeps the same time of day.
+- The cutoff is read from the bot's `booking-settings` (set in the index Admin) and cached for 5 minutes. It is capped at 20:00 and falls back to 20:00 when it cannot be read.
+- Assumed and needs the owner's OK: orders between 00:00 and 05:59 count as "after 22:00", so 13:00.
+
 ## 2026-10-02 — Game picker opens once (website `1225367`)
 
 - **Cause.** Opening the picker still flashed. The booking page sends AJ_PICKER_OPEN on frame load, again at +500 ms, and on AJ_GAME_READY. The picker's safety net (`forceRenderPicker`) repeats each request at 30 and 180 ms. Every request ran `openPickModal`, which wiped the grid to the "choose a console" prompt, and then redrew it: 15 renders and 2,671 covers created per opening.
