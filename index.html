@@ -1687,7 +1687,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 
   const CONFIG = {
     version: "index2-clean-1",
-    gamePickerVersion: "20260930-1",
+    gamePickerVersion: "20261002-1",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",
@@ -3457,6 +3457,66 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function hideGuideVisuals(){
     ["guidePointer","guideBox","guideHighlight"].forEach(id => byId(id)?.classList.remove("show"));
   }
+  // Update a host's contents in place instead of replacing them.
+  //
+  // Setting innerHTML throws every element away and builds new ones, so each
+  // <img> starts over: the picture goes blank and comes back, and every list
+  // that re-renders (the catalogue arriving, the queue checked, a game picked)
+  // made the covers flash. This walks the new markup against what is on the
+  // page and changes only what differs; an image whose src is unchanged is
+  // never touched. Children with a data-key (or data-id) are matched by it, so
+  // a filtered or re-sorted list moves cards rather than rebuilding them.
+  // Hosts updated this way must not bind listeners to their children on each
+  // render (they would pile up); use a delegated listener on the host instead.
+  function patchHTML(host, html){
+    if(!host) return;
+    const template = document.createElement("template");
+    template.innerHTML = html;
+    morphChildren(host, template.content);
+  }
+  function morphKey(node){
+    return node.nodeType === 1 ? (node.getAttribute("data-key") ?? node.getAttribute("data-id")) : null;
+  }
+  function morphChildren(from, to){
+    const oldNodes = Array.from(from.childNodes);
+    const newNodes = Array.from(to.childNodes);
+    const keyed = new Map();
+    oldNodes.forEach(node => { const key = morphKey(node); if(key !== null && !keyed.has(key)) keyed.set(key, node); });
+    const used = new Set();
+    let cursor = 0;
+    newNodes.forEach((next, index) => {
+      const key = morphKey(next);
+      let match = null;
+      if(key !== null){
+        match = keyed.get(key) || null;
+        if(match && match.nodeName !== next.nodeName) match = null;
+        if(match) keyed.delete(key);
+      }else{
+        while(cursor < oldNodes.length && (used.has(oldNodes[cursor]) || morphKey(oldNodes[cursor]) !== null)) cursor++;
+        const candidate = oldNodes[cursor];
+        if(candidate && candidate.nodeName === next.nodeName){ match = candidate; cursor++; }
+      }
+      let node = next;
+      if(match){ used.add(match); morphNode(match, next); node = match; }
+      const at = from.childNodes[index];
+      if(at !== node) from.insertBefore(node, at || null);
+    });
+    while(from.childNodes.length > newNodes.length) from.removeChild(from.lastChild);
+  }
+  function morphNode(from, to){
+    if(from.nodeType !== 1){
+      if(from.nodeValue !== to.nodeValue) from.nodeValue = to.nodeValue;
+      return;
+    }
+    Array.from(from.attributes).forEach(attr => { if(!to.hasAttribute(attr.name)) from.removeAttribute(attr.name); });
+    Array.from(to.attributes).forEach(attr => { if(from.getAttribute(attr.name) !== attr.value) from.setAttribute(attr.name, attr.value); });
+    if(from.nodeName === "OPTION" && from.selected !== to.hasAttribute("selected")) from.selected = to.hasAttribute("selected");
+    if(from.nodeName === "INPUT" || from.nodeName === "TEXTAREA" || from.nodeName === "SELECT"){
+      if("checked" in from && from.checked !== to.hasAttribute("checked")) from.checked = to.hasAttribute("checked");
+      if(from !== document.activeElement && from.type !== "file" && from.nodeName !== "SELECT" && from.value !== to.value) from.value = to.value;
+    }
+    morphChildren(from, to);
+  }
   function renderBeforeRentDiscovery(){
     const promoHost = byId("beforeRentPromos");
     const deviceHost = byId("beforeRentDevices");
@@ -3474,7 +3534,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const normalizedNames = item => [item.name,item.nameEn].filter(Boolean).map(name => String(name).trim().toLowerCase());
     const listed = state.consoles.filter(item => item.active !== false);
 
-    promoHost.innerHTML = promos.slice(0,3).map(item => {
+    patchHTML(promoHost, promos.slice(0,3).map(item => {
       const title = state.lang === "en" ? (item.titleEn || item.titleTh) : (item.titleTh || item.titleEn);
       const sub = state.lang === "en" ? (item.subtitleEn || item.subtitleTh) : (item.subtitleTh || item.subtitleEn);
       const label = [title, sub].filter(Boolean).join(" - ") || "AJ";
@@ -3488,7 +3548,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       // only rendered when there is no image to avoid double-stacked copy.
       const copy = item.image ? "" : `<span class="before-rent-promo-copy"><strong>${esc(title || "AJ")}</strong>${sub ? `<span>${esc(sub)}</span>` : ""}</span>`;
       return `<a class="before-rent-promo ${item.image?"":"is-plain"}" href="${esc(safeHref(item.url))}" aria-label="${esc(label)}" ${target?`data-promo-device="${esc(target.id)}"`:""}>${item.image ? `<img src="${esc(item.image)}" alt="${esc(label)}" loading="lazy">` : ""}${copy}${cue}</a>`;
-    }).join("") || `<button class="before-rent-promo is-plain" type="button" data-before-start><span class="before-rent-promo-copy"><strong>${esc(tr("beforeRentRent"))}</strong><span>${esc(tr("beforeRentRentSub"))}</span></span><span class="before-rent-promo-cue" aria-hidden="true">${esc(tr("beforeRentPromoCue"))}</span></button>`;
+    }).join("") || `<button class="before-rent-promo is-plain" type="button" data-before-start><span class="before-rent-promo-copy"><strong>${esc(tr("beforeRentRent"))}</strong><span>${esc(tr("beforeRentRentSub"))}</span></span><span class="before-rent-promo-cue" aria-hidden="true">${esc(tr("beforeRentPromoCue"))}</span></button>`);
 
     const preferred = ["ps5","ps5 pro","nintendo switch 2","nintendo switch 1","meta quest 3","steam deck oled","xbox series x","rog xbox ally x","viture beast","lenovo legion go2","ps4"];
     const rank = item => {
@@ -3518,7 +3578,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const media = image ? `<img src="${esc(image)}" alt="" loading="lazy">` : icon(deviceIconName(item));
       const minLine = tr("beforeRentDeviceMin").replace("{total}", money(Number(item.rate || 0) * MIN_RENTAL_DAYS));
       const gamesButton = gameUrl(item) ? `<button class="before-rent-device-games" type="button" data-before-device-games="${esc(item.id)}">${esc(tr("beforeRentDeviceGames"))}</button>` : "";
-      return `<div class="before-rent-device-wrap"><button class="before-rent-device" type="button" data-before-device="${esc(item.id)}" ${ready?"":"disabled"}>
+      return `<div class="before-rent-device-wrap" data-key="${esc(item.id)}"><button class="before-rent-device" type="button" data-before-device="${esc(item.id)}" ${ready?"":"disabled"}>
         <span class="before-rent-device-media">${media}${flag}</span>
         <span class="before-rent-device-name">${esc(cName(item))}</span>
         <span class="before-rent-device-price"><b>${esc(money(item.rate))}</b>/${esc(tr("day"))}</span>
@@ -3529,23 +3589,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       </button>${gamesButton}</div>`;
     }).join("");
     const seeAll = `<button class="before-rent-seeall" type="button" data-before-seeall>${icon("table")}<span>${esc(tr("beforeRentSeeAll"))}</span></button>`;
-    deviceHost.innerHTML = cards ? cards + seeAll : `<p class="before-rent-empty">${esc(tr("beforeRentEmpty"))}</p>` + seeAll;
-
-    promoHost.querySelector("[data-before-start]")?.addEventListener("click", () => setBeforeRent(false,{startGuide:true}));
-    promoHost.querySelectorAll("[data-promo-device]").forEach(link => link.addEventListener("click", event => {
-      event.preventDefault();
-      selectCalcConsole(link.dataset.promoDevice);
-      setBeforeRent(false,{startGuide:true});
-    }));
-    deviceHost.querySelectorAll("[data-before-device]").forEach(button => button.addEventListener("click", () => {
-      selectCalcConsole(button.dataset.beforeDevice);
-      setBeforeRent(false,{startGuide:true});
-    }));
-    deviceHost.querySelectorAll("[data-before-device-games]").forEach(button => button.addEventListener("click", () => {
-      trackAnalytics("before_rent_action_clicked", {value:"console_games"});
-      openGamePicker({browseOnly:true, consoleId:button.dataset.beforeDeviceGames});
-    }));
-    deviceHost.querySelector("[data-before-seeall]")?.addEventListener("click", () => showAllConsoles());
+    patchHTML(deviceHost, cards ? cards + seeAll : `<p class="before-rent-empty">${esc(tr("beforeRentEmpty"))}</p>` + seeAll);
+    bindBeforeRentDiscoveryClicks(promoHost, deviceHost);
     byId("beforeRentDevicesCount").textContent = tr("beforeRentDevicesCount").replace("{n}", String(ordered.length));
     renderBeforeRentTypeFilter();
     byId("beforeRentDevicesHint").innerHTML = `${icon("swipe")}<span>${esc(tr("beforeRentDevicesHint"))}</span>`;
@@ -3557,7 +3602,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     ].map(([iconName,key]) => `<span class="before-rent-note-row">${icon(iconName)}<span>${esc(tr(key))}</span></span>`).join("");
     byId("beforeRentTerms").innerHTML = tr("beforeRentTerms");
     $$("[data-icon]").forEach(host => { if(!host.firstElementChild) host.innerHTML = icon(host.dataset.icon); });
-    deviceHost.scrollLeft = 0;
+    // Back to the start only when the customer changed the type filter; a
+    // re-render from new data leaves the rail where they scrolled it.
+    if(deviceHost.dataset.renderedType !== typeFilter){
+      deviceHost.dataset.renderedType = typeFilter;
+      deviceHost.scrollLeft = 0;
+    }
     bindScrollRail(byId("beforeRentDevicesRail"), deviceHost);
     // Desktop lays the promos out in a grid that never overflows, so the arrows
     // stay hidden there and only appear on the phone rail.
@@ -3634,7 +3684,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const reviewHost = byId("beforeRentReviews");
     reviewHost?.setAttribute("aria-label", tr("beforeRentReviews"));
     if(reviews.length){
-      reviewHost.innerHTML = reviews.map(review => {
+      const reviewsFirst = !reviewHost.firstElementChild;
+      patchHTML(reviewHost, reviews.map(review => {
       const body = review.text;
       const initial = (review.name || "?").trim().charAt(0).toUpperCase();
       const source = review.source === "facebook" ? "Facebook" : "Google Maps";
@@ -3649,14 +3700,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <span class="before-rent-review-stars" aria-label="${review.stars}/5">${starRow(review.stars)}</span>
         <span class="before-rent-review-text">${esc(body)}</span>
       </article>`;
-      }).join("");
+      }).join(""));
       byId("beforeRentReviewsCount").textContent = tr("beforeRentReviewsCount").replace("{n}", String(reviews.length));
       byId("beforeRentReviewsHint").innerHTML = `${icon("swipe")}<span>${esc(tr("beforeRentReviewsHint"))}</span>`;
       byId("beforeRentReviewLinks").innerHTML = [
         ["pin", CONFIG.googleMapsUrl, "beforeRentReviewGoogle", "review_google_all"],
         ["thumb", CONFIG.facebookPageUrl, "beforeRentReviewFacebook", "review_facebook_all"]
       ].map(([iconName, href, key, trackingKey]) => `<a class="before-rent-review-link" data-before-rent-track="${trackingKey}" href="${esc(safeHref(href))}" target="_blank" rel="noopener noreferrer">${icon(iconName)}<span>${esc(tr(key))}</span></a>`).join("");
-      reviewHost.scrollLeft = 0;
+      if(reviewsFirst) reviewHost.scrollLeft = 0;
       bindScrollRail(byId("beforeRentReviewsRail"), reviewHost);
     }
 
@@ -3665,21 +3716,55 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(highlights.length){
       const highlightsHost = byId("beforeRentHighlights");
       highlightsHost.setAttribute("aria-label", tr("beforeRentHighlights"));
-      highlightsHost.innerHTML = highlights.map(item => {
+      const highlightsFirst = !highlightsHost.firstElementChild;
+      patchHTML(highlightsHost, highlights.map(item => {
         const title = state.lang === "en" ? item.titleEn : item.titleTh;
         return `<a class="before-rent-highlight" data-before-rent-track="highlight_item" href="${esc(safeHref(item.url))}" target="_blank" rel="noopener noreferrer">
           <img src="${esc(safeHref(item.image))}" alt="${esc(title)}" loading="lazy">
           <span class="before-rent-highlight-copy"><span class="before-rent-highlight-title">${esc(title)}</span><span class="before-rent-highlight-cue">${esc(tr("beforeRentHighlightCue"))}</span></span>
         </a>`;
-      }).join("");
+      }).join(""));
       byId("beforeRentHighlightsCount").textContent = tr("beforeRentHighlightsCount").replace("{n}", String(highlights.length));
       byId("beforeRentHighlightsHint").innerHTML = `${icon("swipe")}<span>${esc(tr("beforeRentHighlightsHint"))}</span>`;
       const allLink = byId("beforeRentHighlightsAll");
       allLink.dataset.beforeRentTrack = "highlights_all";
       allLink.href = safeHref(social.highlightsUrl);
       allLink.innerHTML = `${icon("thumb")}<span>${esc(tr("beforeRentHighlightsAll"))}</span>`;
-      highlightsHost.scrollLeft = 0;
+      if(highlightsFirst) highlightsHost.scrollLeft = 0;
       bindScrollRail(byId("beforeRentHighlightsRail"), highlightsHost);
+    }
+  }
+  // One listener per rail for the life of the page: the rails are patched in
+  // place, so a listener per card per render would pile up.
+  function bindBeforeRentDiscoveryClicks(promoHost, deviceHost){
+    if(promoHost && !promoHost.dataset.clicksBound){
+      promoHost.dataset.clicksBound = "1";
+      promoHost.addEventListener("click", event => {
+        if(event.target.closest("[data-before-start]")){ setBeforeRent(false,{startGuide:true}); return; }
+        const link = event.target.closest("[data-promo-device]");
+        if(!link) return;
+        event.preventDefault();
+        selectCalcConsole(link.dataset.promoDevice);
+        setBeforeRent(false,{startGuide:true});
+      });
+    }
+    if(deviceHost && !deviceHost.dataset.clicksBound){
+      deviceHost.dataset.clicksBound = "1";
+      deviceHost.addEventListener("click", event => {
+        const games = event.target.closest("[data-before-device-games]");
+        if(games){
+          trackAnalytics("before_rent_action_clicked", {value:"console_games"});
+          openGamePicker({browseOnly:true, consoleId:games.dataset.beforeDeviceGames});
+          return;
+        }
+        const device = event.target.closest("[data-before-device]");
+        if(device && !device.disabled){
+          selectCalcConsole(device.dataset.beforeDevice);
+          setBeforeRent(false,{startGuide:true});
+          return;
+        }
+        if(event.target.closest("[data-before-seeall]")) showAllConsoles();
+      });
     }
   }
   function renderBeforeRentTypeFilter(){
@@ -3737,9 +3822,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("allConsolesSort").innerHTML = [["brand",tr("sort_brand")],["price-desc",tr("sort_price_desc")],["price-asc",tr("sort_price_asc")],["name",tr("sort_name")]].map(([id,label]) => `<option value="${id}" ${filter.sort===id?"selected":""}>${esc(label)}</option>`).join("");
     const list = allConsolesFiltered();
     const host = byId("allConsolesList");
-    if(!list.length){ host.innerHTML = `<p class="all-consoles-empty">${esc(tr("beforeRentEmpty"))}</p>`; return; }
+    if(!list.length){ patchHTML(host, `<p class="all-consoles-empty">${esc(tr("beforeRentEmpty"))}</p>`); return; }
     if(filter.sort !== "brand"){
-      host.innerHTML = renderConsoleGrid(list, {bookingButton:true});
+      patchHTML(host, renderConsoleGrid(list, {bookingButton:true}));
       return;
     }
     const groups = new Map();
@@ -3747,11 +3832,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(!groups.has(item.brand)) groups.set(item.brand, []);
       groups.get(item.brand).push(item);
     });
-    host.innerHTML = Array.from(groups.keys()).sort((a,b) => brandOrder(a)-brandOrder(b)).map(brand => {
+    patchHTML(host, Array.from(groups.keys()).sort((a,b) => brandOrder(a)-brandOrder(b)).map(brand => {
       const items = groups.get(brand);
       const modelLabel = state.lang === "en" ? `${items.length} models` : `${items.length} รุ่น`;
       return `<section class="console-section"><div class="console-group-head"><div class="console-group-title">${icon(deviceIconName(items[0]))} ${esc(brandLabel(brand))}</div><div class="console-group-meta">${esc(modelLabel)}</div></div>${renderConsoleGrid(items, {bookingButton:true})}</section>`;
-    }).join("");
+    }).join(""));
   }
   function showAllConsoles(){
     state.allConsolesFilterExpanded = {type:false, brand:false};
@@ -3886,15 +3971,15 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       section.items.filter(x => x.active !== false).slice(0,4).forEach(item => cards.push(item));
     });
     if(!cards.length){
-      host.innerHTML = `<a class="home-card" href="#calculator"><div class="home-card-content"><span class="badge">AJ</span><h3>${state.lang==="en"?"Start Rental Calculator":"เริ่มคำนวณค่าเช่า"}</h3><p>${state.lang==="en"?"Choose console, dates, games, and copy booking message.":"เลือกเครื่อง วันที่ เกม และคัดลอกข้อความจองเช่า"}</p></div></a>`;
+      patchHTML(host, `<a class="home-card" href="#calculator"><div class="home-card-content"><span class="badge">AJ</span><h3>${state.lang==="en"?"Start Rental Calculator":"เริ่มคำนวณค่าเช่า"}</h3><p>${state.lang==="en"?"Choose console, dates, games, and copy booking message.":"เลือกเครื่อง วันที่ เกม และคัดลอกข้อความจองเช่า"}</p></div></a>`);
       return;
     }
-    host.innerHTML = cards.map(item => {
+    patchHTML(host, cards.map(item => {
       const title = state.lang === "en" ? (item.titleEn || item.titleTh) : (item.titleTh || item.titleEn);
       const sub = state.lang === "en" ? (item.subtitleEn || item.subtitleTh) : (item.subtitleTh || item.subtitleEn);
       const badge = state.lang === "en" ? (item.badgeEn || item.badgeTh) : (item.badgeTh || item.badgeEn);
       return `<a class="home-card tone-${esc(item.overlayTone)}" href="${esc(safeHref(item.url))}">${item.image ? `<img src="${esc(item.image)}" alt="">` : ""}<div class="home-card-content"><span class="badge">${esc(badge)}</span><h3>${esc(title || item.emojiFallback)}</h3><p>${esc(sub)}</p></div></a>`;
-    }).join("");
+    }).join(""));
   }
   function renderFilters(){
     const types = [["all",tr("all")],["console",tr("type_console")],["vr",tr("type_vr")],["handheld",tr("type_handheld")],["racing",tr("type_racing")]];
@@ -3914,14 +3999,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function renderConsoles(){
     const list = filteredConsoles();
     const host = byId("consoleSections");
-    if(!list.length){ host.innerHTML = `<p class="muted" style="text-align:center;padding:40px">No consoles found.</p>`; return; }
-    if(state.filter.sort !== "brand"){ host.innerHTML = renderConsoleGrid(list); return; }
+    if(!list.length){ patchHTML(host, `<p class="muted" style="text-align:center;padding:40px">No consoles found.</p>`); return; }
+    if(state.filter.sort !== "brand"){ patchHTML(host, renderConsoleGrid(list)); return; }
     const groups = new Map();
     list.forEach(c => { if(!groups.has(c.brand)) groups.set(c.brand, []); groups.get(c.brand).push(c); });
-    host.innerHTML = Array.from(groups.keys()).sort((a,b) => brandOrder(a)-brandOrder(b)).map(brand => {
+    patchHTML(host, Array.from(groups.keys()).sort((a,b) => brandOrder(a)-brandOrder(b)).map(brand => {
       const items = groups.get(brand);
       return `<div class="console-section"><div class="console-group-head"><div class="console-group-title">${BRAND_META[brand]?.icon || "🎮"} ${esc(brandLabel(brand))}</div><div class="console-group-meta">${items.length} models</div></div>${renderConsoleGrid(items)}</div>`;
-    }).join("");
+    }).join(""));
   }
   function renderConsoleGrid(list, options={}){
     return `<div class="console-grid">${list.map(c => {
@@ -3930,7 +4015,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const url = gameUrl(c);
       const gameButtonVisible = !!(url && ready);
       const details = (state.lang==="en"?c.detailsEn:c.detailsTh).filter(item => gameButtonVisible || !isGameLimitDetail(item));
-      return `<article class="con-card ${ready?"":"unavailable"}">
+      return `<article class="con-card ${ready?"":"unavailable"}" data-key="${esc(String(c.id))}">
         <div class="con-img">${img?`<img src="${esc(img)}" alt="${esc(cName(c))}" loading="lazy">`:`<span class="emoji">${esc(c.icon)}</span>`}${ready?"":`<div class="ready-ribbon">${isQueueClosed(c) ? tr("queueClosed") : `${tr("readyOn")} ${displayDate(c.readyDate)}`}</div>`}</div>
         <div class="con-body">
           <div class="con-name">${esc(cName(c))}</div>
@@ -5378,7 +5463,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       : deliveryQuoteFallback()
         ? (en ? "Pay now · delivery fee later" : "ชำระเงิน · ค่าส่งจ่ายตอนรับเครื่อง")
         : (en ? "Calculating delivery…" : "กำลังคำนวณค่าส่ง…");
-    host.innerHTML = `<div class="demo-order-grid">
+    patchHTML(host, `<div class="demo-order-grid">
       <div>
         <section class="demo-order-section">${demoSectionHeadHtml(en ? "Rental item" : "สินค้าที่เช่า", 1)}${demoRentalItemHtml(item, summary)}</section>
         <section class="demo-order-section"><h3>${en ? "Details" : "รายละเอียด"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Rental ID":"รหัสการเช่า"}</span><b>${esc(state.calc.rentalCode || "-")}</b></div><div class="demo-order-row"><span>${en?"Rental status":"สถานะการเช่า"}</span><b class="demo-status is-awaiting">${en?"Awaiting payment":"รอชำระเงิน"}</b></div></div></section>
@@ -5390,7 +5475,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <section class="demo-order-section"><h3>${en ? "Payment" : "การชำระเงิน"}</h3>${demoPaymentBreakdownHtml(summary)}</section>
         <section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${demoPaymentOptionsHtml()}<div class="demo-payment-launch">${deliveryFallbackHtml()}<button class="btn primary demo-pay-btn" id="demoBeamPay" type="button" ${canPay ? "" : "disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${payLabel}</span></button>${demoPayLaterNoteHtml()}${UNIFIED_FLOW_TEST_CHARGE ? `<p class="hint">${en?"This demo charges ฿1. The payment is still recorded against this Rental ID and follows the existing webhook flow.":"หน้าทดสอบเรียกเก็บ 1 บาท และยังบันทึกผลกับ Rental ID นี้ผ่าน webhook เดิม"}</p>` : ""}</div></section>
       </div>
-    </div>`;
+    </div>`);
   }
   function demoIdentityDisplay(){
     const en = state.lang === "en";
@@ -5784,14 +5869,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ${state.calc.noContract ? "" : `<h3>${tr("contract")}${selectedConsole ? depositBadge(selectedConsole.deposit, "ok") : ""}</h3><p class="privacy-reassurance">🔒 ${tr("contractPrivacy")}</p><p class="hint" style="color:#c00000;font-weight:800">${tr("contractAge")}</p><button class="btn soft" id="contractBtn" type="button">${tr("contract")}</button><p class="hint" id="contractCodeHint">${state.calc.rentalCode ? `${tr("temporaryRentalCode")}: ${esc(state.calc.rentalCode)}` : ""}</p>`}
       <label class="option-row" style="margin-top:${state.calc.noContract ? 0 : 12}px"><input type="checkbox" id="noContractOpt" ${state.calc.noContract?"checked":""}><div><b>${tr("noContract")}${state.calc.noContract && selectedConsole ? depositBadge(Number(selectedConsole.id) === SPEC.PS5 && state.calc.bundleId ? 15000 : noContractDeposit(selectedConsole.deposit), "danger") : ""}</b><div class="hint">${tr("noContractHelp")}</div>${state.calc.noContract ? `<div class="hint" style="color:#18743a;font-weight:800">✓ ${tr("rentalTermsAccepted")} · <a href="${esc(rentalTermsUrl(state.lang))}" target="_blank" rel="noopener">${tr("rentalTermsRead")}</a></div>` : ""}</div></label>
     </div>`;
-    byId("optionRows").innerHTML = `
+    patchHTML(byId("optionRows"), `
       ${renderBoardGameBundle()}
       ${mapsHtml}
       <div class="returning-option-card"><label class="option-row"><input type="checkbox" id="retOpt" ${state.calc.ret?"checked":""} ${state.retEnabled?"":"disabled"}><div><b>${tr("returning")}</b></div></label>${agreementActionHtml}</div>
       ${returningReviewHtml}
       ${contractHtml}
       ${paymentHtml ? `<div style="margin-top:12px">${paymentHtml}</div>` : ""}
-    `;
+    `);
   }
   function renderBoardGameBundle(){
     if(!state.boardGameEnabled) return "";
@@ -5918,7 +6003,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const status = wiseStatus || (en ? wisePaymentAvailability() : {available:true, reason:"", iso:bangkokNow().iso});
     const wiseDisabled = disabled || !status.available ? "disabled" : "";
     const option = (value, copy, extraClass = "", optionDisabled = disabled) =>
-      `<label class="payment-option ${extraClass}"><input type="radio" name="${inputName}" ${choiceAttr}="${value}" ${selected === value ? "checked" : ""} ${optionDisabled}>${copy}${amountHtml(value)}</label>`;
+      `<label class="payment-option ${extraClass}" data-key="${value}"><input type="radio" name="${inputName}" ${choiceAttr}="${value}" ${selected === value ? "checked" : ""} ${optionDisabled}>${copy}${amountHtml(value)}</label>`;
     const fullPayment = [
       option("bank", `<span class="payment-option-copy"><span>${en ? "🏦 Thai Bank Transfer: pay full amount" : "🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน"}</span></span>`),
       ...(en && allowWise ? [option("wise", wiseOptionHtml(status), status.available ? "" : "is-disabled", wiseDisabled)] : []),

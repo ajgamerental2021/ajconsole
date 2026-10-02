@@ -9,7 +9,7 @@ test('the before-rent action opens a dedicated bilingual all-console popup', () 
   assert.match(source, /beforeRentSeeAll:"View all game consoles"/);
   assert.match(source, /id="allConsolesModal"[^>]*role="dialog"/);
   assert.match(source, /id="allConsolesLangBtn"/);
-  assert.match(source, /deviceHost\.querySelector\("\[data-before-seeall\]"\)\?\.addEventListener\("click", \(\) => showAllConsoles\(\)\)/);
+  assert.match(source, /if\(event\.target\.closest\("\[data-before-seeall\]"\)\) showAllConsoles\(\);/);
   assert.match(source, /function toggleAllConsolesLanguage\(\)/);
 });
 

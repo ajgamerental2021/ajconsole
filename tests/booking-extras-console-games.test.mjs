@@ -16,7 +16,7 @@ test('compact console cards expose a contextual browse-only game list without ch
   assert.match(source, /beforeRentDeviceGames:"ดูเกมของเครื่องนี้"/);
   assert.match(source, /beforeRentDeviceGames:"View games for this console"/);
   assert.match(source, /gameUrl\(item\) \? `<button class="before-rent-device-games"/);
-  assert.match(source, /openGamePicker\(\{browseOnly:true, consoleId:button\.dataset\.beforeDeviceGames\}\)/);
+  assert.match(source, /openGamePicker\(\{browseOnly:true, consoleId:games\.dataset\.beforeDeviceGames\}\)/);
   const handlerStart = source.indexOf('deviceHost.querySelectorAll("[data-before-device-games]")');
   const handler = source.slice(handlerStart, source.indexOf('deviceHost.querySelector("[data-before-seeall]")', handlerStart));
   assert.doesNotMatch(handler, /state\.calc\.consoleId\s*=/);

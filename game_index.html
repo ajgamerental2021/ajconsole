@@ -6409,6 +6409,76 @@ function togglePickView() {
 }
 
 // renderPickBody — supports grid and list view
+// Update a host's contents in place instead of replacing them.
+//
+// Setting innerHTML throws every element away and builds new ones, so each
+// <img> starts over: the picture goes blank and comes back, and every list
+// that re-renders (the catalogue arriving, the queue checked, a game picked)
+// made the covers flash. This walks the new markup against what is on the
+// page and changes only what differs; an image whose src is unchanged is
+// never touched. Children with a data-key (or data-id) are matched by it, so
+// a filtered or re-sorted list moves cards rather than rebuilding them.
+// Hosts updated this way must not bind listeners to their children on each
+// render (they would pile up); use a delegated listener on the host instead.
+function patchHTML(host, html){
+  if(!host) return;
+  const template = document.createElement("template");
+  template.innerHTML = html;
+  morphChildren(host, template.content);
+}
+function morphKey(node){
+  return node.nodeType === 1 ? (node.getAttribute("data-key") ?? node.getAttribute("data-id")) : null;
+}
+function morphChildren(from, to){
+  const oldNodes = Array.from(from.childNodes);
+  const newNodes = Array.from(to.childNodes);
+  const keyed = new Map();
+  oldNodes.forEach(node => { const key = morphKey(node); if(key !== null && !keyed.has(key)) keyed.set(key, node); });
+  const used = new Set();
+  let cursor = 0;
+  newNodes.forEach((next, index) => {
+    const key = morphKey(next);
+    let match = null;
+    if(key !== null){
+      match = keyed.get(key) || null;
+      if(match && match.nodeName !== next.nodeName) match = null;
+      if(match) keyed.delete(key);
+    }else{
+      while(cursor < oldNodes.length && (used.has(oldNodes[cursor]) || morphKey(oldNodes[cursor]) !== null)) cursor++;
+      const candidate = oldNodes[cursor];
+      if(candidate && candidate.nodeName === next.nodeName){ match = candidate; cursor++; }
+    }
+    let node = next;
+    if(match){ used.add(match); morphNode(match, next); node = match; }
+    const at = from.childNodes[index];
+    if(at !== node) from.insertBefore(node, at || null);
+  });
+  while(from.childNodes.length > newNodes.length) from.removeChild(from.lastChild);
+}
+function morphNode(from, to){
+  if(from.nodeType !== 1){
+    if(from.nodeValue !== to.nodeValue) from.nodeValue = to.nodeValue;
+    return;
+  }
+  Array.from(from.attributes).forEach(attr => { if(!to.hasAttribute(attr.name)) from.removeAttribute(attr.name); });
+  Array.from(to.attributes).forEach(attr => { if(from.getAttribute(attr.name) !== attr.value) from.setAttribute(attr.name, attr.value); });
+  if(from.nodeName === "OPTION" && from.selected !== to.hasAttribute("selected")) from.selected = to.hasAttribute("selected");
+  if(from.nodeName === "INPUT" || from.nodeName === "TEXTAREA" || from.nodeName === "SELECT"){
+    if("checked" in from && from.checked !== to.hasAttribute("checked")) from.checked = to.hasAttribute("checked");
+    if(from !== document.activeElement && from.type !== "file" && from.nodeName !== "SELECT" && from.value !== to.value) from.value = to.value;
+  }
+  morphChildren(from, to);
+}
+
+// Covers that failed to load. The card is then drawn with its placeholder,
+// so patching it in place does not bring the broken image back.
+const pickBrokenImages = new Set();
+function pickImageFailed(img) {
+  pickBrokenImages.add(img.getAttribute('src'));
+  img.style.display = 'none';
+  img.nextElementSibling?.style.removeProperty('display');
+}
+
 function renderPickBody() {
   const T = TRANSLATIONS[currentLang];
   let pg = games.filter(g => gameMatchesPlatform(g, pickActivePlatform));
@@ -6434,7 +6504,7 @@ function renderPickBody() {
     // Apply grid layout override for list mode
     body.style.display = 'block';
     body.style.padding = '0';
-    body.innerHTML = `<div class="game-list-view" style="margin:0">` + pg.map((g, i) => {
+    patchHTML(body, `<div class="game-list-view" style="margin:0">` + pg.map((g, i) => {
       const sel = pickedGames.includes(g.id);
       const isUnavailL = isGameUnavailable(g);
       const disabled = (!sel && atMax) || isUnavailL;
@@ -6448,7 +6518,7 @@ function renderPickBody() {
         ? `<span style="font-size:10px;background:#f0fdf4;color:#166534;padding:2px 7px;border:1px solid #a8dfb8;border-radius:10px;flex-shrink:0;font-weight:700">${isEn() ? 'Playable ' : 'เล่นได้ '}${pickerReadyDate(g)}</span>`
         : '';
       const atMaxL = disabled && !isUnavailL;
-      return `<div class="game-list-row ${sel ? 'selected-list-row' : ''}"
+      return `<div class="game-list-row ${sel ? 'selected-list-row' : ''}" data-key="${escHtml(String(g.id))}"
         onclick="${isUnavailL ? '' : atMaxL ? 'pickCapNotice()' : `togglePick('${g.id}')`}"
         style="${disabled ? `opacity:0.45;cursor:${atMaxL ? 'pointer' : 'not-allowed'};` : ''}${sel ? 'background:var(--accent-light);' : ''}">
         <span class="game-list-num">${String(i+1).padStart(2,'0')}</span>
@@ -6461,18 +6531,18 @@ function renderPickBody() {
         ${genreTag}
         <span class="game-list-year">${g.year||''}</span>
       </div>`;
-    }).join('') + `</div>`;
+    }).join('') + `</div>`);
   } else {
     body.style.display = '';
     body.style.padding = '';
-    body.innerHTML = pg.map(g => {
+    patchHTML(body, pg.map(g => {
       const sel = pickedGames.includes(g.id);
       const disabled = !sel && atMax;
-      const imgBlock = g.imgUrl
-        ? `<img class="pick-card-img" src="${escHtml(g.imgUrl)}" alt="${escHtml(g.name)}" loading="lazy" decoding="async"
-             onerror="this.style.display='none';this.nextElementSibling.style.removeProperty('display')">`
+      const showImg = g.imgUrl && !pickBrokenImages.has(g.imgUrl);
+      const imgBlock = showImg
+        ? `<img class="pick-card-img" src="${escHtml(g.imgUrl)}" alt="${escHtml(g.name)}" loading="lazy" decoding="async" onerror="pickImageFailed(this)">`
         : '';
-      const placeholderStyle = g.imgUrl ? 'display:none' : '';
+      const placeholderStyle = showImg ? 'display:none' : '';
       const genreTag = (g.genre && g.genre[0]) ? `<div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);background:var(--accent-light);padding:1px 6px;border-radius:8px;margin-bottom:3px;display:inline-block">${escHtml(g.genre[0])}</div>` : '';
       // Unavailable overlay for pick modal
       const isUnavail = isGameUnavailable(g);
@@ -6501,7 +6571,7 @@ function renderPickBody() {
         ${!isUnavail ? `<div class="pick-check">${sel ? pickedGames.indexOf(g.id) + 1 : ''}</div>` : ''}
         <div class="pick-card-name">${genreTag}<br>${escHtml(g.name)}</div>
       </div>`;
-    }).join('');
+    }).join(''));
   }
 }
 /* ─── GENRE CHIP HELPER ─── */
