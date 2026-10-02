@@ -10,7 +10,7 @@ test('two ways in: the menu, and step 1 beside the rental steps (TH/EN)', () => 
   assert.match(html, /if\(action === "quote"\) openQuotePopup\("menu"\);/);
   // Not in step 1: there it competed with the booking itself.
   assert.doesNotMatch(html, /id="quoteBtn"/);
-  assert.match(html, /quoteBtn:"🧮 Rental calculator", quoteTitle:"Rental calculator"/);
+  assert.match(html, /quoteBtn:"🧮 Rental calculator", quoteBtnHint:"See the total before booking", quoteTitle:"Rental calculator"/);
 });
 
 test('the pop-up opens at once with the page inside, a language switch and a close button', () => {
@@ -51,7 +51,7 @@ test('"check the queue and book" never opens a new tab: in the pop-up it carries
 });
 
 test('one name everywhere: menu, step 1, pop-up title and the page itself (TH/EN)', () => {
-  assert.match(html, /quoteBtn:"🧮 คำนวณค่าเช่า", quoteTitle:"คำนวณค่าเช่า"/);
+  assert.match(html, /quoteBtn:"🧮 คำนวณค่าเช่า", quoteBtnHint:"รู้ยอดรวมก่อนจอง", quoteTitle:"คำนวณค่าเช่า"/);
   assert.match(html, /<h3 id="quoteTitle">คำนวณค่าเช่า<\/h3>/);
   assert.match(quote, /title: 'คำนวณค่าเช่า'/);
   assert.match(quote, /title: 'Rental calculator'/);
@@ -76,7 +76,7 @@ test('the all-devices pop-up has the calculator button too; booking from it clos
 });
 
 test('every bookable device card has its own calculator button, opening with that device', () => {
-  assert.match(html, /\$\{ready \? `<button class="btn soft card-quote-btn" data-card-quote="\$\{esc\(String\(c\.id\)\)\}" type="button">\$\{esc\(tr\("quoteBtn"\)\)\}<\/button>` : ""\}/);
+  assert.match(html, /\$\{ready \? `<button class="btn card-quote-btn" data-card-quote="\$\{esc\(String\(c\.id\)\)\}" type="button"><span>\$\{esc\(tr\("quoteBtn"\)\)\}<\/span><small>\$\{esc\(tr\("quoteBtnHint"\)\)\}<\/small><\/button>` : ""\}/);
   assert.match(html, /if\(cardQuote\)\{ openQuotePopup\("card", cardQuote\.dataset\.cardQuote\); return; \}/);
   assert.match(html, /&device=\$\{encodeURIComponent\(device\)\}/);
   assert.match(html, /postMessage\(\{type:"AJ_SET_DEVICE", consoleId:device\}, quoteFrameOrigin\(\)\)/);
@@ -89,4 +89,10 @@ test('device cards: every button sits together at the bottom; "check the queue a
   const handler = html.slice(html.indexOf('const allConsoleBook = event.target.closest'), html.indexOf('const typeBtn = event.target.closest'));
   assert.match(handler, /closeAllConsoles\(\);/);
   assert.match(handler, /startBookingWithCalendar\(selectedConsole\);/);
+});
+
+test('the calculator button stands out: gold, a hint under the label, a shine that respects reduced motion', () => {
+  assert.match(html, /\.card-quote-btn,\.copy-section-url\.all-consoles-quote\{[^}]*background:linear-gradient\(180deg,#ffd84d,#ffbf1f\)/);
+  assert.match(html, /animation:quote-shine 2\.8s ease-in-out \.6s 3/);
+  assert.match(html, /@media \(prefers-reduced-motion:reduce\)\{\.card-quote-btn::after/);
 });
