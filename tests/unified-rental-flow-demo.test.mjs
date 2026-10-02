@@ -173,8 +173,8 @@ test('round-trip delivery price comes from the Bot and is never shown as final w
   assert.ok(html.includes('needs_pin: en ? "Map pin needed" : "ต้องปักหมุดแผนที่"'));
   assert.match(html, /hasLargeItem: deliveryNeedsCar\(\)/);
   assert.match(html, /data-delivery-quote-retry/);
-  assert.match(html, /The live delivery price is not ready\. Please calculate it again before paying\./);
-  assert.match(html, /ยังไม่ได้ราคาค่าส่งจริง กรุณาคำนวณค่าส่งอีกครั้งก่อนชำระเงิน/);
+  assert.match(html, /Still calculating the delivery fee\. Please try again in a moment\./);
+  assert.match(html, /ยังคำนวณค่าส่งอยู่ กรุณากดอีกครั้งในอีกสักครู่/);
 });
 
 test('privacy policy explains that AJ stores no card or e-wallet details', () => {
@@ -239,7 +239,7 @@ test('checkout goes straight to the payment provider, which refuses framing', ()
   assert.match(html, /location\.href = url;/);
   assert.doesNotMatch(html, /demoPayModal/);
   assert.match(html, /en \? "Pay now" : "ชำระเงิน"/);
-  assert.match(html, /id="demoBeamPay" type="button" \$\{deliveryReady \? "" : "disabled"\}/);
+  assert.match(html, /id="demoBeamPay" type="button" \$\{canPay \? "" : "disabled"\}/);
   assert.doesNotMatch(html, /Create payment link/);
 });
 
@@ -495,7 +495,7 @@ test('payment groups have large headings with the arrow on the left', () => {
 });
 
 test('the demo pay button is large, green, and carries a lock icon', () => {
-  assert.match(html, /<button class="btn primary demo-pay-btn" id="demoBeamPay" type="button" \$\{deliveryReady \? "" : "disabled"\}><svg viewBox="0 0 24 24" aria-hidden="true">/);
+  assert.match(html, /<button class="btn primary demo-pay-btn" id="demoBeamPay" type="button" \$\{canPay \? "" : "disabled"\}><svg viewBox="0 0 24 24" aria-hidden="true">/);
   assert.match(html, /body\.unified-flow-demo \.demo-pay-btn\{width:100%;min-height:60px;[^}]*font-size:20px;font-weight:900/);
   // Green, so it never matches the red open payment group above it.
   assert.match(html, /\.demo-pay-btn\{[^}]*background:linear-gradient\(180deg,#1fa34a,#0f7a34\)/);
