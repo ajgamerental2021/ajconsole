@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-10-02 — Confirmation email: grand total, vehicle, highlighted payment rows (Bot `7c4ae88`)
+
+- `rentalChargeLines` (rental-lookup.js): "ค่าจัดส่งไป-กลับ (รถยนต์/มอเตอร์ไซค์)" from `deliveryQuote.serviceType`, then "ยอดรวมทั้งหมด / Grand total" = rental after discounts + deposit + delivery paid + payment fee.
+- rental-confirmation.js `ROW_STYLES`: grand total grey and bold; payment status green (orange when unpaid); balance red and the largest. `paymentStatusRows` rows carry a third element, the style.
+
 ## 2026-10-02 — Bundle on the confirmation card; no-ID deposit ฿10,000 / ฿15,000 everywhere (Delivery App `939e748`, Bot `406f685`, website `25178a8`)
 
 - Booking 545 (PS5 + Logitech G29) was confirmed as a bare PS5: ฿1,200 rent and a ฿2,000 deposit, while the balance (฿4,771) already carried the pair's ฿450 and ฿3,000 deposit. Cause: a request filed from the payment webhook (`createPendingFromPayment`) kept only the name and phone. It now keeps the website's rental (`orderFromPayment`: costs, bundleId(s), extras, discounts, …; no identity fields). Paid ledger items read it too. `findBundleByWebsiteId` maps `ps5_g29`→g29, `ps5_vr2`→psvr2 when no cost line names the partner. Card deposit label: "ค่าประกัน (Bundle PS5)" / "Deposit (PS5 bundle)". Test: `npm run test:bundle-from-payment`.
