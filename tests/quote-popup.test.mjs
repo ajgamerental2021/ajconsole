@@ -1,0 +1,33 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+
+const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+const quote = readFileSync(new URL('../quote/index.html', import.meta.url), 'utf8');
+
+test('two ways in: the menu, and step 1 beside the rental steps (TH/EN)', () => {
+  assert.match(html, /\["quote", "tag", en \? "Quick price check" : "คำนวณค่าเช่าคร่าวๆ"\], \["prices"/);
+  assert.match(html, /if\(action === "quote"\) openQuotePopup\("menu"\);/);
+  assert.match(html, /<button class="btn step-guide-btn" id="quoteBtn" type="button" data-i18n="quoteBtn">🧮 คำนวณค่าเช่าคร่าวๆ<\/button><button class="btn danger step-guide-btn" id="stepsBtn"/);
+  assert.match(html, /quoteBtn:"🧮 Quick price check", quoteTitle:"Quick price check"/);
+  assert.match(html, /byId\("quoteBtn"\)\.addEventListener\("click", \(\) => openQuotePopup\("step1"\)\);/);
+});
+
+test('the pop-up opens at once with the page inside, a language switch and a close button', () => {
+  assert.match(html, /<div class="modal-overlay quote-modal" id="quoteModal">/);
+  assert.match(html, /id="quoteLangBtn"/);
+  assert.match(html, /<button class="xbtn" id="quoteClose"/);
+  assert.match(html, /\/quote\/\?embed=1&src=web&lang=\$\{state\.lang === "en" \? "en" : "th"\}/);
+  assert.match(html, /byId\("quoteModal"\)\.classList\.add\("open"\);/);
+  assert.match(html, /byId\("quoteClose"\)\.addEventListener\("click", closeQuotePopup\);/);
+  assert.match(html, /event\.key === "Escape" && byId\("quoteModal"\)\?\.classList\.contains\("open"\)\) closeQuotePopup\(\);/);
+  assert.match(html, /if\(e\.target === byId\("quoteModal"\)\) closeQuotePopup\(\);/);
+});
+
+test('switching language keeps what was filled in: the frame is told, not reloaded', () => {
+  const toggle = html.slice(html.indexOf('function toggleQuoteLang()'), html.indexOf('function openStepsPopup()'));
+  assert.match(toggle, /postMessage\(\{type:"AJ_SET_LANG", lang:state\.lang\}, quoteFrameOrigin\(\)\)/);
+  assert.doesNotMatch(toggle, /setAttribute\("src"/);
+  assert.match(quote, /data\.type === 'AJ_SET_LANG'[^\n]*applyLanguage\(\);/);
+  assert.match(quote, /body\.embed header \{ display:none; \}/);
+});

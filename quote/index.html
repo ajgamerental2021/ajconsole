@@ -59,6 +59,10 @@
   label.promo.noid { border-color:#d7dbe3; background:#f8fafc; }
   label.promo small { color:var(--muted); font-size:12.5px; }
   .perks { margin:12px 0 0; padding:10px 12px; border-radius:10px; background:#ecfdf3; color:#067647; font-size:14px; font-weight:700; line-height:1.5; }
+  /* Inside the booking page's pop-up (?embed=1): the pop-up has the title, the
+     language switch and the close button, so the page's own header goes. */
+  body.embed header { display:none; }
+  body.embed .wrap { padding-top:12px; }
   .note { font-size:12.5px; color:var(--muted); line-height:1.55; margin-top:10px; }
 </style>
 </head>
@@ -186,6 +190,15 @@
   };
   var params = new URLSearchParams(location.search);
   var lang = params.get('lang') === 'en' ? 'en' : 'th';
+  var EMBED = params.get('embed') === '1';
+  if (EMBED) document.body.classList.add('embed');
+  // The booking page switches the language from its pop-up header, keeping
+  // what has been filled in.
+  window.addEventListener('message', function (event) {
+    if (!/^https:\/\/(www\.)?ajgamerental\.com$|^https:\/\/ajgamerental\.onrender\.com$|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(event.origin)) return;
+    var data = event.data || {};
+    if (data.type === 'AJ_SET_LANG' && (data.lang === 'th' || data.lang === 'en') && data.lang !== lang) { lang = data.lang; applyLanguage(); }
+  });
   var consoles = [];
   // The booking site's add-ons (extrasForConsole): Switch extras are built in,
   // the others come from the catalogue file by device; PS5 bundles too.
