@@ -96,3 +96,10 @@ test('a device not ready yet or with its queue shut is greyed with the reason, a
   assert.match(page, /if \(Number\.isFinite\(Date\.parse\(rule\.endAt \|\| ''\)\)\) return false;/, 'a closure with dates does not shut a quote without dates');
   assert.match(page, /\$\('device'\)\.value = still && !unavailableReason\(still\) \? current : '';/);
 });
+
+test('a shared link shows what the page is, not "Google Maps"', () => {
+  assert.match(page, /<meta property="og:title" content="คำนวณค่าเช่าเครื่องเกม · AJ เช่าเครื่องเกม">/);
+  assert.match(page, /<meta property="og:description" content="เช็คราคาเช่าเครื่องเกมคร่าวๆ ด้วยตัวเอง/);
+  assert.match(page, /<meta name="description" content="เช็คราคาเช่าเครื่องเกมคร่าวๆ/);
+  assert.match(page, /og:image" content="https:\/\/ajgamerental\.com\/assets\/aj-logo-circle\.png"/);
+});
