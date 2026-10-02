@@ -1,5 +1,17 @@
 # Project state
 
+## 2026-10-02 — Balance payment no longer creates a booking; quick price pop-up on the booking page (Delivery App `1783a35`, website, Bot)
+
+- Booking 547 cause: the balance for 545 confirmed the same customer's old, never-booked request (16–19/09) as a new booking, and a card was sent.
+  - `confirmConsolePendingByRentalCode` now returns `stale` for a request whose return date has passed, and the payment is parked as `stale_request`. `resolveRentalCodeForPayment` skips such requests.
+  - `resolveRentalForPayment` first checks `openBookingForBalance`: the one open booking whose transferBeforeDelivery or cashReceive equals the amount.
+  - A rental code on the payment that has no booking gives way to that balance (audit `redirected_to_balance`).
+  - Test: `npm run test:payment-not-new-booking`.
+  - **Booking 547/548 must be cancelled by hand.**
+- Booking page: "🧮 คำนวณค่าเช่าคร่าวๆ / Quick price check" sits first in the menu and in the step-1 header beside the rental-steps button.
+  - It opens `#quoteModal` with an iframe of `/quote/?embed=1&src=web&lang=…`. The TH/EN switch uses postMessage `AJ_SET_LANG`, so filled-in values are kept. It closes with ×, Esc or a click outside.
+  - The `quick_quote_popup_opened` event (value menu/step1) is shown on /analytics.
+
 ## 2026-10-02 — Quick quote moved to ajgamerental.com/quote/ (website `fc6da56`, Bot `4f99de1`)
 
 - The page now lives in this repo at `quote/index.html`, so the URL is **https://ajgamerental.com/quote/** (add `?src=line|messenger|whatsapp|web`). It calls the Bot (`API = https://aj-line-oa-bot.onrender.com`) for `/api/delivery/quote`, `/api/queue-closures`, `/api/quick-quote` and `/api/analytics/event`; `/api/quick-quote` was added to the Bot's CORS list.
