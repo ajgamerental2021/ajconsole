@@ -1,5 +1,15 @@
 # Project state
 
+## 2026-10-02 — Greeting-button statistics on /analytics (Bot `9e454fd`)
+
+- `greeting_button_clicked` is posted by aj-detached-omnichannel-bot when a customer taps a button on the daily greeting (LINE/Messenger). It is accepted and excluded from the website figures (`isGreeting`).
+- `aggregateAnalytics().greeting = greetingSummary()` returns:
+  - totals: clicks, customers, line, messenger;
+  - buttons: one row per id, label = the newest `content`, sorted by clicks;
+  - days: one row per Bangkok date.
+  No button ids are hard-coded.
+- /analytics has a new tab "💬 ข้อความทักทาย" with the metrics, a table of buttons (labels escaped with esc()) and a per-day chart. Test: test/greeting-analytics.test.js.
+
 ## 2026-10-02 — Calculator on every device card; quote sent to the shop via LIFF
 
 - Device cards (`renderConsoleGrid`, so both the main page and the all-devices pop-up) show `data-card-quote` when the device is bookable, which calls `openQuotePopup("card", id)`. The quote page accepts `?device=` or the postMessage `AJ_SET_DEVICE` and selects that device unless it is closed.
