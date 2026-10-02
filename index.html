@@ -5674,7 +5674,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const agreementActionHtml = state.calc.ret && state.calc.retVerified && hasVerifiedAgreementRecord() ? `<div class="returning-agreement-action">${agreementHtml}${hasActiveMasterAgreement() ? "" : `<button class="btn primary" id="reviewRentalOrderBtn" type="button">${tr("masterAgreementTitle")}</button>`}</div>` : "";
     const contractHtml = state.calc.ret && state.calc.retVerified && hasVerifiedAgreementRecord() ? "" : `<div class="card" id="contractCard" style="margin:12px 0 0">
       ${state.calc.noContract ? "" : `<h3>${tr("contract")}${selectedConsole ? depositBadge(selectedConsole.deposit, "ok") : ""}</h3><p class="privacy-reassurance">🔒 ${tr("contractPrivacy")}</p><p class="hint" style="color:#c00000;font-weight:800">${tr("contractAge")}</p><button class="btn soft" id="contractBtn" type="button">${tr("contract")}</button><p class="hint" id="contractCodeHint">${state.calc.rentalCode ? `${tr("temporaryRentalCode")}: ${esc(state.calc.rentalCode)}` : ""}</p>`}
-      <label class="option-row" style="margin-top:${state.calc.noContract ? 0 : 12}px"><input type="checkbox" id="noContractOpt" ${state.calc.noContract?"checked":""}><div><b>${tr("noContract")}${state.calc.noContract && selectedConsole ? depositBadge(noContractDeposit(selectedConsole.deposit), "danger") : ""}</b><div class="hint">${tr("noContractHelp")}</div>${state.calc.noContract ? `<div class="hint" style="color:#18743a;font-weight:800">✓ ${tr("rentalTermsAccepted")} · <a href="${esc(rentalTermsUrl(state.lang))}" target="_blank" rel="noopener">${tr("rentalTermsRead")}</a></div>` : ""}</div></label>
+      <label class="option-row" style="margin-top:${state.calc.noContract ? 0 : 12}px"><input type="checkbox" id="noContractOpt" ${state.calc.noContract?"checked":""}><div><b>${tr("noContract")}${state.calc.noContract && selectedConsole ? depositBadge(Number(selectedConsole.id) === SPEC.PS5 && state.calc.bundleId ? 15000 : noContractDeposit(selectedConsole.deposit), "danger") : ""}</b><div class="hint">${tr("noContractHelp")}</div>${state.calc.noContract ? `<div class="hint" style="color:#18743a;font-weight:800">✓ ${tr("rentalTermsAccepted")} · <a href="${esc(rentalTermsUrl(state.lang))}" target="_blank" rel="noopener">${tr("rentalTermsRead")}</a></div>` : ""}</div></label>
     </div>`;
     byId("optionRows").innerHTML = `
       ${renderBoardGameBundle()}
@@ -6223,7 +6223,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // A device-specific VIP price replaces (rather than stacks with) the 10%
     // returning-customer discount for that device, so the configured price is exact.
     const retDisc = state.calc.ret && state.retEnabled && !terms.vipRateApplied ? Math.round(returningDiscountBase * 0.1) : 0;
-    const finalDeposit = state.calc.noContract ? noContractDeposit(deposit) : deposit;
+    // Without identity verification every PS5 bundle holds ฿15,000; a device on
+    // its own steps up by its normal deposit (noContractDeposit).
+    const finalDeposit = state.calc.noContract ? (bundleName ? 15000 : noContractDeposit(deposit)) : deposit;
     const consoleDiscounts = retDisc + reviewGoogleDisc + reviewFacebookDisc + promoDisc + afterWorkDisc;
     const subtotalAfterDiscount = Math.max(0, rental + addons - consoleDiscounts) + Math.max(0, bgSubtotal - bgDisc);
     const depositTotal = finalDeposit + bgDepositTotal;
