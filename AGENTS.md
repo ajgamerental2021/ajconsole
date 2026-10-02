@@ -15,6 +15,8 @@ browser and it runs.
 | `index.html` | The live booking site. Treat every change here as production. |
 | `index-demo.html` | Where new work lands first. Not a copy of `index.html` — see below. |
 | `game_index.html` | Game catalogue, also embedded in the booking page as a picker. |
+| `ajgameid/index.html` | PS5 game ID rental list (data in the Gist `802f3a4e…`, file `aj-ps5-game-id-data.json`). |
+| `ajgameid/switch/index.html` | Nintendo Switch game ID list. **Generated** from the PS5 page by `node scripts/build-switch-id-page.mjs`; never edit it by hand. Its data is the same Gist, file `aj-switch-game-id-data.json`. After changing the PS5 page, run the script; a test fails until you do. |
 | `google-apps-script/social-proof-sync.gs` | Daily job that writes ratings and reviews into the Gist. |
 
 The booking flow also has a server in a separate repo,
