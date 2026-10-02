@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-10-02 — Calculator: one name; booking opens the queue calendar
+
+- The menu, the step-1 button, the pop-up title and the quote page title all say "คำนวณค่าเช่า" / "Rental calculator". "คำนวณค่าเช่าคร่าวๆ" is gone from index.html.
+- `AJ_QUOTE_BOOK` handler: `selectCalcConsole` + bundle, `state.calc.step = 1`, then `setBeforeRent(false, {startGuide:true, scrollTo:false})`, scroll to `#calculator`, then `openCalendar("start")`. This works from the before-rent page as well.
+
 ## 2026-10-02 — Rental calculator: same-page booking, ?quote=1, menu "คำนวณค่าเช่า"
 
 - In the pop-up, "เช็คคิวและจองเครื่องนี้" postMessages `AJ_QUOTE_BOOK` (consoleId, bundleId) to the parent. The parent accepts it only from `#quoteFrame`, closes the pop-up, runs `selectCalcConsole` and sets the bundle, then scrolls to step 1. On the standalone /quote/ page the link opens in the same tab (no `target=_blank`).
