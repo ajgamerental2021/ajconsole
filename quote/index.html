@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>AJ · คำนวณค่าเช่า</title>
+<style>
+  :root { color-scheme: light; --red:#c90012; --ink:#14181f; --muted:#6b7280; --line:#e5e7eb; --bg:#f4f6fa; --ok:#15803d; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin:0; font-family:-apple-system,"Noto Sans Thai","Sarabun","Segoe UI",sans-serif; background:var(--bg); color:var(--ink); }
+  .wrap { max-width:560px; margin:0 auto; padding:18px 16px 48px; }
+  header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+  h1 { font-size:21px; margin:0; }
+  .sub { color:var(--muted); font-size:13px; margin:4px 0 0; }
+  .lang { border:1px solid var(--line); background:#fff; border-radius:999px; padding:8px 14px; font-weight:800; font-family:inherit; font-size:14px; cursor:pointer; }
+  .card { background:#fff; border-radius:16px; padding:16px; box-shadow:0 2px 12px rgba(17,24,39,.06); margin-bottom:14px; }
+  label { display:block; font-size:13px; font-weight:800; color:#374151; margin:12px 0 6px; }
+  label:first-child { margin-top:0; }
+  select, input { width:100%; border:1px solid #d7dbe3; border-radius:10px; padding:11px 12px; font-size:16px; font-family:inherit; background:#fff; }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .chip { border:1px solid #d7dbe3; background:#fff; border-radius:999px; padding:6px 12px; font-size:13px; font-weight:700; font-family:inherit; cursor:pointer; }
+  .chip.on { border-color:var(--red); color:var(--red); background:#fff5f5; }
+  .btn { width:100%; margin-top:12px; padding:13px; border:0; border-radius:12px; background:var(--red); color:#fff; font-size:16px; font-weight:800; font-family:inherit; cursor:pointer; }
+  a.btn { display:block; text-align:center; text-decoration:none; }
+  .btn.line { background:#06c755; }
+  .btn.secondary { background:#fff; color:var(--ink); border:1px solid #d7dbe3; }
+  .btn[disabled] { opacity:.6; cursor:default; }
+  .hint { color:var(--muted); font-size:12.5px; margin:6px 0 0; line-height:1.5; }
+  .err { color:#b91c1c; font-size:13px; margin:8px 0 0; }
+  .row { display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid #f0f2f5; font-size:14.5px; }
+  .row span:first-child { color:#4b515c; }
+  .row b { white-space:nowrap; }
+  .row.discount b { color:var(--ok); }
+  .row.muted span, .row.muted b { color:var(--muted); font-weight:500; font-size:13px; }
+  .row.total { border-bottom:0; padding-top:12px; font-size:17px; }
+  .row.total b { color:var(--red); font-size:20px; }
+  h2 { font-size:16px; margin:0 0 8px; }
+  .extra { display:flex; gap:10px; align-items:flex-start; font-weight:500; font-size:14px; color:var(--ink); margin:0 0 8px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; cursor:pointer; }
+  .extra input { width:auto; margin-top:3px; }
+  .extra small { display:block; color:var(--muted); font-size:12.5px; }
+  .chip.locate { margin-top:8px; padding:9px 14px; font-size:14px; }
+  label.promo { display:flex; gap:10px; align-items:flex-start; font-weight:500; margin-top:12px; padding:10px 12px; border:1px solid #f5c2c7; background:#fff5f5; border-radius:10px; cursor:pointer; }
+  label.promo input { width:auto; margin-top:3px; }
+  label.promo.noid { border-color:#d7dbe3; background:#f8fafc; }
+  label.promo small { color:var(--muted); font-size:12.5px; }
+  .perks { margin:12px 0 0; padding:10px 12px; border-radius:10px; background:#ecfdf3; color:#067647; font-size:14px; font-weight:700; line-height:1.5; }
+  .note { font-size:12.5px; color:var(--muted); line-height:1.55; margin-top:10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1 data-t="title"></h1>
+      <p class="sub" data-t="subtitle"></p>
+    </div>
+    <button class="lang" id="lang" type="button"></button>
+  </header>
+
+  <div class="card">
+    <label for="device" data-t="device"></label>
+    <select id="device"><option value="" data-t="loading"></option></select>
+    <p class="hint" id="rates"></p>
+
+    <div id="bundleBox" hidden>
+      <label for="bundle" data-t="bundle"></label>
+      <select id="bundle"></select>
+      <p class="hint" data-t="bundleHint"></p>
+    </div>
+
+    <div id="extrasBox" hidden>
+      <label data-t="extras"></label>
+      <div id="extras"></div>
+    </div>
+
+    <label for="days" data-t="days"></label>
+    <input id="days" type="number" inputmode="numeric" min="3" max="365" value="3">
+    <div class="chips" id="dayChips"></div>
+    <p class="err" id="daysErr" hidden></p>
+    <label class="promo noid" id="noIdRow"><input type="checkbox" id="noId"> <span><b data-t="noIdAsk"></b><br><small id="noIdHint"></small></span></label>
+    <label class="promo" id="promoRow" hidden><input type="checkbox" id="promo"> <span><b data-t="promoAsk"></b><br><small id="promoHint"></small></span></label>
+
+    <label for="maps">Google Maps</label>
+    <input id="maps" type="url" inputmode="url" autocomplete="off" placeholder="https://maps.app.goo.gl/...">
+    <button class="chip locate" id="locate" type="button" data-t="locate"></button>
+    <p class="hint" data-t="mapsHint"></p>
+    <button class="btn secondary" id="quote" type="button" data-t="quoteBtn"></button>
+    <p class="err" id="quoteErr" hidden></p>
+  </div>
+
+  <div class="card" id="result" hidden>
+    <h2 data-t="summary"></h2>
+    <div id="rows"></div>
+    <p class="perks" data-t="perks"></p>
+    <p class="note" data-t="note"></p>
+    <a class="btn book" id="book" href="#" target="_blank" rel="noopener" data-t="book"></a>
+    <a class="btn line" id="sendLine" href="#" target="_blank" rel="noopener" data-t="sendLine"></a>
+    <button class="btn secondary" id="copy" type="button" data-t="copy"></button>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Prices come from the booking site's own catalogue file, and follow its
+  // rules: whole months at the monthly price (฿300/350/400/500 a day), then
+  // whole weeks at the weekly price, then days; a three-day minimum. The
+  // delivery fee is the live Lalamove round trip, after AJ's discount, from
+  // the Bot. A rough quote: no queue check, promotions or discounts.
+  // The page lives on the booking site (ajgamerental.com/quote/); the delivery
+  // fee, the queue closures, the saved quotes and the statistics are the Bot's.
+  var API = 'https://aj-line-oa-bot.onrender.com';
+  var CATALOGUE = 'https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json';
+  var MONTHLY = { 500: 8500, 400: 6500, 350: 5000, 300: 4000 };
+  // After Work 3 Nights: a 3-day rental starting on a Monday or Tuesday, at a
+  // set price by daily rate (the booking site's AFTER_WORK_PROMO_PRICES).
+  var AFTER_WORK = { 300: 777, 350: 888, 400: 999, 500: 1299 };
+  var T = {
+    th: {
+      title: 'คำนวณค่าเช่าคร่าวๆ', subtitle: 'ค่าเช่า · ค่าประกัน · ค่าจัดส่ง (ไม่เช็คคิว)', lang: 'English',
+      device: 'เครื่องที่เช่า', loading: 'กำลังโหลดรายการเครื่อง…', pick: 'เลือกเครื่อง', days: 'จำนวนวันเช่า',
+      mapsHint: 'วางลิงก์ Google Maps ที่ปักหมุดจุดส่งแล้ว ระบบคำนวณค่าส่งไป-กลับจาก Lalamove',
+      quoteBtn: 'คำนวณค่าส่ง', quoting: 'กำลังคำนวณค่าส่ง…', summary: 'สรุปค่าใช้จ่ายโดยประมาณ',
+      rental: 'ค่าเช่า', deposit: 'ค่าประกัน (คืนเมื่อคืนเครื่อง)', depositNoId: 'ค่าประกัน ไม่ยืนยันตัวตน (คืนเมื่อคืนเครื่อง)',
+      book: 'เช็คคิวและจองเครื่องนี้', sendLine: 'ส่งราคานี้ให้ร้านทาง LINE', lineHead: 'สนใจเช่าตามราคานี้ครับ/ค่ะ',
+      noIdAsk: 'ไม่ยืนยันตัวตน', noIdHint: 'ค่าประกันเพิ่มเป็น {deposit} (ปกติ {normal})',
+      delivery: 'ค่าจัดส่งไป-กลับ', vehicle: 'ประเภทรถ', car: 'รถยนต์', moto: 'มอเตอร์ไซค์', deliveryDiscount: 'ส่วนลดค่าจัดส่งจากร้าน',
+      deliveryPay: 'ค่าจัดส่งที่ต้องชำระ', deliveryNone: 'ยังไม่ได้คำนวณ', total: 'ยอดรวมทั้งหมด', totalNoDelivery: 'ยอดรวม (ยังไม่รวมค่าส่ง)',
+      perDay: 'วัน', perWeek: 'สัปดาห์', perMonth: '30 วัน', dayUnit: 'วัน', weekTier: 'เรทรายสัปดาห์', monthTier: 'เรทรายเดือน',
+      minDays: 'เช่าขั้นต่ำ 3 วัน', needDevice: 'เลือกเครื่องก่อน', needMaps: 'วางลิงก์ Google Maps ก่อน',
+      needPin: 'ลิงก์นี้ไม่มีหมุดตำแหน่ง ใน Google Maps ให้กดค้างตรงจุดส่งจนขึ้นหมุด แล้วแชร์ลิงก์นั้น',
+      quoteFail: 'คำนวณค่าส่งไม่สำเร็จ ลองใหม่อีกครั้ง', tooMany: 'คำนวณค่าส่งถี่เกินไป กรุณารอสักครู่แล้วลองใหม่', catalogueFail: 'โหลดรายการเครื่องไม่สำเร็จ รีเฟรชหน้าอีกครั้ง',
+      note: 'ราคาคร่าวๆ ราคาปกติ ยังไม่รวมส่วนลดลูกค้าเก่าและส่วนลดรีวิว และยังไม่ได้เช็คคิวว่าง ค่าส่งเป็นราคาตอนนี้ อาจเปลี่ยนตามเวลาที่จองจริง',
+      // The discounts are claimed where they can be checked, on the booking
+      // page; here they are only named, so the price shown is never lower
+      // than the one a new customer will get.
+      perks: '🎁 ลูกค้าเก่าลด 10% · รีวิวลดเพิ่ม — ยืนยันสิทธิได้ตอนกดจอง',
+      readyOn: 'พร้อมวันที่', queueClosed: 'ปิดคิวในช่วงเวลานี้',
+      sectionRental: 'ค่าเช่าและค่าประกัน', sectionDelivery: 'ค่าจัดส่ง', bookAt: 'เช็คคิวและจองได้ที่', quoteCode: 'รหัสใบเสนอราคา',
+      copy: 'คัดลอกสรุปราคา', copied: '✓ คัดลอกแล้ว', copyHead: 'AJ เช่าเครื่องเกม · ราคาโดยประมาณ',
+      promoAsk: 'เริ่มเช่าวันจันทร์หรืออังคาร (โปร After Work 3 Nights)', promoHint: 'เช่า 3 วัน เริ่มวันจันทร์หรืออังคาร ราคาโปร {price}',
+      promoLine: 'โปรโมชั่น After Work 3 Nights (ราคาโปร {price})',
+      bundle: 'Bundle (เช่าพร้อม PS5)', noBundle: 'ไม่เลือก Bundle (PS5 อย่างเดียว)', bundleHint: 'Bundle ใช้ราคาและค่าประกันของชุดแทนราคาเครื่อง',
+      extras: 'อุปกรณ์เสริม', perRental: 'ต่อการเช่า', accessory: 'อุปกรณ์เสริม',
+      locate: '📍 ใช้ตำแหน่งปัจจุบัน', locating: 'กำลังหาตำแหน่ง…', locateFail: 'ไม่ได้รับตำแหน่ง กรุณาอนุญาตการเข้าถึงตำแหน่ง หรือวางลิงก์แผนที่แทน', locateNone: 'เบราว์เซอร์นี้แชร์ตำแหน่งไม่ได้'
+    },
+    en: {
+      title: 'Rough rental quote', subtitle: 'Rental · deposit · delivery (no queue check)', lang: 'ภาษาไทย',
+      device: 'Equipment', loading: 'Loading equipment…', pick: 'Choose equipment', days: 'Rental days',
+      mapsHint: 'Paste a Google Maps link with the delivery spot pinned; the round trip is priced by Lalamove.',
+      quoteBtn: 'Get delivery fee', quoting: 'Getting the delivery fee…', summary: 'Estimated cost',
+      rental: 'Rental', deposit: 'Security deposit (refunded on return)', depositNoId: 'Deposit without identity verification (refunded on return)',
+      book: 'Check the queue and book this', sendLine: 'Send this quote to AJ on LINE', lineHead: 'I am interested in renting at this price.',
+      noIdAsk: 'No identity verification', noIdHint: 'The deposit goes up to {deposit} (normally {normal})',
+      delivery: 'Round-trip delivery', vehicle: 'Vehicle', car: 'Car', moto: 'Motorcycle', deliveryDiscount: 'AJ delivery discount',
+      deliveryPay: 'Delivery you pay', deliveryNone: 'Not calculated yet', total: 'Total', totalNoDelivery: 'Total (delivery not included)',
+      perDay: 'day', perWeek: 'week', perMonth: '30 days', dayUnit: 'days', weekTier: 'weekly rate', monthTier: 'monthly rate',
+      minDays: 'The minimum rental is 3 days.', needDevice: 'Choose the equipment first.', needMaps: 'Paste a Google Maps link first.',
+      needPin: 'This link has no pinned location. In Google Maps, press and hold the delivery spot to drop a pin, then share that link.',
+      quoteFail: 'The delivery fee could not be calculated. Please try again.', tooMany: 'Too many delivery checks. Please wait a moment and try again.', catalogueFail: 'The equipment list could not be loaded. Please refresh.',
+      note: 'A rough quote at regular prices: returning-customer and review discounts are not included, and the queue is not checked. The delivery fee is today\'s price and may change by the time of booking.',
+      perks: '🎁 Returning customers save 10% · reviews save more — claim them when you book',
+      readyOn: 'Available from', queueClosed: 'Queue closed during this period',
+      sectionRental: 'Rental and deposit', sectionDelivery: 'Delivery', bookAt: 'Check the queue and book:', quoteCode: 'Quote code',
+      copy: 'Copy the quote', copied: '✓ Copied', copyHead: 'AJ Game Rental · estimated price',
+      promoAsk: 'Starts on a Monday or Tuesday (After Work 3 Nights)', promoHint: '3 days starting Monday or Tuesday, promo price {price}',
+      promoLine: 'After Work 3 Nights promotion (promo price {price})',
+      bundle: 'Bundle (with PS5)', noBundle: 'No bundle (PS5 only)', bundleHint: 'A bundle uses the set\'s own price and deposit instead of the console\'s.',
+      extras: 'Accessories', perRental: 'per rental', accessory: 'Accessory',
+      locate: '📍 Use my current location', locating: 'Finding your location…', locateFail: 'Location not shared. Allow location access, or paste a map link.', locateNone: 'This browser cannot share its location.'
+    }
+  };
+  var params = new URLSearchParams(location.search);
+  var lang = params.get('lang') === 'en' ? 'en' : 'th';
+  var consoles = [];
+  // The booking site's add-ons (extrasForConsole): Switch extras are built in,
+  // the others come from the catalogue file by device; PS5 bundles too.
+  var PS5_ID = '11', SW1_ID = '4', SW2_ID = '12';
+  var SW_ROOT = [
+    { id: 'joy', th: 'เพิ่มจอย 2 อัน (เล่นได้ 4 คน)', en: 'Add 2 controllers (up to 4 players)', daily: 70, weekly: 350 },
+    { id: 'ringfit', th: 'Ring Fit Adventure', en: 'Ring Fit Adventure', daily: 100, weekly: 450 },
+    { id: 'taiko', th: 'กลอง Taiko', en: 'Taiko Drum', daily: 100, weekly: 450 }
+  ];
+  var SW_SUB = [
+    { id: 'bat', th: 'ไม้แบด', en: 'Badminton rackets', daily: 70, weekly: 350 },
+    { id: 'wheel', th: 'พวงมาลัย', en: 'Steering wheels', daily: 70, weekly: 350 }
+  ];
+  var accessories = [{ id: 'vdock', th: 'Viture Mobile Dock', en: 'Viture Mobile Dock', daily: 200, weekly: 200, consoleIds: ['10', '16', '17'] }];
+  var bundles = [
+    { id: 'ps5_g29', th: 'PS5 + Logitech G29', en: 'PS5 + Logitech G29', rate: 600, weekly: 4000, deposit: 4000 },
+    { id: 'ps5_vr2', th: 'PS5 + PS VR2', en: 'PS5 + PS VR2', rate: 600, weekly: 4000, deposit: 4000 }
+  ];
+  var picked = [];
+  var quote = null;
+  var $ = function (id) { return document.getElementById(id); };
+  var money = function (n) { return '฿' + Math.round(Number(n) || 0).toLocaleString('en-US'); };
+  var t = function (k) { return T[lang][k]; };
+  var nameOf = function (c) { return lang === 'en' ? (c.nameEn || c.name) : (c.name || c.nameEn); };
+
+  function rentalCost(days, daily, weekly) {
+    var d = Number(days) || 0, cost = 0, monthly = MONTHLY[Number(daily) || 0] || 0;
+    if (monthly && d >= 30) { cost += Math.floor(d / 30) * monthly; d = d % 30; }
+    if (d >= 7) return cost + Math.floor(d / 7) * Number(weekly || 0) + (d % 7) * Number(daily || 0);
+    return cost + d * Number(daily || 0);
+  }
+  function tierOf(days, daily, weekly) {
+    if ((MONTHLY[Number(daily) || 0]) && days >= 30) return t('monthTier');
+    if (days >= 7 && Number(weekly) && Number(weekly) < Number(daily) * 7) return t('weekTier');
+    return '';
+  }
+  var labelOf = function (x) { return lang === 'en' ? (x.en || x.th) : (x.th || x.en); };
+  function extrasFor(c) {
+    if (!c) return [];
+    var id = String(c.id), items = [];
+    if (id === SW1_ID) items = items.concat(SW_ROOT, SW_SUB);
+    if (id === SW2_ID) { items = items.concat(SW_ROOT); if (picked.indexOf('joy') >= 0) items = items.concat(SW_SUB); }
+    return items.concat(accessories.filter(function (a) { return (a.consoleIds || []).map(String).indexOf(id) >= 0; }));
+  }
+  // The dock is a flat charge per rental; everything else is priced like a rental.
+  function extraCost(x, n) { return String(x.id).toLowerCase() === 'vdock' ? Number(x.daily) || 0 : rentalCost(n, x.daily, x.weekly); }
+  function selectedBundle(c) {
+    if (!c || String(c.id) !== PS5_ID) return null;
+    return bundles.find(function (b) { return b.id === $('bundle').value; }) || null;
+  }
+  // What the rental is priced on: the bundle's rate and deposit, or the device's.
+  function termsOf(c) {
+    var b = selectedBundle(c);
+    return b ? { rate: b.rate, weekly: b.weekly, deposit: b.deposit, name: labelOf(b), bundle: b } : { rate: c.rate, weekly: c.weekly, deposit: c.deposit, name: nameOf(c), bundle: null };
+  }
+  function selected() { return consoles.find(function (c) { return String(c.id) === $('device').value; }) || null; }
+  function days() { return Math.floor(Number($('days').value) || 0); }
+
+  function applyLanguage() {
+    document.documentElement.lang = lang;
+    document.title = 'AJ · ' + t('title');
+    Array.prototype.forEach.call(document.querySelectorAll('[data-t]'), function (el) { el.textContent = t(el.getAttribute('data-t')); });
+    $('lang').textContent = t('lang');
+    fillDevices();
+    renderAddOns();
+    renderChips();
+    render();
+  }
+  // The booking page's order and its availability, so the two lists read the
+  // same: PlayStation, Nintendo, Xbox, … (BRAND_META), then the booking page's
+  // own order within a brand, then the higher rate. A device not ready yet
+  // (its Ready Date in Admin) or with its queue shut (Admin → ปิดคิว) is shown
+  // greyed with the reason, and comes back by itself when it opens.
+  var BRAND_ORDER = { playstation: 1, nintendo: 2, xbox: 3, logitech: 4, meta: 5, viture: 6, xreal: 7, rog: 8, lenovo: 9, steamdeck: 10, other: 99 };
+  var RANK = ['PS5', 'PS5 Pro', 'PS4', 'PS Portal', 'PS VR2', 'PS FlexStrike Wireless Fight Stick', 'Nintendo Switch 2', 'Nintendo Switch 1', 'Logitech G29', 'Meta Quest 3', 'Meta Quest 3s', 'Viture Beast', 'Viture Luma Ultra', 'Viture Luma Pro', 'XREAL One', 'ROG Xbox Ally X', 'Xbox Series X', 'Xbox Series S', 'Lenovo Legion GO2', 'Steam Deck OLED']
+    .map(function (n) { return n.toLowerCase(); });
+  function brandOf(c) {
+    var v = String(c.brand || '').toLowerCase().replace(/\s+/g, '');
+    var s = v || (String(c.name || '') + ' ' + String(c.nameEn || '')).toLowerCase();
+    if (/playstation|^ps$|(^|\s)ps/.test(s)) return 'playstation';
+    if (/nintendo|switch/.test(s)) return 'nintendo';
+    if (/rog|ally/.test(s)) return 'rog';
+    if (/lenovo|legion/.test(s)) return 'lenovo';
+    if (/xbox/.test(s)) return 'xbox';
+    if (/logitech|g29/.test(s)) return 'logitech';
+    if (/meta|quest/.test(s)) return 'meta';
+    if (/viture/.test(s)) return 'viture';
+    if (/xreal/.test(s)) return 'xreal';
+    if (/steam/.test(s)) return 'steamdeck';
+    return 'other';
+  }
+  function rankOf(c) { var i = RANK.indexOf(String(c.nameEn || c.name || '').trim().toLowerCase()); return i >= 0 ? i : 999; }
+  function sortLikeBookingPage(list) {
+    return list.slice().sort(function (a, b) {
+      return (BRAND_ORDER[brandOf(a)] || 99) - (BRAND_ORDER[brandOf(b)] || 99) || rankOf(a) - rankOf(b) || b.rate - a.rate;
+    });
+  }
+  function todayIso() { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); }
+  function isReady(item) { var ready = String(item && item.readyDate || '').trim(); return !ready || todayIso() >= ready; }
+  function displayDate(iso) { var m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? m[3] + '/' + m[2] + '/' + m[1] : String(iso || ''); }
+  // Admin → ปิดคิว, as the booking page reads it with no dates picked: a
+  // closure with no reopen date shuts the device; one with dates only closes
+  // those days, which a quote without dates does not touch.
+  var closures = { all: null, types: {}, devices: {} };
+  function ruleShut(rule) {
+    if (!rule || rule.closed !== true) return false;
+    if (Number.isFinite(Date.parse(rule.endAt || ''))) return false;
+    var start = Date.parse(rule.startAt || '');
+    return !Number.isFinite(start) || Date.now() >= start;
+  }
+  function queueClosed(c) {
+    return [closures.all, closures.types[String(c.type || 'console').toLowerCase()], closures.devices[String(c.id).toLowerCase()]].some(ruleShut);
+  }
+  function unavailableReason(c) {
+    if (queueClosed(c)) return t('queueClosed');
+    if (!isReady(c)) return t('readyOn') + ' ' + displayDate(c.readyDate);
+    return '';
+  }
+  function fillDevices() {
+    if (!consoles.length) return;
+    var current = $('device').value;
+    $('device').innerHTML = '<option value="">' + t('pick') + '</option>' + sortLikeBookingPage(consoles).map(function (c) {
+      var reason = unavailableReason(c);
+      var label = (reason ? '⛔ ' : '') + nameOf(c) + ' (' + money(c.rate) + '/' + t('perDay') + ')' + (reason ? ' - ' + reason : '');
+      return '<option value="' + String(c.id).replace(/"/g, '&quot;') + '"' + (reason ? ' disabled' : '') + '>' + label.replace(/</g, '&lt;') + '</option>';
+    }).join('');
+    // A device that has just closed cannot stay picked.
+    var still = consoles.find(function (c) { return String(c.id) === current; });
+    $('device').value = still && !unavailableReason(still) ? current : '';
+  }
+  function renderChips() {
+    $('dayChips').innerHTML = [3, 7, 14, 30].map(function (n) {
+      return '<button class="chip' + (days() === n ? ' on' : '') + '" type="button" data-days="' + n + '">' + n + ' ' + t('dayUnit') + '</button>';
+    }).join('');
+  }
+  function row(label, value, cls) {
+    return '<div class="row ' + (cls || '') + '"><span>' + label + '</span><b>' + value + '</b></div>';
+  }
+  function lines() {
+    var c = selected(), n = days();
+    if (!c || n < 3) return null;
+    var terms = termsOf(c);
+    var rent = rentalCost(n, terms.rate, terms.weekly);
+    var normalDeposit = Number(terms.deposit) || 0;
+    // Renting without identity verification holds a larger deposit, as on the
+    // booking site (noContractDeposit): ฿4,000 and up → ฿15,000, else ฿10,000.
+    var noId = $('noId').checked;
+    var deposit = noId ? noIdDepositFor(normalDeposit, !!terms.bundle) : normalDeposit;
+    var tier = tierOf(n, terms.rate, terms.weekly);
+    // Each row: label, amount, how it is styled here, and what it is (for the
+    // copied text's emoji and the LINE card).
+    var out = [[t('rental') + ' ' + terms.name + ' · ' + n + ' ' + t('dayUnit') + (tier ? ' (' + tier + ')' : ''), money(rent), '', 'rent']];
+    var total = rent + deposit;
+    // The promotion is on the console's own rental, as on the booking site.
+    var promo = promoPrice(c, n);
+    if (promo && $('promo').checked && rent > promo) {
+      out.push([t('promoLine').replace('{price}', money(promo)), '-' + money(rent - promo), 'discount', 'promo']);
+      total -= rent - promo;
+    }
+    extrasFor(c).filter(function (x) { return picked.indexOf(x.id) >= 0; }).forEach(function (x) {
+      var cost = extraCost(x, n);
+      out.push([t('accessory') + ': ' + labelOf(x), money(cost), '', 'extra']);
+      total += cost;
+    });
+    out.push([noId ? t('depositNoId') : t('deposit'), money(deposit), '', 'deposit']);
+    if (quote) {
+      var vehicle = quote.serviceType === 'CAR' ? t('car') : t('moto');
+      out.push([t('delivery') + ' (' + vehicle + ')', money(quote.subtotal), '', 'delivery']);
+      if (Number(quote.discount) > 0) out.push([t('deliveryDiscount'), '-' + money(quote.discount), 'discount', 'discount']);
+      out.push([t('deliveryPay'), money(quote.total), '', 'pay']);
+      total += Number(quote.total) || 0;
+    }
+    return { c: c, n: n, rent: rent, deposit: deposit, total: total, rows: out };
+  }
+  // Without identity verification: every PS5 bundle holds ฿15,000; otherwise
+  // ฿4,000 and up → ฿15,000, else ฿10,000 (the booking site's noContractDeposit).
+  function noIdDepositFor(normal, isBundle) { return isBundle || Number(normal) >= 4000 ? 15000 : 10000; }
+  function promoPrice(c, n) { return c && n === 3 ? (AFTER_WORK[Number(termsOf(c).rate)] || 0) : 0; }
+  function renderAddOns() {
+    var c = selected();
+    var isPs5 = c && String(c.id) === PS5_ID;
+    $('bundleBox').hidden = !isPs5;
+    if (isPs5) {
+      var current = $('bundle').value;
+      $('bundle').innerHTML = '<option value="">' + t('noBundle') + '</option>' + bundles.map(function (b) {
+        var notYet = !isReady(b);
+        return '<option value="' + b.id + '"' + (notYet ? ' disabled' : '') + '>' + (notYet ? '⛔ ' : '') + labelOf(b) + ' (' + money(b.rate) + '/' + t('perDay') + ')' + (notYet ? ' - ' + t('readyOn') + ' ' + displayDate(b.readyDate) : '') + '</option>';
+      }).join('');
+      $('bundle').value = current;
+    }
+    var items = extrasFor(c);
+    picked = picked.filter(function (id) { return items.some(function (x) { return x.id === id; }); });
+    $('extrasBox').hidden = !items.length;
+    $('extras').innerHTML = items.map(function (x) {
+      var price = String(x.id).toLowerCase() === 'vdock'
+        ? money(x.daily) + ' ' + t('perRental')
+        : money(x.daily) + '/' + t('perDay') + ' · ' + money(x.weekly) + '/' + t('perWeek');
+      return '<label class="extra"><input type="checkbox" data-extra="' + x.id + '"' + (picked.indexOf(x.id) >= 0 ? ' checked' : '') + '><span>' + labelOf(x) + '<small>' + price + '</small></span></label>';
+    }).join('');
+  }
+  function render() {
+    var c = selected(), n = days();
+    var promo = promoPrice(c, n);
+    $('noIdRow').hidden = !c;
+    if (c) {
+      var tc = termsOf(c), normal = Number(tc.deposit) || 0;
+      $('noIdHint').textContent = t('noIdHint').replace('{deposit}', money(noIdDepositFor(normal, !!tc.bundle))).replace('{normal}', money(normal));
+    }
+    $('promoRow').hidden = !promo;
+    if (promo) $('promoHint').textContent = t('promoHint').replace('{price}', money(promo));
+    var tm = c ? termsOf(c) : null;
+    $('rates').textContent = tm ? money(tm.rate) + '/' + t('perDay') + ' · ' + money(tm.weekly) + '/' + t('perWeek') + (MONTHLY[Number(tm.rate)] ? ' · ' + money(MONTHLY[Number(tm.rate)]) + '/' + t('perMonth') : '') : '';
+    var bad = n > 0 && n < 3;
+    $('daysErr').hidden = !bad;
+    $('daysErr').textContent = t('minDays');
+    var L = lines();
+    $('result').hidden = !L;
+    if (!L) return;
+    var html = L.rows.map(function (r) { return row(r[0], r[1], r[2]); }).join('');
+    // The vehicle is named on the delivery line itself.
+    if (!quote) html += row(t('delivery'), t('deliveryNone'), 'muted');
+    html += row(quote ? t('total') : t('totalNoDelivery'), money(L.total), 'total');
+    $('rows').innerHTML = html;
+    renderLinks();
+  }
+  function showQuoteError(text) { $('quoteErr').hidden = !text; $('quoteErr').textContent = text || ''; }
+
+  async function getQuote() {
+    var c = selected(), maps = $('maps').value.trim();
+    if (!c) return showQuoteError(t('needDevice'));
+    if (!maps) return showQuoteError(t('needMaps'));
+    showQuoteError('');
+    var btn = $('quote');
+    btn.disabled = true; btn.textContent = t('quoting');
+    try {
+      var b = selectedBundle(c);
+      var name = (c.name || '') + ' ' + (c.nameEn || '') + ' ' + (c.brand || '') + ' ' + (b ? b.th + ' ' + b.en : '');
+      var res = await fetch(API + '/api/delivery/quote', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mapsUrl: maps, deviceCount: 1 + (picked.length || b ? 1 : 0), hasLargeItem: /G29|Logitech/i.test(name), days: Math.max(3, days()), lang: lang })
+      });
+      var data = await res.json().catch(function () { return {}; });
+      if (res.ok && data.ok && data.quote) { quote = data.quote; render(); track('quick_quote_calculated'); }
+      else {
+        var reason = data.error === 'delivery_location_unresolved' ? 'needs_pin' : (res.status === 429 ? 'too_many' : 'failed');
+        showQuoteError(reason === 'needs_pin' ? t('needPin') : reason === 'too_many' ? t('tooMany') : t('quoteFail'));
+        track('quick_quote_delivery_failed', { reason: reason });
+      }
+    } catch (e) {
+      showQuoteError(t('quoteFail'));
+    } finally {
+      btn.disabled = false; btn.textContent = t('quoteBtn');
+    }
+  }
+  // Anonymous use statistics for the shop's analytics page: which devices and
+  // lengths people price, the options, the delivery fee, and whether they went
+  // on to book or message AJ. No name, phone or map link is sent.
+  var SOURCE = (function () { var v = String(params.get('src') || '').toLowerCase(); return /^(line|messenger|whatsapp|web)$/.test(v) ? v : ''; })();
+  function anonId(key) {
+    try { var v = localStorage.getItem(key); if (!v) { v = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + 'a0b1c2d3e4f5'); localStorage.setItem(key, v); } return v; }
+    catch (e) { return 'a0b1c2d3e4f5a6b7c8d9'; }
+  }
+  var visitorId = anonId('aj_qq_visitor');
+  var sessionId = (crypto.randomUUID ? crypto.randomUUID() : 'b1c2d3e4f5a6b7c8' + Date.now());
+  function track(event, extra) {
+    var c = selected(), L = lines(), b = selectedBundle(c);
+    var body = Object.assign({
+      event: event, visitorId: visitorId, sessionId: sessionId, language: lang, channel: SOURCE, source: SOURCE || 'direct',
+      platform: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop', path: '/quote',
+      deviceId: c ? String(c.id) : '', deviceName: c ? (c.name || c.nameEn) : '', value: String(days() || ''), amount: L ? L.total : 0,
+      content: [b ? 'bundle=' + b.id : '', picked.length ? 'extras=' + picked.join(',') : '', $('noId').checked ? 'noid=1' : '', $('promo').checked && promoPrice(c, days()) ? 'promo=1' : '', quote ? 'delivery=' + Math.round(Number(quote.total) || 0) : ''].filter(Boolean).join(';'),
+      reason: quote ? (quote.serviceType === 'CAR' ? 'car' : 'motorcycle') : ''
+    }, extra || {});
+    try { fetch(API + '/api/analytics/event', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), keepalive: true }); } catch (e) {}
+  }
+  // The copied / LINE text: a heading, the money in sections, the total on a
+  // line of its own, then the discounts to claim and where to book.
+  var ROW_EMOJI = { rent: '🎮', promo: '🏷️', extra: '➕', deposit: '🔒', delivery: '🚚', discount: '🏷️', pay: '✅' };
+  var RULE = '━━━━━━━━━━━━';
+  function bookUrl() {
+    var c = selected();
+    return c ? 'https://ajgamerental.com/?consoleId=' + encodeURIComponent(c.id) + '&lang=' + lang + '&utm_source=quick_quote' : '';
+  }
+  function quoteText() {
+    var L = lines();
+    if (!L) return '';
+    var money_ = L.rows.filter(function (r) { return r[3] !== 'delivery' && r[3] !== 'discount' && r[3] !== 'pay'; });
+    var delivery = L.rows.filter(function (r) { return r[3] === 'delivery' || r[3] === 'discount' || r[3] === 'pay'; });
+    var item = function (r) { return (ROW_EMOJI[r[3]] || '•') + ' ' + r[0] + ': ' + r[1]; };
+    var out = ['🧮 ' + t('copyHead'), RULE, '💵 ' + t('sectionRental')].concat(money_.map(item));
+    out.push('', '🚚 ' + t('sectionDelivery'));
+    out = out.concat(delivery.length ? delivery.map(item) : ['• ' + t('deliveryNone')]);
+    out.push(RULE, '💰 ' + (quote ? t('total') : t('totalNoDelivery')) + ': ' + money(L.total), RULE, t('perks'));
+    if (bookUrl()) out.push('📅 ' + t('bookAt') + ' ' + bookUrl());
+    return out.join('\n');
+  }
+  // A code for this exact quote (QQ-XXXXXX), new whenever the quote changes.
+  // It ends the LINE message; the Bot finds the saved quote by it and answers
+  // with the quote as a card.
+  var CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var quoteCode = '', codedText = '';
+  function codeFor(text) {
+    if (text === codedText && quoteCode) return quoteCode;
+    var bytes = new Uint8Array(6);
+    try { crypto.getRandomValues(bytes); } catch (e) { for (var i = 0; i < 6; i++) bytes[i] = Math.floor(Math.random() * 256); }
+    quoteCode = 'QQ-' + Array.prototype.map.call(bytes, function (b) { return CODE_CHARS[b % CODE_CHARS.length]; }).join('');
+    codedText = text;
+    return quoteCode;
+  }
+  function savedQuote() {
+    var L = lines();
+    if (!L) return null;
+    return {
+      id: codeFor(quoteText()), lang: lang, source: SOURCE, deviceName: L.c.name || L.c.nameEn, days: L.n,
+      rows: L.rows.map(function (r) { return { label: r[0], value: r[1], kind: r[3] || '' }; }),
+      totalLabel: quote ? t('total') : t('totalNoDelivery'), total: money(L.total), deliveryIncluded: !!quote, bookUrl: bookUrl()
+    };
+  }
+  function renderLinks() {
+    $('book').href = bookUrl() || '#';
+    var text = quoteText();
+    $('sendLine').href = 'https://line.me/R/oaMessage/%40ajgame/?' + encodeURIComponent(t('lineHead') + '\n\n' + text + '\n\n🔖 ' + t('quoteCode') + ' ' + codeFor(text));
+  }
+  function saveForLine() {
+    var body = savedQuote();
+    if (!body) return;
+    try { fetch(API + '/api/quick-quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), keepalive: true }); } catch (e) {}
+  }
+  function copyText() {
+    var L = lines();
+    if (!L) return;
+    track('quick_quote_copied');
+    var text = quoteText() + '\n\nℹ️ ' + t('note');
+    var done = function () { $('copy').textContent = t('copied'); setTimeout(function () { $('copy').textContent = t('copy'); }, 1800); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function () {});
+    else { var el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select(); try { document.execCommand('copy'); done(); } catch (e) {} document.body.removeChild(el); }
+  }
+
+  $('lang').addEventListener('click', function () { lang = lang === 'th' ? 'en' : 'th'; applyLanguage(); });
+  $('device').addEventListener('change', function () { quote = null; picked = []; $('bundle').value = ''; renderAddOns(); render(); });
+  $('bundle').addEventListener('change', function () { quote = null; render(); });
+  $('extras').addEventListener('change', function (e) {
+    var id = e.target.getAttribute('data-extra');
+    if (!id) return;
+    picked = e.target.checked ? picked.concat([id]) : picked.filter(function (x) { return x !== id; });
+    quote = null;
+    renderAddOns();
+    render();
+  });
+  $('locate').addEventListener('click', function () {
+    if (!navigator.geolocation) return showQuoteError(t('locateNone'));
+    var btn = $('locate');
+    btn.textContent = t('locating');
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      $('maps').value = 'https://maps.google.com/?q=' + pos.coords.latitude.toFixed(6) + ',' + pos.coords.longitude.toFixed(6);
+      btn.textContent = t('locate');
+      quote = null; showQuoteError(''); render();
+      getQuote();
+    }, function () {
+      btn.textContent = t('locate');
+      showQuoteError(t('locateFail'));
+    }, { enableHighAccuracy: true, timeout: 15000 });
+  });
+  $('days').addEventListener('input', function () { renderChips(); render(); });
+  $('dayChips').addEventListener('click', function (e) { var n = e.target.getAttribute('data-days'); if (n) { $('days').value = n; renderChips(); render(); } });
+  $('maps').addEventListener('input', function () { quote = null; showQuoteError(''); render(); });
+  $('quote').addEventListener('click', getQuote);
+  $('promo').addEventListener('change', render);
+  $('noId').addEventListener('change', render);
+  $('copy').addEventListener('click', copyText);
+  $('book').addEventListener('click', function () { track('quick_quote_book_clicked'); });
+  $('sendLine').addEventListener('click', function () { saveForLine(); track('quick_quote_line_clicked'); });
+
+  applyLanguage();
+  track('quick_quote_opened');
+  fetch(CATALOGUE + '?t=' + Date.now(), { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (data) {
+      consoles = (Array.isArray(data.consoles) ? data.consoles : [])
+        .filter(function (c) { return c && (c.name || c.nameEn); })
+        .map(function (c) {
+          // The booking site's defaults (normalizeConsole / ratePack).
+          var rate = Number(c.rate) || 300;
+          var pack = rate >= 500 ? { weekly: 3000, deposit: 4000 } : rate >= 400 ? { weekly: 2500, deposit: 2000 } : rate >= 350 ? { weekly: 1800, deposit: 2000 } : { weekly: 1500, deposit: 2000 };
+          return { id: c.id, name: String(c.name || c.nameEn).trim(), nameEn: String(c.nameEn || c.name).trim(), brand: c.brand, type: String(c.type || 'console'), readyDate: String(c.readyDate || c.unavailableUntil || '').trim(), rate: rate, weekly: Number(c.weekly) || pack.weekly, deposit: Number(c.deposit) || pack.deposit };
+        });
+      if (Array.isArray(data.rentalAccessories)) accessories = data.rentalAccessories.map(function (x) { return Object.assign({}, x, { consoleIds: Array.isArray(x.consoleIds) ? x.consoleIds.map(String) : [] }); });
+      if (Array.isArray(data.rentalBundles)) bundles = data.rentalBundles.map(function (b) {
+        return { id: String(b.id || ''), th: String(b.th || b.titleTh || 'Bundle'), en: String(b.en || b.titleEn || b.th || 'Bundle'), rate: Number(b.rate) || 0, weekly: Number(b.weekly) || 0, deposit: Number(b.deposit) || 0, readyDate: String(b.readyDate || b.unavailableUntil || '') };
+      }).filter(function (b) { return b.id && b.rate > 0; });
+      fillDevices();
+      renderAddOns();
+    })
+    .catch(function () { $('device').innerHTML = '<option value="">' + t('catalogueFail') + '</option>'; });
+  // The shop's queue closures, from the same place the booking page reads them.
+  fetch(API + '/api/queue-closures?_ts=' + Date.now(), { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (payload) {
+      var rules = payload && payload.rules && typeof payload.rules === 'object' ? payload.rules : {};
+      var lower = function (map) { var out = {}; Object.keys(map || {}).forEach(function (k) { out[String(k).toLowerCase()] = map[k]; }); return out; };
+      closures = {
+        all: rules.all || { closed: payload.allClosed === true },
+        types: lower(rules.types || Object.keys(payload.types || {}).reduce(function (o, k) { o[k] = { closed: payload.types[k] === true }; return o; }, {})),
+        devices: lower(rules.devices || Object.keys(payload.devices || {}).reduce(function (o, k) { o[k] = { closed: payload.devices[k] === true }; return o; }, {}))
+      };
+      fillDevices();
+      renderAddOns();
+      render();
+    })
+    .catch(function () {});
+})();
+</script>
+</body>
+</html>
