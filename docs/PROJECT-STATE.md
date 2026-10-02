@@ -1,5 +1,17 @@
 # Project state
 
+## 2026-10-02 — Game picker opens once (website `1225367`)
+
+- **Cause.** Opening the picker still flashed. The booking page sends AJ_PICKER_OPEN on frame load, again at +500 ms, and on AJ_GAME_READY. The picker's safety net (`forceRenderPicker`) repeats each request at 30 and 180 ms. Every request ran `openPickModal`, which wiped the grid to the "choose a console" prompt, and then redrew it: 15 renders and 2,671 covers created per opening.
+- **Fix in game_index.html:**
+  - `isRepeatPickerOpen` dedupes identical requests (same console, games, language, mode and dates) while games are showing, within 4 s.
+  - `openPickModal({platformPending})` skips the prompt.
+  - `closePickModal` resets the dedupe.
+  - `refreshPickerAfterCatalog` redraws in place when the Gist catalogue lands, and ticks the booking's games that were unknown at open.
+- **Fix in index.html:** `closeGamePicker` posts AJ_PICKER_CLOSE.
+- **Result:** 2 renders and 383 covers per opening, none thrown away. A game picked while the requests were still arriving used to be wiped by the next request and is now kept.
+- `gamePickerVersion` is now `20261002-2`.
+
 ## 2026-10-02 — Pictures no longer flash (website `b1ab684`, `9360e11`)
 
 - **Cause.** Every render set `innerHTML`, which recreated every `<img>`. The page renders several times as data arrives (Gist, availability, reviews, board games), and the picker re-rendered its grid on each pick.
