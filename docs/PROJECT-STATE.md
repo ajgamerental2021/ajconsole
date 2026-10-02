@@ -1,5 +1,22 @@
 # Project state
 
+## 2026-10-02 — A failed delivery price no longer stops a payment; gold calculator button (website `d6b87fc`, `386b1b9`; Bot `7bad28c`; Delivery App `ee1614e`)
+
+- **Incident.** A customer could not pay: the order-page button stayed on "รอราคาค่าส่ง". Payment was hard-locked until Lalamove returned a live price. Any failure locked the button with no way forward: a Lalamove error, a map link with no pin, or a slow server. The retry text sat far up the page. The exact cause for this customer is unknown: no logs are reachable from here (Render logs and `.env` are not in this environment).
+- **Website.**
+  - The page retries once quietly.
+  - After that, the button reads "ชำระเงิน · ค่าส่งจ่ายตอนรับเครื่อง" / "Pay now · delivery fee later" and works. A note right above it gives the reason and offers retry and "ใช้ตำแหน่งปัจจุบัน".
+  - The booking carries `deliveryPending: true` and a cost line "ร้านแจ้งยอด ชำระตอนรับเครื่อง".
+  - The quote request now sends `rentalCode` and `attempt`.
+- **Bot.**
+  - `/api/delivery/quote` alerts the admin on LINE when an order-page quote fails: no pin, Lalamove error, or not configured. It waits for the page's retry and fires once per rental per 30 minutes. The quick-quote page never triggers it.
+  - The payment notice gets a line "⚠️ ยังไม่ได้คิดค่าส่ง".
+  - `deliveryPending` is in PAGE_PRICING_FIELDS.
+- **Delivery App.** Console Pending shows a red "ยังไม่ได้คิดค่าส่ง" tag, a note, and a red empty delivery-fee field (`orderDetails().deliveryPending`).
+- **Calculator button.** Gold on the cards and in the all-devices header, with a hint under the label ("รู้ยอดรวมก่อนจอง" / "See the total before booking"). A shine plays three times and is off under reduced motion. On phones the pop-up title gets its own row.
+- **Stack inventory** (Thai): https://claude.ai/artifact/V5mQhRXthaaUGkUHTL9DtW
+- **Owner decision pending:** the Delivery App backend is on Render **Free** and sleeps after about 15 minutes. The website's rental-code request then times out at 12 s and falls back to a local code, and the app's timed jobs pause. Recommend Starter, like the Bot.
+
 ## 2026-10-02 — Nintendo Switch game ID list at /ajgameid/switch/ (website `5caa8eb`, Bot `f817e57`)
 
 - New page https://ajgamerental.com/ajgameid/switch/ works like the PS5 list. It starts with one sample ID, Mario Kart 8 Deluxe, with a placeholder cover. **Owner:** add the real games in its admin (`?admin=1`). The first save from that admin creates `aj-switch-game-id-data.json` in the same Gist. The page reuses the GitHub token already saved for the PS5 list in that browser.
