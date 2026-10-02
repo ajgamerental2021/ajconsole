@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-10-02 — PS5 + Logitech G29 delivered by car; padlock warning line break (website `79aadaa`, Delivery App `ba58566`, Bot `8672087`)
+
+- Website step 3 delivery quote: `deliveryNeedsCar()` counts the chosen PS5 bundle (PS5 + Logitech G29 → `hasLargeItem` → Lalamove CAR). The quote key includes `bundleId`, so changing the bundle quotes again. The quick-quote page already sent the bundle name; now covered by a test.
+- Return-day card (`reminderFlex.ts`): "⚠️ หากรหัสแม่กุญแจถูกเปลี่ยน / จากการใช้งานหรือระหว่างขนส่ง" (EN: "…is changed / during use or during transport"). Before, LINE wrapped "งาน" onto a line of its own.
+
 ## 2026-10-02 — Quick quote: book/LINE buttons, stats on /analytics, rate limit; PS5 bundle no-ID ฿15,000 (Bot `31dc2fb`, website `c8d3430`)
 
 - Quote page buttons: "เช็คคิวและจองเครื่องนี้" opens `https://ajgamerental.com/?consoleId=<id>&lang=..&utm_source=quick_quote`; "ส่งราคานี้ให้ร้านทาง LINE" opens @ajgame (`line.me/R/oaMessage/%40ajgame/`) with the quote typed in.
