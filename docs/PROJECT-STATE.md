@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-10-02 — Quotation green note; notes one row per line (Delivery App `0738518`)
+
+- QuotationFormModal has a new field `customerGoodNote` ("ขึ้นเป็นตัวเขียว"). It passes through the route, the service and BuiltQuotation.
+- `rentalItemRows` writes every line of each note as its own `** line **` row and returns `customerNoteRows[]` (red) and `customerGoodNoteRows[]` (green). The green rows are formatted on both the quotation and the invoice sheets. Test: test:quotation-notes.
+
 ## 2026-10-02 — LIFF quote send fixed; step-1 calculator button removed
 
 - The LIFF app now reads `?qq=` first, before `bootstrapLiff`, and stores it in sessionStorage as `ajQuickQuote` so it survives login. It shows a full-screen `#quickQuoteScreen` (sending / sent / failed) over the contract form and sends right after LIFF init. Texts come from `quickQuoteTexts()`, a function, because the screen draws before later constants exist. Script version is `20261002-quick-quote-2`.
