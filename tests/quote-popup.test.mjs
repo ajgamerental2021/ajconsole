@@ -6,7 +6,7 @@ const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const quote = readFileSync(new URL('../quote/index.html', import.meta.url), 'utf8');
 
 test('two ways in: the menu, and step 1 beside the rental steps (TH/EN)', () => {
-  assert.match(html, /\["quote", "tag", en \? "Quick price check" : "คำนวณค่าเช่าคร่าวๆ"\], \["prices"/);
+  assert.match(html, /\["quote", "tag", en \? "Rental calculator" : "คำนวณค่าเช่า"\], \["prices"/);
   assert.match(html, /if\(action === "quote"\) openQuotePopup\("menu"\);/);
   assert.match(html, /<button class="btn step-guide-btn" id="quoteBtn" type="button" data-i18n="quoteBtn">🧮 คำนวณค่าเช่าคร่าวๆ<\/button><button class="btn danger step-guide-btn" id="stepsBtn"/);
   assert.match(html, /quoteBtn:"🧮 Quick price check", quoteTitle:"Quick price check"/);
@@ -30,4 +30,22 @@ test('switching language keeps what was filled in: the frame is told, not reload
   assert.doesNotMatch(toggle, /setAttribute\("src"/);
   assert.match(quote, /data\.type === 'AJ_SET_LANG'[^\n]*applyLanguage\(\);/);
   assert.match(quote, /body\.embed header \{ display:none; \}/);
+});
+
+test('its own address: ?quote=1 opens the booking page with the calculator up, and the pop-up copies it', () => {
+  assert.match(html, /get\("quote"\) === "1" \|\| location\.hash === "#quote"\)\{\n\s+setTimeout\(\(\) => openQuotePopup\("link"\), 120\);/);
+  assert.match(html, /<button class="copy-section-url" id="quoteCopyUrl" type="button"><\/button>/);
+  assert.match(html, /byId\("quoteCopyUrl"\)\.addEventListener\("click", \(\) => copySectionUrl\("quote"\)\);/);
+  assert.match(html, /copyQuoteUrl:"คัดลอก URL หน้าคำนวณค่าเช่า"/);
+  assert.match(html, /copyQuoteUrl:"Copy rental-calculator URL"/);
+});
+
+test('"check the queue and book" never opens a new tab: in the pop-up it carries on in step 1', () => {
+  assert.match(quote, /<a class="btn book" id="book" href="#" data-t="book"><\/a>/);
+  assert.match(quote, /window\.parent\.postMessage\(\{ type: 'AJ_QUOTE_BOOK', consoleId: String\(c\.id\), bundleId: b \? b\.id : '' \}, '\*'\);/);
+  const handler = html.slice(html.indexOf('event.data?.type === "AJ_QUOTE_BOOK"'), html.indexOf('trackAnalytics("quick_quote_popup_booked"'));
+  assert.match(handler, /event\.source === byId\("quoteFrame"\)\?\.contentWindow/.source ? /closeQuotePopup\(\);/ : /x/);
+  assert.match(handler, /selectCalcConsole\(pickedConsole\.id\);/);
+  assert.match(handler, /state\.calc\.bundleId = bundle\.id;/);
+  assert.match(html, /if\(event\.source === byId\("quoteFrame"\)\?\.contentWindow && event\.data\?\.type === "AJ_QUOTE_BOOK"\)/);
 });

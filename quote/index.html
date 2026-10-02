@@ -112,7 +112,7 @@
     <div id="rows"></div>
     <p class="perks" data-t="perks"></p>
     <p class="note" data-t="note"></p>
-    <a class="btn book" id="book" href="#" target="_blank" rel="noopener" data-t="book"></a>
+    <a class="btn book" id="book" href="#" data-t="book"></a>
     <a class="btn line" id="sendLine" href="#" target="_blank" rel="noopener" data-t="sendLine"></a>
     <button class="btn secondary" id="copy" type="button" data-t="copy"></button>
   </div>
@@ -569,7 +569,17 @@
   $('promo').addEventListener('change', render);
   $('noId').addEventListener('change', render);
   $('copy').addEventListener('click', copyText);
-  $('book').addEventListener('click', function () { track('quick_quote_book_clicked'); });
+  // In the booking page's pop-up the booking carries on right there: the
+  // pop-up closes and step 1 opens with this device (and bundle) chosen. On
+  // its own the page opens the booking page in the same tab.
+  $('book').addEventListener('click', function (event) {
+    track('quick_quote_book_clicked');
+    var c = selected();
+    if (!EMBED || !c || window.parent === window) return;
+    event.preventDefault();
+    var b = selectedBundle(c);
+    window.parent.postMessage({ type: 'AJ_QUOTE_BOOK', consoleId: String(c.id), bundleId: b ? b.id : '' }, '*');
+  });
   $('sendLine').addEventListener('click', function () { saveForLine(); track('quick_quote_line_clicked'); });
 
   applyLanguage();

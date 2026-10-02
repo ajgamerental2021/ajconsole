@@ -1587,6 +1587,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 <div class="modal-overlay quote-modal" id="quoteModal">
   <div class="modal-card">
     <div class="modal-head"><h3 id="quoteTitle">คำนวณค่าเช่าคร่าวๆ</h3><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="quoteLangBtn" type="button"></button><button class="xbtn" id="quoteClose" type="button" aria-label="ปิด">&times;</button></div></div>
+    <div class="modal-copy-row"><button class="copy-section-url" id="quoteCopyUrl" type="button"></button></div>
     <iframe id="quoteFrame" title="คำนวณค่าเช่าคร่าวๆ" loading="lazy"></iframe>
   </div>
 </div>
@@ -2036,7 +2037,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       gamePickSaveFailed:"บันทึกไม่สำเร็จ แตะเกมนั้นอีกครั้ง",
       gamePickConsoleFull:"เครื่องนี้มีครบ 10 เกมในลิงก์แล้ว",
       copyFaqUrl:"คัดลอก URL คำถามที่พบบ่อย",
-      copyStepsUrl:"คัดลอก URL ขั้นตอนการเช่า",
+      copyStepsUrl:"คัดลอก URL ขั้นตอนการเช่า", copyQuoteUrl:"คัดลอก URL หน้าคำนวณค่าเช่า",
       urlCopied:"คัดลอก URL แล้ว",
       railPrev:"เลื่อนไปทางซ้าย",
       railNext:"เลื่อนไปทางขวา",
@@ -2159,7 +2160,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       gamePickSaveFailed:"Not saved — tap that game again",
       gamePickConsoleFull:"This console already has 10 games in the link",
       copyFaqUrl:"Copy FAQ URL",
-      copyStepsUrl:"Copy rental-steps URL",
+      copyStepsUrl:"Copy rental-steps URL", copyQuoteUrl:"Copy rental-calculator URL",
       urlCopied:"URL copied",
       railPrev:"Scroll left",
       railNext:"Scroll right",
@@ -9102,6 +9103,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const stepsButton = byId("stepsCopyUrl");
     if(gameButton) gameButton.innerHTML = `${icon("link")}<span>${esc(tr("copyGameUrl"))}</span>`;
     if(stepsButton) stepsButton.innerHTML = `${icon("link")}<span>${esc(tr("copyStepsUrl"))}</span>`;
+    const quoteButton = byId("quoteCopyUrl");
+    if(quoteButton) quoteButton.innerHTML = `${icon("link")}<span>${esc(tr("copyQuoteUrl"))}</span>`;
   }
   function toggleGamePickerHowTo(){
     state.gamePickerHowTo = !state.gamePickerHowTo;
@@ -9170,7 +9173,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // The header menu also opens the rental prices, the game list and the rental
     // steps, the same pop-ups the ?allConsoles=1, ?games=1 and ?steps=1 links open.
     const en = state.lang === "en";
-    const menuActions = [["quote", "tag", en ? "Quick price check" : "คำนวณค่าเช่าคร่าวๆ"], ["prices", "tag", en ? "Rental prices" : "ราคาเช่า"], ["games", "gamepad", en ? "Game list" : "รายการเกม"], ["steps", "steps", en ? "How to rent" : "ขั้นตอนการเช่า"], ["myRental", "receipt", en ? "My rental" : "คิวเช่าของฉัน"]]
+    const menuActions = [["quote", "tag", en ? "Rental calculator" : "คำนวณค่าเช่า"], ["prices", "tag", en ? "Rental prices" : "ราคาเช่า"], ["games", "gamepad", en ? "Game list" : "รายการเกม"], ["steps", "steps", en ? "How to rent" : "ขั้นตอนการเช่า"], ["myRental", "receipt", en ? "My rental" : "คิวเช่าของฉัน"]]
       .map(([action, iconName, label]) => `<button class="site-info-link" type="button" role="menuitem" data-menu-action="${action}">${icon(iconName, "site-menu-ico")}<span>${esc(label)}</span></button>`).join("");
     $$('[data-info-links]').forEach(host => {
       host.innerHTML = host.id === "siteMenuList" ? `${menuActions}<span class="site-menu-divider" role="separator"></span>${menuInfo}` : html;
@@ -10354,6 +10357,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("quoteTitle").textContent = tr("quoteTitle");
     byId("quoteLangBtn").textContent = en ? "🇹🇭 TH" : "🇬🇧 EN";
     byId("quoteClose").setAttribute("aria-label", en ? "Close" : "ปิด");
+    refreshSectionCopyButtons();
   }
   function openQuotePopup(from = ""){
     const frame = byId("quoteFrame");
@@ -11613,6 +11617,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     document.querySelectorAll("[data-analytics-social]").forEach(link => link.addEventListener("click", () => trackAnalytics("social_link_clicked", {value:link.dataset.analyticsSocial})));
     byId("stepsClose").addEventListener("click", closeStepsPopup);
     byId("quoteBtn").addEventListener("click", () => openQuotePopup("step1"));
+    byId("quoteCopyUrl").addEventListener("click", () => copySectionUrl("quote"));
     byId("quoteClose").addEventListener("click", closeQuotePopup);
     byId("quoteLangBtn").addEventListener("click", toggleQuoteLang);
     byId("quoteModal").addEventListener("click", (e) => { if(e.target === byId("quoteModal")) closeQuotePopup(); });
@@ -11663,6 +11668,20 @@ We apologize for the inconvenience and hope everyone stays safe.`
     document.addEventListener("toggle", event => { if(event.target?.id === "demoIdGuide") demoIdGuideOpen = event.target.open; }, true);
     window.addEventListener("resize", () => demoAgreement.resize?.());
     window.addEventListener("message", event => {
+      // "Check the queue and book" in the calculator pop-up: carry on here,
+      // with that device (and bundle) chosen in step 1.
+      if(event.source === byId("quoteFrame")?.contentWindow && event.data?.type === "AJ_QUOTE_BOOK"){
+        const pickedConsole = consoleById(String(event.data.consoleId || ""));
+        closeQuotePopup();
+        if(pickedConsole && isConsoleSelectable(pickedConsole)){
+          selectCalcConsole(pickedConsole.id);
+          const bundle = Number(pickedConsole.id) === SPEC.PS5 && state.bundles.find(item => item.id === String(event.data.bundleId || ""));
+          if(bundle && isReady(bundle)){ state.calc.bundleId = bundle.id; state.calc.bundleOpen = true; saveLocal(); render(); }
+        }
+        setTimeout(() => byId("calcHeading").scrollIntoView({block:"start", behavior:"smooth"}), 60);
+        trackAnalytics("quick_quote_popup_booked", {value:String(event.data.consoleId || "")});
+        return;
+      }
       if(event.origin === new URL(CONFIG.apiBase).origin && ["AJ_RENTAL_TERMS_VERSION","AJ_RENTAL_TERMS_READ"].includes(event.data?.type) && /^\d{4}-\d{2}-\d{2}(?:-\d+)?$/.test(String(event.data.version || ""))){
         RENTAL_TERMS_VERSION = String(event.data.version);
         return;
@@ -12563,6 +12582,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
     }
     if(new URLSearchParams(location.search).get("steps") === "1" || location.hash === "#steps"){
       setTimeout(openStepsPopup, 120);
+    }
+    // https://ajgamerental.com/?quote=1 opens the booking page with the rental
+    // calculator already up (the pop-up's own "copy URL" gives this address).
+    if(new URLSearchParams(location.search).get("quote") === "1" || location.hash === "#quote"){
+      setTimeout(() => openQuotePopup("link"), 120);
     }
     if(new URLSearchParams(location.search).get("lineGuide") === "1") showLineBookingHelp();
     if(pageParams.has("myRental")){
