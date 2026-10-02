@@ -1342,7 +1342,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
           <div id="calcPanes">
             <div class="pane active" id="pane1">
               <div class="card">
-                <div class="step1-head"><h3 data-i18n="step1Title">เลือกเครื่องและวันที่</h3><div class="step1-head-actions"><button class="btn step-guide-btn" id="quoteBtn" type="button" data-i18n="quoteBtn">🧮 คำนวณค่าเช่า</button><button class="btn danger step-guide-btn" id="stepsBtn" type="button" data-i18n="stepsBtn">ขั้นตอนการเช่า</button></div></div>
+                <div class="step1-head"><h3 data-i18n="step1Title">เลือกเครื่องและวันที่</h3><div class="step1-head-actions"><button class="btn danger step-guide-btn" id="stepsBtn" type="button" data-i18n="stepsBtn">ขั้นตอนการเช่า</button></div></div>
                 <div class="grid2 calc-selection-grid">
                   <div class="field"><label class="label" data-i18n="deviceType">ประเภทเครื่อง</label><select id="calcType"></select></div>
                   <div class="field"><label class="label" data-i18n="device">เครื่องเกม</label><select id="calcConsole"></select></div>
@@ -11655,7 +11655,6 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("stepsBtn").addEventListener("click", () => { trackAnalytics("rental_guide_opened"); openStepsPopup(); });
     document.querySelectorAll("[data-analytics-social]").forEach(link => link.addEventListener("click", () => trackAnalytics("social_link_clicked", {value:link.dataset.analyticsSocial})));
     byId("stepsClose").addEventListener("click", closeStepsPopup);
-    byId("quoteBtn").addEventListener("click", () => openQuotePopup("step1"));
     byId("quoteCopyUrl").addEventListener("click", () => copySectionUrl("quote"));
     byId("quoteClose").addEventListener("click", closeQuotePopup);
     byId("quoteLangBtn").addEventListener("click", toggleQuoteLang);

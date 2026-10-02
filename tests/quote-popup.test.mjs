@@ -8,9 +8,9 @@ const quote = readFileSync(new URL('../quote/index.html', import.meta.url), 'utf
 test('two ways in: the menu, and step 1 beside the rental steps (TH/EN)', () => {
   assert.match(html, /\["quote", "tag", en \? "Rental calculator" : "คำนวณค่าเช่า"\], \["prices"/);
   assert.match(html, /if\(action === "quote"\) openQuotePopup\("menu"\);/);
-  assert.match(html, /<button class="btn step-guide-btn" id="quoteBtn" type="button" data-i18n="quoteBtn">🧮 คำนวณค่าเช่า<\/button><button class="btn danger step-guide-btn" id="stepsBtn"/);
+  // Not in step 1: there it competed with the booking itself.
+  assert.doesNotMatch(html, /id="quoteBtn"/);
   assert.match(html, /quoteBtn:"🧮 Rental calculator", quoteTitle:"Rental calculator"/);
-  assert.match(html, /byId\("quoteBtn"\)\.addEventListener\("click", \(\) => openQuotePopup\("step1"\)\);/);
 });
 
 test('the pop-up opens at once with the page inside, a language switch and a close button', () => {
