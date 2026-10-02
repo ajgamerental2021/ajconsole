@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-10-02 — Quotation: "x 3 วัน", green notes first, notes in the message (Delivery App `451e08e`)
+
+- Item lines now read "จำนวน N เครื่อง x D วัน", and accessories read "x D วัน".
+- Green customer-note rows go first, above the delivery note. Red rows stay after the standing notes.
+- `customerNoteMessageLines` adds `✅line✅` (green) and then `❌line❌` (red) to the copy text right under the delivery line, in TH and EN.
+- The form labels are prefixed with 🔴 / 🟢.
+
 ## 2026-10-02 — Quotation green note; notes one row per line (Delivery App `0738518`)
 
 - QuotationFormModal has a new field `customerGoodNote` ("ขึ้นเป็นตัวเขียว"). It passes through the route, the service and BuiltQuotation.
