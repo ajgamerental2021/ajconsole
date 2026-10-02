@@ -8,8 +8,8 @@ const quote = readFileSync(new URL('../quote/index.html', import.meta.url), 'utf
 test('two ways in: the menu, and step 1 beside the rental steps (TH/EN)', () => {
   assert.match(html, /\["quote", "tag", en \? "Rental calculator" : "คำนวณค่าเช่า"\], \["prices"/);
   assert.match(html, /if\(action === "quote"\) openQuotePopup\("menu"\);/);
-  assert.match(html, /<button class="btn step-guide-btn" id="quoteBtn" type="button" data-i18n="quoteBtn">🧮 คำนวณค่าเช่าคร่าวๆ<\/button><button class="btn danger step-guide-btn" id="stepsBtn"/);
-  assert.match(html, /quoteBtn:"🧮 Quick price check", quoteTitle:"Quick price check"/);
+  assert.match(html, /<button class="btn step-guide-btn" id="quoteBtn" type="button" data-i18n="quoteBtn">🧮 คำนวณค่าเช่า<\/button><button class="btn danger step-guide-btn" id="stepsBtn"/);
+  assert.match(html, /quoteBtn:"🧮 Rental calculator", quoteTitle:"Rental calculator"/);
   assert.match(html, /byId\("quoteBtn"\)\.addEventListener\("click", \(\) => openQuotePopup\("step1"\)\);/);
 });
 
@@ -48,4 +48,19 @@ test('"check the queue and book" never opens a new tab: in the pop-up it carries
   assert.match(handler, /selectCalcConsole\(pickedConsole\.id\);/);
   assert.match(handler, /state\.calc\.bundleId = bundle\.id;/);
   assert.match(html, /if\(event\.source === byId\("quoteFrame"\)\?\.contentWindow && event\.data\?\.type === "AJ_QUOTE_BOOK"\)/);
+});
+
+test('one name everywhere: menu, step 1, pop-up title and the page itself (TH/EN)', () => {
+  assert.match(html, /quoteBtn:"🧮 คำนวณค่าเช่า", quoteTitle:"คำนวณค่าเช่า"/);
+  assert.match(html, /<h3 id="quoteTitle">คำนวณค่าเช่า<\/h3>/);
+  assert.match(quote, /title: 'คำนวณค่าเช่า'/);
+  assert.match(quote, /title: 'Rental calculator'/);
+  assert.doesNotMatch(html, /คำนวณค่าเช่าคร่าวๆ/);
+});
+
+test('book from the pop-up, even on the before-rent page: to the rental steps with that device\'s calendar open', () => {
+  const handler = html.slice(html.indexOf('event.data?.type === "AJ_QUOTE_BOOK"'), html.indexOf('trackAnalytics("quick_quote_popup_booked"'));
+  assert.match(handler, /setBeforeRent\(false, \{startGuide:true, scrollTo:false\}\);/);
+  assert.match(handler, /state\.calc\.step = 1;/);
+  assert.match(handler, /window\.setTimeout\(\(\) => openCalendar\("start"\), 120\);/);
 });

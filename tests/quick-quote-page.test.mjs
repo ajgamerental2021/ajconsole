@@ -12,8 +12,8 @@ test('the quick quote lives on the booking site at /quote/, calling the Bot for 
 
 test('rental, deposit and the live delivery fee, by the booking site\'s rules, in two languages', () => {
   assert.match(page, /var MONTHLY = \{ 500: 8500, 400: 6500, 350: 5000, 300: 4000 \};/);
-  assert.match(page, /title: 'คำนวณค่าเช่าคร่าวๆ'/);
-  assert.match(page, /title: 'Rough rental quote'/);
+  assert.match(page, /title: 'คำนวณค่าเช่า'/);
+  assert.match(page, /title: 'Rental calculator'/);
   assert.doesNotMatch(page, /api\/availability|booking-holds/, 'no queue check');
 });
 
