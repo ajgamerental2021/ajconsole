@@ -101,5 +101,5 @@ test('a shared link shows what the page is, not "Google Maps"', () => {
   assert.match(page, /<meta property="og:title" content="คำนวณค่าเช่าเครื่องเกม · AJ เช่าเครื่องเกม">/);
   assert.match(page, /<meta property="og:description" content="เช็คราคาเช่าเครื่องเกมคร่าวๆ ด้วยตัวเอง/);
   assert.match(page, /<meta name="description" content="เช็คราคาเช่าเครื่องเกมคร่าวๆ/);
-  assert.match(page, /og:image" content="https:\/\/ajgamerental\.com\/assets\/aj-logo-circle\.png"/);
+  assert.ok(page.includes('og:image" content="https://ajgamerental.com/assets/aj-share-logo.jpg"'));
 });
