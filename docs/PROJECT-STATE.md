@@ -1,5 +1,14 @@
 # Project state
 
+## 2026-10-02 — Delivery card balance bigger; quick quote answered on LINE with a Flex card; readable copy text (Delivery App `9575897`, Bot `fa8758b`)
+
+- Delivery card (`deliveryMessage.ts` `balanceBlock`): the amount to pay on delivery sits in a tinted box with a bold label, the amount in 3xl red, and a one-line instruction. Applies to bank, cash and card/e-wallet.
+- Quick quote → LINE:
+  - The page puts a code `QQ-XXXXXX` on the last line of the oaMessage text. Pressing the button POSTs `/api/quick-quote`, which saves the quote in memory and in the "Quick Quotes" sheet (columns: Quote ID, Created At, Language, Source, Device, Days, Total, Quote JSON, LINE User ID, LINE Sent At).
+  - The LINE webhook finds the code (`quoteCodeIn`) and replies with `quickQuoteFlex` (quick-quote-card.js), built from the saved copy. It writes the sender's userId to the row, notifies the admin, and keeps the message from Dialogflow.
+  - An unknown code is retried once after 2.5 s, then the message is forwarded as usual.
+- Copy / LINE text has sections (💵 rental + deposit, 🚚 delivery), one emoji per line, the total between rules, then 🎁 the discount line and 📅 the booking link. Copy adds ℹ️ and the note.
+
 ## 2026-10-02 — Booking card cost labels wrap (Delivery App `3262474`)
 
 - `costBox` in bookingConfirmFlex.ts: every label has `wrap: true` (before, only the bold ones did), so long labels such as "ค่าประกัน (Bundle PS5)" and "📦 เช่าพร้อม Logitech G29" no longer end in "...". The amount stays on the first line (`gravity: 'top'`).
