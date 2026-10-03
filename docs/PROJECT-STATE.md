@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-10-03 — Analytics page in a narrow PC window (Bot)
+
+- **The problem:** in a narrow window the four tabs were squeezed into tall ovals of wrapped text, and the buttons were oversized.
+- **Tabs and buttons:** they now stay compact and on one line at any width; the tab row scrolls sideways if it must. They use 14 px text, or 13 px under 600 px.
+- **One-column board** (under 760 px): the boxes become a plain list in the board's own order (top to bottom, then left to right), each as tall as its content, so nothing scrolls inside a box. Moving and resizing wait for the 12-column board; adding, removing and text size still work.
+- The default headline-numbers box is now 4 rows tall, so it does not scroll at full width.
+- **Tests:** Bot 533. Headless checks at 490 px and 1366 px.
+
 ## 2026-10-03 — Analytics "🧩 หน้ารวม": a board the admin arranges (Bot `b059fca`)
 
 - **New first tab** on the analytics page (`/analytics/`). Press "✏️ จัดหน้ารวม", then:
