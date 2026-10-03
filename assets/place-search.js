@@ -116,6 +116,20 @@
 
   function pinPlace(at) { return { name: '', address: '', lat: at.lat, lng: at.lng, link: at.link, pin: at.link }; }
 
+  // While the map sheet is open, its own TH / EN button is the only one: the
+  // page hides its language buttons (html.ajps-map-open) and, inside the
+  // booking page's calculator pop-up, tells the booking page to hide the
+  // pop-up's (AJ_PIN_MAP). Cancel or "use this spot" brings them back.
+  var mapsOpen = 0;
+  function announceMap(open) {
+    mapsOpen = Math.max(0, mapsOpen + (open ? 1 : -1));
+    var anyOpen = mapsOpen > 0;
+    document.documentElement.classList.toggle('ajps-map-open', anyOpen);
+    if (window.parent && window.parent !== window) {
+      try { window.parent.postMessage({ type: 'AJ_PIN_MAP', open: anyOpen }, '*'); } catch (e) {}
+    }
+  }
+
   // The map: the customer moves it under a fixed pin. The map itself is
   // assets/pin-map.html in a frame, because Google Maps takes its language
   // once, when it loads: the language button reloads the frame in the other
@@ -167,10 +181,12 @@
     };
     words();
     load();
+    announceMap(true);
     return new Promise(function (resolve) {
       var done = function (value) {
         document.removeEventListener('keydown', onKey, true);
         overlay.remove();
+        announceMap(false);
         if (returnFocus && returnFocus.focus) { try { returnFocus.focus({ preventScroll: true }); } catch (e) {} }
         resolve(value);
       };

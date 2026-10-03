@@ -1,5 +1,14 @@
 # Project state
 
+## 2026-10-03 — One language button while the pin map is open (website)
+
+- With the map sheet open, the page's language buttons are hidden; the sheet's own TH / EN button is the only one. Cancel, Escape or "ใช้ตำแหน่งนี้" brings them back. This works in Thai and English.
+  - **Calculator pop-up on the booking page:** the calculator posts `AJ_PIN_MAP {open}` to the booking page, which toggles `#quoteModal.pin-map-open` to hide `#quoteLangBtn`. A pop-up closed with the sheet still open reopens with the button still hidden, matching the sheet.
+  - **Calculator page on its own:** `html.ajps-map-open #lang`.
+  - **Step 2:** `html.ajps-map-open #langBtn`.
+- `place-search.js` and `QUOTE_PAGE_VERSION` are now `20261003-5`.
+- **Tests:** website 266. A headless run of the pop-up (TH and EN) and the standalone page: the button is hidden while the map is open, and shown again after Cancel, "use this spot" and Escape.
+
 ## 2026-10-03 — Pin map: its own TH / EN button, which switches Google Maps' labels too (website)
 
 - The map sheet has a red "🇬🇧 EN" / "🇹🇭 TH" button by its title. It switches the sheet's words and the map's labels together, and the map reopens where the customer had moved it, at the same zoom.

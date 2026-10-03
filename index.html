@@ -247,6 +247,9 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-picker-note{margin:0 0 10px;color:#667085;font-size:12.5px;font-weight:700}
 .demo-locate-btn{margin-top:8px;align-self:flex-start}
 .demo-locate-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+/* While a pin map sheet is open (step 2's here, or the calculator's in its
+   pop-up), the sheet's own TH / EN button is the only language button. */
+html.ajps-map-open #langBtn,#quoteModal.pin-map-open #quoteLangBtn{visibility:hidden}
 .demo-locate-row .demo-locate-btn{margin-top:0}
 .demo-maps-found{margin:0;color:#067647;font-weight:700;line-height:1.5;overflow-wrap:anywhere}
 .demo-maps-found a{color:inherit;text-decoration:underline;text-underline-offset:2px}
@@ -1674,7 +1677,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 
 <script src="assets/vendor/simplewebauthn-browser-14.0.0.umd.min.js"></script>
 <script src="assets/admin-passkey.js"></script>
-<script src="assets/place-search.js?v=20261003-4"></script>
+<script src="assets/place-search.js?v=20261003-5"></script>
 <script>
 (() => {
   "use strict";
@@ -10743,7 +10746,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
   // what was filled in: the language switch tells it, it is not reloaded.
   // Changes with the calculator page, so the pop-up never shows a stale copy
   // that an in-app browser kept.
-  const QUOTE_PAGE_VERSION = "20261003-4";
+  const QUOTE_PAGE_VERSION = "20261003-5";
   function quoteFrameOrigin(){ return /^https?:\/\/(localhost|127\.0\.0\.1)/.test(location.origin) ? location.origin : "https://ajgamerental.com"; }
   function renderQuoteHead(){
     const en = state.lang === "en";
@@ -10765,6 +10768,10 @@ We apologize for the inconvenience and hope everyone stays safe.`
     trackAnalytics("quick_quote_popup_opened", {value:from});
   }
   function closeQuotePopup(){ byId("quoteModal").classList.remove("open"); }
+  // The calculator's pin map sheet is open inside the pop-up: its own TH / EN
+  // button is the only one, so the pop-up's waits until the sheet closes. A
+  // pop-up closed with the sheet still open reopens with it, button hidden.
+  function setQuotePinMapOpen(open){ byId("quoteModal").classList.toggle("pin-map-open", !!open); }
   function toggleQuoteLang(){
     state.lang = state.lang === "en" ? "th" : "en";
     render();
@@ -12086,6 +12093,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     window.addEventListener("message", event => {
       // "Check the queue and book" in the calculator pop-up: carry on here,
       // with that device (and bundle) chosen in step 1.
+      if(event.source === byId("quoteFrame")?.contentWindow && event.data?.type === "AJ_PIN_MAP"){ setQuotePinMapOpen(event.data.open === true); return; }
       if(event.source === byId("quoteFrame")?.contentWindow && event.data?.type === "AJ_QUOTE_BOOK"){
         // From wherever the pop-up was opened — the "before rent" page
         // included — to the rental steps, with the calendar of that device

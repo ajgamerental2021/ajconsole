@@ -68,6 +68,8 @@
   /* Inside the booking page's pop-up (?embed=1): the pop-up has the title, the
      language switch and the close button, so the page's own header goes. */
   body.embed header { display:none; }
+  /* The pin map sheet has its own TH / EN button; this one waits behind it. */
+  html.ajps-map-open #lang { visibility:hidden; }
   body.embed .wrap { padding-top:12px; }
   .note { font-size:12.5px; color:var(--muted); line-height:1.55; margin-top:10px; }
 </style>
@@ -125,7 +127,7 @@
   </div>
 </div>
 
-<script src="../assets/place-search.js?v=20261003-4"></script>
+<script src="../assets/place-search.js?v=20261003-5"></script>
 <script>
 (function () {
   // Prices come from the booking site's own catalogue file, and follow its

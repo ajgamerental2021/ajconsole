@@ -155,3 +155,13 @@ test('games cannot change during the rental: picker header, rental item card, bo
   assert.match(html, /\$\{state\.calc\.games\?\.length \|\| state\.calc\.later \? gameChangeNoticeHtml\(\) : ""\}/);
   assert.match(html, /\$\{r\.games\.length \|\| r\.later \? gameChangeNoticeHtml\(\) : ""\}/);
 });
+
+test('while the pin map is open, its own TH / EN button is the only one; cancel or use brings the others back', () => {
+  assert.match(widget, /announceMap\(true\);\n    return new Promise/);
+  assert.match(widget, /overlay\.remove\(\);\n        announceMap\(false\);/);
+  assert.match(widget, /document\.documentElement\.classList\.toggle\('ajps-map-open', anyOpen\);/);
+  assert.match(widget, /window\.parent\.postMessage\(\{ type: 'AJ_PIN_MAP', open: anyOpen \}, '\*'\);/);
+  assert.match(quote, /html\.ajps-map-open #lang \{ visibility:hidden; \}/);
+  assert.match(html, /html\.ajps-map-open #langBtn,#quoteModal\.pin-map-open #quoteLangBtn\{visibility:hidden\}/);
+  assert.match(html, /event\.source === byId\("quoteFrame"\)\?\.contentWindow && event\.data\?\.type === "AJ_PIN_MAP"\)\{ setQuotePinMapOpen\(event\.data\.open === true\); return; \}/);
+});
