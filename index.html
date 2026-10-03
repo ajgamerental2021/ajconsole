@@ -2517,6 +2517,21 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   const DEMO_PROFILE_TTL_MS = 24 * 60 * 60 * 1000;
   const DEMO_PROFILE_FIELDS = ["refundBankId","refundAccountName","noThaiBankAccount","wiseEmail","fullName","phone","email","addressLine","subdistrict","district","province","postalCode","maps","termsAccepted","identitySkipped","noThaiAddress","identityType","identityUploaded","identityExpiry","identityDraftId","identityDraftLast4","identityOnFileLast4","addressFromProfile"];
   let demoProfileSaveTimer = 0;
+  // The delivery place priced in the calculator, carried into step 2's
+  // Google Maps box so the customer does not paste it again. Only a Google
+  // Maps link, and never over one the customer already entered.
+  function adoptQuoteMapsLink(value){
+    const link = String(value || "").trim();
+    if(!/^https:\/\/(www\.google\.com\/maps|maps\.google\.com|maps\.app\.goo\.gl|goo\.gl\/maps)\S*$/i.test(link) || link.length > 500) return false;
+    if(String(demoProfile.maps || "").trim()) return false;
+    demoProfile.maps = link;
+    state.calc.maps = link;
+    const input = byId("demoMaps");
+    if(input) input.value = link;
+    saveDemoProfile({now:true});
+    try{ saveLocal(); }catch{}
+    return true;
+  }
   function saveDemoProfile(options={}){
     if(!UNIFIED_FLOW_DEMO) return;
     window.clearTimeout(demoProfileSaveTimer);
@@ -11906,6 +11921,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         // included — to the rental steps, with the calendar of that device
         // open, ready to check the queue.
         const pickedConsole = consoleById(String(event.data.consoleId || ""));
+        adoptQuoteMapsLink(event.data.mapsUrl);
         closeQuotePopup();
         if(byId("allConsolesModal")?.classList.contains("open")) closeAllConsoles();
         if(pickedConsole && isConsoleSelectable(pickedConsole)){
@@ -12716,6 +12732,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
     let demoProfileRestored = false;
     if(UNIFIED_FLOW_DEMO){
       demoProfileRestored = restoreDemoProfile();
+      // From the standalone calculator: ?maps= carries the place it priced.
+      if(new URLSearchParams(location.search).get("utm_source") === "quick_quote") adoptQuoteMapsLink(new URLSearchParams(location.search).get("maps"));
       void refreshIdentityDraft();
       demoProfile.fullName = String(state.calc.demoCustomerName || demoProfile.fullName || "");
       demoProfile.phone = String(state.calc.demoCustomerPhone || demoProfile.phone || "");

@@ -42,7 +42,7 @@ test('its own address: ?quote=1 opens the booking page with the calculator up, a
 
 test('"check the queue and book" never opens a new tab: in the pop-up it carries on in step 1', () => {
   assert.match(quote, /<a class="btn book" id="book" href="#" data-t="book"><\/a>/);
-  assert.match(quote, /window\.parent\.postMessage\(\{ type: 'AJ_QUOTE_BOOK', consoleId: String\(c\.id\), bundleId: b \? b\.id : '' \}, '\*'\);/);
+  assert.match(quote, /window\.parent\.postMessage\(\{ type: 'AJ_QUOTE_BOOK', consoleId: String\(c\.id\), bundleId: b \? b\.id : '', mapsUrl: quote \? quotedMapsLink : '' \}, '\*'\);/);
   const handler = html.slice(html.indexOf('event.data?.type === "AJ_QUOTE_BOOK"'), html.indexOf('trackAnalytics("quick_quote_popup_booked"'));
   assert.match(handler, /closeQuotePopup\(\);/);
   assert.match(handler, /startBookingWithCalendar\(pickedConsole/);
@@ -95,4 +95,21 @@ test('the calculator button stands out: gold, a hint under the label, a shine th
   assert.match(html, /\.card-quote-btn,\.copy-section-url\.all-consoles-quote\{[^}]*background:linear-gradient\(180deg,#ffd84d,#ffbf1f\)/);
   assert.match(html, /animation:quote-shine 2\.8s ease-in-out \.6s 3/);
   assert.match(html, /@media \(prefers-reduced-motion:reduce\)\{\.card-quote-btn::after/);
+});
+
+test('delivery is priced by itself: a pasted link at once, typed text after a 1.5 s pause, never per keystroke', () => {
+  assert.match(quote, /var TYPING_PAUSE_MS = 1500;/);
+  assert.match(quote, /\$\('maps'\)\.addEventListener\('paste', function \(\) \{ setTimeout\(function \(\) \{ scheduleAutoQuote\(0\); \}, 0\); \}\);/);
+  assert.match(quote, /compositionstart/);
+  assert.match(quote, /if \(!\/\^https\?:\\\/\\\/\/i\.test\(text\) && text\.length < 4\) return;/);
+  assert.match(quote, /if \(seq !== quoteSeq\) return null;/);
+  assert.match(quote, /if \(options\.auto && key === lastQuoteKey && quote\) return null;/);
+});
+
+test('the looked-up place opens in Google Maps and goes into step 2', () => {
+  assert.match(quote, /<a id="foundPlaceLink" target="_blank" rel="noopener"><\/a>/);
+  assert.match(quote, /'https:\/\/www\.google\.com\/maps\/search\/\?api=1&query=' \+ lat\.toFixed\(6\)/);
+  assert.match(quote, /'&maps=' \+ encodeURIComponent\(quotedMapsLink\)/);
+  assert.match(html, /adoptQuoteMapsLink\(event\.data\.mapsUrl\);/);
+  assert.match(html, /if\(String\(demoProfile\.maps \|\| ""\)\.trim\(\)\) return false;/);
 });
