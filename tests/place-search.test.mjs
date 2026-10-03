@@ -112,3 +112,32 @@ test('a pin from the map or the phone: the map needs no permission and opens whe
   assert.match(html, /if\(event\.target\.closest\("\[data-demo-pin-map\]"\)\)\{ pinDemoOnMap\(\); return; \}/);
   assert.match(html, /search\.locate\(\)\.then\(useDemoPin\);/);
 });
+
+test('the map is Google Maps with the Bot\'s browser key, OpenStreetMap without it or when Google refuses', () => {
+  assert.match(widget, /fetch\(String\(api \|\| ''\)\.replace\(\/\\\/\$\/, ''\) \+ '\/api\/config'/);
+  assert.match(widget, /config\.googleMapsBrowserKey/);
+  assert.doesNotMatch(widget + html + quote, /AIza[0-9A-Za-z_-]{20,}/, 'no Google key in the site\'s files');
+  assert.match(widget, /'https:\/\/maps\.googleapis\.com\/maps\/api\/js\?key=' \+ encodeURIComponent\(key\)/);
+  assert.match(widget, /window\.gm_authFailure = function \(\) \{\n        googleRefused = true;\n        if \(onGoogleAuthFailure\) onGoogleAuthFailure\(\);/);
+  assert.match(widget, /if \(!key\) return drawOpenStreetMap\(\);/);
+  assert.match(widget, /\}\)\.catch\(drawOpenStreetMap\);/);
+  assert.match(widget, /mapTypeIds: \['roadmap', 'hybrid'\]/);
+  assert.match(widget, /gestureHandling: 'greedy'/);
+});
+
+test('games cannot change during the rental: picker header, rental item card, both languages', () => {
+  const picker = readFileSync(new URL('../game_index.html', import.meta.url), 'utf8');
+  assert.match(html, /<span class="attention-msg" data-i18n="gameChangeWarning">⚠️ ไม่สามารถเพิ่มหรือเปลี่ยนเกมได้ระหว่างระยะเวลาเช่า<\/span>/);
+  assert.match(html, /gameChangeWarning:"⚠️ Games cannot be added or changed during the rental period\."/);
+  assert.match(picker, /<span class="attention-msg" data-i18n="pick_game_change">⚠️ ไม่สามารถเพิ่มหรือเปลี่ยนเกมได้ระหว่างระยะเวลาเช่า<\/span>/);
+  assert.match(picker, /pick_game_change: '⚠️ Games cannot be added or changed during the rental period\.'/);
+  // One badge, the notices taking turns; the later ones lie over the first and
+  // shrink to fit, so the header (and the game grid under it) keeps its size.
+  for (const page of [html, picker]) {
+    assert.match(page, /data-attention-rotate/);
+    assert.match(page, /\.attention-msg ?\+ ?\.attention-msg ?\{ ?position: ?absolute; ?inset: ?0;/);
+    assert.match(page, /if ?\(next !== notices\[0\]\) fitAttentionNotice\(next\);/);
+  }
+  assert.match(html, /\$\{state\.calc\.games\?\.length \|\| state\.calc\.later \? gameChangeNoticeHtml\(\) : ""\}/);
+  assert.match(html, /\$\{r\.games\.length \|\| r\.later \? gameChangeNoticeHtml\(\) : ""\}/);
+});

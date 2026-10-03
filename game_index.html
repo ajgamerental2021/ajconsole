@@ -602,6 +602,15 @@
     line-height: 1.4;
     box-shadow: 0 3px 0 rgba(153, 0, 0, 0.14), 0 6px 16px rgba(224, 0, 0, 0.12);
   }
+  /* Two notices take turns in one badge. The first sets the badge's size; the
+     others lie over it and shrink their text to fit (fitAttentionNotice), so
+     the header is never taller than with one notice and the game grid keeps
+     its room. */
+  [data-attention-rotate] { position: relative; }
+  [data-attention-rotate] .attention-msg { opacity: 0; visibility: hidden; transition: opacity .45s ease, visibility 0s linear .45s; }
+  [data-attention-rotate] .attention-msg + .attention-msg { position: absolute; inset: 0; box-sizing: border-box; padding: inherit; overflow: hidden; display: flex; align-items: center; }
+  [data-attention-rotate] .attention-msg.is-on { opacity: 1; visibility: visible; transition: opacity .45s ease; }
+  @media (prefers-reduced-motion: reduce) { [data-attention-rotate] .attention-msg { transition: none; } }
   .pick-title-attention strong {
     color: #c40000;
     font-weight: 900;
@@ -2773,8 +2782,9 @@
         <div class="pick-title-group">
           <div class="pick-title-line">
             <div class="pick-title">🎯 <span data-i18n="pick_title">เลือกเกมที่อยากเล่น</span></div>
-            <div class="pick-title-attention" role="note" aria-label="Important storage notice">
-              <span data-i18n="pick_warning_desc">⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ</span>
+            <div class="pick-title-attention" role="note" aria-label="Important notice" data-attention-rotate>
+              <span class="attention-msg is-on" data-i18n="pick_warning_desc">⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ</span>
+              <span class="attention-msg" data-i18n="pick_game_change">⚠️ ไม่สามารถเพิ่มหรือเปลี่ยนเกมได้ระหว่างระยะเวลาเช่า</span>
             </div>
           </div>
           <div class="pick-sub" data-i18n="pick_sub">เลือกได้สูงสุด 10 เกม แล้ว Copy ส่งมาแจ้งทางร้านได้เลย</div>
@@ -5915,6 +5925,7 @@ const TRANSLATIONS = {
     pick_sub: 'เลือกได้สูงสุด 10 เกม แล้ว Copy ส่งมาแจ้งทางร้านได้เลย',
     pick_warning_title: '',
     pick_warning_desc: '⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ',
+    pick_game_change: '⚠️ ไม่สามารถเพิ่มหรือเปลี่ยนเกมได้ระหว่างระยะเวลาเช่า',
     tut_title: 'วิธีเลือกเกม',
     tut_1: 'เลือกประเภทเครื่องเกม จากนั้นเกมในประเภทนั้นจะแสดงขึ้นมา',
     tut_2: 'คลิกที่รูปเกมเพื่อเลือก ✓ — คลิกซ้ำเพื่อยกเลิก',
@@ -5980,6 +5991,7 @@ const TRANSLATIONS = {
     pick_sub: 'Select up to 10 games, then copy the list to send us on Line',
     pick_warning_title: '',
     pick_warning_desc: '⚠️ Console storage is limited. Some games may not fit.',
+    pick_game_change: '⚠️ Games cannot be added or changed during the rental period.',
     tut_title: 'How to Pick Games',
     tut_1: 'Select a console type — only that category\'s games will appear',
     tut_2: 'Click a game card to select ✓ — click again to deselect',
@@ -6043,6 +6055,38 @@ function toggleLang() {
   document.getElementById('btn-lang').textContent = TRANSLATIONS[currentLang].lang_toggle;
   applyLang();
 }
+
+// The pick modal's two notices (storage, no game changes during the rental)
+// take turns in one badge, 4 s each, so the header stays one notice tall on
+// every phone and the game grid keeps its room. Only a badge on screen moves.
+// A notice laid over the first one shrinks its text until it fits the badge,
+// never the other way round.
+function fitAttentionNotice(item) {
+  item.style.fontSize = '';
+  // On one line, the badge widens for the longer notice instead: width costs
+  // the game grid nothing.
+  const box = item.parentElement;
+  box.style.minWidth = '';
+  if (getComputedStyle(item).whiteSpace === 'nowrap' && item.scrollWidth > item.clientWidth) box.style.minWidth = `${item.scrollWidth + box.offsetWidth - box.clientWidth}px`;
+  let size = parseFloat(getComputedStyle(item).fontSize) || 12;
+  while ((item.scrollHeight > item.clientHeight + 1 || item.scrollWidth > item.clientWidth + 1) && size > 8) {
+    size -= 0.5;
+    item.style.fontSize = `${size}px`;
+  }
+}
+function rotateAttentionNotices() {
+  document.querySelectorAll('[data-attention-rotate]').forEach(box => {
+    if (!box.offsetParent) return;
+    const notices = [...box.querySelectorAll('.attention-msg')];
+    if (notices.length < 2) return;
+    const at = Math.max(0, notices.findIndex(item => item.classList.contains('is-on')));
+    notices[at].classList.remove('is-on');
+    const next = notices[(at + 1) % notices.length];
+    if (next !== notices[0]) fitAttentionNotice(next);
+    next.classList.add('is-on');
+  });
+}
+setInterval(rotateAttentionNotices, 4000);
 
 function applyLang() {
   const T = TRANSLATIONS[currentLang];

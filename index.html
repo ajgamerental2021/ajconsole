@@ -707,6 +707,14 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 @media (prefers-reduced-motion: reduce){.game-pick-link-spinner{animation-duration:2.4s}}
 .game-picker-attention{justify-self:start;max-width:100%;border:1px solid #f0a000;border-radius:9px;background:#fff8dd;color:#6b3900;padding:7px 10px;font-size:12px;font-weight:900;line-height:1.25;white-space:nowrap;overflow-x:auto;scrollbar-width:none}
 .game-picker-attention::-webkit-scrollbar{display:none}
+/* Two notices take turns in one badge. The first sets the badge's size; the
+   others lie over it and shrink their text to fit (fitAttentionNotice), so the
+   header is never taller than with one notice and the game grid keeps its room. */
+[data-attention-rotate]{position:relative}
+[data-attention-rotate] .attention-msg{display:block;opacity:0;visibility:hidden;transition:opacity .45s ease,visibility 0s linear .45s}
+[data-attention-rotate] .attention-msg+.attention-msg{position:absolute;inset:0;box-sizing:border-box;padding:inherit;overflow:hidden;display:flex;align-items:center}
+[data-attention-rotate] .attention-msg.is-on{opacity:1;visibility:visible;transition:opacity .45s ease}
+@media (prefers-reduced-motion:reduce){[data-attention-rotate] .attention-msg{transition:none}}
 @media(max-width:900px){
   .calc-body{grid-template-columns:1fr}
   .console-grid,.home-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -986,6 +994,7 @@ body.unified-flow-demo .demo-payment-schedule-note{margin:6px 0 0;color:#667085;
 body.unified-flow-demo .demo-item-head{display:flex;gap:14px;align-items:center}
 body.unified-flow-demo .demo-item-thumb{width:64px;height:64px;flex:0 0 auto;object-fit:contain;border-radius:12px;background:#f2f4f7}
 body.unified-flow-demo .demo-item-thumb-icon{display:grid;place-items:center;font-size:30px}
+body.unified-flow-demo .demo-game-change-note{margin:10px 0 0;padding:7px 10px;border:1px solid #f0a000;border-radius:9px;background:#fff8dd;color:#6b3900;font-size:12.5px;font-weight:800;line-height:1.4}
 body.unified-flow-demo .demo-item-details{margin:12px 0 0;padding-left:20px;color:#475467;line-height:1.7;columns:2;column-gap:22px}
 body.unified-flow-demo .demo-item-details li{break-inside:avoid}
 body.unified-flow-demo .demo-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px}
@@ -1622,7 +1631,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 
 <div class="picker-overlay" id="gamePickerOverlay">
   <div class="picker-card">
-    <div class="modal-head game-picker-head"><h3 id="gamePickerTitle" data-i18n="gamePickerTitle">เลือกเกม</h3><div class="game-picker-attention" data-i18n="gameStorageWarning">⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ</div><div class="game-picker-actions"><button class="copy-section-url game-picker-copy-url" id="gamePickerCopyUrl" type="button"></button><button class="btn faq-lang-btn" id="gamePickerHowToBtn" type="button"></button><button class="btn primary faq-lang-btn" id="gamePickerLangBtn" type="button"></button><button class="xbtn" id="gamePickerClose" type="button">&times;</button></div></div>
+    <div class="modal-head game-picker-head"><h3 id="gamePickerTitle" data-i18n="gamePickerTitle">เลือกเกม</h3><div class="game-picker-attention" role="note" data-attention-rotate><span class="attention-msg is-on" data-i18n="gameStorageWarning">⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ</span><span class="attention-msg" data-i18n="gameChangeWarning">⚠️ ไม่สามารถเพิ่มหรือเปลี่ยนเกมได้ระหว่างระยะเวลาเช่า</span></div><div class="game-picker-actions"><button class="copy-section-url game-picker-copy-url" id="gamePickerCopyUrl" type="button"></button><button class="btn faq-lang-btn" id="gamePickerHowToBtn" type="button"></button><button class="btn primary faq-lang-btn" id="gamePickerLangBtn" type="button"></button><button class="xbtn" id="gamePickerClose" type="button">&times;</button></div></div>
     <div class="game-picker-platform-rail" id="gamePickerPlatformRail" hidden>
       <div class="game-picker-platforms" id="gamePickerPlatforms"></div>
     </div>
@@ -1665,7 +1674,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 
 <script src="assets/vendor/simplewebauthn-browser-14.0.0.umd.min.js"></script>
 <script src="assets/admin-passkey.js"></script>
-<script src="assets/place-search.js?v=20261003-2"></script>
+<script src="assets/place-search.js?v=20261003-3"></script>
 <script>
 (() => {
   "use strict";
@@ -1692,7 +1701,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 
   const CONFIG = {
     version: "index2-clean-1",
-    gamePickerVersion: "20261002-2",
+    gamePickerVersion: "20261003-1",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",
@@ -2083,7 +2092,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       step1:"เลือกเครื่อง/วันที่", step2:"รายละเอียดการจอง", step3:"สรุปและส่ง", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"เลือกเกม", step2DetailsTitle:"การจัดส่ง การชำระเงิน และเอกสาร", step3Title:"สรุปและส่งข้อความ", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"📖 อ่านขั้นตอนการเช่าก่อนเริ่ม", quoteBtn:"🧮 คำนวณค่าเช่า", quoteBtnHint:"รู้ยอดรวมก่อนจอง", quoteTitle:"คำนวณค่าเช่า", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
       nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
       deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
-      gamePickerTitle:"เลือกเกม", gameStorageWarning:"⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ", summaryHelp:"ตรวจสอบข้อมูล แล้วกดจองผ่านช่องทางที่สะดวก",
+      gamePickerTitle:"เลือกเกม", gameStorageWarning:"⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ", gameChangeWarning:"⚠️ ไม่สามารถเพิ่มหรือเปลี่ยนเกมได้ระหว่างระยะเวลาเช่า", summaryHelp:"ตรวจสอบข้อมูล แล้วกดจองผ่านช่องทางที่สะดวก",
       personalRateWarning:"⚠️ ราคาเช่าเป็นเรทบุคคล ไม่สามารถออกใบกำกับภาษี/ใบเสร็จได้ หากต้องการเอกสาร กรุณาติดต่อ Line: <b>@ajgame</b> หรือ โทร. <b>081-624-4715</b> 🙏",
       daily:"รายวัน", weekly:"รายสัปดาห์", day:"วัน", wk:"สัปดาห์", deposit:"ค่าประกัน", ready:"พร้อม", notReady:"ยังไม่พร้อม", readyOn:"พร้อมวันที่",
       contractPrivacy:"เอกสารใช้เพื่อยืนยันตัวตนและจัดทำสัญญาเท่านั้น รายละเอียดการเข้าถึงและกำหนดลบเอกสารจะแสดงก่อนอัปโหลด",
@@ -2206,7 +2215,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       step1:"Device / Dates", step2:"Booking details", step3:"Review and send", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Choose games", step2DetailsTitle:"Delivery, payment and documents", step3Title:"Summary and send", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"📖 Read rental steps first", quoteBtn:"🧮 Rental calculator", quoteBtnHint:"See the total before booking", quoteTitle:"Rental calculator", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
       nextStep:"Next step", backStep:"Back",
       deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", startDate:"Start date", endDate:"Return date",
-      gamePickerTitle:"Select Games", gameStorageWarning:"⚠️ Limited device storage. Some games may not all fit.", summaryHelp:"Review the details, then book through your preferred channel.",
+      gamePickerTitle:"Select Games", gameStorageWarning:"⚠️ Limited device storage. Some games may not all fit.", gameChangeWarning:"⚠️ Games cannot be added or changed during the rental period.", summaryHelp:"Review the details, then book through your preferred channel.",
       personalRateWarning:"⚠️ Individual rental rates only. Tax invoice / receipt is not available. For documents, contact Line: <b>@ajgame</b> or call <b>081-624-4715</b> 🙏",
       daily:"Daily", weekly:"Weekly", day:"day", wk:"week", deposit:"Deposit", ready:"Ready", notReady:"Not ready", readyOn:"Ready on",
       contractPrivacy:"Identity documents are used only for verification and the rental agreement. Access and deletion details are shown before upload.",
@@ -5527,7 +5536,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <div><b>${esc(cName(item))}</b><div class="hint">${summary.days} ${en?"days":"วัน"} · ${money(summary.rental)}</div></div>
       </div>
       ${details.length ? `<ul class="demo-item-details">${details.map(line => `<li>${esc(line)}</li>`).join("")}</ul>` : ""}
+      ${state.calc.games?.length || state.calc.later ? gameChangeNoticeHtml() : ""}
     </div>`;
+  }
+  // Under the game list wherever a rental's games are shown: the game list is
+  // fixed once the rental begins (Rental Terms 2026-10-03, Rental Operation
+  // item 9; the game picker and the LINE game card say the same).
+  function gameChangeNoticeHtml(){
+    return `<p class="demo-game-change-note" role="note">${esc(tr("gameChangeWarning"))}</p>`;
   }
   function demoPaymentBreakdownHtml(summary){
     const en = state.lang === "en";
@@ -8807,6 +8823,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
             <div><b>${esc(item ? cName(item) : r.deviceName)}</b><div class="hint">${r.days} ${en ? "days" : "วัน"}${rentalRow ? ` · ${esc(rentalRow.value)}` : ""}</div></div>
           </div>
           ${details.length ? `<ul class="demo-item-details">${details.map(line => `<li>${esc(line)}</li>`).join("")}</ul>` : ""}
+          ${r.games.length || r.later ? gameChangeNoticeHtml() : ""}
         </div></section>
         <section class="demo-order-section"><h3>${en ? "Details" : "รายละเอียด"}</h3><div class="demo-order-box">${row(en ? "Rental ID" : "รหัสการเช่า", esc(r.rentalCode))}${statusRow(en ? "Rental status" : "สถานะการเช่า", r.paid ? (en ? "Paid" : "ชำระเงินแล้ว") : (en ? "Awaiting payment" : "รอชำระเงิน"), r.paid ? "ok" : "is-awaiting")}</div></section>
         <section class="demo-order-section"><h3>${en ? "Customer" : "ข้อมูลลูกค้า"}</h3><div class="demo-order-box">
@@ -9448,6 +9465,37 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     renderGamePickerPlatforms();
     loadGamePickerPlatform();
   }
+  // The picker header's two notices (storage, no game changes during the
+  // rental) take turns in one badge, 4 s each, so the header stays one notice
+  // tall on every phone. Only a badge on screen moves.
+  // A notice laid over the first one shrinks its text until it fits the
+  // badge, never the other way round.
+  function fitAttentionNotice(item){
+    item.style.fontSize = "";
+    // On one line (a wide header), the badge widens for the longer notice
+    // instead: width costs the game grid nothing.
+    const box = item.parentElement;
+    box.style.minWidth = "";
+    if(getComputedStyle(item).whiteSpace === "nowrap" && item.scrollWidth > item.clientWidth) box.style.minWidth = `${item.scrollWidth + box.offsetWidth - box.clientWidth}px`;
+    let size = parseFloat(getComputedStyle(item).fontSize) || 12;
+    while((item.scrollHeight > item.clientHeight + 1 || item.scrollWidth > item.clientWidth + 1) && size > 8){
+      size -= 0.5;
+      item.style.fontSize = `${size}px`;
+    }
+  }
+  function rotateAttentionNotices(){
+    document.querySelectorAll("[data-attention-rotate]").forEach(box => {
+      if(!box.offsetParent) return;
+      const notices = [...box.querySelectorAll(".attention-msg")];
+      if(notices.length < 2) return;
+      const at = Math.max(0, notices.findIndex(item => item.classList.contains("is-on")));
+      notices[at].classList.remove("is-on");
+      const next = notices[(at + 1) % notices.length];
+      if(next !== notices[0]) fitAttentionNotice(next);
+      next.classList.add("is-on");
+    });
+  }
+  window.setInterval(rotateAttentionNotices, 4000);
   function openGamePicker(options={}){
     trackAnalytics("game_picker_opened", {value:options.browseOnly ? "browse" : "booking"});
     const browseOnly = !!options.browseOnly;
@@ -10695,7 +10743,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
   // what was filled in: the language switch tells it, it is not reloaded.
   // Changes with the calculator page, so the pop-up never shows a stale copy
   // that an in-app browser kept.
-  const QUOTE_PAGE_VERSION = "20261003-2";
+  const QUOTE_PAGE_VERSION = "20261003-3";
   function quoteFrameOrigin(){ return /^https?:\/\/(localhost|127\.0\.0\.1)/.test(location.origin) ? location.origin : "https://ajgamerental.com"; }
   function renderQuoteHead(){
     const en = state.lang === "en";

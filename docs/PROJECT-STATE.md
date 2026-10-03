@@ -1,5 +1,33 @@
 # Project state
 
+## 2026-10-03 — No game changes during the rental (Rental Terms 2026-10-03); Google Maps on the pin map (Bot `4afaa66`, Delivery App `24f9544`, website)
+
+- **Rental Terms 2026-10-03** (effective 13:30 Bangkok time) adds Rental Operation item 9, in TH and EN:
+  - TH: "ไม่สามารถเพิ่มหรือเปลี่ยนเกมได้ระหว่างระยะเวลาเช่า เกมในเครื่องเป็นไปตามรายชื่อเกมล่าสุดที่ผู้เช่ายืนยันก่อนร้านเตรียมเครื่อง และจำนวนเกมที่ติดตั้งได้ขึ้นอยู่กับพื้นที่ของเครื่อง บางเกมอาจติดตั้งได้ไม่ครบ".
+  - The contract PDF and the Rental Order PDF print the terms from the version stamped on each rental, so new rentals carry item 9 and older ones keep their own wording. The /rental-terms/ page and the LIFF form read the same source.
+  - Shipped versions: 2026-09-23, then 2026-09-28 (lock-code charges), then 2026-10-03. `rentalTermsVersionAt` walks them by date.
+  - **Owner:** if the terms were edited and published from Admin after 2026-09-28, the shipped 2026-10-03 replaces that text. Re-publish from Admin with item 9 added if so.
+- **The same sentence, "⚠️ ไม่สามารถเพิ่มหรือเปลี่ยนเกมได้ระหว่างระยะเวลาเช่า" / "⚠️ Games cannot be added or changed during the rental period.", appears in:**
+  - **Game picker header:** on the booking page (`.game-picker-attention`) and in `game_index.html` (`.pick-title-attention`). It takes turns with the storage notice in one badge, 4 s each.
+    - The second notice lies over the first and shrinks its text to fit (`fitAttentionNotice`). On one-line headers the badge widens instead.
+    - Header heights were measured at 15 widths (320–1366 px) in TH and EN, before and after: identical, so the game grid is no smaller. The notice is never clipped.
+  - **"สินค้าที่เช่า" card,** under the game lines, on the order page and on the my-rental page (`gameChangeNoticeHtml`).
+  - **LINE game card** ("บันทึก/อัปเดตรายการเกมเรียบร้อยแล้ว"), above the edit button, in both the Bot's (`gameChangeNotice`) and the Delivery App's.
+  - `gamePickerVersion` is now `20261003-1`.
+- **Pin map: Google Maps.** The widget fetches `googleMapsBrowserKey` from the Bot's `/api/config` (env `GOOGLE_MAPS_BROWSER_KEY`) and draws Google Maps with a road / satellite switch.
+  - Without a key, or if Google refuses it (`gm_authFailure`) or does not load, it draws OpenStreetMap as before.
+  - No key is in the site's files (a test checks).
+  - `place-search.js` and `QUOTE_PAGE_VERSION` are now `20261003-3`.
+- **Owner, to switch the map to Google:** create a **second** API key in Google Cloud for the browser.
+  - Under Application restrictions, choose Websites and add `https://ajgamerental.com/*` and `https://www.ajgamerental.com/*`.
+  - Under API restrictions, allow only Maps JavaScript API. Enable that API in the project.
+  - Put the key on Render (aj-line-oa-bot) as `GOOGLE_MAPS_BROWSER_KEY`.
+  - Do not reuse `GOOGLE_MAPS_API_KEY`: the browser key is visible to anyone, which is why it is restricted.
+- **Tests:** Bot 529, website 264, Delivery App game card 45. Headless checks:
+  - a fake Google Maps script draws, and the pin is used;
+  - a refused key falls back to OSM;
+  - the order-page note shows in TH and EN.
+
 ## 2026-10-03 — "Pin it on a map" for browsers that refuse location (website)
 
 - **Problem.** "📍 ใช้ตำแหน่งปัจจุบัน" failed in the Facebook app's browser; it worked in LINE. The Facebook and Instagram in-app browsers never give a web page the phone's location, so no setting on our side can make that button work there.

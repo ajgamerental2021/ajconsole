@@ -20,7 +20,9 @@
 // moves under a fixed pin. The map needs no permission from the browser, so it
 // works where location is refused: the Facebook and Instagram in-app
 // browsers never let a web page have it. A refused location opens the map by
-// itself. Maps are OpenStreetMap tiles drawn with Leaflet, kept on this site
+// itself. The map is Google Maps when the Bot's /api/config hands out a
+// browser key (GOOGLE_MAPS_BROWSER_KEY on Render); without one, or if Google
+// refuses the key, it is OpenStreetMap drawn with Leaflet, kept on this site
 // (assets/vendor/leaflet-1.9.4).
 (function () {
   'use strict';
@@ -127,6 +129,88 @@
     return leafletLoading;
   }
 
+  // Leaflet + OpenStreetMap tiles: { center(), remove() }.
+  function drawLeaflet(box, start) {
+    return loadLeaflet().then(function (L) {
+      var map = L.map(box, { maxBounds: [[4, 95], [22, 107]], minZoom: 6, zoomControl: true })
+        .setView([start.lat, start.lng], start.zoom);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+      }).addTo(map);
+      // The sheet has just been laid out.
+      setTimeout(function () { map.invalidateSize(); }, 60);
+      return {
+        center: function () { var c = map.getCenter(); return { lat: c.lat, lng: c.lng }; },
+        remove: function () { map.remove(); }
+      };
+    });
+  }
+
+  // The browser key for Google Maps, from the Bot's /api/config (never kept
+  // in this site's files). '' when the Bot has none.
+  var keyLoading = null;
+  function googleMapsKey(api) {
+    if (!keyLoading) {
+      keyLoading = fetch(String(api || '').replace(/\/$/, '') + '/api/config', { cache: 'no-store' })
+        .then(function (response) { return response.ok ? response.json() : {}; })
+        .then(function (config) { var key = String(config && config.googleMapsBrowserKey || ''); return /^[A-Za-z0-9_-]{20,100}$/.test(key) ? key : ''; })
+        .catch(function () { keyLoading = null; return ''; });
+    }
+    return keyLoading;
+  }
+
+  // Google calls window.gm_authFailure when it refuses the key (a wrong
+  // address restriction, the API not enabled, billing off); the open map then
+  // falls back to OpenStreetMap.
+  var onGoogleAuthFailure = null;
+  var googleRefused = false;
+  var googleLoading = null;
+  function loadGoogleMaps(key, lang) {
+    if (googleRefused) return Promise.reject(new Error('google_refused'));
+    if (window.google && window.google.maps && window.google.maps.Map) return Promise.resolve(window.google.maps);
+    if (googleLoading) return googleLoading;
+    googleLoading = new Promise(function (resolve, reject) {
+      var previous = window.gm_authFailure;
+      window.gm_authFailure = function () {
+        googleRefused = true;
+        if (onGoogleAuthFailure) onGoogleAuthFailure();
+        if (typeof previous === 'function') previous();
+      };
+      window.__ajpsGoogleReady = function () { resolve(window.google.maps); };
+      var script = document.createElement('script');
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(key)
+        + '&v=weekly&loading=async&region=TH&language=' + (lang === 'en' ? 'en' : 'th') + '&callback=__ajpsGoogleReady';
+      script.async = true;
+      script.onerror = function () { googleLoading = null; reject(new Error('google_maps')); };
+      document.head.appendChild(script);
+      setTimeout(function () { if (!(window.google && window.google.maps && window.google.maps.Map)) { googleLoading = null; reject(new Error('google_maps_slow')); } }, 12000);
+    });
+    return googleLoading;
+  }
+
+  // Google Maps, roads or satellite with labels: { center(), remove() }.
+  function drawGoogle(box, start, key, lang) {
+    return loadGoogleMaps(key, lang).then(function (maps) {
+      var map = new maps.Map(box, {
+        center: { lat: start.lat, lng: start.lng },
+        zoom: start.zoom,
+        gestureHandling: 'greedy',
+        clickableIcons: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+        zoomControl: true,
+        mapTypeControl: true,
+        mapTypeControlOptions: { style: maps.MapTypeControlStyle.HORIZONTAL_BAR, mapTypeIds: ['roadmap', 'hybrid'] },
+        restriction: { latLngBounds: { north: 22, south: 4, west: 95, east: 107 }, strictBounds: false }
+      });
+      return {
+        center: function () { var c = map.getCenter(); return { lat: c.lat(), lng: c.lng() }; },
+        remove: function () { box.innerHTML = ''; }
+      };
+    });
+  }
+
   // The map: the customer moves it under a fixed pin. Resolves with
   // { lat, lng }, or null when cancelled.
   function openMap(t, opts) {
@@ -152,6 +236,7 @@
     var map = null;
     return new Promise(function (resolve) {
       var done = function (value) {
+        onGoogleAuthFailure = null;
         document.removeEventListener('keydown', onKey, true);
         if (map) map.remove();
         overlay.remove();
@@ -163,22 +248,31 @@
       overlay.querySelector('.ajps-map-cancel').addEventListener('click', function () { done(null); });
       overlay.querySelector('.ajps-map-use').addEventListener('click', function () {
         if (!map) return;
-        var at = map.getCenter();
+        var at = map.center();
         if (!inThailand(at.lat, at.lng)) return say(t('mapOutside'));
         done({ lat: at.lat, lng: at.lng });
       });
       overlay.querySelector('.ajps-map-use').focus({ preventScroll: true });
-      loadLeaflet().then(function (L) {
-        if (!overlay.isConnected) return;
-        map = L.map(overlay.querySelector('.ajps-map'), { maxBounds: [[4, 95], [22, 107]], minZoom: 6, zoomControl: true })
-          .setView([start.lat, start.lng], start.zoom);
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
-        }).addTo(map);
-        // The sheet has just been laid out.
-        setTimeout(function () { if (map) map.invalidateSize(); }, 60);
-      }).catch(function () { say(t('mapFail')); });
+      var box = overlay.querySelector('.ajps-map');
+      var drawOpenStreetMap = function () {
+        if (map) map.remove();
+        map = null;
+        return drawLeaflet(box, start).then(function (drawn) {
+          if (!overlay.isConnected) return drawn.remove();
+          map = drawn;
+        }).catch(function () { say(t('mapFail')); });
+      };
+      // Google Maps when the Bot hands out a browser key; OpenStreetMap
+      // without one, or when Google refuses the key or does not load.
+      googleMapsKey(opts.api).then(function (key) {
+        if (!overlay.isConnected) return null;
+        if (!key) return drawOpenStreetMap();
+        onGoogleAuthFailure = function () { if (overlay.isConnected) drawOpenStreetMap(); };
+        return drawGoogle(box, start, key, opts.lang).then(function (drawn) {
+          if (!overlay.isConnected) return drawn.remove();
+          map = drawn;
+        }).catch(drawOpenStreetMap);
+      });
     });
   }
 
@@ -393,7 +487,7 @@
        */
       pickOnMap: function (opts) {
         opts = opts || {};
-        return openMap(t, { center: opts.center || state.lastPlace, note: opts.note });
+        return openMap(t, { center: opts.center || state.lastPlace, note: opts.note, api: apiBase(), lang: options.lang && options.lang() });
       },
       /**
        * The phone's location. Where the browser refuses it (always, in the
@@ -401,7 +495,7 @@
        * Resolves { lat, lng }, or null when the customer gives up.
        */
       locate: function () {
-        var fallback = function () { return openMap(t, { center: state.lastPlace, note: t(blockingApp() ? 'blockedApp' : 'blocked') }); };
+        var fallback = function () { return openMap(t, { center: state.lastPlace, note: t(blockingApp() ? 'blockedApp' : 'blocked'), api: apiBase(), lang: options.lang && options.lang() }); };
         if (!navigator.geolocation) return fallback();
         return new Promise(function (resolve) {
           navigator.geolocation.getCurrentPosition(function (position) {
