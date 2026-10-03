@@ -1,5 +1,16 @@
 # Project state
 
+## 2026-10-03 — Delivery fee from a place name (Bot `2fab756`, website)
+
+- **Bot.** `resolveDeliveryLocation` tries, in order:
+  1. the link's own pin;
+  2. the place the link names (`q=` / `query=` / `/maps/place/`), looked up;
+  3. typed text, looked up;
+  4. the booking form's address, looked up.
+- The lookup is in `services/geocode.js`: Google Geocoding when `GOOGLE_MAPS_API_KEY` is set, otherwise Nominatim. Answers are limited to Thailand and cached for 24 h. The quote response carries `location.label`.
+- **Calculator (`/quote/`).** The box takes a link or typed text and shows the place it priced to in green. The location-refused and place-not-found messages are rewritten in TH and EN. The pop-up iframe has `allow="geolocation"`.
+- **Owner, optional:** set `GOOGLE_MAPS_API_KEY` on Render (aj-line-oa-bot) for better Thai place matching. It works without it, using OpenStreetMap.
+
 ## 2026-10-02 — Cancel button on Console Pending and ID Pending (Delivery App `73c5b04`, Bot `a3979ee`)
 
 - Each request has a red "ยกเลิกรายการ" button next to Confirm. It asks first and makes no booking.
