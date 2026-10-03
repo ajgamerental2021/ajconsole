@@ -89,17 +89,22 @@ test('calculator: a PS5 or PS5 Pro takes one accessory, "no accessory" chosen to
   assert.match(html, /const single = \[SPEC\.PS5, SPEC\.PS5P\]\.includes\(Number\(c\.id\)\);/);
 });
 
+const pinMap = readFileSync(new URL('../assets/pin-map.html', import.meta.url), 'utf8');
+
 test('a pin from the map or the phone: the map needs no permission and opens where location is refused', () => {
-  // Leaflet is kept on this site, found next to the widget from any page.
+  // The map is its own page next to the widget, found from any page.
   assert.match(widget, /var SELF = \(document\.currentScript && document\.currentScript\.src\) \|\| '';/);
-  assert.match(widget, /new URL\('vendor\/leaflet-1\.9\.4\/', SELF \|\| location\.href\)/);
+  assert.match(widget, /new URL\('pin-map\.html', SELF \|\| location\.href\)\.href \+ '\?v=[\w-]+&lang=' \+ lang/);
+  assert.match(widget, /<iframe class="ajps-map" title=""><\/iframe>' \+ PIN_SVG/);
+  assert.match(pinMap, /css\.href = 'vendor\/leaflet-1\.9\.4\/leaflet\.css';/);
   assert.ok(readFileSync(new URL('../assets/vendor/leaflet-1.9.4/leaflet.js', import.meta.url), 'utf8').includes('t.version="1.9.4"'));
   assert.ok(readFileSync(new URL('../assets/vendor/leaflet-1.9.4/LICENSE', import.meta.url), 'utf8').length > 100);
-  assert.match(widget, /L\.tileLayer\('https:\/\/tile\.openstreetmap\.org\/\{z\}\/\{x\}\/\{y\}\.png'/);
-  assert.match(widget, /OpenStreetMap<\/a>/, 'tiles are credited');
+  assert.match(pinMap, /L\.tileLayer\('https:\/\/tile\.openstreetmap\.org\/\{z\}\/\{x\}\/\{y\}\.png'/);
+  assert.match(pinMap, /OpenStreetMap<\/a>/, 'tiles are credited');
   // A refused location opens the map, saying why; Facebook and Instagram by name.
   assert.match(widget, /function blockingApp\(\) \{ return \/FBAN\|FBAV\|FB_IAB\|FBIOS\|Instagram\/i\.test/);
   assert.match(widget, /\.then\(function \(at\) \{ return at \|\| fallback\(\); \}\);/);
+  assert.match(widget, /noteKey: blockingApp\(\) \? 'blockedApp' : 'blocked'/);
   assert.match(widget, /blockedApp: 'แอป Facebook \/ Instagram ไม่ให้เว็บใช้ตำแหน่งปัจจุบัน ปักหมุดบนแผนที่นี้แทนได้เลย'/);
   assert.match(widget, /blockedApp: 'The Facebook \/ Instagram app does not let web pages use your location\. Pin it on this map instead\.'/);
   // The pin is a place even when no address is found for it.
@@ -114,15 +119,24 @@ test('a pin from the map or the phone: the map needs no permission and opens whe
 });
 
 test('the map is Google Maps with the Bot\'s browser key, OpenStreetMap without it or when Google refuses', () => {
-  assert.match(widget, /fetch\(String\(api \|\| ''\)\.replace\(\/\\\/\$\/, ''\) \+ '\/api\/config'/);
-  assert.match(widget, /config\.googleMapsBrowserKey/);
-  assert.doesNotMatch(widget + html + quote, /AIza[0-9A-Za-z_-]{20,}/, 'no Google key in the site\'s files');
-  assert.match(widget, /'https:\/\/maps\.googleapis\.com\/maps\/api\/js\?key=' \+ encodeURIComponent\(key\)/);
-  assert.match(widget, /window\.gm_authFailure = function \(\) \{\n        googleRefused = true;\n        if \(onGoogleAuthFailure\) onGoogleAuthFailure\(\);/);
-  assert.match(widget, /if \(!key\) return drawOpenStreetMap\(\);/);
-  assert.match(widget, /\}\)\.catch\(drawOpenStreetMap\);/);
-  assert.match(widget, /mapTypeIds: \['roadmap', 'hybrid'\]/);
-  assert.match(widget, /gestureHandling: 'greedy'/);
+  assert.match(pinMap, /fetch\(api \+ '\/api\/config', \{ cache: 'no-store' \}\)/);
+  assert.match(pinMap, /config\.googleMapsBrowserKey/);
+  assert.doesNotMatch(widget + pinMap + html + quote, /AIza[0-9A-Za-z_-]{20,}/, 'no Google key in the site\'s files');
+  assert.match(pinMap, /'https:\/\/maps\.googleapis\.com\/maps\/api\/js\?key=' \+ encodeURIComponent\(key\)\n        \+ '&v=weekly&loading=async&region=TH&language=' \+ lang/);
+  assert.match(pinMap, /window\.gm_authFailure = function \(\) \{ drawLeaflet\(\); \};/);
+  assert.match(pinMap, /\? drawGoogle\(key\)\.catch\(drawLeaflet\) : drawLeaflet\(\)/);
+  assert.match(pinMap, /mapTypeIds: \['roadmap', 'hybrid'\]/);
+  assert.match(pinMap, /gestureHandling: 'greedy'/);
+});
+
+test('the map sheet has its own TH / EN button: its words and the map\'s labels switch, the map stays put', () => {
+  assert.match(widget, /mapLang: '🇬🇧 EN',/);
+  assert.match(widget, /mapLang: '🇹🇭 TH',/);
+  assert.match(widget, /\$\('\.ajps-map-lang'\)\.addEventListener\('click', function \(\) \{\n        var at = spot\(\);\n        if \(at\) view = \{ lat: at\.lat, lng: at\.lng, zoom: at\.zoom \|\| view\.zoom \};\n        lang = lang === 'en' \? 'th' : 'en';\n        words\(\);\n        load\(\);/);
+  assert.match(widget, /onLang: function \(lang\) \{ state\.mapLang = lang; \}/, 'the choice holds for the next map on the page');
+  for (const key of ['mapTitle', 'mapHelp', 'mapUse', 'mapCancel', 'mapLoading', 'mapLangLabel']) {
+    assert.equal((widget.match(new RegExp(`\\b${key}: '`, 'g')) || []).length, 2, `${key} in Thai and English`);
+  }
 });
 
 test('games cannot change during the rental: picker header, rental item card, both languages', () => {

@@ -20,14 +20,15 @@
 // moves under a fixed pin. The map needs no permission from the browser, so it
 // works where location is refused: the Facebook and Instagram in-app
 // browsers never let a web page have it. A refused location opens the map by
-// itself. The map is Google Maps when the Bot's /api/config hands out a
-// browser key (GOOGLE_MAPS_BROWSER_KEY on Render); without one, or if Google
-// refuses the key, it is OpenStreetMap drawn with Leaflet, kept on this site
-// (assets/vendor/leaflet-1.9.4).
+// itself. The map is assets/pin-map.html in a frame: Google Maps when the
+// Bot's /api/config hands out a browser key (GOOGLE_MAPS_BROWSER_KEY on
+// Render); without one, or if Google refuses the key, OpenStreetMap drawn with
+// Leaflet, kept on this site (assets/vendor/leaflet-1.9.4). The sheet has its
+// own TH / EN button, which switches its words and the map's labels.
 (function () {
   'use strict';
 
-  // Where this file was loaded from, so Leaflet is found next to it from any page.
+  // Where this file was loaded from, so the map page is found next to it from any page.
   var SELF = (document.currentScript && document.currentScript.src) || '';
 
   var TEXT = {
@@ -46,7 +47,10 @@
       mapOutside: 'หมุดอยู่นอกประเทศไทย เลื่อนแผนที่ให้หมุดตรงกับที่ส่ง',
       blockedApp: 'แอป Facebook / Instagram ไม่ให้เว็บใช้ตำแหน่งปัจจุบัน ปักหมุดบนแผนที่นี้แทนได้เลย',
       blocked: 'เบราว์เซอร์นี้ไม่ให้ตำแหน่งปัจจุบัน ปักหมุดบนแผนที่นี้แทนได้เลย',
-      pinned: 'ตำแหน่งที่ปักหมุด'
+      pinned: 'ตำแหน่งที่ปักหมุด',
+      mapLang: '🇬🇧 EN',
+      mapLangLabel: 'Switch to English',
+      mapLoading: 'แผนที่กำลังโหลด รอสักครู่แล้วกดอีกครั้ง'
     },
     en: {
       searching: 'Looking for the place…',
@@ -63,7 +67,10 @@
       mapOutside: 'The pin is outside Thailand. Move the map until the pin is on the delivery place.',
       blockedApp: 'The Facebook / Instagram app does not let web pages use your location. Pin it on this map instead.',
       blocked: 'This browser did not share your location. Pin it on this map instead.',
-      pinned: 'Pinned location'
+      pinned: 'Pinned location',
+      mapLang: '🇹🇭 TH',
+      mapLangLabel: 'เปลี่ยนเป็นภาษาไทย',
+      mapLoading: 'The map is still loading. Wait a moment and tap again.'
     }
   };
   var TYPING_PAUSE_MS = 1500;
@@ -84,12 +91,14 @@
     '.ajps-map-sheet{display:flex;flex-direction:column;width:min(560px,100%);height:min(720px,100%);background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.3);font-family:inherit;color:#14181f}',
     '@media (max-width:600px){.ajps-map-sheet{width:100%;height:100%;border-radius:0}}',
     '.ajps-map-head{padding:14px 16px 10px;border-bottom:1px solid #eef0f4}',
+    '.ajps-map-title{display:flex;align-items:center;justify-content:space-between;gap:12px}',
     '.ajps-map-head b{display:block;font-size:17px;font-weight:800}',
+    '.ajps-map-lang{flex:none;padding:7px 14px;border:0;border-radius:999px;background:#c90012;color:#fff;font:inherit;font-size:14px;font-weight:800;cursor:pointer}',
     '.ajps-map-head p{margin:4px 0 0;font-size:13px;line-height:1.5;color:#4b515c}',
     '.ajps-map-head p.note{margin-top:8px;padding:8px 10px;border-radius:10px;background:#fff7e6;color:#8a5200;font-weight:700}',
     '.ajps-map-head p.warn{color:#b91c1c;font-weight:700}',
     '.ajps-map-box{position:relative;flex:1;min-height:240px;background:#e5e7eb}',
-    '.ajps-map{position:absolute;inset:0}',
+    '.ajps-map{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}',
     '.ajps-map-pin{position:absolute;left:50%;top:50%;width:36px;height:48px;margin:-48px 0 0 -18px;z-index:500;pointer-events:none;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}',
     '.ajps-map-actions{display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #eef0f4}',
     '.ajps-map-actions button{flex:1;padding:13px;border-radius:12px;font:inherit;font-size:16px;font-weight:800;cursor:pointer}',
@@ -107,115 +116,16 @@
 
   function pinPlace(at) { return { name: '', address: '', lat: at.lat, lng: at.lng, link: at.link, pin: at.link }; }
 
-  var leafletLoading = null;
-  function loadLeaflet() {
-    if (window.L && window.L.map) return Promise.resolve(window.L);
-    if (leafletLoading) return leafletLoading;
-    var base = new URL('vendor/leaflet-1.9.4/', SELF || location.href).href;
-    leafletLoading = new Promise(function (resolve, reject) {
-      if (!document.querySelector('link[data-ajps-leaflet]')) {
-        var css = document.createElement('link');
-        css.rel = 'stylesheet';
-        css.href = base + 'leaflet.css';
-        css.setAttribute('data-ajps-leaflet', '');
-        document.head.appendChild(css);
-      }
-      var script = document.createElement('script');
-      script.src = base + 'leaflet.js';
-      script.onload = function () { if (window.L && window.L.map) resolve(window.L); else { leafletLoading = null; reject(new Error('leaflet')); } };
-      script.onerror = function () { leafletLoading = null; reject(new Error('leaflet')); };
-      document.head.appendChild(script);
-    });
-    return leafletLoading;
-  }
-
-  // Leaflet + OpenStreetMap tiles: { center(), remove() }.
-  function drawLeaflet(box, start) {
-    return loadLeaflet().then(function (L) {
-      var map = L.map(box, { maxBounds: [[4, 95], [22, 107]], minZoom: 6, zoomControl: true })
-        .setView([start.lat, start.lng], start.zoom);
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
-      }).addTo(map);
-      // The sheet has just been laid out.
-      setTimeout(function () { map.invalidateSize(); }, 60);
-      return {
-        center: function () { var c = map.getCenter(); return { lat: c.lat, lng: c.lng }; },
-        remove: function () { map.remove(); }
-      };
-    });
-  }
-
-  // The browser key for Google Maps, from the Bot's /api/config (never kept
-  // in this site's files). '' when the Bot has none.
-  var keyLoading = null;
-  function googleMapsKey(api) {
-    if (!keyLoading) {
-      keyLoading = fetch(String(api || '').replace(/\/$/, '') + '/api/config', { cache: 'no-store' })
-        .then(function (response) { return response.ok ? response.json() : {}; })
-        .then(function (config) { var key = String(config && config.googleMapsBrowserKey || ''); return /^[A-Za-z0-9_-]{20,100}$/.test(key) ? key : ''; })
-        .catch(function () { keyLoading = null; return ''; });
-    }
-    return keyLoading;
-  }
-
-  // Google calls window.gm_authFailure when it refuses the key (a wrong
-  // address restriction, the API not enabled, billing off); the open map then
-  // falls back to OpenStreetMap.
-  var onGoogleAuthFailure = null;
-  var googleRefused = false;
-  var googleLoading = null;
-  function loadGoogleMaps(key, lang) {
-    if (googleRefused) return Promise.reject(new Error('google_refused'));
-    if (window.google && window.google.maps && window.google.maps.Map) return Promise.resolve(window.google.maps);
-    if (googleLoading) return googleLoading;
-    googleLoading = new Promise(function (resolve, reject) {
-      var previous = window.gm_authFailure;
-      window.gm_authFailure = function () {
-        googleRefused = true;
-        if (onGoogleAuthFailure) onGoogleAuthFailure();
-        if (typeof previous === 'function') previous();
-      };
-      window.__ajpsGoogleReady = function () { resolve(window.google.maps); };
-      var script = document.createElement('script');
-      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(key)
-        + '&v=weekly&loading=async&region=TH&language=' + (lang === 'en' ? 'en' : 'th') + '&callback=__ajpsGoogleReady';
-      script.async = true;
-      script.onerror = function () { googleLoading = null; reject(new Error('google_maps')); };
-      document.head.appendChild(script);
-      setTimeout(function () { if (!(window.google && window.google.maps && window.google.maps.Map)) { googleLoading = null; reject(new Error('google_maps_slow')); } }, 12000);
-    });
-    return googleLoading;
-  }
-
-  // Google Maps, roads or satellite with labels: { center(), remove() }.
-  function drawGoogle(box, start, key, lang) {
-    return loadGoogleMaps(key, lang).then(function (maps) {
-      var map = new maps.Map(box, {
-        center: { lat: start.lat, lng: start.lng },
-        zoom: start.zoom,
-        gestureHandling: 'greedy',
-        clickableIcons: false,
-        streetViewControl: false,
-        fullscreenControl: false,
-        zoomControl: true,
-        mapTypeControl: true,
-        mapTypeControlOptions: { style: maps.MapTypeControlStyle.HORIZONTAL_BAR, mapTypeIds: ['roadmap', 'hybrid'] },
-        restriction: { latLngBounds: { north: 22, south: 4, west: 95, east: 107 }, strictBounds: false }
-      });
-      return {
-        center: function () { var c = map.getCenter(); return { lat: c.lat(), lng: c.lng() }; },
-        remove: function () { box.innerHTML = ''; }
-      };
-    });
-  }
-
-  // The map: the customer moves it under a fixed pin. Resolves with
-  // { lat, lng }, or null when cancelled.
-  function openMap(t, opts) {
+  // The map: the customer moves it under a fixed pin. The map itself is
+  // assets/pin-map.html in a frame, because Google Maps takes its language
+  // once, when it loads: the language button reloads the frame in the other
+  // language at the same spot and zoom. Resolves with { lat, lng }, or null
+  // when cancelled. opts: center, noteKey, api, lang, onLang(lang).
+  function openMap(opts) {
     opts = opts || {};
-    var start = opts.center && isFinite(Number(opts.center.lat)) && isFinite(Number(opts.center.lng)) && inThailand(Number(opts.center.lat), Number(opts.center.lng))
+    var lang = opts.lang === 'en' ? 'en' : 'th';
+    var t = function (key) { return TEXT[lang][key]; };
+    var view = opts.center && isFinite(Number(opts.center.lat)) && isFinite(Number(opts.center.lng)) && inThailand(Number(opts.center.lat), Number(opts.center.lng))
       ? { lat: Number(opts.center.lat), lng: Number(opts.center.lng), zoom: 17 }
       : { lat: BANGKOK.lat, lng: BANGKOK.lng, zoom: 11 };
     var returnFocus = document.activeElement;
@@ -223,59 +133,69 @@
     overlay.className = 'ajps-map-overlay';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
-    overlay.setAttribute('aria-label', t('mapTitle'));
     overlay.innerHTML = '<div class="ajps-map-sheet">'
-      + '<div class="ajps-map-head"><b>' + esc(t('mapTitle')) + '</b><p>' + esc(t('mapHelp')) + '</p>'
-      + (opts.note ? '<p class="note">' + esc(opts.note) + '</p>' : '') + '<p class="warn" hidden></p></div>'
-      + '<div class="ajps-map-box"><div class="ajps-map"></div>' + PIN_SVG + '</div>'
-      + '<div class="ajps-map-actions"><button type="button" class="ajps-map-cancel">' + esc(t('mapCancel')) + '</button>'
-      + '<button type="button" class="ajps-map-use">' + esc(t('mapUse')) + '</button></div></div>';
+      + '<div class="ajps-map-head"><div class="ajps-map-title"><b></b><button type="button" class="ajps-map-lang"></button></div><p class="help"></p>'
+      + (opts.noteKey ? '<p class="note"></p>' : '') + '<p class="warn" hidden></p></div>'
+      + '<div class="ajps-map-box"><iframe class="ajps-map" title=""></iframe>' + PIN_SVG + '</div>'
+      + '<div class="ajps-map-actions"><button type="button" class="ajps-map-cancel"></button>'
+      + '<button type="button" class="ajps-map-use"></button></div></div>';
     document.body.appendChild(overlay);
-    var warn = overlay.querySelector('.warn');
-    var say = function (text) { warn.textContent = text || ''; warn.hidden = !text; };
-    var map = null;
+    var $ = function (selector) { return overlay.querySelector(selector); };
+    var frame = $('.ajps-map');
+    var say = function (text) { $('.warn').textContent = text || ''; $('.warn').hidden = !text; };
+    // The map frame's own report of the spot under the pin (same site).
+    var spot = function () {
+      try { var map = frame.contentWindow && frame.contentWindow.ajPinMap; return map ? map.center() : null; } catch (e) { return null; }
+    };
+    var load = function () {
+      frame.src = new URL('pin-map.html', SELF || location.href).href + '?v=20261003-4&lang=' + lang
+        + '&lat=' + view.lat.toFixed(6) + '&lng=' + view.lng.toFixed(6) + '&zoom=' + Math.round(view.zoom)
+        + '&api=' + encodeURIComponent(String(opts.api || ''));
+    };
+    var words = function () {
+      overlay.setAttribute('aria-label', t('mapTitle'));
+      overlay.setAttribute('lang', lang);
+      $('.ajps-map-title b').textContent = t('mapTitle');
+      $('.ajps-map-lang').textContent = t('mapLang');
+      $('.ajps-map-lang').setAttribute('aria-label', t('mapLangLabel'));
+      $('.help').textContent = t('mapHelp');
+      if (opts.noteKey) $('.note').textContent = t(opts.noteKey);
+      frame.title = t('mapTitle');
+      $('.ajps-map-cancel').textContent = t('mapCancel');
+      $('.ajps-map-use').textContent = t('mapUse');
+      say('');
+    };
+    words();
+    load();
     return new Promise(function (resolve) {
       var done = function (value) {
-        onGoogleAuthFailure = null;
         document.removeEventListener('keydown', onKey, true);
-        if (map) map.remove();
         overlay.remove();
         if (returnFocus && returnFocus.focus) { try { returnFocus.focus({ preventScroll: true }); } catch (e) {} }
         resolve(value);
       };
       var onKey = function (event) { if (event.key === 'Escape') { event.preventDefault(); done(null); } };
       document.addEventListener('keydown', onKey, true);
-      overlay.querySelector('.ajps-map-cancel').addEventListener('click', function () { done(null); });
-      overlay.querySelector('.ajps-map-use').addEventListener('click', function () {
-        if (!map) return;
-        var at = map.center();
+      $('.ajps-map-cancel').addEventListener('click', function () { done(null); });
+      // The sheet's words and the map's labels switch together; the map
+      // reopens where the customer had moved it.
+      $('.ajps-map-lang').addEventListener('click', function () {
+        var at = spot();
+        if (at) view = { lat: at.lat, lng: at.lng, zoom: at.zoom || view.zoom };
+        lang = lang === 'en' ? 'th' : 'en';
+        words();
+        load();
+        if (opts.onLang) opts.onLang(lang);
+      });
+      $('.ajps-map-use').addEventListener('click', function () {
+        var at = spot();
+        if (!at) return say(t('mapLoading'));
         if (!inThailand(at.lat, at.lng)) return say(t('mapOutside'));
         done({ lat: at.lat, lng: at.lng });
       });
-      overlay.querySelector('.ajps-map-use').focus({ preventScroll: true });
-      var box = overlay.querySelector('.ajps-map');
-      var drawOpenStreetMap = function () {
-        if (map) map.remove();
-        map = null;
-        return drawLeaflet(box, start).then(function (drawn) {
-          if (!overlay.isConnected) return drawn.remove();
-          map = drawn;
-        }).catch(function () { say(t('mapFail')); });
-      };
-      // Google Maps when the Bot hands out a browser key; OpenStreetMap
-      // without one, or when Google refuses the key or does not load.
-      googleMapsKey(opts.api).then(function (key) {
-        if (!overlay.isConnected) return null;
-        if (!key) return drawOpenStreetMap();
-        onGoogleAuthFailure = function () { if (overlay.isConnected) drawOpenStreetMap(); };
-        return drawGoogle(box, start, key, opts.lang).then(function (drawn) {
-          if (!overlay.isConnected) return drawn.remove();
-          map = drawn;
-        }).catch(drawOpenStreetMap);
-      });
+      $('.ajps-map-use').focus({ preventScroll: true });
     });
   }
-
 
   function addStyle() {
     if (document.getElementById('ajps-style')) return;
@@ -316,9 +236,18 @@
    */
   function create(options) {
     addStyle();
-    var state = { timer: 0, composing: false, seq: 0, lastText: '', choices: [], active: 0, panel: null, lastPlace: null };
+    var state = { timer: 0, composing: false, seq: 0, lastText: '', choices: [], active: 0, panel: null, lastPlace: null, mapLang: '' };
     var t = function (key) { var lang = options.lang && options.lang() === 'en' ? 'en' : 'th'; return TEXT[lang][key]; };
     var input = function () { return document.querySelector(options.input); };
+    // The map opens in the page's language, or in the one the customer last
+    // switched it to on this page.
+    var mapOptions = function (extra) {
+      return Object.assign({
+        api: apiBase(),
+        lang: state.mapLang || (options.lang && options.lang() === 'en' ? 'en' : 'th'),
+        onLang: function (lang) { state.mapLang = lang; }
+      }, extra);
+    };
     var apiBase = function () { return String(typeof options.api === 'function' ? options.api() : options.api || '').replace(/\/$/, ''); };
 
     function panel() {
@@ -487,7 +416,7 @@
        */
       pickOnMap: function (opts) {
         opts = opts || {};
-        return openMap(t, { center: opts.center || state.lastPlace, note: opts.note, api: apiBase(), lang: options.lang && options.lang() });
+        return openMap(mapOptions({ center: opts.center || state.lastPlace, noteKey: opts.noteKey }));
       },
       /**
        * The phone's location. Where the browser refuses it (always, in the
@@ -495,7 +424,7 @@
        * Resolves { lat, lng }, or null when the customer gives up.
        */
       locate: function () {
-        var fallback = function () { return openMap(t, { center: state.lastPlace, note: t(blockingApp() ? 'blockedApp' : 'blocked'), api: apiBase(), lang: options.lang && options.lang() }); };
+        var fallback = function () { return openMap(mapOptions({ center: state.lastPlace, noteKey: blockingApp() ? 'blockedApp' : 'blocked' })); };
         if (!navigator.geolocation) return fallback();
         return new Promise(function (resolve) {
           navigator.geolocation.getCurrentPosition(function (position) {

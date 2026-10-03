@@ -1,5 +1,20 @@
 # Project state
 
+## 2026-10-03 — Pin map: its own TH / EN button, which switches Google Maps' labels too (website)
+
+- The map sheet has a red "🇬🇧 EN" / "🇹🇭 TH" button by its title. It switches the sheet's words and the map's labels together, and the map reopens where the customer had moved it, at the same zoom.
+- Google Maps takes its language once, when its script loads, and cannot load twice on one page. So the map now lives in its own page, `assets/pin-map.html`, which the sheet shows in a frame.
+  - The button reloads that page with `?lang=en|th&lat=&lng=&zoom=`.
+  - The sheet reads the spot under its pin through `window.ajPinMap.center()`. It is the same site, so no messaging is needed.
+  - Google, or OpenStreetMap when there is no key or Google refuses it, is now decided inside that page.
+  - The referrer Google checks is still ajgamerental.com.
+- The sheet opens in the page's language. Once the customer switches it, the next map on that page opens in the language they chose. The rest of the page keeps its own language button.
+- `place-search.js` and `QUOTE_PAGE_VERSION` are now `20261003-4`; `pin-map.html` is `?v=20261003-4`.
+- **Tests:** website 265. Headless checks:
+  - a fake Google script loaded `language=th`, then `language=en` after the button, at the moved spot and zoom 16;
+  - a refused key gives OpenStreetMap, and the button still works;
+  - the Facebook "location refused" flow works on the calculator and in step 2.
+
 ## 2026-10-03 — No game changes during the rental (Rental Terms 2026-10-03); Google Maps on the pin map (Bot `4afaa66`, Delivery App `24f9544`, website)
 
 - **Rental Terms 2026-10-03** (effective 13:30 Bangkok time) adds Rental Operation item 9, in TH and EN:

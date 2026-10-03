@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>AJ · Pin map</title>
+<!--
+  The map inside the place box's "pin it on a map" sheet (assets/place-search.js).
+  It lives in its own page because Google Maps takes its language once, when
+  its script loads: the sheet's language button reloads this page in the other
+  language, at the same spot and zoom.
+
+  ?lang=th|en  ?lat=&lng=&zoom=  ?api=<the Bot>
+  Google Maps when the Bot's /api/config hands out a browser key
+  (GOOGLE_MAPS_BROWSER_KEY); OpenStreetMap drawn with Leaflet without one, or
+  when Google refuses the key or does not load. The sheet reads the spot under
+  its pin through window.ajPinMap (same site, so no messaging is needed).
+-->
+<style>
+  html, body { margin: 0; height: 100%; background: #e5e7eb; }
+  #map { position: absolute; inset: 0; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+(function () {
+  'use strict';
+  var params = new URLSearchParams(location.search);
+  var lang = params.get('lang') === 'en' ? 'en' : 'th';
+  document.documentElement.lang = lang;
+  var number = function (key, fallback) { var v = Number(params.get(key)); return params.get(key) !== null && isFinite(v) ? v : fallback; };
+  var start = { lat: number('lat', 13.7563), lng: number('lng', 100.5018), zoom: Math.min(20, Math.max(6, number('zoom', 11))) };
+  var api = String(params.get('api') || '').replace(/\/$/, '');
+  var box = document.getElementById('map');
+  var drawn = null;
+  var settle;
+  var ready = new Promise(function (resolve) { settle = resolve; });
+
+  window.ajPinMap = {
+    lang: lang,
+    ready: ready,
+    /** The spot under the sheet's pin: { lat, lng, zoom }, or null before the map is drawn. */
+    center: function () { return drawn ? drawn.center() : null; }
+  };
+
+  function drawLeaflet() {
+    if (drawn && drawn.kind === 'osm') return Promise.resolve(drawn);
+    if (drawn) drawn.remove();
+    drawn = null;
+    box.innerHTML = '';
+    return new Promise(function (resolve, reject) {
+      var css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = 'vendor/leaflet-1.9.4/leaflet.css';
+      document.head.appendChild(css);
+      var script = document.createElement('script');
+      script.src = 'vendor/leaflet-1.9.4/leaflet.js';
+      script.onload = function () { resolve(window.L); };
+      script.onerror = reject;
+      document.head.appendChild(script);
+    }).then(function (L) {
+      var map = L.map(box, { maxBounds: [[4, 95], [22, 107]], minZoom: 6, zoomControl: true }).setView([start.lat, start.lng], start.zoom);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+      }).addTo(map);
+      drawn = {
+        kind: 'osm',
+        center: function () { var c = map.getCenter(); return { lat: c.lat, lng: c.lng, zoom: map.getZoom() }; },
+        remove: function () { map.remove(); }
+      };
+      settle('osm');
+      return drawn;
+    });
+  }
+
+  function drawGoogle(key) {
+    return new Promise(function (resolve, reject) {
+      // Google calls this when it refuses the key (an address restriction,
+      // the API not enabled, billing off): OpenStreetMap instead.
+      window.gm_authFailure = function () { drawLeaflet(); };
+      window.__ajPinMapGoogle = function () { resolve(window.google.maps); };
+      var script = document.createElement('script');
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(key)
+        + '&v=weekly&loading=async&region=TH&language=' + lang + '&callback=__ajPinMapGoogle';
+      script.async = true;
+      script.onerror = reject;
+      document.head.appendChild(script);
+      setTimeout(function () { reject(new Error('google_maps_slow')); }, 12000);
+    }).then(function (maps) {
+      if (drawn) return drawn;
+      var map = new maps.Map(box, {
+        center: { lat: start.lat, lng: start.lng },
+        zoom: start.zoom,
+        gestureHandling: 'greedy',
+        clickableIcons: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+        zoomControl: true,
+        mapTypeControl: true,
+        mapTypeControlOptions: { style: maps.MapTypeControlStyle.HORIZONTAL_BAR, mapTypeIds: ['roadmap', 'hybrid'] },
+        restriction: { latLngBounds: { north: 22, south: 4, west: 95, east: 107 }, strictBounds: false }
+      });
+      drawn = {
+        kind: 'google',
+        center: function () { var c = map.getCenter(); return { lat: c.lat(), lng: c.lng(), zoom: map.getZoom() }; },
+        remove: function () { box.innerHTML = ''; }
+      };
+      settle('google');
+      return drawn;
+    });
+  }
+
+  fetch(api + '/api/config', { cache: 'no-store' })
+    .then(function (response) { return response.ok ? response.json() : {}; })
+    .catch(function () { return {}; })
+    .then(function (config) {
+      var key = String(config && config.googleMapsBrowserKey || '');
+      return /^[A-Za-z0-9_-]{20,100}$/.test(key) ? drawGoogle(key).catch(drawLeaflet) : drawLeaflet();
+    })
+    .catch(function () { settle('failed'); });
+})();
+</script>
+</body>
+</html>
