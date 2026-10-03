@@ -1,5 +1,32 @@
 # Project state
 
+## 2026-10-03 — Analytics "🧩 หน้ารวม": a board the admin arranges (Bot `b059fca`)
+
+- **New first tab** on the analytics page (`/analytics/`). Press "✏️ จัดหน้ารวม", then:
+  - "➕ เพิ่ม / เอากรอบออก" picks any panel from the three tabs. There are 33 today, grouped by tab, and a panel added to a tab later appears in the list by itself.
+  - Drag a box's header to move it anywhere; the grid floats, so gaps are allowed.
+  - Drag a side or corner to resize; on a touch screen the handles are always shown.
+  - A− / A+ sets the text size inside a box, 60–160%. ✕ removes a box.
+  - "↺ คืนค่าเริ่มต้น" brings back the default board.
+  - "✓ เสร็จ" locks the board again.
+- **What is in a box:** live copies of the tabs' own panels (`public/analytics/board.js`). The numbers are the same, they refresh with the minute's reload and with the date filter, and their buttons and lists ("ดูทั้งหมด", the game device list) act on the originals. Ids are stripped from the copies, so no id is duplicated. A box whose content is too long scrolls inside itself.
+- **Saving:** automatic, through `GET/PUT /api/admin/analytics-layout` (admin only). It is stored as site content `admin-analytics-layout`, so it is the same on every device, with this browser as a fallback.
+  - `normalizeAnalyticsLayout` cleans the layout: at most 80 boxes, keys checked, boxes kept within the 12 columns, scale 0.6–1.6.
+  - The public `/api/site-content/:key` now refuses `admin-` keys.
+  - Nothing is written when nothing moved.
+- **On a phone** the board is one column. That re-flow is never saved over the desktop arrangement; adding, removing and text size still save.
+- **Library:** gridstack 14.0.0 (MIT), kept in `public/analytics/vendor/gridstack-14.0.0`.
+- **Tests:** Bot 532. Headless run with mock data:
+  - the default board;
+  - no duplicate ids;
+  - resize (6×6 → 4×8);
+  - a drag moves a box;
+  - A− (0.8);
+  - adding and removing from the picker;
+  - a copied button working;
+  - one save, and the same board after a reload;
+  - one column at 390 px with no extra save.
+
 ## 2026-10-03 — Order page: switch identity choice with the deposit shown; the details dialog checks required fields (website)
 
 - **"ไม่ยืนยันตัวตน — ใช้ค่าประกันสูงขึ้น":** a green button reads "ยืนยันตัวตนเพื่อลดค่าประกันเป็น ฿X" ("Verify your identity to lower the deposit to ฿X"), where X is the device's normal deposit (VIP included).
