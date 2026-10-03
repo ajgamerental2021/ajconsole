@@ -1,5 +1,29 @@
 # Project state
 
+## 2026-10-03 — Place suggestions in both place boxes; one accessory for PS5 / PS5 Pro (Bot `94ea86a`, website)
+
+- **One place box, two pages.** `assets/place-search.js` (`AJPlaceSearch.create`) drives the calculator's `#maps` and booking step 2's `#demoMaps`, so they behave the same.
+  - It looks the text up after 1.5 s idle, at least 4 characters, not mid-composition. Paste, Enter or leaving the box looks up at once.
+  - One match is taken at once. Several open a list under the box, each with 📍, the name and the full address. Picking one closes the list; arrow keys and Enter work too.
+  - A pasted link is taken as it is, and the address at its pin is looked up for the green line.
+  - Nothing found: the box says how to type it better (TH/EN).
+  - The green line "📍 ส่งไปที่: name · address" opens the place in Google Maps.
+- **Bot.** New `POST /api/places/search {q, lang}` returns `{kind, places:[{name, address, lat, lng, link, pin}]}`. It is capped at 60 per 15 min per IP, with CORS open.
+  - Lookup order: Google Places Text Search (New), then Geocoding API results, then Nominatim. Thailand only, cached 24 h.
+  - `link` opens the place (`search/?api=1&query=lat,lng&query_place_id=…`); `pin` carries the coordinates and is what gets priced.
+  - `/api/delivery/quote` now fills `location.label` for a pinned link from the address at the pin (`reverseGeocode`).
+- **Calculator.** Prices only once a place is chosen (`chosenPlace`), using `pin`.
+  - The button with a list open takes the highlighted place; with none, it looks the text up now.
+  - `AJ_QUOTE_BOOK` also carries `place {name, address, lat, lng}`, so step 2 shows the same green line without asking again.
+- **Step 2.** `demoProfile` gains `mapsText` (what is in the box) and `mapsPlace` (the chosen place). Both are saved for 24 h like the rest.
+  - `maps` (the link the booking carries) is set when a place is chosen or a link is pasted. Typed text alone leaves it empty.
+  - Validation asks the customer to "เลือกสถานที่ส่งจากรายการใต้ช่อง หรือวางลิงก์ Google Maps".
+  - A saved link, the calculator's link and "📍 ใช้ตำแหน่งปัจจุบัน" are looked up once, quietly, for the green line.
+  - The order page's Google Maps row shows the place name.
+- **Calculator accessories, PS5 / PS5 Pro (ids 11, 18).** A radio list, as on the booking page: "ไม่เพิ่มอุปกรณ์เสริม" plus the badge "รวม 2 จอยในราคาเช่าปกติแล้ว" ("No accessory" / "2 controllers included") is chosen by default, and only one accessory can be picked. Other devices keep checkboxes.
+- **Owner, optional:** for real place names in the list (e.g. "เซ็นทรัลเวิลด์" rather than a street address), enable **Places API (New)** in the same Google Cloud project as the Geocoding key. If the key has API restrictions, add Places API (New) to them. Without it, the list uses Geocoding results, then OpenStreetMap.
+- **Tests:** Bot 528, website 261. Headless checks of the list, a pick, a single match, not found, a pasted link, the keyboard, a re-render, a reload, adopting from the calculator, and the PS5 radios, in TH and EN. The live Google answers were not checked from here: outbound access to Google and OpenStreetMap is blocked in this environment.
+
 ## 2026-10-03 — Calculator prices by itself; found place opens in Maps and fills step 2
 
 - **When it prices:**

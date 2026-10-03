@@ -116,7 +116,7 @@ test('a visitor without Thai address details can rely on the map pin', () => {
   assert.match(html, /if\(!demoProfile\.noThaiAddress\)\{/);
   assert.match(html, /need\("demoMaps", \/\^https\?:\\\/\\\//);
   assert.match(html, /demoProfile\.noThaiAddress = event\.target\.checked;[\s\S]*?saveDemoProfile\(\);\n\s*render\(\);/);
-  assert.match(html, /<span>Google Maps<\/span><b><a href="\$\{esc\(safeHref\(demoProfile\.maps\)\)\}"/);
+  assert.match(html, /<span>Google Maps<\/span><b>\$\{demoProfile\.mapsPlace \? `\$\{esc\(demoProfile\.mapsPlace\.name \|\| demoProfile\.mapsPlace\.address\)\} · ` : ""\}<a href="\$\{esc\(safeHref\(demoProfile\.maps\)\)\}"/);
   assert.match(html, /\["addressLine","postalCode","subdistrict","district","province"\]\.forEach/);
 });
 

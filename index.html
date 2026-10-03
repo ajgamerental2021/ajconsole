@@ -246,6 +246,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-option-amounts small{display:block;color:#667085!important;font-size:11.5px!important;font-weight:700!important}
 .payment-picker-note{margin:0 0 10px;color:#667085;font-size:12.5px;font-weight:700}
 .demo-locate-btn{margin-top:8px;align-self:flex-start}
+.demo-maps-found{margin:0;color:#067647;font-weight:700;line-height:1.5;overflow-wrap:anywhere}
+.demo-maps-found a{color:inherit;text-decoration:underline;text-underline-offset:2px}
 .queue-retry-actions{display:flex;justify-content:flex-end;margin-top:14px}
 /* Site announcement: above every other pop-up, Thai left / English right. */
 .site-announcement{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(16,24,40,.62)}
@@ -1661,6 +1663,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 
 <script src="assets/vendor/simplewebauthn-browser-14.0.0.umd.min.js"></script>
 <script src="assets/admin-passkey.js"></script>
+<script src="assets/place-search.js?v=20261003-1"></script>
 <script>
 (() => {
   "use strict";
@@ -2503,6 +2506,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   const demoProfile = {
     fullName:"", phone:"", email:"", identityNumber:"", addressLine:"",
     subdistrict:"", district:"", province:"Bangkok", postalCode:"", maps:"",
+    // The place box: what is typed in it (a place name, an address or a link),
+    // and the place chosen from it ({name, address, lat, lng}) for the green
+    // line. `maps` is the Google Maps link the booking carries: the chosen
+    // place's own link, or the customer's pasted one.
+    mapsText:"", mapsPlace:null,
     lineDisplayName:"", lineUserId:"", idDocument:null, selfieWithId:null,
     termsAccepted:false, identitySkipped:false, noThaiAddress:false, addressFromProfile:false, refundBankId:"", refundAccountName:"", noThaiBankAccount:false, wiseEmail:"", agreementConsent:false,
     // "" follows the page language (Thai → Thai ID, English → passport) until
@@ -2515,19 +2523,25 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // the page keeps only that draft's id and last four characters.
   const DEMO_PROFILE_KEY = "aj_demo_profile_v1";
   const DEMO_PROFILE_TTL_MS = 24 * 60 * 60 * 1000;
-  const DEMO_PROFILE_FIELDS = ["refundBankId","refundAccountName","noThaiBankAccount","wiseEmail","fullName","phone","email","addressLine","subdistrict","district","province","postalCode","maps","termsAccepted","identitySkipped","noThaiAddress","identityType","identityUploaded","identityExpiry","identityDraftId","identityDraftLast4","identityOnFileLast4","addressFromProfile"];
+  const DEMO_PROFILE_FIELDS = ["refundBankId","refundAccountName","noThaiBankAccount","wiseEmail","fullName","phone","email","addressLine","subdistrict","district","province","postalCode","maps","mapsText","mapsPlace","termsAccepted","identitySkipped","noThaiAddress","identityType","identityUploaded","identityExpiry","identityDraftId","identityDraftLast4","identityOnFileLast4","addressFromProfile"];
   let demoProfileSaveTimer = 0;
   // The delivery place priced in the calculator, carried into step 2's
   // Google Maps box so the customer does not paste it again. Only a Google
   // Maps link, and never over one the customer already entered.
-  function adoptQuoteMapsLink(value){
+  function adoptQuoteMapsLink(value, place){
     const link = String(value || "").trim();
     if(!/^https:\/\/(www\.google\.com\/maps|maps\.google\.com|maps\.app\.goo\.gl|goo\.gl\/maps)\S*$/i.test(link) || link.length > 500) return false;
     if(String(demoProfile.maps || "").trim()) return false;
     demoProfile.maps = link;
+    // The place the calculator showed in green comes with it; without it,
+    // step 2 looks the link up itself when it opens.
+    demoProfile.mapsPlace = demoMapsPlace(place);
+    demoProfile.mapsText = demoProfile.mapsPlace?.name || link;
     state.calc.maps = link;
     const input = byId("demoMaps");
-    if(input) input.value = link;
+    if(input) input.value = demoProfile.mapsText;
+    demoPlaces()?.remember(demoProfile.mapsText);
+    renderDemoMapsFound();
     saveDemoProfile({now:true});
     try{ saveLocal(); }catch{}
     return true;
@@ -2554,6 +2568,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       for(const key of DEMO_PROFILE_FIELDS){
         if(saved.profile && key in saved.profile) demoProfile[key] = saved.profile[key];
       }
+      demoProfile.mapsText = String(demoProfile.mapsText || "");
+      demoProfile.mapsPlace = demoMapsPlace(demoProfile.mapsPlace);
       return true;
     }catch{
       return false;
@@ -4152,7 +4168,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <div class="field"><label class="label" for="demoDistrict">${en ? "District" : "เขต / อำเภอ"}<span class="req">*</span></label><input class="input" id="demoDistrict" value="${esc(demoProfile.district)}" ${demoAddressFreeEntry ? "" : "readonly"}></div>
         <div class="field"><label class="label" for="demoProvince">${en ? "Province" : "จังหวัด"}<span class="req">*</span></label><input class="input" id="demoProvince" value="${esc(demoProfile.province)}" ${demoAddressFreeEntry ? "" : "readonly"}></div>
         <p class="demo-address-note wide" id="demoAddressNote" role="status" hidden></p>`}
-        <div class="field wide"><label class="label" for="demoMaps">Google Maps<span class="req">*</span></label><input class="input" id="demoMaps" value="${esc(demoProfile.maps)}" placeholder="https://maps.google.com/..."><button class="btn demo-locate-btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><a class="hint" id="demoMapsSearch" href="${esc(demoMapsSearchUrl())}" target="_blank" rel="noopener">${en ? "Find this address in Google Maps, pin the exact spot and paste the share link here" : "ค้นหาที่อยู่นี้ใน Google Maps ปักหมุดให้ตรง แล้วคัดลอกลิงก์แชร์มาวางที่ช่องนี้"}</a></div>
+        <div class="field wide"><label class="label" for="demoMaps">${en ? "Delivery place · Google Maps" : "สถานที่ส่ง · Google Maps"}<span class="req">*</span></label><input class="input" id="demoMaps" type="text" autocomplete="off" enterkeyhint="search" value="${esc(demoMapsBoxText())}" placeholder="${en ? "Type a place or address, or paste a Google Maps link" : "พิมพ์ชื่อสถานที่ / ที่อยู่ หรือวางลิงก์ Google Maps"}">${demoMapsFoundHtml()}<button class="btn demo-locate-btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><p class="hint">${en ? "Type your condo, village or address and choose it from the list, or paste a Google Maps link." : "พิมพ์ชื่อคอนโด / หมู่บ้าน / ที่อยู่ แล้วเลือกจากรายการ หรือวางลิงก์ Google Maps"} <a id="demoMapsSearch" href="${esc(demoMapsSearchUrl())}" target="_blank" rel="noopener">${en ? "Or find it in Google Maps and paste the share link" : "หรือค้นหาใน Google Maps แล้วคัดลอกลิงก์แชร์มาวาง"}</a></p></div>
       </div>
       <p class="hint">${demoProfile.noThaiAddress ? (en ? "The exact Google Maps pin is used for the delivery quote. The final round-trip fee must be confirmed before payment." : "ระบบใช้หมุด Google Maps ที่ระบุเพื่อคำนวณค่าส่ง โดยต้องยืนยันค่าจัดส่งไป-กลับก่อนชำระเงิน") : (en ? "The district and subdistrict are used to estimate delivery. The final round-trip fee must be confirmed before payment." : "ระบบใช้เขตและแขวงเพื่อประเมินค่าจัดส่ง โดยต้องยืนยันค่าจัดส่งไป-กลับก่อนชำระเงิน")}</p>
       <h3 class="demo-terms-heading">${en ? "Rental Terms" : "เงื่อนไขการเช่า"}</h3>
@@ -4166,6 +4182,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       state.calc.step = 2;
     }
     renderDemoAddressAssist();
+    settleDemoMapsBox();
     renderDemoIdentityCard();
     document.body.classList.toggle("demo-order-open", !!state.calc.demoOrderOpen);
     if(state.calc.demoOrderOpen) renderDemoOrderPage();
@@ -4483,17 +4500,109 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const lat = position.coords.latitude.toFixed(6);
       const lng = position.coords.longitude.toFixed(6);
       demoProfile.maps = `https://maps.google.com/?q=${lat},${lng}`;
+      demoProfile.mapsText = demoProfile.maps;
+      demoProfile.mapsPlace = null;
       state.calc.maps = demoProfile.maps;
       const input = byId("demoMaps");
-      if(input) input.value = demoProfile.maps;
+      if(input) input.value = demoProfile.mapsText;
       clearDemoFieldError("demoMaps");
+      renderDemoMapsFound();
       saveDemoProfile();
       saveLocal();
       if(state.calc.demoOrderOpen) renderDemoOrderPage();
+      // The address at the pin, for the green line.
+      demoPlaces()?.lookup({force:true, quiet:true});
       toast(en ? "Location added. Check that it is the delivery address." : "ใส่ตำแหน่งแล้ว กรุณาตรวจว่าเป็นที่อยู่จัดส่ง");
     }, () => {
       toast(en ? "Location not shared. Allow location access, or paste a map link." : "ไม่ได้รับตำแหน่ง กรุณาอนุญาตการเข้าถึงตำแหน่ง หรือวางลิงก์แผนที่แทน");
     }, {enableHighAccuracy:true, timeout:15000});
+  }
+  // ── Step 2's place box ── the same box as the rental calculator
+  // (assets/place-search.js): type a place and choose it from the list, or
+  // paste a link; the place found shows in green and opens in Google Maps.
+  var demoPlaceSearch = null;
+  // The last link looked up quietly, so a redraw does not ask again.
+  var demoMapsLookedUp = "";
+  function demoPlaces(){
+    if(!demoPlaceSearch && UNIFIED_FLOW_DEMO && window.AJPlaceSearch){
+      demoPlaceSearch = window.AJPlaceSearch.create({
+        input:"#demoMaps",
+        api:() => CONFIG.apiBase,
+        lang:() => state.lang,
+        onInput:onDemoMapsTyped,
+        onPlace:onDemoPlaceChosen
+      });
+    }
+    return demoPlaceSearch;
+  }
+  // A saved place only if it is a real one.
+  function demoMapsPlace(value){
+    if(!value || typeof value !== "object") return null;
+    const lat = Number(value.lat), lng = Number(value.lng);
+    if(!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+    const name = String(value.name || "").slice(0, 120), address = String(value.address || "").slice(0, 200);
+    return name || address ? {name, address, lat, lng} : null;
+  }
+  function demoMapsBoxText(){
+    return String(demoProfile.mapsText || demoProfile.maps || "");
+  }
+  function demoMapsFoundText(){
+    const place = demoProfile.mapsPlace;
+    if(!place || !String(demoProfile.maps || "").trim()) return "";
+    const label = window.AJPlaceSearch ? window.AJPlaceSearch.label(place) : [place.name, place.address].filter(Boolean).join(" · ");
+    return state.lang === "en"
+      ? `📍 Delivering to: ${label} (tap to open in Google Maps). Not right? Type again and choose from the list.`
+      : `📍 ส่งไปที่: ${label} (กดเพื่อเปิดดูใน Google Maps) — ถ้าไม่ใช่ พิมพ์ใหม่แล้วเลือกจากรายการ`;
+  }
+  function demoMapsFoundHtml(){
+    const text = demoMapsFoundText();
+    return `<p class="hint demo-maps-found" id="demoMapsFound"${text ? "" : " hidden"}><a id="demoMapsFoundLink" href="${esc(text ? safeHref(demoProfile.maps) : "#")}" target="_blank" rel="noopener">${esc(text)}</a></p>`;
+  }
+  function renderDemoMapsFound(){
+    const host = byId("demoMapsFound");
+    if(host) host.outerHTML = demoMapsFoundHtml();
+  }
+  // Typing makes the earlier place void. A pasted link stands as the booking's
+  // link at once (and is looked up for the green line); typed text needs a
+  // place chosen from the list before it counts.
+  function onDemoMapsTyped(text){
+    const value = String(text || "");
+    demoProfile.mapsText = value;
+    demoProfile.mapsPlace = null;
+    demoProfile.maps = window.AJPlaceSearch?.isLink(value) ? value.trim() : "";
+    state.calc.maps = demoProfile.maps;
+    clearDemoFieldError("demoMaps");
+    renderDemoMapsFound();
+    saveDemoProfile();
+    renderStepActions();
+  }
+  function onDemoPlaceChosen(place){
+    const link = String(place?.link || place?.pin || "").trim();
+    if(!/^https?:\/\//i.test(link)) return;
+    demoProfile.maps = link;
+    demoProfile.mapsPlace = demoMapsPlace(place);
+    demoProfile.mapsText = String(byId("demoMaps")?.value || demoProfile.mapsText || link);
+    state.calc.maps = link;
+    clearDemoFieldError("demoMaps");
+    renderDemoMapsFound();
+    saveDemoProfile();
+    try{ saveLocal(); }catch{}
+    renderStepActions();
+    if(state.calc.demoOrderOpen) renderDemoOrderPage();
+  }
+  // After step 2 is drawn: what is in the box is settled, and a link with no
+  // green place yet (a saved one, the calculator's, "my location") is looked
+  // up quietly.
+  function settleDemoMapsBox(){
+    const search = demoPlaces();
+    if(!search) return;
+    const text = demoMapsBoxText().trim();
+    if(demoProfile.mapsPlace) search.remember(text);
+    else if(demoProfile.maps && window.AJPlaceSearch.isLink(text) && demoMapsLookedUp !== demoProfile.maps){
+      demoMapsLookedUp = demoProfile.maps;
+      search.lookup({force:true, quiet:true});
+    }
+    search.refresh();
   }
   function demoMapsSearchUrl(){
     const query = demoAddressText();
@@ -5205,7 +5314,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       need("demoDistrict", !!demoProfile.district.trim(), en ? "Enter the district." : "กรอกเขต / อำเภอ");
       need("demoProvince", !!demoProfile.province.trim(), en ? "Enter the province." : "กรอกจังหวัด");
     }
-    need("demoMaps", /^https?:\/\//i.test(demoProfile.maps.trim()), en ? "Paste the Google Maps link for the delivery address." : "วางลิงก์ Google Maps ของที่อยู่จัดส่ง");
+    need("demoMaps", /^https?:\/\//i.test(demoProfile.maps.trim()), String(demoProfile.mapsText || "").trim()
+      ? (en ? "Choose the delivery place from the list under the box, or paste a Google Maps link." : "เลือกสถานที่ส่งจากรายการใต้ช่อง หรือวางลิงก์ Google Maps")
+      : (en ? "Type the delivery place and choose it from the list, or paste a Google Maps link." : "พิมพ์สถานที่ส่งแล้วเลือกจากรายการ หรือวางลิงก์ Google Maps"));
     need("demoTermsOpt", demoProfile.termsAccepted, en ? "Read the Rental Terms to the end and accept them." : "เลื่อนอ่านเงื่อนไขการเช่า จนจบ แล้วติ๊กยอมรับ");
     return problems;
   }
@@ -5512,7 +5623,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <div>
         <section class="demo-order-section">${demoSectionHeadHtml(en ? "Rental item" : "สินค้าที่เช่า", 1)}${demoRentalItemHtml(item, summary)}</section>
         <section class="demo-order-section"><h3>${en ? "Details" : "รายละเอียด"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Rental ID":"รหัสการเช่า"}</span><b>${esc(state.calc.rentalCode || "-")}</b></div><div class="demo-order-row"><span>${en?"Rental status":"สถานะการเช่า"}</span><b class="demo-status is-awaiting">${en?"Awaiting payment":"รอชำระเงิน"}</b></div></div></section>
-        <section class="demo-order-section">${demoSectionHeadHtml(en ? "Customer" : "ข้อมูลลูกค้า", 2)}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Name":"ชื่อ"}</span><b>${esc(demoProfile.fullName)}</b></div>${state.calc.noContract ? "" : `<div class="demo-order-row"><span>${esc(demoIdentityNumberLabel())}</span><b>${esc(demoIdentityDisplay())}</b></div>`}<div class="demo-order-row"><span>${en?"Phone":"เบอร์ติดต่อ"}</span><b>${esc(demoProfile.phone)}</b></div><div class="demo-order-row"><span>${en?"Delivery":"ที่อยู่จัดส่ง"}</span><b>${esc(demoAddressText() || (en ? "Google Maps pin only" : "ใช้หมุด Google Maps"))}</b></div><div class="demo-order-row"><span>Google Maps</span><b><a href="${esc(safeHref(demoProfile.maps))}" target="_blank" rel="noopener">${en?"Open map":"เปิดแผนที่"}</a></b></div></div></section>
+        <section class="demo-order-section">${demoSectionHeadHtml(en ? "Customer" : "ข้อมูลลูกค้า", 2)}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Name":"ชื่อ"}</span><b>${esc(demoProfile.fullName)}</b></div>${state.calc.noContract ? "" : `<div class="demo-order-row"><span>${esc(demoIdentityNumberLabel())}</span><b>${esc(demoIdentityDisplay())}</b></div>`}<div class="demo-order-row"><span>${en?"Phone":"เบอร์ติดต่อ"}</span><b>${esc(demoProfile.phone)}</b></div><div class="demo-order-row"><span>${en?"Delivery":"ที่อยู่จัดส่ง"}</span><b>${esc(demoAddressText() || (en ? "Google Maps pin only" : "ใช้หมุด Google Maps"))}</b></div><div class="demo-order-row"><span>Google Maps</span><b>${demoProfile.mapsPlace ? `${esc(demoProfile.mapsPlace.name || demoProfile.mapsPlace.address)} · ` : ""}<a href="${esc(safeHref(demoProfile.maps))}" target="_blank" rel="noopener">${en?"Open map":"เปิดแผนที่"}</a></b></div></div></section>
         <section class="demo-order-section">${demoSectionHeadHtml(en ? "Rental period" : "ช่วงเวลา", "dates")}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Duration":"ระยะเวลา"}</span><b>${summary.days} ${en?"days":"วัน"}</b></div><div class="demo-order-row"><span>${en?"Dates":"วันที่เช่า"}</span><b>${displayDate(state.calc.start)} – ${displayDate(state.calc.end)}</b></div></div></section>
       </div>
       <div>
@@ -11921,7 +12032,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         // included — to the rental steps, with the calendar of that device
         // open, ready to check the queue.
         const pickedConsole = consoleById(String(event.data.consoleId || ""));
-        adoptQuoteMapsLink(event.data.mapsUrl);
+        adoptQuoteMapsLink(event.data.mapsUrl, event.data.place);
         closeQuotePopup();
         if(byId("allConsolesModal")?.classList.contains("open")) closeAllConsoles();
         if(pickedConsole && isConsoleSelectable(pickedConsole)){
@@ -12155,10 +12266,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
         renderStepActions();
         return;
       }
-      const demoFields = {demoCustomerName:"fullName",demoCustomerPhone:"phone",demoIdentityNumber:"identityNumber",demoIdentityExpiry:"identityExpiry",demoEmail:"email",demoAddressLine:"addressLine",demoSubdistrict:"subdistrict",demoDistrict:"district",demoProvince:"province",demoPostalCode:"postalCode",demoMaps:"maps"};
+      const demoFields = {demoCustomerName:"fullName",demoCustomerPhone:"phone",demoIdentityNumber:"identityNumber",demoIdentityExpiry:"identityExpiry",demoEmail:"email",demoAddressLine:"addressLine",demoSubdistrict:"subdistrict",demoDistrict:"district",demoProvince:"province",demoPostalCode:"postalCode"};
       if(UNIFIED_FLOW_DEMO && demoFields[event.target.id]){
         demoProfile[demoFields[event.target.id]] = event.target.value;
-        if(event.target.id === "demoMaps") state.calc.maps = event.target.value.trim();
         if(event.target.id === "demoIdentityNumber"){
           demoProfile.identityDraftLast4 = "";
           queueIdentityDraft();

@@ -55,6 +55,9 @@
   .extra { display:flex; gap:10px; align-items:flex-start; font-weight:500; font-size:14px; color:var(--ink); margin:0 0 8px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; cursor:pointer; }
   .extra input { width:auto; margin-top:3px; }
   .extra small { display:block; color:var(--muted); font-size:12.5px; }
+  .extra b { font-weight:800; }
+  /* The booking page's .option-note-highlight. */
+  .extra .included { display:inline-flex; align-items:center; margin-left:6px; padding:3px 9px; border-radius:999px; background:#fff4bf; color:#8a5200; font-size:12px; font-weight:900; line-height:1.35; vertical-align:middle; }
   .chip.locate { margin-top:8px; padding:9px 14px; font-size:14px; }
   label.promo { display:flex; gap:10px; align-items:flex-start; font-weight:500; margin-top:12px; padding:10px 12px; border:1px solid #f5c2c7; background:#fff5f5; border-radius:10px; cursor:pointer; }
   label.promo input { width:auto; margin-top:3px; }
@@ -121,6 +124,7 @@
   </div>
 </div>
 
+<script src="../assets/place-search.js?v=20261003-1"></script>
 <script>
 (function () {
   // Prices come from the booking site's own catalogue file, and follow its
@@ -141,8 +145,8 @@
       title: 'คำนวณค่าเช่า', subtitle: 'ค่าเช่า · ค่าประกัน · ค่าจัดส่ง (ไม่เช็คคิว)', lang: 'English',
       device: 'เครื่องที่เช่า', loading: 'กำลังโหลดรายการเครื่อง…', pick: 'เลือกเครื่อง', days: 'จำนวนวันเช่า',
       mapsLabel: 'สถานที่ส่ง', mapsPlaceholder: 'วางลิงก์ Google Maps หรือพิมพ์ชื่อสถานที่ / ที่อยู่',
-      mapsHint: 'วางลิงก์ Google Maps, พิมพ์ชื่อคอนโด / หมู่บ้าน / ที่อยู่ หรือกดใช้ตำแหน่งปัจจุบัน ระบบคำนวณค่าส่งไป-กลับจาก Lalamove',
-      foundPlace: '📍 คิดค่าส่งไปที่: {place} (กดเพื่อเช็คใน Google Maps) — ถ้าไม่ใช่ ลองพิมพ์ให้ละเอียดขึ้น',
+      mapsHint: 'พิมพ์ชื่อคอนโด / หมู่บ้าน / ที่อยู่ แล้วเลือกจากรายการ วางลิงก์ Google Maps หรือกดใช้ตำแหน่งปัจจุบัน ระบบคำนวณค่าส่งไป-กลับจาก Lalamove ให้อัตโนมัติ',
+      foundPlace: '📍 ส่งไปที่: {place} (กดเพื่อเปิดดูใน Google Maps) — ถ้าไม่ใช่ พิมพ์ใหม่แล้วเลือกจากรายการ',
       quoteBtn: 'คำนวณค่าส่ง', quoting: 'กำลังคำนวณค่าส่ง…', summary: 'สรุปค่าใช้จ่ายโดยประมาณ',
       rental: 'ค่าเช่า', deposit: 'ค่าประกัน (คืนเมื่อคืนเครื่อง)', depositNoId: 'ค่าประกัน ไม่ยืนยันตัวตน (คืนเมื่อคืนเครื่อง)',
       book: 'เช็คคิวและจองเครื่องนี้', sendLine: 'ส่งราคานี้ให้ร้านทาง LINE', lineHead: 'สนใจเช่าตามราคานี้ครับ/ค่ะ',
@@ -164,15 +168,15 @@
       promoAsk: 'เริ่มเช่าวันจันทร์หรืออังคาร (โปร After Work 3 Nights)', promoHint: 'เช่า 3 วัน เริ่มวันจันทร์หรืออังคาร ราคาโปร {price}',
       promoLine: 'โปรโมชั่น After Work 3 Nights (ราคาโปร {price})',
       bundle: 'Bundle (เช่าพร้อม PS5)', noBundle: 'ไม่เลือก Bundle (PS5 อย่างเดียว)', bundleHint: 'Bundle ใช้ราคาและค่าประกันของชุดแทนราคาเครื่อง',
-      extras: 'อุปกรณ์เสริม', perRental: 'ต่อการเช่า', accessory: 'อุปกรณ์เสริม',
+      extras: 'อุปกรณ์เสริม', perRental: 'ต่อการเช่า', accessory: 'อุปกรณ์เสริม', noAccessory: 'ไม่เพิ่มอุปกรณ์เสริม', included: 'รวม 2 จอยในราคาเช่าปกติแล้ว',
       locate: '📍 ใช้ตำแหน่งปัจจุบัน', locating: 'กำลังหาตำแหน่ง…', locateFail: 'เบราว์เซอร์นี้ไม่ให้ตำแหน่ง (มักเกิดในแอป LINE / Facebook) พิมพ์ชื่อสถานที่หรือที่อยู่ในช่องด้านบนแทนได้เลย', locateNone: 'เบราว์เซอร์นี้แชร์ตำแหน่งไม่ได้ พิมพ์ชื่อสถานที่หรือที่อยู่ในช่องด้านบนแทนได้เลย'
     },
     en: {
       title: 'Rental calculator', subtitle: 'Rental · deposit · delivery (no queue check)', lang: 'ภาษาไทย',
       device: 'Equipment', loading: 'Loading equipment…', pick: 'Choose equipment', days: 'Rental days',
       mapsLabel: 'Delivery location', mapsPlaceholder: 'Paste a Google Maps link, or type a place or address',
-      mapsHint: 'Paste a Google Maps link, type your condo / building / address, or use your current location. The round trip is priced by Lalamove.',
-      foundPlace: '📍 Delivery priced to: {place} (tap to check in Google Maps). Not right? Type it in more detail.',
+      mapsHint: 'Type your condo / building / address and choose it from the list, paste a Google Maps link, or use your current location. The round trip is priced by Lalamove automatically.',
+      foundPlace: '📍 Delivering to: {place} (tap to open in Google Maps). Not right? Type again and choose from the list.',
       quoteBtn: 'Get delivery fee', quoting: 'Getting the delivery fee…', summary: 'Estimated cost',
       rental: 'Rental', deposit: 'Security deposit (refunded on return)', depositNoId: 'Deposit without identity verification (refunded on return)',
       book: 'Check the queue and book this', sendLine: 'Send this quote to AJ on LINE', lineHead: 'I am interested in renting at this price.',
@@ -191,7 +195,7 @@
       promoAsk: 'Starts on a Monday or Tuesday (After Work 3 Nights)', promoHint: '3 days starting Monday or Tuesday, promo price {price}',
       promoLine: 'After Work 3 Nights promotion (promo price {price})',
       bundle: 'Bundle (with PS5)', noBundle: 'No bundle (PS5 only)', bundleHint: 'A bundle uses the set\'s own price and deposit instead of the console\'s.',
-      extras: 'Accessories', perRental: 'per rental', accessory: 'Accessory',
+      extras: 'Accessories', perRental: 'per rental', accessory: 'Accessory', noAccessory: 'No accessory', included: '2 controllers included',
       locate: '📍 Use my current location', locating: 'Finding your location…', locateFail: 'This browser did not share your location (common inside LINE or Facebook). Type a place or address in the box above instead.', locateNone: 'This browser cannot share its location. Type a place or address in the box above instead.'
     }
   };
@@ -210,7 +214,7 @@
   var consoles = [];
   // The booking site's add-ons (extrasForConsole): Switch extras are built in,
   // the others come from the catalogue file by device; PS5 bundles too.
-  var PS5_ID = '11', SW1_ID = '4', SW2_ID = '12';
+  var PS5_ID = '11', PS5P_ID = '18', SW1_ID = '4', SW2_ID = '12';
   var SW_ROOT = [
     { id: 'joy', th: 'เพิ่มจอย 2 อัน (เล่นได้ 4 คน)', en: 'Add 2 controllers (up to 4 players)', daily: 70, weekly: 350 },
     { id: 'ringfit', th: 'Ring Fit Adventure', en: 'Ring Fit Adventure', daily: 100, weekly: 450 },
@@ -251,6 +255,9 @@
     if (id === SW2_ID) { items = items.concat(SW_ROOT); if (picked.indexOf('joy') >= 0) items = items.concat(SW_SUB); }
     return items.concat(accessories.filter(function (a) { return (a.consoleIds || []).map(String).indexOf(id) >= 0; }));
   }
+  // A PS5 or PS5 Pro takes one accessory at most, with "no accessory" (its two
+  // controllers come with it) chosen to begin with, as on the booking page.
+  function singleAccessory(c) { return !!c && (String(c.id) === PS5_ID || String(c.id) === PS5P_ID); }
   // The dock is a flat charge per rental; everything else is priced like a rental.
   function extraCost(x, n) { return String(x.id).toLowerCase() === 'vdock' ? Number(x.daily) || 0 : rentalCost(n, x.daily, x.weekly); }
   function selectedBundle(c) {
@@ -399,13 +406,18 @@
       $('bundle').value = current;
     }
     var items = extrasFor(c);
+    var single = singleAccessory(c);
     picked = picked.filter(function (id) { return items.some(function (x) { return x.id === id; }); });
+    if (single) picked = picked.slice(0, 1);
+    var kind = single ? 'type="radio" name="singleExtra"' : 'type="checkbox"';
     $('extrasBox').hidden = !items.length;
-    $('extras').innerHTML = items.map(function (x) {
+    $('extras').innerHTML = (single
+      ? '<label class="extra"><input ' + kind + ' data-extra=""' + (picked.length ? '' : ' checked') + '><span><b>' + t('noAccessory') + '</b><span class="included">' + t('included') + '</span></span></label>'
+      : '') + items.map(function (x) {
       var price = String(x.id).toLowerCase() === 'vdock'
         ? money(x.daily) + ' ' + t('perRental')
         : money(x.daily) + '/' + t('perDay') + ' · ' + money(x.weekly) + '/' + t('perWeek');
-      return '<label class="extra"><input type="checkbox" data-extra="' + x.id + '"' + (picked.indexOf(x.id) >= 0 ? ' checked' : '') + '><span>' + labelOf(x) + '<small>' + price + '</small></span></label>';
+      return '<label class="extra"><input ' + kind + ' data-extra="' + x.id + '"' + (picked.indexOf(x.id) >= 0 ? ' checked' : '') + '><span>' + labelOf(x) + '<small>' + price + '</small></span></label>';
     }).join('');
   }
   function render() {
@@ -433,21 +445,20 @@
     $('rows').innerHTML = html;
     renderLinks();
   }
-  // A place the server looked up (a typed name, or a link with no pin): shown
-  // so the customer can see the fee is for the right place.
-  // The link the booking carries into step 2: the customer's own pinned link,
-  // or a Google Maps pin at the place that was looked up.
+  // The delivery place, chosen in the place box (assets/place-search.js, the
+  // same box as booking step 2): { name, address, lat, lng, link, pin }. `pin`
+  // is a Google Maps link carrying its coordinates, which is what gets priced;
+  // `link` is what opens in Google Maps and goes into step 2: the customer's
+  // own pasted link, or the place's own Google Maps page.
+  var chosenPlace = null;
+  // The link the booking carries into step 2.
   var quotedMapsLink = '';
-  function pinLink(location) {
-    var lat = Number(location && location.lat), lng = Number(location && location.lng);
-    return isFinite(lat) && isFinite(lng) && (lat || lng) ? 'https://www.google.com/maps/search/?api=1&query=' + lat.toFixed(6) + ',' + lng.toFixed(6) : '';
-  }
-  function showFoundPlace(location, typed) {
-    quotedMapsLink = !location ? '' : location.source === 'link' ? String(typed || '') : pinLink(location);
-    var label = location && location.source !== 'link' ? String(location.label || '') : '';
-    $('foundPlace').hidden = !label;
-    $('foundPlaceLink').textContent = label ? t('foundPlace').replace('{place}', label) : '';
-    $('foundPlaceLink').href = label ? (quotedMapsLink || '#') : '#';
+  function showFoundPlace(place) {
+    quotedMapsLink = place ? String(place.link || place.pin || '') : '';
+    var text = place ? AJPlaceSearch.label(place) : '';
+    $('foundPlace').hidden = !text;
+    $('foundPlaceLink').textContent = text ? t('foundPlace').replace('{place}', text) : '';
+    $('foundPlaceLink').href = text ? (quotedMapsLink || '#') : '#';
     renderLinks();
   }
   function showQuoteError(text) { $('quoteErr').hidden = !text; $('quoteErr').textContent = text || ''; }
@@ -455,14 +466,21 @@
   var quoteSeq = 0, lastQuoteKey = '';
   function quoteKey() {
     var c = selected(), b = c && selectedBundle(c);
-    return [$('maps').value.trim(), c ? c.id : '', b ? b.id : '', picked.join(','), Math.max(3, days())].join('|');
+    return [chosenPlace ? chosenPlace.pin || chosenPlace.link : '', c ? c.id : '', b ? b.id : '', picked.join(','), Math.max(3, days())].join('|');
   }
   async function getQuote(options) {
     options = options || {};
-    var c = selected(), maps = $('maps').value.trim();
+    var c = selected(), text = $('maps').value.trim();
     // Automatic tries stay quiet until there is something to price.
     if (!c) return options.auto ? null : showQuoteError(t('needDevice'));
-    if (!maps) return options.auto ? null : showQuoteError(t('needMaps'));
+    if (!text) return options.auto ? null : showQuoteError(t('needMaps'));
+    if (!chosenPlace) {
+      if (options.auto) return null;
+      // The button with a list open takes the highlighted place; with none,
+      // it looks the text up now. Either way the price follows the place.
+      if (!placeSearch.pickActive()) placeSearch.lookup({ force: true });
+      return null;
+    }
     var key = quoteKey();
     if (options.auto && key === lastQuoteKey && quote) return null;
     lastQuoteKey = key;
@@ -475,12 +493,12 @@
       var name = (c.name || '') + ' ' + (c.nameEn || '') + ' ' + (c.brand || '') + ' ' + (b ? b.th + ' ' + b.en : '');
       var res = await fetch(API + '/api/delivery/quote', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mapsUrl: maps, deviceCount: 1 + (picked.length || b ? 1 : 0), hasLargeItem: /G29|Logitech/i.test(name), days: Math.max(3, days()), lang: lang })
+        body: JSON.stringify({ mapsUrl: chosenPlace.pin || chosenPlace.link, deviceCount: 1 + (picked.length || b ? 1 : 0), hasLargeItem: /G29|Logitech/i.test(name), days: Math.max(3, days()), lang: lang })
       });
       var data = await res.json().catch(function () { return {}; });
-      // A newer try started (more typing, another device): this answer is old.
+      // A newer try started (another place, device or length): this answer is old.
       if (seq !== quoteSeq) return null;
-      if (res.ok && data.ok && data.quote) { quote = data.quote; showFoundPlace(data.location, maps); render(); track('quick_quote_calculated', { auto: options.auto ? '1' : '' }); }
+      if (res.ok && data.ok && data.quote) { quote = data.quote; render(); track('quick_quote_calculated', { auto: options.auto ? '1' : '' }); }
       else {
         lastQuoteKey = '';
         var reason = data.error === 'delivery_location_unresolved' ? 'needs_pin' : (res.status === 429 ? 'too_many' : 'failed');
@@ -494,28 +512,33 @@
     }
   }
 
-  // Pricing by itself, once the customer is done:
-  //   - a pasted or typed link: at once, it is complete when it arrives;
-  //   - typed text: after 1.5 s with no key pressed, at least 4 characters,
-  //     and not in the middle of composing a character;
-  //   - leaving the box or pressing Enter: at once;
-  //   - a change of device, bundle, extras or days with a place already in.
-  // Never per keystroke; the same text is not priced twice, and an answer
-  // overtaken by newer typing is dropped.
-  var autoTimer = 0, composing = false;
-  var TYPING_PAUSE_MS = 1500;
+  // Pricing by itself: as soon as a place is chosen in the place box (the box
+  // decides when the customer is done typing), and again on a change of
+  // device, bundle, accessory or length. The same place and options are not
+  // priced twice, and an answer overtaken by a newer try is dropped.
+  var autoTimer = 0;
   function scheduleAutoQuote(delay) {
     clearTimeout(autoTimer);
-    autoTimer = setTimeout(function () {
-      var text = $('maps').value.trim();
-      if (composing || !text) return;
-      if (!/^https?:\/\//i.test(text) && text.length < 4) return;
+    autoTimer = setTimeout(function () { if (chosenPlace) getQuote({ auto: true }); }, delay);
+  }
+  var placeSearch = AJPlaceSearch.create({
+    input: '#maps',
+    api: API,
+    lang: function () { return lang; },
+    onInput: function () {
+      chosenPlace = null; quote = null; lastQuoteKey = '';
+      showQuoteError(''); showFoundPlace(null); render();
+    },
+    onPlace: function (place) {
+      chosenPlace = place;
+      quote = null;
+      showQuoteError('');
+      showFoundPlace(place);
+      render();
       getQuote({ auto: true });
-    }, delay);
-  }
-  function autoDelayForMaps() {
-    return /^https?:\/\/\S+$/i.test($('maps').value.trim()) ? 300 : TYPING_PAUSE_MS;
-  }
+    },
+    onMiss: function (reason) { track('quick_quote_delivery_failed', { reason: 'place_' + reason }); }
+  });
   // Anonymous use statistics for the shop's analytics page: which devices and
   // lengths people price, the options, the delivery fee, and whether they went
   // on to book or message AJ. No name, phone or map link is sent.
@@ -627,8 +650,10 @@
   $('bundle').addEventListener('change', function () { quote = null; render(); scheduleAutoQuote(300); });
   $('extras').addEventListener('change', function (e) {
     var id = e.target.getAttribute('data-extra');
-    if (!id) return;
-    picked = e.target.checked ? picked.concat([id]) : picked.filter(function (x) { return x !== id; });
+    if (id === null) return;
+    // One accessory (or none) for a PS5 / PS5 Pro; any number otherwise.
+    if (e.target.type === 'radio') picked = id ? [id] : [];
+    else picked = e.target.checked ? picked.concat([id]) : picked.filter(function (x) { return x !== id; });
     quote = null;
     renderAddOns();
     render();
@@ -641,8 +666,10 @@
     navigator.geolocation.getCurrentPosition(function (pos) {
       $('maps').value = 'https://maps.google.com/?q=' + pos.coords.latitude.toFixed(6) + ',' + pos.coords.longitude.toFixed(6);
       btn.textContent = t('locate');
-      quote = null; showQuoteError(''); render();
-      getQuote();
+      chosenPlace = null; quote = null; showQuoteError(''); showFoundPlace(null); render();
+      // The link names the pin; the box looks up the address there and the
+      // price follows.
+      placeSearch.lookup({ force: true });
     }, function () {
       btn.textContent = t('locate');
       showQuoteError(t('locateFail'));
@@ -651,12 +678,6 @@
   // The delivery discount depends on the length, so a new length re-prices.
   $('days').addEventListener('input', function () { renderChips(); render(); scheduleAutoQuote(800); });
   $('dayChips').addEventListener('click', function (e) { var n = e.target.getAttribute('data-days'); if (n) { $('days').value = n; renderChips(); render(); scheduleAutoQuote(300); } });
-  $('maps').addEventListener('input', function () { quote = null; showQuoteError(''); showFoundPlace(null); render(); scheduleAutoQuote(autoDelayForMaps()); });
-  $('maps').addEventListener('paste', function () { setTimeout(function () { scheduleAutoQuote(0); }, 0); });
-  $('maps').addEventListener('compositionstart', function () { composing = true; clearTimeout(autoTimer); });
-  $('maps').addEventListener('compositionend', function () { composing = false; scheduleAutoQuote(autoDelayForMaps()); });
-  $('maps').addEventListener('change', function () { scheduleAutoQuote(0); });
-  $('maps').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(autoTimer); getQuote(); } });
   $('quote').addEventListener('click', function () { clearTimeout(autoTimer); getQuote(); });
   $('promo').addEventListener('change', render);
   $('noId').addEventListener('change', render);
@@ -670,7 +691,11 @@
     if (!EMBED || !c || window.parent === window) return;
     event.preventDefault();
     var b = selectedBundle(c);
-    window.parent.postMessage({ type: 'AJ_QUOTE_BOOK', consoleId: String(c.id), bundleId: b ? b.id : '', mapsUrl: quote ? quotedMapsLink : '' }, '*');
+    window.parent.postMessage({
+      type: 'AJ_QUOTE_BOOK', consoleId: String(c.id), bundleId: b ? b.id : '', mapsUrl: quote ? quotedMapsLink : '',
+      // Step 2's place box shows the same green place without looking it up again.
+      place: quote && chosenPlace ? { name: chosenPlace.name || '', address: chosenPlace.address || '', lat: chosenPlace.lat, lng: chosenPlace.lng } : null
+    }, '*');
   });
   $('sendLine').addEventListener('click', function () { saveForLine(); track('quick_quote_line_clicked'); });
 
