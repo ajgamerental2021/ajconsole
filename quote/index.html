@@ -41,6 +41,7 @@
   .btn.secondary { background:#fff; color:var(--ink); border:1px solid #d7dbe3; }
   .btn[disabled] { opacity:.6; cursor:default; }
   .hint { color:var(--muted); font-size:12.5px; margin:6px 0 0; line-height:1.5; }
+  .hint.found { color:#067647; font-weight:700; }
   .err { color:#b91c1c; font-size:13px; margin:8px 0 0; }
   .row { display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid #f0f2f5; font-size:14.5px; }
   .row span:first-child { color:#4b515c; }
@@ -99,10 +100,11 @@
     <label class="promo noid" id="noIdRow"><input type="checkbox" id="noId"> <span><b data-t="noIdAsk"></b><br><small id="noIdHint"></small></span></label>
     <label class="promo" id="promoRow" hidden><input type="checkbox" id="promo"> <span><b data-t="promoAsk"></b><br><small id="promoHint"></small></span></label>
 
-    <label for="maps">Google Maps</label>
-    <input id="maps" type="url" inputmode="url" autocomplete="off" placeholder="https://maps.app.goo.gl/...">
+    <label for="maps" data-t="mapsLabel"></label>
+    <input id="maps" type="text" autocomplete="off" enterkeyhint="go">
     <button class="chip locate" id="locate" type="button" data-t="locate"></button>
     <p class="hint" data-t="mapsHint"></p>
+    <p class="hint found" id="foundPlace" hidden></p>
     <button class="btn secondary" id="quote" type="button" data-t="quoteBtn"></button>
     <p class="err" id="quoteErr" hidden></p>
   </div>
@@ -137,7 +139,9 @@
     th: {
       title: 'คำนวณค่าเช่า', subtitle: 'ค่าเช่า · ค่าประกัน · ค่าจัดส่ง (ไม่เช็คคิว)', lang: 'English',
       device: 'เครื่องที่เช่า', loading: 'กำลังโหลดรายการเครื่อง…', pick: 'เลือกเครื่อง', days: 'จำนวนวันเช่า',
-      mapsHint: 'วางลิงก์ Google Maps ที่ปักหมุดจุดส่งแล้ว ระบบคำนวณค่าส่งไป-กลับจาก Lalamove',
+      mapsLabel: 'สถานที่ส่ง', mapsPlaceholder: 'วางลิงก์ Google Maps หรือพิมพ์ชื่อสถานที่ / ที่อยู่',
+      mapsHint: 'วางลิงก์ Google Maps, พิมพ์ชื่อคอนโด / หมู่บ้าน / ที่อยู่ หรือกดใช้ตำแหน่งปัจจุบัน ระบบคำนวณค่าส่งไป-กลับจาก Lalamove',
+      foundPlace: '📍 คิดค่าส่งไปที่: {place} — ถ้าไม่ใช่ ลองพิมพ์ให้ละเอียดขึ้น',
       quoteBtn: 'คำนวณค่าส่ง', quoting: 'กำลังคำนวณค่าส่ง…', summary: 'สรุปค่าใช้จ่ายโดยประมาณ',
       rental: 'ค่าเช่า', deposit: 'ค่าประกัน (คืนเมื่อคืนเครื่อง)', depositNoId: 'ค่าประกัน ไม่ยืนยันตัวตน (คืนเมื่อคืนเครื่อง)',
       book: 'เช็คคิวและจองเครื่องนี้', sendLine: 'ส่งราคานี้ให้ร้านทาง LINE', lineHead: 'สนใจเช่าตามราคานี้ครับ/ค่ะ',
@@ -145,8 +149,8 @@
       delivery: 'ค่าจัดส่งไป-กลับ', vehicle: 'ประเภทรถ', car: 'รถยนต์', moto: 'มอเตอร์ไซค์', deliveryDiscount: 'ส่วนลดค่าจัดส่งจากร้าน',
       deliveryPay: 'ค่าจัดส่งที่ต้องชำระ', deliveryNone: 'ยังไม่ได้คำนวณ', total: 'ยอดรวมทั้งหมด', totalNoDelivery: 'ยอดรวม (ยังไม่รวมค่าส่ง)',
       perDay: 'วัน', perWeek: 'สัปดาห์', perMonth: '30 วัน', dayUnit: 'วัน', weekTier: 'เรทรายสัปดาห์', monthTier: 'เรทรายเดือน',
-      minDays: 'เช่าขั้นต่ำ 3 วัน', needDevice: 'เลือกเครื่องก่อน', needMaps: 'วางลิงก์ Google Maps ก่อน',
-      needPin: 'ลิงก์นี้ไม่มีหมุดตำแหน่ง ใน Google Maps ให้กดค้างตรงจุดส่งจนขึ้นหมุด แล้วแชร์ลิงก์นั้น',
+      minDays: 'เช่าขั้นต่ำ 3 วัน', needDevice: 'เลือกเครื่องก่อน', needMaps: 'ใส่ลิงก์ Google Maps หรือพิมพ์ชื่อสถานที่ก่อน',
+      needPin: 'หาสถานที่นี้ไม่เจอ ลองพิมพ์ให้ละเอียดขึ้น เช่น ชื่อคอนโด + เขต หรือกด 📍 ใช้ตำแหน่งปัจจุบัน',
       quoteFail: 'คำนวณค่าส่งไม่สำเร็จ ลองใหม่อีกครั้ง', tooMany: 'คำนวณค่าส่งถี่เกินไป กรุณารอสักครู่แล้วลองใหม่', catalogueFail: 'โหลดรายการเครื่องไม่สำเร็จ รีเฟรชหน้าอีกครั้ง',
       note: 'ราคาคร่าวๆ ราคาปกติ ยังไม่รวมส่วนลดลูกค้าเก่าและส่วนลดรีวิว และยังไม่ได้เช็คคิวว่าง ค่าส่งเป็นราคาตอนนี้ อาจเปลี่ยนตามเวลาที่จองจริง',
       // The discounts are claimed where they can be checked, on the booking
@@ -160,12 +164,14 @@
       promoLine: 'โปรโมชั่น After Work 3 Nights (ราคาโปร {price})',
       bundle: 'Bundle (เช่าพร้อม PS5)', noBundle: 'ไม่เลือก Bundle (PS5 อย่างเดียว)', bundleHint: 'Bundle ใช้ราคาและค่าประกันของชุดแทนราคาเครื่อง',
       extras: 'อุปกรณ์เสริม', perRental: 'ต่อการเช่า', accessory: 'อุปกรณ์เสริม',
-      locate: '📍 ใช้ตำแหน่งปัจจุบัน', locating: 'กำลังหาตำแหน่ง…', locateFail: 'ไม่ได้รับตำแหน่ง กรุณาอนุญาตการเข้าถึงตำแหน่ง หรือวางลิงก์แผนที่แทน', locateNone: 'เบราว์เซอร์นี้แชร์ตำแหน่งไม่ได้'
+      locate: '📍 ใช้ตำแหน่งปัจจุบัน', locating: 'กำลังหาตำแหน่ง…', locateFail: 'เบราว์เซอร์นี้ไม่ให้ตำแหน่ง (มักเกิดในแอป LINE / Facebook) พิมพ์ชื่อสถานที่หรือที่อยู่ในช่องด้านบนแทนได้เลย', locateNone: 'เบราว์เซอร์นี้แชร์ตำแหน่งไม่ได้ พิมพ์ชื่อสถานที่หรือที่อยู่ในช่องด้านบนแทนได้เลย'
     },
     en: {
       title: 'Rental calculator', subtitle: 'Rental · deposit · delivery (no queue check)', lang: 'ภาษาไทย',
       device: 'Equipment', loading: 'Loading equipment…', pick: 'Choose equipment', days: 'Rental days',
-      mapsHint: 'Paste a Google Maps link with the delivery spot pinned; the round trip is priced by Lalamove.',
+      mapsLabel: 'Delivery location', mapsPlaceholder: 'Paste a Google Maps link, or type a place or address',
+      mapsHint: 'Paste a Google Maps link, type your condo / building / address, or use your current location. The round trip is priced by Lalamove.',
+      foundPlace: '📍 Delivery priced to: {place}. Not right? Type it in more detail.',
       quoteBtn: 'Get delivery fee', quoting: 'Getting the delivery fee…', summary: 'Estimated cost',
       rental: 'Rental', deposit: 'Security deposit (refunded on return)', depositNoId: 'Deposit without identity verification (refunded on return)',
       book: 'Check the queue and book this', sendLine: 'Send this quote to AJ on LINE', lineHead: 'I am interested in renting at this price.',
@@ -173,8 +179,8 @@
       delivery: 'Round-trip delivery', vehicle: 'Vehicle', car: 'Car', moto: 'Motorcycle', deliveryDiscount: 'AJ delivery discount',
       deliveryPay: 'Delivery you pay', deliveryNone: 'Not calculated yet', total: 'Total', totalNoDelivery: 'Total (delivery not included)',
       perDay: 'day', perWeek: 'week', perMonth: '30 days', dayUnit: 'days', weekTier: 'weekly rate', monthTier: 'monthly rate',
-      minDays: 'The minimum rental is 3 days.', needDevice: 'Choose the equipment first.', needMaps: 'Paste a Google Maps link first.',
-      needPin: 'This link has no pinned location. In Google Maps, press and hold the delivery spot to drop a pin, then share that link.',
+      minDays: 'The minimum rental is 3 days.', needDevice: 'Choose the equipment first.', needMaps: 'Paste a Google Maps link or type a place first.',
+      needPin: 'We could not find that place. Type it in more detail, such as the building name and district, or use 📍 your current location.',
       quoteFail: 'The delivery fee could not be calculated. Please try again.', tooMany: 'Too many delivery checks. Please wait a moment and try again.', catalogueFail: 'The equipment list could not be loaded. Please refresh.',
       note: 'A rough quote at regular prices: returning-customer and review discounts are not included, and the queue is not checked. The delivery fee is today\'s price and may change by the time of booking.',
       perks: '🎁 Returning customers save 10% · reviews save more — claim them when you book',
@@ -185,7 +191,7 @@
       promoLine: 'After Work 3 Nights promotion (promo price {price})',
       bundle: 'Bundle (with PS5)', noBundle: 'No bundle (PS5 only)', bundleHint: 'A bundle uses the set\'s own price and deposit instead of the console\'s.',
       extras: 'Accessories', perRental: 'per rental', accessory: 'Accessory',
-      locate: '📍 Use my current location', locating: 'Finding your location…', locateFail: 'Location not shared. Allow location access, or paste a map link.', locateNone: 'This browser cannot share its location.'
+      locate: '📍 Use my current location', locating: 'Finding your location…', locateFail: 'This browser did not share your location (common inside LINE or Facebook). Type a place or address in the box above instead.', locateNone: 'This browser cannot share its location. Type a place or address in the box above instead.'
     }
   };
   var params = new URLSearchParams(location.search);
@@ -262,6 +268,7 @@
     document.documentElement.lang = lang;
     document.title = 'AJ · ' + t('title');
     Array.prototype.forEach.call(document.querySelectorAll('[data-t]'), function (el) { el.textContent = t(el.getAttribute('data-t')); });
+    $('maps').placeholder = t('mapsPlaceholder');
     $('lang').textContent = t('lang');
     fillDevices();
     renderAddOns();
@@ -425,6 +432,13 @@
     $('rows').innerHTML = html;
     renderLinks();
   }
+  // A place the server looked up (a typed name, or a link with no pin): shown
+  // so the customer can see the fee is for the right place.
+  function showFoundPlace(location) {
+    var label = location && location.source !== 'link' ? String(location.label || '') : '';
+    $('foundPlace').hidden = !label;
+    $('foundPlace').textContent = label ? t('foundPlace').replace('{place}', label) : '';
+  }
   function showQuoteError(text) { $('quoteErr').hidden = !text; $('quoteErr').textContent = text || ''; }
 
   async function getQuote() {
@@ -442,7 +456,7 @@
         body: JSON.stringify({ mapsUrl: maps, deviceCount: 1 + (picked.length || b ? 1 : 0), hasLargeItem: /G29|Logitech/i.test(name), days: Math.max(3, days()), lang: lang })
       });
       var data = await res.json().catch(function () { return {}; });
-      if (res.ok && data.ok && data.quote) { quote = data.quote; render(); track('quick_quote_calculated'); }
+      if (res.ok && data.ok && data.quote) { quote = data.quote; showFoundPlace(data.location); render(); track('quick_quote_calculated'); }
       else {
         var reason = data.error === 'delivery_location_unresolved' ? 'needs_pin' : (res.status === 429 ? 'too_many' : 'failed');
         showQuoteError(reason === 'needs_pin' ? t('needPin') : reason === 'too_many' ? t('tooMany') : t('quoteFail'));
@@ -586,7 +600,8 @@
   });
   $('days').addEventListener('input', function () { renderChips(); render(); });
   $('dayChips').addEventListener('click', function (e) { var n = e.target.getAttribute('data-days'); if (n) { $('days').value = n; renderChips(); render(); } });
-  $('maps').addEventListener('input', function () { quote = null; showQuoteError(''); render(); });
+  $('maps').addEventListener('input', function () { quote = null; showQuoteError(''); showFoundPlace(null); render(); });
+  $('maps').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); getQuote(); } });
   $('quote').addEventListener('click', getQuote);
   $('promo').addEventListener('change', render);
   $('noId').addEventListener('change', render);
