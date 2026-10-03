@@ -65,7 +65,7 @@ test('the queue check takes the rental it is asked about', () => {
 
 test('the payment page lists the device\'s own lines, as the booking page does', () => {
   const page = html.slice(html.indexOf('function payResumeHtml()'), html.indexOf('function renderPayResume()'));
-  assert.match(page, /splitDetailLines\(en \? \(item\.detailsEn \|\| \[\]\) : \(item\.detailsTh \|\| \[\]\)\)/);
+  assert.match(page, /\.\.\.consoleDetails\(item, en \? "en" : "th"\),/);
 });
 
 test('no floating "เช็คคิว & คำนวณค่าเช่า" button', () => {

@@ -2779,8 +2779,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(c.gamePlatform === "xbox" && guessPlatform(c) === "rog") c.gamePlatform = "rog";
     c.gameUrl = String(c.gameUrl || "").trim();
     c.showGameButton = c.showGameButton !== false && !!(c.gamePlatform || c.gameUrl);
-    c.detailsTh = Array.isArray(c.detailsTh) && c.detailsTh.length ? c.detailsTh : defaultDetails(c, "th");
-    c.detailsEn = Array.isArray(c.detailsEn) && c.detailsEn.length ? c.detailsEn : defaultDetails(c, "en");
+    // One line per box. Admin used to show saved lines joined by a literal
+    // "\n", so a save wrote that text back in and cards showed "\n" mid-line.
+    const detailsTh = Array.isArray(c.detailsTh) ? splitDetailLines(c.detailsTh) : [];
+    const detailsEn = Array.isArray(c.detailsEn) ? splitDetailLines(c.detailsEn) : [];
+    c.detailsTh = detailsTh.length ? detailsTh : defaultDetails(c, "th");
+    c.detailsEn = detailsEn.length ? detailsEn : defaultDetails(c, "en");
     c.readyDate = String(c.readyDate || c.unavailableUntil || "").trim();
     return c;
   }
@@ -2855,6 +2859,23 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(/viture|xreal/.test(s)) return lang==="th" ? ["มีสายเชื่อมต่อพร้อมใช้งาน", "เพิ่ม Mobile Dock ได้ตามตัวเลือก"] : ["Connection cables included", "Mobile Dock can be added"];
     if(/rog|legion|steam deck/.test(s)) return lang==="th" ? ["มี Docking และสายครบ พร้อมเล่น", "เลือกเกมได้ตามรายการ"] : ["Docking station and cables included", "Games can be selected from catalog"];
     return lang==="th" ? ["2 จอย", "สายครบ พร้อมเล่น", "เลือกเกมได้สูงสุด 10 เกม"] : ["2 controllers", "All cables included", "Choose up to 10 games"];
+  }
+  // The online service that comes with the console, as its own line: PSN Plus
+  // with PS5, PS5 Pro and PS4, Game Pass with Xbox Series X and S. Computed,
+  // not stored, so every console of that kind shows it in both languages.
+  function consoleServiceLine(c, lang){
+    const names = [c?.name, c?.nameEn].map(name => String(name || "").trim().toLowerCase());
+    if(names.some(name => /^ps5( pro)?$|^ps4( pro)?$/.test(name))) return lang === "en" ? "PSN Plus included, online play 🎮" : "รวม PSN Plus เล่นออนไลน์ได้ 🎮";
+    if(names.some(name => /^xbox series [xs]$/.test(name))) return lang === "en" ? "Game Pass included: download more games yourself + online play 🎮" : "รวม Game Pass โหลดเกมเพิ่มเอง + เล่นออนไลน์ได้ 🎮";
+    return "";
+  }
+  // A console's detail lines everywhere they are shown: one box per line,
+  // with its online service last unless the shop already wrote it in.
+  function consoleDetails(c, lang = state.lang){
+    if(!c) return [];
+    const lines = splitDetailLines(lang === "en" ? c.detailsEn : c.detailsTh);
+    const service = consoleServiceLine(c, lang);
+    return service && !lines.some(line => /psn\s*plus|game\s*pass/i.test(line)) ? [...lines, service] : lines;
   }
   function cName(c){ return state.lang === "en" ? (c.nameEn || c.name) : (c.name || c.nameEn); }
   function brandLabel(key){ const b = BRAND_META[key] || BRAND_META.other; return state.lang === "en" ? b.labelEn : b.labelTh; }
@@ -4023,7 +4044,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const ready = isConsoleSelectable(c);
       const url = gameUrl(c);
       const gameButtonVisible = !!(url && ready);
-      const details = (state.lang==="en"?c.detailsEn:c.detailsTh).filter(item => gameButtonVisible || !isGameLimitDetail(item));
+      const details = consoleDetails(c).filter(item => gameButtonVisible || !isGameLimitDetail(item));
       return `<article class="con-card ${ready?"":"unavailable"}" data-key="${esc(String(c.id))}">
         <div class="con-img">${img?`<img src="${esc(img)}" alt="${esc(cName(c))}" loading="lazy">`:`<span class="emoji">${esc(c.icon)}</span>`}${ready?"":`<div class="ready-ribbon">${isQueueClosed(c) ? tr("queueClosed") : `${tr("readyOn")} ${displayDate(c.readyDate)}`}</div>`}</div>
         <div class="con-body">
@@ -5360,7 +5381,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const en = state.lang === "en";
     const image = getConsoleImage(item);
     const details = splitDetailLines([
-      ...(en ? (item?.detailsEn || []) : (item?.detailsTh || [])),
+      ...consoleDetails(item, en ? "en" : "th"),
       ...(summary.bundleName ? [`${tr("bundle")}: ${summary.bundleName}`] : []),
       ...(summary.extras || []).map(extra => `${tr("accessories")}: ${en ? extra.en : extra.th}`),
       ...(summary.bgItems || []).map(game => `${tr("boardGames")}: ${bgName(game)}`),
@@ -6332,7 +6353,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       : money(amount);
     scheduleRentalCodePreview(summary);
     const equipmentDetails = [
-      ...(state.lang==="en"?c.detailsEn:c.detailsTh),
+      ...consoleDetails(c),
       ...(summary.bundleName ? [`${tr("bundle")}: ${summary.bundleName}`] : []),
       ...(summary.extras || []).map(item => `${tr("accessories")}: ${state.lang==="en" ? item.en : item.th}`),
       ...(summary.bgItems || []).map(item => `${tr("boardGames")}: ${bgName(item)}`)
@@ -8617,7 +8638,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // The device's own lines (controllers, cables, games included), as on the
     // booking page's order summary.
     const details = [
-      ...(item ? splitDetailLines(en ? (item.detailsEn || []) : (item.detailsTh || [])) : []),
+      ...consoleDetails(item, en ? "en" : "th"),
       ...r.extras.map(extra => `${tr("accessories")}: ${extra}`),
       ...r.games.map((game, index) => `${en ? "Game" : "เกม"} ${index + 1}: ${game}`),
       ...(r.later && !r.games.length ? [en ? "Game list: sent later" : "รายชื่อเกม: แจ้งภายหลัง"] : [])
@@ -11337,8 +11358,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
           <div class="field"><label class="label">Platform ID</label><input class="input" data-c-field="gamePlatform" value="${esc(c.gamePlatform)}"></div>
           <div class="field"><label class="label">Ready Date</label><input class="input" type="date" data-c-field="readyDate" value="${esc(c.readyDate)}"></div>
           <div class="field"><label class="label">Image URL</label><input class="input" data-c-image value="${esc(img)}"></div>
-          <div class="field"><label class="label">Details TH</label><textarea class="input" data-c-field="detailsTh">${esc(c.detailsTh.join("\\n"))}</textarea></div>
-          <div class="field"><label class="label">Details EN</label><textarea class="input" data-c-field="detailsEn">${esc(c.detailsEn.join("\\n"))}</textarea></div>
+          <div class="field"><label class="label">Details TH</label><textarea class="input" data-c-field="detailsTh">${esc(c.detailsTh.join("\n"))}</textarea></div>
+          <div class="field"><label class="label">Details EN</label><textarea class="input" data-c-field="detailsEn">${esc(c.detailsEn.join("\n"))}</textarea></div>
         </div>
         <label class="option-row" style="margin-top:12px"><input type="checkbox" data-c-field="showGameButton" ${c.showGameButton?"checked":""}><div><b>Show game picker</b></div></label>
         <button class="btn primary" data-save-console="${esc(String(c.id))}" type="button">${tr("save")}</button>
