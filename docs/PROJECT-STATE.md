@@ -1,5 +1,26 @@
 # Project state
 
+## 2026-10-03 — Order page: switch identity choice with the deposit shown; the details dialog checks required fields (website)
+
+- **"ไม่ยืนยันตัวตน — ใช้ค่าประกันสูงขึ้น":** a green button reads "ยืนยันตัวตนเพื่อลดค่าประกันเป็น ฿X" ("Verify your identity to lower the deposit to ฿X"), where X is the device's normal deposit (VIP included).
+  - It opens the "ข้อมูลลูกค้าและที่อยู่จัดส่ง" dialog with the ID-type field at its top, ready to fill.
+  - Cancel restores the no-verification choice.
+- **"ยังไม่สำเร็จ — ยืนยันภายหลัง":** a red-outlined button "ไม่ต้องการยืนยันตัวตน · ค่าประกันปรับเป็น ฿Y" ("No verification · deposit becomes ฿Y") sits next to "ยืนยันตอนนี้", which is now green.
+  - Y is `noContractDeposit` (฿10,000 / ฿15,000; any PS5 bundle ฿15,000).
+  - The change is immediate, with a toast, and the green button above brings the normal deposit back.
+  - The colours mean the same thing everywhere: green verifies (lower deposit), red outline skips (higher deposit).
+- `setDemoNoContract()` is now the one switch for the step 2 checkbox and both buttons. It drops any payment link made for the old deposit.
+- **Details dialog:** "ยืนยันการแก้ไข" no longer saves an incomplete step 2.
+  - While anything is missing the button is grey, and the footer says "⚠️ ยังกรอกไม่ครบ: <first problem> (อีก N รายการ)".
+  - Tapping it marks the fields and scrolls to the first one.
+  - The note updates as the customer types.
+- **Tests:** website 269. Headless checks in TH and EN:
+  - the button amounts and colours;
+  - the dialog opens at the ID type;
+  - an empty save is blocked with field errors, and save unlocks once complete;
+  - Cancel restores the choice;
+  - skip then verify round-trips.
+
 ## 2026-10-03 — One language button while the pin map is open (website)
 
 - With the map sheet open, the page's language buttons are hidden; the sheet's own TH / EN button is the only one. Cancel, Escape or "ใช้ตำแหน่งนี้" brings them back. This works in Thai and English.

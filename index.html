@@ -1010,13 +1010,21 @@ body.unified-flow-demo .demo-reward-row b{display:flex;align-items:center;gap:8p
 body.unified-flow-demo .demo-reward-badge{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#fff3cd;font-size:14px}
 body.unified-flow-demo #demoIdentityCard .option-row,body.unified-flow-demo #demoCustomerCard .option-row{margin:14px 0}
 body.unified-flow-demo .demo-item-details li{margin:2px 0}
-body.unified-flow-demo .demo-order-action{display:flex;justify-content:flex-end;margin-top:12px}
+body.unified-flow-demo .demo-order-action{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-top:12px}
+/* Identity choices on the order page: green verifies (the normal, lower
+   deposit), a red outline skips verification (the higher deposit). */
+body.unified-flow-demo .demo-verify-btn{background:#15803d;border-color:#15803d;color:#fff}
+body.unified-flow-demo .demo-verify-btn:hover{background:#166534;border-color:#166534}
+body.unified-flow-demo .demo-skip-id-btn{background:#fff;border:1.5px solid #c90012;color:#c90012}
+body.unified-flow-demo .demo-skip-id-btn:hover{background:#fff5f5}
 #demoEditModal{z-index:490}
 .demo-edit-card{width:min(760px,calc(100vw - 28px));height:min(88vh,900px);display:flex;flex-direction:column;overflow:hidden}
 .demo-edit-body{flex:1;min-height:0;overflow:auto;padding:18px 20px;background:#fff}
 .demo-edit-body .pane{display:block!important}
 .demo-edit-body .step-actions{display:none!important}
-.demo-edit-foot{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--border);background:#fff}
+.demo-edit-foot{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 20px;border-top:1px solid var(--border);background:#fff}
+.demo-edit-missing{flex:1 1 220px;margin:0;color:#b42318;font-size:13px;font-weight:800;line-height:1.45}
+#demoEditSave.is-incomplete{background:#d0d5dd;border-color:#d0d5dd;color:#475467;cursor:not-allowed}
 .demo-busy{position:fixed;inset:0;z-index:99998;display:grid;place-items:center;background:rgba(240,242,245,.78);backdrop-filter:blur(1.5px)}
 .demo-busy[hidden]{display:none}
 .demo-busy-card{display:flex;align-items:center;gap:12px;padding:18px 24px;border-radius:14px;background:#fff;box-shadow:0 12px 32px rgba(15,23,42,.16);font-weight:800;color:#344054}
@@ -1498,6 +1506,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
     <div class="modal-head"><div class="modal-title-copy"><h3 id="demoEditTitle"></h3></div><div class="modal-head-actions"><button class="modal-close" id="demoEditClose" type="button" aria-label="Close">×</button></div></div>
     <div class="demo-edit-body" id="demoEditBody"></div>
     <div class="demo-edit-foot">
+      <p class="demo-edit-missing" id="demoEditMissing" role="status" hidden></p>
       <button class="btn" id="demoEditCancel" type="button"></button>
       <button class="btn primary" id="demoEditSave" type="button"></button>
     </div>
@@ -5464,6 +5473,60 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // validation and lookups stay exactly the ones the customer already used.
   let demoEditStep = 0;
   let demoEditSnapshot = null;
+  // The device's deposit with identity verified, and without (the booking
+  // site's noContractDeposit; any PS5 bundle ฿15,000), VIP rates included.
+  function demoDepositChoices(){
+    const c = consoleById(state.calc.consoleId);
+    if(!c) return {normal:0, noId:0};
+    const {deposit, bundleName} = selectedConsoleRentalTerms(c);
+    return {normal:Number(deposit) || 0, noId:bundleName ? 15000 : noContractDeposit(deposit)};
+  }
+  // One switch for "no identity verification": the step 2 checkbox and the
+  // order page's buttons. A payment link made for the old deposit is dropped.
+  function setDemoNoContract(value){
+    state.calc.noContract = !!value;
+    state.calc.beamPaymentLink = "";
+    state.calc.beamPaymentKey = "";
+    state.calc.beamPaymentExpiresAt = "";
+    saveLocal();
+    render();
+  }
+  // "Verify your identity to lower the deposit": the customer details dialog
+  // opens with the identity fields at its top, ready to fill. Cancel puts the
+  // no-verification choice back as it was.
+  function openDemoVerifyForDeposit(){
+    openDemoEditModal(2);
+    setDemoNoContract(false);
+    const field = byId("demoEditBody")?.querySelector(".demo-id-type")?.closest(".field");
+    if(field){
+      field.scrollIntoView({block:"start"});
+      window.setTimeout(() => { try{ field.querySelector("input:checked, input")?.focus({preventScroll:true}); }catch{} }, 50);
+    }
+    updateDemoEditMissing();
+  }
+  // "No verification": the higher deposit at once; the verify button brings
+  // the normal one back.
+  function skipDemoIdentity(){
+    const en = state.lang === "en";
+    setDemoNoContract(true);
+    toast(en ? `Deposit changed to ${money(demoDepositChoices().noId)}. You can still verify to lower it.` : `ปรับค่าประกันเป็น ${money(demoDepositChoices().noId)} แล้ว ยังกดยืนยันตัวตนเพื่อลดค่าประกันได้`, 4500);
+  }
+  // The customer details dialog saves only when step 2 is complete: until then
+  // the save button is greyed, the footer says what is missing, and a tap on it
+  // marks the fields instead of saving.
+  function updateDemoEditMissing(){
+    const note = byId("demoEditMissing");
+    const save = byId("demoEditSave");
+    if(!note || !save) return;
+    const problems = demoEditStep === 2 ? demoStep2Problems() : [];
+    const en = state.lang === "en";
+    note.hidden = !problems.length;
+    note.textContent = problems.length
+      ? (en ? `⚠️ Not complete yet: ${problems[0].message}${problems.length > 1 ? ` (+${problems.length - 1} more)` : ""}` : `⚠️ ยังกรอกไม่ครบ: ${problems[0].message}${problems.length > 1 ? ` (อีก ${problems.length - 1} รายการ)` : ""}`)
+      : "";
+    save.classList.toggle("is-incomplete", problems.length > 0);
+    save.setAttribute("aria-disabled", problems.length ? "true" : "false");
+  }
   function openDemoEditModal(step){
     const en = state.lang === "en";
     const host = byId("demoEditBody");
@@ -5479,10 +5542,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     host.innerHTML = "";
     host.appendChild(source);
     byId("demoEditModal").classList.add("open");
+    updateDemoEditMissing();
   }
   function closeDemoEditModal(save){
     const modal = byId("demoEditModal");
     if(!modal?.classList.contains("open")) return;
+    if(save && demoEditStep === 2 && !showDemoStep2Problems()){
+      const problems = demoStep2Problems();
+      updateDemoEditMissing();
+      if(problems[0]) toast(problems[0].message, 4000);
+      return;
+    }
     if(!save && demoEditSnapshot){
       Object.assign(demoProfile, demoEditSnapshot.profile);
       state.calc = demoEditSnapshot.calc;
@@ -5496,6 +5566,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("demoEditBody").innerHTML = "";
     demoEditStep = 0;
     demoEditSnapshot = null;
+    byId("demoEditMissing").hidden = true;
+    byId("demoEditSave").classList.remove("is-incomplete");
+    byId("demoEditSave").removeAttribute("aria-disabled");
     saveLocal();
     render();
     renderDemoOrderPage();
@@ -5638,6 +5711,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       : (en ? "Incomplete — verify later" : "ยังไม่สำเร็จ — ยืนยันภายหลัง");
     const identityTone = demoIdentityCoveredByAgreement() || demoProfile.identityUploaded ? "ok" : "is-missing";
     const verifyNow = !demoProfile.identityUploaded && !state.calc.noContract && !demoIdentityCoveredByAgreement();
+    // Either way round, the other choice is one tap away, priced: verify for
+    // the device's normal deposit, or skip verification for the higher one.
+    const deposits = demoDepositChoices();
+    const identityActionsHtml = state.calc.noContract && !demoIdentityCoveredByAgreement()
+      ? `<div class="demo-order-action"><button class="btn demo-verify-btn" id="demoVerifyForDeposit" type="button">${en ? `Verify your identity to lower the deposit to ${money(deposits.normal)}` : `ยืนยันตัวตนเพื่อลดค่าประกันเป็น ${money(deposits.normal)}`}</button></div>`
+      : verifyNow
+      ? `<div class="demo-order-action"><button class="btn demo-skip-id-btn" id="demoSkipIdentity" type="button">${en ? `No verification · deposit becomes ${money(deposits.noId)}` : `ไม่ต้องการยืนยันตัวตน · ค่าประกันปรับเป็น ${money(deposits.noId)}`}</button><button class="btn demo-verify-btn" id="demoVerifyLater" type="button">${en?"Verify now":"ยืนยันตอนนี้"}</button></div>`
+      : "";
     const deliveryReady = demoDelivery.status === "ready" && !!demoDelivery.quote;
     const canPay = deliveryReady || deliveryQuoteFallback();
     const payLabel = deliveryReady
@@ -5653,7 +5734,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <section class="demo-order-section">${demoSectionHeadHtml(en ? "Rental period" : "ช่วงเวลา", "dates")}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Duration":"ระยะเวลา"}</span><b>${summary.days} ${en?"days":"วัน"}</b></div><div class="demo-order-row"><span>${en?"Dates":"วันที่เช่า"}</span><b>${displayDate(state.calc.start)} – ${displayDate(state.calc.end)}</b></div></div></section>
       </div>
       <div>
-        <section class="demo-order-section"><h3>${en ? "Identity verification" : "การยืนยันตัวตน"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Status":"สถานะ"}</span><b class="demo-status ${identityTone}">${esc(identityState)}</b></div>${verifyNow?`<div class="demo-order-action"><button class="btn" id="demoVerifyLater" type="button">${en?"Verify now":"ยืนยันตอนนี้"}</button></div>`:""}</div></section>
+        <section class="demo-order-section"><h3>${en ? "Identity verification" : "การยืนยันตัวตน"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Status":"สถานะ"}</span><b class="demo-status ${identityTone}">${esc(identityState)}</b></div>${identityActionsHtml}</div></section>
         <section class="demo-order-section"><h3>${en ? "Payment" : "การชำระเงิน"}</h3>${demoPaymentBreakdownHtml(summary)}</section>
         <section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${demoPaymentOptionsHtml()}<div class="demo-payment-launch">${deliveryFallbackHtml()}<button class="btn primary demo-pay-btn" id="demoBeamPay" type="button" ${canPay ? "" : "disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${payLabel}</span></button>${demoPayLaterNoteHtml()}${UNIFIED_FLOW_TEST_CHARGE ? `<p class="hint">${en?"This demo charges ฿1. The payment is still recorded against this Rental ID and follows the existing webhook flow.":"หน้าทดสอบเรียกเก็บ 1 บาท และยังบันทึกผลกับ Rental ID นี้ผ่าน webhook เดิม"}</p>` : ""}</div></section>
       </div>
@@ -5709,6 +5790,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     window.setTimeout(renderGuide, 460);
   }
   function renderStepActions(){
+    // The customer details dialog follows every edit too.
+    if(demoEditStep) updateDemoEditMissing();
     const buttons = step => {
       const back = step > 1 ? `<button class="btn" type="button" data-step-go="${step - 1}">${tr("backStep")}</button>` : `<span></span>`;
       const confirmLabel = state.lang === "en" ? "Confirm and continue to payment" : "ยืนยันและไปหน้าชำระเงิน";
@@ -12361,6 +12444,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       }
     });
     document.addEventListener("change", event => {
+      if(demoEditStep && event.target.closest?.("#demoEditBody")) window.setTimeout(updateDemoEditMissing, 0);
       if(!UNIFIED_FLOW_DEMO) return;
       if(event.target.id === "demoTermsOpt"){ demoProfile.termsAccepted = event.target.checked; clearDemoFieldError("demoTermsOpt"); saveDemoProfile(); renderStepActions(); }
       if(event.target.id === "demoEmail") showDemoEmailError();
@@ -12380,12 +12464,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       }
       if(event.target.name === "demoIdentityType"){ demoProfile.identityType = event.target.value; render(); }
       if(event.target.id === "demoNoContractOpt" || event.target.id === "demoIdentityNoContractOpt"){
-        state.calc.noContract = event.target.checked;
-        state.calc.beamPaymentLink = "";
-        state.calc.beamPaymentKey = "";
-        state.calc.beamPaymentExpiresAt = "";
-        saveLocal();
-        render();
+        setDemoNoContract(event.target.checked);
       }
       if(event.target.id === "demoRefundBank"){ demoProfile.refundBankId = event.target.value; clearDemoFieldError("demoRefundBank"); saveDemoProfile(); renderStepActions(); }
       if(event.target.id === "demoNoThaiBank"){ demoProfile.noThaiBankAccount = event.target.checked; saveDemoProfile(); renderDemoAgreementCard(); renderStepActions(); }
@@ -12542,6 +12621,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "demoNotifyLine"){ await notifyDemoLine(); return; }
       if(targetId === "demoNotifyWhatsApp"){ notifyDemoWhatsApp(); return; }
       if(targetId === "demoVerifyLater"){ openVerifyNowModal(); return; }
+      if(targetId === "demoVerifyForDeposit"){ openDemoVerifyForDeposit(); return; }
+      if(targetId === "demoSkipIdentity"){ skipDemoIdentity(); return; }
       if(targetId === "verifyNowSubmit"){ await submitVerifyNow(); return; }
       if(targetId === "clearGames"){ state.calc.games = []; state.calc.later = true; saveLocal(); render(); }
       if(targetId === "sendLine"){ if(await sendLine()){ renderSummary(); renderGuide(); } }
