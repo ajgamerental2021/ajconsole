@@ -1,5 +1,17 @@
 # Project state
 
+## 2026-10-03 — Calculator prices by itself; found place opens in Maps and fills step 2
+
+- **When it prices:**
+  - a pasted link: at once;
+  - typed text: after 1.5 s idle, at least 4 characters, not mid-composition;
+  - leaving the box or pressing Enter: at once;
+  - a change of device, bundle, extras or days: re-prices.
+- Repeat keys are skipped and stale answers dropped (`quoteSeq`, `lastQuoteKey`).
+- The green found-place line links to a Google Maps pin (`search/?api=1&query=lat,lng`).
+- `quotedMapsLink` travels to the booking page: `AJ_QUOTE_BOOK.mapsUrl` from the pop-up, or `?maps=` (with `utm_source=quick_quote`) from the standalone page. `adoptQuoteMapsLink` fills step 2 only when its box is empty.
+- The owner turned on Google Geocoding (`GOOGLE_MAPS_API_KEY` on Render) on 2026-10-03.
+
 ## 2026-10-03 — Delivery fee from a place name (Bot `2fab756`, website)
 
 - **Bot.** `resolveDeliveryLocation` tries, in order:
