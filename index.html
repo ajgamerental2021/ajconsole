@@ -1686,7 +1686,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 
 <script src="assets/vendor/simplewebauthn-browser-14.0.0.umd.min.js"></script>
 <script src="assets/admin-passkey.js"></script>
-<script src="assets/place-search.js?v=20261003-5"></script>
+<script src="assets/place-search.js?v=20261003-6"></script>
 <script>
 (() => {
   "use strict";
@@ -4569,7 +4569,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const lat = Number(value.lat), lng = Number(value.lng);
     if(!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
     const name = String(value.name || "").slice(0, 120), address = String(value.address || "").slice(0, 200);
-    return name || address ? {name, address, lat, lng} : null;
+    // The link is kept for asking the place again in the other language.
+    const lang = value.lang === "en" ? "en" : value.lang === "th" ? "th" : "";
+    const link = /^https:\/\/\S+$/i.test(String(value.link || "")) ? String(value.link).slice(0, 500) : "";
+    return name || address ? {name, address, lat, lng, lang, link} : null;
   }
   function demoMapsBoxText(){
     return String(demoProfile.mapsText || demoProfile.maps || "");
@@ -4626,6 +4629,21 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!search) return;
     const text = demoMapsBoxText().trim();
     if(demoProfile.mapsPlace) search.remember(text);
+    // Chosen in the other language: its name and address follow the page.
+    const place = demoProfile.mapsPlace;
+    if(place && place.lang && place.lang !== state.lang){
+      search.relabel({...place, link: place.link || demoProfile.maps}).then(relabelled => {
+        if(!relabelled || demoProfile.mapsPlace !== place) return;
+        if(String(demoProfile.mapsText || "").trim() === String(place.name || "").trim()){
+          demoProfile.mapsText = relabelled.name || relabelled.address;
+          const box = byId("demoMaps");
+          if(box){ box.value = demoProfile.mapsText; search.remember(box.value); }
+        }
+        demoProfile.mapsPlace = demoMapsPlace(relabelled);
+        renderDemoMapsFound();
+        saveDemoProfile();
+      });
+    }
     else if(demoProfile.maps && window.AJPlaceSearch.isLink(text) && demoMapsLookedUp !== demoProfile.maps){
       demoMapsLookedUp = demoProfile.maps;
       search.lookup({force:true, quiet:true});
@@ -10829,7 +10847,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
   // what was filled in: the language switch tells it, it is not reloaded.
   // Changes with the calculator page, so the pop-up never shows a stale copy
   // that an in-app browser kept.
-  const QUOTE_PAGE_VERSION = "20261003-5";
+  const QUOTE_PAGE_VERSION = "20261003-6";
   function quoteFrameOrigin(){ return /^https?:\/\/(localhost|127\.0\.0\.1)/.test(location.origin) ? location.origin : "https://ajgamerental.com"; }
   function renderQuoteHead(){
     const en = state.lang === "en";

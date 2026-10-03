@@ -34,7 +34,7 @@ test('the box waits for the customer to finish typing, and never asks per keystr
 test('one match is taken; several open a list of name + full address; a link stands as is', () => {
   assert.match(widget, /if \(link\) return choose\(places\[0\], opts\.pin \? 'pin' : 'link'\);\n        if \(places\.length === 1\) return choose\(places\[0\], 'auto'\);\n        state\.choices = places;/);
   assert.match(widget, /<b>' \+ esc\(place\.name \|\| place\.address\) \+ '<\/b>' \+ address/);
-  assert.match(widget, /function choose\(place, how\) \{\n      if \(!place\) return;[\s\S]{0,300}?var box = input\(\);\n      close\(\);/, 'picking closes the list');
+  assert.match(widget, /function choose\(place, how\) \{\n      if \(!place\) return;[\s\S]{0,700}?var box = input\(\);\n      close\(\);/, 'picking closes the list');
   assert.match(widget, /el\.addEventListener\('mousedown', function \(event\) \{ event\.preventDefault\(\); \}\);/);
   assert.match(widget, /event\.key === 'ArrowDown' \|\| event\.key === 'ArrowUp'/);
   assert.match(widget, /box\.setAttribute\('role', 'combobox'\);/);
@@ -164,4 +164,14 @@ test('while the pin map is open, its own TH / EN button is the only one; cancel 
   assert.match(quote, /html\.ajps-map-open #lang \{ visibility:hidden; \}/);
   assert.match(html, /html\.ajps-map-open #langBtn,#quoteModal\.pin-map-open #quoteLangBtn\{visibility:hidden\}/);
   assert.match(html, /event\.source === byId\("quoteFrame"\)\?\.contentWindow && event\.data\?\.type === "AJ_PIN_MAP"\)\{ setQuotePinMapOpen\(event\.data\.open === true\); return; \}/);
+});
+
+test('a chosen place follows a language switch: the green line at once, its name and address from the Bot', () => {
+  assert.match(widget, /place = Object\.assign\(\{\}, place, \{ lang: options\.lang && options\.lang\(\) === 'en' \? 'en' : 'th' \}\);/);
+  assert.match(widget, /relabel: function \(place\) \{/);
+  assert.match(widget, /body: JSON\.stringify\(\{ q: place\.link \|\| place\.pin, lang: lang \}\)/);
+  assert.match(quote, /render\(\);\n    relabelChosenPlace\(\);\n  \}/);
+  assert.match(quote, /placeSearch\.relabel\(before\)\.then/);
+  assert.match(html, /if\(place && place\.lang && place\.lang !== state\.lang\)\{\n      search\.relabel\(\{\.\.\.place, link: place\.link \|\| demoProfile\.maps\}\)/);
+  assert.match(html, /return name \|\| address \? \{name, address, lat, lng, lang, link\} : null;/);
 });

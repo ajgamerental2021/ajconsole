@@ -114,7 +114,7 @@ test('the chosen place opens in Google Maps and goes into step 2 with its name',
   assert.match(quote, /<a id="foundPlaceLink" target="_blank" rel="noopener"><\/a>/);
   assert.match(quote, /quotedMapsLink = place \? String\(place\.link \|\| place\.pin \|\| ''\) : '';/);
   assert.match(quote, /'&maps=' \+ encodeURIComponent\(quotedMapsLink\)/);
-  assert.match(quote, /place: quote && chosenPlace \? \{ name: chosenPlace\.name \|\| '', address: chosenPlace\.address \|\| '', lat: chosenPlace\.lat, lng: chosenPlace\.lng \} : null/);
+  assert.match(quote, /place: quote && chosenPlace \? \{ name: chosenPlace\.name \|\| '', address: chosenPlace\.address \|\| '', lat: chosenPlace\.lat, lng: chosenPlace\.lng, lang: chosenPlace\.lang \|\| lang, link: quotedMapsLink \} : null/);
   assert.match(html, /adoptQuoteMapsLink\(event\.data\.mapsUrl, event\.data\.place\);/);
   assert.match(html, /if\(String\(demoProfile\.maps \|\| ""\)\.trim\(\)\) return false;/);
 });

@@ -325,6 +325,9 @@
       if (!place) return;
       // A pin with no address known still reads as something.
       if (!place.name && !place.address) place = Object.assign({}, place, { name: t('pinned') + ' ' + Number(place.lat).toFixed(6) + ', ' + Number(place.lng).toFixed(6) });
+      // The language its name and address are in, so a page that switches
+      // language knows to ask for them again (relabel).
+      place = Object.assign({}, place, { lang: options.lang && options.lang() === 'en' ? 'en' : 'th' });
       var box = input();
       close();
       state.lastPlace = place;
@@ -424,6 +427,26 @@
       /** Look the box's text up now (Enter, a button, a filled-in link). */
       lookup: lookup,
       close: close,
+      /**
+       * The chosen place's name and address in the page's language now (after
+       * a language switch): the same spot, link and pin. Resolves the place
+       * relabelled, or null when it cannot be (the old words then stand).
+       */
+      relabel: function (place) {
+        var lang = options.lang && options.lang() === 'en' ? 'en' : 'th';
+        if (!place || place.lang === lang || !(place.link || place.pin)) return Promise.resolve(null);
+        return fetch(apiBase() + '/api/places/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ q: place.link || place.pin, lang: lang })
+        }).then(function (response) { return response.ok ? response.json() : {}; }).then(function (data) {
+          var found = data && Array.isArray(data.places) ? data.places[0] : null;
+          if (!found || !(found.name || found.address)) return null;
+          var relabelled = Object.assign({}, place, { name: found.name || place.name, address: found.address || '', lang: lang });
+          if (state.lastPlace && state.lastPlace.lat === place.lat && state.lastPlace.lng === place.lng) state.lastPlace = relabelled;
+          return relabelled;
+        }).catch(function () { return null; });
+      },
       /** Text the page put in the box itself, already settled: no lookup. */
       remember: function (text) { state.lastText = String(text || '').trim(); },
       /**

@@ -1,5 +1,18 @@
 # Project state
 
+## 2026-10-03 — The chosen place follows a language switch (website + Bot)
+
+- **The problem:** a place chosen in Thai kept its Thai green line ("📍 ส่งไปที่: …") and its Thai address after the page switched to English.
+- **The fix:**
+  - The green line's own words switch at once.
+  - The place's name and address are asked for again in the new language, through the widget's `relabel()`.
+  - The Bot's `/api/places/search` answers a link carrying `query_place_id` with Google Place Details in that language (`placeDetails`); other links get the address at the pin in that language.
+  - The box text follows when it was the place's name.
+- **Where:** the calculator (its own TH/EN button, and the pop-up's) and step 2. `mapsPlace` now keeps `lang` and `link`.
+- `place-search.js` and `QUOTE_PAGE_VERSION` are now `20261003-6`.
+- Place Details needs Places API (New) on `GOOGLE_MAPS_API_KEY`'s project, the same as the suggestion list. Without it, a link's address at the pin is used.
+- **Tests:** website 270, Bot 534. A headless run of TH → EN → TH on the calculator.
+
 ## 2026-10-03 — Analytics page in a narrow PC window (Bot)
 
 - **The problem:** in a narrow window the four tabs were squeezed into tall ovals of wrapped text, and the buttons were oversized.

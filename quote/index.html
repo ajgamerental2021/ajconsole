@@ -127,7 +127,7 @@
   </div>
 </div>
 
-<script src="../assets/place-search.js?v=20261003-5"></script>
+<script src="../assets/place-search.js?v=20261003-6"></script>
 <script>
 (function () {
   // Prices come from the booking site's own catalogue file, and follow its
@@ -285,6 +285,20 @@
     renderAddOns();
     renderChips();
     render();
+    relabelChosenPlace();
+  }
+  // After a language switch the green line reads in the new language at once,
+  // and the place's own name and address follow when the Bot answers.
+  function relabelChosenPlace() {
+    if (!chosenPlace || typeof placeSearch === 'undefined') return;
+    showFoundPlace(chosenPlace);
+    var before = chosenPlace;
+    placeSearch.relabel(before).then(function (place) {
+      if (!place || chosenPlace !== before) return;
+      if ($('maps').value.trim() === String(before.name || '').trim()) { $('maps').value = place.name || place.address; placeSearch.remember($('maps').value); }
+      chosenPlace = place;
+      showFoundPlace(place);
+    });
   }
   // The booking page's order and its availability, so the two lists read the
   // same: PlayStation, Nintendo, Xbox, … (BRAND_META), then the booking page's
@@ -698,7 +712,7 @@
     window.parent.postMessage({
       type: 'AJ_QUOTE_BOOK', consoleId: String(c.id), bundleId: b ? b.id : '', mapsUrl: quote ? quotedMapsLink : '',
       // Step 2's place box shows the same green place without looking it up again.
-      place: quote && chosenPlace ? { name: chosenPlace.name || '', address: chosenPlace.address || '', lat: chosenPlace.lat, lng: chosenPlace.lng } : null
+      place: quote && chosenPlace ? { name: chosenPlace.name || '', address: chosenPlace.address || '', lat: chosenPlace.lat, lng: chosenPlace.lng, lang: chosenPlace.lang || lang, link: quotedMapsLink } : null
     }, '*');
   });
   $('sendLine').addEventListener('click', function () { saveForLine(); track('quick_quote_line_clicked'); });
