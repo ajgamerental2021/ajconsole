@@ -58,7 +58,8 @@
   .extra b { font-weight:800; }
   /* The booking page's .option-note-highlight. */
   .extra .included { display:inline-flex; align-items:center; margin-left:6px; padding:3px 9px; border-radius:999px; background:#fff4bf; color:#8a5200; font-size:12px; font-weight:900; line-height:1.35; vertical-align:middle; }
-  .chip.locate { margin-top:8px; padding:9px 14px; font-size:14px; }
+  .chip.locate { padding:9px 14px; font-size:14px; }
+  .locate-row { margin-top:8px; }
   label.promo { display:flex; gap:10px; align-items:flex-start; font-weight:500; margin-top:12px; padding:10px 12px; border:1px solid #f5c2c7; background:#fff5f5; border-radius:10px; cursor:pointer; }
   label.promo input { width:auto; margin-top:3px; }
   label.promo.noid { border-color:#d7dbe3; background:#f8fafc; }
@@ -106,7 +107,7 @@
 
     <label for="maps" data-t="mapsLabel"></label>
     <input id="maps" type="text" autocomplete="off" enterkeyhint="go">
-    <button class="chip locate" id="locate" type="button" data-t="locate"></button>
+    <div class="chips locate-row"><button class="chip locate" id="locate" type="button" data-t="locate"></button><button class="chip locate" id="pinMap" type="button" data-t="pinMap"></button></div>
     <p class="hint" data-t="mapsHint"></p>
     <p class="hint found" id="foundPlace" hidden><a id="foundPlaceLink" target="_blank" rel="noopener"></a></p>
     <button class="btn secondary" id="quote" type="button" data-t="quoteBtn"></button>
@@ -124,7 +125,7 @@
   </div>
 </div>
 
-<script src="../assets/place-search.js?v=20261003-1"></script>
+<script src="../assets/place-search.js?v=20261003-2"></script>
 <script>
 (function () {
   // Prices come from the booking site's own catalogue file, and follow its
@@ -145,7 +146,7 @@
       title: 'คำนวณค่าเช่า', subtitle: 'ค่าเช่า · ค่าประกัน · ค่าจัดส่ง (ไม่เช็คคิว)', lang: 'English',
       device: 'เครื่องที่เช่า', loading: 'กำลังโหลดรายการเครื่อง…', pick: 'เลือกเครื่อง', days: 'จำนวนวันเช่า',
       mapsLabel: 'สถานที่ส่ง', mapsPlaceholder: 'วางลิงก์ Google Maps หรือพิมพ์ชื่อสถานที่ / ที่อยู่',
-      mapsHint: 'พิมพ์ชื่อคอนโด / หมู่บ้าน / ที่อยู่ แล้วเลือกจากรายการ วางลิงก์ Google Maps หรือกดใช้ตำแหน่งปัจจุบัน ระบบคำนวณค่าส่งไป-กลับจาก Lalamove ให้อัตโนมัติ',
+      mapsHint: 'พิมพ์ชื่อคอนโด / หมู่บ้าน / ที่อยู่ แล้วเลือกจากรายการ วางลิงก์ Google Maps ใช้ตำแหน่งปัจจุบัน หรือปักหมุดบนแผนที่ ระบบคำนวณค่าส่งไป-กลับจาก Lalamove ให้อัตโนมัติ',
       foundPlace: '📍 ส่งไปที่: {place} (กดเพื่อเปิดดูใน Google Maps) — ถ้าไม่ใช่ พิมพ์ใหม่แล้วเลือกจากรายการ',
       quoteBtn: 'คำนวณค่าส่ง', quoting: 'กำลังคำนวณค่าส่ง…', summary: 'สรุปค่าใช้จ่ายโดยประมาณ',
       rental: 'ค่าเช่า', deposit: 'ค่าประกัน (คืนเมื่อคืนเครื่อง)', depositNoId: 'ค่าประกัน ไม่ยืนยันตัวตน (คืนเมื่อคืนเครื่อง)',
@@ -169,13 +170,13 @@
       promoLine: 'โปรโมชั่น After Work 3 Nights (ราคาโปร {price})',
       bundle: 'Bundle (เช่าพร้อม PS5)', noBundle: 'ไม่เลือก Bundle (PS5 อย่างเดียว)', bundleHint: 'Bundle ใช้ราคาและค่าประกันของชุดแทนราคาเครื่อง',
       extras: 'อุปกรณ์เสริม', perRental: 'ต่อการเช่า', accessory: 'อุปกรณ์เสริม', noAccessory: 'ไม่เพิ่มอุปกรณ์เสริม', included: 'รวม 2 จอยในราคาเช่าปกติแล้ว',
-      locate: '📍 ใช้ตำแหน่งปัจจุบัน', locating: 'กำลังหาตำแหน่ง…', locateFail: 'เบราว์เซอร์นี้ไม่ให้ตำแหน่ง (มักเกิดในแอป LINE / Facebook) พิมพ์ชื่อสถานที่หรือที่อยู่ในช่องด้านบนแทนได้เลย', locateNone: 'เบราว์เซอร์นี้แชร์ตำแหน่งไม่ได้ พิมพ์ชื่อสถานที่หรือที่อยู่ในช่องด้านบนแทนได้เลย'
+      locate: '📍 ใช้ตำแหน่งปัจจุบัน', locating: 'กำลังหาตำแหน่ง…', pinMap: '🗺️ ปักหมุดบนแผนที่'
     },
     en: {
       title: 'Rental calculator', subtitle: 'Rental · deposit · delivery (no queue check)', lang: 'ภาษาไทย',
       device: 'Equipment', loading: 'Loading equipment…', pick: 'Choose equipment', days: 'Rental days',
       mapsLabel: 'Delivery location', mapsPlaceholder: 'Paste a Google Maps link, or type a place or address',
-      mapsHint: 'Type your condo / building / address and choose it from the list, paste a Google Maps link, or use your current location. The round trip is priced by Lalamove automatically.',
+      mapsHint: 'Type your condo / building / address and choose it from the list, paste a Google Maps link, use your current location, or pin it on a map. The round trip is priced by Lalamove automatically.',
       foundPlace: '📍 Delivering to: {place} (tap to open in Google Maps). Not right? Type again and choose from the list.',
       quoteBtn: 'Get delivery fee', quoting: 'Getting the delivery fee…', summary: 'Estimated cost',
       rental: 'Rental', deposit: 'Security deposit (refunded on return)', depositNoId: 'Deposit without identity verification (refunded on return)',
@@ -196,7 +197,7 @@
       promoLine: 'After Work 3 Nights promotion (promo price {price})',
       bundle: 'Bundle (with PS5)', noBundle: 'No bundle (PS5 only)', bundleHint: 'A bundle uses the set\'s own price and deposit instead of the console\'s.',
       extras: 'Accessories', perRental: 'per rental', accessory: 'Accessory', noAccessory: 'No accessory', included: '2 controllers included',
-      locate: '📍 Use my current location', locating: 'Finding your location…', locateFail: 'This browser did not share your location (common inside LINE or Facebook). Type a place or address in the box above instead.', locateNone: 'This browser cannot share its location. Type a place or address in the box above instead.'
+      locate: '📍 Use my current location', locating: 'Finding your location…', pinMap: '🗺️ Pin it on a map'
     }
   };
   var params = new URLSearchParams(location.search);
@@ -659,21 +660,22 @@
     render();
     scheduleAutoQuote(300);
   });
+  // "Use my current location", and the map: both end as a pin in the place
+  // box, which finds the address there; the price follows. Where the browser
+  // refuses the location (the Facebook and Instagram apps always do), the map
+  // opens by itself.
   $('locate').addEventListener('click', function () {
-    if (!navigator.geolocation) return showQuoteError(t('locateNone'));
     var btn = $('locate');
     btn.textContent = t('locating');
-    navigator.geolocation.getCurrentPosition(function (pos) {
-      $('maps').value = 'https://maps.google.com/?q=' + pos.coords.latitude.toFixed(6) + ',' + pos.coords.longitude.toFixed(6);
+    showQuoteError('');
+    placeSearch.locate().then(function (at) {
       btn.textContent = t('locate');
-      chosenPlace = null; quote = null; showQuoteError(''); showFoundPlace(null); render();
-      // The link names the pin; the box looks up the address there and the
-      // price follows.
-      placeSearch.lookup({ force: true });
-    }, function () {
-      btn.textContent = t('locate');
-      showQuoteError(t('locateFail'));
-    }, { enableHighAccuracy: true, timeout: 15000 });
+      if (at) placeSearch.usePin(at);
+    });
+  });
+  $('pinMap').addEventListener('click', function () {
+    showQuoteError('');
+    placeSearch.pickOnMap().then(function (at) { if (at) placeSearch.usePin(at); });
   });
   // The delivery discount depends on the length, so a new length re-prices.
   $('days').addEventListener('input', function () { renderChips(); render(); scheduleAutoQuote(800); });

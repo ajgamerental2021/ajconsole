@@ -32,9 +32,9 @@ test('the box waits for the customer to finish typing, and never asks per keystr
 });
 
 test('one match is taken; several open a list of name + full address; a link stands as is', () => {
-  assert.match(widget, /if \(link\) return choose\(places\[0\], 'link'\);\n        if \(places\.length === 1\) return choose\(places\[0\], 'auto'\);\n        state\.choices = places;/);
+  assert.match(widget, /if \(link\) return choose\(places\[0\], opts\.pin \? 'pin' : 'link'\);\n        if \(places\.length === 1\) return choose\(places\[0\], 'auto'\);\n        state\.choices = places;/);
   assert.match(widget, /<b>' \+ esc\(place\.name \|\| place\.address\) \+ '<\/b>' \+ address/);
-  assert.match(widget, /function choose\(place, how\) \{\n      if \(!place\) return;\n      var box = input\(\);\n      close\(\);/, 'picking closes the list');
+  assert.match(widget, /function choose\(place, how\) \{\n      if \(!place\) return;[\s\S]{0,300}?var box = input\(\);\n      close\(\);/, 'picking closes the list');
   assert.match(widget, /el\.addEventListener\('mousedown', function \(event\) \{ event\.preventDefault\(\); \}\);/);
   assert.match(widget, /event\.key === 'ArrowDown' \|\| event\.key === 'ArrowUp'/);
   assert.match(widget, /box\.setAttribute\('role', 'combobox'\);/);
@@ -87,4 +87,28 @@ test('calculator: a PS5 or PS5 Pro takes one accessory, "no accessory" chosen to
   assert.match(quote, /if \(single\) picked = picked\.slice\(0, 1\);/);
   // The booking page does the same.
   assert.match(html, /const single = \[SPEC\.PS5, SPEC\.PS5P\]\.includes\(Number\(c\.id\)\);/);
+});
+
+test('a pin from the map or the phone: the map needs no permission and opens where location is refused', () => {
+  // Leaflet is kept on this site, found next to the widget from any page.
+  assert.match(widget, /var SELF = \(document\.currentScript && document\.currentScript\.src\) \|\| '';/);
+  assert.match(widget, /new URL\('vendor\/leaflet-1\.9\.4\/', SELF \|\| location\.href\)/);
+  assert.ok(readFileSync(new URL('../assets/vendor/leaflet-1.9.4/leaflet.js', import.meta.url), 'utf8').includes('t.version="1.9.4"'));
+  assert.ok(readFileSync(new URL('../assets/vendor/leaflet-1.9.4/LICENSE', import.meta.url), 'utf8').length > 100);
+  assert.match(widget, /L\.tileLayer\('https:\/\/tile\.openstreetmap\.org\/\{z\}\/\{x\}\/\{y\}\.png'/);
+  assert.match(widget, /OpenStreetMap<\/a>/, 'tiles are credited');
+  // A refused location opens the map, saying why; Facebook and Instagram by name.
+  assert.match(widget, /function blockingApp\(\) \{ return \/FBAN\|FBAV\|FB_IAB\|FBIOS\|Instagram\/i\.test/);
+  assert.match(widget, /\.then\(function \(at\) \{ return at \|\| fallback\(\); \}\);/);
+  assert.match(widget, /blockedApp: 'แอป Facebook \/ Instagram ไม่ให้เว็บใช้ตำแหน่งปัจจุบัน ปักหมุดบนแผนที่นี้แทนได้เลย'/);
+  assert.match(widget, /blockedApp: 'The Facebook \/ Instagram app does not let web pages use your location\. Pin it on this map instead\.'/);
+  // The pin is a place even when no address is found for it.
+  assert.match(widget, /if \(!places\.length && opts\.pinAt\) return choose\(pinPlace\(opts\.pinAt\), 'pin'\);/);
+  assert.match(widget, /if \(!inThailand\(at\.lat, at\.lng\)\) return say\(t\('mapOutside'\)\);/);
+  // Both pages offer it.
+  assert.match(quote, /<button class="chip locate" id="pinMap" type="button" data-t="pinMap"><\/button>/);
+  assert.match(quote, /placeSearch\.pickOnMap\(\)\.then\(function \(at\) \{ if \(at\) placeSearch\.usePin\(at\); \}\);/);
+  assert.match(html, /data-demo-pin-map>\$\{en \? "🗺️ Pin it on a map" : "🗺️ ปักหมุดบนแผนที่"\}<\/button><\/div><p class="hint">/);
+  assert.match(html, /if\(event\.target\.closest\("\[data-demo-pin-map\]"\)\)\{ pinDemoOnMap\(\); return; \}/);
+  assert.match(html, /search\.locate\(\)\.then\(useDemoPin\);/);
 });

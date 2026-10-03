@@ -1,5 +1,17 @@
 # Project state
 
+## 2026-10-03 — "Pin it on a map" for browsers that refuse location (website)
+
+- **Problem.** "📍 ใช้ตำแหน่งปัจจุบัน" failed in the Facebook app's browser; it worked in LINE. The Facebook and Instagram in-app browsers never give a web page the phone's location, so no setting on our side can make that button work there.
+- **Fix.** The place box (`assets/place-search.js`) gains a map the customer moves under a fixed red pin, then taps "ใช้ตำแหน่งนี้". It needs no permission from the browser, so it works in Facebook, Instagram, LINE and every other browser.
+  - There is a new "🗺️ ปักหมุดบนแผนที่" / "🗺️ Pin it on a map" button next to the location button on the calculator, in step 2, and in the order page's "needs a pin" panel.
+  - When the location is refused, the map opens by itself with a note: "แอป Facebook / Instagram ไม่ให้เว็บใช้ตำแหน่งปัจจุบัน ปักหมุดบนแผนที่นี้แทนได้เลย". Other browsers get a general version of the note.
+  - The map starts at the place chosen last, else Bangkok. A pin outside Thailand is refused.
+  - The pin becomes a `maps.google.com/?q=lat,lng` link in the box. The box looks up the address there (Bot `/api/places/search`), shows the place name and the green line, and the price follows. If no address is found, the pin is still used, labelled "ตำแหน่งที่ปักหมุด lat, lng".
+- **Map.** Leaflet 1.9.4 is kept on the site (`assets/vendor/leaflet-1.9.4`, BSD-2 licence included) and loaded only when the map opens. Tiles are OpenStreetMap's, credited on the map. No API key is needed.
+- **Stale pop-up.** The owner's screenshot showed the calculator's old text inside Facebook: in-app browsers keep old copies. The pop-up's iframe now carries `&v=${QUOTE_PAGE_VERSION}` (`20261003-2`), and `place-search.js` is `?v=20261003-2`. Bump both together when the calculator changes.
+- **Tests:** website 262. Headless run with a Facebook iOS user agent and location refused: on the calculator (TH/EN) and step 2, the map opens with the note; dragging and using the spot fills the box, the green line and the price. Escape closes the map.
+
 ## 2026-10-03 — Place suggestions in both place boxes; one accessory for PS5 / PS5 Pro (Bot `94ea86a`, website)
 
 - **One place box, two pages.** `assets/place-search.js` (`AJPlaceSearch.create`) drives the calculator's `#maps` and booking step 2's `#demoMaps`, so they behave the same.

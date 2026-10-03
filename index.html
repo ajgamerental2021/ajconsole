@@ -246,6 +246,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .payment-option-amounts small{display:block;color:#667085!important;font-size:11.5px!important;font-weight:700!important}
 .payment-picker-note{margin:0 0 10px;color:#667085;font-size:12.5px;font-weight:700}
 .demo-locate-btn{margin-top:8px;align-self:flex-start}
+.demo-locate-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.demo-locate-row .demo-locate-btn{margin-top:0}
 .demo-maps-found{margin:0;color:#067647;font-weight:700;line-height:1.5;overflow-wrap:anywhere}
 .demo-maps-found a{color:inherit;text-decoration:underline;text-underline-offset:2px}
 .queue-retry-actions{display:flex;justify-content:flex-end;margin-top:14px}
@@ -1663,7 +1665,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 
 <script src="assets/vendor/simplewebauthn-browser-14.0.0.umd.min.js"></script>
 <script src="assets/admin-passkey.js"></script>
-<script src="assets/place-search.js?v=20261003-1"></script>
+<script src="assets/place-search.js?v=20261003-2"></script>
 <script>
 (() => {
   "use strict";
@@ -4168,7 +4170,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <div class="field"><label class="label" for="demoDistrict">${en ? "District" : "เขต / อำเภอ"}<span class="req">*</span></label><input class="input" id="demoDistrict" value="${esc(demoProfile.district)}" ${demoAddressFreeEntry ? "" : "readonly"}></div>
         <div class="field"><label class="label" for="demoProvince">${en ? "Province" : "จังหวัด"}<span class="req">*</span></label><input class="input" id="demoProvince" value="${esc(demoProfile.province)}" ${demoAddressFreeEntry ? "" : "readonly"}></div>
         <p class="demo-address-note wide" id="demoAddressNote" role="status" hidden></p>`}
-        <div class="field wide"><label class="label" for="demoMaps">${en ? "Delivery place · Google Maps" : "สถานที่ส่ง · Google Maps"}<span class="req">*</span></label><input class="input" id="demoMaps" type="text" autocomplete="off" enterkeyhint="search" value="${esc(demoMapsBoxText())}" placeholder="${en ? "Type a place or address, or paste a Google Maps link" : "พิมพ์ชื่อสถานที่ / ที่อยู่ หรือวางลิงก์ Google Maps"}">${demoMapsFoundHtml()}<button class="btn demo-locate-btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><p class="hint">${en ? "Type your condo, village or address and choose it from the list, or paste a Google Maps link." : "พิมพ์ชื่อคอนโด / หมู่บ้าน / ที่อยู่ แล้วเลือกจากรายการ หรือวางลิงก์ Google Maps"} <a id="demoMapsSearch" href="${esc(demoMapsSearchUrl())}" target="_blank" rel="noopener">${en ? "Or find it in Google Maps and paste the share link" : "หรือค้นหาใน Google Maps แล้วคัดลอกลิงก์แชร์มาวาง"}</a></p></div>
+        <div class="field wide"><label class="label" for="demoMaps">${en ? "Delivery place · Google Maps" : "สถานที่ส่ง · Google Maps"}<span class="req">*</span></label><input class="input" id="demoMaps" type="text" autocomplete="off" enterkeyhint="search" value="${esc(demoMapsBoxText())}" placeholder="${en ? "Type a place or address, or paste a Google Maps link" : "พิมพ์ชื่อสถานที่ / ที่อยู่ หรือวางลิงก์ Google Maps"}">${demoMapsFoundHtml()}<div class="demo-locate-row"><button class="btn demo-locate-btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><button class="btn demo-locate-btn" type="button" data-demo-pin-map>${en ? "🗺️ Pin it on a map" : "🗺️ ปักหมุดบนแผนที่"}</button></div><p class="hint">${en ? "Type your condo, village or address and choose it from the list, paste a Google Maps link, or pin it on a map." : "พิมพ์ชื่อคอนโด / หมู่บ้าน / ที่อยู่ แล้วเลือกจากรายการ วางลิงก์ Google Maps หรือปักหมุดบนแผนที่"} <a id="demoMapsSearch" href="${esc(demoMapsSearchUrl())}" target="_blank" rel="noopener">${en ? "Or find it in Google Maps and paste the share link" : "หรือค้นหาใน Google Maps แล้วคัดลอกลิงก์แชร์มาวาง"}</a></p></div>
       </div>
       <p class="hint">${demoProfile.noThaiAddress ? (en ? "The exact Google Maps pin is used for the delivery quote. The final round-trip fee must be confirmed before payment." : "ระบบใช้หมุด Google Maps ที่ระบุเพื่อคำนวณค่าส่ง โดยต้องยืนยันค่าจัดส่งไป-กลับก่อนชำระเงิน") : (en ? "The district and subdistrict are used to estimate delivery. The final round-trip fee must be confirmed before payment." : "ระบบใช้เขตและแขวงเพื่อประเมินค่าจัดส่ง โดยต้องยืนยันค่าจัดส่งไป-กลับก่อนชำระเงิน")}</p>
       <h3 class="demo-terms-heading">${en ? "Rental Terms" : "เงื่อนไขการเช่า"}</h3>
@@ -4422,7 +4424,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return `<div class="demo-delivery-fallback" role="status">
       <p><b>${esc(why)}</b><br>${esc(next)}</p>
       <div class="demo-pin-actions">
-        ${demoDelivery.status === "needs_pin" ? `<button class="btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button>` : ""}
+        ${demoDelivery.status === "needs_pin" ? `<button class="btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><button class="btn" type="button" data-demo-pin-map>${en ? "🗺️ Pin it on a map" : "🗺️ ปักหมุดบนแผนที่"}</button>` : ""}
         <button class="btn" type="button" data-delivery-quote-retry>${en ? "Calculate delivery again" : "คำนวณค่าส่งอีกครั้ง"}</button>
       </div>
     </div>`;
@@ -4490,32 +4492,37 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     saveDemoProfile();
     return true;
   }
-  // Fill the map link from the phone's location. The link carries the
-  // coordinates themselves, so the delivery quote never has to guess.
+  // A pin from the phone's location or the map. The link carries the
+  // coordinates themselves, so the delivery quote never has to guess, and the
+  // place box finds the address there for the green line. Where the browser
+  // refuses the location (the Facebook and Instagram apps always do), the map
+  // opens by itself.
   function useDemoCurrentLocation(){
+    const search = demoPlaces();
+    if(!search) return;
+    toast(state.lang === "en" ? "Finding your location…" : "กำลังหาตำแหน่ง…");
+    search.locate().then(useDemoPin);
+  }
+  function pinDemoOnMap(){
+    const search = demoPlaces();
+    if(search) search.pickOnMap({center: demoProfile.mapsPlace}).then(useDemoPin);
+  }
+  function useDemoPin(at){
+    if(!at) return;
     const en = state.lang === "en";
-    if(!navigator.geolocation){ toast(en ? "This browser cannot share its location." : "เบราว์เซอร์นี้แชร์ตำแหน่งไม่ได้"); return; }
-    toast(en ? "Finding your location…" : "กำลังหาตำแหน่ง…");
-    navigator.geolocation.getCurrentPosition(position => {
-      const lat = position.coords.latitude.toFixed(6);
-      const lng = position.coords.longitude.toFixed(6);
-      demoProfile.maps = `https://maps.google.com/?q=${lat},${lng}`;
-      demoProfile.mapsText = demoProfile.maps;
-      demoProfile.mapsPlace = null;
-      state.calc.maps = demoProfile.maps;
-      const input = byId("demoMaps");
-      if(input) input.value = demoProfile.mapsText;
-      clearDemoFieldError("demoMaps");
-      renderDemoMapsFound();
-      saveDemoProfile();
-      saveLocal();
-      if(state.calc.demoOrderOpen) renderDemoOrderPage();
-      // The address at the pin, for the green line.
-      demoPlaces()?.lookup({force:true, quiet:true});
-      toast(en ? "Location added. Check that it is the delivery address." : "ใส่ตำแหน่งแล้ว กรุณาตรวจว่าเป็นที่อยู่จัดส่ง");
-    }, () => {
-      toast(en ? "Location not shared. Allow location access, or paste a map link." : "ไม่ได้รับตำแหน่ง กรุณาอนุญาตการเข้าถึงตำแหน่ง หรือวางลิงก์แผนที่แทน");
-    }, {enableHighAccuracy:true, timeout:15000});
+    demoProfile.maps = window.AJPlaceSearch.pinLink(at.lat, at.lng);
+    demoProfile.mapsText = demoProfile.maps;
+    demoProfile.mapsPlace = null;
+    state.calc.maps = demoProfile.maps;
+    clearDemoFieldError("demoMaps");
+    saveDemoProfile();
+    saveLocal();
+    // In step 2 the box takes the pin and names the place; on the order page
+    // (its "needs a pin" panel) the pin is enough.
+    if(byId("demoMaps")) demoPlaces()?.usePin(at);
+    else renderDemoMapsFound();
+    if(state.calc.demoOrderOpen) renderDemoOrderPage();
+    toast(en ? "Location added. Check that it is the delivery address." : "ใส่ตำแหน่งแล้ว กรุณาตรวจว่าเป็นที่อยู่จัดส่ง");
   }
   // ── Step 2's place box ── the same box as the rental calculator
   // (assets/place-search.js): type a place and choose it from the list, or
@@ -10686,6 +10693,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
   }
   // The rough-quote page in a pop-up, in the site's language. The frame keeps
   // what was filled in: the language switch tells it, it is not reloaded.
+  // Changes with the calculator page, so the pop-up never shows a stale copy
+  // that an in-app browser kept.
+  const QUOTE_PAGE_VERSION = "20261003-2";
   function quoteFrameOrigin(){ return /^https?:\/\/(localhost|127\.0\.0\.1)/.test(location.origin) ? location.origin : "https://ajgamerental.com"; }
   function renderQuoteHead(){
     const en = state.lang === "en";
@@ -10697,7 +10707,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
   function openQuotePopup(from = "", consoleId = ""){
     const frame = byId("quoteFrame");
     const device = String(consoleId || "");
-    if(!frame.getAttribute("src")) frame.setAttribute("src", `${quoteFrameOrigin()}/quote/?embed=1&src=web&lang=${state.lang === "en" ? "en" : "th"}${device ? `&device=${encodeURIComponent(device)}` : ""}`);
+    if(!frame.getAttribute("src")) frame.setAttribute("src", `${quoteFrameOrigin()}/quote/?embed=1&src=web&v=${QUOTE_PAGE_VERSION}&lang=${state.lang === "en" ? "en" : "th"}${device ? `&device=${encodeURIComponent(device)}` : ""}`);
     else{
       frame.contentWindow?.postMessage({type:"AJ_SET_LANG", lang:state.lang}, quoteFrameOrigin());
       if(device) frame.contentWindow?.postMessage({type:"AJ_SET_DEVICE", consoleId:device}, quoteFrameOrigin());
@@ -11813,6 +11823,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(event.target.closest("#siteMenuBtn")){ toggleSiteMenu(); return; }
       if(!event.target.closest("#siteMenu")) toggleSiteMenu(false);
       if(event.target.closest("[data-demo-locate]")){ useDemoCurrentLocation(); return; }
+      if(event.target.closest("[data-demo-pin-map]")){ pinDemoOnMap(); return; }
       const infoPage = event.target.closest("[data-info-page]");
       if(infoPage){ toggleSiteMenu(false); openInfoModal(infoPage.dataset.infoPage); return; }
       const menuAction = event.target.closest("[data-menu-action]");

@@ -17,7 +17,7 @@ test('the pop-up opens at once with the page inside, a language switch and a clo
   assert.match(html, /<div class="modal-overlay quote-modal" id="quoteModal">/);
   assert.match(html, /id="quoteLangBtn"/);
   assert.match(html, /<button class="xbtn" id="quoteClose"/);
-  assert.match(html, /\/quote\/\?embed=1&src=web&lang=\$\{state\.lang === "en" \? "en" : "th"\}/);
+  assert.match(html, /\/quote\/\?embed=1&src=web&v=\$\{QUOTE_PAGE_VERSION\}&lang=\$\{state\.lang === "en" \? "en" : "th"\}/);
   assert.match(html, /byId\("quoteModal"\)\.classList\.add\("open"\);/);
   assert.match(html, /byId\("quoteClose"\)\.addEventListener\("click", closeQuotePopup\);/);
   assert.match(html, /event\.key === "Escape" && byId\("quoteModal"\)\?\.classList\.contains\("open"\)\) closeQuotePopup\(\);/);

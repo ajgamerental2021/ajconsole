@@ -358,7 +358,7 @@ test('the Rental ID page opens at the preparation notice', () => {
 
 test('a map link without a pin explains the fix, and the current location can fill it', () => {
   assert.match(html, /function useDemoCurrentLocation\(\)/);
-  assert.match(html, /demoProfile\.maps = `https:\/\/maps\.google\.com\/\?q=\$\{lat\},\$\{lng\}`/);
+  assert.match(html, /demoProfile\.maps = window\.AJPlaceSearch\.pinLink\(at\.lat, at\.lng\);/);
   assert.match(html, /📍 ใช้ตำแหน่งปัจจุบัน/);
   assert.match(html, /📍 Use my current location/);
   assert.match(html, /class="demo-pin-help"/);

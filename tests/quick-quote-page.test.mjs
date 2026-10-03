@@ -29,7 +29,7 @@ test('accessories by device, PS5 bundles, and the current-location button', () =
   assert.match(page, /data\.rentalAccessories/);
   assert.match(page, /data\.rentalBundles/);
   assert.match(page, /return b \? \{ rate: b\.rate, weekly: b\.weekly, deposit: b\.deposit/);
-  assert.match(page, /navigator\.geolocation\.getCurrentPosition/);
+  assert.match(page, /placeSearch\.locate\(\)\.then\(function \(at\) \{/);
   assert.match(page, /locate: '📍 ใช้ตำแหน่งปัจจุบัน'/);
   assert.match(page, /locate: '📍 Use my current location'/);
 });
