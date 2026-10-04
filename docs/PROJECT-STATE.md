@@ -1,5 +1,23 @@
 # Project state
 
+## 2026-10-04 — รวม Bundle ใน My Rental และ Extension ให้ยอดตรงกัน (Delivery App `e979f20`)
+
+- **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/backend/src/routes/myRental.ts`, `routes/customerExtension.ts`, `services/rentalExtensionService.ts`, `extensionPendingService.ts`, `rentalExtensionPaymentService.ts`, `scripts/testExtensionPricing.ts` และ `testMyRentalLink.ts`. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ Bot/website application code และไม่ได้แตะ `aj-cm`.
+- My Rental ตรวจคู่ Bundle จาก Booking หลักและแถวถัดไปที่อ้างเลขหลักตรงกัน แล้วรวมข้อมูลเป็นหนึ่งรายการลูกค้า: เครื่อง `PS5-2 + G29`, Booking `545 + 546` และ Rental ID `AJ-... + Booking Bundle #546` (อังกฤษใช้ `Bundle Booking #546`).
+- กรณี parent row เก่าอย่าง `545` ขาด `bundleId`, `extrasFee` หรือ `extrasDeposit` แต่แถว `546` ยังยืนยัน Bundle ระบบสร้างเฉพาะ customer-view fields ที่ขาดจาก catalogue เดิม; ยอดที่บันทึกไว้เดิมมีสิทธิ์ก่อนเสมอ จึงไม่ reprice ประวัติและไม่เขียนทับ Booking.
+- Regression กรณีจริง 545/546: ค่าเช่า PS5 3 วัน `1,200` + Bundle `450` = ค่าเช่ารวม `1,650`; ค่าประกัน Bundle `3,000`; ค่าส่ง `321`; ชำระแล้ว `-200`; ยอดก่อนส่ง `4,771` ทั้งไทยและอังกฤษ.
+- หน้า Extension แสดง `PS5 + Logitech G29`, อ้าง `Booking Bundle #546`, ใช้ Rental ID พร้อม reference และคำนวณจาก pair rate `550/วัน, 3,500/สัปดาห์`; ต่อ 1 วันหลังเช่าเดิม 3 วัน = `550 - 55 (10%) = 495` บาท. Extension Pending และ Flex Card ใช้ชื่อ/reference เดียวกัน.
+- กฎนี้ไม่ผูกเลข 545/546 และใช้กับ Bundle Booking ในอนาคตทุกคู่ที่ผ่าน relation check; อุปกรณ์เสริมยังรวมตามกฎใน `ebda1a1`.
+- **Tests:** backend build ผ่าน; extension-pricing 60/60, extension-queue 11/11, extension-deposit/Flex 15/15, bundle-partner 22/22, confirm-totals 24/24, master-agreement 104/104, My Rental link 110/110, booking-language 15/15 และ paid-booking LINE ผ่าน. คำเตือน Sheets ใน My Rental test มาจาก mock ที่ไม่มี `batchUpdate` และเป็น non-fatal ตามที่ test ตั้งใจ.
+- **Deploy:** push Delivery App `main` แล้ว; deploy backend commit `e979f20`. ไม่มี migration, env var หรือ secret ใหม่.
+
+## Request — 2026-10-04 — Codex → Claude Code: My Rental และ Extension ต้องรวมข้อมูล Bundle จริง
+
+- **Owner evidence:** My Rental ของ Booking `545` แสดงเพียง `PS5-2`, ค่าเช่า `1,200` และค่าประกัน `2,000` แต่ยอดก่อนส่ง `4,771` รวม Bundle แล้ว จึงมีรายละเอียดหาย `1,450` บาท (ค่าเช่า Bundle เพิ่ม 450 + ค่าประกันเพิ่ม 1,000). หน้า Extension จึงตามไปแสดง PS5 `400/2,500` และยอดต่อ 360 ผิด.
+- **Bundle reference:** Booking `546` เป็นแถว G29 ของ Bundle ที่อ้าง Booking หลัก `545`. ต้องรวมชื่อเครื่อง, Booking reference, Rental ID display, ค่าเช่ารวม, ค่าประกันรวม และ quote เช่าต่อจากคู่ Booking เดียวกัน.
+- **Future rule:** ใช้กฎเดียวกันกับ Bundle Booking ในอนาคต โดยตรวจแถว Bundle ที่สัมพันธ์กับ Booking หลัก ไม่ผูกกับเลข 545/546; หน้า My Rental, Extension, Extension Pending และ Flex Card ต้องตรงกันทั้งไทย/อังกฤษ.
+- **Planned scope:** แก้ source of truth ใน Delivery App และ regression tests โดยอ่าน Booking fields/catalogue เดิม; ไม่แตะ Bot, website application code หรือ `aj-cm` เว้นแต่ contract เดิมมีข้อมูลไม่พอ.
+
 ## 2026-10-04 — เช่าต่อตรวจ Bundle แถวถัดไปและรวมอุปกรณ์เสริม (Delivery App `ebda1a1`)
 
 - **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/backend/src/services/rentalExtensionService.ts`, `extensionPendingService.ts`, `rentalExtensionPaymentService.ts`, `routes/customerExtension.ts` และ `scripts/testExtensionPricing.ts`. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ Bot/website application code และไม่ได้แตะ `aj-cm`.
