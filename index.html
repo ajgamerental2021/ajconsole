@@ -998,8 +998,12 @@ body.unified-flow-demo .demo-item-head{display:flex;gap:14px;align-items:center}
 body.unified-flow-demo .demo-item-thumb{width:64px;height:64px;flex:0 0 auto;object-fit:contain;border-radius:12px;background:#f2f4f7}
 body.unified-flow-demo .demo-item-thumb-icon{display:grid;place-items:center;font-size:30px}
 body.unified-flow-demo .demo-game-change-note{margin:10px 0 0;padding:7px 10px;border:1px solid #f0a000;border-radius:9px;background:#fff8dd;color:#6b3900;font-size:12.5px;font-weight:800;line-height:1.4}
-body.unified-flow-demo .demo-item-details{margin:12px 0 0;padding-left:20px;color:#475467;line-height:1.7;columns:2;column-gap:22px}
-body.unified-flow-demo .demo-item-details li{break-inside:avoid}
+body.unified-flow-demo .demo-item-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin-top:12px}
+body.unified-flow-demo .demo-item-column{min-width:0}
+body.unified-flow-demo .demo-item-column+.demo-item-column{padding-left:18px;border-left:1px solid #e4e7ec}
+body.unified-flow-demo .demo-item-column h4{margin:0 0 5px;color:#344054;font-size:13px;line-height:1.4}
+body.unified-flow-demo .demo-item-details{margin:0;padding-left:20px;color:#475467;line-height:1.7;overflow-wrap:anywhere}
+body.unified-flow-demo .demo-item-empty{margin:0;color:#667085;font-size:13px;line-height:1.7}
 body.unified-flow-demo .demo-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px}
 body.unified-flow-demo .demo-section-head h3{margin:0}
 body.unified-flow-demo .demo-edit-btn{padding:7px 14px;font-weight:800}
@@ -1207,7 +1211,9 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
     body.unified-flow-demo .demo-customer-grid{grid-template-columns:1fr}
     body.unified-flow-demo .demo-profile-grid,body.unified-flow-demo .demo-identity-grid,body.unified-flow-demo .demo-order-grid{grid-template-columns:1fr;gap:18px}
     body.unified-flow-demo .demo-upload{padding:16px}
-    body.unified-flow-demo .demo-item-details{columns:2;column-gap:16px;padding-left:18px;font-size:14px}
+    body.unified-flow-demo .demo-item-columns{gap:12px}
+    body.unified-flow-demo .demo-item-column+.demo-item-column{padding-left:12px}
+    body.unified-flow-demo .demo-item-details{padding-left:18px;font-size:14px}
     body.unified-flow-demo .demo-upload-btn{flex:1 1 100%}
     body.unified-flow-demo .demo-contract-frame{height:78vh}
   }
@@ -2126,7 +2132,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       pickGames:"เลือก / แก้ไขรายชื่อเกม", sendLater:"แจ้งรายชื่อเกมภายหลัง", clearGames:"ล้างรายชื่อเกม", noGameList:"รุ่นนี้ไม่มีรายการเกมให้เลือกในระบบ",
       summaryTitle:"สรุปค่าเช่า", summaryEmpty:"เลือกเครื่องและวันที่เพื่อดูสรุป", rental:"ค่าเช่า", discount:"ส่วนลด", promo:"โปรโมชัน", total:"ยอดรวม", grandTotal:"ยอดรวมก่อนค่าจัดส่ง", upfront:"โอนล่วงหน้า", upfrontConfirm:"โอนล่วงหน้า (ยืนยันการจอง)", fullPaymentConfirm:"ชำระยอดเต็ม (เพื่อยืนยันการจอง)", onDelivery:"จ่ายตอนของถึง", payOnDelivery:"จ่ายตอนของถึง", delivery:"ค่าส่งแจ้งทางแชท", finalActionHelp:"ตรวจสอบข้อมูลแล้ว กดจองผ่านช่องทางแชทที่คุยกับร้านเพื่อส่งรายละเอียด",
       returningDiscount:"ส่วนลดลูกค้าเก่า 10%", consoleDiscount:"ส่วนลดเครื่องเกม", boardGameDiscount:"ส่วนลดบอร์ดเกม", boardGameDeposit:"ค่าประกันบอร์ดเกม", rentalDays:"จำนวนวันเช่า", boardGameRental:"ค่าเช่าบอร์ดเกม", boardGameList:"รายการบอร์ดเกม",
-      equipmentDetails:"รายละเอียดอุปกรณ์", players:"จำนวนผู้เล่น", playTime:"เวลาเล่น", age:"อายุแนะนำ", packageRental:"ค่าเช่าตามแพ็ก", oneDay:"1 วัน", threeDays:"3 วัน", sevenDays:"7 วัน", howToPlay:"วิธีเล่นคร่าว ๆ", noContractDepositNote:"ค่าประกัน (ไม่ทำสัญญา)", noContractLabel:"ไม่ทำสัญญา", standardTier:"เรทมาตรฐาน", planning:"วางแผน", recommendedChannel:"ช่องทางแนะนำ",
+      equipmentDetails:"รายละเอียดอุปกรณ์", selectedGamesHeading:"เกมที่เลือก", noSelectedGames:"ไม่มีรายชื่อเกมที่เลือก", players:"จำนวนผู้เล่น", playTime:"เวลาเล่น", age:"อายุแนะนำ", packageRental:"ค่าเช่าตามแพ็ก", oneDay:"1 วัน", threeDays:"3 วัน", sevenDays:"7 วัน", howToPlay:"วิธีเล่นคร่าว ๆ", noContractDepositNote:"ค่าประกัน (ไม่ทำสัญญา)", noContractLabel:"ไม่ทำสัญญา", standardTier:"เรทมาตรฐาน", planning:"วางแผน", recommendedChannel:"ช่องทางแนะนำ",
       copy:"📋 Copy ข้อความจองเช่า", line:"จองผ่าน Line", whatsapp:"จองผ่าน WhatsApp", messenger:"จองผ่าน Messenger", copied:"คัดลอกแล้ว", minDays:"ขั้นต่ำ 3 วัน", busy:"เครื่องอาจไม่ว่างในช่วงนี้", available:"ช่วงนี้ผ่านการเช็คคิวแล้ว", checking:"กำลังเช็คคิว...", queueError:"ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่", retryQueue:"ลองเช็คคิวอีกครั้ง", queueRetryCell:"ลองเช็คใหม่", queueClosed:"ปิดคิวในช่วงเวลานี้", bookingHold:"มี 1 คิวกำลังทำรายการ กรุณาเช็คคิวใหม่ใน {minutes} นาที", bookingHoldCell:"กำลังจอง · เช็คใหม่ใน {minutes} นาที", bookingHoldLost:"มีลูกค้ารายอื่นกำลังจองเครื่องนี้ กรุณาเช็คคิวใหม่ใน {minutes} นาที", stepNeedConsole:"เลือกเครื่องเกมก่อนเพื่อเริ่มเช็คคิว", stepNeedStart:"เลือกวันที่เริ่มเช่า", stepNeedEnd:"เลือกวันคืนเครื่อง", stepNeedMinDays:"เลือกช่วงเช่าอย่างน้อย 3 วัน", stepQueueChecking:"กำลังตรวจสอบคิว กรุณารอสักครู่", stepQueueUnavailable:"ช่วงวันที่เลือกยังไม่พร้อมให้จอง", stepReadyDates:"เครื่องและช่วงวันที่พร้อม ไปขั้นตอนถัดไปได้", stepNeedGames:"เลือกรายชื่อเกม หรือเลือกแจ้งรายชื่อเกมภายหลัง", stepReadyGames:"ข้อมูลเกมพร้อมแล้ว ไปขั้นตอนถัดไปได้", stepReadyReview:"ตรวจสอบช่องทางชำระเงิน สัญญา และแผนที่ แล้วดูสรุปได้",
       shareConfirmTitle:"ยืนยันส่งข้อความจอง", shareConfirmMessage:"คุณกำลังจะส่งข้อความจองเช่าผ่าน {channel}", shareConfirmNote:"เพื่อป้องกันการส่งซ้ำ ระบบจะกันการกดซ้ำชั่วคราวหลังยืนยันส่ง", shareConfirmContractNote:"ลูกค้าใหม่ควรทำสัญญาการเช่าก่อนส่งข้อความจอง เพื่อให้ข้อมูลไม่หลุดและลดการส่งซ้ำ", shareConfirmMessengerNote:"Messenger ไม่สามารถใส่ข้อความให้อัตโนมัติ กรุณาคัดลอกข้อความ แล้วเปิดแชท AJ เพื่อวางและกดส่ง", shareConfirmSend:"ยืนยันส่งข้อความจอง", shareContractFirst:"ทำสัญญาก่อน", shareCancel:"ยกเลิก", shareCooldown:"กำลังเตรียมหรือเพิ่งเปิดข้อความจอง กรุณารอสักครู่ก่อนกดซ้ำ", sharePreparing:"กำลังเตรียมข้อความจองสำหรับ {channel} กรุณาอย่ากดซ้ำ", shareReady:"ข้อความพร้อมแล้ว กรุณาคัดลอกและเปิด Messenger", shareOpened:"เปิด {channel} แล้ว กรุณากดส่งข้อความในแชท และรอสักครู่ก่อนกดซ้ำ", messengerHandoffTitle:"ส่งข้อความผ่าน Messenger", messengerHandoffHelp:"1. กดคัดลอกข้อความ  2. เปิด Messenger  3. วางข้อความในแชทและกดส่ง", messengerCopy:"คัดลอกข้อความ", messengerOpen:"เปิด Messenger", messengerCopied:"คัดลอกข้อความแล้ว กรุณาเปิด Messenger และวางในแชท",
       bookingFallbackTitle:"ส่งรายการจองอัตโนมัติไม่สำเร็จ", bookingFallbackHelp:"ระบบเตรียมข้อความจองไว้ให้แล้ว กรุณากดคัดลอก แล้วนำไปวางและส่งในแชทที่ติดต่อกับร้าน AJ", bookingFallbackCopy:"คัดลอกข้อความจอง", bookingFallbackOpen:"เปิด {channel}", bookingFallbackCopied:"คัดลอกแล้ว กรุณาวางข้อความและกดส่งในแชท",
@@ -2249,7 +2255,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       pickGames:"Choose / Edit games", sendLater:"Send game list later", clearGames:"Clear games", noGameList:"This model has no game catalog in the system.",
       summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Total before delivery", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", fullPaymentConfirm:"Full payment (to confirm booking)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat", paymentFee:"Payment fee", cardDeposit:"Card / E-Wallet / Thai QR reservation (no fee)", paymentLink:"Payment link", finalActionHelp:"Review the details, then book via the same chat channel to send them to AJ.",
       returningDiscount:"Returning customer 10% discount", consoleDiscount:"Console discount", boardGameDiscount:"Board game discount", boardGameDeposit:"Board game deposit", rentalDays:"Rental days", boardGameRental:"Board game rental", boardGameList:"Board game list",
-      equipmentDetails:"Equipment details", players:"Players", playTime:"Play time", age:"Recommended age", packageRental:"Package rental", oneDay:"1 day", threeDays:"3 days", sevenDays:"7 days", howToPlay:"Quick how to play", noContractDepositNote:"Deposit (no contract)", noContractLabel:"No contract", standardTier:"Standard tier", planning:"Planning", recommendedChannel:"Recommended",
+      equipmentDetails:"Equipment details", selectedGamesHeading:"Selected games", noSelectedGames:"No games selected", players:"Players", playTime:"Play time", age:"Recommended age", packageRental:"Package rental", oneDay:"1 day", threeDays:"3 days", sevenDays:"7 days", howToPlay:"Quick how to play", noContractDepositNote:"Deposit (no contract)", noContractLabel:"No contract", standardTier:"Standard tier", planning:"Planning", recommendedChannel:"Recommended",
       copy:"📋 Copy booking message", line:"Book via LINE", whatsapp:"Book via WhatsApp", messenger:"Book via Messenger", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", queueError:"Unable to check the queue. Please try again.", retryQueue:"Retry queue check", queueRetryCell:"Retry check", queueClosed:"Queue closed during this period", bookingHold:"1 customer is completing this booking. Check again in {minutes} minutes.", bookingHoldCell:"In progress · retry in {minutes} min", bookingHoldLost:"Another customer is booking this console. Check again in {minutes} minutes.", stepNeedConsole:"Choose a console to start the queue check.", stepNeedStart:"Choose the rental start date.", stepNeedEnd:"Choose the return date.", stepNeedMinDays:"Choose a rental period of at least 3 days.", stepQueueChecking:"Checking the queue. Please wait a moment.", stepQueueUnavailable:"The selected dates are not ready to book.", stepReadyDates:"Console and dates are ready. You can continue.", stepNeedGames:"Choose games or select Send game list later.", stepReadyGames:"Game selection is ready. You can continue.", stepReadyReview:"Review payment, contract and map options, then continue to the summary.",
       shareConfirmTitle:"Confirm booking message", shareConfirmMessage:"You are about to send this booking message via {channel}.", shareConfirmNote:"To prevent duplicate messages, the buttons will be briefly locked after confirmation.", shareConfirmContractNote:"First-time customers should complete the rental contract before sending the booking message, so the details do not get missed or duplicated.", shareConfirmMessengerNote:"Messenger cannot prefill this message. Please copy it, open AJ's chat, paste it, and tap Send.", shareConfirmSend:"Confirm and send", shareContractFirst:"Do contract first", shareCancel:"Cancel", shareCooldown:"Your booking message is being prepared or was just opened. Please wait before trying again.", sharePreparing:"Preparing your booking message for {channel}. Please do not tap again.", shareReady:"Your message is ready. Copy it and open Messenger.", shareOpened:"{channel} opened. Please send the message in the chat and wait before trying again.", messengerHandoffTitle:"Send via Messenger", messengerHandoffHelp:"1. Copy the message  2. Open Messenger  3. Paste it into the chat and tap Send", messengerCopy:"Copy message", messengerOpen:"Open Messenger", messengerCopied:"Message copied. Open Messenger and paste it into the chat.",
       bookingFallbackTitle:"Automatic booking delivery failed", bookingFallbackHelp:"Your booking message is ready. Copy it, then paste and send it in the chat you use to contact AJ.", bookingFallbackCopy:"Copy booking message", bookingFallbackOpen:"Open {channel}", bookingFallbackCopied:"Copied. Paste the message into the chat and tap Send.",
@@ -5616,21 +5622,32 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function demoRentalItemHtml(item, summary){
     const en = state.lang === "en";
     const image = getConsoleImage(item);
-    const details = splitDetailLines([
+    const equipment = [
       ...consoleDetails(item, en ? "en" : "th"),
       ...(summary.bundleName ? [`${tr("bundle")}: ${summary.bundleName}`] : []),
-      ...(summary.extras || []).map(extra => `${tr("accessories")}: ${en ? extra.en : extra.th}`),
+      ...(summary.extras || []).map(extra => `${tr("accessories")}: ${en ? extra.en : extra.th}`)
+    ];
+    const games = [
       ...(summary.bgItems || []).map(game => `${tr("boardGames")}: ${bgName(game)}`),
       ...(state.calc.games?.length ? state.calc.games.map((game, index) => `${en ? "Game" : "เกม"} ${index + 1}: ${game.name || game.title || game.id}`) : []),
       ...(state.calc.later && !state.calc.games?.length ? [en ? "Game list: sent later" : "รายชื่อเกม: แจ้งภายหลัง"] : [])
-    ]);
+    ];
     return `<div class="demo-order-box demo-item-box">
       <div class="demo-item-head">
         ${image ? `<img class="demo-item-thumb" src="${esc(image)}" alt="${esc(cName(item))}">` : `<span class="demo-item-thumb demo-item-thumb-icon">${esc(item?.icon || "🎮")}</span>`}
         <div><b>${esc(cName(item))}</b><div class="hint">${summary.days} ${en?"days":"วัน"} · ${money(summary.rental)}</div></div>
       </div>
-      ${details.length ? `<ul class="demo-item-details">${details.map(line => `<li>${esc(line)}</li>`).join("")}</ul>` : ""}
+      ${demoRentalItemColumnsHtml(equipment, games)}
       ${state.calc.games?.length || state.calc.later ? gameChangeNoticeHtml() : ""}
+    </div>`;
+  }
+  function demoRentalItemColumnsHtml(equipmentItems, gameItems){
+    const equipment = splitDetailLines(equipmentItems);
+    const games = splitDetailLines(gameItems);
+    const list = items => `<ul class="demo-item-details">${items.map(line => `<li>${esc(line)}</li>`).join("")}</ul>`;
+    return `<div class="demo-item-columns">
+      <div class="demo-item-column"><h4>${esc(tr("equipmentDetails"))}</h4>${equipment.length ? list(equipment) : `<p class="demo-item-empty">—</p>`}</div>
+      <div class="demo-item-column"><h4>${esc(tr("selectedGamesHeading"))}</h4>${games.length ? list(games) : `<p class="demo-item-empty">${esc(tr("noSelectedGames"))}</p>`}</div>
     </div>`;
   }
   // Under the game list wherever a rental's games are shown: the game list is
@@ -8890,9 +8907,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const rentalRow = r.costs.find(c => !isDelivery(c) && !isFee(c) && !isDeposit(c) && !c.discount);
     // The device's own lines (controllers, cables, games included), as on the
     // booking page's order summary.
-    const details = [
+    const equipment = [
       ...consoleDetails(item, en ? "en" : "th"),
-      ...r.extras.map(extra => `${tr("accessories")}: ${extra}`),
+      ...r.extras.map(extra => `${tr("accessories")}: ${extra}`)
+    ];
+    const games = [
       ...r.games.map((game, index) => `${en ? "Game" : "เกม"} ${index + 1}: ${game}`),
       ...(r.later && !r.games.length ? [en ? "Game list: sent later" : "รายชื่อเกม: แจ้งภายหลัง"] : [])
     ];
@@ -8926,7 +8945,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
             ${image ? `<img class="demo-item-thumb" src="${esc(image)}" alt="${esc(r.deviceName)}">` : `<span class="demo-item-thumb demo-item-thumb-icon">${esc(item?.icon || "🎮")}</span>`}
             <div><b>${esc(item ? cName(item) : r.deviceName)}</b><div class="hint">${r.days} ${en ? "days" : "วัน"}${rentalRow ? ` · ${esc(rentalRow.value)}` : ""}</div></div>
           </div>
-          ${details.length ? `<ul class="demo-item-details">${details.map(line => `<li>${esc(line)}</li>`).join("")}</ul>` : ""}
+          ${demoRentalItemColumnsHtml(equipment, games)}
           ${r.games.length || r.later ? gameChangeNoticeHtml() : ""}
         </div></section>
         <section class="demo-order-section"><h3>${en ? "Details" : "รายละเอียด"}</h3><div class="demo-order-box">${row(en ? "Rental ID" : "รหัสการเช่า", esc(r.rentalCode))}${statusRow(en ? "Rental status" : "สถานะการเช่า", r.paid ? (en ? "Paid" : "ชำระเงินแล้ว") : (en ? "Awaiting payment" : "รอชำระเงิน"), r.paid ? "ok" : "is-awaiting")}</div></section>

@@ -194,7 +194,19 @@ test('the Rental ID page shows the device photo and everything included', () => 
   assert.match(html, /function demoRentalItemHtml\(item, summary\)/);
   assert.match(html, /class="demo-item-thumb"/);
   assert.match(html, /summary\.bundleName \? \[`\$\{tr\("bundle"\)\}/);
-  assert.match(html, /demo-item-details/);
+  assert.match(html, /demoRentalItemColumnsHtml\(equipment, games\)/);
+});
+
+test('rental item cards always keep equipment left and selected games right in both languages', () => {
+  assert.match(html, /function demoRentalItemColumnsHtml\(equipmentItems, gameItems\)/);
+  assert.match(html, /class="demo-item-columns"/);
+  assert.match(html, /tr\("equipmentDetails"\)/);
+  assert.match(html, /tr\("selectedGamesHeading"\)/);
+  assert.match(html, /selectedGamesHeading:"เกมที่เลือก"/);
+  assert.match(html, /selectedGamesHeading:"Selected games"/);
+  assert.match(html, /grid-template-columns:minmax\(0,1fr\) minmax\(0,1fr\)/);
+  assert.match(html, /const equipment = \[\n\s*\.\.\.consoleDetails\(item/);
+  assert.match(html, /const games = \[\n\s*\.\.\.r\.games\.map/);
 });
 
 test('the payment breakdown separates charges, discounts, delivery and totals', () => {
@@ -232,7 +244,8 @@ test('a verified LINE sign-in fills the saved email and address', () => {
 test('multi-line catalogue details render as separate lines everywhere', () => {
   assert.match(html, /function splitDetailLines\(items\)/);
   assert.match(html, /const list = splitDetailLines\(items\);/);
-  assert.match(html, /const details = splitDetailLines\(\[/);
+  assert.match(html, /const equipment = splitDetailLines\(equipmentItems\);/);
+  assert.match(html, /const games = splitDetailLines\(gameItems\);/);
 });
 
 test('checkout goes straight to the payment provider, which refuses framing', () => {
