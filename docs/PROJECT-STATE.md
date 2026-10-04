@@ -1,5 +1,24 @@
 # Project state
 
+## 2026-10-04 — Console Pending: ปุ่มดูรายชื่อเกมที่ลูกค้าเลือก (Delivery App `ac6d8ea`)
+
+- **แจ้ง Claude:** Codex แก้ Delivery App ตามคำขอของเจ้าของ โดยไม่ได้แตะ `aj-cm`, เว็บไซต์ หรือ Bot application code.
+- ใน Booking Log → Console Pending แต่ละรายการที่มีเกม จะมีปุ่ม **“ดูรายชื่อเกมที่เลือก (N)”** กดแล้วเปิดรายชื่อแบบลำดับเลข พร้อม Rental ID และชื่อเครื่องของรายการนั้น.
+- ถ้าลูกค้าเลือก **“แจ้งรายชื่อเกมภายหลัง”** ปุ่มจะแสดงสถานะนี้ และหน้าต่างจะบอกว่ายังไม่มีเกมที่เลือก.
+- Backend ส่ง `games` และ `gamesLater` มากับ Console Pending item โดยอ่านจากข้อมูลเดิมที่เว็บไซต์และ Bot เก็บอยู่แล้ว:
+  - `ข้อมูลจอง.games` เป็นรายการแรกจากหน้าเว็บ;
+  - `รายการเสริม / เกม` ชนะเมื่อมีรายการใหม่จาก game picker ภายหลัง;
+  - ใช้ตัวแยกเดิมของ Delivery App กรองอุปกรณ์เสริม และตัดบอร์ดเกมออก จึงไม่เอา “เพิ่มจอย” หรือ Catan มานับเป็นเกมเครื่อง.
+- **Tests:** backend build, frontend TypeScript, Expo web export; delivery-pending 11, game-list-parsing 14, console-pending-reservation 67, resubmissions 20, game-extras 16, console-pending identity, console-pending-overrides 25, game-selection-card 45 และ request-check 8 ผ่านทั้งหมด.
+- **Deploy:** backend ต้อง deploy commit นี้เพื่อให้ API ส่งสอง field ใหม่ และ staff app ต้อง web build/OTA ตามขั้นตอนเดิมเพื่อเห็นปุ่ม.
+
+## Request — 2026-10-04 — Codex → Claude Code: show selected games on each Console Pending item
+
+- **Owner request:** In Delivery App → Booking Log → Console Pending, add a button on each request that opens the exact game list the customer selected for that rental.
+- **Source of truth:** use the existing `games` / `later` values already carried by the website inside the Console Pending row's structured `ข้อมูลจอง`; do not create another game list or copy catalogue rules.
+- **Planned scope:** Delivery App only for the API field, button, popup and tests. The website and Bot already carry and persist the required data, so they should remain unchanged unless testing finds a missing handoff.
+- **Why:** staff need to see the requested games before confirming the pending request and preparing the console, without searching inside the raw booking message or JSON.
+
 ## 2026-10-04 — "รวมก่อนส่วนลด" line removed (Delivery App `854c93a`)
 
 - **Why:** after a promotion this line showed a figure that was already discounted, under a "before discount" name, and it repeated the rental total just below. Booking 536: 1,200 + 210 − 201 printed "รวมก่อนส่วนลด 1,209".
