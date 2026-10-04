@@ -1,5 +1,18 @@
 # Project state
 
+## 2026-10-04 — ป้ายค่าประกันก่อนหัก/หัก/คงเหลือ (Delivery App `16fb75f`)
+
+- **แจ้ง Claude — สิ่งที่แก้:** `frontend/src/components/ExtensionPendingModal.tsx`, `backend/src/services/rentalExtensionFlex.ts` และ `backend/src/scripts/testExtensionDeposit.ts`. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ Bot/website application code และไม่ได้แตะ `aj-cm`.
+- Extension Pending card และ Popup ยืนยันเรียงยอดเป็น **ค่าประกันก่อนหัก / Deposit before deduction**, **หัก / Deduct**, **ค่าประกันคงเหลือ / Deposit remaining**; เพิ่มยอดก่อนหักไว้เหนือแถวหักตามคำขอ.
+- Customer Flex Card ใช้ป้ายสามรายการเดียวกันทั้งภาษาไทยและอังกฤษ โดยไม่เปลี่ยนยอดคำนวณหรือขั้นตอน settle.
+- **Tests:** backend build และ extension-deposit 15/15 ผ่าน; frontend TypeScript, booking-form field check และ Expo web export ผ่าน.
+- **Deploy:** push Delivery App `main` แล้ว; deploy backend และทำ web build/OTA ที่ commit `16fb75f`. ไม่มี migration, env var หรือ secret ใหม่.
+
+## Request — 2026-10-04 — Codex → Claude Code: ปรับป้ายยอดค่าประกันก่อนหัก/คงเหลือ
+
+- **Owner request:** ใน Delivery App และ Flex Card ยืนยันการหักค่าเช่าต่อ ต้องเรียงและระบุยอดเป็น **ค่าประกันก่อนหัก / Deposit before deduction**, **หัก / Deduct**, และ **ค่าประกันคงเหลือ / Deposit remaining** อย่างชัดเจน.
+- **Planned scope:** แก้ข้อความไทย/อังกฤษใน Extension Pending card, confirmation popup และ customer Flex Card พร้อม regression test; ไม่เปลี่ยนการคำนวณหรือ API และไม่แตะ Bot, website application code หรือ `aj-cm`.
+
 ## 2026-10-04 — Popup ยืนยันก่อนหักค่าประกันและส่ง Flex (Delivery App `0b455e0`)
 
 - **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/frontend/src/components/ExtensionPendingModal.tsx` เท่านั้น. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ backend/Bot/website application code และไม่ได้แตะ `aj-cm`.
