@@ -1,5 +1,17 @@
 # Project state
 
+## 2026-10-04 — "รวมก่อนส่วนลด" line removed (Delivery App `854c93a`)
+
+- **Why:** after a promotion this line showed a figure that was already discounted, under a "before discount" name, and it repeated the rental total just below. Booking 536: 1,200 + 210 − 201 printed "รวมก่อนส่วนลด 1,209".
+- **Removed from:**
+  - the booking confirmation card (`bookingConfirmFlex.ts`, TH "รวมก่อนส่วนลด" / EN "Subtotal");
+  - the booking edit summary in the app (`BookingLogScreen.tsx`);
+  - the text summary (`lineService.ts`).
+- **Kept:** "ค่าเช่าก่อนส่วนลด" on the extension card. It is the rental itself before the single 10% discount, not a sum of lines.
+- The Bot, the website and email have no such line.
+- **Tests:** confirm-totals 24 (3 new), vip-charges, confirm-extras, bundle-from-payment, console-pending-reservation and master-agreement all pass. `test:flex-ledger` has 1 failure ("blacklist-check is past the version gate") that already failed before this change.
+- **To see it:** the staff app needs its usual web build or OTA update. The cards change once the backend deploys on Render.
+
 ## 2026-10-03 — The chosen place follows a language switch (website + Bot)
 
 - **The problem:** a place chosen in Thai kept its Thai green line ("📍 ส่งไปที่: …") and its Thai address after the page switched to English.
