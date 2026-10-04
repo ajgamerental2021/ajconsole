@@ -1,5 +1,24 @@
 # Project state
 
+## 2026-10-04 — เช่าต่อตรวจ Bundle แถวถัดไปและรวมอุปกรณ์เสริม (Delivery App `ebda1a1`)
+
+- **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/backend/src/services/rentalExtensionService.ts`, `extensionPendingService.ts`, `rentalExtensionPaymentService.ts`, `routes/customerExtension.ts` และ `scripts/testExtensionPricing.ts`. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ Bot/website application code และไม่ได้แตะ `aj-cm`.
+- รายการหลักจะเป็น Bundle เฉพาะเมื่อ Booking **แถวถัดไปทันที** มี `bundleParentId` ตรงกับเลข Booking หลัก ซึ่งเป็นข้อมูลเดียวกับที่หน้า Booking ใช้แสดง `📦 Bundle ของ #545 · ยอดเงินทั้งหมดอยู่ที่ #545`; ไม่ resolve จากแถวลูกย้อนกลับไปหาแถวหลักอีก. แถวไม่ติดกัน, เลขไม่ตรง, ถูกยกเลิก หรือไม่มีข้อความสัมพันธ์นี้ จะคิดเป็นเครื่องเดี่ยว.
+- เมื่อยืนยันเช่าต่อ Bundle ระบบอัปเดตวันคืนทั้ง Booking หลักและแถวอุปกรณ์ Bundle; retry จะตามอัปเดตแถวอุปกรณ์ให้ครบหากการเขียนครั้งแรกสะดุด.
+- ราคาเช่าต่อใช้เรตเครื่องหลัก แล้วแทนด้วย pair rate เมื่อ Bundle ผ่านการตรวจ และบวกเรตรายวัน/สัปดาห์ของอุปกรณ์เสริมที่เลือกไว้ใน `accessoryIds`/`accessoryNames`. รองรับ PS5, PS5 Pro, Nintendo Switch 1/2, Viture Beast และ Viture Pro 2 จาก catalogue เดิม. อุปกรณ์แบบเหมาจ่ายครั้งเดียว เช่น Viture Mobile Dock แสดงในรายการแต่ไม่ถูกเรียกเก็บซ้ำ.
+- ส่วนลดลูกค้าเก่า 10% คิดต่อจากยอดรวมเครื่อง + Bundle + อุปกรณ์เสริม. ตัวอย่าง PS5 Bundle 550 + จอยเพิ่ม 120 = 670 บาท ก่อนลด, 603 บาทหลังลด. กฎ VIP เดิมยังคงใช้ VIP rate แทนส่วนลด 10%.
+- หน้าลูกค้าและ Flex Card เลือกชื่ออุปกรณ์ไทย/อังกฤษตามภาษาคำขอ ไม่เอาชื่อไทยไปปนหน้าอังกฤษ; Extension Pending ใช้รายการและยอดจาก source เดียวกัน.
+- งานนี้ **แทนที่พฤติกรรมใน `60d3395`** ตามคำแก้ของ owner; ไม่มี migration, env var หรือ secret ใหม่.
+- **Tests:** backend build ผ่าน; extension-pricing 51/51, extension-queue 11/11, extension-deposit/Flex 15/15, bundle-partner 22/22, console-pending-reservation 67/67, vip-charges 38/38, booking-language 15/15 และ paid-booking LINE ผ่าน.
+- **Deploy:** push Delivery App `main` แล้ว; deploy backend commit `ebda1a1`.
+
+## Request — 2026-10-04 — Codex → Claude Code: เช่าต่อต้องตรวจแถว Bundle และรวมอุปกรณ์เสริม
+
+- **Owner correction:** ห้ามตัดสิน Bundle จากการย้อน `bundleParentId` อย่างเดียว. ต้องตรวจ Booking ถัดไปว่ามีข้อความ `📦 Bundle ของ #<เลขหลัก> · ยอดเงินทั้งหมดอยู่ที่ #<เลขหลัก>` และเลขทั้งสองจุดตรงกับ Booking หลัก จึงรวมเป็น Bundle.
+- **Pricing scope:** ยอดเช่าต่อต้องคิดจากราคาเครื่องปกติ รวมราคา Bundle และ/หรืออุปกรณ์เสริมที่บันทึกกับ Booking แล้วลดลูกค้าเก่า 10% สำหรับ PS5, PS5 Pro, Nintendo Switch 1, Nintendo Switch 2, Viture Beast และ Viture Pro 2 ทั้งกรณีมี/ไม่มี Bundle.
+- **Surfaces:** หน้าเช่าต่อ, Extension Pending และ Flex Card ต้องใช้ quote เดียวกันและแสดงถูกต้องทั้งภาษาไทย/อังกฤษ.
+- **Planned scope:** แก้ source of truth และ regression tests ใน Delivery App โดยอ่าน catalogue/ข้อมูล Booking เดิม ไม่สร้างราคาซ้ำ; ไม่แตะ Bot, website application code หรือ `aj-cm` เว้นแต่พบว่า contract เดิมมีข้อมูลไม่พอ.
+
 ## 2026-10-04 — เช่าต่อ PS5 Bundle ใช้ราคา Bundle (Delivery App `60d3395`)
 
 - **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/backend/src/services/rentalExtensionService.ts`, `extensionPendingService.ts` และ `testExtensionPricing.ts`. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ Bot/website application code และไม่ได้แตะ `aj-cm`.
