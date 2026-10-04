@@ -39,6 +39,7 @@ All repositories are on GitHub under `ajgamerental2021`.
   - `aj-line-oa-bot`: `npm test`
   - `delivery-app`: `npm run test:*`
 - **Logging.** Log every change at the top of `ajconsole/docs/PROJECT-STATE.md`: what changed, which commit, and anything the owner must do.
+- **Notify Claude of Codex changes.** Whenever Codex creates, modifies or deletes anything in `ajconsole`, `aj-line-oa-bot` or `delivery-app`, add a clear entry at the top of `PROJECT-STATE.md` for Claude Code: who changed it, what was added/changed/deleted, why, the affected repo/commit, tests, and any owner or deploy action. Add a `Request` entry before implementation when another agent-owned repo is involved, then replace or follow it with the completed result.
 - **Shared contracts.** If your change touches an API another system calls, update the handover file in the same commit, and say so in PROJECT-STATE.
 
 ## Working together
