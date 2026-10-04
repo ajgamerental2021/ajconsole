@@ -1,5 +1,23 @@
 # Project state
 
+## 2026-10-04 — Booking: คิวเช่าต่อและหักค่าเช่าจากค่าประกัน (Delivery App `452ebb4`)
+
+- **แจ้ง Claude — สิ่งที่สร้างใหม่:** `backend/src/routes/extensionPending.ts`, `backend/src/services/extensionPendingService.ts`, `backend/src/scripts/testExtensionDeposit.ts`, migration `010_extension_deposit_settlement.sql` และ `frontend/src/components/ExtensionPendingModal.tsx`.
+- **แจ้ง Claude — สิ่งที่แก้:** `backend/package.json`, `rentalExtensionRepo.ts`, `routes/line.ts` (test card fixture), `server.ts`, `rentalExtensionService.ts`, `rentalExtensionPaymentService.ts`, `rentalExtensionFlex.ts`, `frontend/src/services/api.ts`, `BookingLogScreen.tsx` และ handover `docs/AJ-SYSTEM-HANDOVER-FOR-AJ-CHAT.md`. **ไม่มีไฟล์ที่ลบ**, ไม่ได้แก้ Bot/website application code และไม่ได้แตะ `aj-cm`.
+- หน้า Booking มีปุ่ม **เช่าต่อ / Extension (N)** แถวเดียวกับ Console Pending และ ID Pending. Popup แสดง Booking/Rental ID, ลูกค้า, เครื่อง, จำนวนวัน, ยอดค่าเช่าต่อ, ส่วนลด, วันคืนเดิม/ใหม่ และค่าประกันก่อน/หลังหัก เป็นไทยและอังกฤษ.
+- ปุ่ม **หักจากค่าประกัน / Deduct from deposit** ใช้ยอดค่าเช่าต่อหลังส่วนลด (`netAmount`, ไม่คิดค่าธรรมเนียมบัตร), เลื่อนวันคืนด้วย extension request/queue rule เดิม และเขียนค่าประกันคงเหลือเข้า Booking ช่อง `คืนเงินโอน` (`returnTransferRefund`). ครั้งถัดไปหักต่อจาก `คืนเงินโอน`; ยอด 0 หรือไม่พอจะกดไม่ได้.
+- Extension request เก็บ `settlementMethod`, `depositBefore`, `depositRemaining` เพื่อให้ retry idempotent ไม่หักซ้ำ. Payment webhook กับปุ่มหักค่าประกันถูก serialize ต่อ request เพื่อกันลูกค้าโอนพร้อมกับพนักงานกด. Google Sheet `Rental Extensions` อัปเกรด header ถึง AC อัตโนมัติ และ Postgres มี migration รองรับ.
+- หลังสำเร็จ Delivery App ส่ง Flex Card ด้วยภาษาเดิมของคำขอ แจ้งว่าหักจากค่าประกันแล้ว, ยอดที่หัก, ค่าประกันคงเหลือ, จำนวนวัน และวันคืนใหม่. LINE ล้มไม่ย้อน Booking/ยอดเงิน และ staff popup แจ้งให้ติดต่อเอง.
+- **Tests:** backend build; extension-deposit 13/13; extension-pricing 26/26; extension-queue 11/11; auto-booking-payment, paid-booking-line, return-window 23/23, date-change 51/51 และ booking-language 15/15 ผ่าน. Frontend TypeScript, booking-form field check และ Expo web export ผ่าน. DB migration execution test ไม่ได้รันใน workspace เพราะไม่มี `DATABASE_URL`; production มี `DB_AUTO_MIGRATE` (default true) ใช้ migration ตอน deploy.
+- **Deploy:** push Delivery App `main` แล้ว. Deploy backend `452ebb4` (migration 010 จะทำงานตอน boot เมื่อมี Postgres) และทำ web build/OTA ของ staff app. ไม่มี env var หรือ secret ใหม่.
+
+## Request — 2026-10-04 — Codex → Claude Code: คิวคำขอเช่าต่อและหักค่าเช่าจากค่าประกัน
+
+- **Owner request:** เพิ่มปุ่ม **เช่าต่อ / Extension Pending** ในหน้า Booking แถวเดียวกับ Console Pending และ ID Pending; เปิด popup แสดงคำขอเช่าต่อของลูกค้า ได้แก่ Booking ID, จำนวนวัน, ค่าเช่าต่อ, วันคืนเดิม และวันคืนใหม่.
+- **Staff action:** มีปุ่มยืนยันให้หักค่าเช่าต่อจากค่าประกันแทนการโอน เช่น ค่าเช่าต่อ 360 บาทจากค่าประกัน 2,000 บาท เหลือ 1,640 บาท; อัปเดตวันคืนและยอดคงเหลือใน Booking โดยใส่ยอดค่าประกันคงเหลือที่ช่อง **คืนเงินโอน**.
+- **Customer result:** หลังสำเร็จให้ระบบเจ้าของ LINE Flex card ส่งการ์ดภาษาไทยหรืออังกฤษตามภาษาลูกค้า แจ้งว่าหักค่าเช่าจากค่าประกันแล้ว, ค่าประกันคงเหลือ, จำนวนวันที่เช่าต่อ และวันคืนใหม่.
+- **Planned scope:** ใช้ extension request, pricing, booking update และ LINE sender ที่มีอยู่ใน `delivery-app`; เพิ่ม staff queue/API/action และ regression tests โดยไม่สร้างกฎราคา/การ์ดซ้ำในเว็บไซต์หรือ Bot. ตรวจ contract กับ Bot ก่อน และแก้ Bot เฉพาะเมื่อ endpoint เดิมส่งข้อมูลไม่พอ. ไม่แตะ `aj-cm`; ไม่มี secret ใหม่.
+
 ## 2026-10-04 — เวลาเช่าล่วงหน้าเป็น 10:00 ทั้งส่งและรับคืน (Delivery App `3d43d5f`)
 
 - **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/backend/src/services/deliveryTiming.ts`, `consolePendingService.ts`, `bookingService.ts`, `testDeliveryTiming.ts`, `testConsolePendingOverrides.ts` และ `frontend/src/components/ConsolePendingModal.tsx`. **ไม่มีไฟล์ที่สร้างใหม่หรือลบ**, ไม่ได้แก้ Bot และไม่ได้แตะ `aj-cm`.

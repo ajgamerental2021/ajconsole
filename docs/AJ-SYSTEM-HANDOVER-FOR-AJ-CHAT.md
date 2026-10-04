@@ -221,7 +221,8 @@ Backend routes are mounted in `backend/src/server.ts`. The staff screens are in 
 - Dashboard
 - Booking Log, with:
   - Console Pending (requests from the site, with Confirm / "ยกเลิกรายการ");
-  - ID Pending (PS5 and Switch game-ID requests).
+  - ID Pending (PS5 and Switch game-ID requests);
+  - เช่าต่อ / Extension Pending: open customer extension requests. Staff can deduct the extension rent from the refundable deposit; this moves the return date, writes the remaining deposit to Booking `คืนเงินโอน`, and sends the existing Delivery App LINE Flex confirmation in Thai or English.
 - Delivery Queue (today / tomorrow, route, proofs)
 - Customers (list, detail, history, identity)
 - Stock / Inventory
@@ -245,6 +246,7 @@ Backend routes are mounted in `backend/src/server.ts`. The staff screens are in 
   - run-confirmation;
   - extras.
 - `/api/console-pending`: list, quote, pay-later preview and email, confirm, cancel.
+- `/api/extension-pending`: authenticated staff list; `POST /:extensionRequestId/deduct-deposit` settles from the refundable deposit. Extension price and queue rules remain in `rentalExtensionService.ts`; repeated deductions continue from Booking `returnTransferRefund`, not the original deposit.
 - `/api/customers`: list, lookup, sync, history, identity, rental extras, contract PDF, rental and contract lookup.
 - `/api/deliveries`: delivery records.
 - `/api/game-selection`: state, notify, resolve, submit. Game card: `services/gameSelectionFlex.ts`.
@@ -343,7 +345,7 @@ show its result in the chat.
 | Send the booking link, game picker, payment request, My rental link | Delivery App `/api/line/push/*`, `/api/line/my-rental-link`; Bot `/api/line/game-picker-card`, `/api/rentals/payment-page/link` | Uses the existing Flex cards |
 | Payment status / check a slip | Bot `/api/payments/beam-status`; the slip flow is automatic for LINE images; Delivery App `/api/integrations/aj-rental/payments` | |
 | Delivery time, driver, proofs | Delivery App `/api/bookings/today|tomorrow|range`, `/:rowIndex/proofs` | |
-| Extend / change dates | Delivery App `/c/extension…`, `/c/date-change…`, `/c/rental/modify…` (customer links) | Send the link; the page enforces the rules |
+| Extend / change dates | Delivery App `/c/extension…`, `/c/date-change…`, `/c/rental/modify…` (customer links); staff deposit settlement at `/api/extension-pending/:extensionRequestId/deduct-deposit` | Send the customer link for self-service; the staff endpoint reuses the same extension request and rules |
 | Contract / PDFs / identity follow-up | Bot `/api/admin/contracts`, `/api/admin/rentals/:code/resend-confirmation`, `/api/admin/identity-reminders/run` | |
 | Game-ID rental requests | Bot `/api/id-pending` (`?platform=ps5|switch`) | |
 | Shop notes / AI help | Delivery App `/api/agent/*` | Already has tools |
