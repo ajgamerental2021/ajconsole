@@ -1,5 +1,16 @@
 # Project state
 
+## 2026-10-04 — แก้รายการเดิมจากหน้าทำรายการชำระเงินต่อ (website `48724df`, Bot `ba85ead`, Delivery App `4707d33`)
+
+- **แจ้ง Claude — สิ่งที่แก้:** `ajconsole/index.html`, `game_index.html`, handover และ tests; `aj-line-oa-bot/src/server.js`, `test/pay-later.test.js`; `delivery-app/backend/src/services/consolePendingService.ts` และ `testConsolePendingIdentity.ts`.
+- **แจ้ง Claude — สิ่งที่สร้างใหม่:** Bot `src/services/payment-resume-edit.js` และ `test/payment-resume-edit.test.js`. **ไม่มีไฟล์ที่ลบ** และ **ไม่ได้แตะ `aj-cm`**.
+- หน้า “ทำรายการชำระเงินต่อ / Continue to payment” ที่มาจากอีเมลมีปุ่มแก้ไข 3 ส่วน: เครื่อง/อุปกรณ์/เกมใช้ Step 1 เดิมใน Popup, ลูกค้า/ที่อยู่/Google Maps ใช้ Step 2 เดิมใน Popup และช่วงเวลาเช่าเปิดปฏิทินเดิม. ทุกข้อความใหม่มีไทยและอังกฤษ.
+- ทุกการบันทึกใช้ Rental ID เดิม, เช็ค availability และ booking hold ใหม่, ขอราคาค่าส่งใหม่ แล้วเรียก private-token endpoint `POST /api/rentals/payment-page/update`; ไม่สร้างรายการเช่าใหม่. ถ้าบันทึกไม่สำเร็จ หน้าเว็บคืนค่ารายการล่าสุดแทนการค้างค่าที่ยังไม่ลง server.
+- Bot allowlist เฉพาะข้อมูลรายการที่ลูกค้าแก้ได้, เก็บ identity/agreement/PDF/payment status เดิม, ล้าง unpaid Beam link ที่ใช้ยอดเก่า และเขียนทั้งแถว Console Pending เดิมกับ rental-history mirror. รายการที่ชำระแล้วแก้ไม่ได้.
+- Delivery App Console Pending อ่านเครื่อง วัน ยอด ที่อยู่ Maps เกม และข้อมูลลูกค้าจาก JSON/แถวเดิมอยู่แล้ว; ปรับลำดับข้อมูลให้ contact และ Maps ที่ลูกค้าเพิ่งแก้มีสิทธิ์เหนือ snapshot เก่าในสัญญา โดยสัญญาเป็น fallback. กด refresh แล้วเห็นค่าล่าสุดและ Confirm จะใช้ค่าล่าสุด.
+- **Tests:** website inline JS syntax ผ่าน; `node --test tests/*.test.mjs` ผ่าน 274/274; Chromium ผ่าน desktop 1280px ภาษาไทยและ mobile 375px ภาษาอังกฤษ (popup ทั้ง 3 ส่วน). Bot `npm test` ผ่าน 537/537. Delivery backend `npm run build`, identity, delivery-pending 11/11, overrides 25/25 และ reservation 67/67 ผ่าน.
+- **Deploy:** push `main` ครบทั้ง 3 repo แล้ว. GitHub Pages รับ website; Render ต้อง deploy Bot `ba85ead` และ Delivery backend `4707d33` ตาม auto-deploy. ไม่มี env var/secret ใหม่.
+
 ## Request — 2026-10-04 — Codex → Claude Code: แก้รายการเดิมจากหน้าทำรายการชำระเงินต่อ
 
 - **Owner request:** ลูกค้าที่เปิดลิงก์ “ทำรายการชำระเงินต่อ / Continue to payment” จากอีเมลต้องแก้เครื่องและเกม ข้อมูลลูกค้า ที่อยู่/Google Maps และช่วงเวลาเช่าได้ โดยใช้ Popup และกฎจาก Step เดิมของ `index.html`; เปลี่ยนวันที่ต้องเปิดปฏิทินเดิมและเช็คคิวใหม่ เปลี่ยนสถานที่ต้องขอค่าส่งใหม่.
