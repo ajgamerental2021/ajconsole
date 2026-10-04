@@ -1,5 +1,20 @@
 # Project state
 
+## 2026-10-04 — Bundle/อุปกรณ์เสริมจากเว็บลง Booking และเลือกกลับใน Edit (Delivery App `9117f05`)
+
+- **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/backend/src/services/bookingExtrasCatalog.ts`, `consolePendingService.ts`, `consolePendingQuote.ts`, `scripts/testBundleFromPayment.ts`, `testConsolePendingReservation.ts` และ `frontend/src/screens/BookingLogScreen.tsx`. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ Bot/website application code และไม่ได้แตะ `aj-cm`.
+- Console Pending เก็บ `accessoryIds` ที่หน้าเว็บส่งมาทั้งจาก request ปกติและ request ที่สร้างจาก payment แล้วเขียนลง Booking พร้อม `accessoryNames` และ `extrasFee`; Bundle ยังคงเขียน `bundleId`/ชื่อ/ราคา/ค่าประกันและสร้างแถวเครื่องคู่ตาม flow เดิม.
+- ตัวแก้ไข Booking รอให้ catalogue โหลดก่อนจึงตรวจค่า ทำให้ค่า Bundle/อุปกรณ์เสริมไม่ถูกล้างระหว่างเปิด Popup และ radio/checkbox เดิมถูกเลือกอัตโนมัติ.
+- รองรับข้อมูลเก่าที่ไม่มี ID โดย map ชื่ออุปกรณ์และ Bundle กลับเข้ารายการจากทั้งชื่อไทยและอังกฤษ; รองรับ website alias `joy` ของ Nintendo Switch ให้ตรงกับ `joy2` ใน Delivery App. ถ้าพนักงานกดบันทึกรายการเก่า ID ที่กู้กลับมาจะถูกเก็บตามปกติ.
+- **Tests:** backend `npm run build`; Bundle/payment 20/20; Console Pending reservation 69/69; overrides 27/27; web discounts 17/17; confirmation extras 8/8; bundle partner 22/22; payment pending 35/35; game extras 16/16. Frontend `npx tsc --noEmit`, booking-form check และ Expo web export ผ่าน (ใช้ Expo home ชั่วคราวใน `/tmp` ตามข้อจำกัด cloud; ไม่แก้ config). `ajconsole` tests ผ่าน 272/272 สำหรับการตรวจ handover log.
+- **Deploy:** push Delivery App `main` แล้ว; ต้อง deploy backend commit `9117f05` และทำ web build/OTA ของ staff app ตามขั้นตอนเดิม. ไม่มี env var หรือ secret ใหม่.
+
+## Request — 2026-10-04 — Codex → Claude Code: ส่ง Bundle/อุปกรณ์เสริมจากเว็บลง Booking และติ๊กกลับใน Edit
+
+- **Owner request:** ถ้าคำขอเช่าจากหน้าเว็บมี Bundle หรืออุปกรณ์เสริม ต้องบันทึกรายการนั้นลง Delivery App Booking และเมื่อเปิด Edit Booking ต้องเลือก radio/checkbox เดิมไว้แล้ว ไม่กลับเป็น `ไม่เพิ่ม Bundle` หรือ `ไม่เพิ่มอุปกรณ์เสริม`.
+- **Language/data:** รองรับทั้ง request ภาษาไทยและอังกฤษ รวมทั้ง request ที่ส่ง id และ request เก่าที่มีเฉพาะชื่อ; ต้อง map กลับเข้า catalogue id เดิมเพื่อให้ราคา, รายการ และสถานะติ๊กตรงกัน.
+- **Planned scope:** ตรวจและแก้ Website request → Console Pending → Confirm Booking → Edit Booking ใน Delivery App พร้อม regression tests; ไม่เปลี่ยนเจ้าของ catalogue, ไม่แตะ Bot/website application code หรือ `aj-cm` เว้นแต่ contract เดิมไม่มีข้อมูลที่จำเป็น.
+
 ## 2026-10-04 — รวม Bundle ใน My Rental และ Extension ให้ยอดตรงกัน (Delivery App `e979f20`)
 
 - **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/backend/src/routes/myRental.ts`, `routes/customerExtension.ts`, `services/rentalExtensionService.ts`, `extensionPendingService.ts`, `rentalExtensionPaymentService.ts`, `scripts/testExtensionPricing.ts` และ `testMyRentalLink.ts`. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ Bot/website application code และไม่ได้แตะ `aj-cm`.
