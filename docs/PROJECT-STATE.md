@@ -1,5 +1,20 @@
 # Project state
 
+## 2026-10-04 — เช่าต่อ PS5 Bundle ใช้ราคา Bundle (Delivery App `60d3395`)
+
+- **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/backend/src/services/rentalExtensionService.ts`, `extensionPendingService.ts` และ `testExtensionPricing.ts`. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ Bot/website application code และไม่ได้แตะ `aj-cm`.
+- Booking พวงจะ resolve กลับไปที่ Booking หลักที่ถือยอดเงินก่อนคำนวณ: กรณี `546` (G29) จึงใช้ `545` (PS5-2) เป็น source of truth และไม่เกิดคำขอ/ยอดซ้ำจากเครื่องลูก.
+- การเช่าต่ออ่าน pair rate จาก Bundle catalogue เดิมของ Delivery App: PS5 Bundle `550 บาท/วัน` และ `3,500 บาท/สัปดาห์` แทนเรต PS5 เครื่องเดียว `400/2,500`; ยังคงลดลูกค้าเก่า 10%. ตัวอย่างต่ออีก 1 วันหลังเช่าเดิม 3 วัน = 550 − 55 = **495 บาท**.
+- หน้าเช่าต่อไทย/อังกฤษ, Extension Pending และ Flex Card ใช้ extension request/quote ชุดเดียวกัน จึงแสดงยอดที่แก้แล้วตรงกัน; Extension Pending แสดงชื่อคู่เครื่อง เช่น `PS5 + Logitech G29`.
+- **Tests:** backend build ผ่าน; extension-pricing 34/34, extension-queue 11/11, extension-deposit/Flex ไทย–อังกฤษ 15/15, bundle-partner 22/22, console-pending-reservation 67/67 และ vip-charges 38/38 ผ่าน.
+- **Deploy:** push Delivery App `main` แล้ว; deploy backend commit `60d3395`. ไม่มี migration, env var หรือ secret ใหม่.
+
+## Request — 2026-10-04 — Codex → Claude Code: เช่าต่อ PS5 Bundle ต้องใช้เรต Bundle
+
+- **Owner report:** Booking `545` (PS5-2) และ `546` (G29) เป็น Booking พวงของ PS5 Bundle เดียวกัน แต่หน้าเช่าต่อคิดเฉพาะเรต PS5 `400/วัน, 2,500/สัปดาห์` ทำให้ 1 วันหลังส่วนลดเหลือ 360 บาท.
+- **Expected:** คำขอเช่าต่อของ PS5 Bundle ต้องใช้ราคาของ Bundle นั้น `550/วัน, 3,500/สัปดาห์` แล้วใช้ส่วนลดลูกค้าเก่า 10% ตามเดิม; วัน/สัปดาห์และยอดทุกหน้ากับ Flex Card ต้องตรงกันทั้งไทยและอังกฤษ.
+- **Planned scope:** แก้ source of truth ใน Delivery App extension context/pricing ให้รู้จัก parent + partner Booking และอ่านราคา Bundle จาก catalogue/offer เดิม ไม่ hardcode ราคาใหม่; เพิ่ม regression tests และไม่แตะ Bot, website application code หรือ `aj-cm` เว้นแต่ contract เดิมส่งข้อมูลไม่พอ.
+
 ## 2026-10-04 — ป้ายค่าประกันก่อนหัก/หัก/คงเหลือ (Delivery App `16fb75f`)
 
 - **แจ้ง Claude — สิ่งที่แก้:** `frontend/src/components/ExtensionPendingModal.tsx`, `backend/src/services/rentalExtensionFlex.ts` และ `backend/src/scripts/testExtensionDeposit.ts`. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ Bot/website application code และไม่ได้แตะ `aj-cm`.
