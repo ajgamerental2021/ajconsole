@@ -1,5 +1,21 @@
 # Project state
 
+## 2026-10-04 — เวลาเช่าล่วงหน้าเป็น 10:00 ทั้งส่งและรับคืน (Delivery App `3d43d5f`)
+
+- **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/backend/src/services/deliveryTiming.ts`, `consolePendingService.ts`, `bookingService.ts`, `testDeliveryTiming.ts`, `testConsolePendingOverrides.ts` และ `frontend/src/components/ConsolePendingModal.tsx`. **ไม่มีไฟล์ที่สร้างใหม่หรือลบ**, ไม่ได้แก้ Bot และไม่ได้แตะ `aj-cm`.
+- ถ้าวันเริ่มเช่าอยู่หลังจากวันนี้ตามเขตเวลา `Asia/Bangkok` ระบบถือเป็นการเช่าล่วงหน้าและบันทึก `Delivery Time = 10:00` กับ `Return Time = 10:00` เสมอ ไม่ว่าลูกค้าจะส่งคำขอเวลาใดหรือ caller จะส่งเวลาอื่นมา.
+- บังคับกฎทั้งตอน Confirm จาก Console Pending และที่จุดสร้าง Booking กลาง จึงครอบคลุมการเพิ่ม Booking โดยตรงใน Delivery App และ agent action ด้วย; รายการวันเดียวกันยังคงกฎเวลาเตรียมเครื่องเดิม.
+- การ์ดยืนยันอ่านข้อความจาก Booking อยู่แล้ว จึงแสดง `10:00` ทั้งวันส่งและวันคืนจาก source of truth เดียวกันโดยไม่สร้าง logic ซ้ำในตัวการ์ด. หน้า Console Pending แสดงและล็อกสองช่องเป็น `10:00` เมื่อเลือกวันในอนาคต เพื่อให้พนักงานเห็นค่าที่ server จะบันทึก.
+- รองรับวันที่ `DD/MM/YYYY`, `YYYY-MM-DD` และปี พ.ศ.; ตรวจ “วันนี้” ตามเวลาไทย ไม่อิง timezone ของ server.
+- **Tests:** backend `npm run build`; frontend `npx tsc --noEmit`; delivery timing 50/50; Console Pending overrides 27/27 และ reservation 67/67; delivery card 55/55; booking language 15/15; paid-booking LINE ผ่าน. คำเตือน Google credentials ใน overrides เป็น lookup เสริมที่ test ตั้งใจรันแบบ offline และไม่ทำให้ test ล้ม.
+- **Deploy:** push Delivery App `main` แล้ว; ต้อง deploy backend commit `3d43d5f` และ web build/OTA ของ staff app ตามขั้นตอนเดิม. ไม่มี env var หรือ secret ใหม่.
+
+## Request — 2026-10-04 — Codex → Claude Code: เวลาเช่าล่วงหน้าต้องเป็น 10:00 ทั้งส่งและรับคืน
+
+- **Owner request:** ถ้าวันเริ่มเช่าเป็นวันอื่นหลังจากวันนี้ ให้ถือเป็นรายการเช่าล่วงหน้า ไม่ว่าลูกค้าจะทำรายการเวลาใด และกำหนดเวลาจัดส่งกับเวลารับคืนเป็น `10:00` ทั้งคู่ทุกครั้ง.
+- **Surfaces:** เวลาเดียวกันต้องปรากฏในการ์ดยืนยันที่ส่งให้ลูกค้า และถูกบันทึกใน Booking ของ Delivery App; รายการที่เริ่มเช่าวันนี้ยังใช้กฎเวลาเดิม.
+- **Planned scope:** ตรวจและแก้ source of truth ใน `delivery-app` ที่สร้าง Booking/confirmation card จาก Console Pending และ Bot เฉพาะจุดที่มีการ์ดยืนยันอีกเส้นทางหนึ่งถ้าพบ; เพิ่ม regression tests ตามเขตเวลา `Asia/Bangkok`. ไม่แตะ `aj-cm` และไม่เปลี่ยนกฎราคาหรือเวลาจัดส่งของรายการวันเดียวกัน.
+
 ## 2026-10-04 — แก้รายการเดิมจากหน้าทำรายการชำระเงินต่อ (website `48724df`, Bot `ba85ead`, Delivery App `4707d33`)
 
 - **แจ้ง Claude — สิ่งที่แก้:** `ajconsole/index.html`, `game_index.html`, handover และ tests; `aj-line-oa-bot/src/server.js`, `test/pay-later.test.js`; `delivery-app/backend/src/services/consolePendingService.ts` และ `testConsolePendingIdentity.ts`.
