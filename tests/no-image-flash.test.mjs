@@ -56,6 +56,7 @@ test('opening the picker is applied once, without wiping the covers to the promp
 test('the full catalogue arriving refreshes an open picker in place and ticks late-known games', () => {
   assert.match(picker, /function refreshPickerAfterCatalog\(\)/);
   assert.match(picker, /if \(loadedFromGist\) refreshPickerAfterCatalog\(\);/);
-  assert.match(picker, /rememberMissingPicks\(data\.selectedGameIds\);/);
-  assert.match(picker, /rememberMissingPicks\(request\.selectedGameIds\);/);
+  assert.match(picker, /rememberMissingPicks\(requestedIds, data\.selectedGameNames\);/);
+  assert.match(picker, /rememberMissingPicks\(requestedIds, request\.selectedGameNames\);/);
+  assert.match(picker, /lastPickerOpen\.missingNames/);
 });

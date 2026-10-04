@@ -1,5 +1,13 @@
 # Project state
 
+## Request — 2026-10-04 — Codex → Claude Code: แก้รายการเดิมจากหน้าทำรายการชำระเงินต่อ
+
+- **Owner request:** ลูกค้าที่เปิดลิงก์ “ทำรายการชำระเงินต่อ / Continue to payment” จากอีเมลต้องแก้เครื่องและเกม ข้อมูลลูกค้า ที่อยู่/Google Maps และช่วงเวลาเช่าได้ โดยใช้ Popup และกฎจาก Step เดิมของ `index.html`; เปลี่ยนวันที่ต้องเปิดปฏิทินเดิมและเช็คคิวใหม่ เปลี่ยนสถานที่ต้องขอค่าส่งใหม่.
+- **Identity:** ใช้ Rental ID เดิมเสมอและอัปเดตแถว Console Pending เดิม เพื่อให้ Delivery App เห็นรายละเอียดล่าสุด; ห้ามเริ่มรายการใหม่หรือสร้าง Rental ID ใหม่.
+- **Security/integrity:** Bot ต้องตรวจ private payment token ก่อนรับการแก้ไข และเก็บสถานะยืนยันตัวตน สัญญา เอกสาร และสถานะชำระเงินที่ server ถือไว้ ไม่ให้ browser เขียนทับ.
+- **Planned scope:** `ajconsole` สำหรับ Popup เดิม/hydration/reprice/queue/delivery UX, `aj-line-oa-bot` สำหรับ payment-resume update API ที่เขียนทั้ง booking history กับ Console Pending และ `delivery-app` ให้ Console Pending เลือกข้อมูลลูกค้า/แผนที่ล่าสุดจากแถวที่แก้แทนค่าก่อนแก้ในสัญญา; ไม่แตะ `aj-cm`.
+- **Language:** ข้อความและ validation ที่ลูกค้าเห็นต้องครบทั้งไทยและอังกฤษ.
+
 ## 2026-10-04 — หน้าสรุปการเช่าแยกอุปกรณ์ซ้ายและเกมขวาเสมอ (website `08c5578`)
 
 - **แจ้ง Claude:** Codex แก้เฉพาะ `ajconsole`; ไม่ได้แตะ `aj-cm`, Bot หรือ Delivery App.

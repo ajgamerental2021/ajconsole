@@ -68,6 +68,23 @@ test('the payment page lists the device\'s own lines, as the booking page does',
   assert.match(page, /\.\.\.consoleDetails\(item, en \? "en" : "th"\),/);
 });
 
+test('the unpaid email page edits the same rental through the original step controls', () => {
+  assert.match(html, /data-pay-resume-edit="\$\{esc\(kind\)\}"/);
+  assert.match(html, /openDemoEditModal\(kind === "customer" \? 2 : 1\)/);
+  assert.match(html, /openCalendar\("start", \{fromOrder:true\}\)/);
+  assert.match(html, /if\(payResume\.active\) await savePayResumeEditModal\(\)/);
+  assert.match(html, /payResume\.active && payResume\.code\) return payResume\.code/);
+  const save = html.slice(html.indexOf('async function savePayResumeChanges('), html.indexOf('async function savePayResumeEditModal('));
+  assert.match(save, /await fetchAvailability\(\)/);
+  assert.match(save, /await ensureBookingHold\(payResume\.code, calcRentalContext\(\)\)/);
+  assert.match(save, /await fetchDemoDeliveryQuote\(\)/);
+  assert.match(save, /\/api\/rentals\/payment-page\/update/);
+  assert.match(save, /rentalSheetPayload\(summary, payResume\.code/);
+  assert.match(html, /if\(savePayResumeDates\) void savePayResumeChanges\("dates"\)/);
+  assert.match(html, /payResumeSaveSuccess:"บันทึกการแก้ไขและอัปเดตให้ร้านแล้ว"/);
+  assert.match(html, /payResumeSaveSuccess:"Changes saved and updated for AJ"/);
+});
+
 test('no floating "เช็คคิว & คำนวณค่าเช่า" button', () => {
   assert.doesNotMatch(html, /id="floatCalc"/);
   assert.doesNotMatch(html, /\.float-calc/);

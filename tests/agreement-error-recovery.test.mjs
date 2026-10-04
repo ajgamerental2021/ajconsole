@@ -76,7 +76,7 @@ test('Console Pending gets the live delivery fee once it is quoted', () => {
   assert.match(order, /consolePendingRental = \{code, handoff, channel:"unified-flow-demo"\};\n      void queueConsolePendingUpsert\(\);/);
   // The quote starts with the agreement, not after the order page opens.
   assert.ok(order.indexOf('void fetchDemoDeliveryQuote()') < order.indexOf('Promise.allSettled'));
-  assert.match(extract('fetchDemoDeliveryQuote'), /void recordDemoDeliveryQuote\(result\.quote\);\n        void queueConsolePendingUpsert\(\);/);
+  assert.match(extract('fetchDemoDeliveryQuote'), /void recordDemoDeliveryQuote\(result\.quote\);\s+void queueConsolePendingUpsert\(\);/);
   const queue = extract('queueConsolePendingUpsert');
   assert.match(queue, /const fresh = bookingStructured\(rental\.code\) \|\| \{\};/);
   assert.match(queue, /consolePendingWrites = consolePendingWrites\n      \.then\(write\)/);

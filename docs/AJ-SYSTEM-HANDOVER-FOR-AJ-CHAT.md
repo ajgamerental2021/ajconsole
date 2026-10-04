@@ -155,6 +155,7 @@ All routes are in `src/server.js`; logic lives in `src/services/*`.
 - Pay later:
   - `/api/rentals/pay-later`
   - `/api/rentals/payment-page`
+  - `POST /api/rentals/payment-page/update`: the private email token may update the same unpaid Rental ID from the booking site's original step controls. The Bot allowlists customer-editable booking fields, preserves identity/agreement/payment-status fields, invalidates an old unpaid Beam link, and writes both Console Pending and the rental-history mirror. Delivery App sees the changed Console Pending row on refresh.
   - `/api/rentals/payment-page/link`
   - reminder email
 - `services/rental-confirmation.js` turns a payment into the paid flow: confirmation cards and email, a Delivery App update, and the PDFs.

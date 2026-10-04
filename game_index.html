@@ -6543,6 +6543,7 @@ function pickerOpenKey(data) {
     platform,
     String((data && data.lang) || 'th'),
     Array.isArray(data && data.selectedGameIds) ? data.selectedGameIds : [],
+    Array.isArray(data && data.selectedGameNames) ? data.selectedGameNames : [],
     !!(data && data.browseOnly),
     String((data && data.startDate) || ''),
     String((data && (data.endDate || data.returnDate)) || ''),
@@ -6553,14 +6554,16 @@ function isRepeatPickerOpen(data) {
   const overlay = document.getElementById('pick-overlay');
   const showingGames = !!(overlay && overlay.classList.contains('open') && document.querySelector('#pick-body .pick-card, #pick-body .game-list-row'));
   if (showingGames && key === lastPickerOpen.key && Date.now() - lastPickerOpen.at < 4000) return true;
-  lastPickerOpen = { key, at: Date.now(), missing: [] };
+  lastPickerOpen = { key, at: Date.now(), missing: [], missingNames: [] };
   return false;
 }
 // The games the booking already had that the catalogue did not know yet
 // when the picker opened (it opens on the cached list, the Gist comes later).
-function rememberMissingPicks(requested) {
+function rememberMissingPicks(requested, requestedNames) {
   const known = id => (Array.isArray(games) ? games : []).some(g => g.id === id);
   lastPickerOpen.missing = (Array.isArray(requested) ? requested : []).filter(id => !known(id));
+  const matchedNames = matchSavedGameNames(requestedNames);
+  lastPickerOpen.missingNames = matchedNames.missing;
 }
 // The full catalogue arrived while the picker is open: show the new games in
 // place (patched, so the covers already shown stay put) and tick the booking's
@@ -6575,7 +6578,14 @@ function refreshPickerAfterCatalog() {
       try { if (Array.isArray(pickBaselineIds) && !pickBaselineIds.includes(id)) pickBaselineIds.push(id); } catch (e) {}
     }
   });
+  matchSavedGameNames(lastPickerOpen.missingNames || []).ids.forEach(id => {
+    if (!pickedGames.includes(id) && pickedGames.length < MAX_PICK) {
+      pickedGames.push(id);
+      try { if (Array.isArray(pickBaselineIds) && !pickBaselineIds.includes(id)) pickBaselineIds.push(id); } catch (e) {}
+    }
+  });
   lastPickerOpen.missing = (lastPickerOpen.missing || []).filter(id => !known(id));
+  lastPickerOpen.missingNames = matchSavedGameNames(lastPickerOpen.missingNames || []).missing;
   renderPickPlatformTabs();
   renderPickBody();
   renderPickFooter();
@@ -7584,8 +7594,10 @@ document.addEventListener('touchstart', function(e) {
     setPickerRentalRange(data.startDate, data.endDate || data.returnDate);
     setLangSafe(data.lang || 'th');
     if(typeof openPickModal === 'function') openPickModal({ platformPending: !!bridgePlatformId });
-    pickedGames = Array.isArray(data.selectedGameIds) ? data.selectedGameIds.filter(id => getGamesSafe().some(g => g.id === id)).slice(0,10) : [];
-    rememberMissingPicks(data.selectedGameIds);
+    const idsByName = Array.isArray(data.selectedGameNames) ? matchSavedGameNames(data.selectedGameNames).ids : [];
+    const requestedIds = [...(Array.isArray(data.selectedGameIds) ? data.selectedGameIds : []), ...idsByName];
+    pickedGames = Array.from(new Set(requestedIds)).filter(id => getGamesSafe().some(g => g.id === id)).slice(0,10);
+    rememberMissingPicks(requestedIds, data.selectedGameNames);
     // Ticking the booking's own games is not the customer editing; a later
     // applyPreselection must still be allowed to report what it could not find.
     try { pickBaselineIds = pickedGames.slice(); } catch(e){}
@@ -7842,8 +7854,10 @@ document.addEventListener('touchstart', function(e) {
       setPickerRentalRange(request.startDate, request.endDate || request.returnDate);
       const pid = safePlatformId(request.platformId || '');
       if(typeof openPickModal === 'function') openPickModal({ platformPending: !!pid });
-      pickedGames = Array.isArray(request.selectedGameIds) ? request.selectedGameIds.filter(function(id){ return (Array.isArray(games)?games:[]).some(function(g){ return g.id === id; }); }).slice(0,10) : [];
-      rememberMissingPicks(request.selectedGameIds);
+      const idsByName = Array.isArray(request.selectedGameNames) ? matchSavedGameNames(request.selectedGameNames).ids : [];
+      const requestedIds = [].concat(Array.isArray(request.selectedGameIds) ? request.selectedGameIds : [], idsByName);
+      pickedGames = Array.from(new Set(requestedIds)).filter(function(id){ return (Array.isArray(games)?games:[]).some(function(g){ return g.id === id; }); }).slice(0,10);
+      rememberMissingPicks(requestedIds, request.selectedGameNames);
       if(pid && typeof setPickPlatform === 'function') setPickPlatform(pid);
       if(typeof renderPickPlatformTabs === 'function') renderPickPlatformTabs();
       if(typeof renderPickBody === 'function') renderPickBody();
