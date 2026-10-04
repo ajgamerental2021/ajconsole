@@ -1,5 +1,20 @@
 # Project state
 
+## 2026-10-04 — Popup ยืนยันก่อนหักค่าประกันและส่ง Flex (Delivery App `0b455e0`)
+
+- **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/frontend/src/components/ExtensionPendingModal.tsx` เท่านั้น. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ backend/Bot/website application code และไม่ได้แตะ `aj-cm`.
+- ปุ่ม **หักจากค่าประกัน / Deduct from deposit** ไม่ใช้ browser `window.confirm` หรือ native alert แล้ว; เปิด in-app modal แบบเดียวกันบน web/iOS/Android ก่อนเรียก API จริง.
+- Popup แสดง Booking/ลูกค้า, จำนวนวันที่เช่าต่อ, วันคืนใหม่, ยอดที่จะหัก และค่าประกันคงเหลือ พร้อมแจ้งว่าจะอัปเดต Booking และส่ง Flex Card.
+- มีปุ่ม **ยืนยันและส่ง / Confirm & Send** และ **ยกเลิก / Cancel** ชัดเจนทั้งไทยและอังกฤษ. กดยกเลิกไม่เปลี่ยนข้อมูล; API หักค่าประกันจะถูกเรียกเฉพาะเมื่อกดยืนยันและส่ง.
+- **Tests:** frontend `npx tsc --noEmit`, `npm run check:booking-form` และ `EXPO_NO_TELEMETRY=1 npm run build:web` ผ่าน.
+- **Deploy:** push Delivery App `main` แล้ว; ทำ web build/OTA ของ staff app ที่ commit `0b455e0`. ไม่มี migration, env var หรือ secret ใหม่.
+
+## Request — 2026-10-04 — Codex → Claude Code: Popup ยืนยันก่อนหักค่าประกันและส่ง Flex
+
+- **Owner request:** เมื่อกด **หักจากค่าประกัน / Deduct from deposit** ใน Extension Pending ต้องเปิด Popup ยืนยันก่อนทำรายการ พร้อมสรุปว่าจะหักยอด อัปเดต Booking/วันคืน และส่ง Flex Card ให้ลูกค้า.
+- **Buttons/language:** Popup ต้องมีปุ่ม **ยืนยันและส่ง / Confirm & Send** และ **ยกเลิก / Cancel** ที่เห็นชัดเจน พร้อมข้อความไทยและอังกฤษ.
+- **Planned scope:** แก้เฉพาะ Delivery App staff UI ให้ใช้ in-app modal ที่เหมือนกันบน web/iOS/Android แทน browser/native confirm สำหรับ action นี้; backend, ราคา,ยอดค่าประกันและ LINE sender เดิมไม่เปลี่ยน. ไม่แตะ Bot, website application code หรือ `aj-cm`.
+
 ## 2026-10-04 — Booking: คิวเช่าต่อและหักค่าเช่าจากค่าประกัน (Delivery App `452ebb4`)
 
 - **แจ้ง Claude — สิ่งที่สร้างใหม่:** `backend/src/routes/extensionPending.ts`, `backend/src/services/extensionPendingService.ts`, `backend/src/scripts/testExtensionDeposit.ts`, migration `010_extension_deposit_settlement.sql` และ `frontend/src/components/ExtensionPendingModal.tsx`.
