@@ -1,5 +1,21 @@
 # Project state
 
+## 2026-10-05 — เงินคืนโอน, ยกเลิก/Finance และ Flex รีวิวก่อนคืน (`delivery-app` `1d10d1d`)
+
+- **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/backend/src/services/bookingService.ts`, `financeService.ts`, `rentalChangeFlex.ts`, `reminderFlex.ts`, `reminderRunner.ts`, `reminderScheduleService.ts`, tests `testCancellationAndReview.ts`, `testSheetWriteRace.ts`, `backend/package.json` และ `frontend/src/screens/BookingLogScreen.tsx`; handover นี้ใน `ajconsole`. ไม่แก้ application code ใน `ajconsole`/`aj-line-oa-bot`, ไม่แตะ `aj-cm`, ไม่ย้าย LINE webhook และไม่มี secret ใหม่.
+- **Booking/extension:** Booking ใหม่ตั้ง `คืนเงินโอน` เท่ากับค่าประกันที่คิดจริงจาก Bundle/VIP/no-contract และเติมหลังสูตร Sheet คำนวณเสร็จถ้าตอนสร้างยังไม่รู้ยอด. ทางเช่าต่อเดิมเขียนยอดคงเหลือเฉพาะ `settlementMethod=deposit`; ชำระปกติไม่เปลี่ยนยอดคืน.
+- **Cancellation:** Flex แสดงวันที่และเวลาที่ยกเลิกจาก `Cancelled At` ตามเวลา Bangkok ทั้งไทย/อังกฤษ. แถว Booking Log ที่ยกเลิกลงพื้นหลังแดงตลอด A:CZ. Finance เลิกกำหนดยอดยกเลิก 200 ตายตัว; คอลัมน์ H/N เท่ากับ `ชำระแล้ว` ของ Booking และแถว Finance เป็นสีแดง. การยกเลิกใหม่ sync Finance ก่อนส่ง Flex. เปิด Booking Log หลัง deploy จะซ่อมแถวเก่าอย่าง Booking 539 พร้อมสีและยอด Finance โดยไม่ลบประวัติ.
+- **Device picker:** ข้าม Booking ที่มี `Cancelled At` แม้ Status cache ค้าง และคำนวณสถานะเครื่องจากวันที่เริ่มที่เลือกได้ทันทีแม้ยังไม่ได้เลือกวันคืนใหม่ จึงไม่แสดง `Rented` จาก Inventory วันนี้กับคิวอนาคตที่ถูกยกเลิก; การตรวจช่วงวันเต็มตอน Save ยังอยู่.
+- **Review Flex:** Reminder Log kind `return:review_noon` ส่งครั้งเดียวในช่วง 12:00–12:59 Bangkok ของวันก่อนคืน หลังมีสถานะส่งการ์ด `return:day_before` สำเร็จในรอบก่อนหน้าเท่านั้น. ใช้ยอด `คืนเงินโอน` ปัจจุบัน (+100), เลือกภาษาจากตัวอักษรในชื่อลูกค้า, ปุ่ม Facebook Reviews/Google Reviews มีภาพโลโก้และลิงก์ตรงตาม owner. หากการ์ดเตือนหลักเพิ่งส่งตอนเที่ยง รอบนั้นจะไม่ส่งการ์ดรีวิวพร้อมกัน.
+- **Validation/deploy:** push Delivery App `main` ที่ `1d10d1d` แล้ว; backend TypeScript build, frontend TypeScript, booking-form check, Expo web export, cancellation/review test, sheet-write-race, rental-change, extension-deposit, reminder-followup/dedupe/language และ bundle-partner ผ่าน. Cloud นี้ไม่มี Google Sheets/LINE credential ที่ app ใช้ จึงยังตรวจหรือแก้ live Booking 539 และ push LINE จริงไม่ได้; โลโก้ URL ถูก proxy ของ cloud ปฏิเสธ 403 จึงยังไม่ยืนยันการโหลดภาพจากเครือข่ายนี้. หลัง deploy ให้เปิด Booking Log เพื่อ backfill และตรวจแถว 539 ใน Finance/Inventory picker. ต้องให้ `REMINDERS_ENABLED=true` ตาม scheduler ที่มีอยู่เพื่อส่งรีวิวจริง.
+
+## Request — 2026-10-05 — Codex → Claude Code: เงินคืนโอน, ยกเลิก/ปล่อยคิว และ Flex รีวิวก่อนคืน
+
+- **Deposit refund source of truth:** Booking ใหม่ทุกช่องทางต้องตั้ง `คืนเงินโอน / Return transfer refund` จากยอดค่าประกันจริง; ถ้าเช่าต่อโดยหักค่าประกันให้ลบยอดเช่าต่อและบันทึกยอดคงเหลือใหม่ แต่การเช่าต่อที่ลูกค้าชำระปกติห้ามลดช่องนี้.
+- **Cancellation:** เก็บ Booking เป็น `Cancelled`, เพิ่มเวลาในข้อมูลวันที่ยกเลิกของ Flex ทั้งไทย/อังกฤษ, ทำแถว Booking ใน Google Sheet เป็นสีแดง, ปรับ Finance Sheet คอลัมน์ H/N ให้เหลือรายรับที่ลูกค้าโอนจริง และปล่อยสถานะเครื่อง/Bundle ให้เลือกเช่าใหม่ได้ทันที (เคสยืนยัน: Booking 539, N2-1).
+- **Review reminder:** เพิ่ม Flex รีวิวแยกจากการ์ด `พรุ่งนี้มีคิวคืนเครื่อง` ส่งช่วงเที่ยงของวันก่อนคืนและส่งได้ต่อเมื่อการ์ดเตือนคืนถูกส่งก่อนแล้ว; เลือกภาษาโดยตัวอักษรในชื่อลูกค้า, แสดงเงินคืนใหม่เท่ากับยอดค่าประกันคงเหลือ + 100 เทียบกับยอดเดิม และมีปุ่มโลโก้ Facebook Reviews / Google Reviews ตามลิงก์ที่ owner ระบุ.
+- **Planned scope:** แก้ source of truth ใน `delivery-app` พร้อม regression tests และบันทึกผลใน handover นี้; ไม่แตะ `aj-cm`, ไม่ย้าย LINE webhook และไม่เพิ่ม secret.
+
 ## 2026-10-05 — เก็บ Booking ที่ยกเลิก, แสดง Cancelled และปล่อยคิว (`delivery-app` `85d6072`)
 
 - **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/backend/src/services/rentalChangeService.ts`, `bookingService.ts`, `bundlePartnerService.ts`, `repositories/pgBookingRepo.ts`, regression scripts `testRentalChange.ts`, `testMyRentalLink.ts`, `testBundlePartner.ts` และ `frontend/src/screens/BookingLogScreen.tsx`. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ application code ใน `ajconsole`/`aj-line-oa-bot`, ไม่แตะ `aj-cm`, ไม่เปลี่ยน LINE webhook และไม่มี secret ใหม่.
