@@ -55,3 +55,13 @@ test('LINE success requires server acknowledgement and initialization has bounde
   assert.match(source, /bookingWait\(liff\.getProfile\(\)\)/);
   assert.match(source, /if\(isInsideLineClient\(\)\)\{[\s\S]*?location\.href = liffUrl\.toString\(\)/);
 });
+
+test('LINE handoff creates an inbound bilingual chat message without asking the customer to type', () => {
+  assert.match(source, /if\(!liff\.isInClient\(\)\)\{\s*showLineAppRequired\(panel, params\)/);
+  assert.match(source, /bookingWait\(liff\.sendMessages\(\[\{/);
+  assert.match(source, /tr\("lineChatInbound"\)\.replace\("\{code\}", rentalCode\)/);
+  assert.match(source, /lineChatInbound:"I sent booking \{code\} to AJ\."/);
+  assert.match(source, /lineChatInbound:"ส่งข้อมูลการจอง \{code\} ให้ร้าน AJ แล้ว"/);
+  assert.match(source, /lineChatVisible:"The details were sent and your chat is now visible to AJ staff\."/);
+  assert.match(source, /lineChatVisible:"ส่งรายละเอียดแล้ว และร้านเห็นแชตของคุณในรายการทันที"/);
+});

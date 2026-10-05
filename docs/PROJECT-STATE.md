@@ -1,5 +1,23 @@
 # Project state
 
+## 2026-10-05 — Maps กดเปิดได้ + My Rental เชื่อถือ LINE ของ Booking + เปิดแชทร้านอัตโนมัติ + Legal Name ตามภาษา
+
+- **แจ้ง Claude — สิ่งที่แก้:** `delivery-app` commit `94d666e` แก้ `backend/src/services/lineIdentityService.ts`, `backend/src/scripts/testTestBinding.ts`, `frontend/src/components/ConsolePendingModal.tsx`; `ajconsole` แก้ `index.html`, `tests/agreement-error-recovery.test.mjs`, `tests/line-launch-guide.test.mjs` และไฟล์สถานะนี้. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ application code ใน `aj-line-oa-bot`, ไม่ได้แตะ `aj-cm`, ไม่เปลี่ยน LINE webhook และไม่มี secret ใหม่.
+- **Console Pending Maps:** ลิงก์สถานที่ส่งและรับคืนเป็นลิงก์สีน้ำเงินกดเปิดได้ ตรวจเฉพาะ `http/https` และแจ้งข้อผิดพลาดไทย/อังกฤษเมื่อ URL ใช้ไม่ได้.
+- **My Rental ที่ผูก LINE แล้ว:** `resolveBoundCustomer()` ใช้ LINE Unique ID ที่ LIFF ส่งมาเทียบตรงกับ `Booking.lineUserId`; ถ้าตรง เปิดคิวเช่าได้ทันทีโดยไม่ถามเบอร์/เลขท้ายเอกสารซ้ำ แม้ Customers row ยังไม่มี LINE ID. ถ้า Customers row ผูก LINE ID อื่นอยู่ ระบบปฏิเสธเพื่อไม่ให้ Booking เก่าข้ามเจ้าของบัญชีปัจจุบัน และไม่มีการเขียนทับ binding.
+- **ร้านเห็นห้องแชททันที:** หลัง server ยืนยันว่า Flex ถูกส่งแล้ว LIFF เรียก `liff.sendMessages()` ส่งข้อความยืนยันสั้น ๆ ในนามลูกค้าอัตโนมัติ (ไทย/อังกฤษ). นี่สร้าง inbound LINE event ที่ LINE OA Manager ต้องใช้เพื่อแสดงห้องแชท โดยลูกค้าไม่ต้องพิมพ์หรือส่ง sticker เอง. Flow บังคับให้เปิดในแอป LINE; ถ้าส่งข้อความนี้ไม่ได้จะแจ้ง fallback สองภาษาโดยไม่อ้างว่าการ์ดล้มเหลว.
+- **ข้อกำหนด deploy ของ LINE:** LIFF app ที่ใช้ `CONFIG.lineLiffId` ต้องมี scope `chat_message.write`; ถ้ายังไม่ได้เปิด ให้ owner เปิดใน LINE Developers. ไม่ต้องเปลี่ยน webhook และ webhook ยังคงเป็นของ Bot.
+- **Legal Name ตามภาษาหน้า:** หน้าไทยรับเฉพาะอักษรไทยและช่องว่าง; หน้าอังกฤษรับเฉพาะ `A-Z/a-z` และช่องว่าง พร้อม hint/validation สองภาษา. กฎนี้ใช้เฉพาะชื่อจริงลูกค้า ไม่กระทบชื่อบัญชีธนาคารเดิมที่รองรับ punctuation.
+- **ทดสอบแล้ว:** `delivery-app/backend` — `npm run build`, `test:test-binding` (17/17), `test:booking-recipient` (5/5), `test:paid-booking-line`, `test:my-rental-link` (110/110); `delivery-app/frontend` — `npx tsc --noEmit`, Expo web export; `ajconsole` — inline-script syntax และ `node --test tests/*.test.mjs` (273/273). `git diff --check` ผ่านทั้งสอง repo.
+
+## Request — 2026-10-05 — Codex → Claude Code: Maps link, trusted LINE My Rental, chat visibility และ Legal Name ตามภาษา
+
+- **Owner request — Delivery App:** ใน Console Pending ให้ Google Maps URL กดเปิดแผนที่ได้ ไม่ใช่ข้อความล้วน.
+- **Owner request — LINE/My Rental:** ถ้า Booking ผูก LINE Unique ID ของลูกค้าคนนั้นในระบบแล้ว ปุ่ม `คิวเช่าของฉัน / My rental` จาก Flex/reminder ต้องเปิดรายการได้ทันทีโดยไม่ถามเบอร์โทรและเลขท้ายเอกสารซ้ำ; ต้องไม่ทำให้ผู้เปิดผิดบัญชีข้ามการยืนยันได้ และข้อความลูกค้าต้องครบไทย/อังกฤษ.
+- **Owner request — chat visibility:** หลังลูกค้าส่งรายการผ่าน LINE/LIFF และได้รับ Flex แล้ว ร้านต้องเห็นบทสนทนาในรายการแชทโดยไม่ต้องโทรขอให้ลูกค้าพิมพ์หรือส่งสติกเกอร์ก่อน. ตรวจข้อจำกัด LINE OA และใช้ flow ที่รองรับอย่างเป็นทางการ; ไม่ย้าย webhook ออกจาก Bot และไม่แตะ `aj-cm`.
+- **Owner request — website identity:** หน้าไทยช่อง `ชื่อ-นามสกุลจริง` รับเฉพาะตัวอักษรไทยและตัวคั่นชื่อที่ถูกต้อง; หน้าอังกฤษ `LEGAL NAME` รับเฉพาะตัวอักษรอังกฤษ พร้อม validation/คำเตือนตรงภาษา.
+- **Planned scope:** ตรวจ `delivery-app`, `aj-line-oa-bot` และ `ajconsole` ตั้งแต่การสร้างลิงก์/LINE binding/Flex action/LIFF send ไปจนถึง form validation; reuse source of truth เดิม, เพิ่ม regression tests และไม่เพิ่ม secret.
+
 ## 2026-10-04 — Bundle/อุปกรณ์เสริมจากเว็บลง Booking และเลือกกลับใน Edit (Delivery App `9117f05`)
 
 - **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/backend/src/services/bookingExtrasCatalog.ts`, `consolePendingService.ts`, `consolePendingQuote.ts`, `scripts/testBundleFromPayment.ts`, `testConsolePendingReservation.ts` และ `frontend/src/screens/BookingLogScreen.tsx`. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ Bot/website application code และไม่ได้แตะ `aj-cm`.

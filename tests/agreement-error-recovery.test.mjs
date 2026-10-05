@@ -60,13 +60,23 @@ test('a +66 number is sent as 0…, a number from abroad as typed', () => {
   assert.equal(context.run('+33 7 88 33 58 14'), '+33 7 88 33 58 14');
 });
 
-test('names with numbers are caught on the page, before the Bot refuses them', () => {
-  const context = {};
-  vm.runInNewContext(`${extract('demoAccountNameValid')}; this.run = demoAccountNameValid;`, context);
-  assert.equal(context.run('ปริวัฒน์ ภิรมย์บูรณ์'), true);
-  assert.equal(context.run("Anne-Marie O'Neil"), true);
-  assert.equal(context.run('ปริวัฒน์ ภิรมย์บูรณ์0'), false);
-  assert.match(extract('demoStep2Problems'), /need\("demoCustomerName", !\/\\d\/\.test\(demoProfile\.fullName\), en \? "The name must not contain numbers\." : "ชื่อ-นามสกุลต้องไม่มีตัวเลข"\)/);
+test('legal name accepts only the alphabet selected by the page language', () => {
+  const context = {state:{lang:'th'}};
+  vm.runInNewContext(`${extract('demoLegalNameValid')}; this.run = demoLegalNameValid;`, context);
+  assert.equal(context.run('ปริวัฒน์ ภิรมย์บูรณ์', 'th'), true);
+  assert.equal(context.run('Thanawat Boon', 'en'), true);
+  assert.equal(context.run('Thanawat Boon', 'th'), false);
+  assert.equal(context.run('ธวัชชัย Boon', 'th'), false);
+  assert.equal(context.run('ธวัชชัย', 'en'), false);
+  assert.equal(context.run('Thanawat2 Boon', 'en'), false);
+  assert.match(extract('demoStep2Problems'), /demoLegalNameValid\(demoProfile\.fullName\)/);
+  assert.match(extract('demoStep2Problems'), /tr\("legalNameScriptError"\)/);
+  assert.match(html, /legalNameScriptError:"Enter your legal name using English letters only\."/);
+  assert.match(html, /legalNameScriptError:"กรุณากรอกชื่อ-นามสกุลด้วยตัวอักษรไทยเท่านั้น"/);
+  assert.match(html, /pattern="\$\{en \? "\[A-Za-z \]\+" : "\[ก-ฺเ-๎ \]\+"\}"/);
+  const accountContext = {};
+  vm.runInNewContext(`${extract('demoAccountNameValid')}; this.run = demoAccountNameValid;`, accountContext);
+  assert.equal(accountContext.run("Anne-Marie O'Neil"), true);
   assert.match(extract('demoStep3Problems'), /demoAccountNameValid\(accountName\)/);
   assert.match(extract('demoRefundReady'), /demoAccountNameValid\(demoProfile\.refundAccountName\)/);
 });
