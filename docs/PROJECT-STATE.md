@@ -1,5 +1,22 @@
 # Project state
 
+## 2026-10-05 — Console Pending คำนวณยอดก่อนส่งใหม่ และ Flex แสดง Grand total/ชำระแล้วครบ (Delivery App `517b6fc`)
+
+- **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/backend/src/services/consolePendingQuote.ts`, `consolePendingService.ts`, `bookingConfirmFlex.ts`, `scripts/testConsolePendingReservation.ts`, `testConfirmTotals.ts` และ `frontend/src/components/ConsolePendingModal.tsx`. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ `aj-line-oa-bot`/website application code, ไม่ได้แตะ `aj-cm`, ไม่เปลี่ยน LINE webhook และไม่มี secret ใหม่.
+- **Root cause:** Console Pending ขอ quote ล่าสุดตอนเปิดจริง แต่เดิมตั้งใจไม่แทนช่อง `ยอดโอนก่อนส่ง` ครั้งแรก จึงค้างยอดจาก Email เก่า; backend ยังเชื่อยอด override นั้นเมื่อวันที่/Bundle ไม่เปลี่ยน. Flex จึงพบยอดไม่ reconcile และซ่อนแถว Total แม้ paid-booking flow แบบ `force` ยังส่งการ์ดออก.
+- **แก้ยอดก่อนส่ง:** เมื่อรายการมีราคาจาก catalogue ได้ หน้า Console Pending จะเติมและล็อกยอดอัตโนมัติเป็น `grand total ล่าสุด − ชำระแล้ว − ค่าจอง`; กด Confirm จะ quote ซ้ำทันที และ backend คำนวณซ้ำอีกชั้นก่อนเขียน Booking ไม่เชื่อยอดเก่าจาก Email. รายการเก่าที่ระบบตีราคาไม่ได้เท่านั้นยังกรอกยอดเองได้.
+- **Regression Booking 554:** ค่าเช่าโปร `999` + ค่าประกัน `2,000` + ค่าส่งสุทธิ `246` = Grand total `3,245`; ชำระแล้ว `200`; Booking เขียน `ยอดโอนก่อนส่ง 3,045` แม้ payload เดิมส่ง `3,088`. ส่วนลดค่าส่ง `100` ยังคงถูกบันทึกและแสดงแยกจากค่าส่งเต็ม `346`.
+- **Flex ไทย/อังกฤษ:** แสดง `ยอดรวมทั้งหมด / Grand total` ทุกครั้งที่คำนวณยอดได้ แล้วตามด้วย `ชำระแล้ว / Already paid`, ค่าจอง (ถ้ามี) และ `ยอดชำระก่อนส่ง / Due on delivery`. กรณีจ่ายครบก็ใช้ชื่อ `ชำระแล้ว / Already paid` เหมือนกัน ไม่ใช้ข้อความคนละแบบ.
+- **ทดสอบแล้ว:** backend build; Console Pending reservation/quote `73/73`; confirmation totals `30/30`; overrides `27/27`; confirmation extras `8/8`; delivery card `55/55`; bundle partner `22/22`; booking language `15/15`; paid-booking LINE ผ่าน. Frontend TypeScript, booking-form check และ Expo web export ผ่าน; `git diff --check` ผ่าน.
+- **Deploy:** push `delivery-app/main` commit `517b6fc` แล้ว; ต้อง deploy backend และ web/OTA staff app ตามขั้นตอนเดิม.
+
+## Request — 2026-10-05 — Codex → Claude Code: ยอดก่อนส่งต้องตาม quote ล่าสุด และ Flex ต้องแสดงยอดรวม/ชำระแล้ว
+
+- **Owner evidence:** Email เดิมแสดงยอดรวม `3,288` จากค่าส่งไป-กลับ `389` และส่วนลดค่าส่ง `100`; ก่อน Confirm ใน Delivery App quote ล่าสุดลดค่าส่งเป็น `346` จึงมียอดรวม `3,245`, ลูกค้าชำระแล้ว `200` และยอดคงเหลือที่ถูกต้อง `3,045`. แต่ช่อง `ยอดโอนก่อนส่ง` ยังค้าง `3,088` จาก Email เดิม ทำให้ Booking/Flex ส่งยอดผิด.
+- **Owner request:** เมื่อ staff ปรับค่าส่ง/ส่วนลดหรือ quote เปลี่ยน ต้องคำนวณ `ยอดโอนก่อนส่ง / Due on delivery` ใหม่จากยอดรวมล่าสุดลบยอดชำระแล้ว ไม่ใช้ยอดจาก Email ที่ stale; ข้อมูล Booking และ Flex ที่ส่งทันทีต้องใช้ชุดยอดเดียวกัน.
+- **Flex card:** การ์ดยืนยันไทย/อังกฤษต้องแสดง `ยอดรวมทั้งหมด / Grand total`, `ชำระแล้ว / Already paid` และยอดคงเหลืออย่างชัดเจน แม้ชำระแล้วบางส่วน; ห้ามละแถว Grand total เหมือนหลักฐาน Booking 554.
+- **Planned scope:** ตรวจ Console Pending quote/confirm, Booking fields และ confirmation Flex ใน `delivery-app`; แก้ source of truth พร้อม regression tests. ไม่แตะ `aj-cm`, ไม่เปลี่ยน LINE webhook และไม่เพิ่ม secret.
+
 ## 2026-10-05 — Maps กดเปิดได้ + My Rental เชื่อถือ LINE ของ Booking + เปิดแชทร้านอัตโนมัติ + Legal Name ตามภาษา
 
 - **แจ้ง Claude — สิ่งที่แก้:** `delivery-app` commit `94d666e` แก้ `backend/src/services/lineIdentityService.ts`, `backend/src/scripts/testTestBinding.ts`, `frontend/src/components/ConsolePendingModal.tsx`; `ajconsole` แก้ `index.html`, `tests/agreement-error-recovery.test.mjs`, `tests/line-launch-guide.test.mjs` และไฟล์สถานะนี้. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ application code ใน `aj-line-oa-bot`, ไม่ได้แตะ `aj-cm`, ไม่เปลี่ยน LINE webhook และไม่มี secret ใหม่.
