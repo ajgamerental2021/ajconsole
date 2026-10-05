@@ -1,5 +1,9 @@
 # Project state
 
+## 2026-10-05 — ตรวจ N2-1 วันที่ 12/10 หลังยกเลิก Booking 539
+
+- ตรวจ production `delivery-app` commit `1d10d1d`: รายการ public range 12–15/10 ยังมี **Booking 553**, N2-1, สถานะ `Booked`, เช่า 06–13/10/2026 และไม่มี `cancelledAt`; จึงทับวันที่ 12/10 จริง. Booking 539 ที่ยกเลิกไม่ใช่ตัวกันคิวนี้. ห้ามปล่อย N2-1 หรือแก้สถานะ Booking 553 โดยไม่มีการยืนยันยกเลิก/เปลี่ยนเครื่อง เพราะจะสร้าง double booking. ไม่มี application code หรือ production data ที่แก้ในรอบตรวจนี้.
+
 ## 2026-10-05 — เงินคืนโอน, ยกเลิก/Finance และ Flex รีวิวก่อนคืน (`delivery-app` `1d10d1d`)
 
 - **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/backend/src/services/bookingService.ts`, `financeService.ts`, `rentalChangeFlex.ts`, `reminderFlex.ts`, `reminderRunner.ts`, `reminderScheduleService.ts`, tests `testCancellationAndReview.ts`, `testSheetWriteRace.ts`, `backend/package.json` และ `frontend/src/screens/BookingLogScreen.tsx`; handover นี้ใน `ajconsole`. ไม่แก้ application code ใน `ajconsole`/`aj-line-oa-bot`, ไม่แตะ `aj-cm`, ไม่ย้าย LINE webhook และไม่มี secret ใหม่.
