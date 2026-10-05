@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-10-05 — ปุ่มยืนยันตัวตนในลิงก์ชำระเงินต่อ และช่องทางติดต่อ
+
+- **แจ้ง Claude — สิ่งที่แก้:** `ajconsole/index.html` และ `aj-line-oa-bot/src/server.js`; ไม่มีไฟล์ใหม่หรือลบ ไม่แตะ `aj-cm` และไม่เพิ่ม secret.
+- ลิงก์ชำระเงินต่อของรายการที่ยังไม่จ่ายและเลือกไม่ยืนยันตัวตน รับ signed identity-upgrade URL กับยอดค่าประกันปกติจาก Bot แล้วแสดงปุ่ม “ยืนยันตัวตนเพื่อลดค่าประกันเป็น ฿…” ทั้งไทย/อังกฤษ. หลังกลับจากหน้าพิสูจน์ตัวตน เว็บไซต์โหลดรายการใหม่เพื่อแสดงยอดล่าสุด; endpoint พิสูจน์ตัวตนเดิมเป็นผู้แก้ประวัติและ Console Pending จริง.
+- ท้ายเว็บเพิ่มโลโก้ LINE ข้าง TikTok ไป `https://lin.ee/5rDwplO`; เมนูและ footer เพิ่ม “ติดต่อเรา / Contact Us” พร้อมไอคอนและ Popup เบอร์โทร `tel:+66816244715`, LINE `https://lin.ee/w4TFyCV`, อีเมล `mailto:contact@ajgamerental.com`.
+- ตรวจ syntax ทั้งสองไฟล์, bot identity-upgrade/payment-resume tests 14/14, เว็บ pay-later/info-popup tests 17/17 และ Chromium smoke ที่ 375px กับ 1280px ภาษาไทย/อังกฤษผ่าน. Browser ใช้รายการจำลอง ไม่ได้ทำรายการชำระเงินจริง.
+
 ## 2026-10-05 — ตรวจ N2-1 วันที่ 12/10 หลังยกเลิก Booking 539
 
 - ตรวจ production `delivery-app` commit `1d10d1d`: รายการ public range 12–15/10 ยังมี **Booking 553**, N2-1, สถานะ `Booked`, เช่า 06–13/10/2026 และไม่มี `cancelledAt`; จึงทับวันที่ 12/10 จริง. Booking 539 ที่ยกเลิกไม่ใช่ตัวกันคิวนี้. ห้ามปล่อย N2-1 หรือแก้สถานะ Booking 553 โดยไม่มีการยืนยันยกเลิก/เปลี่ยนเครื่อง เพราะจะสร้าง double booking. ไม่มี application code หรือ production data ที่แก้ในรอบตรวจนี้.
