@@ -215,6 +215,7 @@
     if (data.type === 'AJ_SET_DEVICE') chooseDevice(data.consoleId);
   });
   var consoles = [];
+  var pricingPolicy = null;
   // The booking site's add-ons (extrasForConsole): Switch extras are built in,
   // the others come from the catalogue file by device; PS5 bundles too.
   var PS5_ID = '11', PS5P_ID = '18', SW1_ID = '4', SW2_ID = '12';
@@ -409,7 +410,9 @@
   // Match the booking site's device-specific no-identity deposit.
   function noIdDepositFor(normal, isBundle, device) {
     var amount = Number(normal) || 0;
-    if (isBundle) return Math.max(amount, 15000);
+    if (isBundle) return Math.max(amount, pricingPolicy && pricingPolicy.bundleNoIdentityDeposit || 15000);
+    var priced = pricingPolicy && pricingPolicy.devices.find(function (row) { return String(row.name).toLowerCase().replace(/[^a-z0-9]+/g, '') === String(device && (device.nameEn || device.name) || '').toLowerCase().replace(/[^a-z0-9]+/g, ''); });
+    if (priced && amount === priced.securityDeposit) return priced.noIdentityDeposit;
     if (amount >= 5000) return amount;
     var id = String(device && device.id || '').toLowerCase();
     var model = String(device && (device.nameEn || device.name) || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
@@ -626,7 +629,7 @@
     return {
       id: codeFor(quoteText()), lang: lang, source: SOURCE, deviceName: L.c.name || L.c.nameEn, days: L.n,
       rows: L.rows.map(function (r) { return { label: r[0], value: r[1], kind: r[3] || '' }; }),
-      totalLabel: quote ? t('total') : t('totalNoDelivery'), total: money(L.total), deliveryIncluded: !!quote, bookUrl: bookUrl()
+      totalLabel: quote ? t('total') : t('totalNoDelivery'), total: money(L.total), deliveryIncluded: !!quote, bookUrl: bookUrl(), mapsUrl: chosenPlace ? quotedMapsLink : ''
     };
   }
   // AJ's LIFF app (its id from the Bot): LINE signs the customer in, and the
@@ -727,9 +730,12 @@
 
   applyLanguage();
   track('quick_quote_opened');
-  fetch(CATALOGUE + '?t=' + Date.now(), { cache: 'no-store' })
-    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(function (data) {
+  Promise.all([
+    fetch(CATALOGUE + '?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }),
+    fetch(API + '/api/pricing-policy', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; })
+  ]).then(function (results) {
+      var data = results[0];
+      pricingPolicy = results[1].policy || null;
       consoles = (Array.isArray(data.consoles) ? data.consoles : [])
         .filter(function (c) { return c && (c.name || c.nameEn); })
         .map(function (c) {
@@ -738,6 +744,11 @@
           var pack = rate >= 500 ? { weekly: 3000, deposit: 4000 } : rate >= 400 ? { weekly: 2500, deposit: 2000 } : rate >= 350 ? { weekly: 1800, deposit: 2000 } : { weekly: 1500, deposit: 2000 };
           return { id: c.id, name: String(c.name || c.nameEn).trim(), nameEn: String(c.nameEn || c.name).trim(), brand: c.brand, type: String(c.type || 'console'), readyDate: String(c.readyDate || c.unavailableUntil || '').trim(), rate: rate, weekly: Number(c.weekly) || pack.weekly, deposit: Number(c.deposit) || pack.deposit };
         });
+      if (pricingPolicy) consoles.forEach(function (c) {
+        var name = String(c.nameEn || c.name).toLowerCase().replace(/[^a-z0-9]+/g, '');
+        var priced = pricingPolicy.devices.find(function (row) { return String(row.name).toLowerCase().replace(/[^a-z0-9]+/g, '') === name; });
+        if (priced) { c.rate = priced.dailyRate; c.weekly = priced.weeklyRate; c.deposit = priced.securityDeposit; }
+      });
       if (Array.isArray(data.rentalAccessories)) accessories = data.rentalAccessories.map(function (x) { return Object.assign({}, x, { consoleIds: Array.isArray(x.consoleIds) ? x.consoleIds.map(String) : [] }); });
       if (Array.isArray(data.rentalBundles)) bundles = data.rentalBundles.map(function (b) {
         return { id: String(b.id || ''), th: String(b.th || b.titleTh || 'Bundle'), en: String(b.en || b.titleEn || b.th || 'Bundle'), rate: Number(b.rate) || 0, weekly: Number(b.weekly) || 0, deposit: Number(b.deposit) || 0, readyDate: String(b.readyDate || b.unavailableUntil || '') };

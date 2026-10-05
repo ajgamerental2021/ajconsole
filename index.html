@@ -472,6 +472,16 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .step-detail-section + .step-detail-section{margin-top:14px}
 .step-detail strong{font-weight:900}
 .step-detail .step-mark{display:inline;padding:1px 5px;border-radius:6px;background:#fff0cf;color:#7a4700;font-weight:900}
+.pricing-tiers{display:grid;gap:8px;margin:12px 0 4px}
+.pricing-tiers-title{font-weight:900;line-height:1.4}
+.pricing-tier{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 14px;border:1px solid;border-radius:10px;padding:9px 12px;line-height:1.4}
+.pricing-tier-name{font-weight:700;overflow-wrap:anywhere}
+.pricing-tier-amount{font-weight:900;white-space:nowrap}
+.pricing-tier-low{background:#edf9f0;border-color:#a9ddba;color:#176534}
+.pricing-tier-mid{background:#fff6df;border-color:#e9ce85;color:#795200}
+.pricing-tier-high{background:#fff0ef;border-color:#efb4ae;color:#9a2724}
+.pricing-tier-extra{background:#f2f0ff;border-color:#c5b9f5;color:#514196}
+@media(max-width:640px){.pricing-tier{grid-template-columns:1fr}.pricing-tier-amount{justify-self:start}}
 .step-inline-btn{margin-top:12px;width:100%;min-height:44px}
 .step-nav{display:flex;gap:10px;margin-top:6px}
 .step-nav .btn{flex:1;min-height:46px}
@@ -2312,7 +2322,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   const $ = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
   const byId = id => document.getElementById(id);
-  const tr = key => (I18N[state.lang] && I18N[state.lang][key]) || key;
+  const tr = key => key === "beforeRentNoteContract" ? pricingExplanation(state.lang) : key === "noContractHelp" ? `${state.lang === "en" ? "You must still read and accept the Rental Terms. " : "ยังต้องอ่านและยอมรับเงื่อนไขการเช่า "}${pricingExplanation(state.lang)}` : (I18N[state.lang] && I18N[state.lang][key]) || key;
   const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const safeHref = (value, fallback="#") => {
     const raw = String(value || "").trim();
@@ -3053,12 +3063,62 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function isConsoleSelectable(item){ return isReady(item) && !isQueueClosed(item); }
   // Four specific ฿2,000 models hold ฿5,000 without identity; other
   // ฿2,000 models hold ฿10,000. Bundles and ฿4,000 models hold ฿15,000.
+  let pricingPolicy = null;
+  const pricingKey = value => String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+  function pricedDevice(consoleItem){
+    const keys = [consoleItem?.name, consoleItem?.nameEn, consoleItem?.id].map(pricingKey);
+    return pricingPolicy?.devices?.find(device => keys.includes(pricingKey(device.name)) || keys.includes(pricingKey(device.id))) || null;
+  }
+  function pricingDefaults(){
+    const special = new Set(["1","2","4","5"]);
+    return {version:1,bundleNoIdentityDeposit:15000,devices:state.consoles.map(c => ({
+      id:String(c.id),name:c.nameEn || c.name,dailyRate:Number(c.rate),weeklyRate:Number(c.weekly),securityDeposit:Number(c.deposit),
+      noIdentityDeposit:special.has(String(c.id)) ? 5000 : Number(c.deposit) >= 4000 ? 15000 : 10000
+    }))};
+  }
+  function pricingForAdmin(){
+    const source = pricingPolicy || pricingDefaults();
+    const devices = source.devices.map(device => ({...device}));
+    state.consoles.forEach(c => {
+      if(devices.some(device => pricingKey(device.name) === pricingKey(c.nameEn || c.name))) return;
+      devices.push({id:`web_${c.id}`,name:c.nameEn || c.name,dailyRate:Number(c.rate),weeklyRate:Number(c.weekly),securityDeposit:Number(c.deposit),noIdentityDeposit:["1","2","4","5"].includes(String(c.id)) ? 5000 : Number(c.deposit) >= 4000 ? 15000 : 10000});
+    });
+    return {...source,devices};
+  }
+  function pricingExplanation(lang=state.lang){
+    const policy = pricingPolicy || pricingDefaults();
+    const groups = new Map();
+    policy.devices.forEach(device => {
+      const key = `${device.securityDeposit}:${device.noIdentityDeposit}`;
+      const group = groups.get(key) || {normal:device.securityDeposit,noIdentity:device.noIdentityDeposit,names:[]};
+      group.names.push(device.name); groups.set(key,group);
+    });
+    const parts = [...groups.values()].map(group => `${group.names.join(", ")}: ${money(group.normal)} → ${money(group.noIdentity)}`);
+    return lang === "en" ? `Without identity verification, deposits by device: ${parts.join("; ")}. Bundles: at least ${money(policy.bundleNoIdentityDeposit)}.` : `หากไม่ยืนยันตัวตน ค่าประกันตามรุ่น: ${parts.join("; ")}; Bundle: อย่างน้อย ${money(policy.bundleNoIdentityDeposit)}`;
+  }
+  function applyPricingPolicy(policy){
+    if(!policy || !Array.isArray(policy.devices)) return;
+    pricingPolicy = policy;
+    state.consoles.forEach(c => { const priced = pricedDevice(c); if(priced){ c.rate=priced.dailyRate; c.weekly=priced.weeklyRate; c.deposit=priced.securityDeposit; } });
+    render();
+    if(state.adminToken) renderAdmin();
+  }
+  async function loadPricingPolicy(){
+    const response = await fetch(`${CONFIG.apiBase}/api/pricing-policy`,{cache:"no-store"});
+    if(!response.ok) throw new Error("pricing_load_failed");
+    const result = await response.json();
+    applyPricingPolicy(result.policy);
+  }
   const FIVE_THOUSAND_DEPOSIT_IDS = new Set(["1", "2", "4", "5", "ps4", "ps-portal", "switch-1", "xbox-series-s"]);
   function noContractDeposit(base, selectedConsole){
     const amount = Number(base) || 0;
-    if(amount >= 5000) return amount; // Already stepped up; never charge it twice.
-    const model = String(selectedConsole?.nameEn || selectedConsole?.name || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
-    const specialModel = ["ps4", "playstation4", "nintendoswitch1", "switch1", "psportal", "playstationportal", "xboxseriess"].includes(model);
+    const policy = pricingPolicy;
+    if(selectedConsole && state.calc.bundleId) return Math.max(amount,policy?.bundleNoIdentityDeposit || 15000);
+    const device = selectedConsole ? pricedDevice(selectedConsole) : null;
+    if(device && amount === device.securityDeposit) return device.noIdentityDeposit;
+    if(amount >= 5000) return amount;
+    const model = pricingKey(selectedConsole?.nameEn || selectedConsole?.name);
+    const specialModel = ["ps4","playstation4","nintendoswitch1","switch1","psportal","playstationportal","xboxseriess"].includes(model);
     if(amount === 2000 && selectedConsole && (FIVE_THOUSAND_DEPOSIT_IDS.has(String(selectedConsole.id).toLowerCase()) || specialModel)) return 5000;
     return amount >= 4000 ? 15000 : 10000;
   }
@@ -3584,7 +3644,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   function hasRentalContext(){
     const query = new URLSearchParams(location.search);
-    const contextKeys = ["console","device","deviceId","s","e","rentalStart","rentalEnd","days","viewMsg","bookingCode","rentalCode","go","booking"];
+    const contextKeys = ["consoleId","console","device","deviceId","s","e","rentalStart","rentalEnd","days","viewMsg","bookingCode","rentalCode","go","booking"];
     if(contextKeys.some(key => query.has(key))) return true;
     return /^#AJ-/i.test(location.hash) || ["#calculator","#faq","#steps"].includes(location.hash);
   }
@@ -4237,7 +4297,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <div class="field"><label class="label" for="demoIdentityExpiry">${demoIdentityType()==="passport" ? (en ? "Passport expiry date" : "วันหมดอายุ Passport") : (en ? "Thai ID expiry date" : "วันหมดอายุบัตรประชาชน")}<span class="req">*</span></label><input class="input${demoIdentityExpired() ? " is-invalid" : ""}" id="demoIdentityExpiry" type="date" value="${esc(demoProfile.identityExpiry)}"><p class="hint">${en ? "Your Thai ID card or passport must remain valid from the start date through the return date, in every case. If you have rented before and your ID card or passport has expired, a new rental agreement is required before your next rental." : "บัตรประชาชนหรือ Passport ต้องยังไม่หมดอายุ ตั้งแต่วันที่เริ่มเช่าจนถึงวันคืนเครื่องในทุกกรณี หากเคยเช่าแล้วและบัตรหรือ Passport หมดอายุ ต้องทำสัญญาการเช่าใหม่ทุกกรณีก่อนเช่าครั้งถัดไป"}</p>${demoIdentityExpired() ? `<p class="field-error">${esc(demoIdentityExpiryMessage())}</p>` : ""}</div>`}
         <div class="field"><label class="label" for="demoEmail">${en ? "Email" : "อีเมล"}<span class="req">*</span></label><input class="input" id="demoEmail" type="email" autocomplete="email" value="${esc(demoProfile.email)}"></div>
         ${demoIdentityCoveredByAgreement() || payResume.active ? "" : `<div class="field wide">
-        <label class="option-row"><input type="checkbox" id="demoNoContractOpt" ${state.calc.noContract?"checked":""}><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b><div class="hint">${en ? "No document number or identity images are required, and no rental agreement is prepared. The security deposit changes by model: PS4, Nintendo Switch 1, XBOX Series S and PS Portal: ฿2,000 → ฿5,000; other ฿2,000 deposits → ฿10,000; ฿4,000 deposits → ฿15,000; PS5 bundles → ฿15,000." : "ไม่ต้องกรอกเลขเอกสารและไม่ต้องส่งรูปบัตรประชาชน/Passport และไม่มีการทำสัญญาเช่า ค่าประกันปรับตามรุ่น: PS4, Nintendo Switch 1, XBOX Series S และ PS Portal: ฿2,000 → ฿5,000; รุ่นอื่นที่ค่าประกัน ฿2,000 → ฿10,000; ค่าประกัน ฿4,000 → ฿15,000; Bundle PS5 → ฿15,000"}</div></div></label>
+        <label class="option-row"><input type="checkbox" id="demoNoContractOpt" ${state.calc.noContract?"checked":""}><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b><div class="hint">${en ? `No document number or identity images are required, and no rental agreement is prepared. ${pricingExplanation("en")}` : `ไม่ต้องกรอกเลขเอกสารและไม่ต้องส่งรูปบัตรประชาชน/Passport และไม่มีการทำสัญญาเช่า ${pricingExplanation("th")}`}</div></div></label>
         </div>`}
         <div class="field wide"><label class="option-row"><input type="checkbox" id="demoNoThaiAddress" ${demoProfile.noThaiAddress?"checked":""}><div><b>${en ? "I don't need to enter an address — the Google Maps link is exact" : "ไม่ต้องการระบุที่อยู่ ตำแหน่งจากลิงก์ Google Maps ถูกต้องแล้ว"}</b><div class="hint">${en ? "Skip the address fields and use the exact Google Maps pin for delivery and the delivery quote." : "ข้ามช่องที่อยู่และใช้หมุด Google Maps ที่ระบุสำหรับจัดส่งและคำนวณค่าส่ง"}</div></div></label></div>
         ${demoProfile.noThaiAddress ? "" : `
@@ -5489,14 +5549,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(state.calc.noContract){
       card.innerHTML = `<h3>${en ? "Identity verification" : "ยืนยันตัวตน"}</h3>
       <p>${en ? "You chose not to verify your identity, so this step is skipped and no document images are requested." : "คุณเลือกไม่ยืนยันตัวตน ขั้นตอนนี้จึงข้ามไปได้ และไม่ต้องส่งรูปเอกสาร"}</p>
-      <label class="option-row"><input type="checkbox" id="demoIdentityNoContractOpt" checked><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b><div class="hint">${en ? "Deposit: PS4, Nintendo Switch 1, XBOX Series S and PS Portal: ฿2,000 → ฿5,000; other ฿2,000 deposits → ฿10,000; ฿4,000 deposits → ฿15,000; PS5 bundles → ฿15,000. Untick to verify instead." : "ค่าประกัน: PS4, Nintendo Switch 1, XBOX Series S และ PS Portal: ฿2,000 → ฿5,000; รุ่นอื่นที่ค่าประกัน ฿2,000 → ฿10,000; ค่าประกัน ฿4,000 → ฿15,000; Bundle PS5 → ฿15,000 เอาเครื่องหมายออกหากต้องการยืนยันตัวตน"}</div></div></label>`;
+      <label class="option-row"><input type="checkbox" id="demoIdentityNoContractOpt" checked><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b><div class="hint">${en ? `${pricingExplanation("en")} Untick to verify instead.` : `${pricingExplanation("th")} เอาเครื่องหมายออกหากต้องการยืนยันตัวตน`}</div></div></label>`;
       return;
     }
     card.innerHTML = `<h3>${en ? "Identity verification" : "ยืนยันตัวตน"}</h3>
       ${demoIdentityArtHtml()}
       <p>${en ? "Upload a clear image of the identity document and a selfie holding the same document. AJ reviews the files before delivery; uploading does not mean verification is complete." : "อัปโหลดรูปบัตรประชาชน/Passport ที่อ่านได้ชัดเจน และรูปเซลฟี่คู่บัตรประชาชน/Passport ร้านจะตรวจสอบก่อนจัดส่ง การอัปโหลดรูปยังไม่ถือว่ายืนยันตัวตนสำเร็จ"}</p>
       ${demoIdGuideHtml()}
-      <label class="option-row"><input type="checkbox" id="demoIdentityNoContractOpt" ${state.calc.noContract?"checked":""}><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b><div class="hint">${en ? "Deposit: PS4, Nintendo Switch 1, XBOX Series S and PS Portal: ฿2,000 → ฿5,000; other ฿2,000 deposits → ฿10,000; ฿4,000 deposits → ฿15,000; PS5 bundles → ฿15,000" : "ค่าประกัน: PS4, Nintendo Switch 1, XBOX Series S และ PS Portal: ฿2,000 → ฿5,000; รุ่นอื่นที่ค่าประกัน ฿2,000 → ฿10,000; ค่าประกัน ฿4,000 → ฿15,000; Bundle PS5 → ฿15,000"}</div></div></label>
+      <label class="option-row"><input type="checkbox" id="demoIdentityNoContractOpt" ${state.calc.noContract?"checked":""}><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b><div class="hint">${en ? pricingExplanation("en") : pricingExplanation("th")}</div></div></label>
       ${demoIdentityUploadGridHtml("demo")}
       <label class="option-row"><input type="checkbox" id="demoIdentitySkip" ${demoProfile.identitySkipped?"checked":""}><div><b>${en ? "Verify later" : "ยืนยันตัวตนภายหลัง"}</b><div class="hint">${en ? "You may continue to payment, but AJ will show Identity incomplete and will not dispatch equipment until verification is approved." : "ไปหน้าชำระเงินต่อได้ แต่สถานะจะแสดงว่ายืนยันตัวตนยังไม่สำเร็จ และร้านจะไม่จัดส่งจนกว่าจะตรวจสอบผ่าน"}</div></div></label>`;
   }
@@ -5669,12 +5729,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   let demoEditStep = 0;
   let demoEditSnapshot = null;
   // The device's deposit with identity verified, and without (the booking
-  // site's noContractDeposit; any PS5 bundle ฿15,000), VIP rates included.
+  // site's noContractDeposit; the current PS5 bundle tier), VIP rates included.
   function demoDepositChoices(){
     const c = consoleById(state.calc.consoleId);
     if(!c) return {normal:0, noId:0};
     const {deposit, bundleName} = selectedConsoleRentalTerms(c);
-    return {normal:Number(deposit) || 0, noId:bundleName ? 15000 : noContractDeposit(deposit, c)};
+    return {normal:Number(deposit) || 0, noId:bundleName ? Math.max(Number(deposit) || 0, pricingPolicy?.bundleNoIdentityDeposit || 15000) : noContractDeposit(deposit, c)};
   }
   // One switch for "no identity verification": the step 2 checkbox and the
   // order page's buttons. A payment link made for the old deposit is dropped.
@@ -6891,9 +6951,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // A device-specific VIP price replaces (rather than stacks with) the 10%
     // returning-customer discount for that device, so the configured price is exact.
     const retDisc = state.calc.ret && state.retEnabled && !terms.vipRateApplied ? Math.round(returningDiscountBase * 0.1) : 0;
-    // Without identity verification every PS5 bundle holds ฿15,000; a device on
+    // Without identity verification a PS5 bundle uses the configured bundle tier; a device on
     // its own steps up by its normal deposit (noContractDeposit).
-    const finalDeposit = state.calc.noContract ? (bundleName ? 15000 : noContractDeposit(deposit, c)) : deposit;
+    const finalDeposit = state.calc.noContract ? (bundleName ? Math.max(deposit, pricingPolicy?.bundleNoIdentityDeposit || 15000) : noContractDeposit(deposit, c)) : deposit;
     const consoleDiscounts = retDisc + reviewGoogleDisc + reviewFacebookDisc + promoDisc + afterWorkDisc;
     const subtotalAfterDiscount = Math.max(0, rental + addons - consoleDiscounts) + Math.max(0, bgSubtotal - bgDisc);
     const depositTotal = finalDeposit + bgDepositTotal;
@@ -6930,7 +6990,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     host.classList.toggle("collapsed", !state.faqExpanded);
     host.innerHTML = state.faq.map(f => {
       const q = state.lang==="en" ? (f.qEn || f.qTh) : (f.qTh || f.qEn);
-      const a = state.lang==="en" ? (f.aEn || f.aTh) : (f.aTh || f.aEn);
+      const a = f.kind === "noContractTerms" ? `${state.lang === "en" ? "Yes. " : "ได้ "}${pricingExplanation(state.lang)} ${state.lang === "en" ? "The renter must still accept the Rental Terms." : "ผู้เช่ายังคงต้องยอมรับเงื่อนไขการเช่า"}` : (state.lang==="en" ? (f.aEn || f.aTh) : (f.aTh || f.aEn));
       const action = f.kind === NO_CONTRACT_FAQ.kind ? `<button class="btn soft faq-action" type="button" data-faq-rental-terms>${esc(tr("rentalTermsRead"))}</button>` : "";
       return `<div class="faq-item"><div class="faq-q">${esc(q)}</div><div class="faq-a">${esc(a)}</div>${action}</div>`;
     }).join("");
@@ -7449,6 +7509,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     state.calc.end = state.calendar.draftEnd;
     state.calc.datesTouched = true;
     closeCalendar();
+    if(state.beforeRentActive && consoleById(state.calc.consoleId)) state.beforeRentActive = false;
     markGuideDone("start");
     markGuideDone("end");
     setGuideStage(guideStageForStep(1));
@@ -11124,7 +11185,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const copyButton = `<button class="copy-section-url" id="faqCopyUrl" type="button">${icon("link")}<span>${esc(tr("copyFaqUrl"))}</span></button>`;
     const items = state.faq.map(f => {
       const q = state.lang==="en" ? (f.qEn || f.qTh) : (f.qTh || f.qEn);
-      const a = state.lang==="en" ? (f.aEn || f.aTh) : (f.aTh || f.aEn);
+      const a = f.kind === "noContractTerms" ? `${state.lang === "en" ? "Yes. " : "ได้ "}${pricingExplanation(state.lang)} ${state.lang === "en" ? "The renter must still accept the Rental Terms." : "ผู้เช่ายังคงต้องยอมรับเงื่อนไขการเช่า"}` : (state.lang==="en" ? (f.aEn || f.aTh) : (f.aTh || f.aEn));
       const action = f.kind === NO_CONTRACT_FAQ.kind ? `<button class="btn soft faq-action" type="button" data-faq-rental-terms>${esc(tr("rentalTermsRead"))}</button>` : "";
       return `<div class="faq-item"><div class="faq-q">${esc(q)}</div><div class="faq-a">${esc(a)}</div>${action}</div>`;
     }).join("");
@@ -11156,8 +11217,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
         }
       ],
       detail:{
-        th:`<div class="step-detail-section"><h4>หลังส่งข้อมูล</h4><ul><li>ทางร้านตรวจคิว สรุปค่าใช้จ่ายพร้อมค่าจัดส่ง และแจ้งขั้นตอนถัดไป</li><li><span class="step-mark">ผู้เช่าครั้งแรกต้องทำสัญญาการเช่าก่อนนัดส่งเครื่อง</span> เว้นแต่เลือกไม่ทำสัญญาและยอมรับค่าประกันที่เพิ่มขึ้น</li><li>สัญญาหลักมีอายุ 1 ปี สามารถใช้ข้อมูลและลายมือชื่อเดิมสำหรับการเช่าครั้งถัดไปได้ โดยแต่ละครั้งต้องยืนยันรายละเอียดและเงื่อนไขการเช่าใหม่ เมื่อครบ 1 ปีหรือข้อมูลสำคัญเปลี่ยนแปลง ต้องทำสัญญาหลักใหม่</li><li>ชำระเงินตามช่องทางที่เลือก หลังทางร้านยืนยันคิวและค่าจัดส่ง</li></ul></div><div class="step-detail-section"><h4>เตรียมเครื่องและจัดส่ง</h4><ul><li>เริ่มเตรียมหลังร้านยืนยันคิว ได้รับรายชื่อเกมครบ และได้รับยอดจองหรือยอดชำระแล้ว หากต้องดาวน์โหลดหรือติดตั้งเกมเพิ่ม ใช้เวลาประมาณ <span class="step-mark">2–3 ชั่วโมง</span>; หากไม่ต้องติดตั้งเพิ่ม ใช้เวลาประมาณ 30–60 นาที เวลาจริงขึ้นอยู่กับขนาดเกม ความเร็วดาวน์โหลด จำนวนเกม และคิวงาน โดยร้านจะแจ้งเวลาพร้อมส่งอีกครั้ง</li><li>จัดส่งด้วย Lalamove / Grab ประมาณ 1-2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ</li><li><strong>ทางร้านเป็นฝ่ายเรียกรถให้ทั้งขาส่งไปและขารับคืนเครื่อง ผู้เช่าเพียงรอรับและส่งคืนเครื่องให้กับคนขับ</strong></li><li>เมื่อของถึง สามารถเปิดกระเป๋าเช็คของกับคนส่งของก่อน แล้วชำระยอดที่เหลือพร้อมส่งสลิปให้ร้านทางแชท</li></ul><p><strong>ไม่ยืนยันตัวตน: PS4, Nintendo Switch 1, XBOX Series S และ PS Portal: ฿2,000 → ฿5,000; รุ่นอื่นที่ค่าประกัน ฿2,000 → ฿10,000; ค่าประกัน ฿4,000 → ฿15,000; Bundle PS5 → ฿15,000</strong></p></div><div class="step-detail-section"><h4>การคืนเครื่อง</h4><ul><li>ทางร้านเรียกรถเข้าไปรับเครื่อง และลูกค้ายืนยันอุปกรณ์ก่อนส่งคืน</li><li>ส่งของให้คนรับของ แล้วแจ้งยืนยันหรือส่งรูปให้ร้านทางแชท</li><li>ร้านเช็คเครื่องและอุปกรณ์ จากนั้นคืนค่าประกันเข้าบัญชีในสัญญา หรือบัญชีที่แจ้งทางแชท</li></ul><p><strong>*ทางร้านเรียกรถขนส่งให้ทั้งขาส่งและขารับกลับเท่านั้น</strong></p><p><strong>**ทางร้านให้บริการแบบออนไลน์เท่านั้น ไม่มีรับหรือคืนเครื่องที่หน้าร้าน</strong></p></div>`,
-        en:`<div class="step-detail-section"><h4>After submitting details</h4><ul><li>The shop checks availability, confirms the total including delivery, and sends the next steps.</li><li><span class="step-mark">First-time renters must complete the rental contract before delivery</span>, unless they choose no contract and accept the higher deposit.</li><li>The Master Agreement is valid for 1 year. The existing information and signature may be used for subsequent rentals, but the rental details and terms must be confirmed again for each rental. A new Master Agreement is required after 1 year or whenever material information changes.</li><li>Pay with the selected method after the shop confirms availability and delivery cost.</li></ul></div><div class="step-detail-section"><h4>Preparation and delivery</h4><ul><li>Preparation begins after AJ confirms availability, receives the complete game list, and receives the reservation deposit or payment. Additional downloads or installations take approximately <span class="step-mark">2–3 hours</span>; without additional installation, preparation takes approximately 30–60 minutes. Actual time depends on game size, download speed, the number of games, and the current queue. AJ will confirm the delivery-ready time.</li><li>Delivery by Lalamove / Grab takes approximately 1-2 hours, depending on distance, traffic, and weather.</li><li><strong>AJ arranges the driver for both delivery and return. The renter only needs to receive the console and hand it back to the driver.</strong></li><li>On arrival, you can check the items with the delivery rider first, then pay the remaining balance and send the slip to the shop by chat.</li></ul><p><strong>No identity verification: PS4, Nintendo Switch 1, XBOX Series S and PS Portal: ฿2,000 → ฿5,000; other ฿2,000 deposits → ฿10,000; ฿4,000 deposits → ฿15,000; PS5 bundles → ฿15,000.</strong></p></div><div class="step-detail-section"><h4>Returning the device</h4><ul><li>The shop calls a rider for pickup, and you can confirm the accessories before return.</li><li>Hand the items to the pickup rider, then confirm or send a photo to the shop by chat.</li><li>The shop checks the device and accessories, then refunds the deposit to the bank account in the contract or the account sent by chat.</li></ul><p><strong>*The shop arranges transport for both delivery and return pickup only.</strong></p><p><strong>**Online service only. Pickup or return at the shop is not available.</strong></p></div>`
+        th:`<div class="step-detail-section"><h4>หลังส่งข้อมูล</h4><ul><li>ทางร้านตรวจคิว สรุปค่าใช้จ่ายพร้อมค่าจัดส่ง และแจ้งขั้นตอนถัดไป</li><li><span class="step-mark">ผู้เช่าครั้งแรกต้องทำสัญญาการเช่าก่อนนัดส่งเครื่อง</span> เว้นแต่เลือกไม่ทำสัญญาและยอมรับค่าประกันที่เพิ่มขึ้น</li><li>สัญญาหลักมีอายุ 1 ปี สามารถใช้ข้อมูลและลายมือชื่อเดิมสำหรับการเช่าครั้งถัดไปได้ โดยแต่ละครั้งต้องยืนยันรายละเอียดและเงื่อนไขการเช่าใหม่ เมื่อครบ 1 ปีหรือข้อมูลสำคัญเปลี่ยนแปลง ต้องทำสัญญาหลักใหม่</li><li>ชำระเงินตามช่องทางที่เลือก หลังทางร้านยืนยันคิวและค่าจัดส่ง</li></ul></div><div class="step-detail-section"><h4>เตรียมเครื่องและจัดส่ง</h4><ul><li>เริ่มเตรียมหลังร้านยืนยันคิว ได้รับรายชื่อเกมครบ และได้รับยอดจองหรือยอดชำระแล้ว หากต้องดาวน์โหลดหรือติดตั้งเกมเพิ่ม ใช้เวลาประมาณ <span class="step-mark">2–3 ชั่วโมง</span>; หากไม่ต้องติดตั้งเพิ่ม ใช้เวลาประมาณ 30–60 นาที เวลาจริงขึ้นอยู่กับขนาดเกม ความเร็วดาวน์โหลด จำนวนเกม และคิวงาน โดยร้านจะแจ้งเวลาพร้อมส่งอีกครั้ง</li><li>จัดส่งด้วย Lalamove / Grab ประมาณ 1-2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ</li><li><strong>ทางร้านเป็นฝ่ายเรียกรถให้ทั้งขาส่งไปและขารับคืนเครื่อง ผู้เช่าเพียงรอรับและส่งคืนเครื่องให้กับคนขับ</strong></li><li>เมื่อของถึง สามารถเปิดกระเป๋าเช็คของกับคนส่งของก่อน แล้วชำระยอดที่เหลือพร้อมส่งสลิปให้ร้านทางแชท</li></ul>__PRICING_TIERS__</div><div class="step-detail-section"><h4>การคืนเครื่อง</h4><ul><li>ทางร้านเรียกรถเข้าไปรับเครื่อง และลูกค้ายืนยันอุปกรณ์ก่อนส่งคืน</li><li>ส่งของให้คนรับของ แล้วแจ้งยืนยันหรือส่งรูปให้ร้านทางแชท</li><li>ร้านเช็คเครื่องและอุปกรณ์ จากนั้นคืนค่าประกันเข้าบัญชีในสัญญา หรือบัญชีที่แจ้งทางแชท</li></ul><p><strong>*ทางร้านเรียกรถขนส่งให้ทั้งขาส่งและขารับกลับเท่านั้น</strong></p><p><strong>**ทางร้านให้บริการแบบออนไลน์เท่านั้น ไม่มีรับหรือคืนเครื่องที่หน้าร้าน</strong></p></div>`,
+        en:`<div class="step-detail-section"><h4>After submitting details</h4><ul><li>The shop checks availability, confirms the total including delivery, and sends the next steps.</li><li><span class="step-mark">First-time renters must complete the rental contract before delivery</span>, unless they choose no contract and accept the higher deposit.</li><li>The Master Agreement is valid for 1 year. The existing information and signature may be used for subsequent rentals, but the rental details and terms must be confirmed again for each rental. A new Master Agreement is required after 1 year or whenever material information changes.</li><li>Pay with the selected method after the shop confirms availability and delivery cost.</li></ul></div><div class="step-detail-section"><h4>Preparation and delivery</h4><ul><li>Preparation begins after AJ confirms availability, receives the complete game list, and receives the reservation deposit or payment. Additional downloads or installations take approximately <span class="step-mark">2–3 hours</span>; without additional installation, preparation takes approximately 30–60 minutes. Actual time depends on game size, download speed, the number of games, and the current queue. AJ will confirm the delivery-ready time.</li><li>Delivery by Lalamove / Grab takes approximately 1-2 hours, depending on distance, traffic, and weather.</li><li><strong>AJ arranges the driver for both delivery and return. The renter only needs to receive the console and hand it back to the driver.</strong></li><li>On arrival, you can check the items with the delivery rider first, then pay the remaining balance and send the slip to the shop by chat.</li></ul>__PRICING_TIERS__</div><div class="step-detail-section"><h4>Returning the device</h4><ul><li>The shop calls a rider for pickup, and you can confirm the accessories before return.</li><li>Hand the items to the pickup rider, then confirm or send a photo to the shop by chat.</li><li>The shop checks the device and accessories, then refunds the deposit to the bank account in the contract or the account sent by chat.</li></ul><p><strong>*The shop arranges transport for both delivery and return pickup only.</strong></p><p><strong>**Online service only. Pickup or return at the shop is not available.</strong></p></div>`
       }
     },
     {
@@ -11227,6 +11288,27 @@ We apologize for the inconvenience and hope everyone stays safe.`
       ]
     }
   ];
+  function pricingTierHtml(lang=state.lang){
+    const policy = pricingPolicy || pricingDefaults();
+    const groups = new Map();
+    const specialModels = new Set(["ps4","nintendoswitch1","xboxseriess","psportal"]);
+    policy.devices.forEach(device => {
+      const key = `${device.securityDeposit}:${device.noIdentityDeposit}:${specialModels.has(pricingKey(device.name)) ? "special" : "other"}`;
+      const group = groups.get(key) || {normal:device.securityDeposit,noIdentity:device.noIdentityDeposit,names:[],special:specialModels.has(pricingKey(device.name))};
+      group.names.push(device.name); groups.set(key,group);
+    });
+    const sorted = [...groups.values()].sort((a,b) => a.noIdentity-b.noIdentity || a.normal-b.normal);
+    const amounts = [...new Set([...sorted.map(group => group.noIdentity),policy.bundleNoIdentityDeposit])].sort((a,b) => a-b);
+    const tone = amount => ["low","mid","high","extra"][Math.min(amounts.indexOf(amount),3)] || "extra";
+    const rows = sorted.map(group => {
+      const name = group.names.length > 4 && !group.special
+        ? (lang === "en" ? `Other models with a ${money(group.normal)} normal deposit` : `รุ่นอื่นที่ค่าประกันปกติ ${money(group.normal)}`)
+        : group.names.join(", ");
+      return `<div class="pricing-tier pricing-tier-${tone(group.noIdentity)}"><span class="pricing-tier-name">${esc(name)}</span><span class="pricing-tier-amount">${esc(money(group.normal))} → ${esc(money(group.noIdentity))}</span></div>`;
+    });
+    rows.push(`<div class="pricing-tier pricing-tier-${tone(policy.bundleNoIdentityDeposit)}"><span class="pricing-tier-name">Bundle PS5</span><span class="pricing-tier-amount">${lang === "en" ? "at least" : "อย่างน้อย"} ${esc(money(policy.bundleNoIdentityDeposit))}</span></div>`);
+    return `<div class="pricing-tiers"><div class="pricing-tiers-title">${lang === "en" ? "Without identity verification, refundable security deposits" : "ไม่ยืนยันตัวตน: ค่าประกันที่คืนเมื่อรับเครื่องคืน"}</div>${rows.join("")}</div>`;
+  }
   let stepsIndex = 0;
   function renderStepsBody(){
     const en = state.lang === "en";
@@ -11243,7 +11325,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     </div>` : "";
     const body = step.textColumns ? `
       <div class="step-text-grid">${step.textColumns.map(item => `<div class="step-text-card">${en ? item.en : item.th}</div>`).join("")}</div>
-      <div class="step-detail">${en ? step.detail.en : step.detail.th}</div>` : `
+      <div class="step-detail">${(en ? step.detail.en : step.detail.th).replace("__PRICING_TIERS__",pricingTierHtml(state.lang))}</div>` : `
       <div class="step-images ${columns.length > 1 ? "split" : ""}">${columns.map(item => `
         <figure class="step-imgcol">
           <img class="step-img" src="${esc(item.src)}" alt="${esc(en ? item.en : item.th)}">
@@ -11664,7 +11746,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     $$("[data-terms-field]").forEach(input => { adminTerms[input.dataset.termsField] = input.value; });
     byId("adminBody").innerHTML = `
       <div class="admin-tabs">
-        ${["queue","announcement","rentals","vip","pickup","about","privacy","terms","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
+        ${["queue","announcement","rentals","vip","pickup","about","privacy","terms","pricing","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
       </div>
       <div class="admin-panel ${state.adminTab==="queue"?"active":""}" id="adminQueue">${adminRentalCutoffHtml()}${adminQueueHtml()}</div>
       <div class="admin-panel ${state.adminTab==="announcement"?"active":""}" id="adminAnnouncement">${adminAnnouncementHtml()}</div>
@@ -11674,6 +11756,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       <div class="admin-panel ${state.adminTab==="about"?"active":""}" id="adminAbout">${adminAboutHtml()}</div>
       <div class="admin-panel ${state.adminTab==="privacy"?"active":""}" id="adminPrivacy">${adminPrivacyHtml()}</div>
       <div class="admin-panel ${state.adminTab==="terms"?"active":""}" id="adminTerms">${adminTermsHtml()}</div>
+      <div class="admin-panel ${state.adminTab==="pricing"?"active":""}" id="adminPricing">${adminPricingHtml()}</div>
       <div class="admin-panel ${state.adminTab==="consoles"?"active":""}" id="adminConsoles">${adminConsolesHtml()}</div>
       <div class="admin-panel ${state.adminTab==="home"?"active":""}" id="adminHome">${adminHomeHtml()}</div>
       <div class="admin-panel ${state.adminTab==="reviews"?"active":""}" id="adminReviews">${adminReviewsHtml()}</div>
@@ -11694,6 +11777,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       privacy: en ? "Privacy Policy" : "นโยบายความเป็นส่วนตัว",
       terms: en ? "Terms & Conditions" : "ข้อกำหนดและเงื่อนไข",
       consoles: en ? "Consoles" : "เครื่อง",
+      pricing: en ? "Prices & deposits" : "ราคาและค่าประกัน",
       home: "Home",
       reviews: en ? "Reviews" : "รีวิว",
       faq: "FAQ",
@@ -12046,6 +12130,41 @@ We apologize for the inconvenience and hope everyone stays safe.`
       else if(status) status.textContent = error.message;
     }
   }
+  function adminPricingHtml(){
+    const en = state.lang === "en";
+    const policy = pricingForAdmin();
+    const special = new Set(["ps4","psportal","nintendoswitch1","xboxseriess"]);
+    const groups = new Map();
+    policy.devices.forEach((device,index) => {
+      const groupKey = `${device.securityDeposit}:${device.noIdentityDeposit}:${special.has(pricingKey(device.name)) ? "special" : "standard"}`;
+      const group = groups.get(groupKey) || {indexes:[],normal:device.securityDeposit,noIdentity:device.noIdentityDeposit,names:[]};
+      group.indexes.push(index);group.names.push(device.name);groups.set(groupKey,group);
+    });
+    const tierRows = [...groups.values()].map(group => `<div class="admin-item"><b>${esc(group.names.join(", "))}</b><div class="grid2"><label class="field">${en?"Normal deposit":"ค่าประกันปกติ"}<input class="input" type="number" min="1" data-tier-normal="${group.indexes.join(",")}" value="${group.normal}"></label><label class="field">${en?"Without identity":"ไม่ยืนยันตัวตน"}<input class="input" type="number" min="1" data-tier-noid="${group.indexes.join(",")}" value="${group.noIdentity}"></label></div><button class="btn" type="button" data-apply-pricing-tier="${group.indexes.join(",")}">${en?"Apply to this tier":"ใช้กับกลุ่มนี้"}</button></div>`).join("");
+    const rows = policy.devices.map((device,index) => `<div class="admin-item"><b>${esc(device.name)}</b><div class="grid2"><label class="field">${en?"Daily rate":"ค่าเช่ารายวัน"}<input class="input" type="number" min="0" data-price="${index}:dailyRate" value="${device.dailyRate}"></label><label class="field">${en?"Weekly rate":"ค่าเช่ารายสัปดาห์"}<input class="input" type="number" min="0" data-price="${index}:weeklyRate" value="${device.weeklyRate}"></label><label class="field">${en?"Normal deposit":"ค่าประกันปกติ"}<input class="input" type="number" min="1" data-price="${index}:securityDeposit" value="${device.securityDeposit}"></label><label class="field">${en?"Without identity":"ไม่ยืนยันตัวตน"}<input class="input" type="number" min="1" data-price="${index}:noIdentityDeposit" value="${device.noIdentityDeposit}"></label></div></div>`).join("");
+    return `<div class="card"><h3>${en?"Deposit tiers":"กลุ่มค่าประกัน"}</h3><p>${en?"Apply a tier, then save all prices below.":"ปรับยอดกลุ่ม แล้วกดใช้กับกลุ่มนี้ ก่อนบันทึกราคาทั้งหมด"}</p>${tierRows}<label class="field">${en?"Bundle deposit without identity":"ค่าประกัน Bundle ไม่ยืนยันตัวตน"}<input class="input" type="number" min="1" id="pricingBundle" value="${policy.bundleNoIdentityDeposit}"></label></div><div class="card"><h3>${en?"Device prices":"ราคาแต่ละเครื่อง"}</h3>${rows}<button class="btn primary" id="savePricingPolicy" type="button">${en?"Save and sync all systems":"บันทึกและซิงก์ทุกระบบ"}</button><div id="pricingSaveStatus" role="status"></div></div>`;
+  }
+  async function savePricingPolicyFromAdmin(){
+    const status = byId("pricingSaveStatus");
+    const button = byId("savePricingPolicy");
+    const policy = pricingForAdmin();
+    policy.bundleNoIdentityDeposit = Number(byId("pricingBundle")?.value);
+    $$("[data-price]").forEach(input => { const [index,field] = input.dataset.price.split(":"); policy.devices[Number(index)][field] = Number(input.value); });
+    if(policy.devices.some(d => !Number.isSafeInteger(d.dailyRate) || !Number.isSafeInteger(d.weeklyRate) || !Number.isSafeInteger(d.securityDeposit) || !Number.isSafeInteger(d.noIdentityDeposit) || d.dailyRate < 0 || d.weeklyRate < 0 || d.securityDeposit < 1 || d.noIdentityDeposit < d.securityDeposit) || !Number.isSafeInteger(policy.bundleNoIdentityDeposit)){
+      status.textContent = state.lang === "en" ? "Check the amounts. The no-identity deposit must be at least the normal deposit." : "ตรวจสอบยอด ค่าประกันเมื่อไม่ยืนยันตัวตนต้องไม่น้อยกว่าค่าประกันปกติ"; return;
+    }
+    button.disabled = true; status.textContent = state.lang === "en" ? "Syncing prices..." : "กำลังซิงก์ราคา...";
+    try {
+      const response = await fetch(`${CONFIG.apiBase}/api/admin/pricing-policy`,{method:"PUT",headers:{"Content-Type":"application/json",Authorization:`Bearer ${state.adminToken}`},body:JSON.stringify(policy)});
+      const result = await response.json();
+      if(!response.ok || !result.ok) throw new Error(result.error || "sync_failed");
+      applyPricingPolicy(result.policy);
+      adminTerms.loaded = false;
+      saveLocal();
+      byId("pricingSaveStatus").textContent = state.lang === "en" ? `Saved. Delivery updated ${result.delivery?.updated || 0} units. Terms ${result.termsVersion}.` : `บันทึกแล้ว Delivery อัปเดต ${result.delivery?.updated || 0} เครื่อง เงื่อนไขฉบับ ${result.termsVersion}`;
+    } catch(error){ status.textContent = (state.lang === "en" ? "Save failed: " : "บันทึกไม่สำเร็จ: ") + error.message; }
+    finally { if(byId("savePricingPolicy")) byId("savePricingPolicy").disabled = false; }
+  }
   function adminConsolesHtml(){
     return `<div class="card"><h3>${tr("add")} Console</h3><div class="grid2">
       <div class="field"><label class="label">Name TH</label><input class="input" id="newName"></div>
@@ -12067,9 +12186,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
         <div class="grid2">
           <div class="field"><label class="label">Name TH</label><input class="input" data-c-field="name" value="${esc(c.name)}"></div>
           <div class="field"><label class="label">Name EN</label><input class="input" data-c-field="nameEn" value="${esc(c.nameEn)}"></div>
-          <div class="field"><label class="label">Rate</label><input class="input" type="number" data-c-field="rate" value="${esc(c.rate)}"></div>
-          <div class="field"><label class="label">Weekly</label><input class="input" type="number" data-c-field="weekly" value="${esc(c.weekly)}"></div>
-          <div class="field"><label class="label">Deposit</label><input class="input" type="number" data-c-field="deposit" value="${esc(c.deposit)}"></div>
+          <div class="field"><label class="label">Rate</label><input class="input" type="number" value="${esc(c.rate)}" readonly></div>
+          <div class="field"><label class="label">Weekly</label><input class="input" type="number" value="${esc(c.weekly)}" readonly></div>
+          <div class="field"><label class="label">Deposit</label><input class="input" type="number" value="${esc(c.deposit)}" readonly></div>
           <div class="field"><label class="label">Type</label><select class="input" data-c-field="type">${typeOptions(c.type)}</select></div>
           <div class="field"><label class="label">Brand</label><select class="input" data-c-field="brand">${brandOptions(c.brand)}</select></div>
           <div class="field"><label class="label">Platform ID</label><input class="input" data-c-field="gamePlatform" value="${esc(c.gamePlatform)}"></div>
@@ -12079,6 +12198,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
           <div class="field"><label class="label">Details EN</label><textarea class="input" data-c-field="detailsEn">${esc(c.detailsEn.join("\n"))}</textarea></div>
         </div>
         <label class="option-row" style="margin-top:12px"><input type="checkbox" data-c-field="showGameButton" ${c.showGameButton?"checked":""}><div><b>Show game picker</b></div></label>
+        <p class="hint">${state.lang === "en" ? "Edit rates and deposits in Prices & deposits." : "แก้ค่าเช่าและค่าประกันในแท็บ ราคาและค่าประกัน"}</p>
         <button class="btn primary" data-save-console="${esc(String(c.id))}" type="button">${tr("save")}</button>
       </div>
     </div>`;
@@ -12184,9 +12304,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
   function adminFaqHtml(){
     return `<div class="admin-list">${state.faq.map((f,i) => `<div class="admin-item"><div class="admin-edit open"><div class="grid2">
       <div class="field"><label class="label">Question TH</label><input class="input" data-faq="${i}:qTh" value="${esc(f.qTh)}"></div>
-      <div class="field"><label class="label">Answer TH</label><input class="input" data-faq="${i}:aTh" value="${esc(f.aTh)}"></div>
+      <div class="field"><label class="label">Answer TH</label><input class="input" data-faq="${i}:aTh" value="${esc(f.kind === "noContractTerms" ? pricingExplanation("th") : f.aTh)}" ${f.kind === "noContractTerms" ? "readonly" : ""}></div>
       <div class="field"><label class="label">Question EN</label><input class="input" data-faq="${i}:qEn" value="${esc(f.qEn)}"></div>
-      <div class="field"><label class="label">Answer EN</label><input class="input" data-faq="${i}:aEn" value="${esc(f.aEn)}"></div>
+      <div class="field"><label class="label">Answer EN</label><input class="input" data-faq="${i}:aEn" value="${esc(f.kind === "noContractTerms" ? pricingExplanation("en") : f.aEn)}" ${f.kind === "noContractTerms" ? "readonly" : ""}></div>
       </div><button class="btn danger" data-delete-faq="${i}" type="button">${tr("delete")}</button></div></div>`).join("")}</div><button class="btn" id="addFaq" type="button">${tr("add")}</button><button class="btn primary" id="saveFaq" type="button">${tr("save")}</button>`;
   }
   function saveFaqFromAdmin(){
@@ -12354,6 +12474,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(Array.isArray(data.rentalBundles)) state.bundles = data.rentalBundles.map(normalizeBundle);
     if(Array.isArray(data.rentalAccessories)) state.accessories = data.rentalAccessories.map(x => Object.assign({}, x, {consoleIds:Array.isArray(x.consoleIds)?x.consoleIds.map(String):[]}));
     ensureCoreAccessories();
+    if(pricingPolicy) state.consoles.forEach(c => { const priced=pricedDevice(c); if(priced){c.rate=priced.dailyRate;c.weekly=priced.weeklyRate;c.deposit=priced.securityDeposit;} });
     saveLocal();
     if(options.render !== false) render();
   }
@@ -12525,6 +12646,14 @@ We apologize for the inconvenience and hope everyone stays safe.`
         if(state.adminTab === "terms" && !adminTerms.loaded) void loadAdminTerms();
         if(state.adminTab === "privacy") void loadPrivacyContent();
         renderAdmin();
+        return;
+      }
+      const applyTier = event.target.closest("[data-apply-pricing-tier]");
+      if(applyTier){
+        const indexes = applyTier.dataset.applyPricingTier;
+        const normal = Number($(`[data-tier-normal="${indexes}"]`)?.value);
+        const noIdentity = Number($(`[data-tier-noid="${indexes}"]`)?.value);
+        indexes.split(",").forEach(index => { const n=$(`[data-price="${index}:securityDeposit"]`), id=$(`[data-price="${index}:noIdentityDeposit"]`); if(n) n.value=normal; if(id) id.value=noIdentity; });
         return;
       }
       const editC = event.target.closest("[data-edit-console]");
@@ -13113,6 +13242,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "saveHome") saveHomeFromAdmin();
       if(targetId === "addFaq"){ state.faq.push({qTh:"",aTh:"",qEn:"",aEn:""}); saveAndRenderAdmin("FAQ added"); }
       if(targetId === "saveFaq") saveFaqFromAdmin();
+      if(targetId === "savePricingPolicy") void savePricingPolicyFromAdmin();
       if(targetId === "addReview"){ state.social.reviews.push({id:`rv_${Date.now()}`, name:"", source:"google", stars:5, text:"", active:true}); saveAndRenderAdmin("Review added"); }
       if(targetId === "addHighlight"){ state.social.highlights.unshift({id:`hl_${Date.now()}`, titleTh:"", titleEn:"", image:"", url:"", active:true}); saveAndRenderAdmin("Highlight added"); }
       if(targetId === "saveReviews") saveReviewsFromAdmin();
@@ -13271,6 +13401,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const consoleItem = deepLinkedConsole();
     if(!consoleItem) return false;
     state.calc.step = 1;
+    state.beforeRentActive = false;
     state.calc.type = consoleItem.type || "";
     state.calc.consoleId = String(consoleItem.id);
     state.calc.start = "";
@@ -13586,6 +13717,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     // login, then the customer is told LINE is connected on the same step.
     detectLineReturningEligibility().catch(() => false).then(() => { if(lineConnectReturn) finishLineConnectReturn(); });
     gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {});
+    loadPricingPolicy().catch(error => console.warn("Pricing policy unavailable",error));
     syncBoardGameCatalog().catch(() => {});
     window.addEventListener("pageshow", resetShareUi);
     window.addEventListener("pagehide", () => trackAnalytics("step_duration", {value:String(analyticsLastStep), durationMs:Date.now() - analyticsStepEnteredAt}));
