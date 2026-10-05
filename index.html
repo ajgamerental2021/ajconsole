@@ -896,6 +896,10 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .site-menu-list .site-menu-ico{flex:0 0 auto;width:19px;height:19px;color:#c90012}
 .site-menu-list .site-info-link:hover,.site-menu-list .site-info-link:focus-visible{background:#fef2f2;color:#c90012}
 .info-modal-card{width:min(920px,100%);height:min(90vh,860px);display:flex;flex-direction:column;overflow:hidden}
+#infoModal[data-page="contact"] .info-modal-card{width:min(460px,calc(100% - 24px));height:auto;max-height:calc(100dvh - 24px)}
+#infoModal[data-page="contact"] .info-modal-body{padding:16px 22px 20px}
+#infoModal[data-page="contact"] .info-contact-list{margin:0}
+#infoModal[data-page="contact"] .info-contact-list li{margin:8px 0}
 .info-modal-body{padding:28px 30px 34px;overflow:auto;color:#344054;line-height:1.75}
 .info-modal-body ul,.info-modal-body ol{padding-left:24px;margin:10px 0}
 .info-modal-body li{margin:6px 0}
@@ -1021,6 +1025,19 @@ body.unified-flow-demo .demo-order-action{display:flex;justify-content:flex-end;
 body.unified-flow-demo .demo-verify-btn{background:#15803d;border-color:#15803d;color:#fff}
 body.unified-flow-demo .demo-verify-btn:hover{background:#166534;border-color:#166534}
 .pay-resume-verify{display:block;width:100%;margin-top:12px;text-align:center;text-decoration:none}
+#identityUpgradeModal .modal-card{width:min(760px,100%);height:min(94dvh,980px);display:flex;flex-direction:column;overflow:hidden}
+#identityUpgradeFrame{display:block;width:100%;flex:1;min-height:0;border:0;background:#fff}
+#demoVerifyMapModal{z-index:540}
+#demoVerifyMapModal .modal-card{width:min(550px,100%);max-height:calc(100dvh - 24px);overflow:auto}
+.demo-verify-map-body{padding:18px;display:grid;gap:12px}
+.demo-verify-map-body .input{width:100%}
+.demo-verify-map-actions{display:flex;gap:8px;flex-wrap:wrap}
+.demo-verify-map-actions .btn{flex:1;min-width:130px}
+.demo-verify-map-changed{color:#067647;font-weight:700}
+#simpleModal:has(.verify-now) .modal-card{width:min(760px,100%);max-height:calc(100dvh - 24px);overflow:auto}
+#simpleModal:has(.verify-now) .verify-now-customer{margin-bottom:16px}
+
+@media(max-width:600px){#identityUpgradeModal .modal-card{width:100%;height:100dvh;max-height:none;border-radius:0}}
 body.unified-flow-demo .demo-skip-id-btn{background:#fff;border:1.5px solid #c90012;color:#c90012}
 body.unified-flow-demo .demo-skip-id-btn:hover{background:#fff5f5}
 #demoEditModal{z-index:490}
@@ -1477,6 +1494,9 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
       <a class="site-social-link" data-analytics-social="line" href="https://lin.ee/5rDwplO" target="_blank" rel="noopener noreferrer" aria-label="LINE">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5C5.9 2.5 1 6.4 1 11.3c0 4.3 3.7 7.9 8.7 8.7l-.4 2.5c-.1.5.5.8.9.5l4.4-3.1c4.8-.9 8.4-4.4 8.4-8.6C23 6.4 18.1 2.5 12 2.5Z"/><text x="12" y="14.3" text-anchor="middle" font-size="6.4" font-weight="900" fill="#fff">LINE</text></svg>
       </a>
+      <a class="site-social-link" data-analytics-social="whatsapp" href="https://wa.me/message/LEJ5QD3B2D2TN1" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.7 15l-1.2 4.4 4.5-1.2A10 10 0 1 0 12 2Zm0 2a8 8 0 0 1 6.8 12.2A8 8 0 0 1 7 18.3l-2 .5.5-2A8 8 0 0 1 12 4Zm-3.6 3.3c-.3 0-.7.2-.9.5-.5.5-.8 1.2-.8 2 0 1 .7 2 1.5 3.1 1.6 2.1 3.5 3.4 5.9 3.9.8.2 1.5.1 2-.2.6-.4 1-1.2 1-1.8 0-.2-.1-.4-.4-.5l-2.1-1c-.2-.1-.4-.1-.6.2l-.9 1.1c-.1.2-.3.2-.5.1a8 8 0 0 1-3.5-3c-.2-.3 0-.5.1-.6l.7-.8c.1-.2.2-.4.1-.6l-.9-2.1c-.1-.3-.3-.4-.7-.4Z"/></svg>
+      </a>
     </div>
   </div>
 </footer>
@@ -1509,6 +1529,14 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   <div class="modal-card">
     <div class="modal-head"><h3 id="simpleModalTitle"></h3><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="faqLangBtn" type="button" style="display:none"></button><button class="xbtn" id="simpleModalClose" type="button">&times;</button></div></div>
     <div class="calendar-body" id="simpleModalBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="demoVerifyMapModal" role="dialog" aria-modal="true" aria-labelledby="demoVerifyMapTitle">
+  <div class="modal-card"><div class="modal-head"><h3 id="demoVerifyMapTitle"></h3><div class="modal-head-actions"><button class="btn" id="demoVerifyMapLang" type="button"></button><button class="xbtn" id="demoVerifyMapClose" type="button" aria-label="Close">&times;</button></div></div>
+    <div class="demo-verify-map-body"><input class="input" id="demoVerifyMapInput" type="text" autocomplete="off" enterkeyhint="search"><p class="hint" id="demoVerifyMapHint"></p>
+      <div class="demo-verify-map-actions"><button class="btn" id="demoVerifyMapCurrent" type="button"></button><button class="btn" id="demoVerifyMapPin" type="button"></button></div>
+      <p class="hint" id="demoVerifyMapResult" role="status"></p><div class="demo-verify-map-actions"><button class="btn" id="demoVerifyMapCancel" type="button"></button><button class="btn primary" id="demoVerifyMapConfirm" type="button"></button></div></div>
   </div>
 </div>
 
@@ -1561,6 +1589,12 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   <div class="modal-card info-modal-card">
     <div class="modal-head"><div class="modal-title-copy"><h3 id="infoModalTitle"></h3><p id="infoModalSubtitle"></p></div><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="infoModalLang" type="button"></button><button class="xbtn" id="infoModalClose" type="button" aria-label="Close">&times;</button></div></div>
     <div class="info-modal-body" id="infoModalBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="identityUpgradeModal" role="dialog" aria-modal="true" aria-labelledby="identityUpgradeTitle">
+  <div class="modal-card"><div class="modal-head"><h3 id="identityUpgradeTitle"></h3><button class="xbtn" id="identityUpgradeClose" type="button" aria-label="Close">&times;</button></div>
+    <iframe id="identityUpgradeFrame" title="Identity verification" allow="camera; geolocation" referrerpolicy="no-referrer"></iframe>
   </div>
 </div>
 
@@ -4205,7 +4239,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <div class="field"><label class="label" for="demoDistrict">${en ? "District" : "เขต / อำเภอ"}<span class="req">*</span></label><input class="input" id="demoDistrict" value="${esc(demoProfile.district)}" ${demoAddressFreeEntry ? "" : "readonly"}></div>
         <div class="field"><label class="label" for="demoProvince">${en ? "Province" : "จังหวัด"}<span class="req">*</span></label><input class="input" id="demoProvince" value="${esc(demoProfile.province)}" ${demoAddressFreeEntry ? "" : "readonly"}></div>
         <p class="demo-address-note wide" id="demoAddressNote" role="status" hidden></p>`}
-        <div class="field wide"><label class="label" for="demoMaps">${en ? "Delivery place · Google Maps" : "สถานที่ส่ง · Google Maps"}<span class="req">*</span></label><input class="input" id="demoMaps" type="text" autocomplete="off" enterkeyhint="search" value="${esc(demoMapsBoxText())}" placeholder="${en ? "Type a place or address, or paste a Google Maps link" : "พิมพ์ชื่อสถานที่ / ที่อยู่ หรือวางลิงก์ Google Maps"}">${demoMapsFoundHtml()}<div class="demo-locate-row"><button class="btn demo-locate-btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><button class="btn demo-locate-btn" type="button" data-demo-pin-map>${en ? "🗺️ Pin it on a map" : "🗺️ ปักหมุดบนแผนที่"}</button></div><p class="hint">${en ? "Type your condo, village or address and choose it from the list, paste a Google Maps link, or pin it on a map." : "พิมพ์ชื่อคอนโด / หมู่บ้าน / ที่อยู่ แล้วเลือกจากรายการ วางลิงก์ Google Maps หรือปักหมุดบนแผนที่"} <a id="demoMapsSearch" href="${esc(demoMapsSearchUrl())}" target="_blank" rel="noopener">${en ? "Or find it in Google Maps and paste the share link" : "หรือค้นหาใน Google Maps แล้วคัดลอกลิงก์แชร์มาวาง"}</a></p></div>
+        <div class="field wide"><label class="label" for="demoMaps">${en ? "Delivery place · Google Maps" : "สถานที่ส่ง · Google Maps"}<span class="req">*</span></label>${verifyForDepositActive ? `<input type="hidden" id="demoMaps" value="${esc(demoMapsBoxText())}"><button class="btn" type="button" id="demoVerifyMapOpen">${en ? "Change Google Maps location" : "เปลี่ยนตำแหน่ง Google Maps"}</button><p class="hint"><a href="${esc(safeHref(demoProfile.maps))}" target="_blank" rel="noopener">${esc(demoProfile.mapsPlace?.name || demoProfile.mapsText || demoProfile.maps || (en ? "No location selected" : "ยังไม่ได้เลือกตำแหน่ง"))}</a></p><p class="demo-verify-map-changed" id="demoVerifyMapChanged" ${demoProfile.maps !== verifyForDepositSnapshot?.profile.maps ? "" : "hidden"}>${en ? "Location changed — delivery will be recalculated." : "เปลี่ยนตำแหน่งแล้ว — ระบบจะคำนวณค่าจัดส่งใหม่"}</p>` : `<input class="input" id="demoMaps" type="text" autocomplete="off" enterkeyhint="search" value="${esc(demoMapsBoxText())}" placeholder="${en ? "Type a place or address, or paste a Google Maps link" : "พิมพ์ชื่อสถานที่ / ที่อยู่ หรือวางลิงก์ Google Maps"}">${demoMapsFoundHtml()}<div class="demo-locate-row"><button class="btn demo-locate-btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><button class="btn demo-locate-btn" type="button" data-demo-pin-map>${en ? "🗺️ Pin it on a map" : "🗺️ ปักหมุดบนแผนที่"}</button></div><p class="hint">${en ? "Type your condo, village or address and choose it from the list, paste a Google Maps link, or pin it on a map." : "พิมพ์ชื่อคอนโด / หมู่บ้าน / ที่อยู่ แล้วเลือกจากรายการ วางลิงก์ Google Maps หรือปักหมุดบนแผนที่"} <a id="demoMapsSearch" href="${esc(demoMapsSearchUrl())}" target="_blank" rel="noopener">${en ? "Or find it in Google Maps and paste the share link" : "หรือค้นหาใน Google Maps แล้วคัดลอกลิงก์แชร์มาวาง"}</a></p></div>`}
       </div>
       <p class="hint">${demoProfile.noThaiAddress ? (en ? "The exact Google Maps pin is used for the delivery quote. The final round-trip fee must be confirmed before payment." : "ระบบใช้หมุด Google Maps ที่ระบุเพื่อคำนวณค่าส่ง โดยต้องยืนยันค่าจัดส่งไป-กลับก่อนชำระเงิน") : (en ? "The district and subdistrict are used to estimate delivery. The final round-trip fee must be confirmed before payment." : "ระบบใช้เขตและแขวงเพื่อประเมินค่าจัดส่ง โดยต้องยืนยันค่าจัดส่งไป-กลับก่อนชำระเงิน")}</p>
       ${payResume.active ? "" : `<h3 class="demo-terms-heading">${en ? "Rental Terms" : "เงื่อนไขการเช่า"}</h3>
@@ -4565,6 +4599,77 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(state.calc.demoOrderOpen) renderDemoOrderPage();
     toast(en ? "Location added. Check that it is the delivery address." : "ใส่ตำแหน่งแล้ว กรุณาตรวจว่าเป็นที่อยู่จัดส่ง");
   }
+  let demoVerifyMapSearch = null;
+  let demoVerifyMapDraft = {url:"", label:"", place:null};
+  function localizeDemoVerifyMap(){
+    const en = state.lang === "en";
+    byId("demoVerifyMapTitle").textContent = en ? "Change delivery location" : "เปลี่ยนสถานที่จัดส่ง";
+    byId("demoVerifyMapLang").textContent = en ? "TH" : "EN";
+    byId("demoVerifyMapInput").placeholder = en ? "Paste a Google Maps link or search a place" : "วางลิงก์ Google Maps หรือค้นหาสถานที่";
+    byId("demoVerifyMapHint").textContent = en ? "Choose a result, use your current location, or pin the map." : "เลือกจากรายการ ใช้ตำแหน่งปัจจุบัน หรือปักหมุดบนแผนที่";
+    byId("demoVerifyMapCurrent").textContent = en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน";
+    byId("demoVerifyMapPin").textContent = en ? "🗺️ Pin it on a map" : "🗺️ ปักหมุดบนแผนที่";
+    byId("demoVerifyMapCancel").textContent = en ? "Cancel" : "ยกเลิก";
+    byId("demoVerifyMapConfirm").textContent = en ? "Confirm" : "ยืนยัน";
+  }
+  function openDemoVerifyMap(){
+    localizeDemoVerifyMap();
+    demoVerifyMapDraft = {url:demoProfile.maps,label:demoProfile.mapsText,place:demoProfile.mapsPlace};
+    byId("demoVerifyMapInput").value = demoProfile.mapsText || demoProfile.maps;
+    byId("demoVerifyMapResult").textContent = "";
+    byId("demoVerifyMapModal").classList.add("open");
+    if(!demoVerifyMapSearch && window.AJPlaceSearch){
+      demoVerifyMapSearch = window.AJPlaceSearch.create({
+        input:"#demoVerifyMapInput", api:()=>CONFIG.apiBase, lang:()=>state.lang,
+        onInput:()=>{ demoVerifyMapDraft = {url:"",label:"",place:null}; byId("demoVerifyMapResult").textContent = ""; },
+        onPlace:place=>{ demoVerifyMapDraft = {url:String(place?.link || place?.pin || ""),label:String(place?.name || place?.address || ""),place:demoMapsPlace(place)}; byId("demoVerifyMapResult").textContent = demoVerifyMapDraft.label; }
+      });
+    }
+    byId("demoVerifyMapInput").focus();
+  }
+  function closeDemoVerifyMap(){ byId("demoVerifyMapModal").classList.remove("open"); }
+  function confirmDemoVerifyMap(){
+    const typed = byId("demoVerifyMapInput").value.trim();
+    const link = demoVerifyMapDraft.url || (window.AJPlaceSearch?.isLink(typed) ? typed : "");
+    if(!link){ byId("demoVerifyMapResult").textContent = state.lang === "en" ? "Choose a location or paste a Google Maps link." : "เลือกสถานที่หรือวางลิงก์ Google Maps"; return; }
+    demoProfile.maps = link;
+    demoProfile.mapsText = demoVerifyMapDraft.label || typed;
+    demoProfile.mapsPlace = demoVerifyMapDraft.place;
+    state.calc.maps = link;
+    byId("demoMaps").value = demoProfile.mapsText;
+    const mapLink = byId("demoVerifyMapOpen")?.nextElementSibling?.querySelector("a");
+    if(mapLink){ mapLink.href = safeHref(link); mapLink.textContent = demoProfile.mapsText; }
+    const changed = byId("demoVerifyMapChanged");
+    if(changed) changed.hidden = link === verifyForDepositSnapshot?.profile.maps;
+    clearDemoFieldError("demoMaps");
+    demoDelivery.key = ""; demoDelivery.status = "idle"; demoDelivery.quote = null;
+    closeDemoVerifyMap();
+    void previewDemoVerifyDeliveryQuote();
+  }
+  async function previewDemoVerifyDeliveryQuote(){
+    const link = demoProfile.maps;
+    const changed = byId("demoVerifyMapChanged");
+    if(changed) changed.textContent = state.lang === "en" ? "Calculating the new delivery fee…" : "กำลังคำนวณค่าจัดส่งใหม่…";
+    demoDelivery.status = "loading";
+    try{
+      const response = await bookingFetch(new URL("/api/delivery/quote", CONFIG.apiBase), {
+        method:"POST", cache:"no-store", headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({mapsUrl:link,address:demoAddressText(),deviceCount:1+(state.calc.extras?.length?1:0),hasLargeItem:deliveryNeedsCar(),days:calcSummary().days,lang:state.lang})
+      }, 20000);
+      const result = await response.json().catch(()=>({}));
+      if(!response.ok || !result?.ok || !result.quote) throw new Error(result?.error || "delivery_quote_failed");
+      if(demoProfile.maps !== link) return;
+      demoDelivery.key = demoDeliveryQuoteKey();
+      demoDelivery.quote = result.quote;
+      demoDelivery.status = "ready";
+      if(changed) changed.textContent = state.lang === "en" ? `Location changed — delivery now ${money(result.quote.total)}.` : `เปลี่ยนตำแหน่งแล้ว — ค่าจัดส่งใหม่ ${money(result.quote.total)}`;
+    }catch(error){
+      if(demoProfile.maps !== link) return;
+      demoDelivery.status = "unavailable";
+      demoDelivery.quote = null;
+      if(changed) changed.textContent = state.lang === "en" ? "Could not calculate delivery. Reopen the location popup and confirm again." : "คำนวณค่าจัดส่งไม่สำเร็จ กรุณาเปิด Popup ตำแหน่งและกดยืนยันอีกครั้ง";
+    }
+  }
   // ── Step 2's place box ── the same box as the rental calculator
   // (assets/place-search.js): type a place and choose it from the list, or
   // paste a link; the place found shows in green and opens in Google Maps.
@@ -4728,15 +4833,38 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // step-3 card itself, lent to the pop-up while it is open, so the two can
   // never differ; it goes back to step 3 when the pop-up closes.
   let verifyNowBusy = false;
+  let verifyForDepositActive = false;
+  let verifyForDepositSnapshot = null;
+  let customerCardHome = null;
   let agreementCardHome = null;
   function verifyNowBodyHtml(){
     const en = state.lang === "en";
     return `<div class="verify-now">
+      ${verifyForDepositActive ? `<div class="card verify-now-customer" id="verifyNowCustomerHost"></div>` : ""}
       <p class="hint">${en ? "Upload a clear image of your identity document and a selfie holding the same document, then check the deposit refund account and sign. AJ reviews everything before delivery." : "อัปโหลดรูปเอกสารที่อ่านได้ชัดเจน และรูปเซลฟี่คู่เอกสารใบเดียวกัน แล้วตรวจบัญชีรับเงินค่าประกันคืนและเซ็นชื่อ ร้านจะตรวจสอบก่อนจัดส่ง"}</p>
       ${demoIdentityUploadGridHtml("verifyNow")}
       <div class="card verify-now-agreement" id="verifyNowAgreementHost"></div>
       <div class="my-rental-verify"><button class="btn primary" type="button" id="verifyNowSubmit" ${verifyNowBusy ? "disabled" : ""}>${verifyNowBusy ? (en ? "Sending…" : "กำลังส่ง…") : (en ? "Send identity verification" : "ส่งยืนยันตัวตน")}</button></div>
     </div>`;
+  }
+  function lendCustomerCard(){
+    const card = byId("demoCustomerCard");
+    const host = byId("verifyNowCustomerHost");
+    if(!card || !host) return;
+    if(!customerCardHome){
+      customerCardHome = document.createComment("demoCustomerCard");
+      card.parentNode.insertBefore(customerCardHome, card);
+    }
+    host.appendChild(card);
+    card.classList.remove("card");
+  }
+  function returnCustomerCard(){
+    const card = byId("demoCustomerCard");
+    if(!card || !customerCardHome?.parentNode) return;
+    card.classList.add("card");
+    customerCardHome.parentNode.insertBefore(card, customerCardHome);
+    customerCardHome.remove();
+    customerCardHome = null;
   }
   // The step-3 card moves into the pop-up and back; its fields keep their ids,
   // handlers and the signature already drawn.
@@ -4765,18 +4893,25 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function renderVerifyNowModal(){
     if(!byId("simpleModalBody")?.querySelector(".verify-now")) return;
     returnAgreementCard();
+    returnCustomerCard();
     byId("simpleModalTitle").textContent = state.lang === "en" ? "Verify your identity" : "ยืนยันตัวตน";
     byId("simpleModalBody").innerHTML = verifyNowBodyHtml();
+    lendCustomerCard();
     lendAgreementCard();
   }
   function openVerifyNowModal(){
     showModal(state.lang === "en" ? "Verify your identity" : "ยืนยันตัวตน", verifyNowBodyHtml(), {relocalize:renderVerifyNowModal});
+    lendCustomerCard();
     lendAgreementCard();
   }
   // What is still missing in the pop-up, marked on the fields themselves.
   function verifyNowProblems(){
     const en = state.lang === "en";
     const problems = demoStep3Problems().filter(problem => problem.id !== "demoIdDocument");
+    if(verifyForDepositActive){
+      problems.unshift(...demoStep2Problems());
+      if(demoProfile.maps !== verifyForDepositSnapshot?.profile.maps && (demoDelivery.status !== "ready" || demoDelivery.key !== demoDeliveryQuoteKey())) problems.unshift({id:"demoMaps",message:en ? "Wait for the new delivery quote before sending." : "รอคำนวณค่าจัดส่งใหม่ก่อนส่งข้อมูล"});
+    }
     if(!demoProfile.idDocument || !demoProfile.selfieWithId){
       problems.unshift({id: demoProfile.idDocument ? "verifyNowSelfieWithId" : "verifyNowIdDocument", message: en ? "Upload both photos." : "อัปโหลดรูปทั้ง 2 รูป"});
     }
@@ -4795,9 +4930,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     renderVerifyNowModal();
     try{
       let token = state.calc.demoContextToken;
-      if(!token){
+      if(verifyForDepositActive || !token){
+        // The earlier no-verification context has the old deposit and address.
+        // Replace it with this signed choice before submitting the agreement.
         const handoff = await prepareContractHandoff(await ensureRentalCode(calcSummary()), "web");
-        token = state.calc.demoContextToken = handoff.contextToken || "";
+        token = handoff.contextToken || (verifyForDepositActive ? "" : token);
+        if(token) state.calc.demoContextToken = token;
       }
       if(!token) throw new Error("identity_context_unavailable");
       // The agreement is sent again with the refund account and signature as
@@ -4820,6 +4958,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       saveDemoProfile();
       saveLocal();
       verifyNowBusy = false;
+      verifyForDepositActive = false;
+      verifyForDepositSnapshot = null;
       closeModal();
       render();
       toast(en ? "Identity verification sent" : "ส่งยืนยันตัวตนแล้ว");
@@ -5540,14 +5680,15 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // opens with the identity fields at its top, ready to fill. Cancel puts the
   // no-verification choice back as it was.
   function openDemoVerifyForDeposit(){
-    openDemoEditModal(2);
-    setDemoNoContract(false);
-    const field = byId("demoEditBody")?.querySelector(".demo-id-type")?.closest(".field");
-    if(field){
-      field.scrollIntoView({block:"start"});
-      window.setTimeout(() => { try{ field.querySelector("input:checked, input")?.focus({preventScroll:true}); }catch{} }, 50);
-    }
-    updateDemoEditMissing();
+    verifyForDepositSnapshot = {profile:{...demoProfile}, calc:JSON.parse(JSON.stringify(state.calc)), delivery:{...demoDelivery}};
+    verifyForDepositActive = true;
+    state.calc.noContract = false;
+    state.calc.beamPaymentLink = "";
+    state.calc.beamPaymentKey = "";
+    state.calc.beamPaymentExpiresAt = "";
+    render();
+    openVerifyNowModal();
+    byId("demoIdentityNumber")?.focus({preventScroll:true});
   }
   // "No verification": the higher deposit at once; the verify button brings
   // the normal one back.
@@ -9152,7 +9293,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <section class="demo-order-section">${payResumeSectionHeadHtml(en ? "Rental period" : "ช่วงเวลา", "dates")}<div class="demo-order-box">${row(en ? "Duration" : "ระยะเวลา", `${r.days} ${en ? "days" : "วัน"}`)}${row(en ? "Dates" : "วันที่เช่า", `${esc(r.startDate)} – ${esc(r.endDate)}`)}</div></section>
       </div>
       <div>
-        <section class="demo-order-section"><h3>${en ? "Identity verification" : "การยืนยันตัวตน"}</h3><div class="demo-order-box">${statusRow(en ? "Status" : "สถานะ", identity, r.identity === "complete" ? "ok" : "is-missing")}${r.noContract && !r.paid && r.identityUpgrade?.url && Number(r.identityUpgrade.standardDeposit) > 0 ? `<a class="btn demo-verify-btn pay-resume-verify" href="${esc(safeHref(r.identityUpgrade.url))}" target="_blank" rel="noopener noreferrer">${esc(en ? `Verify your identity to lower the deposit to ${money(r.identityUpgrade.standardDeposit)}` : `ยืนยันตัวตนเพื่อลดค่าประกันเป็น ${money(r.identityUpgrade.standardDeposit)}`)}</a>` : ""}</div></section>
+        <section class="demo-order-section"><h3>${en ? "Identity verification" : "การยืนยันตัวตน"}</h3><div class="demo-order-box">${statusRow(en ? "Status" : "สถานะ", identity, r.identity === "complete" ? "ok" : "is-missing")}${r.noContract && !r.paid && r.identityUpgrade?.url && Number(r.identityUpgrade.standardDeposit) > 0 ? `<button class="btn demo-verify-btn pay-resume-verify" id="payResumeVerifyIdentity" type="button">${esc(en ? `Verify your identity to lower the deposit to ${money(r.identityUpgrade.standardDeposit)}` : `ยืนยันตัวตนเพื่อลดค่าประกันเป็น ${money(r.identityUpgrade.standardDeposit)}`)}</button>` : ""}</div></section>
         <section class="demo-order-section"><h3>${en ? "Payment" : "การชำระเงิน"}</h3><div class="demo-order-box demo-total-box">
           <div class="demo-total-group">${charges.join("")}</div>
           ${discounts.length ? `<div class="demo-total-group">${discounts.join("")}</div>` : ""}
@@ -9166,6 +9307,29 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       </div>
     </div>`;
   }
+  function closeIdentityUpgradeModal(){
+    byId("identityUpgradeModal")?.classList.remove("open");
+    if(byId("identityUpgradeFrame")) byId("identityUpgradeFrame").src = "about:blank";
+  }
+  function openIdentityUpgradeModal(){
+    const source = payResume.rental?.identityUpgrade?.url;
+    if(!source) return;
+    const url = new URL(source);
+    if(url.origin !== new URL(CONFIG.apiBase).origin) return;
+    url.searchParams.set("lang", state.lang);
+    url.searchParams.set("embed", "1");
+    byId("identityUpgradeTitle").textContent = state.lang === "en" ? "Verify to lower your deposit" : "ยืนยันตัวตนเพื่อลดค่าประกัน";
+    byId("identityUpgradeFrame").src = url.toString();
+    byId("identityUpgradeModal").classList.add("open");
+  }
+  window.addEventListener("message", event => {
+    if(event.origin !== new URL(CONFIG.apiBase).origin || event.source !== byId("identityUpgradeFrame")?.contentWindow || event.data?.type !== "AJ_IDENTITY_UPGRADE_DONE") return;
+    closeIdentityUpgradeModal();
+    if(payResume.active){
+      openPayResume(payResume.code, payResume.token, {silent:true});
+      window.setTimeout(() => byId("payResume")?.querySelector(".demo-payment-launch")?.scrollIntoView({block:"center", behavior:"smooth"}), 1300);
+    }
+  });
   function renderPayResume(){
     const host = byId("payResume");
     if(!host || !payResume.active) return;
@@ -9935,6 +10099,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return `<ul class="info-contact-list">
       <li>${en ? "Tel" : "โทร"}: <a href="tel:+66816244715">081-624-4715</a></li>
       <li>LINE: <a href="${CONFIG.lineAddFriendUrl}" target="_blank" rel="noopener">@ajgame</a></li>
+      <li>Facebook: <a href="https://www.facebook.com/ajgamerental" target="_blank" rel="noopener">AJ Game Rental</a></li>
+      <li>WhatsApp: <a href="https://wa.me/message/LEJ5QD3B2D2TN1" target="_blank" rel="noopener">WhatsApp</a></li>
       <li>${en ? "Email" : "อีเมล"}: <a href="mailto:contact@ajgamerental.com">contact@ajgamerental.com</a></li>
     </ul>`;
   }
@@ -10465,6 +10631,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(page === "about" && !aboutOverrides.th && !aboutOverrides.en) void loadAboutContent();
     if(page === "privacy" && !privacyOverrides.th && !privacyOverrides.en) void loadPrivacyContent();
     activeInfoPage = page;
+    byId("infoModal").dataset.page = page;
     byId("infoModal").classList.add("open");
     renderInfoModal();
     trackAnalytics("info_page_opened", {value:page});
@@ -10479,6 +10646,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
   }
   function closeInfoModal(){
     byId("infoModal")?.classList.remove("open");
+    if(byId("infoModal")) delete byId("infoModal").dataset.page;
     byId("infoModalBody").innerHTML = "";
     activeInfoPage = "";
   }
@@ -10488,6 +10656,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
   let simpleModalRelocalize = null;
   function showModal(title, bodyHtml, {relocalize = null} = {}){
     returnAgreementCard();
+    returnCustomerCard();
     byId("simpleModalTitle").textContent = title;
     byId("simpleModalBody").innerHTML = bodyHtml;
     simpleModalRelocalize = typeof relocalize === "function" ? relocalize : null;
@@ -10507,7 +10676,18 @@ We apologize for the inconvenience and hope everyone stays safe.`
   }
   function closeModal(){
     returnAgreementCard();
+    returnCustomerCard();
     byId("simpleModal").classList.remove("open");
+    if(verifyForDepositActive && verifyForDepositSnapshot){
+      Object.assign(demoProfile, verifyForDepositSnapshot.profile);
+      state.calc = verifyForDepositSnapshot.calc;
+      Object.assign(demoDelivery, verifyForDepositSnapshot.delivery);
+      verifyForDepositActive = false;
+      verifyForDepositSnapshot = null;
+      saveDemoProfile({now:true});
+      saveLocal();
+      render();
+    }
   }
   function loadLineSdk(){
     if(window.liff) return Promise.resolve(window.liff);
@@ -12213,6 +12393,17 @@ We apologize for the inconvenience and hope everyone stays safe.`
     document.addEventListener("click", event => {
       if(event.target.closest("#siteMenuBtn")){ toggleSiteMenu(); return; }
       if(!event.target.closest("#siteMenu")) toggleSiteMenu(false);
+      const mapAction = event.target.id;
+      if(mapAction === "demoVerifyMapOpen"){ openDemoVerifyMap(); return; }
+      if(mapAction === "demoVerifyMapLang"){ toggleSimpleModalLang(); localizeDemoVerifyMap(); return; }
+      if(mapAction === "demoVerifyMapClose" || mapAction === "demoVerifyMapCancel"){ closeDemoVerifyMap(); return; }
+      if(mapAction === "demoVerifyMapConfirm"){ confirmDemoVerifyMap(); return; }
+      if(mapAction === "demoVerifyMapCurrent" || mapAction === "demoVerifyMapPin"){
+        if(!demoVerifyMapSearch) return;
+        const action = mapAction === "demoVerifyMapCurrent" ? demoVerifyMapSearch.locate() : demoVerifyMapSearch.pickOnMap({center:demoProfile.mapsPlace});
+        Promise.resolve(action).then(at=>{ if(at) demoVerifyMapSearch.usePin(at); });
+        return;
+      }
       if(event.target.closest("[data-demo-locate]")){ useDemoCurrentLocation(); return; }
       if(event.target.closest("[data-demo-pin-map]")){ pinDemoOnMap(); return; }
       const infoPage = event.target.closest("[data-info-page]");
@@ -12400,6 +12591,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("calendarLangBtn").addEventListener("click", toggleCalendarLang);
     byId("simpleModalClose").addEventListener("click", closeModal);
     byId("infoModalClose").addEventListener("click", closeInfoModal);
+    byId("identityUpgradeClose").addEventListener("click", closeIdentityUpgradeModal);
     byId("infoModalLang").addEventListener("click", () => { state.lang = state.lang === "en" ? "th" : "en"; render(); });
     byId("infoModal").addEventListener("click", event => { if(event.target === byId("infoModal")) closeInfoModal(); });
     byId("gamePickerClose").addEventListener("click", closeGamePicker);
@@ -12413,6 +12605,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       }
       if(event.key === "Escape" && byId("allConsolesModal")?.classList.contains("open")) closeAllConsoles();
       if(event.key === "Escape" && byId("infoModal")?.classList.contains("open")) closeInfoModal();
+      if(event.key === "Escape" && byId("identityUpgradeModal")?.classList.contains("open")) closeIdentityUpgradeModal();
       if(event.key === "Escape" && byId("quoteModal")?.classList.contains("open")) closeQuotePopup();
       if(event.key === "Escape") toggleSiteMenu(false);
       if(event.key === "Escape" && byId("siteAnnouncement")?.classList.contains("open")) closeSiteAnnouncement();
@@ -12715,8 +12908,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
         }
         saveDemoProfile();
         render();
+        if(verifyForDepositActive) renderVerifyNowModal();
       }
-      if(event.target.name === "demoIdentityType"){ demoProfile.identityType = event.target.value; render(); }
+      if(event.target.name === "demoIdentityType"){ demoProfile.identityType = event.target.value; render(); if(verifyForDepositActive) renderVerifyNowModal(); }
       if(event.target.id === "demoNoContractOpt" || event.target.id === "demoIdentityNoContractOpt"){
         setDemoNoContract(event.target.checked);
       }
@@ -12887,6 +13081,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "demoNotifyWhatsApp"){ notifyDemoWhatsApp(); return; }
       if(targetId === "demoVerifyLater"){ openVerifyNowModal(); return; }
       if(targetId === "demoVerifyForDeposit"){ openDemoVerifyForDeposit(); return; }
+      if(targetId === "payResumeVerifyIdentity"){ openIdentityUpgradeModal(); return; }
       if(targetId === "demoSkipIdentity"){ skipDemoIdentity(); return; }
       if(targetId === "verifyNowSubmit"){ await submitVerifyNow(); return; }
       if(targetId === "clearGames"){ state.calc.games = []; state.calc.later = true; saveLocal(); render(); }

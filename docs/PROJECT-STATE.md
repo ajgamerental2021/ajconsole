@@ -1,5 +1,15 @@
 # Project state
 
+## 2026-10-05 — Compact Contact popup and in-page identity upgrade
+
+- **Changes for Claude:** `ajconsole/index.html` and `tests/identity-choice-buttons.test.mjs`; Bot `public/verify-identity/index.html`, `src/server.js`, `src/services/payment-resume.js`, `test/identity-upgrade.test.js`. No new secrets or theme implementation.
+- Contact popup auto-sizes on desktop/mobile; adds Facebook and WhatsApp links, with a WhatsApp footer icon beside LINE.
+- Payment resume opens the signed identity-upgrade form inside a same-page modal. Successful submission closes it and reloads the rental, including masked document number, address/Maps link, verification state, normal deposit, new delivery quote and payment total. The Bot sends the existing `🪪 AJ Game Rental received identity images` shop notification after durable booking persistence.
+- Summary-page verification now puts customer/address fields, document photos, refund account/Wise and signature in one popup. The deposit choice is restored on cancel. Its map-change button opens the same place search/current location/map-pin flow; it previews a fresh delivery quote without updating Console Pending until verification is submitted.
+- Bot verification form has a bilingual map-change popup and address edits. Changed Maps links are repriced on the server before photos and contract are saved. New quote and payment plan are persisted; a write failure returns an error instead of success.
+- Validation: syntax checks; site relevant tests 20/20; Bot identity/payment tests 15/15; Chromium 375px/1280px in TH/EN for Contact and payment modal, plus TH/EN summary map and Bot map smoke; mocked completion confirmed modal close, rental reload and updated total. Bot `/healthz` and `/liff/` responded locally. Browser/API smoke used mock bookings; no live customer payment or identity document was submitted.
+- Dark-theme request is advice only. A persisted light/dark switch across `index`, `ajgameid` and `game_index` is feasible after a shared design-token and embedded-picker audit; do not claim zero regression risk or start implementation without a separate request.
+
 ## 2026-10-05 — ปุ่มยืนยันตัวตนในลิงก์ชำระเงินต่อ และช่องทางติดต่อ
 
 - **แจ้ง Claude — สิ่งที่แก้:** `ajconsole/index.html` และ `aj-line-oa-bot/src/server.js`; ไม่มีไฟล์ใหม่หรือลบ ไม่แตะ `aj-cm` และไม่เพิ่ม secret.

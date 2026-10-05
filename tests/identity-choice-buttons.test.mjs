@@ -6,10 +6,14 @@ const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
 test('no verification chosen: a green button offers verification for the normal deposit', () => {
   assert.match(html, /id="demoVerifyForDeposit" type="button">\$\{en \? `Verify your identity to lower the deposit to \$\{money\(deposits\.normal\)\}` : `ยืนยันตัวตนเพื่อลดค่าประกันเป็น \$\{money\(deposits\.normal\)\}`\}/);
-  // It opens the customer details dialog with the identity fields at its top;
-  // Cancel puts the no-verification choice back (the dialog's snapshot).
-  assert.match(html, /function openDemoVerifyForDeposit\(\)\{\n    openDemoEditModal\(2\);\n    setDemoNoContract\(false\);/);
-  assert.match(html, /querySelector\("\.demo-id-type"\)\?\.closest\("\.field"\);\n    if\(field\)\{\n      field\.scrollIntoView\(\{block:"start"\}\);/);
+  // The same popup holds step 2 customer details and step 3 refund/signature,
+  // with identity photos; cancelling restores the earlier choice.
+  assert.match(html, /function openDemoVerifyForDeposit\(\)\{\n    verifyForDepositSnapshot =/);
+  assert.match(html, /verifyForDepositActive = true;\n    state\.calc\.noContract = false;/);
+  assert.match(html, /render\(\);\n    openVerifyNowModal\(\);/);
+  assert.match(html, /verifyForDepositActive \? `<div class="card verify-now-customer"/);
+  assert.match(html, /lendCustomerCard\(\);\n    lendAgreementCard\(\);/);
+  assert.match(html, /if\(verifyForDepositActive && verifyForDepositSnapshot\)\{/);
   assert.match(html, /\.demo-verify-btn\{background:#15803d;border-color:#15803d;color:#fff\}/);
 });
 
