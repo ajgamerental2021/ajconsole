@@ -593,6 +593,7 @@
         copyModalMessage: 'นำข้อความไปส่งต่อในแชทที่คุยกับทางร้านได้เลย',
         copyModalSentTitle: 'ส่งคำขอเช่าไอดีแล้ว',
         copyModalSentMessage: 'ส่งคำขอเช่าไอดีให้ร้าน AJ แล้ว แอดมินจะตรวจสอบคิวและแจ้งรายละเอียดต่อทาง LINE ครับ',
+        lineChatInbound: 'ติดต่อแอดมิน — ส่งคำขอเช่าไอดีเกมแล้ว: {{game}} (ID #{{id}})',
         openLineShop: 'เปิด LINE ร้าน AJ',
         lineUniqueId: 'LINE',
         copyModalOk: 'ตกลง',
@@ -777,6 +778,7 @@
         copyModalMessage: 'Send the copied message in your current chat with the shop.',
         copyModalSentTitle: 'ID rental request sent',
         copyModalSentMessage: 'Your ID rental request has been sent to AJ. Our admin will check availability and reply with the details in LINE.',
+        lineChatInbound: 'Contact admin — ID rental request sent: {{game}} (ID #{{id}})',
         openLineShop: 'Open AJ LINE',
         lineUniqueId: 'LINE',
         copyModalOk: 'OK',
@@ -1336,6 +1338,25 @@
       const result = await sendBookingToBackend(booking);
       if (!result) console.warn('booking saved locally but backend sync failed', booking.bookingId);
       return { booking, result };
+    }
+
+    async function sendIdRentalChatHandoff(booking) {
+      if (!lineIdentity.ready
+        || !window.liff?.isInClient?.()
+        || typeof window.liff.sendMessages !== 'function') return false;
+      try {
+        await window.liff.sendMessages([{
+          type: 'text',
+          text: tr('lineChatInbound', {
+            game: String(booking?.title || '-'),
+            id: String(booking?.idNo || '-')
+          })
+        }]);
+        return true;
+      } catch (error) {
+        console.warn('ID rental chat handoff failed', error);
+        return false;
+      }
     }
 
     function loadSyncSettings() {
@@ -2156,6 +2177,7 @@
         const lineSent = Boolean(saved?.result?.lineLinked && saved?.result?.flexSent);
 
         if (lineSent) {
+          await sendIdRentalChatHandoff(saved.booking);
           showToast(tr('copyModalSentTitle'));
           showCopyModal(true);
           return false;

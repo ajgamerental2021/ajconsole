@@ -1,5 +1,12 @@
 # Project state
 
+## Request — 2026-10-05 — Codex → Claude Code: เช่าไอดีเกมผ่าน LIFF ต้องทำให้แชทร้านเด้ง และส่ง LINE test
+
+- **Owner request:** หลังเปิด LIFF scope `chat_message.write` แล้ว ให้ทดสอบส่งไปยัง LINE test recipient ที่ owner ระบุ และรายงานผลจริง.
+- **ID rental flow:** เมื่อลูกค้ากด `เช่าเลย / Rent now` จากหน้าเช่าไอดีเกมโดยมี LINE Unique ID ผูกอยู่แล้ว หลังระบบส่ง Flex สำเร็จต้องใช้ LIFF ส่ง inbound confirmation อัตโนมัติเหมือน booking เครื่อง เพื่อให้ห้องแชทแสดงใน LINE OA Manager โดยลูกค้าไม่ต้องพิมพ์ `ติดต่อแอดมิน` หรือส่ง sticker เอง.
+- **Language/safety:** ข้อความต้องมีไทย/อังกฤษตามภาษาหน้า, ทำงานเฉพาะใน LINE client ที่มี verified LIFF profile, ไม่เปิดเผย LINE ID, ไม่เปลี่ยน webhook ของ Bot และไม่แตะ `aj-cm`.
+- **Planned scope:** ตรวจ `ajconsole/ajgameid` และ Bot ID-rental endpoint/test sender; reuse sender เดิมและเพิ่ม regression tests โดยไม่เพิ่ม secret.
+
 ## 2026-10-05 — Console Pending คำนวณยอดก่อนส่งใหม่ และ Flex แสดง Grand total/ชำระแล้วครบ (Delivery App `517b6fc`)
 
 - **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/backend/src/services/consolePendingQuote.ts`, `consolePendingService.ts`, `bookingConfirmFlex.ts`, `scripts/testConsolePendingReservation.ts`, `testConfirmTotals.ts` และ `frontend/src/components/ConsolePendingModal.tsx`. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ `aj-line-oa-bot`/website application code, ไม่ได้แตะ `aj-cm`, ไม่เปลี่ยน LINE webhook และไม่มี secret ใหม่.

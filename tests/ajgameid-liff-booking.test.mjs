@@ -26,6 +26,16 @@ test('successful LIFF booking skips copy instructions and reports the automatic 
   assert.doesNotMatch(html, /id="copyModalGuideText">วิธีการแจ้งเช่าไอดี/);
 });
 
+test('successful linked booking sends a bilingual inbound LIFF message so the shop chat appears', () => {
+  assert.match(html, /async function sendIdRentalChatHandoff\(booking\)/);
+  assert.match(html, /window\.liff\?\.isInClient\?\.\(\)/);
+  assert.match(html, /window\.liff\.sendMessages\(\[\{/);
+  assert.match(html, /ติดต่อแอดมิน — ส่งคำขอเช่าไอดีเกมแล้ว: \{\{game\}\} \(ID #\{\{id\}\}\)/);
+  assert.match(html, /Contact admin — ID rental request sent: \{\{game\}\} \(ID #\{\{id\}\}\)/);
+  const linkedBranch = html.slice(html.indexOf('if (lineSent) {'), html.indexOf('let copied = false'));
+  assert.match(linkedBranch, /await sendIdRentalChatHandoff\(saved\.booking\)/);
+});
+
 test('customer page removes legacy result hint and footer output', () => {
   assert.doesNotMatch(html, /id="resultsHintText"/);
   assert.doesNotMatch(html, /id="footerText"/);
