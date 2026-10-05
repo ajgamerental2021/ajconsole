@@ -1,5 +1,9 @@
 # Project state
 
+## 2026-10-05 — WhatsApp contact label
+
+- Contact popup now shows `+66816244715` as the WhatsApp link text in both languages; the destination remains `https://wa.me/message/LEJ5QD3B2D2TN1`. No other WhatsApp link changed.
+
 ## 2026-10-05 — Compact Contact popup and in-page identity upgrade
 
 - **Changes for Claude:** `ajconsole/index.html` and `tests/identity-choice-buttons.test.mjs`; Bot `public/verify-identity/index.html`, `src/server.js`, `src/services/payment-resume.js`, `test/identity-upgrade.test.js`. No new secrets or theme implementation.
