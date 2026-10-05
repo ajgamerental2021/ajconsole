@@ -35,7 +35,8 @@ test('demo customer details are included in the real booking context', () => {
 
 test('demo identity data stays in page memory and no-contract deposit uses the proposed tiers', () => {
   assert.match(html, /const demoProfile = \{/);
-  assert.match(html, /function noContractDeposit\(base\)\{\n    return Number\(base\) >= 4000 \? 15000 : 10000;\n  \}/);
+  assert.match(html, /function noContractDeposit\(base, selectedConsole\)/);
+  assert.match(html, /FIVE_THOUSAND_DEPOSIT_IDS/);
   assert.doesNotMatch(html, /\? 8000 : 5000/);
   assert.match(html, /Full identity numbers and images deliberately stay out of localStorage/);
 });
@@ -530,7 +531,7 @@ test('the header menu opens rental prices, the game list and the rental steps li
   assert.match(html, /\["prices", "tag", en \? "Rental prices" : "ราคาเช่า"\], \["games", "gamepad", en \? "Game list" : "รายการเกม"\], \["steps", "steps", en \? "How to rent" : "ขั้นตอนการเช่า"\], \["myRental", "receipt", en \? "My rental" : "คิวเช่าของฉัน"\]/);
   // Line icons drawn like the site's other icons, not emoji.
   assert.match(html, /\$\{icon\(iconName, "site-menu-ico"\)\}<span>\$\{esc\(label\)\}<\/span>/);
-  assert.match(html, /const infoIcons = \{about:"info", privacy:"shield", terms:"doc"\};/);
+  assert.match(html, /const infoIcons = \{about:"info", privacy:"shield", terms:"doc", contact:"contact"\};/);
   assert.match(html, /if\(action === "prices"\) showAllConsoles\(\);/);
   assert.match(html, /if\(action === "games"\) openGamePicker\(\{browseOnly:true, consoleId:String\(SPEC\.PS5\)\}\);/);
   assert.match(html, /if\(action === "steps"\) openStepsPopup\(\);/);

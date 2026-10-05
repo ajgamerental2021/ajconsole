@@ -5,11 +5,11 @@ import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
 test('without identity verification every PS5 bundle holds ฿15,000', () => {
-  assert.match(html, /const finalDeposit = state\.calc\.noContract \? \(bundleName \? 15000 : noContractDeposit\(deposit\)\) : deposit;/);
+  assert.match(html, /const finalDeposit = state\.calc\.noContract \? \(bundleName \? 15000 : noContractDeposit\(deposit, c\)\) : deposit;/);
 });
 
 test('the no-identity badge shows the bundle deposit too', () => {
-  assert.match(html, /depositBadge\(Number\(selectedConsole\.id\) === SPEC\.PS5 && state\.calc\.bundleId \? 15000 : noContractDeposit\(selectedConsole\.deposit\), "danger"\)/);
+  assert.match(html, /depositBadge\(demoDepositChoices\(\)\.noId, "danger"\)/);
 });
 
 test('PS5 + Logitech G29 is quoted for a car, and a bundle change re-quotes', () => {
@@ -23,8 +23,6 @@ test('PS5 + Logitech G29 is quoted for a car, and a bundle change re-quotes', ()
 });
 
 test('every page that explains the no-identity deposit names the PS5 bundle figure (TH/EN)', () => {
-  assert.match(html, /Bundle PS5 ทุกรายการ ฿15,000/);
-  assert.match(html, /any PS5 bundle: ฿15,000/);
-  assert.match(html, /PS5 bundle ฿15,000/);
-  assert.match(html, /Bundle PS5 15,000 บาท/);
+  assert.match(html, /Bundle PS5 → ฿15,000/);
+  assert.match(html, /PS5 bundles → ฿15,000/);
 });

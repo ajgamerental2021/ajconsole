@@ -20,7 +20,7 @@ test('no verification chosen: a green button offers verification for the normal 
 test('verification left for later: a red-outlined button skips it for the higher deposit; "Verify now" is green', () => {
   assert.match(html, /id="demoSkipIdentity" type="button">\$\{en \? `No verification · deposit becomes \$\{money\(deposits\.noId\)\}` : `ไม่ต้องการยืนยันตัวตน · ค่าประกันปรับเป็น \$\{money\(deposits\.noId\)\}`\}<\/button><button class="btn demo-verify-btn" id="demoVerifyLater"/);
   assert.match(html, /\.demo-skip-id-btn\{background:#fff;border:1\.5px solid #c90012;color:#c90012\}/);
-  assert.match(html, /return \{normal:Number\(deposit\) \|\| 0, noId:bundleName \? 15000 : noContractDeposit\(deposit\)\};/);
+  assert.match(html, /return \{normal:Number\(deposit\) \|\| 0, noId:bundleName \? 15000 : noContractDeposit\(deposit, c\)\};/);
   // One switch for the step 2 checkbox and these buttons; it drops a payment
   // link made for the old deposit.
   assert.match(html, /function setDemoNoContract\(value\)\{\n    state\.calc\.noContract = !!value;\n    state\.calc\.beamPaymentLink = "";/);

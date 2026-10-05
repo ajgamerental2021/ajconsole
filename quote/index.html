@@ -377,9 +377,9 @@
     var rent = rentalCost(n, terms.rate, terms.weekly);
     var normalDeposit = Number(terms.deposit) || 0;
     // Renting without identity verification holds a larger deposit, as on the
-    // booking site (noContractDeposit): ฿4,000 and up → ฿15,000, else ฿10,000.
+    // The booking site gives four specific ฿2,000 models a ฿5,000 no-identity deposit.
     var noId = $('noId').checked;
-    var deposit = noId ? noIdDepositFor(normalDeposit, !!terms.bundle) : normalDeposit;
+    var deposit = noId ? noIdDepositFor(normalDeposit, !!terms.bundle, selected()) : normalDeposit;
     var tier = tierOf(n, terms.rate, terms.weekly);
     // Each row: label, amount, how it is styled here, and what it is (for the
     // copied text's emoji and the LINE card).
@@ -406,9 +406,17 @@
     }
     return { c: c, n: n, rent: rent, deposit: deposit, total: total, rows: out };
   }
-  // Without identity verification: every PS5 bundle holds ฿15,000; otherwise
-  // ฿4,000 and up → ฿15,000, else ฿10,000 (the booking site's noContractDeposit).
-  function noIdDepositFor(normal, isBundle) { return isBundle || Number(normal) >= 4000 ? 15000 : 10000; }
+  // Match the booking site's device-specific no-identity deposit.
+  function noIdDepositFor(normal, isBundle, device) {
+    var amount = Number(normal) || 0;
+    if (isBundle) return Math.max(amount, 15000);
+    if (amount >= 5000) return amount;
+    var id = String(device && device.id || '').toLowerCase();
+    var model = String(device && (device.nameEn || device.name) || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+    var special = ['ps4', 'ps-portal', 'switch-1', 'xbox-series-s'].indexOf(id) >= 0
+      || ['ps4', 'playstation4', 'nintendoswitch1', 'switch1', 'psportal', 'playstationportal', 'xboxseriess'].indexOf(model) >= 0;
+    return amount === 2000 && special ? 5000 : (amount >= 4000 ? 15000 : 10000);
+  }
   function promoPrice(c, n) { return c && n === 3 ? (AFTER_WORK[Number(termsOf(c).rate)] || 0) : 0; }
   function renderAddOns() {
     var c = selected();
@@ -443,7 +451,7 @@
     $('noIdRow').hidden = !c;
     if (c) {
       var tc = termsOf(c), normal = Number(tc.deposit) || 0;
-      $('noIdHint').textContent = t('noIdHint').replace('{deposit}', money(noIdDepositFor(normal, !!tc.bundle))).replace('{normal}', money(normal));
+      $('noIdHint').textContent = t('noIdHint').replace('{deposit}', money(noIdDepositFor(normal, !!tc.bundle, selected()))).replace('{normal}', money(normal));
     }
     $('promoRow').hidden = !promo;
     if (promo) $('promoHint').textContent = t('promoHint').replace('{price}', money(promo));

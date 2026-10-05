@@ -35,14 +35,15 @@ test('accessories by device, PS5 bundles, and the current-location button', () =
 });
 
 test('no identity verification: the deposit goes up as on the booking site', () => {
-  assert.match(page, /var deposit = noId \? noIdDepositFor\(normalDeposit, !!terms\.bundle\) : normalDeposit;/);
+  assert.match(page, /var deposit = noId \? noIdDepositFor\(normalDeposit, !!terms\.bundle, selected\(\)\) : normalDeposit;/);
   assert.match(page, /noIdAsk: 'ไม่ยืนยันตัวตน'/);
   assert.match(page, /noIdAsk: 'No identity verification'/);
 });
 
 test('every PS5 bundle without identity verification holds ฿15,000', () => {
-  assert.match(page, /function noIdDepositFor\(normal, isBundle\) \{ return isBundle \|\| Number\(normal\) >= 4000 \? 15000 : 10000; \}/);
-  assert.match(page, /noIdDepositFor\(normalDeposit, !!terms\.bundle\)/);
+  assert.match(page, /function noIdDepositFor\(normal, isBundle, device\)/);
+  assert.match(page, /return amount === 2000 && special \? 5000/);
+  assert.match(page, /noIdDepositFor\(normalDeposit, !!terms\.bundle, selected\(\)\)/);
 });
 
 test('book and LINE buttons, and anonymous events for the analytics page', () => {

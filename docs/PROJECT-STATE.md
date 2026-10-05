@@ -1,3 +1,10 @@
+## 2026-10-05 — Four device no-identity deposits reduced to ฿5,000
+
+- PS4, Nintendo Switch 1, XBOX Series S and PS Portal now hold ฿5,000 instead of ฿10,000 when the renter chooses no identity verification. Their verified deposit remains ฿2,000. Other ฿2,000 models remain ฿10,000; ฿4,000 models and PS5 bundles remain ฿15,000.
+- The main booking page and quick quote use the same device-specific rule. The Before rent explanation, Step 2 checkbox, identity step, FAQ and rental steps describe the amounts in Thai and English. Summary, payment and booking messages use the calculated amount.
+- The Bot applies the same amount when a renter accepts no-contract terms after booking and includes the updated total in its Flex. Delivery App prices a pending request and saved Booking by model or its real Inventory code (PS4 `AJ2`, Switch 1 `NS1`/`NS3`/`NS4`), so Booking totals, refund amount and the Thai/English confirmation card show ฿5,000.
+- Verification: 276/276 website tests; Bot no-contract and identity-upgrade tests; Delivery App 41/41 deposit/card checks, 30/30 confirmation totals and 27/27 Console Pending checks, plus backend/frontend TypeScript. Bot full suite had 539/540 passing; the unrelated asset-header source-pattern test remains outdated.
+
 ## 2026-10-05 — Book rental action in header menu
 
 - The header menu now starts with a red **จองคิวเช่า / Book a rental** action. It enters the same booking flow and starts the same guide as the primary Before rent button.
