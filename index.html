@@ -476,6 +476,7 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .pricing-tiers-title{font-weight:900;line-height:1.4}
 .pricing-tier{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 14px;border:1px solid;border-radius:10px;padding:9px 12px;line-height:1.4}
 .pricing-tier-name{font-weight:700;overflow-wrap:anywhere}
+.pricing-tier-device-name{white-space:nowrap}
 .pricing-tier-amount{font-weight:900;white-space:nowrap}
 .pricing-tier-low{background:#edf9f0;border-color:#a9ddba;color:#176534}
 .pricing-tier-mid{background:#fff6df;border-color:#e9ce85;color:#795200}
@@ -3096,7 +3097,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       group.names.push(device.name); groups.set(key,group);
     });
     const parts = [...groups.values()].map(group => `${group.names.join(", ")}: ${money(group.normal)} → ${money(group.noIdentity)}`);
-    return lang === "en" ? `Without identity verification, deposits by device: ${parts.join("; ")}. Bundles: at least ${money(policy.bundleNoIdentityDeposit)}.` : `หากไม่ยืนยันตัวตน ค่าประกันตามรุ่น: ${parts.join("; ")}; Bundle: อย่างน้อย ${money(policy.bundleNoIdentityDeposit)}`;
+    return lang === "en" ? `Without identity verification, deposits by device: ${parts.join("; ")}. Bundle PS5: ${money(policy.bundleNoIdentityDeposit)}.` : `หากไม่ยืนยันตัวตน ค่าประกันตามรุ่น: ${parts.join("; ")}; Bundle PS5: ${money(policy.bundleNoIdentityDeposit)}`;
   }
   function applyPricingPolicy(policy){
     if(!policy || !Array.isArray(policy.devices)) return;
@@ -4299,7 +4300,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <div class="field"><label class="label" for="demoIdentityExpiry">${demoIdentityType()==="passport" ? (en ? "Passport expiry date" : "วันหมดอายุ Passport") : (en ? "Thai ID expiry date" : "วันหมดอายุบัตรประชาชน")}<span class="req">*</span></label><input class="input${demoIdentityExpired() ? " is-invalid" : ""}" id="demoIdentityExpiry" type="date" value="${esc(demoProfile.identityExpiry)}"><p class="hint">${en ? "Your Thai ID card or passport must remain valid from the start date through the return date, in every case. If you have rented before and your ID card or passport has expired, a new rental agreement is required before your next rental." : "บัตรประชาชนหรือ Passport ต้องยังไม่หมดอายุ ตั้งแต่วันที่เริ่มเช่าจนถึงวันคืนเครื่องในทุกกรณี หากเคยเช่าแล้วและบัตรหรือ Passport หมดอายุ ต้องทำสัญญาการเช่าใหม่ทุกกรณีก่อนเช่าครั้งถัดไป"}</p>${demoIdentityExpired() ? `<p class="field-error">${esc(demoIdentityExpiryMessage())}</p>` : ""}</div>`}
         <div class="field"><label class="label" for="demoEmail">${en ? "Email" : "อีเมล"}<span class="req">*</span></label><input class="input" id="demoEmail" type="email" autocomplete="email" value="${esc(demoProfile.email)}"></div>
         ${demoIdentityCoveredByAgreement() || payResume.active ? "" : `<div class="field wide">
-        <label class="option-row"><input type="checkbox" id="demoNoContractOpt" ${state.calc.noContract?"checked":""}><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b><div class="hint">${en ? "No document number or identity images are required, and no rental agreement is prepared." : "ไม่ต้องกรอกเลขเอกสารและไม่ต้องส่งรูปบัตรประชาชน/Passport และไม่มีการทำสัญญาเช่า"}</div>${pricingTierHtml(state.lang,true)}</div></label>
+        <label class="option-row"><input type="checkbox" id="demoNoContractOpt" ${state.calc.noContract?"checked":""}><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b><div class="hint">${en ? "No document number or identity images are required, and no rental agreement is prepared." : "ไม่ต้องกรอกเลขเอกสารและไม่ต้องส่งรูปบัตรประชาชน/Passport และไม่มีการทำสัญญาเช่า"}</div>${pricingTierHtml(state.lang,true,true)}</div></label>
         </div>`}
         <div class="field wide"><label class="option-row"><input type="checkbox" id="demoNoThaiAddress" ${demoProfile.noThaiAddress?"checked":""}><div><b>${en ? "I don't need to enter an address — the Google Maps link is exact" : "ไม่ต้องการระบุที่อยู่ ตำแหน่งจากลิงก์ Google Maps ถูกต้องแล้ว"}</b><div class="hint">${en ? "Skip the address fields and use the exact Google Maps pin for delivery and the delivery quote." : "ข้ามช่องที่อยู่และใช้หมุด Google Maps ที่ระบุสำหรับจัดส่งและคำนวณค่าส่ง"}</div></div></label></div>
         ${demoProfile.noThaiAddress ? "" : `
@@ -5551,14 +5552,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(state.calc.noContract){
       card.innerHTML = `<h3>${en ? "Identity verification" : "ยืนยันตัวตน"}</h3>
       <p>${en ? "You chose not to verify your identity, so this step is skipped and no document images are requested." : "คุณเลือกไม่ยืนยันตัวตน ขั้นตอนนี้จึงข้ามไปได้ และไม่ต้องส่งรูปเอกสาร"}</p>
-      <label class="option-row"><input type="checkbox" id="demoIdentityNoContractOpt" checked><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b><div class="hint">${en ? "Untick to verify instead." : "เอาเครื่องหมายออกหากต้องการยืนยันตัวตน"}</div>${pricingTierHtml(state.lang,true)}</div></label>`;
+      <label class="option-row"><input type="checkbox" id="demoIdentityNoContractOpt" checked><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b><div class="hint">${en ? "Untick to verify instead." : "เอาเครื่องหมายออกหากต้องการยืนยันตัวตน"}</div>${pricingTierHtml(state.lang,true,true)}</div></label>`;
       return;
     }
     card.innerHTML = `<h3>${en ? "Identity verification" : "ยืนยันตัวตน"}</h3>
       ${demoIdentityArtHtml()}
       <p>${en ? "Upload a clear image of the identity document and a selfie holding the same document. AJ reviews the files before delivery; uploading does not mean verification is complete." : "อัปโหลดรูปบัตรประชาชน/Passport ที่อ่านได้ชัดเจน และรูปเซลฟี่คู่บัตรประชาชน/Passport ร้านจะตรวจสอบก่อนจัดส่ง การอัปโหลดรูปยังไม่ถือว่ายืนยันตัวตนสำเร็จ"}</p>
       ${demoIdGuideHtml()}
-      <label class="option-row"><input type="checkbox" id="demoIdentityNoContractOpt" ${state.calc.noContract?"checked":""}><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b>${pricingTierHtml(state.lang,true)}</div></label>
+      <label class="option-row"><input type="checkbox" id="demoIdentityNoContractOpt" ${state.calc.noContract?"checked":""}><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b>${pricingTierHtml(state.lang,true,true)}</div></label>
       ${demoIdentityUploadGridHtml("demo")}
       <label class="option-row"><input type="checkbox" id="demoIdentitySkip" ${demoProfile.identitySkipped?"checked":""}><div><b>${en ? "Verify later" : "ยืนยันตัวตนภายหลัง"}</b><div class="hint">${en ? "You may continue to payment, but AJ will show Identity incomplete and will not dispatch equipment until verification is approved." : "ไปหน้าชำระเงินต่อได้ แต่สถานะจะแสดงว่ายืนยันตัวตนยังไม่สำเร็จ และร้านจะไม่จัดส่งจนกว่าจะตรวจสอบผ่าน"}</div></div></label>`;
   }
@@ -11290,25 +11291,37 @@ We apologize for the inconvenience and hope everyone stays safe.`
       ]
     }
   ];
-  function pricingTierHtml(lang=state.lang, compact=false){
+  function pricingTierHtml(lang=state.lang, compact=false, selectedOnly=false){
     const policy = pricingPolicy || pricingDefaults();
     const groups = new Map();
     const specialModels = new Set(["ps4","nintendoswitch1","xboxseriess","psportal"]);
+    const tierAmounts = [...new Set([...policy.devices.map(device => device.noIdentityDeposit),policy.bundleNoIdentityDeposit])].sort((a,b) => a-b);
+    const tone = amount => {
+      const index = tierAmounts.findIndex(tier => amount <= tier);
+      return ["low","mid","high","extra"][Math.min(index < 0 ? tierAmounts.length - 1 : index,3)] || "extra";
+    };
+    if(selectedOnly){
+      const selected = consoleById(state.calc.consoleId);
+      if(!selected) return "";
+      const {normal,noId} = demoDepositChoices();
+      const {bundleName} = selectedConsoleRentalTerms(selected);
+      const name = bundleName ? `Bundle PS5 · ${bundleName}` : cName(selected);
+      const displayName = pricingKey(name) === "nintendoswitch1" ? `<span class="pricing-tier-device-name">${esc(name)}</span>` : esc(name);
+      return `<div class="pricing-tiers pricing-tiers-compact"><div class="pricing-tier pricing-tier-${tone(noId)}"><span class="pricing-tier-name">${displayName}</span><span class="pricing-tier-amount">${esc(money(normal))} → ${esc(money(noId))}</span></div></div>`;
+    }
     policy.devices.forEach(device => {
       const key = `${device.securityDeposit}:${device.noIdentityDeposit}:${specialModels.has(pricingKey(device.name)) ? "special" : "other"}`;
       const group = groups.get(key) || {normal:device.securityDeposit,noIdentity:device.noIdentityDeposit,names:[],special:specialModels.has(pricingKey(device.name))};
       group.names.push(device.name); groups.set(key,group);
     });
     const sorted = [...groups.values()].sort((a,b) => a.noIdentity-b.noIdentity || a.normal-b.normal);
-    const amounts = [...new Set([...sorted.map(group => group.noIdentity),policy.bundleNoIdentityDeposit])].sort((a,b) => a-b);
-    const tone = amount => ["low","mid","high","extra"][Math.min(amounts.indexOf(amount),3)] || "extra";
     const rows = sorted.map(group => {
       const name = group.names.length > 4 && !group.special
         ? (lang === "en" ? `Other models with a ${money(group.normal)} normal deposit` : `รุ่นอื่นที่ค่าประกันปกติ ${money(group.normal)}`)
-        : group.names.join(", ");
-      return `<div class="pricing-tier pricing-tier-${tone(group.noIdentity)}"><span class="pricing-tier-name">${esc(name)}</span><span class="pricing-tier-amount">${esc(money(group.normal))} → ${esc(money(group.noIdentity))}</span></div>`;
+        : group.names.map(deviceName => pricingKey(deviceName) === "nintendoswitch1" ? `<span class="pricing-tier-device-name">${esc(deviceName)}</span>` : esc(deviceName)).join(", ");
+      return `<div class="pricing-tier pricing-tier-${tone(group.noIdentity)}"><span class="pricing-tier-name">${name}</span><span class="pricing-tier-amount">${esc(money(group.normal))} → ${esc(money(group.noIdentity))}</span></div>`;
     });
-    rows.push(`<div class="pricing-tier pricing-tier-${tone(policy.bundleNoIdentityDeposit)}"><span class="pricing-tier-name">Bundle PS5</span><span class="pricing-tier-amount">${lang === "en" ? "at least" : "อย่างน้อย"} ${esc(money(policy.bundleNoIdentityDeposit))}</span></div>`);
+    rows.push(`<div class="pricing-tier pricing-tier-${tone(policy.bundleNoIdentityDeposit)}"><span class="pricing-tier-name">Bundle PS5</span><span class="pricing-tier-amount">${esc(money(policy.bundleNoIdentityDeposit))}</span></div>`);
     return `<div class="pricing-tiers${compact ? " pricing-tiers-compact" : ""}">${compact ? "" : `<div class="pricing-tiers-title">${lang === "en" ? "Without identity verification, refundable security deposits" : "ไม่ยืนยันตัวตน: ค่าประกันที่คืนเมื่อรับเครื่องคืน"}</div>`}${rows.join("")}</div>`;
   }
   let stepsIndex = 0;

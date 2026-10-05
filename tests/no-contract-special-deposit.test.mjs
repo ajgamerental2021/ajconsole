@@ -11,10 +11,16 @@ const bookingRule = bookingPage.slice(
 );
 const quoteRule = quotePage.slice(
   quotePage.indexOf('function noIdDepositFor('),
-  quotePage.indexOf('function ', quotePage.indexOf('function noIdDepositFor(') + 1),
+  quotePage.indexOf('  function promoPrice(', quotePage.indexOf('function noIdDepositFor(')),
 );
-const bookingDeposit = runInNewContext(`${bookingRule}\nnoContractDeposit`);
-const quoteDeposit = runInNewContext(`${quoteRule}\nnoIdDepositFor`);
+const bookingDeposit = runInNewContext(`
+  const pricingPolicy = null;
+  const state = { calc: { bundleId: '' } };
+  const pricedDevice = () => null;
+  const pricingKey = value => String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+  ${bookingRule}
+noContractDeposit`);
+const quoteDeposit = runInNewContext(`var pricingPolicy = null; ${quoteRule}\nnoIdDepositFor`);
 
 const special = [
   ['1', 'PS4'], ['2', 'PS Portal'], ['4', 'Nintendo Switch 1'], ['5', 'XBOX Series S'],
@@ -33,12 +39,9 @@ test('main booking and quick quote agree on the four 5,000 deposit models', () =
   assert.equal(quoteDeposit(2000, true, { id: 'ps5', nameEn: 'PS5' }), 15000);
 });
 
-test('Step 2, FAQ and rental steps explain the four models in both languages', () => {
-  for (const name of ['PS4', 'Nintendo Switch 1', 'XBOX Series S', 'PS Portal']) {
-    assert.match(bookingPage, new RegExp(name), name);
-  }
-  assert.match(bookingPage, /noContractHelp:"[^"\n]*฿2,000 → ฿5,000/);
-  assert.match(bookingPage, /noContractHelp:"[^"\n]*other ฿2,000 deposits → ฿10,000/);
-  assert.match(bookingPage, /ไม่ยืนยันตัวตน: PS4, Nintendo Switch 1, XBOX Series S และ PS Portal: ฿2,000 → ฿5,000/);
-  assert.match(bookingPage, /No identity verification: PS4, Nintendo Switch 1, XBOX Series S and PS Portal: ฿2,000 → ฿5,000/);
+test('the booking option shows only the chosen device, while rental steps retain the full schedule', () => {
+  assert.equal((bookingPage.match(/pricingTierHtml\(state.lang,true,true\)/g) || []).length, 3);
+  assert.match(bookingPage, /replace\("__PRICING_TIERS__",pricingTierHtml\(state.lang\)\)/);
+  assert.match(bookingPage, /pricing-tier-device-name/);
+  assert.match(bookingPage, /Bundle PS5: \${money\(policy.bundleNoIdentityDeposit\)}/);
 });
