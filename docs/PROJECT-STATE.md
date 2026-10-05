@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-10-05 — Embedded identity map pin confirmation
+
+- **Bot only:** The identity-upgrade form now loads its place picker, map page and Leaflet files from the Bot origin. `/assets/pin-map.html` permits embedding under AJ's website while other assets keep Helmet's normal frame policy. No calculator or `ajconsole` application code changed.
+- Root cause: the former picker script created an `ajgamerental.com` map frame inside a Bot form iframe, so the Bot could display the map but could not read its pin. Copying the map page alone initially hit Helmet `X-Frame-Options: SAMEORIGIN` because the outer page was AJ's website; the scoped map response rule resolves that second block.
+- Browser checks: nested website → Bot form → map frame, TH/EN at desktop and mobile; tapping “Use this spot” closes the map and fills the Google Maps pin URL. The website summary map was separately checked on desktop/mobile and already completes the same action. Bot identity/payment tests 16/16 and syntax checks pass. Browser tests used a mock rental and no customer data.
+
 ## 2026-10-05 — WhatsApp contact label
 
 - Contact popup now shows `+66816244715` as the WhatsApp link text in both languages; the destination remains `https://wa.me/message/LEJ5QD3B2D2TN1`. No other WhatsApp link changed.
