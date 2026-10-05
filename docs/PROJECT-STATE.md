@@ -1,3 +1,9 @@
+## 2026-10-05 — Book rental action in header menu
+
+- The header menu now starts with a red **จองคิวเช่า / Book a rental** action. It enters the same booking flow and starts the same guide as the primary Before rent button.
+- The primary button's badge reads **จองคิวเลย / BOOK NOW** in Thai and English.
+- Verified the menu action in Chromium at desktop (1280px) and mobile (375px) widths in both languages; inline JavaScript syntax and 23 related booking tests pass.
+
 ## 2026-10-05 — Deposit cannot pay extension rent
 
 - Rental Terms version `2026-10-05` states in Thai and English that the refundable security deposit cannot be used or deducted to pay rental extension fees under any circumstances. Extension rent must be paid separately; the deposit is refunded after equipment return and inspection under the refund terms.

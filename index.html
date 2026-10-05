@@ -895,6 +895,9 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .site-menu-list .site-info-link{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:11px 12px;border-radius:8px;font-size:14px;color:#1f2937;text-decoration:none}
 .site-menu-list .site-menu-ico{flex:0 0 auto;width:19px;height:19px;color:#c90012}
 .site-menu-list .site-info-link:hover,.site-menu-list .site-info-link:focus-visible{background:#fef2f2;color:#c90012}
+.site-menu-list .site-info-link.site-menu-book{background:#c90012;color:#fff}
+.site-menu-list .site-menu-book .site-menu-ico{color:#fff}
+.site-menu-list .site-info-link.site-menu-book:hover,.site-menu-list .site-info-link.site-menu-book:focus-visible{background:#a80010;color:#fff}
 .info-modal-card{width:min(920px,100%);height:min(90vh,860px);display:flex;flex-direction:column;overflow:hidden}
 #infoModal[data-page="contact"] .info-modal-card{width:min(460px,calc(100% - 24px));height:auto;max-height:calc(100dvh - 24px)}
 #infoModal[data-page="contact"] .info-modal-body{padding:16px 22px 20px}
@@ -1288,7 +1291,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
           <button class="before-rent-action is-primary" id="beforeRentStart" type="button">
             <span class="before-rent-icon" data-icon="gamepad"></span>
             <span class="before-rent-copy"><strong data-i18n="beforeRentRent">เช่าเครื่องเกม</strong><span data-i18n="beforeRentRentSub">เลือกเครื่อง เช็ควันว่าง คำนวณราคา แล้วจองได้เลย</span></span>
-            <span class="before-rent-flag" data-i18n="beforeRentStartHere">เริ่มที่นี่</span>
+            <span class="before-rent-flag" data-i18n="beforeRentStartHere">จองคิวเลย</span>
           </button>
           <button class="before-rent-action" id="beforeRentGames" type="button">
             <span class="before-rent-icon" data-icon="grid"></span>
@@ -2063,7 +2066,8 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       beforeRentSubtitle:"เริ่มเช่า ดูรายชื่อเกม หรืออ่านข้อมูลก่อนตัดสินใจ",
       beforeRentRent:"เช่าเครื่องเกม",
       beforeRentRentSub:"เลือกเครื่อง เช็ควันว่าง คำนวณราคา แล้วจองได้เลย",
-      beforeRentStartHere:"เริ่มที่นี่",
+      beforeRentStartHere:"จองคิวเลย",
+      menuBookRental:"จองคิวเช่า",
       beforeRentGames:"ดูรายชื่อเกมก่อน",
       beforeRentGamesSub:"ดูเกมของแต่ละเครื่องก่อนตัดสินใจ",
       beforeRentSteps:"ขั้นตอนการเช่า",
@@ -2186,7 +2190,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       beforeRentSubtitle:"Start a rental, browse games, or review details first",
       beforeRentRent:"Rent a console",
       beforeRentRentSub:"Pick a console, check dates, get a price, and book",
-      beforeRentStartHere:"START HERE",
+      beforeRentStartHere:"BOOK NOW",
+      menuBookRental:"Book a rental",
       beforeRentGames:"Just browsing games",
       beforeRentGamesSub:"Browse games by console",
       beforeRentSteps:"Rental steps",
@@ -10038,8 +10043,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // The header menu also opens the rental prices, the game list and the rental
     // steps, the same pop-ups the ?allConsoles=1, ?games=1 and ?steps=1 links open.
     const en = state.lang === "en";
-    const menuActions = [["quote", "calculator", en ? "Rental calculator" : "คำนวณค่าเช่า"], ["prices", "tag", en ? "Rental prices" : "ราคาเช่า"], ["games", "gamepad", en ? "Game list" : "รายการเกม"], ["steps", "steps", en ? "How to rent" : "ขั้นตอนการเช่า"], ["myRental", "receipt", en ? "My rental" : "คิวเช่าของฉัน"]]
-      .map(([action, iconName, label]) => `<button class="site-info-link" type="button" role="menuitem" data-menu-action="${action}">${icon(iconName, "site-menu-ico")}<span>${esc(label)}</span></button>`).join("");
+    const menuActions = [["book", "gamepad", tr("menuBookRental")], ["quote", "calculator", en ? "Rental calculator" : "คำนวณค่าเช่า"], ["prices", "tag", en ? "Rental prices" : "ราคาเช่า"], ["games", "gamepad", en ? "Game list" : "รายการเกม"], ["steps", "steps", en ? "How to rent" : "ขั้นตอนการเช่า"], ["myRental", "receipt", en ? "My rental" : "คิวเช่าของฉัน"]]
+      .map(([action, iconName, label]) => `<button class="site-info-link${action === "book" ? " site-menu-book" : ""}" type="button" role="menuitem" data-menu-action="${action}">${icon(iconName, "site-menu-ico")}<span>${esc(label)}</span></button>`).join("");
     $$('[data-info-links]').forEach(host => {
       host.innerHTML = host.id === "siteMenuList" ? `${menuActions}<span class="site-menu-divider" role="separator"></span>${menuInfo}` : html;
       host.setAttribute("aria-label", state.lang === "en" ? "About AJ and website policies" : "ข้อมูลเกี่ยวกับ AJ และนโยบายเว็บไซต์");
@@ -12413,6 +12418,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         toggleSiteMenu(false);
         const action = menuAction.dataset.menuAction;
         trackAnalytics("site_menu_opened", {value:action});
+        if(action === "book") setBeforeRent(false, {startGuide:true});
         if(action === "quote") openQuotePopup("menu");
         if(action === "prices") showAllConsoles();
         if(action === "games") openGamePicker({browseOnly:true, consoleId:String(SPEC.PS5)});
