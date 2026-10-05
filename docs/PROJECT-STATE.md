@@ -1,3 +1,9 @@
+## 2026-10-06 — Identity verification wording and current Rental Terms
+
+- The booking guide and deposit tier heading now state clearly in Thai and English that skipping identity verification raises the security deposit by the displayed rate. FAQ, guide labels, status text and the Bot's no-identity choices use the same language.
+- The guide, privacy copy, LIFF agreement and new contract PDFs now say that a verified renter needs a new Master Agreement **and renewed identity verification** after one year or when the Thai ID card or passport expires. Rental Terms `2026-10-06` carries this rule in both languages; the `2026-10-05` text remains available for older agreements and rebuilt PDFs.
+- Website suite and browser checks in Thai/English at 375px and 1280px passed. Bot versioned-terms and generated Thai/English Contract and Rental Order PDFs were checked; full Bot suite passed 546/546.
+
 ## 2026-10-05 — Four device no-identity deposits reduced to ฿5,000
 
 - PS4, Nintendo Switch 1, XBOX Series S and PS Portal now hold ฿5,000 instead of ฿10,000 when the renter chooses no identity verification. Their verified deposit remains ฿2,000. Other ฿2,000 models remain ฿10,000; ฿4,000 models and PS5 bundles remain ฿15,000.

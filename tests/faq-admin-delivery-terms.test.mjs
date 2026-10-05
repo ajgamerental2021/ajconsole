@@ -14,7 +14,7 @@ test('FAQ normalization preserves admin-edited answers instead of replacing them
 test('delivery and no-contract FAQs are bilingual and inserted contextually', () => {
   assert.match(source, /qTh:"ส่งเครื่องและคืนเครื่องอย่างไร"/);
   assert.match(source, /AJ arranges the driver for both delivery and return/);
-  assert.match(source, /qTh:"ไม่ทำสัญญาการเช่าได้ไหม\?"/);
+  assert.match(source, /qTh:"เช่าโดยไม่ยืนยันตัวตนได้ไหม\?"/);
   assert.match(source, /PS4, Nintendo Switch 1, XBOX Series S and PS Portal: ฿2,000 → ฿5,000/);
   assert.match(source, /deliveryMethodIndex >= 0 \? deliveryMethodIndex \+ 1/);
   assert.match(source, /safeContractIndex >= 0 \? safeContractIndex/);

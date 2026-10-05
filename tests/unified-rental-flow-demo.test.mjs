@@ -595,7 +595,7 @@ test('the ID card or passport must expire after the return date, or the renter c
   assert.match(html, /const identityBlocked = UNIFIED_FLOW_DEMO && step === 2 && !state\.calc\.noContract && demoIdentityExpired\(\);/);
   assert.match(html, /id="demoConfirmFromDetails" type="button" \$\{identityBlocked \? "disabled" : ""\}/);
   assert.match(html, /if\(!state\.calc\.noContract && demoIdentityExpired\(\)\) return \{tone:"error", text:demoIdentityExpiryMessage\(\)\};/);
-  assert.match(html, /บัตรประชาชนหรือ Passport ต้องยังไม่หมดอายุ ตั้งแต่วันที่เริ่มเช่าจนถึงวันคืนเครื่องในทุกกรณี หากเคยเช่าแล้วและบัตรหรือ Passport หมดอายุ ต้องทำสัญญาการเช่าใหม่ทุกกรณีก่อนเช่าครั้งถัดไป/);
+  assert.match(html, /บัตรประชาชนหรือ Passport ต้องยังไม่หมดอายุ ตั้งแต่วันที่เริ่มเช่าจนถึงวันคืนเครื่องในทุกกรณี หากเคยเช่าแล้วและบัตรหรือ Passport หมดอายุ ต้องทำข้อตกลงหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้งก่อนเช่าครั้งถัดไป/);
   assert.match(html, /Your Thai ID card or passport must remain valid from the start date through the return date, in every case\./);
   // Checked for every renter, including one without a Thai address.
   assert.ok(html.indexOf('need("demoIdentityExpiry"') < html.indexOf('if(!demoProfile.noThaiAddress){\n      need("demoAddressLine"'));
