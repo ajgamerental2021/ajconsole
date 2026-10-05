@@ -1,5 +1,13 @@
 # Project state
 
+## 2026-10-05 — เช่าไอดีผ่าน LIFF ส่งข้อความเข้าแชทร้านอัตโนมัติ (`d3f06e0`)
+
+- **แจ้ง Claude — สิ่งที่แก้:** `ajconsole/ajgameid/index.html`, หน้า Switch ที่ generate คือ `ajgameid/switch/index.html`, `tests/ajgameid-liff-booking.test.mjs` และไฟล์สถานะนี้. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ application code ใน `aj-line-oa-bot`/`delivery-app`, ไม่แตะ `aj-cm`, ไม่เปลี่ยน LINE webhook และไม่เพิ่ม secret ใน repo.
+- **พฤติกรรมใหม่:** เมื่อคำขอเช่า/จองไอดีมี verified LINE identity และ Bot ตอบกลับว่าส่ง Flex สำเร็จ หน้า LIFF จะเรียก `liff.sendMessages()` ส่งข้อความสั้นในนามลูกค้าเข้าแชทร้านทันที พร้อมชื่อเกมและ ID. ข้อความตามภาษาหน้า (`ติดต่อแอดมิน — ส่งคำขอเช่าไอดีเกมแล้ว…` / `Contact admin — ID rental request sent…`) ทำให้ห้องแชทปรากฏใน LINE OA Manager โดยลูกค้าไม่ต้องพิมพ์หรือส่ง sticker เอง.
+- **เงื่อนไขความปลอดภัย:** ส่ง inbound message เฉพาะใน LINE client หลัง profile/token ผ่าน LIFF และ server ยืนยันทั้ง `lineLinked` + `flexSent`; browser ภายนอกยังใช้ copy/เปิด LINE fallback เดิม. Flex ถูกส่งก่อน จึงเข้ากฎ greeting suppression ของ Bot และไม่ปลุก chatbot ซ้ำ.
+- **ทดสอบแล้ว:** generate หน้า Switch ใหม่; `node --test tests/*.test.mjs` ผ่าน `274/274`; inline JavaScript syntax ผ่านทั้ง PS5/Switch; static HTTP smoke test ตอบ `200`; `git diff --check` ผ่าน.
+- **LINE test runtime:** cloud runtime ปัจจุบันไม่มี `LINE_CHANNEL_ACCESS_TOKEN`/`LINE_TEST_USER_ID` จึงยัง push ทดสอบจริงไม่ได้โดยไม่ขอหรือฝัง secret. บันทึก cloud environment draft ให้รับสองค่านี้อย่างปลอดภัยและเปิด egress เฉพาะ `api.line.me`; หลัง owner review/save/publish environment ให้ส่ง Messaging API test ได้. การพิสูจน์ scope `chat_message.write` จริงยังต้องให้ recipient เปิด LIFF ในแอป LINE แล้วกดเช่า เพราะ server push ไม่สามารถปลอม inbound message ของผู้ใช้ได้.
+
 ## Request — 2026-10-05 — Codex → Claude Code: เช่าไอดีเกมผ่าน LIFF ต้องทำให้แชทร้านเด้ง และส่ง LINE test
 
 - **Owner request:** หลังเปิด LIFF scope `chat_message.write` แล้ว ให้ทดสอบส่งไปยัง LINE test recipient ที่ owner ระบุ และรายงานผลจริง.
