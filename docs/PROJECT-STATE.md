@@ -1,3 +1,10 @@
+## 2026-10-05 — Deposit cannot pay extension rent
+
+- Rental Terms version `2026-10-05` states in Thai and English that the refundable security deposit cannot be used or deducted to pay rental extension fees under any circumstances. Extension rent must be paid separately; the deposit is refunded after equipment return and inspection under the refund terms.
+- The shared terms source feeds the public terms page, booking agreement, contract PDF, and Rental Order PDF. Historical `2026-10-03` terms remain available for previously accepted agreements.
+- Delivery App no longer offers deposit deduction in its Extension Pending screen. The server rejects the old deduction action, while separate extension payment remains available.
+- Verification: versioned terms tests and Thai/English generated PDF text; Delivery App backend and frontend TypeScript checks. Bot full suite: 538/539 pass; the remaining pre-existing asset header source-pattern test is unrelated to this change.
+
 # Project state
 
 ## 2026-10-05 — Embedded identity map pin confirmation
