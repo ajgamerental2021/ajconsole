@@ -1,5 +1,21 @@
 # Project state
 
+## 2026-10-05 — เก็บ Booking ที่ยกเลิก, แสดง Cancelled และปล่อยคิว (`delivery-app` `85d6072`)
+
+- **แจ้ง Claude — สิ่งที่แก้:** `delivery-app/backend/src/services/rentalChangeService.ts`, `bookingService.ts`, `bundlePartnerService.ts`, `repositories/pgBookingRepo.ts`, regression scripts `testRentalChange.ts`, `testMyRentalLink.ts`, `testBundlePartner.ts` และ `frontend/src/screens/BookingLogScreen.tsx`. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ application code ใน `ajconsole`/`aj-line-oa-bot`, ไม่แตะ `aj-cm`, ไม่เปลี่ยน LINE webhook และไม่มี secret ใหม่.
+- **Decision/data policy:** ไม่ลบ Booking ที่ลูกค้ายกเลิก เพราะต้องเก็บ audit, สัญญาและยอดชำระเดิม. การยกเลิกเขียนทั้ง `Cancelled At` และ `Status = Cancelled`; Flex ยืนยันจะยังส่งหลัง write สำเร็จเหมือนเดิม.
+- **แก้รายการเก่าอย่าง Booking 539:** ถ้าแถวมี `Cancelled At` แต่สูตร Status ยังเป็น `Booked`, Delivery App อ่านเป็น `Cancelled` ทันทีและซ่อม Status ใน Sheet แบบ idempotent เมื่อเปิด Booking Log. จึงแก้ทั้งการแสดงผลและ consumer เก่าที่อ่านเฉพาะ Status โดยไม่ต้องลบแถว.
+- **ปล่อยคิวครบ:** delivery/return task, availability/extras/extension ใช้ cancellation timestamp เดิม; Postgres task queries เพิ่มเงื่อนไข `cancelled_at IS NULL`; Bundle partner mirror ทั้ง timestamp และ Status จึงปล่อยเครื่องเสริมพร้อมเครื่องหลัก.
+- **หน้า Booking Log:** การ์ดถูกยกเลิกแสดง `Cancelled / ยกเลิก` สีแดง, ซ่อนคำเตือนยอดไม่ตรงและปุ่มลูกค้า/ชำระเงิน/ส่ง Booking Confirm แล้วแสดงว่าเก็บไว้เป็นประวัติและไม่ใช้คิวเครื่อง. ปุ่มดูรายละเอียด/งาน admin ยังคงอยู่.
+- **ทดสอบแล้ว:** backend TypeScript build; rental change; My Rental link `110/110`; Bundle partner `22/22`; extension queue `11/11`; game extras `16/16`; return check `8/8`; frontend TypeScript, booking-form check และ Expo web export ผ่าน; `git diff --check` ผ่าน. `db:test-booking-repos` ไม่ได้รัน integration จริงเพราะ cloud ไม่มี `DATABASE_URL`; TypeScript ของ repository ผ่าน build.
+- **Deploy/repair:** push backend + web/OTA staff app แล้วเปิด/รีเฟรช Booking Log หนึ่งครั้งเพื่อให้ legacy repair แก้ Booking 539 และรายการเก่าที่มี `Cancelled At` แต่ Status ค้าง. หลังนั้น availability upstream ที่อ่าน Status จะเห็น `Cancelled` ด้วย.
+
+## Request — 2026-10-05 — Codex → Claude Code: ลูกค้ายกเลิกแล้ว Delivery App ต้องเก็บประวัติและปล่อยคิว
+
+- **Owner evidence:** Booking `539` ส่ง Flex `ยกเลิกการเช่าสำเร็จ` ให้ลูกค้าแล้ว แต่หน้า Booking Log ยังแสดง `Status: Booked` จึงดูเหมือนไม่มีการเปลี่ยนแปลงและเสี่ยงทำให้คิวเครื่อง `N2-1` ยังถูกนับว่าไม่ว่าง.
+- **Decision:** ห้ามลบ Booking; เก็บแถวไว้เป็น audit/payment/contract history และแสดงสถานะ `Cancelled / ยกเลิก`. การยกเลิกต้องบันทึก timestamp เดิมและตัดทั้ง Booking หลัก/แถว Bundle ออกจาก availability, delivery/return queue, extension และ active-rental views ทันที.
+- **Planned scope:** ตรวจ customer-cancel write, Booking Log status projection, Sheets/Postgres queue filters และ Bundle propagation ใน `delivery-app`; เพิ่ม regression tests สำหรับรายการเก่าและใหม่. ไม่แตะ `aj-cm`, ไม่ย้าย LINE webhook และไม่เพิ่ม secret.
+
 ## 2026-10-05 — เช่าไอดีผ่าน LIFF ส่งข้อความเข้าแชทร้านอัตโนมัติ (`d3f06e0`)
 
 - **แจ้ง Claude — สิ่งที่แก้:** `ajconsole/ajgameid/index.html`, หน้า Switch ที่ generate คือ `ajgameid/switch/index.html`, `tests/ajgameid-liff-booking.test.mjs` และไฟล์สถานะนี้. **ไม่มีไฟล์สร้างใหม่หรือลบ**, ไม่ได้แก้ application code ใน `aj-line-oa-bot`/`delivery-app`, ไม่แตะ `aj-cm`, ไม่เปลี่ยน LINE webhook และไม่เพิ่ม secret ใน repo.
