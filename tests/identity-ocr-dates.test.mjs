@@ -20,3 +20,10 @@ for (const [label, text] of [
     assert.equal(result.expiry, '2033-07-05');
   });
 }
+
+test('OCR leaves a passport Common Era expiry year unchanged', () => {
+  const result = parse('Passport No. AB1234567\nDate of Expiry 5 Jul. 2033');
+  assert.equal(result.type, 'passport');
+  assert.equal(result.number, 'AB1234567');
+  assert.equal(result.expiry, '2033-07-05');
+});

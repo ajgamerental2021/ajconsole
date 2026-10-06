@@ -294,6 +294,7 @@ html.ajps-map-open #langBtn,#quoteModal.pin-map-open #quoteLangBtn{visibility:hi
 .my-rental-recent span{color:#667085;font-size:14px;width:100%}
 .paid-notice b{color:#05603a;font-size:17px}
 body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size:12px;font-weight:700}
+.demo-step2-refund{margin-top:24px}
 .demo-refund-policy{margin:8px 0 14px;padding:12px 14px;border:1px solid #b7e3c4;border-radius:12px;background:#eefaf2;color:#1d4d2b;font-size:14px}
 .demo-refund-policy ul{margin:6px 0 0;padding-left:20px;line-height:1.6}
 .demo-refund-policy .is-strong{color:#b42318;font-weight:800}
@@ -2596,7 +2597,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // Full identity numbers and images deliberately stay out of localStorage.
   // Contact and delivery details stay for 24 hours so a returning renter does not retype them.
   const demoProfile = {
-    fullName:"", phone:"", email:"", identityNumber:"", addressLine:"", deliveryInstructions:"",
+    fullName:"", phone:"", email:"", identityNumber:"", addressLine:"", deliveryInstructions:"", deliveryNoteLocation:"", deliveryNotes:[],
     subdistrict:"", district:"", province:"Bangkok", postalCode:"", maps:"",
     // The place box: what is typed in it (a place name, an address or a link),
     // and the place chosen from it ({name, address, lat, lng}) for the green
@@ -2604,7 +2605,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // place's own link, or the customer's pasted one.
     mapsText:"", mapsPlace:null,
     lineDisplayName:"", lineUserId:"", idDocument:null, selfieWithId:null,
-    termsAccepted:false, identitySkipped:false, noThaiAddress:true, addressFromProfile:false, refundBankId:"", refundAccountName:"", noThaiBankAccount:false, wiseEmail:"", agreementConsent:false,
+    termsAccepted:false, identitySkipped:false, noThaiAddress:true, addressFromProfile:false, refundBankId:"", refundAccountName:"", refundDeferred:false, noThaiBankAccount:false, wiseEmail:"", agreementConsent:false,
     // "" follows the page language (Thai → Thai ID, English → passport) until
     // the customer picks one; a foreign renter can use Thai and still pick passport.
     identityType:"", identityUploaded:false, identityOnFileLast4:"", identityExpiry:"",
@@ -2615,7 +2616,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // the page keeps only that draft's id and last four characters.
   const DEMO_PROFILE_KEY = "aj_demo_profile_v1";
   const DEMO_PROFILE_TTL_MS = 24 * 60 * 60 * 1000;
-  const DEMO_PROFILE_FIELDS = ["refundBankId","refundAccountName","noThaiBankAccount","wiseEmail","fullName","phone","email","deliveryInstructions","addressLine","subdistrict","district","province","postalCode","maps","mapsText","mapsPlace","termsAccepted","identitySkipped","noThaiAddress","identityType","identityUploaded","identityExpiry","identityDraftId","identityDraftLast4","identityOnFileLast4","addressFromProfile"];
+  const DEMO_PROFILE_FIELDS = ["refundBankId","refundAccountName","refundDeferred","noThaiBankAccount","wiseEmail","fullName","phone","email","deliveryInstructions","deliveryNoteLocation","deliveryNotes","addressLine","subdistrict","district","province","postalCode","maps","mapsText","mapsPlace","termsAccepted","identitySkipped","noThaiAddress","identityType","identityUploaded","identityExpiry","identityDraftId","identityDraftLast4","identityOnFileLast4","addressFromProfile"];
   let demoProfileSaveTimer = 0;
   // The delivery place priced in the calculator, carried into step 2's
   // Google Maps box so the customer does not paste it again. Only a Google
@@ -2630,6 +2631,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     demoProfile.mapsPlace = demoMapsPlace(place);
     demoProfile.mapsText = demoProfile.mapsPlace?.name || link;
     state.calc.maps = link;
+    restoreDeliveryNoteForPlace();
     const input = byId("demoMaps");
     if(input) input.value = demoProfile.mapsText;
     demoPlaces()?.remember(demoProfile.mapsText);
@@ -4616,6 +4618,21 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       void onDemoPostalCode(postal[1]);
     }
   }
+  function demoNoteMatchesPlace(location){
+    const key = String(location || "").trim();
+    return !!key && (key === String(demoProfile.maps || "").trim() || key === demoAddressText());
+  }
+  function restoreDeliveryNoteForPlace(){
+    const locations = [String(demoProfile.maps || "").trim(), demoAddressText()].filter(Boolean);
+    if(!locations.length) return;
+    if(demoProfile.deliveryInstructions && locations.includes(demoProfile.deliveryNoteLocation)) return;
+    const saved = Array.isArray(demoProfile.deliveryNotes) ? demoProfile.deliveryNotes.find(item => locations.includes(item.location)) : null;
+    demoProfile.deliveryInstructions = saved ? String(saved.note || "").slice(0,300) : "";
+    demoProfile.deliveryNoteLocation = saved ? saved.location : "";
+    const field = byId("demoDeliveryInstructions");
+    if(field) field.value = demoProfile.deliveryInstructions;
+    saveDemoProfile();
+  }
   function applyDemoReturningProfile(profile, {lineUserId="", lineDisplayName=""}={}){
     if(!UNIFIED_FLOW_DEMO || !profile || typeof profile !== "object") return false;
     const fill = (key, value) => {
@@ -4627,6 +4644,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     fill("email", profile.email);
     applyDemoSavedAddress(profile.address);
     fill("maps", profile.maps);
+    if(Array.isArray(profile.deliveryNotes)) demoProfile.deliveryNotes = profile.deliveryNotes.filter(item => item && typeof item.location === "string" && typeof item.note === "string").slice(0,30);
+    restoreDeliveryNoteForPlace();
+    if(!demoProfile.deliveryInstructions && profile.deliveryInstructions && demoNoteMatchesPlace(profile.noteLocation)){
+      demoProfile.deliveryInstructions = String(profile.deliveryInstructions).trim().slice(0,300);
+      demoProfile.deliveryNoteLocation = String(profile.noteLocation).trim();
+    }
     if(profile.identityLast4 && !demoProfile.identityNumber){
       demoProfile.identityType = profile.identityType === "passport" ? "passport" : "thai_id";
       demoProfile.identityOnFileLast4 = String(profile.identityLast4 || "").slice(-4);
@@ -4660,6 +4683,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     demoProfile.mapsText = demoProfile.maps;
     demoProfile.mapsPlace = null;
     state.calc.maps = demoProfile.maps;
+    restoreDeliveryNoteForPlace();
     clearDemoFieldError("demoMaps");
     saveDemoProfile();
     saveLocal();
@@ -4707,6 +4731,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     demoProfile.mapsText = demoVerifyMapDraft.label || typed;
     demoProfile.mapsPlace = demoVerifyMapDraft.place;
     state.calc.maps = link;
+    restoreDeliveryNoteForPlace();
     byId("demoMaps").value = demoProfile.mapsText;
     const mapLink = byId("demoVerifyMapOpen")?.nextElementSibling?.querySelector("a");
     if(mapLink){ mapLink.href = safeHref(link); mapLink.textContent = demoProfile.mapsText; }
@@ -4798,6 +4823,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     demoProfile.mapsPlace = null;
     demoProfile.maps = window.AJPlaceSearch?.isLink(value) ? value.trim() : "";
     state.calc.maps = demoProfile.maps;
+    restoreDeliveryNoteForPlace();
     clearDemoFieldError("demoMaps");
     renderDemoMapsFound();
     saveDemoProfile();
@@ -4810,6 +4836,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     demoProfile.mapsPlace = demoMapsPlace(place);
     demoProfile.mapsText = String(byId("demoMaps")?.value || demoProfile.mapsText || link);
     state.calc.maps = link;
+    restoreDeliveryNoteForPlace();
     clearDemoFieldError("demoMaps");
     renderDemoMapsFound();
     saveDemoProfile();
@@ -5188,6 +5215,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   const DEMO_WISE_REQUIRED = {bank:["wiseFullName","wiseCountry","wiseCurrency","wiseBankName","wiseAccountNumber","wiseEmail"], email:["wiseEmail"], link:["wiseEmail"]};
   function demoRefundReady(){
+    if(demoProfile.refundDeferred) return true;
     if(demoUsesWise()){
       const wise = demoAgreement.wise;
       return (DEMO_WISE_REQUIRED[wise.payout] || DEMO_WISE_REQUIRED.bank).every(key => String(wise[key] || "").trim())
@@ -5246,6 +5274,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const payout = demoAgreement.wise.payout;
     const payoutOption = (value, label, help) => `<label class="demo-wise-payout"><input type="radio" name="demoWisePayout" value="${value}" ${payout === value ? "checked" : ""}><span>${esc(label)}</span>${help ? `<a class="btn demo-wise-help" href="${help}" target="_blank" rel="noopener noreferrer">${en ? "Read more" : "อ่านรายละเอียด"}</a>` : ""}</label>`;
     return `<h3>${en ? "Security Deposit Refund Account" : "บัญชีรับเงินค่าประกันคืน"}</h3>
+      <label class="option-row"><input type="checkbox" id="demoRefundDeferred" ${demoProfile.refundDeferred ? "checked" : ""}><div><b>${en ? "I will provide my refund account later" : "แจ้งบัญชีรับเงินค่าประกันคืนภายหลัง"}</b><div class="hint">${en ? "You can continue booking now. Send your refund account to AJ in chat before the deposit is returned." : "ดำเนินการจองต่อได้ แล้วแจ้งบัญชีทางแชทก่อนรับเงินค่าประกันคืน"}</div></div></label>
+      <div data-refund-fields ${demoProfile.refundDeferred ? "hidden" : ""}>
       <div class="demo-refund-policy" role="note">
         <b>${en ? "Security deposit refund terms" : "เงื่อนไขการคืนเงินประกัน"}</b>
         <ul>
@@ -5279,7 +5309,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           ${payoutOption("email", en ? "Send money to email" : "ส่งเงินไปที่อีเมล (Send money to email)", "https://wise.com/help/articles/2932105/how-can-i-send-money-to-an-email-address")}
           ${payoutOption("link", en ? "Send money to link" : "ส่งเงินผ่านลิงก์ (Send money to link)", "https://wise.com/help/articles/2lMLg5SpSbLNtWWA73O2Ot/how-do-i-send-money-with-a-link")}
         </fieldset>
-      </div>`;
+      </div></div>`;
   }
   function renderDemoRefundSection(){
     const section = byId("demoRefundSection");
@@ -5497,8 +5527,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       body:JSON.stringify({
         signatureDataUrl: demoAgreement.signature,
         consentAccepted: !!demoProfile.agreementConsent,
-        noThaiBankAccount: demoUsesWise(),
-        ...(demoUsesWise() ? {
+        refundDeferred: !!demoProfile.refundDeferred,
+        noThaiBankAccount: !demoProfile.refundDeferred && demoUsesWise(),
+        ...(!demoProfile.refundDeferred && demoUsesWise() ? {
           wisePayoutMethod: demoAgreement.wise.payout,
           wiseFullName: demoAgreement.wise.wiseFullName,
           wiseCountry: demoAgreement.wise.wiseCountry,
@@ -5652,6 +5683,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return lang === "en" ? /^\+?[0-9]{9,15}$/.test(phone) : /^[0-9]{9,15}$/.test(phone);
   }
   function demoRefundProblems(){
+    if(demoProfile.refundDeferred) return [];
     const en = state.lang === "en";
     const problems = [];
     const need = (id, ok, message) => { if(!ok) problems.push({id, message}); };
@@ -7910,20 +7942,21 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       identityDraftId: UNIFIED_FLOW_DEMO && !state.calc.noContract ? demoProfile.identityDraftId : "",
       identityExpiry: UNIFIED_FLOW_DEMO && !state.calc.noContract ? String(demoProfile.identityExpiry || "").trim() : "",
       deliveryAddress: UNIFIED_FLOW_DEMO ? demoAddressText() : "",
-      deliveryInstructions: UNIFIED_FLOW_DEMO ? String(demoProfile.deliveryInstructions || "").trim().slice(0,300) : "",
+      deliveryInstructions: UNIFIED_FLOW_DEMO && demoNoteMatchesPlace(demoProfile.deliveryNoteLocation) ? String(demoProfile.deliveryInstructions || "").trim().slice(0,300) : "",
       // Step 2 collects the refund destination even when identity is skipped.
-      noThaiBankAccount: UNIFIED_FLOW_DEMO && demoUsesWise(),
-      refundBankId: UNIFIED_FLOW_DEMO && !demoUsesWise() ? String(demoProfile.refundBankId || "") : "",
+      refundDeferred: UNIFIED_FLOW_DEMO && !!demoProfile.refundDeferred,
+      noThaiBankAccount: UNIFIED_FLOW_DEMO && !demoProfile.refundDeferred && demoUsesWise(),
+      refundBankId: UNIFIED_FLOW_DEMO && !demoProfile.refundDeferred && !demoUsesWise() ? String(demoProfile.refundBankId || "") : "",
       refundAccountNumber: UNIFIED_FLOW_DEMO && !demoUsesWise() ? String(demoAgreement.account || "") : "",
       refundAccountName: UNIFIED_FLOW_DEMO && !demoUsesWise() ? String(demoProfile.refundAccountName || "").trim() : "",
-      wisePayoutMethod: UNIFIED_FLOW_DEMO && demoUsesWise() ? demoAgreement.wise.payout : "",
-      wiseFullName: UNIFIED_FLOW_DEMO && demoUsesWise() ? demoAgreement.wise.wiseFullName : "",
-      wiseCountry: UNIFIED_FLOW_DEMO && demoUsesWise() ? demoAgreement.wise.wiseCountry : "",
-      wiseCurrency: UNIFIED_FLOW_DEMO && demoUsesWise() ? demoAgreement.wise.wiseCurrency : "",
-      wiseBankName: UNIFIED_FLOW_DEMO && demoUsesWise() ? demoAgreement.wise.wiseBankName : "",
-      wiseAccountNumber: UNIFIED_FLOW_DEMO && demoUsesWise() ? demoAgreement.wise.wiseAccountNumber : "",
-      wiseSwift: UNIFIED_FLOW_DEMO && demoUsesWise() ? demoAgreement.wise.wiseSwift : "",
-      wiseEmail: UNIFIED_FLOW_DEMO && demoUsesWise() ? demoAgreement.wise.wiseEmail : "",
+      wisePayoutMethod: UNIFIED_FLOW_DEMO && !demoProfile.refundDeferred && demoUsesWise() ? demoAgreement.wise.payout : "",
+      wiseFullName: UNIFIED_FLOW_DEMO && !demoProfile.refundDeferred && demoUsesWise() ? demoAgreement.wise.wiseFullName : "",
+      wiseCountry: UNIFIED_FLOW_DEMO && !demoProfile.refundDeferred && demoUsesWise() ? demoAgreement.wise.wiseCountry : "",
+      wiseCurrency: UNIFIED_FLOW_DEMO && !demoProfile.refundDeferred && demoUsesWise() ? demoAgreement.wise.wiseCurrency : "",
+      wiseBankName: UNIFIED_FLOW_DEMO && !demoProfile.refundDeferred && demoUsesWise() ? demoAgreement.wise.wiseBankName : "",
+      wiseAccountNumber: UNIFIED_FLOW_DEMO && !demoProfile.refundDeferred && demoUsesWise() ? demoAgreement.wise.wiseAccountNumber : "",
+      wiseSwift: UNIFIED_FLOW_DEMO && !demoProfile.refundDeferred && demoUsesWise() ? demoAgreement.wise.wiseSwift : "",
+      wiseEmail: UNIFIED_FLOW_DEMO && !demoProfile.refundDeferred && demoUsesWise() ? demoAgreement.wise.wiseEmail : "",
       addressLine: "",
       subdistrict: UNIFIED_FLOW_DEMO ? demoProfile.subdistrict : "",
       district: UNIFIED_FLOW_DEMO ? demoProfile.district : "",
@@ -13125,6 +13158,14 @@ We apologize for the inconvenience and hope everyone stays safe.`
       const demoFields = {demoCustomerName:"fullName",demoCustomerPhone:"phone",demoIdentityNumber:"identityNumber",demoIdentityExpiry:"identityExpiry",demoEmail:"email",demoDeliveryInstructions:"deliveryInstructions",demoAddressLine:"addressLine",demoSubdistrict:"subdistrict",demoDistrict:"district",demoProvince:"province",demoPostalCode:"postalCode"};
       if(UNIFIED_FLOW_DEMO && demoFields[event.target.id]){
         demoProfile[demoFields[event.target.id]] = event.target.value;
+        if(event.target.id === "demoDeliveryInstructions"){
+          const location = String(demoProfile.maps || demoAddressText() || "").trim();
+          demoProfile.deliveryNoteLocation = location;
+          if(location){
+            const notes = Array.isArray(demoProfile.deliveryNotes) ? demoProfile.deliveryNotes : [];
+            demoProfile.deliveryNotes = [{location, note:String(event.target.value || "").trim().slice(0,300)}, ...notes.filter(item => item.location !== location)].slice(0,30);
+          }
+        }
         if(event.target.id === "demoIdentityNumber"){
           demoProfile.identityDraftLast4 = "";
           queueIdentityDraft();
@@ -13175,6 +13216,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(event.target.id === "demoNoContractOpt" || event.target.id === "demoIdentityNoContractOpt"){
         setDemoNoContract(event.target.checked);
       }
+      if(event.target.id === "demoRefundDeferred"){ demoProfile.refundDeferred = event.target.checked; saveDemoProfile({now:true}); renderDemoRefundSection(); renderStepActions(); }
       if(event.target.id === "demoRefundBank"){ demoProfile.refundBankId = event.target.value; clearDemoFieldError("demoRefundBank"); saveDemoProfile(); renderStepActions(); }
       if(event.target.id === "demoNoThaiBank"){ demoProfile.noThaiBankAccount = event.target.checked; saveDemoProfile(); renderDemoRefundSection(); renderStepActions(); }
       if(event.target.name === "demoWisePayout"){ demoAgreement.wise.payout = event.target.value; renderDemoRefundSection(); renderStepActions(); }
