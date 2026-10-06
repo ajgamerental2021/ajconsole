@@ -1,3 +1,10 @@
+## 2026-10-06 — Identity verification links recover from stalled reads
+
+- The paid renter's `/verify/` link for AJ-20261006-R0017 returned a valid API response when checked, but its page and the identity booking lookup had no deadline. A stalled Apps Script or Sheets read could therefore leave “กำลังโหลด…” on screen indefinitely.
+- The Bot now bounds both booking-source reads at 10 seconds, returns a temporary 503 when the required status cannot be established, and preserves the already-submitted safeguard. The customer page bounds initial reads at 15 seconds, shows a bilingual error and Retry button, and bounds photo submission and its completion check.
+- The same loading and retry handling covers `/verify-identity/`, payment-method changes, no-identity Rental Terms acceptance, and the published Rental Terms page. OCR code was not changed.
+- Tests cover stalled requests, bilingual retry states, successful verify rendering, and bounded booking reads. A live paid-link GET was read-only; no customer photos or booking data were changed in testing.
+
 ## 2026-10-06 — Payment return and confirmation email chat actions
 
 - The payment success button now reads “กลับไปหน้ารายการเช่า / Back to rental list” and opens that rental in the live My rental page with its private view token after payment confirmation.
