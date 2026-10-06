@@ -56,12 +56,38 @@ test('LINE success requires server acknowledgement and initialization has bounde
   assert.match(source, /if\(isInsideLineClient\(\)\)\{[\s\S]*?location\.href = liffUrl\.toString\(\)/);
 });
 
-test('LINE handoff creates an inbound bilingual chat message without asking the customer to type', () => {
+test('LINE handoff verifies an inbound bilingual chat message and gives a manual send fallback', () => {
   assert.match(source, /if\(!liff\.isInClient\(\)\)\{\s*showLineAppRequired\(panel, params\)/);
   assert.match(source, /bookingWait\(liff\.sendMessages\(\[\{/);
   assert.match(source, /tr\("lineChatInbound"\)\.replace\("\{code\}", rentalCode\)/);
   assert.match(source, /lineChatInbound:"I sent booking \{code\} to AJ\."/);
   assert.match(source, /lineChatInbound:"ส่งข้อมูลการจอง \{code\} ให้ร้าน AJ แล้ว"/);
-  assert.match(source, /lineChatVisible:"The details were sent and your chat is now visible to AJ staff\."/);
-  assert.match(source, /lineChatVisible:"ส่งรายละเอียดแล้ว และร้านเห็นแชตของคุณในรายการทันที"/);
+  assert.match(source, /lineChatVisible:"AJ received your message in LINE chat\."/);
+  assert.match(source, /lineChatVisible:"ร้านได้รับข้อความจากคุณในแชต LINE แล้ว"/);
+  assert.match(source, /shopChatVisible = await waitForLineChatReceipt\(contextToken\)/);
+  assert.match(source, /lineCopyChatMessage/);
+  assert.match(source, /lineChatVisibleFailed:"Your card was sent, but AJ has not received a message/);
+});
+
+test('chat visibility waits for a webhook receipt and stops for an expired booking', async () => {
+  const start = source.indexOf('  async function waitForLineChatReceipt(');
+  const end = source.indexOf('\n  }', start) + 4;
+  assert.ok(start >= 0 && end > start);
+  const replies = [
+    { ok: true, status: 200, json: async () => ({ inboundSeen: false }) },
+    { ok: true, status: 200, json: async () => ({ inboundSeen: true }) },
+  ];
+  let calls = 0;
+  const context = vm.createContext({
+    URL, console, encodeURIComponent,
+    CONFIG: { contractWebUrl: 'https://aj-line-oa-bot.onrender.com' },
+    bookingFetch: async () => { calls++; return replies.shift(); },
+    setTimeout: (callback) => { callback(); return 1; },
+  });
+  vm.runInContext(source.slice(start, end), context);
+  assert.equal(await vm.runInContext('waitForLineChatReceipt("ctx")', context), true);
+  assert.equal(calls, 2);
+  context.bookingFetch = async () => { calls++; return { ok: false, status: 404, json: async () => ({}) }; };
+  assert.equal(await vm.runInContext('waitForLineChatReceipt("expired")', context), false);
+  assert.equal(calls, 3);
 });
