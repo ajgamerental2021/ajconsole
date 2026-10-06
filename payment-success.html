@@ -58,12 +58,12 @@
       <a class="button identity" id="identityAskButton" href="#"></a>
     </div>
     <div class="contact-actions" id="contactActions"><a class="button line" id="lineButton" href="https://lin.ee/N4i6cb6">LINE</a><a class="button whatsapp" id="whatsappButton" href="#">WhatsApp</a><a class="button facebook" id="facebookButton" href="https://m.me/ajgamerental">Facebook</a></div>
-    <div class="actions"><a class="button primary" id="backButton" href="index-demo.html">Back to AJ Game Rental</a><button class="button secondary" id="closeButton" type="button">Close</button></div>
+    <div class="actions"><a class="button primary" id="backButton" href="index.html">Back to rental list</a><button class="button secondary" id="closeButton" type="button">Close</button></div>
   </main>
   <script>
     (() => {
       const params = new URLSearchParams(location.search);
-      const copy = {en:{badge:"● Payment successful",title:"Thank you for your payment!",message:"Your payment has been received. AJ will continue processing your rental booking.",rentalCode:"Rental code",amount:"Amount",method:"Payment method",paymentLink:"Payment link ID",reference:"Reference",statusLabel:"Status",status:"Paid",autoNotice:"AJ has been notified automatically through LINE. You do not need to send this screenshot again.",manualNotice:"Please screenshot this page and send it to AJ via LINE, WhatsApp, or Facebook. AJ will verify the payment in the system.",line:"Notify via LINE",whatsapp:"Notify via WhatsApp",facebook:"Notify via Facebook",back:"Back to AJ Game Rental",close:"Close"},th:{badge:"● ชำระเงินสำเร็จ",title:"ขอบคุณสำหรับการชำระเงิน",message:"ระบบได้รับการชำระเงินแล้ว ทาง AJ จะดำเนินการจองเช่าของคุณต่อไป",rentalCode:"รหัสการเช่า",amount:"จำนวนเงิน",method:"ช่องทางชำระ",paymentLink:"รหัสลิงก์ชำระเงิน",reference:"เลขอ้างอิง",statusLabel:"สถานะ",status:"ชำระแล้ว",autoNotice:"ระบบแจ้งยอดชำระให้ทางร้านผ่าน LINE อัตโนมัติแล้ว ไม่ต้องส่งภาพหน้าจอนี้ซ้ำ",manualNotice:"กรุณาแคปหน้าจอนี้ส่งให้แชทร้านทาง LINE, WhatsApp หรือ Facebook โดยทางร้านจะตรวจสอบยอดจากระบบอีกครั้ง",line:"แจ้งทาง LINE",whatsapp:"แจ้งทาง WhatsApp",facebook:"แจ้งทาง Facebook",back:"กลับไปหน้า AJ Game Rental",close:"ปิด"}};
+      const copy = {en:{badge:"● Payment successful",title:"Thank you for your payment!",message:"Your payment has been received. AJ will continue processing your rental booking.",rentalCode:"Rental code",amount:"Amount",method:"Payment method",paymentLink:"Payment link ID",reference:"Reference",statusLabel:"Status",status:"Paid",autoNotice:"AJ has been notified automatically through LINE. You do not need to send this screenshot again.",manualNotice:"Please screenshot this page and send it to AJ via LINE, WhatsApp, or Facebook. AJ will verify the payment in the system.",line:"Notify via LINE",whatsapp:"Notify via WhatsApp",facebook:"Notify via Facebook",back:"Back to rental list",close:"Close"},th:{badge:"● ชำระเงินสำเร็จ",title:"ขอบคุณสำหรับการชำระเงิน",message:"ระบบได้รับการชำระเงินแล้ว ทาง AJ จะดำเนินการจองเช่าของคุณต่อไป",rentalCode:"รหัสการเช่า",amount:"จำนวนเงิน",method:"ช่องทางชำระ",paymentLink:"รหัสลิงก์ชำระเงิน",reference:"เลขอ้างอิง",statusLabel:"สถานะ",status:"ชำระแล้ว",autoNotice:"ระบบแจ้งยอดชำระให้ทางร้านผ่าน LINE อัตโนมัติแล้ว ไม่ต้องส่งภาพหน้าจอนี้ซ้ำ",manualNotice:"กรุณาแคปหน้าจอนี้ส่งให้แชทร้านทาง LINE, WhatsApp หรือ Facebook โดยทางร้านจะตรวจสอบยอดจากระบบอีกครั้ง",line:"แจ้งทาง LINE",whatsapp:"แจ้งทาง WhatsApp",facebook:"แจ้งทาง Facebook",back:"กลับไปหน้ารายการเช่า",close:"ปิด"}};
       const lang = params.get("lang") === "th" ? "th" : "en";
       const t = copy[lang];
       const set = (id, value) => { document.getElementById(id).textContent = value || "-"; };
@@ -99,7 +99,7 @@
         document.getElementById("lineButton").href = ctx ? lineUrl.toString() : "https://lin.ee/N4i6cb6";
         document.getElementById("whatsappButton").hidden = lang !== "en";
         document.getElementById("facebookButton").hidden = true;
-        document.getElementById("backButton").href = `index.html?booking=1&flowDemo=1&lang=${lang}&paid=${encodeURIComponent(rentalCode)}`;
+        document.getElementById("backButton").href = `index.html?myRental=${encodeURIComponent(rentalCode)}&lang=${lang}`;
         confirmRental(rentalCode);
         // The booking is paid, so the form details kept for a refresh are no
         // longer needed on this device.
@@ -152,9 +152,7 @@
             box.innerHTML = lines.map((line, index) => index === 0 ? `<strong>${escapeText(line)}</strong>` : `<span>${escapeText(line)}</span>`).join("");
             const back = document.getElementById("backButton");
             const url = new URL(back.href, location.href);
-            url.searchParams.set("paidAmount", String(paid));
-            if(result.onDelivery) url.searchParams.set("balance", result.onDelivery);
-            url.searchParams.set("emailed", result.emailSent ? "1" : "0");
+            if(result.viewToken) url.searchParams.set("t", result.viewToken);
             back.href = url.pathname.split("/").pop() + url.search;
             return;
           }
@@ -175,8 +173,8 @@
       });
       document.getElementById("language").value = lang;
       document.getElementById("language").addEventListener("change", event => { params.set("lang", event.target.value); location.search = params.toString(); });
-      document.getElementById("closeButton").addEventListener("click", () => { if(history.length > 1) history.back(); else location.href = "index-demo.html"; });
-      if(!unifiedDemo) document.getElementById("backButton").href = `index-demo.html?lang=${lang}`;
+      document.getElementById("closeButton").addEventListener("click", () => { if(history.length > 1) history.back(); else location.href = document.getElementById("backButton").href; });
+      if(!unifiedDemo) document.getElementById("backButton").href = `index.html?myRental=${encodeURIComponent(params.get("rentalCode") || "")}&lang=${lang}`;
     })();
   </script>
 </body>

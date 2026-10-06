@@ -11,10 +11,13 @@
 <script>
   const params = new URLSearchParams(location.search);
   const token = params.get('t') || '';
+  const rentalToken = params.get('r') || '';
   const lang = params.get('lang') === 'en' ? 'en' : 'th';
   document.documentElement.lang = lang;
   if(/^[A-Za-z0-9_-]{16,256}$/.test(token)) {
     location.replace('https://delivery-app-backend-68pm.onrender.com/c/my/link?t=' + encodeURIComponent(token) + '&lang=' + lang);
+  } else if(/^[A-Za-z0-9_-]{10,256}\.[A-Za-z0-9_-]{40,64}$/.test(rentalToken)) {
+    location.replace('https://delivery-app-backend-68pm.onrender.com/c/my/bind-from-rental?t=' + encodeURIComponent(rentalToken) + '&lang=' + lang);
   } else {
     document.getElementById('title').textContent = lang === 'en' ? 'Invalid LINE link' : 'ลิงก์ผูก LINE ไม่ถูกต้อง';
     document.getElementById('message').innerHTML = lang === 'en' ? 'Please request a new link from AJ Game Rental.' : 'กรุณาขอลิงก์ใหม่จากร้าน AJ Game Rental';

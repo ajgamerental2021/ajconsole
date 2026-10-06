@@ -467,7 +467,8 @@ test('the payment page confirms with AJ, shows what was received and any balance
   assert.match(success, /Balance to pay on delivery: \$\{result\.onDelivery\}/);
   assert.match(success, /กด LINE เพื่อผูกบัญชีและรับข้อความยืนยันการเช่า/);
   assert.doesNotMatch(success, /รับ Flex ยืนยันการเช่า/);
-  assert.match(success, /&paid=\$\{encodeURIComponent\(rentalCode\)\}/);
+  assert.match(success, /index\.html\?myRental=\$\{encodeURIComponent\(rentalCode\)\}/);
+  assert.match(success, /url\.searchParams\.set\("t", result\.viewToken\)/);
   assert.match(html, /function takePaidRentalReturn\(\)/);
   assert.match(html, /function showPaidRentalNotice\(\{code, amount, balance, emailed\}\)/);
   assert.match(html, /ยอดคงเหลือชำระตอนรับเครื่อง: \$\{balance\}/);

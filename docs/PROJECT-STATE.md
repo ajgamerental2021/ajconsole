@@ -1,3 +1,10 @@
+## 2026-10-06 — Payment return and confirmation email chat actions
+
+- The payment success button now reads “กลับไปหน้ารายการเช่า / Back to rental list” and opens that rental in the live My rental page with its private view token after payment confirmation.
+- Paid confirmation email has a Thai/English LINE button; English paid email also has a WhatsApp button with the rental ID. Plain-text email includes the same links. Unpaid summaries do not show paid chat actions.
+- Email LINE link starts at the branded `/line-bind/` page, uses the existing signed My rental credential, and issues the same 24-hour `line_bind` action as Delivery App Admin's ผูก LINE button when clicked. Invalid or cancelled rentals cannot issue an action token. No OCR code was changed.
+- Verification: website unified-flow tests and inline JavaScript checks; Bot confirmation/token tests; Delivery backend TypeScript build and My rental route tests. Production linking still needs a real customer click after deployment.
+
 ## 2026-10-06 — Returning renter data in Step 2
 
 - Checked and fast-forwarded the other chat's OCR and preview commits before editing. This change leaves OCR files untouched.
