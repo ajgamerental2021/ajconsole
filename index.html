@@ -979,8 +979,12 @@ body.unified-flow-demo .demo-upload .hint{line-height:1.6}
 body.unified-flow-demo .demo-upload input[type=file]{max-width:100%;font-size:14px}
 body.unified-flow-demo .demo-upload-file{color:#137333;font-weight:800;min-height:18px;word-break:break-all}
 body.unified-flow-demo .demo-upload-preview{display:block;width:100%;max-width:180px;padding:4px;border:1px solid #d0d5dd;border-radius:12px;background:#fff;cursor:pointer}
-body.unified-flow-demo .demo-upload-preview img{display:block;width:100%;height:120px;object-fit:contain;border-radius:8px}
-body.unified-flow-demo .demo-upload-preview-large{display:block;max-width:100%;max-height:75vh;margin:auto;object-fit:contain}
+body.unified-flow-demo .demo-upload-preview .demo-watermark-frame{display:inline-block;position:relative;max-width:100%;line-height:0}
+body.unified-flow-demo .demo-upload-preview .demo-watermark-frame img{display:block;max-width:100%;max-height:120px;width:auto;height:auto;margin:auto;object-fit:contain;border-radius:8px}
+body.unified-flow-demo .demo-watermark-strip{position:absolute;top:50%;left:0;right:0;transform:translateY(-50%);padding:3px 2px;background:rgba(255,255,255,.78);color:#8f1720;text-align:center;font-size:8px;font-weight:900;line-height:1.2;overflow-wrap:anywhere;pointer-events:none}
+body.unified-flow-demo .demo-watermark-frame-large{display:inline-block;position:relative;max-width:100%;line-height:0}
+body.unified-flow-demo .demo-watermark-frame-large img{display:block;max-width:100%;max-height:75vh;margin:auto;object-fit:contain}
+body.unified-flow-demo .demo-watermark-frame-large .demo-watermark-strip{padding:10px 8px;font-size:clamp(12px,2.5vw,22px);line-height:1.35}
 body.unified-flow-demo .demo-upload-kept{margin:0 0 12px;padding:11px 13px;border-radius:10px;background:#eef8f1;color:#176b39;font-weight:800;line-height:1.5}
 body.unified-flow-demo .demo-upload-actions{display:flex;flex-wrap:wrap;gap:10px}
 body.unified-flow-demo .demo-upload-btn{flex:1 1 150px;padding:11px 14px;font-weight:800}
@@ -5704,11 +5708,23 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     demoIdentityPreviews[kind] = file ? {file, url:URL.createObjectURL(file)} : null;
     return demoIdentityPreviews[kind]?.url || "";
   }
+  function demoIdentityWatermarkHtml(url, large = false){
+    const deviceRecord = consoleById(state.calc.consoleId);
+    const device = deviceRecord ? cName(deviceRecord) : (state.calc.consoleId || "-");
+    const start = displayDate(state.calc.start);
+    const end = displayDate(state.calc.end);
+    const days = calcSummary().days || "-";
+    const lines = state.lang === "en"
+      ? [`For renting game console ${device} only`, `Start ${start} · Return ${end}`, `${days} days with AJ Game Rental only`]
+      : [`ใช้สำหรับเช่าเครื่องเล่นเกม ${device}`, `วันที่เริ่ม ${start} วันที่คืน ${end}`, `จำนวนวัน ${days} กับทาง AJ เช่าเครื่องเกมเท่านั้น`];
+    const frame = large ? "demo-watermark-frame-large" : "demo-watermark-frame";
+    return `<span class="${frame}"><img src="${esc(url)}" alt="${esc(tr("identityUploadedPreview"))}"><span class="demo-watermark-strip">${lines.map(esc).join("<br>")}</span></span>`;
+  }
   function showDemoIdentityUploadedPreview(kind){
     const file = kind === "selfie" ? demoProfile.selfieWithId : demoProfile.idDocument;
     if(!file) return;
     const url = demoIdentityPreviewUrl(kind, file);
-    showModal(tr("identityUploadedPreview"), `<img class="demo-upload-preview-large" src="${esc(url)}" alt="${esc(tr("identityUploadedPreview"))}">`);
+    showModal(tr("identityUploadedPreview"), demoIdentityWatermarkHtml(url, true));
   }
   // The two identity photos, on step 3 and in the "Verify now" pop-up. Each
   // place gives its own id prefix; the inputs say which photo they hold.
@@ -5727,7 +5743,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           <span class="hint">${tr("idDocumentPhotoHint")}</span>
           <input id="${prefix}IdDocument" data-identity-file="id" type="file" accept="image/jpeg,image/png,image/webp" ${demoProfile.identitySkipped?"disabled":""}>
           <span class="demo-upload-file">${esc(documentName)}</span>
-          ${documentPreview ? `<button class="demo-upload-preview" type="button" data-identity-preview="id" aria-label="${esc(tr("identityUploadedPreview"))}"><img src="${esc(documentPreview)}" alt="${esc(tr("identityUploadedPreview"))}"></button>` : ""}
+          ${documentPreview ? `<button class="demo-upload-preview" type="button" data-identity-preview="id" aria-label="${esc(tr("identityUploadedPreview"))}">${demoIdentityWatermarkHtml(documentPreview)}</button>` : ""}
           <span class="demo-upload-actions">
             <input id="${prefix}IdDocumentCamera" class="demo-camera-input" type="file" accept="image/*" capture="environment" data-camera-for="${prefix}IdDocument">
             <button class="btn demo-upload-btn" type="button" data-open-camera="${prefix}IdDocumentCamera" ${demoProfile.identitySkipped?"disabled":""}>${en ? "📸 Take a photo" : "📸 ถ่ายรูปเอกสาร"}</button>
@@ -5739,7 +5755,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           <span class="hint">${en ? "Face and document both visible, no sunglasses or mask, no glare, and the document not cropped." : "เห็นใบหน้าและเอกสารครบ ไม่ใส่แว่นดำหรือหน้ากาก ไม่มีแสงสะท้อน และไม่ตัดขอบบัตร"}</span>
           <input id="${prefix}SelfieWithId" data-identity-file="selfie" type="file" accept="image/jpeg,image/png,image/webp" ${demoProfile.identitySkipped?"disabled":""}>
           <span class="demo-upload-file">${esc(selfieName)}</span>
-          ${selfiePreview ? `<button class="demo-upload-preview" type="button" data-identity-preview="selfie" aria-label="${esc(tr("identityUploadedPreview"))}"><img src="${esc(selfiePreview)}" alt="${esc(tr("identityUploadedPreview"))}"></button>` : ""}
+          ${selfiePreview ? `<button class="demo-upload-preview" type="button" data-identity-preview="selfie" aria-label="${esc(tr("identityUploadedPreview"))}">${demoIdentityWatermarkHtml(selfiePreview)}</button>` : ""}
           <span class="demo-upload-actions">
             <input id="${prefix}SelfieCamera" class="demo-camera-input" type="file" accept="image/*" capture="user" data-camera-for="${prefix}SelfieWithId">
             <button class="btn demo-upload-btn" type="button" data-open-camera="${prefix}SelfieCamera" ${demoProfile.identitySkipped?"disabled":""}>${en ? "📸 Take a selfie" : "📸 ถ่ายรูปเซลฟี่"}</button>
