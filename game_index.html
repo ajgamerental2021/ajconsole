@@ -848,6 +848,16 @@
   /* Footer buttons: one line each, labels kept short in TRANSLATIONS. */
   .pick-footer-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
   .pick-footer-actions .btn { white-space: nowrap; }
+  body.game-updates-closed #pick-overlay .pick-card,
+  body.game-updates-closed #pick-overlay .game-list-row {
+    opacity:.46 !important; cursor:not-allowed !important; pointer-events:none;
+  }
+  body.game-updates-closed #pick-overlay .pick-selected-remove:disabled,
+  body.game-updates-closed #pick-overlay .btn-pick-clear:disabled,
+  body.game-updates-closed #pick-overlay #btn-generate-copy:disabled,
+  body.game-updates-closed #pick-overlay #btn-copy-final:disabled {
+    opacity:.42; cursor:not-allowed; pointer-events:none;
+  }
   .btn-pick-clear { background: transparent; border: 1px solid var(--border); color: var(--text2); }
   .btn-pick-clear:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-light); }
 
@@ -5487,6 +5497,7 @@ function notifyPickChange(change) {
 }
 
 function togglePick(gameId) {
+  if (pickSendsList() && gameUpdatesClosedNow()) return;
   const selected = !pickedGames.includes(gameId);
   if (!selected) {
     pickedGames = pickedGames.filter(id => id !== gameId);
@@ -5538,7 +5549,7 @@ function pickSendsList() {
   return isTokenGamePicker() || document.body.classList.contains('aj-contract-card-picker');
 }
 
-const DEFAULT_GAME_UPDATE_HOURS = { enabled:true, startTime:'09:00', endTime:'22:00' };
+const DEFAULT_GAME_UPDATE_HOURS = { enabled:true, startTime:'09:00', endTime:'20:00' };
 let gameUpdateHours = { ...DEFAULT_GAME_UPDATE_HOURS };
 let gameUpdateHoursLoadedAt = 0;
 let gameUpdateHoursRequest = null;
@@ -5614,7 +5625,13 @@ function renderPickActions() {
   if (!btn) return;
   btn.style.display = pickedGames.length > 0 ? '' : 'none';
   const closed = pickSendsList() && gameUpdatesClosedNow();
+  document.body.classList.toggle('game-updates-closed', closed);
   btn.disabled = closed || pickSubmitState === 'sending' || pickSubmitState === 'saved';
+  const clearButton = document.querySelector('#pick-overlay .btn-pick-clear');
+  if (clearButton) clearButton.disabled = closed;
+  const copyButton = document.getElementById('btn-copy-final');
+  if (copyButton) copyButton.disabled = closed;
+  document.querySelectorAll('#pick-chips .pick-selected-remove').forEach(button => { button.disabled = closed; });
   const notice = document.getElementById('pick-shop-hours');
   if (notice) { notice.style.display = closed ? '' : 'none'; notice.textContent = closed ? gameShopHoursMessage() : ''; }
   const label = document.getElementById('pick-primary-label');
@@ -5642,6 +5659,7 @@ function renderPickFooter() {
 }
 
 function clearAllPicked() {
+  if (pickSendsList() && gameUpdatesClosedNow()) return;
   pickedGames = [];
   renderPickPlatformTabs();
   renderPickBody();
@@ -5680,7 +5698,11 @@ window.addEventListener('load', () => {
   if (!pickSendsList()) return;
   void loadGameUpdateHours();
   window.setInterval(() => { void loadGameUpdateHours(); renderPickActions(); }, 30000);
-  window.addEventListener('focus', () => { void loadGameUpdateHours(true); });
+  // Repaint the disabled controls at the exact Bangkok opening/closing minute.
+  window.setInterval(() => {
+    if (document.getElementById('pick-overlay')?.classList.contains('open')) renderPickActions();
+  }, 1000);
+  window.addEventListener('focus', () => { void loadGameUpdateHours(true); renderPickActions(); });
 });
 
 /** Resolve the token and lock the picker to the booking's platform. */
@@ -5847,6 +5869,8 @@ window.ajSelectionReady = (function () {
 
 /** Submit the selection straight to the backend (no copy/paste needed). */
 async function submitSelectionToken() {
+  await loadGameUpdateHours();
+  if (gameUpdatesClosedNow()) { renderPickActions(); return; }
   if (!selectionToken || !pickedGames.length) return;
   const names = pickedGames
     .map(id => gameSelectionName(games.find(x => x.id === id)))
@@ -5903,6 +5927,7 @@ function openAjLineWithMessage(text) {
 }
 
 function sendContractCardGameList() {
+  if (pickSendsList() && gameUpdatesClosedNow()) return;
   if (!pickedGames.length) return;
   if (isTokenGamePicker()) { submitSelectionToken(); return; }
   generateCopyText();
@@ -5910,6 +5935,7 @@ function sendContractCardGameList() {
 }
 
 function generateCopyText() {
+  if (pickSendsList() && gameUpdatesClosedNow()) return;
   if (!pickedGames.length) return;
   const lines = ['รายการเกมที่ต้องการครับ/ค่ะ 😊', ''];
   pickedGames.forEach((id, i) => {
@@ -6444,6 +6470,7 @@ function toggleViewMode(platformId) {
 // Extend generateCopyText to use i18n
 const _origGenerateCopyText = typeof generateCopyText === 'function' ? generateCopyText : null;
 function generateCopyText() {
+  if (pickSendsList() && gameUpdatesClosedNow()) return;
   const T = TRANSLATIONS[currentLang];
   if (!pickedGames.length) return;
   const lines = [T.copy_greeting, ''];
