@@ -2583,3 +2583,7 @@ paused job shows slightly old numbers rather than an empty section.
 - The booking identity form, its enlarged photo view, the separate signed identity-upgrade form, and the LIFF contract form now visibly overlay the rental-only watermark on both uploaded-photo thumbnails and enlarged previews. The copy follows the customer's Thai/English selection and includes the device, start/return dates, and rental days.
 - This is a browser preview of the already-requested separate watermarked Drive image. The original upload remains untouched for OCR and for the separate original in Drive; the existing server-side watermarked copy is unchanged.
 - Local verification used non-sensitive test images on the real booking and LIFF pages, viewing both thumbnails and enlarged images in Thai and English. No customer identity photo, booking, payment, or Drive write was used for the UI checks.
+
+## 2026-10-06 — Thai watermark day-count wording
+
+- Changed only the Thai identity-photo watermark day-count phrase from “จำนวนวัน 3” to “จำนวน 3 วัน” in the booking preview, LIFF preview, signed identity-upgrade preview, and the separate server-generated watermarked JPEG. The English text and other rental wording are unchanged.

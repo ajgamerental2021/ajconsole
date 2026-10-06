@@ -5716,7 +5716,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const days = calcSummary().days || "-";
     const lines = state.lang === "en"
       ? [`For renting game console ${device} only`, `Start ${start} · Return ${end}`, `${days} days with AJ Game Rental only`]
-      : [`ใช้สำหรับเช่าเครื่องเล่นเกม ${device}`, `วันที่เริ่ม ${start} วันที่คืน ${end}`, `จำนวนวัน ${days} กับทาง AJ เช่าเครื่องเกมเท่านั้น`];
+      : [`ใช้สำหรับเช่าเครื่องเล่นเกม ${device}`, `วันที่เริ่ม ${start} วันที่คืน ${end}`, `จำนวน ${days} วัน กับทาง AJ เช่าเครื่องเกมเท่านั้น`];
     const frame = large ? "demo-watermark-frame-large" : "demo-watermark-frame";
     return `<span class="${frame}"><img src="${esc(url)}" alt="${esc(tr("identityUploadedPreview"))}"><span class="demo-watermark-strip">${lines.map(esc).join("<br>")}</span></span>`;
   }
