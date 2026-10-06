@@ -1785,7 +1785,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 
   const CONFIG = {
     version: "index2-clean-1",
-    gamePickerVersion: "20261004-1",
+    gamePickerVersion: "20261006-2",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",
@@ -12074,6 +12074,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     void loadAboutContent();
     void loadPrivacyContent();
     if(state.adminTab === "terms" && !adminTerms.loaded) void loadAdminTerms();
+    if(state.adminTab === "settings" && !gameUpdateHoursDraft) void loadGameUpdateHoursForAdmin();
   }
   function closeAdmin(){ byId("adminOverlay").classList.remove("open"); }
   function renderAdmin(){
@@ -12099,6 +12100,17 @@ We apologize for the inconvenience and hope everyone stays safe.`
       <div class="admin-panel ${state.adminTab==="settings"?"active":""}" id="adminSettings">${adminSettingsHtml()}</div>
       <div class="admin-panel ${state.adminTab==="sync"?"active":""}" id="adminSync">${adminSyncHtml()}</div>
       <div class="admin-panel ${state.adminTab==="addons"?"active":""}" id="adminAddons">${adminAddonsHtml()}</div>`;
+    const rememberGameHours = () => {
+      gameUpdateHoursDraft = {
+        enabled:!!byId("gameUpdateHoursEnabled")?.checked,
+        startTime:String(byId("gameUpdateStartTime")?.value || ""),
+        endTime:String(byId("gameUpdateEndTime")?.value || "")
+      };
+    };
+    ["gameUpdateHoursEnabled","gameUpdateStartTime","gameUpdateEndTime"].forEach(id => {
+      byId(id)?.addEventListener("input", rememberGameHours);
+      byId(id)?.addEventListener("change", rememberGameHours);
+    });
   }
   function tabLabel(tab){
     const en = state.lang === "en";
@@ -12719,8 +12731,83 @@ We apologize for the inconvenience and hope everyone stays safe.`
     state.social = normalizeSocial(state.social);
     saveAndRenderAdmin("Reviews saved");
   }
+  const DEFAULT_GAME_UPDATE_HOURS = {enabled:true,startTime:"09:00",endTime:"22:00"};
+  let gameUpdateHoursSettings = {...DEFAULT_GAME_UPDATE_HOURS};
+  let gameUpdateHoursSettingsLoaded = false;
+  let gameUpdateHoursSettingsError = false;
+  let gameUpdateHoursDraft = null;
+  const validGameHour = value => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(value || ""));
+  async function loadGameUpdateHoursForAdmin(){
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/game-update-hours`, {cache:"no-store"});
+      if(!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      const settings = data.settings || {};
+      gameUpdateHoursSettings = {
+        enabled:settings.enabled !== false,
+        startTime:validGameHour(settings.startTime) ? settings.startTime : DEFAULT_GAME_UPDATE_HOURS.startTime,
+        endTime:validGameHour(settings.endTime) ? settings.endTime : DEFAULT_GAME_UPDATE_HOURS.endTime
+      };
+      gameUpdateHoursSettingsLoaded = true;
+      gameUpdateHoursSettingsError = false;
+      if(state.adminTab === "settings" && byId("adminOverlay")?.classList.contains("open")) renderAdmin();
+    }catch(error){
+      gameUpdateHoursSettingsError = true;
+      console.warn("Game update hours unavailable", error);
+      if(state.adminTab === "settings" && byId("adminOverlay")?.classList.contains("open")) renderAdmin();
+    }
+  }
+  function adminGameUpdateHoursHtml(){
+    const en = state.lang === "en";
+    const hours = gameUpdateHoursDraft || gameUpdateHoursSettings;
+    return `<div class="card" style="margin-bottom:14px">
+      <h3>${en ? "Game selection hours after booking" : "เวลาการเลือกหรือแก้ไขเกมหลังจอง"}</h3>
+      <p class="hint">${en ? "The booking checkout game picker is always available. This controls only new game selections and changes after booking, in Thailand time." : "การเลือกเกมระหว่างจองใช้ได้ทุกเวลา ตั้งค่านี้มีผลเฉพาะการเลือกเกมใหม่หรือแก้รายการเกมหลังจอง ตามเวลาไทย"}</p>
+      <label class="option-row"><input type="checkbox" id="gameUpdateHoursEnabled" ${hours.enabled ? "checked" : ""}><div><b>${en ? "Limit after-booking game selections to these hours" : "กำหนดเวลาเลือกหรือแก้เกมหลังจอง"}</b><div class="hint">${en ? "Turn off to allow changes at any time." : "ปิดแล้วลูกค้าทำรายการได้ทุกเวลา"}</div></div></label>
+      <div class="grid2" style="margin-top:12px">
+        <div class="field"><label class="label" for="gameUpdateStartTime">${en ? "Open (Thailand time)" : "เวลาเริ่ม (เวลาไทย)"}</label><input class="input" type="time" id="gameUpdateStartTime" value="${esc(hours.startTime)}" step="60"></div>
+        <div class="field"><label class="label" for="gameUpdateEndTime">${en ? "Close (Thailand time)" : "เวลาปิด (เวลาไทย)"}</label><input class="input" type="time" id="gameUpdateEndTime" value="${esc(hours.endTime)}" step="60"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px">
+        <button class="btn primary" type="button" id="saveGameUpdateHours" ${!gameUpdateHoursSettingsLoaded ? "disabled" : ""}>${en ? "Save game selection hours" : "บันทึกเวลาเลือกเกม"}</button>
+        <span class="hint" id="gameUpdateHoursStatus">${!gameUpdateHoursSettingsLoaded ? (gameUpdateHoursSettingsError ? (en ? "Could not load current settings. Reopen Settings to retry." : "โหลดค่าปัจจุบันไม่สำเร็จ เปิดหน้า Settings ใหม่เพื่อลองอีกครั้ง") : (en ? "Loading current settings…" : "กำลังโหลดค่าปัจจุบัน…")) : (hours.enabled ? (en ? `Active: ${hours.startTime}–${hours.endTime}` : `ใช้อยู่: ${hours.startTime}–${hours.endTime} น.`) : (en ? "No time limit" : "ไม่จำกัดเวลา"))}</span>
+      </div>
+    </div>`;
+  }
+  async function saveGameUpdateHoursFromAdmin(){
+    const en = state.lang === "en";
+    const settings = {
+      enabled:!!byId("gameUpdateHoursEnabled")?.checked,
+      startTime:String(byId("gameUpdateStartTime")?.value || ""),
+      endTime:String(byId("gameUpdateEndTime")?.value || "")
+    };
+    const status = byId("gameUpdateHoursStatus");
+    if(!validGameHour(settings.startTime) || !validGameHour(settings.endTime) || settings.startTime === settings.endTime){
+      if(status) status.textContent = en ? "Enter two different valid times." : "กรอกเวลาเริ่มและเวลาปิดให้ถูกต้องและไม่ซ้ำกัน";
+      return;
+    }
+    if(status) status.textContent = en ? "Saving…" : "กำลังบันทึก…";
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/admin/game-update-hours`, {
+        method:"PUT",
+        headers:{"Content-Type":"application/json",Authorization:`Bearer ${state.adminToken}`},
+        body:JSON.stringify(settings)
+      });
+      if(response.status === 401) throw new Error("unauthorized");
+      if(!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      gameUpdateHoursSettings = data.settings;
+      gameUpdateHoursDraft = null;
+      gameUpdateHoursSettingsLoaded = true;
+      renderAdmin();
+      toast(en ? "Game selection hours saved" : "บันทึกเวลาเลือกเกมแล้ว");
+    }catch(error){
+      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
+      else if(status) status.textContent = en ? "Could not save. Please try again." : "บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง";
+    }
+  }
   function adminSettingsHtml(){
-    return `<div class="card"><h3>Feature Settings</h3>
+    return `${adminGameUpdateHoursHtml()}<div class="card"><h3>Feature Settings</h3>
       <label class="option-row"><input type="checkbox" id="setRet" ${state.retEnabled?"checked":""}><div><b>Returning customer discount 10%</b></div></label>
       <label class="option-row"><input type="checkbox" id="setBoardGame" ${state.boardGameEnabled?"checked":""}><div><b>Show board-game bundle</b><div class="hint">Hidden from customers when disabled</div></div></label>
       <h3 style="margin-top:18px">Promotions</h3>
@@ -12980,6 +13067,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         state.adminTab = adminTab.dataset.adminTab;
         if(state.adminTab === "terms" && !adminTerms.loaded) void loadAdminTerms();
         if(state.adminTab === "privacy") void loadPrivacyContent();
+        if(state.adminTab === "settings" && !gameUpdateHoursDraft) void loadGameUpdateHoursForAdmin();
         renderAdmin();
         return;
       }
@@ -13598,6 +13686,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "addReview"){ state.social.reviews.push({id:`rv_${Date.now()}`, name:"", source:"google", stars:5, text:"", active:true}); saveAndRenderAdmin("Review added"); }
       if(targetId === "addHighlight"){ state.social.highlights.unshift({id:`hl_${Date.now()}`, titleTh:"", titleEn:"", image:"", url:"", active:true}); saveAndRenderAdmin("Highlight added"); }
       if(targetId === "saveReviews") saveReviewsFromAdmin();
+      if(targetId === "saveGameUpdateHours"){ void saveGameUpdateHoursFromAdmin(); return; }
       if(targetId === "saveSettings") saveSettings();
       if(targetId === "addBundle"){ state.bundles.push({id:`bundle_${Date.now()}`,th:"Bundle ใหม่",en:"New Bundle",rate:600,weekly:4000,deposit:4000,readyDate:""}); saveAndRenderAdmin("Bundle added"); }
       if(targetId === "addAcc"){ state.accessories.push({id:`acc_${Date.now()}`,th:"อุปกรณ์ใหม่",en:"New Accessory",daily:100,weekly:500,consoleIds:[]}); saveAndRenderAdmin("Accessory added"); }
@@ -14018,6 +14107,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     // Shown first on every visit, above whatever pop-up the link opens.
     void loadSiteAnnouncement().then(applySiteAnnouncement);
     void loadBookingSettings();
+    void loadGameUpdateHoursForAdmin();
     if(paidRentalNotice) window.setTimeout(() => showPaidRentalNotice(paidRentalNotice), 300);
     if(payLink) openPayResume(payLink.code, payLink.token);
     bindBeforeRentSectionAnalytics();

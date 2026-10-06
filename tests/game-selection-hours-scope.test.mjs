@@ -9,30 +9,40 @@ const end = picker.indexOf('function renderPickFooter() {', start);
 assert.ok(start > -1 && end > start, 'picker action logic must be present');
 const actions = picker.slice(start, end);
 
-function actionAt(isoTime, { token = false, contractCard = false } = {}) {
+async function actionAt(isoTime, { token = false, contractCard = false, settings } = {}) {
   const calls = [];
   const instant = new Date(isoTime);
   const context = {
     Date: class extends Date { constructor() { super(instant); } },
     Intl,
-    document: { body: { classList: { contains: value => value === 'aj-contract-card-picker' && contractCard } } },
+    AbortController,
+    setTimeout,
+    clearTimeout,
+    document: {
+      body: { classList: { contains: value => value === 'aj-contract-card-picker' && contractCard } },
+      getElementById: () => null,
+    },
     currentLang: 'en',
+    pickSubmitState: 'idle',
     isTokenGamePicker: () => token,
+    fetch: async () => ({ ok: true, json: async () => ({ settings }) }),
     showToast: message => calls.push(['closed', message]),
     sendContractCardGameList: () => calls.push(['send']),
     generateCopyText: () => calls.push(['booking']),
   };
-  vm.runInNewContext(`${actions}\npickPrimaryAction();`, context);
+  await vm.runInNewContext(`${actions}\npickPrimaryAction();`, context);
   return calls;
 }
 
-test('booking picker remains usable overnight while post-booking selection and edits close', () => {
-  const closed = '2026-10-06T14:00:00Z'; // 21:00 in Thailand
-  assert.deepEqual(actionAt(closed), [['booking']]);
-  assert.equal(actionAt(closed, { token: true })[0][0], 'closed');
-  assert.equal(actionAt(closed, { contractCard: true })[0][0], 'closed');
-  assert.equal(actionAt('2026-10-07T01:59:00Z', { token: true })[0][0], 'closed'); // 08:59
-  assert.deepEqual(actionAt('2026-10-07T02:00:00Z', { token: true }), [['send']]); // 09:00
-  assert.deepEqual(actionAt('2026-10-07T12:59:00Z', { token: true }), [['send']]); // 19:59
-  assert.equal(actionAt('2026-10-07T13:00:00Z', { token: true })[0][0], 'closed'); // 20:00
+test('checkout picker works at night; after-booking links use editable Bangkok hours', async () => {
+  const late = '2026-10-06T16:00:00Z'; // 23:00 in Thailand
+  assert.deepEqual(await actionAt(late), [['booking']]);
+  assert.equal((await actionAt(late, { token: true }))[0][0], 'closed');
+  assert.equal((await actionAt(late, { contractCard: true }))[0][0], 'closed');
+  assert.deepEqual(await actionAt(late, { token: true, settings: {enabled:false,startTime:'09:00',endTime:'22:00'} }), [['send']]);
+  assert.deepEqual(await actionAt(late, { token: true, settings: {enabled:true,startTime:'09:00',endTime:'23:30'} }), [['send']]);
+  assert.deepEqual(await actionAt('2026-10-06T14:59:00Z', { token: true }), [['send']]); // 21:59
+  assert.equal((await actionAt('2026-10-06T15:00:00Z', { token: true }))[0][0], 'closed'); // 22:00
+  assert.equal((await actionAt('2026-10-07T01:59:00Z', { token: true }))[0][0], 'closed'); // 08:59
+  assert.deepEqual(await actionAt('2026-10-07T02:00:00Z', { token: true }), [['send']]); // 09:00
 });

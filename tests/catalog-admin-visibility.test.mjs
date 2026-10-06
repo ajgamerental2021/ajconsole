@@ -11,7 +11,7 @@ test('game catalogue hides Admin unless admin=1 is present', () => {
 });
 
 test('game picker cache version is bumped after catalogue changes', () => {
-  assert.match(homeHtml, /gamePickerVersion:\s*"20261004-1"/);
+  assert.match(homeHtml, /gamePickerVersion:\s*"20261006-2"/);
 });
 
 test('game catalogue retries through the uncached raw gist after an API failure', () => {

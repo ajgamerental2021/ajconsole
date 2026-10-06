@@ -5538,16 +5538,59 @@ function pickSendsList() {
   return isTokenGamePicker() || document.body.classList.contains('aj-contract-card-picker');
 }
 
-function gameUpdatesClosedNow() {
-  const hour = Number(new Intl.DateTimeFormat('en-GB', { timeZone:'Asia/Bangkok', hour:'2-digit', hourCycle:'h23' }).format(new Date()));
-  return hour < 9 || hour >= 20;
+const DEFAULT_GAME_UPDATE_HOURS = { enabled:true, startTime:'09:00', endTime:'22:00' };
+let gameUpdateHours = { ...DEFAULT_GAME_UPDATE_HOURS };
+let gameUpdateHoursLoadedAt = 0;
+let gameUpdateHoursRequest = null;
+const gameHourMinutes = value => Number(value.slice(0, 2)) * 60 + Number(value.slice(3));
+function normalizeGameUpdateHours(value) {
+  if (!value || typeof value !== 'object') return { ...DEFAULT_GAME_UPDATE_HOURS };
+  const valid = time => typeof time === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(time);
+  const startTime = valid(value.startTime) ? value.startTime : DEFAULT_GAME_UPDATE_HOURS.startTime;
+  const endTime = valid(value.endTime) ? value.endTime : DEFAULT_GAME_UPDATE_HOURS.endTime;
+  return { enabled:value.enabled !== false,
+    startTime:startTime === endTime ? DEFAULT_GAME_UPDATE_HOURS.startTime : startTime,
+    endTime:startTime === endTime ? DEFAULT_GAME_UPDATE_HOURS.endTime : endTime };
+}
+async function loadGameUpdateHours(force = false) {
+  if (!pickSendsList()) return gameUpdateHours; // Booking checkout never waits for shop hours.
+  if (!force && gameUpdateHoursLoadedAt && Date.now() - gameUpdateHoursLoadedAt < 15000) return gameUpdateHours;
+  if (gameUpdateHoursRequest) return gameUpdateHoursRequest;
+  gameUpdateHoursRequest = (async () => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+    try {
+      const response = await fetch('https://aj-line-oa-bot.onrender.com/api/game-update-hours',
+        { cache:'no-store', signal:controller.signal });
+      if (!response.ok) throw new Error('hours_unavailable');
+      const data = await response.json();
+      gameUpdateHours = normalizeGameUpdateHours(data.settings);
+      gameUpdateHoursLoadedAt = Date.now();
+      renderPickActions();
+    } catch (error) { console.warn('Game update hours unavailable', error); }
+    finally { clearTimeout(timeout); }
+    return gameUpdateHours;
+  })();
+  try { return await gameUpdateHoursRequest; }
+  finally { gameUpdateHoursRequest = null; }
+}
+function gameUpdatesClosedNow(now = new Date()) {
+  if (!gameUpdateHours.enabled) return false;
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone:'Asia/Bangkok', hour:'2-digit', minute:'2-digit', hourCycle:'h23' }).formatToParts(now);
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  const current = Number(values.hour) * 60 + Number(values.minute);
+  const start = gameHourMinutes(gameUpdateHours.startTime);
+  const end = gameHourMinutes(gameUpdateHours.endTime);
+  return start < end ? current < start || current >= end : current < start && current >= end;
 }
 function gameShopHoursMessage() {
+  const { startTime, endTime } = gameUpdateHours;
   return currentLang === 'en'
-    ? 'New game selections and changes after booking are available from 09:00 to 20:00 (Thailand time). You can still choose games while booking.'
-    : 'การเลือกเกมใหม่หรือแก้ไขรายการเกมหลังจองทำได้เวลา 09:00–20:00 น. ตามเวลาไทย ระหว่างจองยังเลือกเกมได้ตามปกติ';
+    ? `New game selections and changes after booking are available from ${startTime} to ${endTime} (Thailand time). You can still choose games while booking.`
+    : `การเลือกเกมใหม่หรือแก้ไขรายการเกมหลังจองทำได้เวลา ${startTime}–${endTime} น. ตามเวลาไทย ระหว่างจองยังเลือกเกมได้ตามปกติ`;
 }
-function pickPrimaryAction() {
+async function pickPrimaryAction() {
+  if (pickSendsList()) await loadGameUpdateHours(true);
   if (pickSendsList() && gameUpdatesClosedNow()) { showToast(gameShopHoursMessage()); return; }
   if (pickSendsList()) sendContractCardGameList();
   else generateCopyText();
@@ -5632,6 +5675,13 @@ function getSelectionToken() {
 }
 
 function isTokenGamePicker() { return !!getSelectionToken(); }
+
+window.addEventListener('load', () => {
+  if (!pickSendsList()) return;
+  void loadGameUpdateHours();
+  window.setInterval(() => { void loadGameUpdateHours(); renderPickActions(); }, 30000);
+  window.addEventListener('focus', () => { void loadGameUpdateHours(true); });
+});
 
 /** Resolve the token and lock the picker to the booking's platform. */
 async function initSelectionToken() {
@@ -6414,7 +6464,9 @@ function generateCopyText() {
 
 // Extend doCopy to use i18n
 const _origDoCopy = typeof doCopy === 'function' ? doCopy : null;
-function doCopy() {
+async function doCopy() {
+  if (pickSendsList()) await loadGameUpdateHours();
+  if (pickSendsList() && gameUpdatesClosedNow()) { showToast(gameShopHoursMessage()); return; }
   const T = TRANSLATIONS[currentLang];
   const text = document.getElementById('copy-text-area').value;
   if (!text) return;
