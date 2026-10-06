@@ -977,6 +977,9 @@ body.unified-flow-demo .demo-upload b{font-size:16px;line-height:1.5}
 body.unified-flow-demo .demo-upload .hint{line-height:1.6}
 body.unified-flow-demo .demo-upload input[type=file]{max-width:100%;font-size:14px}
 body.unified-flow-demo .demo-upload-file{color:#137333;font-weight:800;min-height:18px;word-break:break-all}
+body.unified-flow-demo .demo-upload-preview{display:block;width:100%;max-width:180px;padding:4px;border:1px solid #d0d5dd;border-radius:12px;background:#fff;cursor:pointer}
+body.unified-flow-demo .demo-upload-preview img{display:block;width:100%;height:120px;object-fit:contain;border-radius:8px}
+body.unified-flow-demo .demo-upload-preview-large{display:block;max-width:100%;max-height:75vh;margin:auto;object-fit:contain}
 body.unified-flow-demo .demo-upload-kept{margin:0 0 12px;padding:11px 13px;border-radius:10px;background:#eef8f1;color:#176b39;font-weight:800;line-height:1.5}
 body.unified-flow-demo .demo-upload-actions{display:flex;flex-wrap:wrap;gap:10px}
 body.unified-flow-demo .demo-upload-btn{flex:1 1 150px;padding:11px 14px;font-weight:800}
@@ -1751,7 +1754,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 <script src="assets/vendor/simplewebauthn-browser-14.0.0.umd.min.js"></script>
 <script src="assets/admin-passkey.js"></script>
 <script src="assets/place-search.js?v=20261003-6"></script>
-<script src="assets/identity-ocr.js?v=20261006-4"></script>
+<script src="assets/identity-ocr.js?v=20261006-6"></script>
 <script>
 (() => {
   "use strict";
@@ -2078,6 +2081,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
   const I18N = {
     th:{
       calcCta:"เช็คคิว & คำนวณค่าเช่า",
+      identityUploadedPreview:"ดูรูปที่อัปโหลดแบบขยาย",
       beforeRentKicker:"ก่อนเริ่มเช่า",
       beforeRentTitle:"ก่อนเช่า เลือกสิ่งที่ต้องการ",
       beforeRentSubtitle:"เริ่มเช่า ดูรายชื่อเกม หรืออ่านข้อมูลก่อนตัดสินใจ",
@@ -2167,7 +2171,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       calcTag:"คำนวณ", calcTitle:"เช็คคิว & คำนวณค่าเช่า", calcSub:"ขั้นต่ำ 3 วัน | ราคาเรทบุคคล",
       preparationBrief:"กรุณาเผื่อเวลาเตรียมเครื่องประมาณ 30–60 นาที หรือ 2–3 ชั่วโมงหากต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม",
       lineNoLaunch:"เมื่อเลือกข้อมูลและกดยืนยันจองผ่าน LINE แล้ว ลิงก์เปิดรายการจะแสดงในหน้าต่างนี้",
-lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE", lineHelpLink:"ดูขั้นตอน / เปิด LINE อีกครั้ง", linePreparingStatus:"กำลังเตรียมลิงก์ส่งข้อมูลจองผ่าน LINE กรุณารอสักครู่ สามารถกดดูขั้นตอนได้ด้านล่าง", lineReadyStatus:"ข้อมูลพร้อมแล้ว กดเปิด LINE และรอจนเห็นการ์ดในแชทร้าน AJ — ยังไม่ถือว่าส่งสำเร็จในขั้นตอนนี้", lineOpeningStatus:"กำลังเปิด LINE หากพบคำถาม Open this page in “LINE”? ให้กด Open แล้วรอการ์ดในแชทร้าน AJ ไม่ต้องวางข้อความเอง", lineHelpSteps:"<ol><li>กด <b>เปิด LINE เพื่อส่งข้อมูลจอง</b> ด้านล่าง</li><li>หากพบคำถาม <b>Open this page in “LINE”?</b> ให้กด <b>Open (เปิด)</b> ไม่ใช่ Cancel<img class='line-guide-example' src='assets/line-guide-open.png' width='365' height='133' alt='ตัวอย่างหน้าต่าง ให้กด Open เพื่อเปิด LINE'></li><li>เมื่อเห็นหน้า <b>กำลังส่งการ์ดข้อมูลจอง</b> ให้รอระบบยืนยันบัญชี LINE และส่งการ์ด อย่าปิดหน้าระหว่างรอ<img class='line-guide-example' src='assets/line-guide-sending.png' width='258' height='128' alt='ตัวอย่างหน้ากำลังส่งการ์ดข้อมูลจองและยืนยันบัญชี LINE'></li><li>ตรวจว่าแชทร้าน AJ มีการ์ด <b>ส่งข้อมูลจองแล้ว</b> จึงถือว่าส่งข้อมูลสำเร็จ จากนั้นทำสัญญาหากจำเป็น รอแอดมินยืนยันค่าส่งและยอดชำระ แล้วจึงชำระตามช่องทางที่เลือก</li></ol><p>การส่งข้อมูลยังไม่ใช่การยืนยันคิวหรือยืนยันการชำระเงิน หากเปิด LINE แล้วไม่มีการ์ด ให้กลับมากดเปิดรายการเดิมอีกครั้ง หากยังไม่ได้ให้แจ้งแอดมินพร้อมรหัสการเช่า</p>", lineOpenBooking:"เปิด LINE เพื่อส่งข้อมูลจอง", linePreparingLink:"กำลังเตรียมลิงก์ กรุณารอสักครู่", lineSuccessNext:"ได้รับการยืนยันจากระบบว่าส่งการ์ดแล้ว กรุณาตรวจแชทร้าน AJ ทำสัญญาหากจำเป็น และรอแอดมินยืนยันค่าส่งกับยอดชำระก่อนชำระเงิน", lineHandoffFailedHelp:"ส่งการ์ดไม่สำเร็จ หรือยังยืนยันผลไม่ได้ กรุณาเปิดรายการเดิมเพื่อลองอีกครั้ง หากยังไม่ได้ให้แจ้งแอดมินพร้อมรหัสการเช่า อย่าเริ่มรายการใหม่ซ้ำ", legalNameScriptHint:"กรอกด้วยตัวอักษรไทยเท่านั้น", legalNameScriptError:"กรุณากรอกชื่อ-นามสกุลด้วยตัวอักษรไทยเท่านั้น", phoneScriptHint:"ตัวเลขเท่านั้น", phoneScriptError:"กรอกเบอร์โทรศัพท์เป็นตัวเลขเท่านั้น (9–15 หลัก)", ocrReadError:"อ่านเลขบัตรประชาชนหรือเลข Passport และวันหมดอายุไม่ได้ กรุณาถ่ายใหม่ให้เอกสารอยู่ใกล้และเต็มภาพ เห็นครบทุกขอบ ตัวอักษรคมชัด ไม่มีแสงสะท้อน หากลองสองครั้งแล้วยังอ่านไม่ได้ให้กรอกเอง", idDocumentPhotoHint:"ถ่ายใกล้ให้บัตรหรือ Passport กินพื้นที่ส่วนใหญ่ของภาพ เห็นครบทั้ง 4 ขอบ เลขและวันหมดอายุคมชัด ไม่มีแสงสะท้อน ไม่ต้องถ่ายกระดาษทั้งแผ่น", lineChatInbound:"ส่งข้อมูลการจอง {code} ให้ร้าน AJ แล้ว", lineChatVisible:"ส่งรายละเอียดแล้ว และร้านเห็นแชตของคุณในรายการทันที", lineChatVisibleFailed:"ส่งรายละเอียดแล้ว แต่ LINE ยังเพิ่มแชตในรายการของร้านไม่ได้ กรุณาเปิดแชตและส่งข้อความใดก็ได้",
+lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE", lineHelpLink:"ดูขั้นตอน / เปิด LINE อีกครั้ง", linePreparingStatus:"กำลังเตรียมลิงก์ส่งข้อมูลจองผ่าน LINE กรุณารอสักครู่ สามารถกดดูขั้นตอนได้ด้านล่าง", lineReadyStatus:"ข้อมูลพร้อมแล้ว กดเปิด LINE และรอจนเห็นการ์ดในแชทร้าน AJ — ยังไม่ถือว่าส่งสำเร็จในขั้นตอนนี้", lineOpeningStatus:"กำลังเปิด LINE หากพบคำถาม Open this page in “LINE”? ให้กด Open แล้วรอการ์ดในแชทร้าน AJ ไม่ต้องวางข้อความเอง", lineHelpSteps:"<ol><li>กด <b>เปิด LINE เพื่อส่งข้อมูลจอง</b> ด้านล่าง</li><li>หากพบคำถาม <b>Open this page in “LINE”?</b> ให้กด <b>Open (เปิด)</b> ไม่ใช่ Cancel<img class='line-guide-example' src='assets/line-guide-open.png' width='365' height='133' alt='ตัวอย่างหน้าต่าง ให้กด Open เพื่อเปิด LINE'></li><li>เมื่อเห็นหน้า <b>กำลังส่งการ์ดข้อมูลจอง</b> ให้รอระบบยืนยันบัญชี LINE และส่งการ์ด อย่าปิดหน้าระหว่างรอ<img class='line-guide-example' src='assets/line-guide-sending.png' width='258' height='128' alt='ตัวอย่างหน้ากำลังส่งการ์ดข้อมูลจองและยืนยันบัญชี LINE'></li><li>ตรวจว่าแชทร้าน AJ มีการ์ด <b>ส่งข้อมูลจองแล้ว</b> จึงถือว่าส่งข้อมูลสำเร็จ จากนั้นทำสัญญาหากจำเป็น รอแอดมินยืนยันค่าส่งและยอดชำระ แล้วจึงชำระตามช่องทางที่เลือก</li></ol><p>การส่งข้อมูลยังไม่ใช่การยืนยันคิวหรือยืนยันการชำระเงิน หากเปิด LINE แล้วไม่มีการ์ด ให้กลับมากดเปิดรายการเดิมอีกครั้ง หากยังไม่ได้ให้แจ้งแอดมินพร้อมรหัสการเช่า</p>", lineOpenBooking:"เปิด LINE เพื่อส่งข้อมูลจอง", linePreparingLink:"กำลังเตรียมลิงก์ กรุณารอสักครู่", lineSuccessNext:"ได้รับการยืนยันจากระบบว่าส่งการ์ดแล้ว กรุณาตรวจแชทร้าน AJ ทำสัญญาหากจำเป็น และรอแอดมินยืนยันค่าส่งกับยอดชำระก่อนชำระเงิน", lineHandoffFailedHelp:"ส่งการ์ดไม่สำเร็จ หรือยังยืนยันผลไม่ได้ กรุณาเปิดรายการเดิมเพื่อลองอีกครั้ง หากยังไม่ได้ให้แจ้งแอดมินพร้อมรหัสการเช่า อย่าเริ่มรายการใหม่ซ้ำ", legalNameScriptHint:"กรอกด้วยตัวอักษรไทยเท่านั้น", legalNameScriptError:"กรุณากรอกชื่อ-นามสกุลด้วยตัวอักษรไทยเท่านั้น", phoneScriptHint:"ตัวเลขเท่านั้น", phoneScriptError:"กรอกเบอร์โทรศัพท์เป็นตัวเลขเท่านั้น (9–15 หลัก)", ocrReadError:"อ่านเลขบัตรประชาชนหรือเลข Passport และวันหมดอายุไม่ได้ กรุณาถ่ายใหม่ให้เอกสารอยู่ใกล้และเต็มภาพ เห็นครบทุกขอบ ตัวอักษรคมชัด ไม่มีแสงสะท้อน หากลองสองครั้งแล้วยังอ่านไม่ได้ให้กรอกเอง", idDocumentPhotoHint:"ถ่ายใกล้ให้บัตรหรือ Passport กินพื้นที่ส่วนใหญ่ของภาพ เห็นครบทั้ง 4 ขอบ เลขและวันหมดอายุคมชัด ไม่มีแสงสะท้อน", lineChatInbound:"ส่งข้อมูลการจอง {code} ให้ร้าน AJ แล้ว", lineChatVisible:"ส่งรายละเอียดแล้ว และร้านเห็นแชตของคุณในรายการทันที", lineChatVisibleFailed:"ส่งรายละเอียดแล้ว แต่ LINE ยังเพิ่มแชตในรายการของร้านไม่ได้ กรุณาเปิดแชตและส่งข้อความใดก็ได้",
       preparationDetail:"<summary>ระยะเวลาเตรียมเครื่องโดยประมาณ (กดเพื่ออ่าน)</summary><div><span>เริ่มนับหลังจากร้านยืนยันคิว ได้รับรายชื่อเกมครบถ้วน และได้รับยอดจองหรือยอดชำระตามช่องทางที่เลือก</span><ul><li>กรณีต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 2–3 ชั่วโมง</li><li>กรณีไม่ต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 30–60 นาที</li></ul><span>ระยะเวลาจริงอาจเปลี่ยนแปลงตามขนาดเกม ความเร็วในการดาวน์โหลด จำนวนเกม และคิวงานในขณะนั้น ทางร้านจะแจ้งเวลาที่เครื่องพร้อมจัดส่งให้ทราบอีกครั้ง</span></div>",
       step1:"เลือกเครื่อง/วันที่", step2:"รายละเอียดการจอง", step3:"สรุปและส่ง", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"เลือกเกม", step2DetailsTitle:"การจัดส่ง การชำระเงิน และเอกสาร", step3Title:"สรุปและส่งข้อความ", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"📖 อ่านขั้นตอนการเช่าก่อนเริ่ม", quoteBtn:"🧮 คำนวณค่าเช่า", quoteBtnHint:"รู้ยอดรวมก่อนจอง", quoteTitle:"คำนวณค่าเช่า", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
       nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
@@ -2202,6 +2206,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     },
     en:{
       calcCta:"Check Queue & Calculate",
+      identityUploadedPreview:"View uploaded photo larger",
       beforeRentKicker:"BEFORE RENT",
       beforeRentTitle:"Choose what you need",
       beforeRentSubtitle:"Start a rental, browse games, or review details first",
@@ -2291,7 +2296,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       calcTag:"Calculator", calcTitle:"Check Queue & Calculate Rental", calcSub:"Minimum 3 days | Individual rates",
       preparationBrief:"Please allow approximately 30–60 minutes for preparation, or 2–3 hours if additional games must be downloaded or installed.",
       lineNoLaunch:"After completing your details and confirming Book via LINE, the link for your booking will appear here.",
-      lineHelpTitle:"Send booking via LINE", lineHelpLink:"View steps / reopen LINE", linePreparingStatus:"Preparing your LINE booking link. Please wait. You can view the steps below.", lineReadyStatus:"Your booking is ready to open in LINE. Wait for the card in AJ's chat — it has not been sent yet.", lineOpeningStatus:"Opening LINE. If asked Open this page in “LINE”?, tap Open and wait for the card in AJ's chat. You do not need to paste a message.", lineHelpSteps:"<ol><li>Tap <b>Open LINE to send booking</b> below.</li><li>Tap <b>Open</b> when prompted.<img class='line-guide-example' src='assets/line-guide-open.png' width='365' height='133' alt='Example: tap Open to continue in LINE'></li><li>Wait on <b>Sending your booking card</b>. Keep this screen open.<img class='line-guide-example' src='assets/line-guide-sending-en.png' width='365' height='139' alt='Example sending screen: verifying your LINE account'></li><li>Check for the card in <b>AJ’s chat</b>. Complete the agreement if needed. Wait for AJ to confirm the total before paying.</li></ol><p>No card? Reopen this booking or contact AJ with your rental code. Sending details does not confirm your reservation.</p>", lineOpenBooking:"Open LINE to send booking", linePreparingLink:"Preparing your link. Please wait.", lineSuccessNext:"The server confirmed card delivery. Check AJ's chat, complete the agreement if required, and wait for AJ to confirm delivery fees and the amount due before paying.", lineHandoffFailedHelp:"The card could not be sent, or delivery could not be confirmed. Reopen the same booking to retry. If it still fails, contact AJ with your rental code. Do not create a duplicate booking.", legalNameScriptHint:"English letters only", legalNameScriptError:"Enter your legal name using English letters only.", phoneScriptHint:"Digits, with an optional + at the start", phoneScriptError:"Use digits only, with + allowed only at the start (9–15 digits).", ocrReadError:"Could not read the Thai ID or passport number and expiry date. Move closer so the document fills the frame, keep every edge visible, and retake in sharp focus without glare. After two tries, enter the details yourself.", idDocumentPhotoHint:"Move close so the document fills most of the photo. Keep all four edges, number and expiry visible and sharp, without glare. Photograph the document itself, not the full sheet of paper.", lineChatInbound:"I sent booking {code} to AJ.", lineChatVisible:"The details were sent and your chat is now visible to AJ staff.", lineChatVisibleFailed:"The details were sent, but LINE could not add the chat to the shop's list. Please open the chat and send any message.",
+      lineHelpTitle:"Send booking via LINE", lineHelpLink:"View steps / reopen LINE", linePreparingStatus:"Preparing your LINE booking link. Please wait. You can view the steps below.", lineReadyStatus:"Your booking is ready to open in LINE. Wait for the card in AJ's chat — it has not been sent yet.", lineOpeningStatus:"Opening LINE. If asked Open this page in “LINE”?, tap Open and wait for the card in AJ's chat. You do not need to paste a message.", lineHelpSteps:"<ol><li>Tap <b>Open LINE to send booking</b> below.</li><li>Tap <b>Open</b> when prompted.<img class='line-guide-example' src='assets/line-guide-open.png' width='365' height='133' alt='Example: tap Open to continue in LINE'></li><li>Wait on <b>Sending your booking card</b>. Keep this screen open.<img class='line-guide-example' src='assets/line-guide-sending-en.png' width='365' height='139' alt='Example sending screen: verifying your LINE account'></li><li>Check for the card in <b>AJ’s chat</b>. Complete the agreement if needed. Wait for AJ to confirm the total before paying.</li></ol><p>No card? Reopen this booking or contact AJ with your rental code. Sending details does not confirm your reservation.</p>", lineOpenBooking:"Open LINE to send booking", linePreparingLink:"Preparing your link. Please wait.", lineSuccessNext:"The server confirmed card delivery. Check AJ's chat, complete the agreement if required, and wait for AJ to confirm delivery fees and the amount due before paying.", lineHandoffFailedHelp:"The card could not be sent, or delivery could not be confirmed. Reopen the same booking to retry. If it still fails, contact AJ with your rental code. Do not create a duplicate booking.", legalNameScriptHint:"English letters only", legalNameScriptError:"Enter your legal name using English letters only.", phoneScriptHint:"Digits, with an optional + at the start", phoneScriptError:"Use digits only, with + allowed only at the start (9–15 digits).", ocrReadError:"Could not read the Thai ID or passport number and expiry date. Move closer so the document fills the frame, keep every edge visible, and retake in sharp focus without glare. After two tries, enter the details yourself.", idDocumentPhotoHint:"Move close so the document fills most of the photo. Keep all four edges, number and expiry visible and sharp, without glare.", lineChatInbound:"I sent booking {code} to AJ.", lineChatVisible:"The details were sent and your chat is now visible to AJ staff.", lineChatVisibleFailed:"The details were sent, but LINE could not add the chat to the shop's list. Please open the chat and send any message.",
       preparationDetail:"<summary>Estimated preparation time (tap to read)</summary><div><span>Preparation begins after AJ confirms availability, receives the complete game list, and receives the reservation deposit or payment through the selected payment method.</span><ul><li>If additional games need to be downloaded or installed: approximately 2–3 hours</li><li>If no additional downloads or installations are required: approximately 30–60 minutes</li></ul><span>Actual preparation time may vary depending on game size, download speed, the number of games, and the current service queue. AJ will confirm the expected delivery-ready time again.</span></div>",
       step1:"Device / Dates", step2:"Booking details", step3:"Review and send", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Choose games", step2DetailsTitle:"Delivery, payment and documents", step3Title:"Summary and send", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"📖 Read rental steps first", quoteBtn:"🧮 Rental calculator", quoteBtnHint:"See the total before booking", quoteTitle:"Rental calculator", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
       nextStep:"Next step", backStep:"Back",
@@ -5607,12 +5612,28 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       }
     }
   }
+  const demoIdentityPreviews = {id:null, selfie:null};
+  function demoIdentityPreviewUrl(kind, file){
+    const previous = demoIdentityPreviews[kind];
+    if(previous?.file === file) return previous.url;
+    if(previous?.url) URL.revokeObjectURL(previous.url);
+    demoIdentityPreviews[kind] = file ? {file, url:URL.createObjectURL(file)} : null;
+    return demoIdentityPreviews[kind]?.url || "";
+  }
+  function showDemoIdentityUploadedPreview(kind){
+    const file = kind === "selfie" ? demoProfile.selfieWithId : demoProfile.idDocument;
+    if(!file) return;
+    const url = demoIdentityPreviewUrl(kind, file);
+    showModal(tr("identityUploadedPreview"), `<img class="demo-upload-preview-large" src="${esc(url)}" alt="${esc(tr("identityUploadedPreview"))}">`);
+  }
   // The two identity photos, on step 3 and in the "Verify now" pop-up. Each
   // place gives its own id prefix; the inputs say which photo they hold.
   function demoIdentityUploadGridHtml(prefix){
     const en = state.lang === "en";
     const documentName = demoProfile.idDocument?.name || "";
     const selfieName = demoProfile.selfieWithId?.name || "";
+    const documentPreview = demoIdentityPreviewUrl("id", demoProfile.idDocument);
+    const selfiePreview = demoIdentityPreviewUrl("selfie", demoProfile.selfieWithId);
     const keptNotice = demoProfile.identitySkipped && (documentName || selfieName)
       ? `<p class="demo-upload-kept">${en ? "Your selected photos are still kept on this page. Untick Verify later to submit them now." : "รูปที่เลือกไว้ยังอยู่ในหน้านี้ เอาเครื่องหมายยืนยันตัวตนภายหลังออกเมื่อต้องการส่งรูปตอนนี้"}</p>`
       : "";
@@ -5622,6 +5643,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           <span class="hint">${tr("idDocumentPhotoHint")}</span>
           <input id="${prefix}IdDocument" data-identity-file="id" type="file" accept="image/jpeg,image/png,image/webp" ${demoProfile.identitySkipped?"disabled":""}>
           <span class="demo-upload-file">${esc(documentName)}</span>
+          ${documentPreview ? `<button class="demo-upload-preview" type="button" data-identity-preview="id" aria-label="${esc(tr("identityUploadedPreview"))}"><img src="${esc(documentPreview)}" alt="${esc(tr("identityUploadedPreview"))}"></button>` : ""}
           <span class="demo-upload-actions">
             <input id="${prefix}IdDocumentCamera" class="demo-camera-input" type="file" accept="image/*" capture="environment" data-camera-for="${prefix}IdDocument">
             <button class="btn demo-upload-btn" type="button" data-open-camera="${prefix}IdDocumentCamera" ${demoProfile.identitySkipped?"disabled":""}>${en ? "📸 Take a photo" : "📸 ถ่ายรูปเอกสาร"}</button>
@@ -5633,6 +5655,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           <span class="hint">${en ? "Face and document both visible, no sunglasses or mask, no glare, and the document not cropped." : "เห็นใบหน้าและเอกสารครบ ไม่ใส่แว่นดำหรือหน้ากาก ไม่มีแสงสะท้อน และไม่ตัดขอบบัตร"}</span>
           <input id="${prefix}SelfieWithId" data-identity-file="selfie" type="file" accept="image/jpeg,image/png,image/webp" ${demoProfile.identitySkipped?"disabled":""}>
           <span class="demo-upload-file">${esc(selfieName)}</span>
+          ${selfiePreview ? `<button class="demo-upload-preview" type="button" data-identity-preview="selfie" aria-label="${esc(tr("identityUploadedPreview"))}"><img src="${esc(selfiePreview)}" alt="${esc(tr("identityUploadedPreview"))}"></button>` : ""}
           <span class="demo-upload-actions">
             <input id="${prefix}SelfieCamera" class="demo-camera-input" type="file" accept="image/*" capture="user" data-camera-for="${prefix}SelfieWithId">
             <button class="btn demo-upload-btn" type="button" data-open-camera="${prefix}SelfieCamera" ${demoProfile.identitySkipped?"disabled":""}>${en ? "📸 Take a selfie" : "📸 ถ่ายรูปเซลฟี่"}</button>
@@ -13387,6 +13410,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(cameraTrigger){ byId(cameraTrigger.dataset.openCamera)?.click(); return; }
       const exampleTrigger = event.target.closest("[data-identity-example]");
       if(exampleTrigger){ showDemoIdentityExample(exampleTrigger.dataset.identityExample); return; }
+      const uploadedPreview = event.target.closest("[data-identity-preview]");
+      if(uploadedPreview){ showDemoIdentityUploadedPreview(uploadedPreview.dataset.identityPreview); return; }
       if(targetId === "demoConfirmOrder"){
         await confirmDemoOrder();
         return;

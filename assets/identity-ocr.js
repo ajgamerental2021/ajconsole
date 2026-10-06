@@ -51,15 +51,19 @@
       if (month) add(match, match[1], month, match[3]);
     }
     dates.sort((a, b) => a.index - b.index);
+    const today = new Date().toISOString().slice(0, 10);
+    const future = dates.filter((item) => item.date >= today && item.date <= `${new Date().getUTCFullYear() + 35}-12-31`);
     for (const label of source.matchAll(/EXPIR(?:Y|ES|ATION)|VALID\s*(?:UNTIL|THRU|TO)|หมดอายุ/g)) {
       // On Thai ID cards the date is often printed above the label; on a
       // passport it is usually after it. Prefer the nearby date, either way.
       const after = dates.find((item) => item.index >= label.index + label[0].length && item.index <= label.index + label[0].length + 45);
-      if (after) return after.date;
+      if (after && after.date >= today) return after.date;
       const before = dates.filter((item) => item.index < label.index && item.index >= label.index - 75).at(-1);
-      if (before) return before.date;
+      if (before && before.date >= today) return before.date;
     }
-    return '';
+    // The tiny expiry caption is often lost even when its date survives OCR.
+    // Never mistake the card's issue date or date of birth for its expiry.
+    return future.sort((a, b) => b.date.localeCompare(a.date))[0]?.date || '';
   }
   function parse(text) {
     const source = String(text || '').toUpperCase().replace(/[๐-๙]/g, (ch) => String(ch.charCodeAt(0) - 0x0E50));
@@ -129,8 +133,8 @@
     if (ratio < 1.2 || ratio > 2.3 || w * h > width * height * 0.8) return null;
     return { x, y, width: w, height: h };
   }
-  async function cardCrop(file) {
-    if (typeof document === 'undefined') return null;
+  async function cardCrops(file) {
+    if (typeof document === 'undefined') return [];
     let image;
     let objectUrl;
     try {
@@ -156,7 +160,7 @@
       const sampleContext = sample.getContext('2d', { willReadFrequently: true });
       sampleContext.drawImage(image, 0, 0, sampleWidth, sampleHeight);
       const bounds = cardBounds(sampleContext.getImageData(0, 0, sampleWidth, sampleHeight).data, sampleWidth, sampleHeight);
-      if (!bounds) return null;
+      if (!bounds) return [];
       const x = Math.round(bounds.x * sourceWidth / sampleWidth);
       const y = Math.round(bounds.y * sourceHeight / sampleHeight);
       const width = Math.round(bounds.width * sourceWidth / sampleWidth);
@@ -172,9 +176,19 @@
       // A modest JPEG recompression helps Tesseract separate the tiny Thai
       // month letters on actual phone photos. Raw canvas/PNG read the issue
       // date instead of the expiry on the reported sample.
-      return await new Promise((resolve, reject) => {
-        canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('ocr_crop_encode_failed')), 'image/jpeg', 0.8);
+      const encode = (source, type, quality) => new Promise((resolve, reject) => {
+        source.toBlob((blob) => blob ? resolve(blob) : reject(new Error('ocr_crop_encode_failed')), type, quality);
       });
+      // Read the whole card for the number, then the lower-right date zone
+      // independently so the issue date printed on the left cannot win.
+      const expiry = document.createElement('canvas');
+      expiry.width = Math.round(canvas.width * 0.57);
+      expiry.height = Math.round(canvas.height * 0.48);
+      expiry.getContext('2d').drawImage(canvas,
+        Math.round(canvas.width * 0.43), Math.round(canvas.height * 0.52),
+        Math.round(canvas.width * 0.57), Math.round(canvas.height * 0.48),
+        0, 0, expiry.width, expiry.height);
+      return [await encode(canvas, 'image/jpeg', 0.8), await encode(expiry, 'image/jpeg', 0.88), await encode(canvas, 'image/png')];
     } finally {
       if (image && typeof image.close === 'function') image.close();
       if (objectUrl) URL.revokeObjectURL(objectUrl);
@@ -204,12 +218,17 @@
       logger: (event) => { if (onProgress && event.status === 'recognizing text') onProgress(event.progress); }
     }).catch((error) => { worker = null; throw error; });
     const instance = await worker;
-    let crop = null;
-    try { crop = await cardCrop(file); } catch (_) { /* Keep the original-photo fallback. */ }
+    let crops = [];
+    try { crops = await cardCrops(file); } catch (_) { /* Keep the original-photo fallback. */ }
     let found = { type: '', number: '', expiry: '', source: '' };
     const today = new Date().toISOString().slice(0, 10);
-    for (const input of crop ? [crop, file] : [file]) {
-      const result = await instance.recognize(input);
+    // A single canvas encoding can fail in Safari or change the tiny Thai
+    // characters. Continue through the other variants and the original file.
+    let lastError;
+    for (const input of [...crops, file]) {
+      let result;
+      try { result = await instance.recognize(input, { tessedit_pageseg_mode: '11' }); }
+      catch (error) { lastError = error; continue; }
       const current = parse(result.data?.text || '');
       if (current.number && !found.number) {
         found = { ...found, type: current.type, number: current.number, source: current.source };
@@ -219,6 +238,7 @@
       }
       if (found.number && found.expiry >= today) break;
     }
+    if (!found.number && !found.expiry && lastError) throw lastError;
     return found;
   }
   const api = { parse, recognize, thaiIdValid, cardBounds };

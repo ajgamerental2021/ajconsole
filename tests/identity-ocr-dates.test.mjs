@@ -9,6 +9,11 @@ vm.runInNewContext(source, context);
 const { parse, cardBounds } = context.module.exports;
 const id = '1234567890121'; // Synthetic number with a valid check digit.
 
+test('browser OCR uses sparse-text segmentation for a small ID on a larger photo', () => {
+  assert.match(source, /recognize\(input, \{ tessedit_pageseg_mode: '11' \}\)/);
+  assert.match(source, /for \(const input of \[\.\.\.crops, file\]\)/);
+});
+
 for (const [label, text] of [
   ['Thai date after label', `เลขประจำตัวประชาชน ${id}\nวันหมดอายุ 5 ก.ค. 2576`],
   ['Thai date above label', `เลขประจำตัวประชาชน ${id}\n14 ส.ค. 2567    5 ก.ค. 2576\nวันออกบัตร    วันหมดอายุ`],
