@@ -29,16 +29,31 @@
     return isoDate(value.slice(4, 6), value.slice(2, 4), chosen);
   }
   const MONTHS = { JAN: 1, FEB: 2, MAR: 3, APR: 4, MAY: 5, JUN: 6, JUL: 7, AUG: 8, SEP: 9, OCT: 10, NOV: 11, DEC: 12 };
+  const THAI_MONTHS = { 'มค': 1, 'กพ': 2, 'มีค': 3, 'เมย': 4, 'พค': 5, 'มิย': 6, 'กค': 7, 'สค': 8, 'กย': 9, 'ตค': 10, 'พย': 11, 'ธค': 12 };
   function expiryIn(text) {
-    const source = String(text || '').toUpperCase();
-    const candidates = source.match(/(?:EXPIR(?:Y|ES|ATION)|VALID\s*(?:UNTIL|THRU|TO)|หมดอายุ)[\s:.,\-]{0,18}([\s\S]{0,55})/g) || [];
-    for (const segment of candidates) {
-      let match = segment.match(/(\d{1,2})[\/\.\-\s]+(\d{1,2})[\/\.\-\s]+(\d{4})/);
-      if (match) { const date = isoDate(match[1], match[2], match[3]); if (date) return date; }
-      match = segment.match(/(\d{4})[\/\.\-](\d{1,2})[\/\.\-](\d{1,2})/);
-      if (match) { const date = isoDate(match[3], match[2], match[1]); if (date) return date; }
-      match = segment.match(/(\d{1,2})\s*([A-Z]{3})\s*(\d{4})/);
-      if (match && MONTHS[match[2]]) { const date = isoDate(match[1], MONTHS[match[2]], match[3]); if (date) return date; }
+    const source = String(text || '').toUpperCase().replace(/[๐-๙]/g, (ch) => String(ch.charCodeAt(0) - 0x0E50));
+    const dates = [];
+    const add = (match, day, month, year) => {
+      const date = isoDate(day, month, year);
+      if (date) dates.push({ index: match.index, date });
+    };
+    for (const match of source.matchAll(/(\d{1,2})[\/\.\-\s]+(\d{1,2})[\/\.\-\s]+(\d{4})/g)) add(match, match[1], match[2], match[3]);
+    for (const match of source.matchAll(/(\d{4})[\/\.\-](\d{1,2})[\/\.\-](\d{1,2})/g)) add(match, match[3], match[2], match[1]);
+    for (const match of source.matchAll(/(\d{1,2})\s*([A-Z]{3})\.?\s*(\d{4})/g)) {
+      if (MONTHS[match[2]]) add(match, match[1], MONTHS[match[2]], match[3]);
+    }
+    for (const match of source.matchAll(/(\d{1,2})\s*(ม\.?ค|ก\.?พ|มี\.?ค|เม\.?ย|พ\.?ค|มิ\.?ย|ก\.?ค|ส\.?ค|ก\.?ย|ต\.?ค|พ\.?ย|ธ\.?ค)\.?\s*(\d{4})/g)) {
+      const month = THAI_MONTHS[match[2].replace(/\./g, '')];
+      if (month) add(match, match[1], month, match[3]);
+    }
+    dates.sort((a, b) => a.index - b.index);
+    for (const label of source.matchAll(/EXPIR(?:Y|ES|ATION)|VALID\s*(?:UNTIL|THRU|TO)|หมดอายุ/g)) {
+      // On Thai ID cards the date is often printed above the label; on a
+      // passport it is usually after it. Prefer the nearby date, either way.
+      const after = dates.find((item) => item.index >= label.index + label[0].length && item.index <= label.index + label[0].length + 45);
+      if (after) return after.date;
+      const before = dates.filter((item) => item.index < label.index && item.index >= label.index - 75).at(-1);
+      if (before) return before.date;
     }
     return '';
   }

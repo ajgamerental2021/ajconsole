@@ -26,7 +26,7 @@ test('each refused field sends the renter to the step that holds it, in Thai and
   assert.equal(problemFor(refused(['phone'])).field, 'demoCustomerPhone');
   assert.equal(problemFor(refused(['address', 'pickupLocation', 'returnLocation'])).field, 'demoMaps');
   assert.equal(problemFor(refused(['deviceId'])).step, 1);
-  assert.equal(problemFor(refused(['refundAccountNumber'])).step, 3);
+  assert.equal(problemFor(refused(['refundAccountNumber'])).step, 2);
   assert.equal(problemFor(refused(['wiseEmail']), 'en').message, 'Please check the refund account details.');
   assert.equal(problemFor(refused(['signatureDataUrl'])).message, 'กรุณาเซ็นลายเซ็นในกรอบอีกครั้ง');
   assert.equal(problemFor(refused(['idExpiry'], 'id_expires_before_return')).field, 'demoIdentityExpiry');
@@ -77,7 +77,7 @@ test('legal name accepts only the alphabet selected by the page language', () =>
   const accountContext = {};
   vm.runInNewContext(`${extract('demoAccountNameValid')}; this.run = demoAccountNameValid;`, accountContext);
   assert.equal(accountContext.run("Anne-Marie O'Neil"), true);
-  assert.match(extract('demoStep3Problems'), /demoAccountNameValid\(accountName\)/);
+  assert.match(extract('demoRefundProblems'), /demoAccountNameValid\(accountName\)/);
   assert.match(extract('demoRefundReady'), /demoAccountNameValid\(demoProfile\.refundAccountName\)/);
 });
 
@@ -92,7 +92,7 @@ test('Console Pending gets the live delivery fee once it is quoted', () => {
   assert.match(queue, /consolePendingWrites = consolePendingWrites\n      \.then\(write\)/);
 });
 
-test('"Verify now" asks for everything step 3 does: photos, refund account (Wise in English), consent and signature', () => {
+test('"Verify now" reuses step 2 refund details and asks only for identity photos, consent and signature', () => {
   const body = extract('verifyNowBodyHtml');
   assert.match(body, /demoIdentityUploadGridHtml\("verifyNow"\)/);
   assert.match(body, /id="verifyNowAgreementHost"/);
@@ -105,7 +105,9 @@ test('"Verify now" asks for everything step 3 does: photos, refund account (Wise
   assert.match(extract('verifyNowProblems'), /demoStep3Problems\(\)\.filter\(problem => problem\.id !== "demoIdDocument"\)/);
   const submit = extract('submitVerifyNow');
   assert.ok(submit.indexOf('await submitDemoAgreement(token)') < submit.indexOf('await uploadDemoIdentity(token)'));
-  // The refund block offers Wise on English bookings, with its full details.
+  // The refund block now lives in step 2 and offers Wise on English bookings.
+  assert.match(html, /class="demo-step2-refund" id="demoRefundSection"/);
+  assert.doesNotMatch(extract('renderDemoAgreementCard'), /demoRefundSectionHtml/);
   const refund = extract('demoRefundSectionHtml');
   assert.match(refund, /I do not have a Thai bank account and would like to receive the security deposit refund through Wise/);
   for (const key of ['wiseFullName', 'wiseCountry', 'wiseCurrency', 'wiseBankName', 'wiseAccountNumber', 'wiseSwift', 'wiseEmail']) assert.match(refund, new RegExp(`wiseField\\("${key}"`));
