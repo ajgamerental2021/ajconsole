@@ -1,3 +1,10 @@
+## 2026-10-06 — Booking progression and review timing
+
+- Website: The no-verification deposit tier and choice now appear only in Step 2. Step 2 explains that skipping verification needs no ID number or photos. Customer-facing identity labels were aligned in Thai and English; old FAQ wording remains recognized only when migrating saved FAQ entries.
+- Website: Step 1 and Step 2 forward actions and Step 3 confirmation now check availability automatically, retry a failed check once, show a blocking progress screen, and show a bilingual reason dialog if the customer cannot continue. Step 3 confirmation is clickable even when details are missing so it can show the specific missing field. Agreement and identity-upload failures also open a reason dialog.
+- Delivery App: The noon review-discount reminder reads the booking again immediately before sending. An extension that changed the return date suppresses the old-date card; the new date uses its own reminder ledger. The check compares ISO task dates with Thai-format booking dates correctly.
+- Verification: 283/283 website tests after rebasing the separate OCR commit, Chromium mobile Thai/English checks for Step 1 success/failure and Step 3 validation popup, backend TypeScript and cancellation/review tests. OCR code was not changed.
+
 ## 2026-10-06 — Identity verification wording and current Rental Terms
 
 - The booking guide and deposit tier heading now state clearly in Thai and English that skipping identity verification raises the security deposit by the displayed rate. FAQ, guide labels, status text and the Bot's no-identity choices use the same language.

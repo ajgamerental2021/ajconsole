@@ -40,7 +40,7 @@ test('main booking and quick quote agree on the four 5,000 deposit models', () =
 });
 
 test('the booking option shows only the chosen device, while rental steps retain the full schedule', () => {
-  assert.equal((bookingPage.match(/pricingTierHtml\(state.lang,true,true\)/g) || []).length, 3);
+  assert.equal((bookingPage.match(/pricingTierHtml\(state.lang,true,true\)/g) || []).length, 1);
   assert.match(bookingPage, /replace\("__PRICING_TIERS__",pricingTierHtml\(state.lang\)\)/);
   assert.match(bookingPage, /pricing-tier-device-name/);
   assert.match(bookingPage, /Bundle PS5: \${money\(policy.bundleNoIdentityDeposit\)}/);

@@ -142,7 +142,8 @@ test('identity images are uploaded to the booking context before the Rental ID p
 test('step 2 marks the fields that still need filling instead of a dead button', () => {
   assert.match(html, /function demoStep2Problems\(\)/);
   assert.match(html, /function showDemoStep2Problems\(\)/);
-  assert.match(html, /stepReady\(step\) \|\| \(UNIFIED_FLOW_DEMO && step === 2\)/);
+  assert.match(html, /!UNIFIED_FLOW_DEMO \? stepReady\(step\) : true/);
+  assert.match(html, /async function advanceDemoStep\(next\)/);
   assert.match(html, /class="field-error"/);
   assert.match(html, /<span class="req">\*<\/span>/);
   assert.doesNotMatch(html, /No OTP is used\. For privacy/);
@@ -387,7 +388,7 @@ test('re-ticking the returning discount after verifying applies it, through the 
 test('an agreement that already covers the renter sends step 2 straight to payment', () => {
   assert.match(html, /function demoIdentityStepSkippable\(\)\{\n    return demoIdentityCoveredByAgreement\(\) \|\| !!state\.calc\.noContract;/);
   assert.match(html, /UNIFIED_FLOW_DEMO && step === 2 && demoIdentityStepSkippable\(\)\n        \? `<button class="btn primary" id="demoConfirmFromDetails"/);
-  assert.match(html, /if\(targetId === "demoConfirmFromDetails"\)\{\n        if\(!showDemoStep2Problems\(\)\) return;\n        await confirmDemoOrder\(\);/);
+  assert.match(html, /if\(targetId === "demoConfirmFromDetails"\)\{\n        await confirmDemoOrder\(\);/);
 });
 
 test('a renter without a valid agreement signs one on step 3, through the contract service', () => {
@@ -417,13 +418,14 @@ test('the reservation note puts the balance rule on its own line', () => {
   assert.match(html, /"Balance on delivery: Thai QR scan with no fee/);
 });
 
-test('a failed queue check on confirm opens a retry dialog that carries on to payment', () => {
-  assert.match(html, /async function confirmDemoOrder\(\)\{\n    if\(demoQueueCheckFailed\(\)\)\{ showQueueRetryDialog\(\); return; \}/);
-  assert.match(html, /await fetchAvailability\(\)\.catch\(\(\) => \{\}\);/);
-  assert.match(html, /closeModal\(\);\n    render\(\);\n    await openDemoOrder\(\);/);
-  assert.match(html, /if\(String\(error\?\.message \|\| ""\) === "booking_availability_refresh_failed"\)\{ showQueueRetryDialog\(\); return; \}/);
-  assert.match(html, /ลองเช็คคิวอีกครั้ง/);
-  assert.match(html, /Check the queue again/);
+test('confirm checks the queue automatically, retries once, and explains a failure', () => {
+  assert.match(html, /async function confirmDemoOrder\(\)\{/);
+  assert.match(html, /if\(!\(await checkDemoQueueAutomatically\(\)\)\) return;/);
+  assert.match(html, /for\(let attempt = 0; attempt < 2 && !fresh; attempt\+\+\)/);
+  assert.match(html, /showDemoBusy\(en \? "Checking availability/);
+  assert.match(html, /showQueueRetryDialog\(en \? "The automatic queue check failed twice/);
+  assert.match(html, /showDemoProgressProblem\(problems\[0\]\.message\)/);
+  assert.match(html, /await confirmDemoOrder\(\);/);
 });
 
 test('status colours, the motorcycle rule and the quoted delivery on the booking', () => {
@@ -616,8 +618,8 @@ test('pop-ups that can switch language share one language button', () => {
   assert.match(html, /showModal\("FAQ", faqModalBody\(\), \{relocalize:draw\}\);/);
   // The returning-customer check has its own language button and wording.
   assert.match(html, /id="returningVerifyLang"/);
-  assert.match(html, /returningVerifyNoIdentity:"ไม่เคยทำสัญญาการเช่า"/);
-  assert.match(html, /returningVerifyNoIdentity:"I have never signed a rental agreement"/);
+  assert.match(html, /returningVerifyNoIdentity:"ไม่เคยยืนยันตัวตน"/);
+  assert.match(html, /returningVerifyNoIdentity:"I have never verified my identity"/);
 });
 
 test('Verify now opens the identity photos in a pop-up, not step 3', () => {

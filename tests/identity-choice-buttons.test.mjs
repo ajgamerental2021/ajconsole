@@ -24,7 +24,8 @@ test('verification left for later: a red-outlined button skips it for the higher
   // One switch for the step 2 checkbox and these buttons; it drops a payment
   // link made for the old deposit.
   assert.match(html, /function setDemoNoContract\(value\)\{\n    state\.calc\.noContract = !!value;\n    state\.calc\.beamPaymentLink = "";/);
-  assert.match(html, /event\.target\.id === "demoIdentityNoContractOpt"\)\{\n        setDemoNoContract\(event\.target\.checked\);/);
+  assert.match(html, /if\(event\.target\.id === "demoNoContractOpt"\)\{\n        setDemoNoContract\(event\.target\.checked\);/);
+  assert.doesNotMatch(html, /id="demoIdentityNoContractOpt"/);
 });
 
 test('the customer details dialog does not save with required fields empty, and says what is missing', () => {
