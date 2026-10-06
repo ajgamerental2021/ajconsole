@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const source = fs.readFileSync(new URL('../assets/identity-ocr.js', import.meta.url), 'utf8');
 const context = { URL, module: { exports: {} } };
 vm.runInNewContext(source, context);
-const { parse } = context.module.exports;
+const { parse, cardBounds } = context.module.exports;
 const id = '1234567890121'; // Synthetic number with a valid check digit.
 
 for (const [label, text] of [
@@ -26,4 +26,38 @@ test('OCR leaves a passport Common Era expiry year unchanged', () => {
   assert.equal(result.type, 'passport');
   assert.equal(result.number, 'AB1234567');
   assert.equal(result.expiry, '2033-07-05');
+});
+
+test('OCR preserves an expiry read separately from the document number', () => {
+  const result = parse('Date of Expiry 5 Jul. 2033');
+  assert.equal(result.number, '');
+  assert.equal(result.expiry, '2033-07-05');
+});
+
+test('OCR tolerates one spurious Thai letter in a printed expiry month', () => {
+  const result = parse(`Identification Number ${id}\n5 ก . ด ค . 2576\nDate of Expiry`);
+  assert.equal(result.number, id);
+  assert.equal(result.expiry, '2033-07-05');
+});
+
+test('OCR crops a blue ID card and ignores a handwritten note below it', () => {
+  const width = 240;
+  const height = 300;
+  const data = new Uint8ClampedArray(width * height * 4);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const offset = (y * width + x) * 4;
+      const card = x >= 35 && x < 205 && y >= 30 && y < 125;
+      const ink = x >= 25 && x < 210 && y >= 190 && y < 193;
+      [data[offset], data[offset + 1], data[offset + 2], data[offset + 3]] =
+        card ? [120, 170, 195, 255] : ink ? [30, 60, 170, 255] : [235, 225, 205, 255];
+    }
+  }
+  const bounds = cardBounds(data, width, height);
+  assert.ok(bounds);
+  assert.ok(bounds.x <= 35);
+  assert.ok(bounds.y <= 30);
+  assert.ok(bounds.x + bounds.width >= 205);
+  assert.ok(bounds.y + bounds.height >= 125);
+  assert.ok(bounds.y + bounds.height < 190);
 });

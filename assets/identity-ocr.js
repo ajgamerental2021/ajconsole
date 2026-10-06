@@ -42,8 +42,12 @@
     for (const match of source.matchAll(/(\d{1,2})\s*([A-Z]{3})\.?\s*(\d{4})/g)) {
       if (MONTHS[match[2]]) add(match, match[1], MONTHS[match[2]], match[3]);
     }
-    for (const match of source.matchAll(/(\d{1,2})\s*(ม\.?ค|ก\.?พ|มี\.?ค|เม\.?ย|พ\.?ค|มิ\.?ย|ก\.?ค|ส\.?ค|ก\.?ย|ต\.?ค|พ\.?ย|ธ\.?ค)\.?\s*(\d{4})/g)) {
-      const month = THAI_MONTHS[match[2].replace(/\./g, '')];
+    for (const match of source.matchAll(/(\d{1,2})\s*([ก-ฮ][\s.ก-ฮ]{0,8}?[ก-ฮ])\s*\.?\s*(\d{4})/g)) {
+      const letters = match[2].replace(/[^ก-ฮ]/g, '');
+      // Tiny Thai month abbreviations often gain one stray OCR character,
+      // e.g. ก.ค. becomes ก.ดค. Keep the first and last letter in that case.
+      const month = THAI_MONTHS[letters]
+        || (letters.length === 3 ? THAI_MONTHS[letters[0] + letters[2]] : undefined);
       if (month) add(match, match[1], month, match[3]);
     }
     dates.sort((a, b) => a.index - b.index);
@@ -71,7 +75,110 @@
     if (id) return { type: 'thai_id', number: id, expiry: expiryIn(source), source: 'printed' };
     const passportMatch = source.match(/(?:PASSPORT\s*(?:NO\.?|NUMBER)?|เลขที่หนังสือเดินทาง)[\s:#.\-]*([A-Z0-9]{6,10})/i);
     if (passportMatch) return { type: 'passport', number: passportMatch[1], expiry: expiryIn(source), source: 'printed' };
-    return { type: '', number: '', expiry: '', source: '' };
+    // A second OCR pass may find the document number even when this pass only
+    // reads the expiry. Keep that partial result so the passes can be combined.
+    return { type: '', number: '', expiry: expiryIn(source), source: '' };
+  }
+  function cardBounds(data, width, height) {
+    // Thai ID cards have a blue face. The paper in customers' photos is often
+    // much larger than the card, and handwritten notes below it must not set
+    // the OCR scale. Find the broad blue rectangle, not isolated blue ink.
+    const blue = (offset) => data[offset + 2] > data[offset] + 8
+      && data[offset + 1] >= data[offset] - 12;
+    const density = new Array(height).fill(0);
+    for (let y = 0; y < height; y++) {
+      let count = 0;
+      for (let x = 0; x < width; x++) {
+        if (blue((y * width + x) * 4)) count++;
+      }
+      density[y] = count / width;
+    }
+    const maxGap = Math.max(3, Math.round(height * 0.035));
+    const bands = [];
+    let start = -1;
+    let last = -1;
+    for (let y = 0; y <= height; y++) {
+      if (y < height && density[y] >= 0.12) {
+        if (start < 0) start = y;
+        last = y;
+      } else if (start >= 0 && (y === height || y - last > maxGap)) {
+        bands.push({ start, end: last + 1 });
+        start = last = -1;
+      }
+    }
+    const band = bands.sort((a, b) => (b.end - b.start) - (a.end - a.start))[0];
+    if (!band || band.end - band.start < height * 0.1) return null;
+    const columns = [];
+    for (let x = 0; x < width; x++) {
+      let count = 0;
+      for (let y = band.start; y < band.end; y++) {
+        if (blue((y * width + x) * 4)) count++;
+      }
+      if (count / (band.end - band.start) >= 0.08) columns.push(x);
+    }
+    if (!columns.length) return null;
+    const left = columns[0];
+    const right = columns.at(-1) + 1;
+    const xMargin = Math.round((right - left) * 0.08);
+    const yMargin = Math.round((band.end - band.start) * 0.07);
+    const x = Math.max(0, left - xMargin);
+    const y = Math.max(0, band.start - yMargin);
+    const w = Math.min(width, right + xMargin) - x;
+    const h = Math.min(height, band.end + yMargin) - y;
+    const ratio = w / h;
+    if (ratio < 1.2 || ratio > 2.3 || w * h > width * height * 0.8) return null;
+    return { x, y, width: w, height: h };
+  }
+  async function cardCrop(file) {
+    if (typeof document === 'undefined') return null;
+    let image;
+    let objectUrl;
+    try {
+      if (typeof createImageBitmap === 'function') {
+        try { image = await createImageBitmap(file); } catch (_) { /* Safari image fallback below. */ }
+      }
+      if (!image) {
+        objectUrl = URL.createObjectURL(file);
+        image = await new Promise((resolve, reject) => {
+          const element = new Image();
+          element.onload = () => resolve(element);
+          element.onerror = reject;
+          element.src = objectUrl;
+        });
+      }
+      const sourceWidth = image.width;
+      const sourceHeight = image.height;
+      const sampleWidth = Math.min(360, sourceWidth);
+      const sampleHeight = Math.max(1, Math.round(sourceHeight * sampleWidth / sourceWidth));
+      const sample = document.createElement('canvas');
+      sample.width = sampleWidth;
+      sample.height = sampleHeight;
+      const sampleContext = sample.getContext('2d', { willReadFrequently: true });
+      sampleContext.drawImage(image, 0, 0, sampleWidth, sampleHeight);
+      const bounds = cardBounds(sampleContext.getImageData(0, 0, sampleWidth, sampleHeight).data, sampleWidth, sampleHeight);
+      if (!bounds) return null;
+      const x = Math.round(bounds.x * sourceWidth / sampleWidth);
+      const y = Math.round(bounds.y * sourceHeight / sampleHeight);
+      const width = Math.round(bounds.width * sourceWidth / sampleWidth);
+      const height = Math.round(bounds.height * sourceHeight / sampleHeight);
+      // Tesseract already chooses its own text scale. Enlarging this sample
+      // blurred the tiny expiry date enough to make it unreadable.
+      const scale = Math.min(1, 2200 / width);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(width * scale);
+      canvas.height = Math.round(height * scale);
+      const context = canvas.getContext('2d');
+      context.drawImage(image, x, y, width, height, 0, 0, canvas.width, canvas.height);
+      // A modest JPEG recompression helps Tesseract separate the tiny Thai
+      // month letters on actual phone photos. Raw canvas/PNG read the issue
+      // date instead of the expiry on the reported sample.
+      return await new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('ocr_crop_encode_failed')), 'image/jpeg', 0.8);
+      });
+    } finally {
+      if (image && typeof image.close === 'function') image.close();
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    }
   }
   function loadScript() {
     if (library) return library;
@@ -97,10 +204,24 @@
       logger: (event) => { if (onProgress && event.status === 'recognizing text') onProgress(event.progress); }
     }).catch((error) => { worker = null; throw error; });
     const instance = await worker;
-    const result = await instance.recognize(file);
-    return parse(result.data?.text || '');
+    let crop = null;
+    try { crop = await cardCrop(file); } catch (_) { /* Keep the original-photo fallback. */ }
+    let found = { type: '', number: '', expiry: '', source: '' };
+    const today = new Date().toISOString().slice(0, 10);
+    for (const input of crop ? [crop, file] : [file]) {
+      const result = await instance.recognize(input);
+      const current = parse(result.data?.text || '');
+      if (current.number && !found.number) {
+        found = { ...found, type: current.type, number: current.number, source: current.source };
+      }
+      if (current.expiry && (!found.expiry || (found.expiry < today && current.expiry >= today))) {
+        found.expiry = current.expiry;
+      }
+      if (found.number && found.expiry >= today) break;
+    }
+    return found;
   }
-  const api = { parse, recognize, thaiIdValid };
+  const api = { parse, recognize, thaiIdValid, cardBounds };
   global.AJIdentityOCR = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
