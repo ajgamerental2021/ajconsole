@@ -2656,3 +2656,9 @@ paused job shows slightly old numbers rather than an empty section.
 - Default Bangkok hours for selecting or changing games after booking are now 09:00–20:00. The Bot's live setting had no saved override, so this default takes effect without altering an owner-chosen setting. Admin → Settings still permits another window or disabling the limit.
 - A post-booking picker now disables the game cards, selected-game remove buttons, Clear all, Copy list and Send list while closed. The add/remove/clear/send handlers also refuse direct calls; the Bot and Delivery App continue to reject late submissions on their APIs. The interface updates its disabled state every second across the opening/closing boundary. The booking checkout picker remains available all day in Thai and English.
 - Verified 19:59 open and 20:00 closed in Bangkok time, the disabled controls and mutation handlers, the booking checkout exception, the Admin override, website JavaScript syntax and 296 website tests, 572 Bot tests, and Delivery App hours/build checks. No customer game selection was submitted.
+
+## 2026-10-07 — Shorter closed-hours game picker message
+
+- The closed-hours notice in both languages now states only the after-booking selection window. It omits the booking-checkout and timezone explanations. Admin settings labels and help omit those phrases too.
+- The picker still shows the customer's saved games while closed, but does not show the "add or remove, then confirm" toast until edits are allowed. Game cards and action buttons remain disabled outside the configured hours; no server rule changed.
+- Verified the closed/open preselection messages and both language notices, page JavaScript syntax, and all 298 website tests. No customer game selection was submitted.

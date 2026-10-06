@@ -5597,8 +5597,8 @@ function gameUpdatesClosedNow(now = new Date()) {
 function gameShopHoursMessage() {
   const { startTime, endTime } = gameUpdateHours;
   return currentLang === 'en'
-    ? `New game selections and changes after booking are available from ${startTime} to ${endTime} (Thailand time). You can still choose games while booking.`
-    : `การเลือกเกมใหม่หรือแก้ไขรายการเกมหลังจองทำได้เวลา ${startTime}–${endTime} น. ตามเวลาไทย ระหว่างจองยังเลือกเกมได้ตามปกติ`;
+    ? `New game selections and changes after booking are available from ${startTime} to ${endTime}.`
+    : `การเลือกเกมใหม่หรือแก้ไขรายการเกมหลังจองทำได้เวลา ${startTime}–${endTime} น.`;
 }
 async function pickPrimaryAction() {
   if (pickSendsList()) await loadGameUpdateHours(true);
@@ -5802,7 +5802,7 @@ function applyPreselection() {
     showToast(currentLang === 'en'
       ? `${missing.length} game${missing.length > 1 ? 's are' : ' is'} no longer in the list: ${missing.join(', ')}`
       : `มี ${missing.length} เกมที่ไม่มีในแคตตาล็อกแล้ว: ${missing.join(', ')}`);
-  } else {
+  } else if (!(pickSendsList() && gameUpdatesClosedNow())) {
     showToast(currentLang === 'en'
       ? 'Your current games are ticked — add or remove, then confirm.'
       : 'ติ๊กเกมที่เลือกไว้ให้แล้ว — เพิ่มหรือเอาออกได้ แล้วกดยืนยัน');

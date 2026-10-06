@@ -108,3 +108,34 @@ test('closed after-booking picker disables send, clear, copy, and selected remov
   assert.deepEqual(makeRun(true), { disabled: [true, true, true, true], closedClass: true, notice: '09:00–20:00' });
   assert.deepEqual(makeRun(false), { disabled: [false, false, false, false], closedClass: false, notice: '' });
 });
+
+test('closed picker keeps saved games visible without suggesting edits', () => {
+  const run = closed => {
+    const notices = [];
+    const context = vm.createContext({
+      games: [{ id: 'A', name: 'Game A' }], MAX_PICK: 10,
+      selectionContext: { selectedGames: ['Game A'] },
+      matchSavedGameNames: () => ({ ids: ['A'], missing: [] }),
+      renderPickPlatformTabs: () => {}, renderPickBody: () => {}, renderPickFooter: () => {},
+      showToast: message => notices.push(message),
+      pickSendsList: () => true, gameUpdatesClosedNow: () => closed,
+      currentLang: 'th',
+    });
+    vm.runInContext(`let preselectionApplied = false; let pickedGames = []; let pickBaselineIds = [];\n${functionSource('applyPreselection')}`, context);
+    vm.runInContext('applyPreselection()', context);
+    return { selected: [...vm.runInContext('pickedGames', context)], notices };
+  };
+  assert.deepEqual(run(true), { selected: ['A'], notices: [] });
+  assert.match(run(false).notices[0], /ติ๊กเกมที่เลือกไว้ให้แล้ว/);
+});
+
+test('hours notice omits booking and timezone suffixes in both languages', () => {
+  for (const currentLang of ['th', 'en']) {
+    const context = vm.createContext({ currentLang, gameUpdateHours: { startTime: '09:00', endTime: '20:00' } });
+    vm.runInContext(functionSource('gameShopHoursMessage'), context);
+    const notice = vm.runInContext('gameShopHoursMessage()', context);
+    assert.match(notice, /09:00/);
+    assert.match(notice, /20:00/);
+    assert.doesNotMatch(notice, /ตามเวลาไทย|ระหว่างจองยังเลือกเกมได้ตามปกติ|Thailand time|while booking/);
+  }
+});
