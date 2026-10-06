@@ -1,3 +1,10 @@
+## 2026-10-06 — Verify-later photo submission no longer stalls silently
+
+- The paid `/verify/` link for AJ-20261006-R0017 loaded, but submitting photos could remain on “กำลังส่งรูป…” and end with a generic failure. The live upload itself has not been replayed with the renter’s private photos; the prior GET check only established that the signed link and rental lookup worked.
+- The Bot now converts selected photos with Safari-compatible image loading, with a bounded decode and a clear invalid-image message. Thai and English show separate preparing, sending/saving, and completion-check states. A slow POST triggers bounded status polling so a successful write is shown as received even if the POST response times out. Both languages give a specific timeout or in-progress message otherwise.
+- The server uploads the two originals and two watermarked copies concurrently, with a 30-second deadline and one retry per file. Booking history and Console Pending writes run concurrently; the paid follow-up returns after one write attempt per source and counts one durable success as received. The GET response exposes an in-progress flag to the page while that rental is being uploaded. History writes and the pending-row read have deadlines so one stalled upstream cannot keep the request open forever.
+- Tests cover the four concurrent uploads, Safari-style photo conversion without `createImageBitmap`, Thai/English submission and recovery when POST times out after the server has accepted the images. The Bot suite passed 570/570 and a local server served `/verify/` with the new bilingual stages. OCR was not changed. A live customer-photo submission and Drive/Sheets write still require the renter to retry the existing link after deployment.
+
 ## 2026-10-06 — Identity verification links recover from stalled reads
 
 - The paid renter's `/verify/` link for AJ-20261006-R0017 returned a valid API response when checked, but its page and the identity booking lookup had no deadline. A stalled Apps Script or Sheets read could therefore leave “กำลังโหลด…” on screen indefinitely.
