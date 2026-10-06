@@ -1,3 +1,9 @@
+## 2026-10-06 — Calendar queue check retries after two seconds
+
+- The booking calendar previously waited up to about 30 seconds across two serial availability attempts while showing “กำลังเช็คคิว...”. The Bot availability endpoint took about 3.7 seconds on a cold read and 0.4–0.6 seconds on warm cached reads in a read-only production timing check, so two seconds is an appropriate trigger for a second request, not a safe deadline to decide availability.
+- The website now asks the Bot and direct availability source in parallel, starts another pair after two seconds if neither has supplied a valid nonempty snapshot, and exits the loading state within ten seconds. An initial error can start the retry sooner. Both languages show a distinct “checking again” message. Empty or invalid responses cannot win the race. A failed check shows Retry and keeps calendar confirmation disabled; payment still performs its fresh availability and booking-hold check.
+- Website tests passed 291/291, including fast success without extra requests, a stalled first round with recovery, all requests stalled, and an empty response from one source. Mobile Chromium checks confirmed a stalled first round recovers without page errors and an all-stalled check shows Retry with confirmation disabled after about ten seconds.
+
 ## 2026-10-06 — Verify-later photo submission no longer stalls silently
 
 - The paid `/verify/` link for AJ-20261006-R0017 loaded, but submitting photos could remain on “กำลังส่งรูป…” and end with a generic failure. The later live status check established that the submitted photos were recorded despite that browser error; the upload itself was not replayed with the renter’s private photos.
