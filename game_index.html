@@ -2859,6 +2859,7 @@
         <button class="btn btn-primary" onclick="pickPrimaryAction()" id="btn-generate-copy" style="display:none">
           <span id="pick-primary-label">📋 แจ้งร้าน</span>
         </button>
+        <div id="pick-shop-hours" role="status" style="display:none;width:100%;color:#a52b20;font-weight:700;margin-top:8px"></div>
       </div>
     </div>
   </div>
@@ -5537,7 +5538,17 @@ function pickSendsList() {
   return isTokenGamePicker() || document.body.classList.contains('aj-contract-card-picker');
 }
 
+function gameUpdatesClosedNow() {
+  const hour = Number(new Intl.DateTimeFormat('en-GB', { timeZone:'Asia/Bangkok', hour:'2-digit', hourCycle:'h23' }).format(new Date()));
+  return hour < 9 || hour >= 20;
+}
+function gameShopHoursMessage() {
+  return currentLang === 'en'
+    ? 'Game selection and updates are available from 09:00 to 20:00 (Thailand time). Please return at 09:00.'
+    : 'เลือกหรืออัปเดตเกมได้เวลา 09:00–20:00 น. ตามเวลาไทย กรุณากลับมาอีกครั้งเวลา 09:00 น.';
+}
 function pickPrimaryAction() {
+  if (pickSendsList() && gameUpdatesClosedNow()) { showToast(gameShopHoursMessage()); return; }
   if (pickSendsList()) sendContractCardGameList();
   else generateCopyText();
 }
@@ -5559,7 +5570,10 @@ function renderPickActions() {
   const btn = document.getElementById('btn-generate-copy');
   if (!btn) return;
   btn.style.display = pickedGames.length > 0 ? '' : 'none';
-  btn.disabled = pickSubmitState === 'sending' || pickSubmitState === 'saved';
+  const closed = pickSendsList() && gameUpdatesClosedNow();
+  btn.disabled = closed || pickSubmitState === 'sending' || pickSubmitState === 'saved';
+  const notice = document.getElementById('pick-shop-hours');
+  if (notice) { notice.style.display = closed ? '' : 'none'; notice.textContent = closed ? gameShopHoursMessage() : ''; }
   const label = document.getElementById('pick-primary-label');
   if (label) label.textContent = pickPrimaryLabel();
 }
@@ -5636,6 +5650,7 @@ async function initSelectionToken() {
       return;
     }
     selectionContext = data;
+    if (data.shopClosed || gameUpdatesClosedNow()) showToast(gameShopHoursMessage());
     // Judge every game against this booking's rental window, not against
     // today. The embedded picker gets the same range through openPickerFromParent;
     // a token link opened on its own would otherwise never receive it.
@@ -5796,7 +5811,8 @@ async function submitSelectionToken() {
     });
     const data = await res.json();
     if (!res.ok || !data.ok) {
-      const msg = data.status === 'too_many_games'
+      const msg = data.status === 'shop_closed' || data.error === 'shop_closed' ? gameShopHoursMessage()
+        : data.status === 'too_many_games'
         ? (currentLang === 'en' ? `Please pick at most ${data.maxGames} games.` : `เลือกได้ไม่เกิน ${data.maxGames} เกมครับ`)
         : (currentLang === 'en' ? 'Could not save — please try again.' : 'บันทึกไม่สำเร็จ ลองใหม่อีกครั้งครับ');
       showToast(msg);
@@ -5862,6 +5878,7 @@ function generateCopyText() {
 }
 
 function doCopy() {
+  if (pickSendsList() && gameUpdatesClosedNow()) { showToast(gameShopHoursMessage()); return; }
   const text = document.getElementById('copy-text-area').value;
   if (!text) return;
   const doFallback = () => {

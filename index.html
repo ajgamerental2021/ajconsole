@@ -5150,8 +5150,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ? {expired:"has expired", before_start:"expires before the start date", during_rental:"expires during the rental", on_return:"expires on the return date"}[issue]
       : {expired:"หมดอายุแล้ว", before_start:"หมดอายุก่อนวันเริ่มเช่า", during_rental:"หมดอายุระหว่างการเช่า", on_return:"หมดอายุตรงกับวันคืนเครื่อง"}[issue];
     return en
-      ? `⚠️ Warning: this ${documentName} ${when}. You cannot continue: ${end ? `the expiry date must be after the return date (${end}).` : "the document must still be valid."}`
-      : `⚠️ แจ้งเตือน: ${documentName}${when} ไม่สามารถทำรายการต่อได้ ${end ? `วันหมดอายุต้องอยู่หลังวันคืนเครื่อง (${end}) เท่านั้น` : "เอกสารต้องยังไม่หมดอายุ"}`;
+      ? `⚠️ Warning: this ${documentName} ${when}. You cannot continue: ${end ? `the expiry date must be after the return date (${end}).` : `the ${documentName} must still be valid.`}`
+      : `⚠️ แจ้งเตือน: ${documentName}${when} ไม่สามารถทำรายการต่อได้ ${end ? `วันหมดอายุต้องอยู่หลังวันคืนเครื่อง (${end}) เท่านั้น` : `${documentName}ต้องยังไม่หมดอายุ`}`;
   }
   // An agreement only stands while the document behind it is still valid.
   function demoIdentityCoveredByAgreement(){
@@ -5665,7 +5665,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <div class="demo-profile-grid">
         <div class="field wide"><span class="label">${en ? "Document type" : "ประเภทเอกสาร"}</span><div class="demo-id-type" role="radiogroup"><label><input type="radio" name="demoIdentityType" value="thai_id" ${demoIdentityType()==="thai_id"?"checked":""}>${en ? "Thai ID card" : "บัตรประชาชน"}</label><label><input type="radio" name="demoIdentityType" value="passport" ${demoIdentityType()==="passport"?"checked":""}>Passport</label></div></div>
         <div class="field"><label class="label" for="demoIdentityNumber">${demoIdentityType()==="passport" ? (en ? "Passport number" : "เลข Passport") : (en ? "Thai ID number" : "เลขบัตรประชาชน")}<span class="req">*</span></label><input class="input" id="demoIdentityNumber" autocomplete="off" ${demoIdentityType()==="passport" ? "maxlength=10 autocapitalize=characters" : "inputmode=numeric maxlength=13"} value="${esc(demoProfile.identityNumber)}" placeholder="${demoProfile.identityDraftLast4 && !demoProfile.identityNumber ? esc(`${"•".repeat(8)}${demoProfile.identityDraftLast4}`) : ""}"></div>
-        <div class="field"><label class="label" for="demoIdentityExpiry">${demoIdentityType()==="passport" ? (en ? "Passport expiry date" : "วันหมดอายุ Passport") : (en ? "Thai ID expiry date" : "วันหมดอายุบัตรประชาชน")}<span class="req">*</span></label><input class="input${demoIdentityExpired() ? " is-invalid" : ""}" id="demoIdentityExpiry" type="date" value="${esc(demoProfile.identityExpiry)}"></div>
+        <div class="field"><label class="label" for="demoIdentityExpiry">${demoIdentityType()==="passport" ? (en ? "Passport expiry date" : "วันหมดอายุ Passport") : (en ? "Thai ID card expiry date" : "วันหมดอายุของบัตรประชาชน")}<span class="req">*</span></label><input class="input${demoIdentityExpired() ? " is-invalid" : ""}" id="demoIdentityExpiry" type="date" value="${esc(demoProfile.identityExpiry)}"></div>
       </div>`;
   }
   async function readDemoIdentity(file){
