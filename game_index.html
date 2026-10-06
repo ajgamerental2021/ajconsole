@@ -5533,7 +5533,7 @@ function pickListChangedSinceSave() {
     || pickedGames.some((id, i) => id !== pickBaselineIds[i]);
 }
 
-/** The Delivery App's token link and the booking card's picker send the list themselves. */
+/** Post-booking links send or revise a saved game list. The booking-page iframe has neither marker. */
 function pickSendsList() {
   return isTokenGamePicker() || document.body.classList.contains('aj-contract-card-picker');
 }
@@ -5544,8 +5544,8 @@ function gameUpdatesClosedNow() {
 }
 function gameShopHoursMessage() {
   return currentLang === 'en'
-    ? 'Game selection and updates are available from 09:00 to 20:00 (Thailand time). Please return at 09:00.'
-    : 'เลือกหรืออัปเดตเกมได้เวลา 09:00–20:00 น. ตามเวลาไทย กรุณากลับมาอีกครั้งเวลา 09:00 น.';
+    ? 'New game selections and changes after booking are available from 09:00 to 20:00 (Thailand time). You can still choose games while booking.'
+    : 'การเลือกเกมใหม่หรือแก้ไขรายการเกมหลังจองทำได้เวลา 09:00–20:00 น. ตามเวลาไทย ระหว่างจองยังเลือกเกมได้ตามปกติ';
 }
 function pickPrimaryAction() {
   if (pickSendsList() && gameUpdatesClosedNow()) { showToast(gameShopHoursMessage()); return; }
