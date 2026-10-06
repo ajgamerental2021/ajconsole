@@ -314,6 +314,8 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .demo-signature-placeholder{position:absolute;inset:0;display:grid;place-items:center;color:#98a2b3;font-weight:700;pointer-events:none}
 .demo-signature-placeholder[hidden]{display:none}
 .demo-signature-actions{display:flex;justify-content:flex-end;margin-top:10px}
+.demo-ocr-status{margin:10px 0;color:#176534;font-weight:700;font-size:14px}
+.demo-ocr-status.is-error{color:#a92323}
 .link-btn{appearance:none;border:0;background:none;padding:0;color:#c90012;font:inherit;font-weight:800;text-decoration:underline;cursor:pointer}
 .demo-pin-help{margin:6px 0 2px;padding:10px 12px;border-radius:10px;background:#fff8e6;border:1px solid #f5d48a}
 .demo-delivery-fallback{margin:0 0 12px;padding:12px 14px;border-radius:12px;background:#fff8e6;border:1px solid #f5b840;color:#5c3b00;font-size:14px;line-height:1.5}
@@ -472,7 +474,7 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .step-detail-section + .step-detail-section{margin-top:14px}
 .step-detail strong{font-weight:900}
 .step-detail .step-mark{display:inline;padding:1px 5px;border-radius:6px;background:#fff0cf;color:#7a4700;font-weight:900}
-.pricing-tiers{display:grid;gap:8px;margin:12px 0 4px}
+.pricing-tiers{display:grid;gap:8px;margin:12px 0 4px;padding:10px;border:1px solid #b9c9e8;border-radius:12px;background:#eef4ff}
 .pricing-tiers-title{font-weight:900;line-height:1.4}
 .pricing-tier{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 14px;border:1px solid;border-radius:10px;padding:9px 12px;line-height:1.4}
 .pricing-tier-name{font-weight:700;overflow-wrap:anywhere}
@@ -1748,6 +1750,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 <script src="assets/vendor/simplewebauthn-browser-14.0.0.umd.min.js"></script>
 <script src="assets/admin-passkey.js"></script>
 <script src="assets/place-search.js?v=20261003-6"></script>
+<script src="assets/identity-ocr.js?v=20261006-1"></script>
 <script>
 (() => {
   "use strict";
@@ -2593,7 +2596,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // Full identity numbers and images deliberately stay out of localStorage.
   // Contact and delivery details stay for 24 hours so a returning renter does not retype them.
   const demoProfile = {
-    fullName:"", phone:"", email:"", identityNumber:"", addressLine:"",
+    fullName:"", phone:"", email:"", identityNumber:"", addressLine:"", deliveryInstructions:"",
     subdistrict:"", district:"", province:"Bangkok", postalCode:"", maps:"",
     // The place box: what is typed in it (a place name, an address or a link),
     // and the place chosen from it ({name, address, lat, lng}) for the green
@@ -2601,7 +2604,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // place's own link, or the customer's pasted one.
     mapsText:"", mapsPlace:null,
     lineDisplayName:"", lineUserId:"", idDocument:null, selfieWithId:null,
-    termsAccepted:false, identitySkipped:false, noThaiAddress:false, addressFromProfile:false, refundBankId:"", refundAccountName:"", noThaiBankAccount:false, wiseEmail:"", agreementConsent:false,
+    termsAccepted:false, identitySkipped:false, noThaiAddress:true, addressFromProfile:false, refundBankId:"", refundAccountName:"", noThaiBankAccount:false, wiseEmail:"", agreementConsent:false,
     // "" follows the page language (Thai → Thai ID, English → passport) until
     // the customer picks one; a foreign renter can use Thai and still pick passport.
     identityType:"", identityUploaded:false, identityOnFileLast4:"", identityExpiry:"",
@@ -2612,7 +2615,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // the page keeps only that draft's id and last four characters.
   const DEMO_PROFILE_KEY = "aj_demo_profile_v1";
   const DEMO_PROFILE_TTL_MS = 24 * 60 * 60 * 1000;
-  const DEMO_PROFILE_FIELDS = ["refundBankId","refundAccountName","noThaiBankAccount","wiseEmail","fullName","phone","email","addressLine","subdistrict","district","province","postalCode","maps","mapsText","mapsPlace","termsAccepted","identitySkipped","noThaiAddress","identityType","identityUploaded","identityExpiry","identityDraftId","identityDraftLast4","identityOnFileLast4","addressFromProfile"];
+  const DEMO_PROFILE_FIELDS = ["refundBankId","refundAccountName","noThaiBankAccount","wiseEmail","fullName","phone","email","deliveryInstructions","addressLine","subdistrict","district","province","postalCode","maps","mapsText","mapsPlace","termsAccepted","identitySkipped","noThaiAddress","identityType","identityUploaded","identityExpiry","identityDraftId","identityDraftLast4","identityOnFileLast4","addressFromProfile"];
   let demoProfileSaveTimer = 0;
   // The delivery place priced in the calculator, carried into step 2's
   // Google Maps box so the customer does not paste it again. Only a Google
@@ -2657,6 +2660,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       for(const key of DEMO_PROFILE_FIELDS){
         if(saved.profile && key in saved.profile) demoProfile[key] = saved.profile[key];
       }
+      demoProfile.noThaiAddress = true;
       demoProfile.mapsText = String(demoProfile.mapsText || "");
       demoProfile.mapsPlace = demoMapsPlace(demoProfile.mapsPlace);
       return true;
@@ -4292,7 +4296,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     localizeDemoAddress();
     card.innerHTML = `<h3>${en ? "Customer and delivery details" : "ข้อมูลลูกค้าและที่อยู่จัดส่ง"}</h3>
       ${payResume.active ? "" : (demoProfile.lineUserId ? `<div class="demo-contract-status">LINE: ${esc(demoProfile.lineDisplayName || (en ? "Verified account detected" : "ตรวจพบบัญชีที่ยืนยันแล้ว"))}</div>` : `<p class="hint">${en ? "Connect LINE now to securely check returning-customer details, or link it after successful payment." : "เชื่อมต่อ LINE ตอนนี้เพื่อตรวจข้อมูลลูกค้าเก่าอย่างปลอดภัย หรือผูกบัญชีหลังชำระเงินสำเร็จ"}</p><button class="btn" id="lineConnectBtn" type="button">${en ? "Connect LINE" : "เชื่อมต่อ LINE"}</button>`)}
-      ${state.calc.retVerified && hasVerifiedAgreementRecord() && demoIdentityExpired() ? `<div class="demo-choice-warning">${en ? "The ID card or passport on your agreement has expired, or expires before the return date, so a new Master Agreement and renewed identity verification are required before this rental. Please enter your current document details." : "บัตรประชาชนหรือ Passport ในสัญญาเดิมหมดอายุแล้ว หรือหมดอายุก่อนวันคืนเครื่อง ต้องทำข้อตกลงหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้งก่อนเช่าครั้งนี้ กรุณากรอกข้อมูลเอกสารฉบับปัจจุบัน"}</div>` : ""}
+      ${state.calc.retVerified && hasVerifiedAgreementRecord() && demoIdentityExpired() ? `<div class="demo-choice-warning">${en ? "The ID card or passport on your agreement has expired, or expires before the return date, so a new Master Agreement and renewed identity verification are required before this rental. Please upload your current document in step 3." : "บัตรประชาชนหรือ Passport ในสัญญาเดิมหมดอายุแล้ว หรือหมดอายุก่อนวันคืนเครื่อง ต้องทำข้อตกลงหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้งก่อนเช่าครั้งนี้ กรุณาอัปโหลดรูปเอกสารฉบับปัจจุบันในขั้นตอนที่ 3"}</div>` : ""}
       ${demoIdentityCoveredByAgreement() ? `<div class="demo-contract-status">${esc(demoAgreementCoverText())}</div>` : ""}
       ${activeVip() ? `<div class="demo-contract-status"><b>VIP: ${esc(activeVip().name)}</b><br>${esc(en ? "Your personal VIP rental and security-deposit rates are applied automatically." : "ระบบใช้ราคาค่าเช่าและค่าประกัน VIP ของคุณให้อัตโนมัติแล้ว")}</div>` : ""}
       ${payResume.active ? "" : `<label class="option-row demo-reward-row"><input type="checkbox" id="demoReturningOpt" ${state.calc.ret?"checked":""}><div><b><span class="demo-reward-badge">🏅</span>${activeVip() ? (en ? "VIP returning-customer benefit applied" : "ใช้สิทธิ์ลูกค้าเก่า VIP แล้ว") : (en ? "Apply returning-customer discount — 10% off the rental" : "ใช้สิทธิ์ส่วนลดลูกค้าเก่า — ลด 10% ค่าเช่า")}</b><div class="hint">${state.calc.retVerified ? (en ? "Verified" : "ยืนยันสิทธิ์แล้ว") : (en ? "Enter the previous phone / Rental ID in the verification window." : "ยืนยันด้วยเบอร์เดิมหรือ Rental ID ในหน้าต่างตรวจสอบสิทธิ์")}</div></div></label>`}
@@ -4301,27 +4305,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <div class="demo-profile-grid ${demoContactCollapsed() ? "contact-collapsed" : ""}">
         <div class="field"><label class="label" for="demoCustomerName">${en ? "Legal name" : "ชื่อ-นามสกุลจริง"}<span class="req">*</span></label><input class="input" id="demoCustomerName" autocomplete="name" lang="${en ? "en" : "th"}" pattern="${en ? "[A-Za-z ]+" : "[ก-ฺเ-๎ ]+"}" value="${esc(demoProfile.fullName)}"><p class="hint">${esc(tr("legalNameScriptHint"))}</p></div>
         <div class="field"><label class="label" for="demoCustomerPhone">${en ? "Phone / WhatsApp" : "เบอร์โทรศัพท์"}<span class="req">*</span></label><input class="input" id="demoCustomerPhone" type="tel" autocomplete="tel" value="${esc(demoProfile.phone)}"></div>
-        ${state.calc.noContract || demoIdentityCoveredByAgreement() || payResume.active ? "" : `
-        <div class="field wide"><span class="label">${en ? "Identity document" : "ประเภทบัตร"}<span class="req">*</span></span><div class="demo-id-type" role="radiogroup"><label><input type="radio" name="demoIdentityType" value="thai_id" ${demoIdentityType()==="thai_id"?"checked":""}>${en ? "Thai ID card" : "บัตรประชาชน"}</label><label><input type="radio" name="demoIdentityType" value="passport" ${demoIdentityType()==="passport"?"checked":""}>${en ? "Passport" : "Passport (ชาวต่างชาติ)"}</label></div></div>
-        <div class="field"><label class="label" for="demoIdentityNumber">${demoIdentityType()==="passport" ? (en ? "Passport number" : "เลข Passport") : (en ? "Thai ID number" : "เลขบัตรประชาชน")}<span class="req">*</span></label><input class="input" id="demoIdentityNumber" autocomplete="off" ${demoIdentityType()==="passport" ? "maxlength=10 autocapitalize=characters" : "inputmode=numeric maxlength=13"} value="${esc(demoProfile.identityNumber)}" placeholder="${demoProfile.identityDraftLast4 && !demoProfile.identityNumber ? esc(`${"•".repeat(8)}${demoProfile.identityDraftLast4}`) : ""}">${demoProfile.identityDraftLast4 && !demoProfile.identityNumber ? `<p class="hint">${en ? `Saved securely (ending ${esc(demoProfile.identityDraftLast4)}). Type a new number only to change it.` : `บันทึกไว้แล้วอย่างปลอดภัย (ลงท้าย ${esc(demoProfile.identityDraftLast4)}) พิมพ์ใหม่เฉพาะเมื่อต้องการเปลี่ยน`}</p>` : ""}</div>
-        <div class="field"><label class="label" for="demoIdentityExpiry">${demoIdentityType()==="passport" ? (en ? "Passport expiry date" : "วันหมดอายุ Passport") : (en ? "Thai ID expiry date" : "วันหมดอายุบัตรประชาชน")}<span class="req">*</span></label><input class="input${demoIdentityExpired() ? " is-invalid" : ""}" id="demoIdentityExpiry" type="date" value="${esc(demoProfile.identityExpiry)}"><p class="hint">${en ? "Your Thai ID card or passport must remain valid from the start date through the return date, in every case. If you have rented before and your ID card or passport has expired, a new Master Agreement and renewed identity verification are required before your next rental." : "บัตรประชาชนหรือ Passport ต้องยังไม่หมดอายุ ตั้งแต่วันที่เริ่มเช่าจนถึงวันคืนเครื่องในทุกกรณี หากเคยเช่าแล้วและบัตรหรือ Passport หมดอายุ ต้องทำข้อตกลงหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้งก่อนเช่าครั้งถัดไป"}</p>${demoIdentityExpired() ? `<p class="field-error">${esc(demoIdentityExpiryMessage())}</p>` : ""}</div>`}
         <div class="field"><label class="label" for="demoEmail">${en ? "Email" : "อีเมล"}<span class="req">*</span></label><input class="input" id="demoEmail" type="email" autocomplete="email" value="${esc(demoProfile.email)}"></div>
         ${demoIdentityCoveredByAgreement() || payResume.active ? "" : `<div class="field wide">
         <label class="option-row"><input type="checkbox" id="demoNoContractOpt" ${state.calc.noContract?"checked":""}><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b><div class="hint">${en ? "No document number or identity images are required, and no rental agreement is prepared." : "ไม่ต้องกรอกเลขเอกสารและไม่ต้องส่งรูปบัตรประชาชน/Passport และไม่มีการทำสัญญาเช่า"}</div>${pricingTierHtml(state.lang,true,true)}</div></label>
         </div>`}
-        <div class="field wide"><label class="option-row"><input type="checkbox" id="demoNoThaiAddress" ${demoProfile.noThaiAddress?"checked":""}><div><b>${en ? "I don't need to enter an address — the Google Maps link is exact" : "ไม่ต้องการระบุที่อยู่ ตำแหน่งจากลิงก์ Google Maps ถูกต้องแล้ว"}</b><div class="hint">${en ? "Skip the address fields and use the exact Google Maps pin for delivery and the delivery quote." : "ข้ามช่องที่อยู่และใช้หมุด Google Maps ที่ระบุสำหรับจัดส่งและคำนวณค่าส่ง"}</div></div></label></div>
-        ${demoProfile.noThaiAddress ? "" : `
-        <div class="field wide"><label class="label" for="demoAddressLine">${en ? "Building, house number, street and delivery notes" : "บ้านเลขที่ อาคาร ถนน และรายละเอียดการจัดส่ง"}<span class="req">*</span></label><textarea class="input" id="demoAddressLine" rows="3">${esc(demoProfile.addressLine)}</textarea></div>
-        <div class="field"><label class="label" for="demoPostalCode">${en ? "Postal code" : "รหัสไปรษณีย์"}<span class="req">*</span></label><input class="input" id="demoPostalCode" inputmode="numeric" maxlength="5" autocomplete="postal-code" value="${esc(demoProfile.postalCode)}"></div>
-        <div class="field"><label class="label" for="demoSubdistrict">${en ? "Subdistrict" : "แขวง / ตำบล"}<span class="req">*</span></label>${demoAddressFreeEntry
-          ? `<input class="input" id="demoSubdistrict" value="${esc(demoProfile.subdistrict)}">`
-          : `<select class="input" id="demoSubdistrict"><option value="">${en ? "Enter the postal code first" : "กรอกรหัสไปรษณีย์ก่อน"}</option></select>`}</div>
-        <div class="field"><label class="label" for="demoDistrict">${en ? "District" : "เขต / อำเภอ"}<span class="req">*</span></label><input class="input" id="demoDistrict" value="${esc(demoProfile.district)}" ${demoAddressFreeEntry ? "" : "readonly"}></div>
-        <div class="field"><label class="label" for="demoProvince">${en ? "Province" : "จังหวัด"}<span class="req">*</span></label><input class="input" id="demoProvince" value="${esc(demoProfile.province)}" ${demoAddressFreeEntry ? "" : "readonly"}></div>
-        <p class="demo-address-note wide" id="demoAddressNote" role="status" hidden></p>`}
         <div class="field wide"><label class="label" for="demoMaps">${en ? "Delivery place · Google Maps" : "สถานที่ส่ง · Google Maps"}<span class="req">*</span></label>${verifyForDepositActive ? `<input type="hidden" id="demoMaps" value="${esc(demoMapsBoxText())}"><button class="btn" type="button" id="demoVerifyMapOpen">${en ? "Change Google Maps location" : "เปลี่ยนตำแหน่ง Google Maps"}</button><p class="hint"><a href="${esc(safeHref(demoProfile.maps))}" target="_blank" rel="noopener">${esc(demoProfile.mapsPlace?.name || demoProfile.mapsText || demoProfile.maps || (en ? "No location selected" : "ยังไม่ได้เลือกตำแหน่ง"))}</a></p><p class="demo-verify-map-changed" id="demoVerifyMapChanged" ${demoProfile.maps !== verifyForDepositSnapshot?.profile.maps ? "" : "hidden"}>${en ? "Location changed — delivery will be recalculated." : "เปลี่ยนตำแหน่งแล้ว — ระบบจะคำนวณค่าจัดส่งใหม่"}</p>` : `<input class="input" id="demoMaps" type="text" autocomplete="off" enterkeyhint="search" value="${esc(demoMapsBoxText())}" placeholder="${en ? "Type a place or address, or paste a Google Maps link" : "พิมพ์ชื่อสถานที่ / ที่อยู่ หรือวางลิงก์ Google Maps"}">${demoMapsFoundHtml()}<div class="demo-locate-row"><button class="btn demo-locate-btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><button class="btn demo-locate-btn" type="button" data-demo-pin-map>${en ? "🗺️ Pin it on a map" : "🗺️ ปักหมุดบนแผนที่"}</button></div><p class="hint">${en ? "Type your condo, village or address and choose it from the list, paste a Google Maps link, or pin it on a map." : "พิมพ์ชื่อคอนโด / หมู่บ้าน / ที่อยู่ แล้วเลือกจากรายการ วางลิงก์ Google Maps หรือปักหมุดบนแผนที่"} <a id="demoMapsSearch" href="${esc(demoMapsSearchUrl())}" target="_blank" rel="noopener">${en ? "Or find it in Google Maps and paste the share link" : "หรือค้นหาใน Google Maps แล้วคัดลอกลิงก์แชร์มาวาง"}</a></p></div>`}
+        <div class="field wide"><label class="label" for="demoDeliveryInstructions">${en ? "Delivery note (optional)" : "โน็ตสำหรับจัดส่ง (ถ้ามี)"}</label><textarea class="input" id="demoDeliveryInstructions" rows="2" maxlength="300" placeholder="${en ? "Condo or village name, house number, entrance, or landmark" : "ชื่อคอนโด หมู่บ้าน บ้านเลขที่ ทางเข้า หรือจุดสังเกต"}">${esc(demoProfile.deliveryInstructions || "")}</textarea></div>
       </div>
-      <p class="hint">${demoProfile.noThaiAddress ? (en ? "The exact Google Maps pin is used for the delivery quote. The final round-trip fee must be confirmed before payment." : "ระบบใช้หมุด Google Maps ที่ระบุเพื่อคำนวณค่าส่ง โดยต้องยืนยันค่าจัดส่งไป-กลับก่อนชำระเงิน") : (en ? "The district and subdistrict are used to estimate delivery. The final round-trip fee must be confirmed before payment." : "ระบบใช้เขตและแขวงเพื่อประเมินค่าจัดส่ง โดยต้องยืนยันค่าจัดส่งไป-กลับก่อนชำระเงิน")}</p>
+      <p class="hint">${en ? "The Google Maps pin is used for delivery and the delivery quote. The final round-trip fee must be confirmed before payment." : "ใช้หมุด Google Maps สำหรับจัดส่งและคำนวณค่าส่ง โดยต้องยืนยันค่าจัดส่งไป-กลับก่อนชำระเงิน"}</p>
       ${payResume.active ? "" : `<h3 class="demo-terms-heading">${en ? "Rental Terms" : "เงื่อนไขการเช่า"}</h3>
       <iframe class="demo-terms-frame" title="Rental Terms" src="${esc(`${CONFIG.apiBase}/rental-terms/?lang=${en?"en":"th"}&embed=1`)}"></iframe>
       <p class="hint"><a href="${esc(`${CONFIG.apiBase}/rental-terms/?lang=${en?"en":"th"}`)}" target="_blank" rel="opener">${en ? "Open the Rental Terms in a new tab" : "เปิดอ่านเงื่อนไขการเช่าในแท็บใหม่"}</a></p>
@@ -4385,9 +4376,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // The delivery address as one line. An address carried over from the last
   // rental arrives as one line already, with the area names inside it.
   function demoAddressText(){
-    if(demoProfile.addressFromProfile && String(demoProfile.addressLine || "").trim()) return String(demoProfile.addressLine).trim();
-    return [demoProfile.addressLine, demoProfile.subdistrict, demoProfile.district, demoProfile.province, demoProfile.postalCode]
-      .map(part => String(part || "").trim()).filter(Boolean).join(" ");
+    return String(demoProfile.mapsPlace?.address || demoProfile.mapsPlace?.name || demoProfile.mapsText || demoProfile.maps || "").trim();
   }
   // The saved one-line address stands on its own when the postal-code lookup
   // could not split it into subdistrict, district and province.
@@ -4923,8 +4912,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ${verifyForDepositActive ? `<div class="card verify-now-customer" id="verifyNowCustomerHost"></div>` : ""}
       <p class="hint">${en ? "Upload a clear image of your identity document and a selfie holding the same document, then check the deposit refund account and sign. AJ reviews everything before delivery." : "อัปโหลดรูปเอกสารที่อ่านได้ชัดเจน และรูปเซลฟี่คู่เอกสารใบเดียวกัน แล้วตรวจบัญชีรับเงินค่าประกันคืนและเซ็นชื่อ ร้านจะตรวจสอบก่อนจัดส่ง"}</p>
       ${demoIdentityUploadGridHtml("verifyNow")}
+      ${demoIdentityFieldsHtml()}
       <div class="card verify-now-agreement" id="verifyNowAgreementHost"></div>
-      <div class="my-rental-verify"><button class="btn primary" type="button" id="verifyNowSubmit" ${verifyNowBusy ? "disabled" : ""}>${verifyNowBusy ? (en ? "Sending…" : "กำลังส่ง…") : (en ? "Send identity verification" : "ส่งยืนยันตัวตน")}</button></div>
+      <div class="my-rental-verify"><button class="btn primary" type="button" id="verifyNowSubmit" ${verifyNowBusy || demoOcr.busy ? "disabled" : ""}>${verifyNowBusy ? (en ? "Sending…" : "กำลังส่ง…") : (en ? "Send identity verification" : "ส่งยืนยันตัวตน")}</button></div>
     </div>`;
   }
   function lendCustomerCard(){
@@ -5134,11 +5124,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // ordinary fields in place.
   let demoContactFromLine = false;
   let demoContactEditing = false;
-  const DEMO_CONTACT_IDS = ["demoCustomerName","demoCustomerPhone","demoEmail","demoAddressLine","demoPostalCode","demoSubdistrict","demoDistrict","demoProvince","demoMaps"];
+  const DEMO_CONTACT_IDS = ["demoCustomerName","demoCustomerPhone","demoEmail","demoMaps","demoDeliveryInstructions"];
   function demoContactComplete(){
-    const keys = demoProfile.noThaiAddress ? ["fullName","phone","email","maps"]
-      : demoAddressFromProfileOnly() ? ["fullName","phone","email","addressLine","maps"]
-      : ["fullName","phone","email","addressLine","postalCode","subdistrict","district","province","maps"];
+    const keys = ["fullName","phone","email","maps"];
     return keys.every(key => String(demoProfile[key] || "").trim());
   }
   function demoContactCollapsed(){
@@ -5153,7 +5141,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ${row(en ? "Name" : "ชื่อ", esc(demoProfile.fullName))}
       ${row(en ? "Phone" : "เบอร์โทร", esc(demoProfile.phone))}
       ${row(en ? "Email" : "อีเมล", esc(demoProfile.email))}
-      ${row(en ? "Delivery address" : "ที่อยู่จัดส่ง", esc(address))}
+      ${row(en ? "Delivery place" : "สถานที่จัดส่ง", esc(address))}
+      ${demoProfile.deliveryInstructions ? row(en ? "Delivery note" : "โน็ตสำหรับจัดส่ง", esc(demoProfile.deliveryInstructions)) : ""}
       ${row(en ? "Map" : "แผนที่", `<a href="${esc(demoProfile.maps)}" target="_blank" rel="noopener">${en ? "Open map" : "เปิดแผนที่"}</a>`)}
       <p class="hint">${en ? "Check these are still right for this rental. Tap Edit to change anything." : "ตรวจสอบว่ายังถูกต้องสำหรับการเช่าครั้งนี้ หากต้องการเปลี่ยน กดแก้ไข"}</p>
     </div>`;
@@ -5329,58 +5318,94 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function setupDemoSignaturePad(){
     const canvas = byId("demoSignaturePad");
     if(!canvas) return;
-    canvas.width = 0;
     const ctx = canvas.getContext("2d");
-    const size = () => {
-      const rect = canvas.getBoundingClientRect();
-      if(!rect.width) return;
+    const strokes = [];
+    let current = null;
+    let savedImage = demoAgreement.signature || "";
+    const draw = () => {
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      if(!width || !height) return;
       const ratio = window.devicePixelRatio || 1;
-      canvas.width = Math.round(rect.width * ratio);
-      canvas.height = Math.round(rect.height * ratio);
+      const pixelWidth = Math.max(1, Math.round(width * ratio));
+      const pixelHeight = Math.max(1, Math.round(height * ratio));
+      if(canvas.width !== pixelWidth || canvas.height !== pixelHeight){
+        canvas.width = pixelWidth;
+        canvas.height = pixelHeight;
+      }
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-      Object.assign(ctx, {lineWidth:2.6, lineCap:"round", lineJoin:"round", strokeStyle:"#111827"});
-      if(demoAgreement.signature){
+      ctx.clearRect(0, 0, width, height);
+      ctx.lineWidth = 2.6;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "#111827";
+      if(savedImage){
         const image = new Image();
-        image.onload = () => ctx.drawImage(image, 0, 0, rect.width, rect.height);
-        image.src = demoAgreement.signature;
+        const source = savedImage;
+        image.onload = () => {
+          if(savedImage === source && strokes.length === 0) ctx.drawImage(image, 0, 0, width, height);
+        };
+        image.src = source;
+      }
+      for(const stroke of strokes){
+        ctx.beginPath();
+        stroke.forEach(([x,y],i) => i ? ctx.lineTo(x * width,y * height) : ctx.moveTo(x * width,y * height));
+        ctx.stroke();
       }
     };
-    demoAgreement.resize = size;
-    size();
-    let last = null;
-    const point = event => { const rect = canvas.getBoundingClientRect(); return {x:event.clientX - rect.left, y:event.clientY - rect.top}; };
-    canvas.addEventListener("pointerdown", event => {
-      if(!canvas.width) size();
-      last = point(event);
-      canvas.setPointerCapture?.(event.pointerId);
-      event.preventDefault();
-    });
-    canvas.addEventListener("pointermove", event => {
-      if(!last) return;
-      const next = point(event);
-      ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(next.x, next.y); ctx.stroke();
-      demoAgreement.ink += Math.hypot(next.x - last.x, next.y - last.y);
-      last = next;
-      event.preventDefault();
-    });
+    demoAgreement.resize = draw;
+    demoAgreement.clearSignaturePad = () => { strokes.length = 0; savedImage = ""; draw(); };
+    draw();
+    const observer = window.ResizeObserver ? new ResizeObserver(draw) : null;
+    observer?.observe(canvas);
+    const point = (x,y) => { const rect = canvas.getBoundingClientRect(); return [(x-rect.left)/(rect.width||1),(y-rect.top)/(rect.height||1)]; };
+    const begin = (x,y) => {
+      if(!canvas.width) draw();
+      savedImage = "";
+      current = [point(x,y)];
+      strokes.push(current);
+      draw();
+    };
+    const move = (x,y) => {
+      if(!current) return;
+      const next = point(x,y);
+      const last = current[current.length-1];
+      demoAgreement.ink += Math.hypot((next[0]-last[0])*canvas.clientWidth,(next[1]-last[1])*canvas.clientHeight);
+      current.push(next);
+      draw();
+    };
     const finish = () => {
-      if(!last) return;
-      last = null;
-      // A dot or a stray tap is not a signature.
+      if(!current) return;
+      current = null;
       if(demoAgreement.ink < 40) return;
+      draw();
       demoAgreement.signature = canvas.toDataURL("image/png");
       byId("demoSignatureBox")?.querySelector(".demo-signature-placeholder")?.setAttribute("hidden", "");
       clearDemoFieldError("demoSignaturePad");
       renderStepActions();
     };
-    canvas.addEventListener("pointerup", finish);
-    canvas.addEventListener("pointercancel", finish);
+    if(window.PointerEvent){
+      canvas.addEventListener("pointerdown", event => {
+        try{canvas.setPointerCapture?.(event.pointerId);}catch{}
+        begin(event.clientX,event.clientY);
+        event.preventDefault();
+      });
+      canvas.addEventListener("pointermove", event => { if(current){ move(event.clientX,event.clientY); event.preventDefault(); } });
+      canvas.addEventListener("pointerup", event => { finish(); event.preventDefault(); });
+      canvas.addEventListener("pointercancel", finish);
+    }else{
+      canvas.addEventListener("touchstart", event => { const touch=event.changedTouches[0]; if(touch) begin(touch.clientX,touch.clientY); event.preventDefault(); },{passive:false});
+      canvas.addEventListener("touchmove", event => { const touch=event.changedTouches[0]; if(touch) move(touch.clientX,touch.clientY); event.preventDefault(); },{passive:false});
+      canvas.addEventListener("touchend", event => { finish(); event.preventDefault(); },{passive:false});
+      canvas.addEventListener("mousedown", event => { begin(event.clientX,event.clientY); event.preventDefault(); });
+      canvas.addEventListener("mousemove", event => { if(current){ move(event.clientX,event.clientY); event.preventDefault(); } });
+      canvas.addEventListener("mouseup", finish);
+    }
   }
   function clearDemoSignature(){
     demoAgreement.signature = "";
     demoAgreement.ink = 0;
-    const canvas = byId("demoSignaturePad");
-    canvas?.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+    demoAgreement.clearSignaturePad?.();
     byId("demoSignatureBox")?.querySelector(".demo-signature-placeholder")?.removeAttribute("hidden");
     renderStepActions();
   }
@@ -5389,6 +5414,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const problems = [];
     const need = (id, ok, message) => { if(!ok) problems.push({id, message}); };
     need("demoIdDocument", demoIdentityReady(), en ? "Upload both photos, or choose Verify later." : "อัปโหลดรูปทั้ง 2 รูป หรือเลือกยืนยันตัวตนภายหลัง");
+    if(!demoProfile.identitySkipped && !demoIdentityCoveredByAgreement() && !state.calc.noContract){
+      const identity = String(demoProfile.identityNumber || "").trim();
+      need("demoIdentityNumber", !demoOcr.busy && ((!identity && demoProfile.identityDraftLast4) || (demoIdentityType() === "passport" ? /^[A-Z0-9]{6,10}$/i.test(identity) : thaiIdValid(identity))),
+        en ? "Retake a clear document photo or check the document number." : "ถ่ายรูปเอกสารใหม่ให้ชัดหรือตรวจเลขเอกสาร");
+      need("demoIdentityExpiry", !demoOcr.busy && !!demoProfile.identityExpiry && !demoIdentityExpired(),
+        en ? "Retake a clear photo or check the expiry date." : "ถ่ายรูปใหม่ให้เห็นวันหมดอายุชัดเจนหรือตรวจวันที่");
+    }
+
     if(demoAgreementNeeded()){
       if(demoUsesWise()){
         const wise = demoAgreement.wise;
@@ -5432,8 +5465,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const fields = Array.isArray(error?.fields) ? error.fields : [];
     const has = (...names) => names.some(name => fields.includes(name));
     const passport = demoIdentityType() === "passport";
-    if(code === "id_expires_before_return" || has("idExpiry")) return {step:2, field:"demoIdentityExpiry", message: en ? "The identity document expires before the return date. Please use a document valid through the rental." : "เอกสารยืนยันตัวตนหมดอายุก่อนวันคืนเครื่อง กรุณาใช้เอกสารที่ยังไม่หมดอายุตลอดการเช่า"};
-    if(has("idNumber")) return {step:2, field:"demoIdentityNumber", forgetDraft:true, message: passport
+    if(code === "id_expires_before_return" || has("idExpiry")) return {step:3, field:"demoIdentityExpiry", message: en ? "The identity document expires before the return date. Please use a document valid through the rental." : "เอกสารยืนยันตัวตนหมดอายุก่อนวันคืนเครื่อง กรุณาใช้เอกสารที่ยังไม่หมดอายุตลอดการเช่า"};
+    if(has("idNumber")) return {step:3, field:"demoIdentityNumber", forgetDraft:true, message: passport
       ? (en ? "Please enter your passport number again. The saved one has expired from our system." : "กรุณากรอกเลข Passport อีกครั้ง เลขที่บันทึกไว้หมดเวลาในระบบแล้ว")
       : (en ? "Please enter your Thai ID number again. The saved one has expired from our system." : "กรุณากรอกเลขบัตรประชาชนอีกครั้ง เลขที่บันทึกไว้หมดเวลาในระบบแล้ว")};
     if(has("fullName")) return {step:2, field:"demoCustomerName", message: en ? "Please check your full name on step 2." : "กรุณาตรวจชื่อ-นามสกุลในขั้นตอนที่ 2"};
@@ -5509,6 +5542,54 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function demoIdentityReady(){
     return demoIdentityCoveredByAgreement() || state.calc.noContract || demoProfile.identitySkipped || demoProfile.identityUploaded || (!!demoProfile.idDocument && !!demoProfile.selfieWithId);
   }
+  const demoOcr = {busy:false, attempts:0, success:false, error:""};
+  function demoIdentityFieldsHtml(){
+    const en = state.lang === "en";
+    if(!demoProfile.idDocument && !demoProfile.identityUploaded && !demoProfile.identityDraftLast4) return "";
+    const showFields = demoOcr.success || demoOcr.attempts >= 2 || !!demoProfile.identityNumber || !!demoProfile.identityDraftLast4;
+    const status = demoOcr.busy
+      ? (en ? "Reading the document on your device…" : "กำลังอ่านข้อมูลจากรูปบนเครื่องของคุณ…")
+      : demoOcr.error ? (en ? "Could not read the number and expiry date. Retake the whole document in sharp focus, without glare or shadows." : "อ่านเลขเอกสารและวันหมดอายุไม่ได้ กรุณาถ่ายใหม่ให้เห็นเอกสารครบ ข้อมูลชัด และไม่มีแสงสะท้อนหรือเงา")
+      : demoOcr.success ? (en ? "Details read from your photo. Please check them before continuing." : "อ่านข้อมูลจากรูปแล้ว กรุณาตรวจสอบก่อนทำรายการต่อ") : "";
+    return `<div class="demo-ocr-status ${demoOcr.error ? "is-error" : ""}" role="status">${esc(status)}</div>${showFields ? `
+      <div class="demo-profile-grid">
+        <div class="field wide"><span class="label">${en ? "Document type" : "ประเภทเอกสาร"}</span><div class="demo-id-type" role="radiogroup"><label><input type="radio" name="demoIdentityType" value="thai_id" ${demoIdentityType()==="thai_id"?"checked":""}>${en ? "Thai ID card" : "บัตรประชาชน"}</label><label><input type="radio" name="demoIdentityType" value="passport" ${demoIdentityType()==="passport"?"checked":""}>Passport</label></div></div>
+        <div class="field"><label class="label" for="demoIdentityNumber">${demoIdentityType()==="passport" ? (en ? "Passport number" : "เลข Passport") : (en ? "Thai ID number" : "เลขบัตรประชาชน")}<span class="req">*</span></label><input class="input" id="demoIdentityNumber" autocomplete="off" ${demoIdentityType()==="passport" ? "maxlength=10 autocapitalize=characters" : "inputmode=numeric maxlength=13"} value="${esc(demoProfile.identityNumber)}" placeholder="${demoProfile.identityDraftLast4 && !demoProfile.identityNumber ? esc(`${"•".repeat(8)}${demoProfile.identityDraftLast4}`) : ""}"></div>
+        <div class="field"><label class="label" for="demoIdentityExpiry">${demoIdentityType()==="passport" ? (en ? "Passport expiry date" : "วันหมดอายุ Passport") : (en ? "Thai ID expiry date" : "วันหมดอายุบัตรประชาชน")}<span class="req">*</span></label><input class="input${demoIdentityExpired() ? " is-invalid" : ""}" id="demoIdentityExpiry" type="date" value="${esc(demoProfile.identityExpiry)}"></div>
+      </div>` : ""}`;
+  }
+  async function readDemoIdentity(file){
+    if(!file || !window.AJIdentityOCR) return;
+    demoOcr.attempts++;
+    demoOcr.busy = true;
+    demoOcr.success = false;
+    demoOcr.error = "";
+    renderDemoIdentityCard();
+    renderVerifyNowModal();
+    try{
+      const found = await window.AJIdentityOCR.recognize(file);
+      if(file !== demoProfile.idDocument) return;
+      if(!found.number || !found.expiry) throw new Error("ocr_incomplete");
+      demoProfile.identityType = found.type;
+      demoProfile.identityNumber = found.number;
+      demoProfile.identityExpiry = found.expiry;
+      if(demoIdentityExpired()) throw new Error("ocr_expired");
+      demoOcr.success = true;
+      await saveIdentityDraft();
+    }catch(error){
+      if(file !== demoProfile.idDocument) return;
+      demoOcr.error = String(error?.message || "ocr_failed");
+      demoProfile.identityNumber = "";
+      demoProfile.identityExpiry = "";
+    }finally{
+      if(file === demoProfile.idDocument){
+        demoOcr.busy = false;
+        renderDemoIdentityCard();
+        renderVerifyNowModal();
+        renderStepActions();
+      }
+    }
+  }
   // The two identity photos, on step 3 and in the "Verify now" pop-up. Each
   // place gives its own id prefix; the inputs say which photo they hold.
   function demoIdentityUploadGridHtml(prefix){
@@ -5568,6 +5649,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ${demoIdGuideHtml()}
       <label class="option-row"><input type="checkbox" id="demoIdentityNoContractOpt" ${state.calc.noContract?"checked":""}><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b>${pricingTierHtml(state.lang,true,true)}</div></label>
       ${demoIdentityUploadGridHtml("demo")}
+      ${verifyForDepositActive ? "" : demoIdentityFieldsHtml()}
       <label class="option-row"><input type="checkbox" id="demoIdentitySkip" ${demoProfile.identitySkipped?"checked":""}><div><b>${en ? "Verify later" : "ยืนยันตัวตนภายหลัง"}</b><div class="hint">${en ? "You may continue to payment, but AJ will show Identity incomplete and will not dispatch equipment until verification is approved." : "ไปหน้าชำระเงินต่อได้ แต่สถานะจะแสดงว่ายืนยันตัวตนยังไม่สำเร็จ และร้านจะไม่จัดส่งจนกว่าจะตรวจสอบผ่าน"}</div></div></label>`;
   }
   // One description of what step 2 needs, used both to enable the step and to
@@ -5586,27 +5668,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const identity = String(demoProfile.identityNumber || "").trim();
     need("demoCustomerName", demoLegalNameValid(demoProfile.fullName), tr("legalNameScriptError"));
     need("demoCustomerPhone", String(demoProfile.phone || "").replace(/\D/g, "").length >= 9, en ? "Enter a phone number AJ can reach you on." : "กรอกเบอร์โทรศัพท์ที่ติดต่อได้");
-    if(!payResume.active && !state.calc.noContract && !demoIdentityCoveredByAgreement()){
-      need("demoIdentityNumber", (!identity && demoProfile.identityDraftLast4) || (demoIdentityType() === "passport" ? /^[A-Z0-9]{6,10}$/i.test(identity) : thaiIdValid(identity)),
-        demoIdentityType() === "passport"
-          ? (en ? "Enter the passport number as printed." : "กรอกเลข Passport ตามที่ระบุในเล่ม")
-          : (en ? "Enter all 13 digits of the Thai ID number." : "กรอกเลขบัตรประชาชน 13 หลักให้ถูกต้อง"));
-    }
-    if(!payResume.active && !state.calc.noContract && !demoIdentityCoveredByAgreement()){
-      const expiry = String(demoProfile.identityExpiry || "").trim();
-      need("demoIdentityExpiry", !!expiry && !demoIdentityExpired(),
-        expiry ? demoIdentityExpiryMessage() : (en ? "Enter the document's expiry date." : "กรอกวันหมดอายุของเอกสาร"));
-    }
     need("demoEmail", demoEmailValid(demoProfile.email), demoEmailMessage());
-    if(!demoProfile.noThaiAddress && demoAddressFromProfileOnly()){
-      need("demoAddressLine", demoProfile.addressLine.trim().length >= 1, en ? "Enter the house or building number and street." : "กรอกบ้านเลขที่ อาคาร และถนน");
-    }else if(!demoProfile.noThaiAddress){
-      need("demoAddressLine", demoProfile.addressLine.trim().length >= 1, en ? "Enter the house or building number and street." : "กรอกบ้านเลขที่ อาคาร และถนน");
-      need("demoPostalCode", /^\d{5}$/.test(String(demoProfile.postalCode || "").trim()), en ? "Enter the 5-digit postal code." : "กรอกรหัสไปรษณีย์ 5 หลัก");
-      need("demoSubdistrict", !!demoProfile.subdistrict.trim(), en ? "Choose the subdistrict." : "เลือกแขวง / ตำบล");
-      need("demoDistrict", !!demoProfile.district.trim(), en ? "Enter the district." : "กรอกเขต / อำเภอ");
-      need("demoProvince", !!demoProfile.province.trim(), en ? "Enter the province." : "กรอกจังหวัด");
-    }
     need("demoMaps", /^https?:\/\//i.test(demoProfile.maps.trim()), String(demoProfile.mapsText || "").trim()
       ? (en ? "Choose the delivery place from the list under the box, or paste a Google Maps link." : "เลือกสถานที่ส่งจากรายการใต้ช่อง หรือวางลิงก์ Google Maps")
       : (en ? "Type the delivery place and choose it from the list, or paste a Google Maps link." : "พิมพ์สถานที่ส่งแล้วเลือกจากรายการ หรือวางลิงก์ Google Maps"));
@@ -5768,7 +5830,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     state.calc.beamPaymentExpiresAt = "";
     render();
     openVerifyNowModal();
-    byId("demoIdentityNumber")?.focus({preventScroll:true});
+    byId("verifyNowIdDocument")?.focus({preventScroll:true});
   }
   // "No verification": the higher deposit at once; the verify button brings
   // the normal one back.
@@ -6010,7 +6072,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <div>
         <section class="demo-order-section">${demoSectionHeadHtml(en ? "Rental item" : "สินค้าที่เช่า", 1)}${demoRentalItemHtml(item, summary)}</section>
         <section class="demo-order-section"><h3>${en ? "Details" : "รายละเอียด"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Rental ID":"รหัสการเช่า"}</span><b>${esc(state.calc.rentalCode || "-")}</b></div><div class="demo-order-row"><span>${en?"Rental status":"สถานะการเช่า"}</span><b class="demo-status is-awaiting">${en?"Awaiting payment":"รอชำระเงิน"}</b></div></div></section>
-        <section class="demo-order-section">${demoSectionHeadHtml(en ? "Customer" : "ข้อมูลลูกค้า", 2)}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Name":"ชื่อ"}</span><b>${esc(demoProfile.fullName)}</b></div>${state.calc.noContract ? "" : `<div class="demo-order-row"><span>${esc(demoIdentityNumberLabel())}</span><b>${esc(demoIdentityDisplay())}</b></div>`}<div class="demo-order-row"><span>${en?"Phone":"เบอร์ติดต่อ"}</span><b>${esc(demoProfile.phone)}</b></div><div class="demo-order-row"><span>${en?"Delivery":"ที่อยู่จัดส่ง"}</span><b>${esc(demoAddressText() || (en ? "Google Maps pin only" : "ใช้หมุด Google Maps"))}</b></div><div class="demo-order-row"><span>Google Maps</span><b>${demoProfile.mapsPlace ? `${esc(demoProfile.mapsPlace.name || demoProfile.mapsPlace.address)} · ` : ""}<a href="${esc(safeHref(demoProfile.maps))}" target="_blank" rel="noopener">${en?"Open map":"เปิดแผนที่"}</a></b></div></div></section>
+        <section class="demo-order-section">${demoSectionHeadHtml(en ? "Customer" : "ข้อมูลลูกค้า", 2)}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Name":"ชื่อ"}</span><b>${esc(demoProfile.fullName)}</b></div>${state.calc.noContract ? "" : `<div class="demo-order-row"><span>${esc(demoIdentityNumberLabel())}</span><b>${esc(demoIdentityDisplay())}</b></div>`}<div class="demo-order-row"><span>${en?"Phone":"เบอร์ติดต่อ"}</span><b>${esc(demoProfile.phone)}</b></div><div class="demo-order-row"><span>${en?"Delivery":"ที่อยู่จัดส่ง"}</span><b>${esc(demoAddressText() || (en ? "Google Maps pin only" : "ใช้หมุด Google Maps"))}</b></div><div class="demo-order-row"><span>${en?"Delivery note":"โน็ตสำหรับจัดส่ง"}</span><b>${esc(demoProfile.deliveryInstructions || "-")}</b></div><div class="demo-order-row"><span>Google Maps</span><b>${demoProfile.mapsPlace ? `${esc(demoProfile.mapsPlace.name || demoProfile.mapsPlace.address)} · ` : ""}<a href="${esc(safeHref(demoProfile.maps))}" target="_blank" rel="noopener">${en?"Open map":"เปิดแผนที่"}</a></b></div></div></section>
         <section class="demo-order-section">${demoSectionHeadHtml(en ? "Rental period" : "ช่วงเวลา", "dates")}<div class="demo-order-box"><div class="demo-order-row"><span>${en?"Duration":"ระยะเวลา"}</span><b>${summary.days} ${en?"days":"วัน"}</b></div><div class="demo-order-row"><span>${en?"Dates":"วันที่เช่า"}</span><b>${displayDate(state.calc.start)} – ${displayDate(state.calc.end)}</b></div></div></section>
       </div>
       <div>
@@ -6076,7 +6138,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const back = step > 1 ? `<button class="btn" type="button" data-step-go="${step - 1}">${tr("backStep")}</button>` : `<span></span>`;
       const confirmLabel = state.lang === "en" ? "Confirm and continue to payment" : "ยืนยันและไปหน้าชำระเงิน";
       // A document that is not valid through the return date stops the rental here.
-      const identityBlocked = UNIFIED_FLOW_DEMO && step === 2 && !state.calc.noContract && demoIdentityExpired();
+      const identityBlocked = false;
       const next = UNIFIED_FLOW_DEMO && step === 2 && demoIdentityStepSkippable()
         ? `<button class="btn primary" id="demoConfirmFromDetails" type="button" ${identityBlocked ? "disabled" : ""}>${confirmLabel}</button>`
         : step < 3
@@ -7828,7 +7890,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       identityDraftId: UNIFIED_FLOW_DEMO && !state.calc.noContract ? demoProfile.identityDraftId : "",
       identityExpiry: UNIFIED_FLOW_DEMO && !state.calc.noContract ? String(demoProfile.identityExpiry || "").trim() : "",
       deliveryAddress: UNIFIED_FLOW_DEMO ? demoAddressText() : "",
-      addressLine: UNIFIED_FLOW_DEMO ? String(demoProfile.addressLine || "").trim() : "",
+      deliveryInstructions: UNIFIED_FLOW_DEMO ? String(demoProfile.deliveryInstructions || "").trim().slice(0,300) : "",
+      addressLine: "",
       subdistrict: UNIFIED_FLOW_DEMO ? demoProfile.subdistrict : "",
       district: UNIFIED_FLOW_DEMO ? demoProfile.district : "",
       province: UNIFIED_FLOW_DEMO ? demoProfile.province : "",
@@ -9133,6 +9196,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       fullName:String(rental.customerName || ""),
       phone:String(rental.phone || ""),
       email:String(rental.email || ""),
+      deliveryInstructions:String(rental.deliveryInstructions || ""),
       addressLine:String(rental.addressLine || rental.deliveryAddress || ""),
       subdistrict:hasAddressParts ? String(rental.subdistrict || "") : "",
       district:hasAddressParts ? String(rental.district || "") : "",
@@ -13025,7 +13089,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         renderStepActions();
         return;
       }
-      const demoFields = {demoCustomerName:"fullName",demoCustomerPhone:"phone",demoIdentityNumber:"identityNumber",demoIdentityExpiry:"identityExpiry",demoEmail:"email",demoAddressLine:"addressLine",demoSubdistrict:"subdistrict",demoDistrict:"district",demoProvince:"province",demoPostalCode:"postalCode"};
+      const demoFields = {demoCustomerName:"fullName",demoCustomerPhone:"phone",demoIdentityNumber:"identityNumber",demoIdentityExpiry:"identityExpiry",demoEmail:"email",demoDeliveryInstructions:"deliveryInstructions",demoAddressLine:"addressLine",demoSubdistrict:"subdistrict",demoDistrict:"district",demoProvince:"province",demoPostalCode:"postalCode"};
       if(UNIFIED_FLOW_DEMO && demoFields[event.target.id]){
         demoProfile[demoFields[event.target.id]] = event.target.value;
         if(event.target.id === "demoIdentityNumber"){
@@ -13101,6 +13165,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
           demoProfile.identityUploaded = false;
           render();
           renderVerifyNowModal();
+          if(target.dataset.identityFile === "id") void readDemoIdentity(file);
         }
         return;
       }
@@ -13117,6 +13182,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         demoProfile.identitySkipped = false;
         render();
         renderVerifyNowModal();
+        if(file && event.target.dataset.identityFile === "id") void readDemoIdentity(file);
       }
     });
     document.addEventListener("click", async event => {

@@ -21,7 +21,7 @@ function problemFor(error, lang = 'th', type = 'thai_id'){
 const refused = (fields, message = 'agreement_incomplete') => Object.assign(new Error(message), { fields });
 
 test('each refused field sends the renter to the step that holds it, in Thai and English', () => {
-  assert.deepEqual({ ...problemFor(refused(['idNumber'])) }, { step:2, field:'demoIdentityNumber', forgetDraft:true, message:'กรุณากรอกเลขบัตรประชาชนอีกครั้ง เลขที่บันทึกไว้หมดเวลาในระบบแล้ว' });
+  assert.deepEqual({ ...problemFor(refused(['idNumber'])) }, { step:3, field:'demoIdentityNumber', forgetDraft:true, message:'กรุณากรอกเลขบัตรประชาชนอีกครั้ง เลขที่บันทึกไว้หมดเวลาในระบบแล้ว' });
   assert.match(problemFor(refused(['idNumber']), 'en', 'passport').message, /^Please enter your passport number again/);
   assert.equal(problemFor(refused(['phone'])).field, 'demoCustomerPhone');
   assert.equal(problemFor(refused(['address', 'pickupLocation', 'returnLocation'])).field, 'demoMaps');

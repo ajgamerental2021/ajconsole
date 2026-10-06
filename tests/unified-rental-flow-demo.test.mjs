@@ -72,11 +72,12 @@ test('demo Rental ID page does not reopen without the in-memory customer profile
   assert.match(html, /if\(state\.calc\.demoOrderOpen && \(!demoProfile\.fullName\.trim\(\) \|\| !state\.calc\.rentalCode\)\)\{\n\s*state\.calc\.demoOrderOpen = false;\n\s*state\.calc\.step = 2;/);
 });
 
-test('no-contract choice sits with the identity-number fields', () => {
-  const identity = html.indexOf('for="demoIdentityNumber"');
-  const noContract = html.indexOf('id="demoNoContractOpt"');
-  const address = html.indexOf('for="demoAddressLine"');
-  assert.ok(identity < noContract && noContract < address);
+test('step 2 uses the map and note; identity number follows the document upload in step 3', () => {
+  const customer = html.slice(html.indexOf('card.innerHTML = `<h3>${en ? "Customer and delivery details"'), html.indexOf('function demoAddressText'));
+  assert.match(html, /id="demoNoContractOpt"/);
+  assert.match(html, /id="demoDeliveryInstructions"/);
+  assert.doesNotMatch(customer, /for="demoIdentityNumber"|for="demoAddressLine"|id="demoNoThaiAddress"/);
+  assert.ok(html.indexOf('demoIdentityUploadGridHtml("demo")') < html.indexOf('demoIdentityFieldsHtml()', html.indexOf('demoIdentityUploadGridHtml("demo")')));
 });
 
 test('document type is chosen separately from the page language', () => {
@@ -86,14 +87,10 @@ test('document type is chosen separately from the page language', () => {
   assert.match(html, /identityType: UNIFIED_FLOW_DEMO && !state\.calc\.noContract \? demoIdentityType\(\) : ""/);
 });
 
-test('postal code fills subdistrict, district and province from the service-area file', () => {
-  const data = JSON.parse(fs.readFileSync(new URL('../assets/data/service-area-addresses.json', import.meta.url), 'utf8'));
-  assert.deepEqual(data.provinces.map((row) => row[0]), ['กรุงเทพมหานคร', 'นนทบุรี', 'ปทุมธานี', 'สมุทรปราการ', 'สมุทรสาคร', 'นครปฐม']);
-  const chatuchak = data.subdistricts.filter((row) => row[0] === '10900').map((row) => row[1]);
-  assert.ok(chatuchak.includes('เสนานิคม'));
-  assert.match(html, /fetch\("assets\/data\/service-area-addresses\.json"/);
-  assert.match(html, /<select class="input" id="demoSubdistrict">/);
-  assert.match(html, /if\(event\.target\.id === "demoPostalCode"\) void onDemoPostalCode/);
+test('step 2 no longer asks for postal code or street fields', () => {
+  const customer = html.slice(html.indexOf('card.innerHTML = `<h3>${en ? "Customer and delivery details"'), html.indexOf('function demoAddressText'));
+  assert.doesNotMatch(customer, /id="demoPostalCode"|id="demoSubdistrict"|id="demoDistrict"|id="demoProvince"|id="demoAddressLine"/);
+  assert.match(customer, /id="demoMaps"/);
 });
 
 test('Rental Terms are embedded and acceptance is recorded', () => {
@@ -110,15 +107,11 @@ test('identity uploads offer a camera and an example photo', () => {
   assert.doesNotMatch(html, /For safety, the separate document image remains required/);
 });
 
-test('a visitor without Thai address details can rely on the map pin', () => {
-  assert.match(html, /id="demoNoThaiAddress"/);
-  assert.match(html, /ไม่ต้องการระบุที่อยู่ ตำแหน่งจากลิงก์ Google Maps ถูกต้องแล้ว/);
-  assert.match(html, /I don't need to enter an address — the Google Maps link is exact/);
-  assert.match(html, /if\(!demoProfile\.noThaiAddress\)\{/);
-  assert.match(html, /need\("demoMaps", \/\^https\?:\\\/\\\//);
-  assert.match(html, /demoProfile\.noThaiAddress = event\.target\.checked;[\s\S]*?saveDemoProfile\(\);\n\s*render\(\);/);
-  assert.match(html, /<span>Google Maps<\/span><b>\$\{demoProfile\.mapsPlace \? `\$\{esc\(demoProfile\.mapsPlace\.name \|\| demoProfile\.mapsPlace\.address\)\} · ` : ""\}<a href="\$\{esc\(safeHref\(demoProfile\.maps\)\)\}"/);
-  assert.match(html, /\["addressLine","postalCode","subdistrict","district","province"\]\.forEach/);
+test('the delivery map is required and a delivery note is optional', () => {
+  assert.match(html, /need\("demoMaps"/);
+  assert.match(html, /deliveryInstructions: UNIFIED_FLOW_DEMO/);
+  assert.match(html, /id="demoDeliveryInstructions"/);
+  assert.doesNotMatch(html.slice(html.indexOf('card.innerHTML = `<h3>${en ? "Customer and delivery details"'), html.indexOf('function demoAddressText')), /id="demoNoThaiAddress"/);
 });
 
 test('the in-progress rental session expires after 24 hours on each device', () => {
@@ -268,11 +261,11 @@ test('a returning customer sees the document AJ already holds', () => {
   assert.match(html, /profile\.identityLast4/);
 });
 
-test('the demo asks for the document expiry and refuses an expired one', () => {
+test('document expiry is read after photo upload and validated on step 3', () => {
   assert.match(html, /id="demoIdentityExpiry"/);
   assert.match(html, /function demoIdentityExpired\(\)/);
-  assert.match(html, /hasVerifiedAgreementRecord\(\) && !demoIdentityExpired\(\)/);
-  assert.match(html, /expiry \? demoIdentityExpiryMessage\(\) : \(en \? "Enter the document's expiry date\." : "กรอกวันหมดอายุของเอกสาร"\)/);
+  assert.match(html, /window\.AJIdentityOCR\.recognize\(file\)/);
+  assert.match(html, /need\("demoIdentityExpiry", !demoOcr\.busy/);
 });
 
 test('email is required because the confirmation is sent there', () => {
@@ -589,18 +582,10 @@ test('the ID card or passport must expire after the return date, or the renter c
   assert.equal(issue('2026-10-31', rental), 'on_return');
   assert.equal(issue('2026-11-01', rental), '');
   assert.equal(issue('', rental), '');
-  // Warned in red in both languages, and both buttons stay disabled.
-  assert.match(html, /`⚠️ แจ้งเตือน: \$\{documentName\}\$\{when\} ไม่สามารถทำรายการต่อได้ \$\{end \? `วันหมดอายุต้องอยู่หลังวันคืนเครื่อง \(\$\{end\}\) เท่านั้น`/);
-  assert.match(html, /`⚠️ Warning: this \$\{documentName\} \$\{when\}\. You cannot continue: /);
-  assert.match(html, /const identityBlocked = UNIFIED_FLOW_DEMO && step === 2 && !state\.calc\.noContract && demoIdentityExpired\(\);/);
-  assert.match(html, /id="demoConfirmFromDetails" type="button" \$\{identityBlocked \? "disabled" : ""\}/);
-  assert.match(html, /if\(!state\.calc\.noContract && demoIdentityExpired\(\)\) return \{tone:"error", text:demoIdentityExpiryMessage\(\)\};/);
-  assert.match(html, /บัตรประชาชนหรือ Passport ต้องยังไม่หมดอายุ ตั้งแต่วันที่เริ่มเช่าจนถึงวันคืนเครื่องในทุกกรณี หากเคยเช่าแล้วและบัตรหรือ Passport หมดอายุ ต้องทำข้อตกลงหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้งก่อนเช่าครั้งถัดไป/);
-  assert.match(html, /Your Thai ID card or passport must remain valid from the start date through the return date, in every case\./);
-  // Checked for every renter, including one without a Thai address.
-  assert.ok(html.indexOf('need("demoIdentityExpiry"') < html.indexOf('if(!demoProfile.noThaiAddress){\n      need("demoAddressLine"'));
+  assert.match(html, /need\("demoIdentityExpiry", !demoOcr\.busy/);
+  assert.match(html, /field:"demoIdentityExpiry"/);
+  assert.match(html, /step:3, field:"demoIdentityExpiry"/);
 });
-
 test('a renter checks a rental without an account: this device, the email link, Rental ID or email plus phone', () => {
   assert.match(html, /if\(action === "myRental"\) openMyRentalLookup\(\{code:menuAction\.dataset\.myRentalOpen \|\| ""\}\);/);
   assert.match(html, /fetch\(`\$\{CONFIG\.apiBase\}\/api\/rentals\/lookup`/);
@@ -687,7 +672,7 @@ test('Admin → Rentals offers the renter\'s own My rental link in Thai and Engl
   assert.match(html, /rel="noopener noreferrer"/);
 });
 
-test('a returning renter\'s saved address fills the area fields and shows the summary card', () => {
+test('a returning renter still sees the saved map and customer summary card', () => {
   const body = html.match(/function demoAddressGuess\(text, candidates\)\{[\s\S]*?\n  \}\n/)[0];
   const demoAddressGuess = new Function(`${body}; return demoAddressGuess;`)();
   const c = (sub, district) => ({ sub: [sub, sub], district: [district, district], province: ['กรุงเทพมหานคร', 'Bangkok'] });
@@ -698,7 +683,7 @@ test('a returning renter\'s saved address fills the area fields and shows the su
   assert.match(html, /const guess = demoAddressGuess\(demoProfile\.addressLine, demoAddressCandidates\);/);
   // A saved one-line address is enough when it cannot be split, and is sent once, not doubled.
   assert.match(html, /demoProfile\.addressFromProfile = true;/);
-  assert.match(html, /: demoAddressFromProfileOnly\(\) \? \["fullName","phone","email","addressLine","maps"\]/);
+  assert.match(html, /const keys = \["fullName","phone","email","maps"\]/);
   assert.match(html, /deliveryAddress: UNIFIED_FLOW_DEMO \? demoAddressText\(\) : "",/);
   // After a reload the postal code's areas come back and the summary stays.
   assert.match(html, /if\(\/\^\\d\{5\}\$\/\.test\(String\(demoProfile\.postalCode \|\| ""\)\.trim\(\)\)\) void onDemoPostalCode\(demoProfile\.postalCode\);/);
