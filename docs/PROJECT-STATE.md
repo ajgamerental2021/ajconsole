@@ -2587,3 +2587,7 @@ paused job shows slightly old numbers rather than an empty section.
 ## 2026-10-06 — Thai watermark day-count wording
 
 - Changed only the Thai identity-photo watermark day-count phrase from “จำนวนวัน 3” to “จำนวน 3 วัน” in the booking preview, LIFF preview, signed identity-upgrade preview, and the separate server-generated watermarked JPEG. The English text and other rental wording are unchanged.
+## 2026-10-06: identity request from Delivery App and My Rental form
+- The Delivery App now asks the Bot for the live identity state before showing an admin `ส่งยืนยันตัวตน` button and checks again before an admin tap sends the card. The Bot chooses the existing photo follow-up page or the deposit-reduction page, depending on the rental, and refuses a request after documents have been submitted or approved. A linked LINE account and a Bot rental record are required. Booking Confirm also includes a verification button when the Bot says it is needed.
+- My Rental's legacy “never signed a rental contract” form no longer lets an older challenge response untick the customer's choice or switch the identifier. Phone and Rental ID inputs retain separate drafts when toggled. The server still decides whether document digits are required, so the name option does not bypass identity checks.
+- Verified the exact phone → first-name blur race in a browser with a delayed challenge response, plus switching identifier and language without losing the entered phone. TypeScript checks and identity/card tests passed.
