@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>ผูก LINE · AJ Game Rental</title>
+  <style>body{font:16px system-ui,sans-serif;color:#202532;background:#f6f7fa;margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;box-sizing:border-box}.card{max-width:440px;background:#fff;padding:32px;border-radius:20px;box-shadow:0 8px 32px #1b253015;text-align:center}h1{font-size:23px}p{line-height:1.6}a{color:#be1e2d}</style>
+</head>
+<body><main class="card"><h1 id="title">กำลังเปิดหน้าผูก LINE</h1><p id="message">กรุณารอสักครู่…</p></main>
+<script>
+  const params = new URLSearchParams(location.search);
+  const token = params.get('t') || '';
+  const lang = params.get('lang') === 'en' ? 'en' : 'th';
+  document.documentElement.lang = lang;
+  if(/^[A-Za-z0-9_-]{16,256}$/.test(token)) {
+    location.replace('https://delivery-app-backend-68pm.onrender.com/c/my/link?t=' + encodeURIComponent(token) + '&lang=' + lang);
+  } else {
+    document.getElementById('title').textContent = lang === 'en' ? 'Invalid LINE link' : 'ลิงก์ผูก LINE ไม่ถูกต้อง';
+    document.getElementById('message').innerHTML = lang === 'en' ? 'Please request a new link from AJ Game Rental.' : 'กรุณาขอลิงก์ใหม่จากร้าน AJ Game Rental';
+  }
+</script>
+</body>
+</html>
