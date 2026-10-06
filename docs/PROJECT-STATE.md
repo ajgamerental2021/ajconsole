@@ -1,3 +1,10 @@
+## 2026-10-06 — Returning renter data in Step 2
+
+- Checked and fast-forwarded the other chat's OCR and preview commits before editing. This change leaves OCR files untouched.
+- A verified LINE account or manually confirmed returning renter now receives the latest confirmed booking/customer details in Step 2: name, phone, email, last delivery Maps link and place-matched note, plus the refund bank or Wise account when available. Missing fields remain editable. Contact and account summaries have bilingual Edit controls; account numbers are masked in the summary and never saved in browser storage.
+- When the renter changes details and advances from Step 2, the Bot accepts a short-lived returning verification token, records the current details in a `Returning Customer Profiles` Sheet, and sends a signed update to the Delivery App Customers record. Delivery App now reads the saved delivery note and shows it on the customer detail screen only for the exact saved location. A failed update stops progression and shows a bilingual retry message.
+- Verification: website 284/284 tests, Bot full suite, backend and frontend TypeScript builds, Chromium mobile Thai/English autofill and mocked save request. Live Sheets/Delivery App write needs a deployed end-to-end booking to verify.
+
 ## 2026-10-06 — Booking progression and review timing
 
 - Website: The no-verification deposit tier and choice now appear only in Step 2. Step 2 explains that skipping verification needs no ID number or photos. Customer-facing identity labels were aligned in Thai and English; old FAQ wording remains recognized only when migrating saved FAQ entries.
