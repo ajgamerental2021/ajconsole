@@ -82,7 +82,7 @@
       script.onload = () => global.Tesseract ? resolve(global.Tesseract) : reject(new Error('ocr_library_unavailable'));
       script.onerror = () => reject(new Error('ocr_library_unavailable'));
       document.head.appendChild(script);
-    });
+    }).catch((error) => { library = null; throw error; });
     return library;
   }
   async function recognize(file, onProgress) {
