@@ -2705,3 +2705,9 @@ paused job shows slightly old numbers rather than an empty section.
 - The Thai payment success actions enter the existing LIFF confirmation-only handoff, which links the LINE account, asks Delivery App to send the paid booking card and attempts a customer-originated message. English only enters LIFF from the LINE action. LINE limits mean an inbound message still needs LINE to accept the LIFF send or the customer to tap Send in chat; the page retains the fallback chat action.
 - Delivery App removes the separate unconfirmed afternoon reminder, suppresses four explicitly cancelled historical Console Pending rental codes across web, contract and payment sources, and allocates Rental IDs for new or cloned Bookings at the backend creation boundary. The form requests a code early and the backend fills it if that request fails.
 - Analytics now groups recorded client-error details. Historical availability events did not include details and the production admin analytics endpoint requires login, so the exact split of the 30 historical failures remains unavailable in this workspace.
+
+## 2026-10-07 — Before-rent heading cleanup
+
+- Removed the kicker, gamepad illustration, and device list from the bilingual Before rent heading. The English title is now “Game Console Rental”; the Thai title and supporting booking/delivery lines remain.
+- Reviewed the existing LINE connection: it is optional before payment, while payment success still offers LINE and WhatsApp handoff. No new prepayment channel-selection flow was implemented in this copy change.
+- Verified all 300 website tests, inline JavaScript syntax, and clean diff formatting.
