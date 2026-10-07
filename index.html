@@ -11617,11 +11617,25 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(!/^U[a-f0-9]{32}$/i.test(String(result.lineUserId || "")) || !result.connectionToken || Number(result.expiresAt) <= Date.now()) throw new Error("line_proof_missing");
       const proof = new URLSearchParams({lineConnectionToken:result.connectionToken,lineUserId:result.lineUserId,lineDisplayName:result.displayName || "",lineExpiresAt:String(result.expiresAt)});
       returnUrl.hash = proof.toString();
-      panel.innerHTML = `<div style="width:54px;height:54px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:#e8f8ee;color:#16883f;font-size:30px;font-weight:900">✓</div><h1 style="font-size:22px;margin:0 0 12px">${en ? "LINE connected" : "เชื่อม LINE แล้ว"}</h1><p style="color:#667085;margin-bottom:20px">${en ? "Your booking page is ready." : "กลับไปทำรายการจองต่อได้เลย"}</p><button class="btn line-share" id="lineConnectReturn" type="button">${en ? "Continue booking" : "จองต่อ"}</button>`;
-      panel.querySelector("#lineConnectReturn").addEventListener("click", () => {
-        if(liff.isInClient?.() && liff.openWindow) liff.openWindow({url:returnUrl.href,external:params.get("origin") !== "line"});
-        else location.href = returnUrl.href;
-      });
+      panel.innerHTML = `<div style="width:54px;height:54px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:#e8f8ee;color:#16883f;font-size:30px;font-weight:900">✓</div><h1 style="font-size:22px;margin:0 0 12px">${en ? "LINE connected" : "เชื่อม LINE แล้ว"}</h1><p style="color:#667085;margin-bottom:12px">${en ? "Returning to your booking…" : "กำลังกลับหน้าจองของคุณ…"}</p><a id="lineReturnFallback" href="${esc(returnUrl.href)}" hidden style="font-size:13px;color:#08753a;font-weight:800">${en ? "Open booking if it does not return" : "หากยังไม่กลับ เปิดหน้าจองที่นี่"}</a>`;
+      window.setTimeout(() => { const fallback = panel.querySelector("#lineReturnFallback"); if(fallback) fallback.hidden = false; }, 4000);
+      const navigateHere = () => location.replace(returnUrl.href);
+      if(params.get("origin") === "browser" && liff.isInClient?.() && liff.openWindow){
+        try{
+          // Return to Safari/Chrome, whose saved booking draft belongs to that
+          // browser. Some LINE versions reject automatic external windows; the
+          // same-view redirect below guarantees the customer is never stranded.
+          const opened = liff.openWindow({url:returnUrl.href,external:true});
+          if(opened?.catch) void opened.catch(navigateHere);
+          window.setTimeout(() => {
+            if(document.visibilityState === "visible") navigateHere();
+            else document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible") navigateHere(); }, {once:true});
+          }, 1800);
+        }catch{ navigateHere(); }
+      }else{
+        // A booking started inside LINE keeps its draft in LINE's web view.
+        navigateHere();
+      }
     };
     try{
       liff = await bookingWait(loadLineSdk(), 10000);

@@ -667,6 +667,9 @@ test('connecting LINE opens the phone app directly and restores the booking step
   assert.match(connection, /liff\.init\(\{liffId:CONFIG\.lineLiffId\}\)/);
   assert.doesNotMatch(connection, /withLoginOnExternalBrowser:true/);
   assert.match(connection, /if\(!liff\.isInClient\?\.\(\)\)\{/);
+  assert.doesNotMatch(connection, /id="lineConnectReturn"/);
+  assert.match(connection, /liff\.openWindow\(\{url:returnUrl\.href,external:true\}\)/);
+  assert.match(connection, /location\.replace\(returnUrl\.href\)/);
   assert.doesNotMatch(html, /liff\.login\(\{redirectUri:lineConnectReturnUrl\(\)\}\)/);
   const boot = html.slice(html.indexOf('async function boot(){'));
   assert.match(boot, /if\(lineConnectReturn \|\| lineProofReturned\)\{\n      state\.calc\.step = lineConnectReturn\?\.step \|\| 2;/);
