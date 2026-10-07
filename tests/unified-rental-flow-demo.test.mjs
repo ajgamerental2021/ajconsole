@@ -120,12 +120,13 @@ test('the in-progress rental session expires after 24 hours on each device', () 
   assert.match(html, /function clearExpiredRentalSession\(\)/);
   assert.match(html, /localStorage\.removeItem\(LS\.draft\)/);
   assert.match(html, /localStorage\.removeItem\("aj_demo_profile_v1"\)/);
-  assert.match(html, /url\.searchParams\.set\("booking", "1"\)/);
+  assert.match(html, /url\.searchParams\.delete\("booking"\)/);
   assert.match(html, /location\.replace\(url\.href\)/);
   const boot = html.slice(html.indexOf('async function boot(){'));
-  assert.ok(boot.indexOf('const expiredRentalProgress = clearExpiredRentalSession();') < boot.indexOf('loadState();'));
-  assert.match(boot, /cleanBookingUrl\.searchParams\.set\("booking", "1"\)/);
-  assert.match(boot, /state\.beforeRentActive = expiredRentalProgress \|\| lineConnectReturn \? false : !hasRentalContext\(\)/);
+  assert.ok(boot.indexOf('clearExpiredRentalSession();') < boot.indexOf('loadState();'));
+  assert.doesNotMatch(boot, /cleanBookingUrl\.searchParams\.set\("booking", "1"\)/);
+  assert.match(boot, /state\.beforeRentActive = lineConnectReturn \? false : !hasRentalContext\(\)/);
+  assert.match(boot, /if\(directBookingEntry\)\{[\s\S]*?cleanEntryUrl\.searchParams\.delete\("booking"\)/);
 });
 
 test('identity images are uploaded to the booking context before the Rental ID page opens', () => {

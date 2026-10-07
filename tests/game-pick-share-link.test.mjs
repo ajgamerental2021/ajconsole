@@ -6,8 +6,8 @@ const site = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const picker = fs.readFileSync(new URL('../game_index.html', import.meta.url), 'utf8');
 
 test('the copy button says what it does, in both languages', () => {
-  assert.match(site, /copyGameUrl:"คัดลอกลิงก์"/);
-  assert.match(site, /copyGameUrl:"Copy link"/);
+  assert.match(site, /copyGameUrl:"คัดลอกลิงก์เลือกเกมกับเพื่อน"/);
+  assert.match(site, /copyGameUrl:"Copy link to pick with friends"/);
   assert.doesNotMatch(site, /\.game-picker-copy-url span\{display:none\}/);
 });
 
@@ -38,7 +38,8 @@ test('a copied link is explained in a popup closed with "รับทราบ",
   assert.match(site, /id="gamePickLinkModal"/);
   assert.match(site, /gamePickLinkOk:"รับทราบ"/);
   assert.match(site, /gamePickLinkOk:"Got it"/);
-  assert.match(site, /showGamePickLinkPopup\("done"\);\n\s*startGamePickPolling\(\);/);
+  assert.match(site, /showGamePickLinkPopup\(copied \? "done" : "manual", link\);\n\s*startGamePickPolling\(\);/);
+  assert.match(site, /id="gamePickLinkValue" type="text" readonly/);
   assert.doesNotMatch(site, /id="gamePickerSync"/);
 });
 
@@ -48,13 +49,17 @@ test('the folded console row stays on one line with "More" beside the consoles',
   assert.match(site, /\.game-picker-platforms\.is-folded \.game-picker-platform-more\{position:sticky;right:0/);
 });
 
-test('Copy link opens a busy popup at once, and only its finished state can be closed', () => {
-  assert.match(site, /gamePickLinkBusy:"กำลังสร้างลิงก์และคัดลอก…"/);
-  assert.match(site, /gamePickLinkBusy:"Creating and copying the link…"/);
-  assert.equal((site.match(/\bgamePickLinkBusyText:"/g) || []).length, 2);
-  assert.match(site, /showGamePickLinkPopup\("busy"\);\n\s*try\{\n\s*const link = await copyTextFrom\(createGamePickLink\(\)\);/);
-  assert.match(site, /showGamePickLinkPopup\("done"\);/);
-  assert.match(site, /if\(modal\.dataset\.state === "busy"\) return;/);
-  assert.match(site, /\.game-pick-link-modal\[data-state="busy"\] #gamePickLinkOk\{display:none\}/);
+test('link creation and clipboard waits are bounded, with manual copy and retry', () => {
+  assert.match(site, /GAME_PICK_CREATE_TIMEOUT_MS = 15000/);
+  assert.match(site, /GAME_PICK_CLIPBOARD_TIMEOUT_MS = 2500/);
   assert.match(site, /signal:AbortSignal\.timeout\(GAME_PICK_CREATE_TIMEOUT_MS\)/);
+  assert.match(site, /Promise\.race\(\[clipboardAttempt, afterDelay\(GAME_PICK_CLIPBOARD_TIMEOUT_MS, false\)\]\)/);
+  assert.match(site, /if\(!copied\) copied = copyGamePickText\(link\)/);
+  assert.match(site, /showGamePickLinkPopup\("failed"\)/);
+  assert.match(site, /if\(modal\.dataset\.state === "failed"\) return copyGamePickLink\(\)/);
+  assert.match(site, /if\(modal\.dataset\.state === "manual"\)/);
+  assert.match(site, /if\(modal\.dataset\.state === "busy"\) return/);
+  for (const key of ['gamePickLinkRetry', 'gamePickLinkManual', 'gamePickLinkManualText', 'gamePickLinkCopyAgain', 'gamePickLinkFailedText', 'gamePickLinkValueLabel']) {
+    assert.equal((site.match(new RegExp(`\\b${key}:"`, 'g')) || []).length, 2, key);
+  }
 });

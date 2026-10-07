@@ -718,6 +718,7 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .game-pick-link-icon .ico{width:24px;height:24px}
 .game-pick-link-card h3{font-size:18px}
 .game-pick-link-card p{font-size:14px;line-height:1.6;color:#344054}
+#gamePickLinkValue{width:100%;padding:10px;border:1px solid #cfd4dc;border-radius:9px;font-size:14px;user-select:all}
 .game-pick-link-card .btn{width:100%;min-height:44px;margin-top:4px}
 /* While the link is being made: a spinner where the icon goes, and no button
    — the rest of the page stays behind the grey backdrop until it is ready. */
@@ -834,7 +835,7 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
   .game-picker-head .faq-lang-btn{padding:6px 9px;font-size:12px}
   .game-picker-head .xbtn{font-size:24px}
   .game-picker-attention{max-width:none;white-space:normal;overflow:visible;font-size:10px;line-height:1.25;padding:5px 8px}
-  .game-picker-copy-url{padding:5px 8px;font-size:11px}
+  .game-picker-copy-url{padding:5px 8px;font-size:10px;max-width:145px;line-height:1.15;text-align:center;white-space:normal}
   .game-picker-head .faq-lang-btn{padding:5px 8px}
   #gamePickerHowToBtn{padding:5px 8px;font-size:11px}
   #gamePickerHowToBtn .ico{width:13px;height:13px}
@@ -1726,6 +1727,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
     <div class="game-pick-link-icon" id="gamePickLinkIcon"></div>
     <h3 id="gamePickLinkTitle"></h3>
     <p id="gamePickLinkText"></p>
+    <input id="gamePickLinkValue" type="text" readonly aria-label="Shared game link" hidden>
     <button class="btn primary" id="gamePickLinkOk" type="button"></button>
   </div>
 </div>
@@ -2152,13 +2154,19 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       gamePickerFewerConsoles:"ย่อ",
       gamePickerScrollHint:"เลื่อนดูเครื่องอื่น →",
       gamePickerHowTo:"วิธีเลือก",
-      copyGameUrl:"คัดลอกลิงก์",
+      copyGameUrl:"คัดลอกลิงก์เลือกเกมกับเพื่อน",
       gamePickLinkCopied:"คัดลอกลิงก์แล้ว",
       gamePickLinkCopiedText:"ส่งลิงก์นี้ให้เพื่อน หรือเปิดในอีกเครื่องได้เลย เกมที่แตะเลือกหรือเอาออกจะบันทึกลงลิงก์นี้ทันที ไม่ต้องกดบันทึก ลิงก์เก็บไว้ 7 วันนับจากการแก้ไขครั้งล่าสุด เลือกเสร็จแล้วกด \"ใช้รายการเกมนี้\" เพื่อจองต่อได้ทันที",
       gamePickLinkOk:"รับทราบ",
-      gamePickLinkBusy:"กำลังสร้างลิงก์และคัดลอก…",
-      gamePickLinkBusyText:"รอสักครู่ อาจใช้เวลาหลายวินาที",
-      gamePickLinkFailed:"สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง",
+      gamePickLinkBusy:"กำลังสร้างลิงก์แชร์เกม…",
+      gamePickLinkBusyText:"รอสักครู่ หากเชื่อมต่อไม่สำเร็จจะให้ลองใหม่",
+      gamePickLinkFailed:"สร้างลิงก์ไม่สำเร็จ กรุณาลองใหม่",
+      gamePickLinkRetry:"ลองสร้างลิงก์อีกครั้ง",
+      gamePickLinkManual:"สร้างลิงก์แล้ว",
+      gamePickLinkManualText:"เบราว์เซอร์ไม่อนุญาตให้คัดลอกอัตโนมัติ แตะคัดลอกลิงก์ด้านล่าง หรือกดค้างที่ลิงก์เพื่อคัดลอก แล้วส่งให้เพื่อนเลือกเกมพร้อมกัน",
+      gamePickLinkFailedText:"รายการเกมที่เลือกไว้ยังอยู่ กดลองสร้างลิงก์อีกครั้ง",
+      gamePickLinkValueLabel:"ลิงก์เลือกเกมร่วมกัน",
+      gamePickLinkCopyAgain:"คัดลอกลิงก์เพื่อส่งให้เพื่อน",
       gamePickLinkExpired:"ลิงก์เลือกเกมนี้หมดอายุแล้ว หรือไม่มีอยู่",
       gamePickSaveFailed:"บันทึกไม่สำเร็จ แตะเกมนั้นอีกครั้ง",
       gamePickConsoleFull:"เครื่องนี้มีครบ 10 เกมในลิงก์แล้ว",
@@ -2277,13 +2285,19 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       gamePickerFewerConsoles:"Show fewer",
       gamePickerScrollHint:"Swipe for more →",
       gamePickerHowTo:"How to",
-      copyGameUrl:"Copy link",
+      copyGameUrl:"Copy link to pick with friends",
       gamePickLinkCopied:"Link copied",
       gamePickLinkCopiedText:"Send this link to a friend or open it on another device. Every game you tap or remove is saved to it at once, with no save button. The link is kept for 7 days after its last change. When the list is ready, tap \"Use This Game List\" to continue booking.",
       gamePickLinkOk:"Got it",
-      gamePickLinkBusy:"Creating and copying the link…",
-      gamePickLinkBusyText:"One moment, this can take a few seconds.",
+      gamePickLinkBusy:"Creating your shared game link…",
+      gamePickLinkBusyText:"One moment. You can retry if the connection fails.",
       gamePickLinkFailed:"Could not create the link. Please try again.",
+      gamePickLinkRetry:"Try creating the link again",
+      gamePickLinkManual:"Your link is ready",
+      gamePickLinkManualText:"Your browser could not copy it automatically. Tap Copy link below or press and hold the link to copy it, then send it to a friend so you can pick games together.",
+      gamePickLinkFailedText:"Your selected games are still here. Try creating the link again.",
+      gamePickLinkValueLabel:"Shared game link",
+      gamePickLinkCopyAgain:"Copy link to share with friends",
       gamePickLinkExpired:"This game list link has expired or does not exist.",
       gamePickSaveFailed:"Not saved — tap that game again",
       gamePickConsoleFull:"This console already has 10 games in the link",
@@ -2458,7 +2472,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       }catch{}
       if(shouldReturnToStepOne){
         const url = new URL(location.href);
-        url.searchParams.set("booking", "1");
+        url.searchParams.delete("booking");
         url.hash = "";
         location.replace(url.href);
       }
@@ -10212,21 +10226,21 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       .map(([platformId, ids]) => [platformId, (ids || []).slice(0,10)])
       .filter(([, ids]) => ids.length));
   }
-  /**
-   * The copy-link popup. "busy" opens the moment the button is pressed — the
-   * link is made on the Bot and that can take a few seconds, longer when it
-   * has been asleep — and "done" replaces it once the link is on the
-   * clipboard. Only "done" can be closed.
-   */
-  function showGamePickLinkPopup(phase){
+  // Always show the generated URL. If a browser refuses clipboard access,
+  // the customer can still select it or tap Copy with a fresh user gesture.
+  function showGamePickLinkPopup(phase, link = ""){
     const modal = byId("gamePickLinkModal");
     const busy = phase === "busy";
-    modal.dataset.state = busy ? "busy" : "done";
+    modal.dataset.state = phase;
     modal.setAttribute("aria-busy", String(busy));
     byId("gamePickLinkIcon").innerHTML = busy ? `<span class="game-pick-link-spinner" aria-hidden="true"></span>` : icon("link");
-    byId("gamePickLinkTitle").textContent = tr(busy ? "gamePickLinkBusy" : "gamePickLinkCopied");
-    byId("gamePickLinkText").textContent = tr(busy ? "gamePickLinkBusyText" : "gamePickLinkCopiedText");
-    byId("gamePickLinkOk").textContent = tr("gamePickLinkOk");
+    byId("gamePickLinkTitle").textContent = tr(phase === "done" ? "gamePickLinkCopied" : phase === "manual" ? "gamePickLinkManual" : phase === "failed" ? "gamePickLinkFailed" : "gamePickLinkBusy");
+    byId("gamePickLinkText").textContent = tr(phase === "done" ? "gamePickLinkCopiedText" : phase === "manual" ? "gamePickLinkManualText" : phase === "failed" ? "gamePickLinkFailedText" : "gamePickLinkBusyText");
+    const input = byId("gamePickLinkValue");
+    input.setAttribute("aria-label", tr("gamePickLinkValueLabel"));
+    input.value = link;
+    input.hidden = !link;
+    byId("gamePickLinkOk").textContent = tr(phase === "failed" ? "gamePickLinkRetry" : phase === "manual" ? "gamePickLinkCopyAgain" : "gamePickLinkOk");
     modal.classList.add("open");
     if(!busy) byId("gamePickLinkOk").focus();
   }
@@ -10247,34 +10261,18 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     );
     renderGamePickerPlatforms();
   }
-  async function copyTextFrom(valuePromise){
-    // Safari only allows a copy inside the tap, so the clipboard is handed the
-    // link as a promise before it exists.
-    if(window.ClipboardItem && navigator.clipboard?.write){
-      try{
-        await navigator.clipboard.write([new ClipboardItem({"text/plain":valuePromise.then(text => new Blob([text], {type:"text/plain"}))})]);
-        return await valuePromise;
-      }catch(error){
-        if(!(await valuePromise.catch(() => ""))) throw error;
-      }
-    }
-    const value = await valuePromise;
-    try{
-      await navigator.clipboard.writeText(value);
-    }catch(error){
-      const input = document.createElement("textarea");
-      input.value = value;
-      input.setAttribute("readonly", "");
-      input.style.position = "fixed";
-      input.style.opacity = "0";
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand("copy");
-      input.remove();
-    }
-    return value;
+  const GAME_PICK_CREATE_TIMEOUT_MS = 15000;
+  const GAME_PICK_CLIPBOARD_TIMEOUT_MS = 2500;
+  const afterDelay = (ms, value) => new Promise(resolve => setTimeout(() => resolve(value), ms));
+  function copyGamePickText(link){
+    const input = byId("gamePickLinkValue");
+    input.value = link;
+    input.hidden = false;
+    input.focus();
+    input.select();
+    try{ if(document.execCommand("copy")) return true; }catch{}
+    return false;
   }
-  const GAME_PICK_CREATE_TIMEOUT_MS = 45000;
   async function createGamePickLink(){
     const response = await fetch(gamePickApi(), {
       method:"POST",
@@ -10293,19 +10291,47 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(button) button.disabled = true;
     showGamePickLinkPopup("busy");
     try{
-      const link = await copyTextFrom(createGamePickLink());
+      // Safari requires ClipboardItem.write to start in the original tap.
+      // Bound that operation separately: a stalled clipboard must not hide an
+      // already created link behind a spinner forever.
+      const pendingLink = createGamePickLink();
+      let clipboardAttempt = Promise.resolve(false);
+      if(window.ClipboardItem && navigator.clipboard?.write){
+        try{
+          clipboardAttempt = navigator.clipboard.write([
+            new ClipboardItem({"text/plain":pendingLink.then(link => new Blob([link], {type:"text/plain"}))})
+          ]).then(() => true, () => false);
+        }catch{}
+      }
+      const link = await pendingLink;
+      let copied = await Promise.race([clipboardAttempt, afterDelay(GAME_PICK_CLIPBOARD_TIMEOUT_MS, false)]);
+      if(!copied) copied = copyGamePickText(link);
       // The address bar follows, so reloading this page stays on the same list.
       try{ history.replaceState(null, "", link); }catch{}
       trackAnalytics("game_pick_link_created", {value:String(Object.keys(nonEmptyPicks()).length)});
-      showGamePickLinkPopup("done");
+      showGamePickLinkPopup(copied ? "done" : "manual", link);
       startGamePickPolling();
     }catch(error){
-      byId("gamePickLinkModal").dataset.state = "done";
-      closeGamePickLinkPopup();
-      toast(tr("gamePickLinkFailed"));
+      console.error("Shared game link failed", error);
+      showGamePickLinkPopup("failed");
     }finally{
       if(button) button.disabled = false;
     }
+  }
+  async function onGamePickLinkAction(){
+    const modal = byId("gamePickLinkModal");
+    if(modal.dataset.state === "failed") return copyGamePickLink();
+    if(modal.dataset.state === "manual"){
+      const link = byId("gamePickLinkValue").value;
+      let copied = copyGamePickText(link);
+      if(!copied && navigator.clipboard?.writeText){
+        copied = await Promise.race([navigator.clipboard.writeText(link).then(() => true, () => false), afterDelay(GAME_PICK_CLIPBOARD_TIMEOUT_MS, false)]);
+      }
+      if(copied) showGamePickLinkPopup("done", link);
+      else byId("gamePickLinkValue").select();
+      return;
+    }
+    closeGamePickLinkPopup();
   }
   async function saveGamePickChange(platformId, change){
     const session = state.gamePickSession;
@@ -13249,7 +13275,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("gamePickerLangBtn").addEventListener("click", toggleGamePickerLang);
     byId("gamePickerHowToBtn").addEventListener("click", toggleGamePickerHowTo);
     byId("gamePickerCopyUrl").addEventListener("click", () => { void copyGamePickLink(); });
-    byId("gamePickLinkOk").addEventListener("click", closeGamePickLinkPopup);
+    byId("gamePickLinkOk").addEventListener("click", () => { void onGamePickLinkAction(); });
     byId("gamePickLinkModal").addEventListener("click", event => { if(event.target === event.currentTarget) closeGamePickLinkPopup(); });
     byId("adminBtn").addEventListener("click", () => openAdmin(false));
     byId("adminClose").addEventListener("click", closeAdmin);
@@ -14137,7 +14163,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
 
   async function boot(){
     if(await completeLineBookingHandoff()) return;
-    const expiredRentalProgress = clearExpiredRentalSession();
+    clearExpiredRentalSession();
     loadState();
     let demoProfileRestored = false;
     if(UNIFIED_FLOW_DEMO){
@@ -14170,12 +14196,6 @@ We apologize for the inconvenience and hope everyone stays safe.`
       state.calc.demoContractSignature = "";
       state.calc.demoOrderOpen = false;
     }
-    if(expiredRentalProgress){
-      const cleanBookingUrl = new URL(location.href);
-      cleanBookingUrl.searchParams.set("booking", "1");
-      cleanBookingUrl.hash = "";
-      history.replaceState(null, "", cleanBookingUrl.href);
-    }
     const lineConnectReturn = takeLineConnectReturn();
     const requestedLanguage = new URLSearchParams(location.search).get("lang");
     if(["th","en"].includes(requestedLanguage)) state.lang = requestedLanguage;
@@ -14191,7 +14211,14 @@ We apologize for the inconvenience and hope everyone stays safe.`
     state.availability.holds = mergeBookingHolds(state.availability.holds);
     // A normal visit always starts with the Before rent page. Deep links that
     // already carry a selected rental context still open the relevant step.
-    state.beforeRentActive = expiredRentalProgress || lineConnectReturn ? false : !hasRentalContext();
+    state.beforeRentActive = lineConnectReturn ? false : !hasRentalContext();
+    // A direct booking link works once; the browser's saved tab URL must not
+    // keep bypassing Before rent on a later visit to the plain site.
+    if(directBookingEntry){
+      const cleanEntryUrl = new URL(location.href);
+      cleanEntryUrl.searchParams.delete("booking");
+      history.replaceState(null, "", cleanEntryUrl.href);
+    }
     if(new URLSearchParams(location.search).get("admin") === "1") byId("adminBtn").hidden = false;
     const viewCode = new URLSearchParams(location.search).get("viewMsg");
     if(viewCode){ renderBookingViewer(viewCode.trim()); return; }
