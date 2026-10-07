@@ -28,7 +28,7 @@ test('VIP rules support all or selected deposit devices and per-device rental ra
 });
 
 test('normal visits start at Before rent while direct rental links keep their context', () => {
-  assert.match(html, /state\.beforeRentActive = lineConnectReturn \|\| lineProofReturned \? false : !hasRentalContext\(\)/);
+  assert.match(html, /state\.beforeRentActive = lineConnectReturn \|\| lineProofReturned \|\| lineSelectionRestored \? false : !hasRentalContext\(\)/);
   assert.doesNotMatch(html, /body\.unified-flow-demo #beforeRentBack/);
   assert.match(html, /body\.unified-flow-demo \.demo-banner\{display:none!important\}/);
 });

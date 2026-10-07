@@ -125,7 +125,7 @@ test('the in-progress rental session expires after 24 hours on each device', () 
   const boot = html.slice(html.indexOf('async function boot(){'));
   assert.ok(boot.indexOf('clearExpiredRentalSession();') < boot.indexOf('loadState();'));
   assert.doesNotMatch(boot, /cleanBookingUrl\.searchParams\.set\("booking", "1"\)/);
-  assert.match(boot, /state\.beforeRentActive = lineConnectReturn \|\| lineProofReturned \? false : !hasRentalContext\(\)/);
+  assert.match(boot, /state\.beforeRentActive = lineConnectReturn \|\| lineProofReturned \|\| lineSelectionRestored \? false : !hasRentalContext\(\)/);
   assert.match(boot, /if\(directBookingEntry\)\{[\s\S]*?cleanEntryUrl\.searchParams\.delete\("booking"\)/);
 });
 

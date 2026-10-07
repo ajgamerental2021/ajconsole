@@ -1,3 +1,9 @@
+## 2026-10-07 — LINE return restores the selected rental in a new tab
+
+- The reported first page was inside LINE, while the successful return opened a fresh Safari tab. Browser storage is isolated between those windows; the return had no selected console or dates and started at Step 1.
+- The LINE launch now carries only the console id, device type and start/end dates. LIFF carries that small selection into its verified return URL. A new tab validates and restores the selection, removes it from the URL, saves it locally and resumes Step 2. No customer name, phone, address or identity data goes into this URL. The original browser handoff polling remains in place.
+- Runtime tests exercise fresh Thai and English browser contexts and LIFF state decoding; the full website suite passes. The native iOS/Android tab choice is outside website control and still needs a real-device smoke test after deployment.
+
 ## 2026-10-07 — LINE first tap and booking channel copy
 
 - Step 2 now separates the Chrome/Safari return note from the LINE fallback link with space and a neutral gray panel in Thai and English.
