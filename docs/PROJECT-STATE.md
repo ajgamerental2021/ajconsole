@@ -1,3 +1,9 @@
+## 2026-10-07 — Compact booking problem dialogs and current announcement state
+
+- Short booking error dialogs now use a centered, content-height card on phones and desktops. They retain the problem-specific action and add a bilingual Close button beside the header X.
+- The website waits for the Bot's current announcement setting instead of showing a previously enabled notice from browser storage. A disabled Admin setting cannot flash an old announcement while the API is loading; an enabled notice still appears.
+- Checked the live announcement API returned `enabled: false`, Chromium mobile Thai/desktop English compact dialog geometry and stale-disabled notice, enabled notice in both languages, inline syntax and the website suite.
+
 ## 2026-10-07 — Shorter delivery location form copy
 
 - Removed the explanatory paragraph under the Google Maps search/pin controls and the paragraph under the optional delivery note in Step 2, in Thai and English. The location input, current-location button, map pin button and note remain.

@@ -1071,6 +1071,13 @@ body.unified-flow-demo .demo-verify-btn:hover{background:#166534;border-color:#1
 #simpleModal:has(.verify-now) .verify-now-customer{margin-bottom:16px}
 
 @media(max-width:600px){#identityUpgradeModal .modal-card{width:100%;height:100dvh;max-height:none;border-radius:0}}
+/* Short booking problem dialogs stay readable without filling a phone screen. */
+#simpleModal:has(.queue-retry-actions){padding:16px;align-items:center;justify-content:center}
+#simpleModal:has(.queue-retry-actions) .modal-card{width:min(440px,100%);height:auto;max-height:calc(100dvh - 32px);border-radius:18px;overflow:auto}
+#simpleModal:has(.queue-retry-actions) .modal-head{position:static;padding:14px 18px}
+#simpleModal:has(.queue-retry-actions) .calendar-body{padding:18px}
+#simpleModal:has(.queue-retry-actions) .queue-retry-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:18px}
+
 body.unified-flow-demo .demo-skip-id-btn{background:#fff;border:1.5px solid #c90012;color:#c90012}
 body.unified-flow-demo .demo-skip-id-btn:hover{background:#fff5f5}
 #demoEditModal{z-index:490}
@@ -1619,22 +1626,9 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   </div>
 </div>
 <script>
-// The notice opens as the page is drawn, from what this browser was shown last
-// time, and the current one is asked for straight away; the main script brings
-// the pop-up up to date (or closes it) when the answer arrives.
+// Ask the server for the current setting before showing a site announcement.
+// A cached enabled notice may be stale after the shop disables it in Admin.
 (() => {
-  try{
-    const saved = JSON.parse(localStorage.getItem("aj_site_announcement") || "null");
-    const host = document.getElementById("siteAnnouncement");
-    // Back from LINE sign-in: the notice was already seen before leaving.
-    const lineReturn = JSON.parse(localStorage.getItem("aj_line_connect_return_v1") || "null");
-    const backFromLine = !!lineReturn && Date.now() - Number(lineReturn.at || 0) <= 15 * 60 * 1000;
-    if(!backFromLine && saved && saved.enabled === true && typeof saved.html === "string" && saved.html){
-      document.getElementById("siteAnnouncementBody").innerHTML = saved.html;
-      host.classList.add("open");
-      host.setAttribute("aria-hidden", "false");
-    }
-  }catch(error){}
   window.__ajAnnouncementRequest = fetch(`https://aj-line-oa-bot.onrender.com/api/site-content/announcement?_ts=${Date.now()}`, {cache:"no-store"})
     .then(response => response.ok ? response.json() : null)
     .catch(() => null);
@@ -11018,7 +11012,6 @@ We apologize for the inconvenience and hope everyone stays safe.`
   };
   let siteAnnouncement = null;
   let siteAnnouncementDismissed = false;
-  const ANNOUNCEMENT_STORAGE_KEY = "aj_site_announcement";
   function announcementContent(){
     return siteAnnouncement || DEFAULT_ANNOUNCEMENT;
   }
@@ -11068,13 +11061,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(card) card.scrollTop = 0;
     window.setTimeout(() => byId("siteAnnouncementOk")?.focus({preventScroll:true}), 50);
   }
-  // The current notice, once known: remembered so the next visit opens it
-  // while the page is still loading, and shown, updated or closed now.
+  // Show only the setting returned by the server for this visit.
   function applySiteAnnouncement(content){
     if(!content){ closeSiteAnnouncement({dismissed:false}); return; }
-    try{
-      localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, JSON.stringify({enabled: !!content?.enabled, html: content?.enabled ? announcementHtml(content) : ""}));
-    }catch(error){}
     if(siteAnnouncementDismissed) return;
     if(content?.enabled) showSiteAnnouncement(content);
     else closeSiteAnnouncement({dismissed:false});
@@ -11267,6 +11256,16 @@ We apologize for the inconvenience and hope everyone stays safe.`
     returnCustomerCard();
     byId("simpleModalTitle").textContent = title;
     byId("simpleModalBody").innerHTML = bodyHtml;
+    const problemActions = byId("simpleModalBody").querySelector(".queue-retry-actions");
+    if(problemActions){
+      const dismiss = document.createElement("button");
+      dismiss.className = "btn";
+      dismiss.type = "button";
+      dismiss.dataset.bookingProblemDismiss = "";
+      dismiss.textContent = state.lang === "en" ? "Close" : "ปิด";
+      problemActions.prepend(dismiss);
+    }
+    byId("simpleModalClose").setAttribute("aria-label", state.lang === "en" ? "Close" : "ปิด");
     simpleModalRelocalize = typeof relocalize === "function" ? relocalize : null;
     byId("faqLangBtn").style.display = simpleModalRelocalize ? "" : "none";
     refreshModalLangBtn();
@@ -13997,7 +13996,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         return;
       }
       if(event.target.closest("[data-queue-retry-continue]")){ await retryQueueAndConfirm(); return; }
-      if(event.target.closest("[data-progress-problem-close]")){ closeModal(); return; }
+      if(event.target.closest("[data-progress-problem-close], [data-booking-problem-dismiss]")){ closeModal(); return; }
       if(event.target.closest("[data-queue-back-to-dates]")){ closeModal(); goCalcStep(1, {scrollTabs:true}); return; }
       if(targetId === "demoSignatureClear"){ clearDemoSignature(); return; }
       if(targetId === "siteAnnouncementOk"){ closeSiteAnnouncement(); return; }

@@ -559,12 +559,12 @@ test('the site announcement shows on every visit, Thai left and English right, a
   assert.match(html, /<div class="site-announcement" id="siteAnnouncement" role="alertdialog"/);
   assert.match(html, /<span class="site-announcement-icon" aria-hidden="true">⚠️<\/span>/);
   assert.match(html, /void loadSiteAnnouncement\(\)\.then\(applySiteAnnouncement\);/);
-  // It opens while the page loads, from this browser's last copy, and the
-  // current notice is requested before the main script runs.
+  // The server setting is requested before the main script runs. A notice
+  // disabled in Admin must never flash from stale browser storage.
   const early = html.indexOf('window.__ajAnnouncementRequest = fetch(');
   assert.ok(early > html.indexOf('id="siteAnnouncementOk"') && early < html.indexOf('const CONFIG'));
-  assert.match(html, /localStorage\.getItem\("aj_site_announcement"\)/);
-  assert.match(html, /localStorage\.setItem\(ANNOUNCEMENT_STORAGE_KEY, JSON\.stringify\(\{enabled: !!content\?\.enabled/);
+  assert.doesNotMatch(html, /localStorage\.getItem\("aj_site_announcement"\)/);
+  assert.match(html, /if\(content\?\.enabled\) showSiteAnnouncement\(content\);/);
   assert.match(html, /if\(siteAnnouncementDismissed\) return;/);
   assert.match(html, /\$\{announcementColumnHtml\(content\.th, "th"\)\}\$\{announcementColumnHtml\(content\.en, "en"\)\}/);
   assert.match(html, /\.site-announcement\{position:fixed;inset:0;z-index:100000/);
