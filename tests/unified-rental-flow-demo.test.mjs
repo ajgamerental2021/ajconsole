@@ -663,7 +663,9 @@ test('connecting LINE comes back to the booking step and says LINE is connected'
   const boot = html.slice(html.indexOf('async function boot(){'));
   assert.match(boot, /if\(lineConnectReturn\)\{\n      state\.calc\.step = lineConnectReturn\.step;\n      siteAnnouncementDismissed = true;/);
   assert.match(html, /if\(!backFromLine && saved && saved\.enabled === true/);
-  assert.match(boot, /detectLineReturningEligibility\(\)\.catch\(\(\) => false\)\.then\(\(\) => \{ if\(lineConnectReturn\) finishLineConnectReturn\(\); \}\)/);
+  assert.match(boot, /verifyCurrentLineSession\(\)\.catch/);
+  assert.match(boot, /if\(lineConnectReturn\) finishLineConnectReturn\(\)/);
+  assert.match(html, /activeLineConnection\(\)\?\.userId/);
   assert.match(html, /toast\(state\.lang === "en" \? "LINE connected" : "เชื่อมต่อ LINE แล้ว"\)/);
 });
 

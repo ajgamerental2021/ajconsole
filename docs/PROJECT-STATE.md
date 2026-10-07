@@ -2717,3 +2717,10 @@ paused job shows slightly old numbers rather than an empty section.
 - Increased the bilingual before-rent heading size, gave Thai its own Kanit display font and English the existing Space Grotesk, added a red underline, strengthened the subtitle, and set the minimum/delivery line in a compact highlighted label.
 - Added a gap above the gold quote action in the site menu so it does not touch the booking action.
 - The proposed prepayment communication choice remains a product flow recommendation; no LINE or WhatsApp gating was changed in this visual update.
+
+## 2026-10-07 — Verified prepayment contact channels
+
+- Step 2 now shows the booking contact choice above the name and phone. Thai checkout requires a server-verified LINE connection before moving on; English can connect LINE, open WhatsApp with a prepared rental message, or continue with phone and email only. Returning from LINE restores the same booking step and shows connected only after the Bot verifies a LINE access token.
+- Bot issues a signed 24-hour LINE connection proof, independent of the slower returning-customer lookup. It validates that proof when creating a unified booking context and when writing Console Pending; the Thai checkout cannot create its context without it. The payment-link route checks the same booking context and takes its verified LINE ID rather than a caller-supplied ID.
+- A failed or expired LINE proof sends the renter back to Step 2 to reconnect. Email and the payment-success contact actions remain available. Paid My rental details now expose the signed LINE bind link and a WhatsApp chat action in both languages; confirmation email already contains the corresponding links.
+- Verified signed proof validity/tampering/expiry in unit tests, Thai linked/unlinked and English unlinked context creation via a running local Bot, invalid token rejection, website syntax and full website/Bot test suites. Live LINE authentication and WhatsApp delivery still require a real customer account/device and were not exercised from the cloud workspace.

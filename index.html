@@ -1285,6 +1285,15 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   .game-picker-platforms.is-folded{flex-wrap:wrap;overflow-x:visible}
   .game-picker-platforms.is-folded .game-picker-platform-more{position:static;box-shadow:none}
 }
+  .my-rental-contact{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+  .my-rental-contact .btn{min-height:42px;text-decoration:none}
+  body.unified-flow-demo .demo-contact-channel{margin:12px 0 18px;padding:16px;border:1px solid #d8dee9;border-radius:14px;background:#f8fafc}
+  body.unified-flow-demo .demo-contact-channel>b{display:block;font-size:16px;font-weight:900;color:#202633}
+  body.unified-flow-demo .demo-contact-channel>p{margin:4px 0 0;color:#475467;font-size:13px;line-height:1.5}
+  body.unified-flow-demo .demo-contact-channel-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
+  body.unified-flow-demo .demo-contact-channel-actions .btn{min-height:44px}
+  body.unified-flow-demo .demo-contact-connected{display:inline-block;padding:9px 12px;border:1px solid #a7dfbc;border-radius:10px;background:#edf9f1;color:#176b39;font-weight:800}
+  body.unified-flow-demo .demo-contact-channel .demo-contact-channel-note{color:#176b39;font-weight:700}
   .before-rent-head .before-rent-hero-terms{display:inline-block;margin:14px auto 0;padding:6px 15px;border:1px solid #ffd0d4;border-radius:999px;background:#fff3f4;color:#ad0013;font-size:clamp(13px,1.2vw,15px);font-weight:600;line-height:1.4}
   .site-menu-list .site-info-link.site-menu-quote{margin-top:9px}
   .site-menu-list .site-info-link.site-menu-quote,.before-rent-quote-chip{background:linear-gradient(180deg,#ffd84d,#ffbf1f);border:1px solid #e6a500;color:#3d2600;box-shadow:0 4px 12px rgba(230,165,0,.25);font-weight:900}
@@ -2098,6 +2107,20 @@ You may ask to access, correct, object to, restrict or delete your data, or with
     th:{
       calcCta:"เช็คคิว & คำนวณค่าเช่า",
       identityUploadedPreview:"ดูรูปที่อัปโหลดแบบขยาย",
+      contactChannelTitle:"ช่องทางรับข้อมูลการจอง",
+      contactChannelThaiHelp:"เชื่อม LINE ก่อนชำระเงิน เพื่อรับการยืนยันและดูคิวเช่าของคุณ",
+      contactChannelEnglishHelp:"เลือก LINE หรือ WhatsApp ได้ หรือใช้เบอร์โทรและอีเมลต่อโดยไม่เชื่อมตอนนี้",
+      contactLineConnect:"เชื่อม LINE เพื่อรับข้อมูลการจอง",
+      contactLineConnected:"เชื่อม LINE แล้ว",
+      contactWhatsApp:"ใช้ WhatsApp",
+      contactEmailOnly:"ใช้เบอร์โทรและอีเมล",
+      contactEmailSelected:"ใช้เบอร์โทรและอีเมลสำหรับรับข้อมูลการจอง",
+      contactWhatsAppSelected:"เลือก WhatsApp แล้ว กรุณากดส่งข้อความที่เตรียมไว้ในแชท",
+      contactLineRequired:"กรุณาเชื่อม LINE ให้สำเร็จก่อนดำเนินการต่อ",
+      contactLineFailed:"ยังเชื่อม LINE ไม่สำเร็จ กรุณาลองอีกครั้ง",
+      contactWhatsAppFailed:"เปิด WhatsApp ไม่สำเร็จ กรุณาลองอีกครั้ง",
+      rentalConnectLine:"เชื่อม LINE เพื่อรับข้อมูลการเช่า",
+      rentalContactWhatsApp:"ติดต่อร้านทาง WhatsApp",
       beforeRentTitle:"เช่าเครื่องเกม ส่งถึงบ้าน",
       beforeRentSubtitle:"เลือกเครื่อง เช็กคิว ดูราคา และจองออนไลน์",
       beforeRentHeroTerms:"ขั้นต่ำ 3 วัน • ส่งกรุงเทพฯ – ปริมณฑล",
@@ -2226,6 +2249,20 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     en:{
       calcCta:"Check Queue & Calculate",
       identityUploadedPreview:"View uploaded photo larger",
+      contactChannelTitle:"Booking updates",
+      contactChannelThaiHelp:"Connect LINE before payment to receive your booking updates",
+      contactChannelEnglishHelp:"Connect LINE or use WhatsApp, or continue with your phone and email",
+      contactLineConnect:"Connect LINE",
+      contactLineConnected:"LINE connected",
+      contactWhatsApp:"Use WhatsApp",
+      contactEmailOnly:"Continue with email",
+      contactEmailSelected:"We will use your phone and email for booking updates",
+      contactWhatsAppSelected:"WhatsApp selected. Send the prepared message in the chat to reach AJ",
+      contactLineRequired:"Connect LINE successfully before continuing",
+      contactLineFailed:"LINE was not connected. Please try again",
+      contactWhatsAppFailed:"Could not open WhatsApp. Please try again",
+      rentalConnectLine:"Connect LINE for rental updates",
+      rentalContactWhatsApp:"Message AJ on WhatsApp",
       beforeRentTitle:"Game Console Rental",
       beforeRentSubtitle:"Choose a console, check availability, see prices, and book online",
       beforeRentHeroTerms:"3-day minimum • Bangkok and surrounding provinces",
@@ -2631,7 +2668,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // line. `maps` is the Google Maps link the booking carries: the chosen
     // place's own link, or the customer's pasted one.
     mapsText:"", mapsPlace:null,
-    lineDisplayName:"", lineUserId:"", idDocument:null, selfieWithId:null,
+    lineDisplayName:"", lineUserId:"", preferredContactChannel:"", idDocument:null, selfieWithId:null,
     termsAccepted:false, identitySkipped:false, noThaiAddress:true, addressFromProfile:false, refundBankId:"", refundAccountName:"", refundDeferred:false, noThaiBankAccount:false, wiseEmail:"", agreementConsent:false,
     // "" follows the page language (Thai → Thai ID, English → passport) until
     // the customer picks one; a foreign renter can use Thai and still pick passport.
@@ -2643,7 +2680,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // the page keeps only that draft's id and last four characters.
   const DEMO_PROFILE_KEY = "aj_demo_profile_v1";
   const DEMO_PROFILE_TTL_MS = 24 * 60 * 60 * 1000;
-  const DEMO_PROFILE_FIELDS = ["refundBankId","refundAccountName","refundDeferred","noThaiBankAccount","wiseEmail","fullName","phone","email","deliveryInstructions","deliveryNoteLocation","deliveryNotes","addressLine","subdistrict","district","province","postalCode","maps","mapsText","mapsPlace","termsAccepted","identitySkipped","noThaiAddress","identityType","identityUploaded","identityExpiry","identityDraftId","identityDraftLast4","identityOnFileLast4","addressFromProfile"];
+  const DEMO_PROFILE_FIELDS = ["preferredContactChannel","refundBankId","refundAccountName","refundDeferred","noThaiBankAccount","wiseEmail","fullName","phone","email","deliveryInstructions","deliveryNoteLocation","deliveryNotes","addressLine","subdistrict","district","province","postalCode","maps","mapsText","mapsPlace","termsAccepted","identitySkipped","noThaiAddress","identityType","identityUploaded","identityExpiry","identityDraftId","identityDraftLast4","identityOnFileLast4","addressFromProfile"];
   let demoProfileSaveTimer = 0;
   // The delivery place priced in the calculator, carried into step 2's
   // Google Maps box so the customer does not paste it again. Only a Google
@@ -4318,7 +4355,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(["Bangkok","กรุงเทพมหานคร"].includes(demoProfile.province)) demoProfile.province = demoAddressAutofilled.province = en ? "Bangkok" : "กรุงเทพมหานคร";
     localizeDemoAddress();
     card.innerHTML = `<h3>${en ? "Customer and delivery details" : "ข้อมูลลูกค้าและที่อยู่จัดส่ง"}</h3>
-      ${payResume.active ? "" : (demoProfile.lineUserId ? `<div class="demo-contract-status">LINE: ${esc(demoProfile.lineDisplayName || (en ? "Verified account detected" : "ตรวจพบบัญชีที่ยืนยันแล้ว"))}</div>` : `<p class="hint">${en ? "Connect LINE now to securely check returning-customer details, or link it after successful payment." : "เชื่อมต่อ LINE ตอนนี้เพื่อตรวจข้อมูลลูกค้าเก่าอย่างปลอดภัย หรือผูกบัญชีหลังชำระเงินสำเร็จ"}</p><button class="btn" id="lineConnectBtn" type="button">${en ? "Connect LINE" : "เชื่อมต่อ LINE"}</button>`)}
+      ${payResume.active ? "" : `<section class="demo-contact-channel"><b>${esc(tr("contactChannelTitle"))}</b><p>${esc(tr(en ? "contactChannelEnglishHelp" : "contactChannelThaiHelp"))}</p><div class="demo-contact-channel-actions">${bookingLineConnection() ? `<span class="demo-contact-connected">${esc(tr("contactLineConnected"))}${demoProfile.lineDisplayName ? ` · ${esc(demoProfile.lineDisplayName)}` : ""}</span>` : `<button class="btn primary" id="lineConnectBtn" type="button">${esc(tr("contactLineConnect"))}</button>`}${en ? `<button class="btn" id="demoWhatsAppConnectBtn" type="button" aria-pressed="${demoProfile.preferredContactChannel === "whatsapp"}">${esc(tr("contactWhatsApp"))}</button><button class="btn" id="demoEmailContactBtn" type="button" aria-pressed="${!demoProfile.preferredContactChannel}">${esc(tr("contactEmailOnly"))}</button>` : ""}</div>${en && demoProfile.preferredContactChannel === "whatsapp" ? `<p class="demo-contact-channel-note">${esc(tr("contactWhatsAppSelected"))}</p>` : en && !demoProfile.preferredContactChannel ? `<p class="demo-contact-channel-note">${esc(tr("contactEmailSelected"))}</p>` : ""}</section>`}
       ${state.calc.retVerified && hasVerifiedAgreementRecord() && demoIdentityExpired() ? `<div class="demo-choice-warning">${en ? "The ID card or passport on your agreement has expired, or expires before the return date, so a new Master Agreement and renewed identity verification are required before this rental. Please upload your current document in step 3." : "บัตรประชาชนหรือ Passport ในสัญญาเดิมหมดอายุแล้ว หรือหมดอายุก่อนวันคืนเครื่อง ต้องทำข้อตกลงหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้งก่อนเช่าครั้งนี้ กรุณาอัปโหลดรูปเอกสารฉบับปัจจุบันในขั้นตอนที่ 3"}</div>` : ""}
       ${demoIdentityCoveredByAgreement() ? `<div class="demo-contract-status">${esc(demoAgreementCoverText())}</div>` : ""}
       ${activeVip() ? `<div class="demo-contract-status"><b>VIP: ${esc(activeVip().name)}</b><br>${esc(en ? "Your personal VIP rental and security-deposit rates are applied automatically." : "ระบบใช้ราคาค่าเช่าและค่าประกัน VIP ของคุณให้อัตโนมัติแล้ว")}</div>` : ""}
@@ -5847,6 +5884,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const problems = [];
     const need = (id, ok, message) => { if(!ok) problems.push({id, message}); };
     const identity = String(demoProfile.identityNumber || "").trim();
+    if(!payResume.active && (state.lang === "th" || demoProfile.preferredContactChannel === "line")) need("lineConnectBtn", !!activeLineConnection(), tr("contactLineRequired"));
     need("demoCustomerName", demoLegalNameValid(demoProfile.fullName), tr("legalNameScriptError"));
     need("demoCustomerPhone", demoPhoneValid(demoProfile.phone), tr("phoneScriptError"));
     problems.push(...demoRefundProblems());
@@ -7055,6 +7093,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         rentalCode,
         defaultLanguage: language,
         lineUserId,
+        bookingContextToken: UNIFIED_FLOW_DEMO ? String(state.calc.demoContextToken || "") : "",
         description: `${paymentLinkLabel()} - ${rentalCode}`,
         returnUrl: `${CONFIG.paymentSuccessUrl}?${redirectContext}${UNIFIED_FLOW_DEMO ? "&flowDemo=1" : ""}`,
         cancelUrl: `${CONFIG.paymentFailedUrl}?${redirectContext}`
@@ -8126,6 +8165,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       fullName: String(UNIFIED_FLOW_DEMO ? demoProfile.fullName : state.calc.demoCustomerName || "").trim(),
       phone: thaiPhoneText(UNIFIED_FLOW_DEMO ? demoProfile.phone : state.calc.demoCustomerPhone),
       email: UNIFIED_FLOW_DEMO ? String(demoProfile.email || "").trim() : "",
+      lineUserId: UNIFIED_FLOW_DEMO ? (bookingLineConnection()?.userId || "") : lineUniqueId(),
+      lineDisplayName: UNIFIED_FLOW_DEMO ? (bookingLineConnection()?.displayName || "") : String(localStorage.getItem("aj_line_display_name") || ""),
+      contactChannel: UNIFIED_FLOW_DEMO ? (en ? (demoProfile.preferredContactChannel || "email") : "line") : "",
       identityType: UNIFIED_FLOW_DEMO && !state.calc.noContract ? demoIdentityType() : "",
       identityLast4: UNIFIED_FLOW_DEMO && !state.calc.noContract ? (String(demoProfile.identityNumber || "").trim().slice(-4) || demoProfile.identityDraftLast4) : "",
       identityDraftId: UNIFIED_FLOW_DEMO && !state.calc.noContract ? demoProfile.identityDraftId : "",
@@ -8327,9 +8369,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         method:"POST",
         cache:"no-store",
         headers:{"Content-Type":"text/plain;charset=utf-8"},
-        body:JSON.stringify({lang:data.lang, data, message:fallbackMessage, previousContextToken:String(state.calc.demoContextToken || "")})
+        body:JSON.stringify({lang:data.lang, data, message:fallbackMessage, previousContextToken:String(state.calc.demoContextToken || ""), lineConnectionToken:UNIFIED_FLOW_DEMO ? (bookingLineConnection()?.token || "") : ""})
       });
-      if(!response.ok) throw new Error(`Contract context ${response.status}`);
+      if(!response.ok){
+        const failure = await response.json().catch(() => ({}));
+        if(failure.error === "line_connection_required"){
+          localStorage.removeItem(LINE_CONNECTION_KEY);
+          demoProfile.lineUserId = "";
+          throw Object.assign(new Error(failure.error), {code:"line_connection_required"});
+        }
+        throw new Error(failure.error || `Contract context ${response.status}`);
+      }
       const result = await response.json();
       if(!result?.contextToken) throw new Error("Contract context response invalid");
       const contractUrl = new URL(contractMode === "web" ? CONFIG.contractWebUrl : CONFIG.contractUrl);
@@ -8351,6 +8401,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       return {url, message, contextToken:result.contextToken, viewToken:String(result.viewToken || ""), data:{...data, rentalOrderId:result.rentalOrderId || code, rentalOrderPdfUrl:result.rentalOrderPdfUrl || "", contractUrl:url}};
     }catch(error){
       console.warn("Contract context fallback", error);
+      if(UNIFIED_FLOW_DEMO) throw error;
       return {url:fallbackUrl, message:fallbackMessage, data:{...data, contractUrl:fallbackUrl}};
     }
   }
@@ -8390,6 +8441,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       sheetId:CONFIG.rentalSheetId,
       gid:CONFIG.rentalSheetGid,
       columns:RENTAL_SHEET_COLUMNS,
+      lineConnectionToken:UNIFIED_FLOW_DEMO ? (bookingLineConnection()?.token || "") : "",
       row:{
         "รหัสการเช่า": code,
         "วันที่บันทึก": new Date().toISOString(),
@@ -8483,6 +8535,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return consolePendingWrites;
   }
   function lineUniqueId(){
+    if(UNIFIED_FLOW_DEMO) return bookingLineConnection()?.userId || "";
     try{
       const qs = new URLSearchParams(location.search);
       return qs.get("lineUserId") || qs.get("line_user_id") || localStorage.getItem("aj_line_unique_id") || "";
@@ -9079,6 +9132,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
     showDemoBusy(state.lang === "en" ? "Preparing your rental…" : "กำลังเตรียมข้อมูลการเช่า…");
     try{
+      if((state.lang === "th" || demoProfile.preferredContactChannel === "line") && !bookingLineConnection()){
+        showDemoProgressProblem(tr("contactLineRequired"), 2);
+        return;
+      }
       if(demoAgreementNeeded() && !(await ensureIdentityDraftAlive())){
         showDemoAgreementProblem(Object.assign(new Error("agreement_incomplete"), {fields:["idNumber"]}));
         return;
@@ -9126,6 +9183,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }catch(error){
       if(String(error?.message || "") === "booking_availability_refresh_failed"){ showQueueRetryDialog(); return; }
       console.error("Booking preparation failed", error);
+      if(error?.code === "line_connection_required"){
+        state.calc.step = 2;
+        render();
+        showDemoProgressProblem(tr("contactLineRequired"), 2);
+        return;
+      }
       showDemoProgressProblem(error?.code === "rental_details_changed"
         ? (state.lang === "en" ? "This rental changed after identity verification. Restore the original details or contact AJ before paying. No new Rental ID was created." : "รายละเอียดการเช่าเปลี่ยนหลังยืนยันตัวตน กรุณาใช้รายละเอียดเดิมหรือติดต่อร้านก่อนชำระ ระบบไม่ได้สร้างรหัสการเช่าใหม่")
         : (error?.code === "booking_hold_conflict" ? error.message : (state.lang === "en" ? "The rental could not be prepared right now. Please try again. If this continues, contact AJ." : "เตรียมข้อมูลการเช่าไม่สำเร็จ กรุณาลองอีกครั้ง หากยังติดขัดให้ติดต่อร้าน")));
@@ -9242,6 +9305,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ${row(en ? "Phone" : "เบอร์โทร", rental.phone)}
       ${row(en ? "Identity verification" : "การยืนยันตัวตน", identity.text, identity.cls)}
       ${verifyUrl ? `<div class="my-rental-verify"><a class="btn primary" href="${esc(verifyUrl)}" target="_blank" rel="noopener">${en ? "Verify my identity now" : "ยืนยันตัวตนตอนนี้"}</a></div>` : ""}
+      ${rental.paid ? `<div class="my-rental-contact">${/^https:\/\//.test(String(rental.lineBindUrl || "")) ? `<a class="btn" href="${esc(rental.lineBindUrl)}">${esc(tr("rentalConnectLine"))}</a>` : ""}<a class="btn" href="${esc(whatsappShareUrl(en ? `Hello AJ Game Rental, I have paid for rental ${rental.rentalCode}. Please send me updates here.` : `สวัสดีครับ แจ้งรายการเช่า ${rental.rentalCode} ชำระเงินแล้ว กรุณาส่งข้อมูลทาง WhatsApp นี้`))}">${esc(tr("rentalContactWhatsApp"))}</a></div>` : ""}
     </div>`;
   }
   function myRentalRevisitHint(){
@@ -9381,6 +9445,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           return;
         }
       }
+      if((state.lang === "th" || demoProfile.preferredContactChannel === "line") && !bookingLineConnection()){
+        showDemoProgressProblem(tr("contactLineRequired"), 2);
+        return;
+      }
       const summary = calcSummary();
       const code = confirmedRentalCodeForPayment(summary);
       const handoff = await prepareContractHandoff(code, "web");
@@ -9424,6 +9492,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }catch(error){
       hideDemoBusy();
       console.error("Demo Beam payment failed", error);
+      if(error?.code === "line_connection_required"){
+        state.calc.demoOrderOpen = false;
+        state.calc.step = 2;
+        render();
+        showDemoProgressProblem(tr("contactLineRequired"), 2);
+        return;
+      }
       toast(error?.code === "rental_details_changed"
         ? (state.lang === "en" ? "This rental changed after confirmation. Please review it before paying; no new Rental ID was created." : "รายละเอียดการเช่าเปลี่ยนหลังยืนยัน กรุณาตรวจรายการก่อนชำระเงิน ระบบไม่ได้สร้างรหัสการเช่าใหม่")
         : (state.lang === "en" ? "Unable to open the payment page. Please try again." : "เปิดหน้าชำระเงินไม่สำเร็จ กรุณาลองใหม่"));
@@ -9878,6 +9953,20 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       toast(error?.code === "rental_details_changed"
         ? (state.lang === "en" ? "This rental changed after confirmation. Please review it; no new Rental ID was created." : "รายละเอียดการเช่าเปลี่ยนหลังยืนยัน กรุณาตรวจรายการ ระบบไม่ได้สร้างรหัสการเช่าใหม่")
         : (state.lang === "en" ? "Unable to open LINE confirmation." : "เปิดการยืนยันผ่าน LINE ไม่สำเร็จ"));
+    }
+  }
+  async function chooseDemoWhatsApp(){
+    if(!UNIFIED_FLOW_DEMO || state.lang !== "en") return;
+    try{
+      const code = await ensureRentalCode(calcSummary());
+      const message = `Hello AJ Game Rental, I am booking rental ${code}. Please send me booking updates here on WhatsApp.`;
+      demoProfile.preferredContactChannel = "whatsapp";
+      saveDemoProfile({now:true});
+      render();
+      location.href = whatsappShareUrl(message);
+    }catch(error){
+      console.warn("Step 2 WhatsApp handoff failed", error);
+      toast(tr("contactWhatsAppFailed"));
     }
   }
   function notifyDemoWhatsApp(){
@@ -11284,8 +11373,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(UNIFIED_FLOW_DEMO){
       demoProfile.fullName = String(state.calc.demoCustomerName || "");
       demoProfile.phone = String(state.calc.demoCustomerPhone || "");
-      demoProfile.lineUserId = String(localStorage.getItem("aj_line_unique_id") || "");
-      demoProfile.lineDisplayName = String(localStorage.getItem("aj_line_display_name") || "");
+      demoProfile.lineUserId = activeLineConnection()?.userId || "";
+      demoProfile.lineDisplayName = activeLineConnection()?.displayName || "";
       state.calc.demoCustomerName = "";
       state.calc.demoCustomerPhone = "";
     }
@@ -11375,6 +11464,41 @@ We apologize for the inconvenience and hope everyone stays safe.`
   // LINE sign-in leaves the page. Without a return address LINE sends the
   // customer to the LIFF's home page (the Before rent screen) and the booking
   // looks lost, so remember the step and come back to the booking page.
+  const LINE_CONNECTION_KEY = "aj_line_connection_v1";
+  function activeLineConnection(){
+    try{
+      const saved = JSON.parse(localStorage.getItem(LINE_CONNECTION_KEY) || "null");
+      if(!saved || !/^U[a-f0-9]{32}$/i.test(saved.userId) || !saved.token || Number(saved.expiresAt) <= Date.now() + 60000) return null;
+      return saved;
+    }catch{ return null; }
+  }
+  function bookingLineConnection(){
+    return state.lang === "th" || demoProfile.preferredContactChannel === "line" ? activeLineConnection() : null;
+  }
+  async function verifyCurrentLineSession(existingLiff=null, existingProfile=null){
+    const liff = existingLiff || await loadLineSdk();
+    if(!existingLiff) await liff.init({liffId:activeLineLiffId()});
+    if(!liff.isLoggedIn()) return false;
+    const accessToken = String(liff.getAccessToken?.() || "").trim();
+    if(!accessToken) return false;
+    const response = await bookingFetch(new URL("/api/customers/line-connection", CONFIG.contractWebUrl), {
+      method:"POST", cache:"no-store", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({lineAccessToken:accessToken})
+    }, 12000);
+    const result = await response.json().catch(() => ({}));
+    if(!response.ok || !result.ok || !/^U[a-f0-9]{32}$/i.test(result.lineUserId) || !result.connectionToken) return false;
+    const profile = existingProfile || await liff.getProfile().catch(() => null);
+    if(profile?.userId && profile.userId !== result.lineUserId) return false;
+    localStorage.setItem(LINE_CONNECTION_KEY, JSON.stringify({userId:result.lineUserId, displayName:result.displayName || "", token:result.connectionToken, expiresAt:result.expiresAt}));
+    localStorage.setItem("aj_line_unique_id", result.lineUserId);
+    localStorage.setItem("aj_line_display_name", result.displayName || "");
+    demoProfile.lineUserId = result.lineUserId;
+    demoProfile.lineDisplayName = result.displayName || "";
+    if(state.lang === "en") demoProfile.preferredContactChannel = "line";
+    saveDemoProfile({now:true});
+    render();
+    return true;
+  }
   const LINE_CONNECT_RETURN_KEY = "aj_line_connect_return_v1";
   const LINE_CONNECT_RETURN_TTL_MS = 15 * 60 * 1000;
   function lineConnectReturnUrl(){
@@ -11397,7 +11521,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
   }
   function finishLineConnectReturn(){
     try{ history.replaceState(null, "", lineConnectReturnUrl()); }catch{}
-    const lineUserId = String(localStorage.getItem("aj_line_unique_id") || "").trim();
+    const lineUserId = activeLineConnection()?.userId || "";
     if(!lineUserId){
       toast(state.lang === "en" ? "LINE was not connected. Please try again." : "ยังเชื่อมต่อ LINE ไม่สำเร็จ กรุณาลองอีกครั้ง");
       return;
@@ -11425,9 +11549,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
         return;
       }
       const profile = await liff.getProfile();
-      localStorage.setItem("aj_line_unique_id", profile.userId || "");
-      localStorage.setItem("aj_line_display_name", profile.displayName || "");
-      await detectLineReturningEligibility(liff, profile);
+      if(!(await verifyCurrentLineSession(liff, profile))) throw new Error("line_connection_not_verified");
+      void detectLineReturningEligibility(liff, profile);
       if(UNIFIED_FLOW_DEMO){
         demoProfile.lineUserId = String(profile.userId || "");
         demoProfile.lineDisplayName = String(profile.displayName || "");
@@ -13819,6 +13942,13 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "shareContractFirst"){ closeShareConfirmModal(false); openContract(); }
       if(targetId === "reviewGoogleBtn"){ event.preventDefault(); event.stopPropagation(); open("https://maps.app.goo.gl/QoGqkWe64QRxBGjT6", "_blank"); }
       if(targetId === "reviewFacebookBtn"){ event.preventDefault(); event.stopPropagation(); open("https://www.facebook.com/ajgamerental/reviews", "_blank"); }
+      if(targetId === "demoEmailContactBtn"){
+        demoProfile.preferredContactChannel = "";
+        saveDemoProfile({now:true});
+        render();
+        return;
+      }
+      if(targetId === "demoWhatsAppConnectBtn"){ await chooseDemoWhatsApp(); return; }
       if(targetId === "lineConnectBtn") connectLine();
       if(targetId === "lineHistoryBtn") showLineHistory();
       if(targetId === "mapsOpen") open("https://www.google.com/maps", "_blank");
@@ -14184,8 +14314,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
       void refreshIdentityDraft();
       demoProfile.fullName = String(state.calc.demoCustomerName || demoProfile.fullName || "");
       demoProfile.phone = String(state.calc.demoCustomerPhone || demoProfile.phone || "");
-      demoProfile.lineUserId = String(localStorage.getItem("aj_line_unique_id") || "");
-      demoProfile.lineDisplayName = String(localStorage.getItem("aj_line_display_name") || "");
+      demoProfile.lineUserId = activeLineConnection()?.userId || "";
+      demoProfile.lineDisplayName = activeLineConnection()?.displayName || "";
       state.calc.demoCustomerName = "";
       state.calc.demoCustomerPhone = "";
       // A verified returning renter keeps the short summary after a reload.
@@ -14306,7 +14436,10 @@ We apologize for the inconvenience and hope everyone stays safe.`
     fetchAvailability().catch(() => {});
     // Coming back from LINE sign-in: init() inside this check completes the
     // login, then the customer is told LINE is connected on the same step.
-    detectLineReturningEligibility().catch(() => false).then(() => { if(lineConnectReturn) finishLineConnectReturn(); });
+    const shouldVerifyLine = state.lang === "th" || !!lineConnectReturn || demoProfile.preferredContactChannel === "line";
+    (shouldVerifyLine ? verifyCurrentLineSession().catch(error => { console.warn("LINE connection check skipped", error); return false; }) : Promise.resolve(false))
+      .then(() => { if(lineConnectReturn) finishLineConnectReturn(); })
+      .then(() => detectLineReturningEligibility().catch(() => false));
     gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {});
     loadPricingPolicy().catch(error => console.warn("Pricing policy unavailable",error));
     syncBoardGameCatalog().catch(() => {});
