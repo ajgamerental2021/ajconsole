@@ -680,7 +680,8 @@ test('connecting LINE opens the phone app directly and restores the booking step
   assert.match(html, /toast\(tr\("contactLineConnected"\)\)/);
   assert.match(html, /\/api\/customers\/line-connection\/start/);
   assert.match(html, /pending\.launchedAt = Date\.now\(\)/);
-  assert.match(html, /ensureLineConnectHandoff\(\)\.then\(ready => \{/);
+  assert.match(html, /let pending = await ensureLineConnectHandoff\(\)/);
+  assert.match(html, /await saveLineBookingDraft\(pending\)/);
   assert.doesNotMatch(html, /contactLineReady:/);
   assert.doesNotMatch(html, /contactEmailSelected:/);
   assert.match(html, /contactLineBrowserNote:"หมายเหตุ:.*Chrome และ Safari เท่านั้น"/);
