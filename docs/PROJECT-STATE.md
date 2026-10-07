@@ -2711,3 +2711,9 @@ paused job shows slightly old numbers rather than an empty section.
 - Removed the kicker, gamepad illustration, and device list from the bilingual Before rent heading. The English title is now “Game Console Rental”; the Thai title and supporting booking/delivery lines remain.
 - Reviewed the existing LINE connection: it is optional before payment, while payment success still offers LINE and WhatsApp handoff. No new prepayment channel-selection flow was implemented in this copy change.
 - Verified all 300 website tests, inline JavaScript syntax, and clean diff formatting.
+
+## 2026-10-07 — Before-rent typography and menu spacing
+
+- Increased the bilingual before-rent heading size, gave Thai its own Kanit display font and English the existing Space Grotesk, added a red underline, strengthened the subtitle, and set the minimum/delivery line in a compact highlighted label.
+- Added a gap above the gold quote action in the site menu so it does not touch the booking action.
+- The proposed prepayment communication choice remains a product flow recommendation; no LINE or WhatsApp gating was changed in this visual update.
