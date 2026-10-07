@@ -1,3 +1,8 @@
+## 2026-10-07 — Shorter delivery location form copy
+
+- Removed the explanatory paragraph under the Google Maps search/pin controls and the paragraph under the optional delivery note in Step 2, in Thai and English. The location input, current-location button, map pin button and note remain.
+- Updated the place-search source check for the remaining pin button. Inline script syntax, website tests and Chromium page loads were checked.
+
 ## 2026-10-07 — Shop can apply an extension against the refundable deposit
 
 - Delivery App Booking Log → เช่าต่อ now shows an action when the remaining deposit covers the extension and the booking return date still matches the request. It previews the fee, deposit before and after, and new return date; staff must confirm the renter agreed. The backend serializes simultaneous deposit and payment settlement for the same request. A partial deposit settlement remains visible for retry without a second deduction. The Booking refund balance and return date are updated together through the existing extension service; the customer receives its Thai/English LINE confirmation when reachable.

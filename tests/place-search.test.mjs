@@ -113,7 +113,7 @@ test('a pin from the map or the phone: the map needs no permission and opens whe
   // Both pages offer it.
   assert.match(quote, /<button class="chip locate" id="pinMap" type="button" data-t="pinMap"><\/button>/);
   assert.match(quote, /placeSearch\.pickOnMap\(\)\.then\(function \(at\) \{ if \(at\) placeSearch\.usePin\(at\); \}\);/);
-  assert.match(html, /data-demo-pin-map>\$\{en \? "🗺️ Pin it on a map" : "🗺️ ปักหมุดบนแผนที่"\}<\/button><\/div><p class="hint">/);
+  assert.match(html, /data-demo-pin-map>\$\{en \? "🗺️ Pin it on a map" : "🗺️ ปักหมุดบนแผนที่"\}<\/button><\/div>/);
   assert.match(html, /if\(event\.target\.closest\("\[data-demo-pin-map\]"\)\)\{ pinDemoOnMap\(\); return; \}/);
   assert.match(html, /search\.locate\(\)\.then\(useDemoPin\);/);
 });
