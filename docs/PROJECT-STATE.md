@@ -1,3 +1,10 @@
+## 2026-10-07 — LINE first tap and booking channel copy
+
+- Step 2 now separates the Chrome/Safari return note from the LINE fallback link with space and a neutral gray panel in Thai and English.
+- LINE handoff preparation starts when the renter enters the booking flow. The button shows preparation until an id is ready; if tapped before the request finishes, that same tap continues to LINE as soon as the id arrives. The old “tap again” toast is gone.
+- Removed the extra email/phone and WhatsApp selection messages from the channel card, including the English phone/email sentence. The linked LINE badge remains.
+- Inline JavaScript syntax and the 302-test website suite passed. Native LINE app and browser switching still require a physical-device smoke test; website tests cannot control the OS browser choice.
+
 ## 2026-10-07 — Automatic browser return after LINE connection restored
 
 - Per owner request, a successful LINE connection now opens the verified booking URL in the phone's external browser automatically again. The browser-to-LINE handoff remains: the original tab still polls with its private key, while the return URL carries the signed LINE proof for the browser opened by the OS. No manual return button appears on the success screen. A failed external open automatically navigates the current view; a later revisit to LINE does not trigger another redirect.

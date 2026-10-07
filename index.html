@@ -1307,7 +1307,8 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   body.unified-flow-demo .demo-contact-channel-actions .demo-wa-btn{background:#075e54;border-color:#075e54;color:#fff}
   body.unified-flow-demo .demo-contact-channel-actions .demo-wa-btn:hover{background:#06483f;border-color:#06483f;color:#fff}
   body.unified-flow-demo .demo-contact-connected{display:inline-block;padding:9px 12px;border:1px solid #a7dfbc;border-radius:10px;background:#edf9f1;color:#176b39;font-weight:800}
-  body.unified-flow-demo .demo-contact-channel .demo-contact-channel-note{color:#176b39;font-weight:700}
+  body.unified-flow-demo .demo-contact-channel .demo-line-browser-note{margin-top:18px;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#eef2f6;color:#475467;font-size:12px;font-weight:600;line-height:1.5}
+  body.unified-flow-demo .demo-contact-channel-actions .demo-line-btn[aria-disabled="true"]{background:#b5d9c2;border-color:#b5d9c2;cursor:wait}
   body.unified-flow-demo .demo-line-app-help{margin:8px 0 0;font-size:12px;color:#667085}
   body.unified-flow-demo .demo-line-app-help a{color:#08753a;font-weight:800;text-decoration:underline}
   .before-rent-head .before-rent-hero-terms{display:inline-block;margin:14px auto 0;padding:6px 15px;border:1px solid #ffd0d4;border-radius:999px;background:#fff3f4;color:#ad0013;font-size:clamp(13px,1.2vw,15px);font-weight:600;line-height:1.4}
@@ -2115,15 +2116,11 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       contactChannelEnglishHelp:"เลือก LINE หรือ WhatsApp ได้ หรือใช้เบอร์โทรและอีเมลต่อโดยไม่เชื่อมตอนนี้",
       contactLineConnect:"เชื่อม LINE เพื่อรับข้อมูลการจอง",
       contactLineConnected:"เชื่อม LINE แล้ว",
-      contactLinePending:"กำลังรอ LINE ยืนยันบัญชี แล้วระบบจะพากลับหน้าจองอัตโนมัติ",
       contactLineBrowserNote:"หมายเหตุ: การกลับหน้าจองอัตโนมัติหลังเชื่อม LINE รองรับ Chrome และ Safari เท่านั้น",
-      contactLinePreparing:"กำลังเตรียมการเชื่อม LINE กรุณากดอีกครั้งในอีกสักครู่",
-      contactLineReady:"พร้อมเชื่อม LINE แล้ว กรุณากดปุ่มอีกครั้ง",
+      contactLinePreparing:"กำลังเตรียม LINE…",
       contactLineExpired:"การเชื่อม LINE ใช้เวลานานเกินไป กรุณากดเชื่อมอีกครั้ง",
       contactLineRetry:"เปิด LINE อีกครั้ง",
       contactWhatsApp:"ใช้ WhatsApp",
-      contactEmailSelected:"ใช้เบอร์โทรและอีเมลสำหรับรับข้อมูลการจอง",
-      contactWhatsAppSelected:"เลือก WhatsApp แล้ว กรุณากดส่งข้อความที่เตรียมไว้ในแชท",
       contactLineRequired:"กรุณาเชื่อม LINE ให้สำเร็จก่อนดำเนินการต่อ",
       contactLineFailed:"ยังเชื่อม LINE ไม่สำเร็จ กรุณาลองอีกครั้ง",
       contactWhatsAppFailed:"เปิด WhatsApp ไม่สำเร็จ กรุณาลองอีกครั้ง",
@@ -2259,18 +2256,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       identityUploadedPreview:"View uploaded photo larger",
       contactChannelTitle:"Booking updates",
       contactChannelThaiHelp:"Connect LINE before payment to receive your booking updates",
-      contactChannelEnglishHelp:"Connect LINE or use WhatsApp for booking updates. You can also continue using your phone and email.",
+      contactChannelEnglishHelp:"Connect LINE or use WhatsApp for booking updates.",
       contactLineConnect:"Connect LINE",
       contactLineConnected:"LINE connected",
-      contactLinePending:"Waiting for LINE verification. Your booking will reopen automatically.",
       contactLineBrowserNote:"Note: Automatic return after connecting LINE supports Chrome and Safari only.",
-      contactLinePreparing:"Preparing your LINE connection. Please tap again in a moment.",
-      contactLineReady:"LINE is ready. Please tap Connect LINE again.",
+      contactLinePreparing:"Preparing LINE…",
       contactLineExpired:"The LINE connection timed out. Please tap Connect LINE again.",
       contactLineRetry:"Open LINE again",
       contactWhatsApp:"Use WhatsApp",
-      contactEmailSelected:"We will use your phone and email for booking updates",
-      contactWhatsAppSelected:"WhatsApp selected. Send the prepared message in the chat to reach AJ",
       contactLineRequired:"Connect LINE successfully before continuing",
       contactLineFailed:"LINE was not connected. Please try again",
       contactWhatsAppFailed:"Could not open WhatsApp. Please try again",
@@ -3730,7 +3723,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     renderFilters();
     renderConsoles();
     renderCalc();
-    if(UNIFIED_FLOW_DEMO && state.calc.step === 2 && !payResume.active && !activeLineConnection()) void ensureLineConnectHandoff().catch(error => console.warn("LINE connection preparation failed", error));
+    if(UNIFIED_FLOW_DEMO && !payResume.active && !activeLineConnection() && (state.calc.step === 2 || !state.beforeRentActive)) void ensureLineConnectHandoff().catch(error => console.warn("LINE connection preparation failed", error));
     renderFAQ();
     renderBeforeRent();
     renderInfoLinks();
@@ -4373,7 +4366,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(["Bangkok","กรุงเทพมหานคร"].includes(demoProfile.province)) demoProfile.province = demoAddressAutofilled.province = en ? "Bangkok" : "กรุงเทพมหานคร";
     localizeDemoAddress();
     card.innerHTML = `<h3>${en ? "Customer and delivery details" : "ข้อมูลลูกค้าและที่อยู่จัดส่ง"}</h3>
-      ${payResume.active ? "" : `<section class="demo-contact-channel"><b>${esc(tr("contactChannelTitle"))}</b><p>${esc(tr(en ? "contactChannelEnglishHelp" : "contactChannelThaiHelp"))}</p><div class="demo-contact-channel-actions">${bookingLineConnection() ? `<span class="demo-contact-connected">${esc(tr("contactLineConnected"))}${demoProfile.lineDisplayName ? ` · ${esc(demoProfile.lineDisplayName)}` : ""}</span>` : `${pendingLineConnectHandoff()?.launchedAt ? `<span class="demo-contact-connected">${esc(tr("contactLinePending"))}</span>` : ""}<a class="btn demo-line-btn" id="lineConnectBtn" href="${esc(lineConnectionAppUrl(state.lang, isInsideLineClient() ? "line" : "browser", pendingLineConnectHandoff()?.id || ""))}">${contactBrandIcon("line")}${esc(tr("contactLineConnect"))}</a>`}${en ? `<button class="btn demo-wa-btn" id="demoWhatsAppConnectBtn" type="button" aria-pressed="${demoProfile.preferredContactChannel === "whatsapp"}">${contactBrandIcon("whatsapp")}${esc(tr("contactWhatsApp"))}</button>` : ""}</div>${!bookingLineConnection() ? `<p class="demo-line-app-help">${en ? "LINE did not open?" : "LINE ไม่เปิด?"} <a id="lineConnectFallback" href="${esc(lineConnectionWebAppUrl(state.lang, isInsideLineClient() ? "line" : "browser", pendingLineConnectHandoff()?.id || ""))}">${en ? "Try another app link" : "ลองลิงก์เปิดแอปอีกแบบ"}</a></p>` : ""}${!bookingLineConnection() ? `<p class="demo-contact-channel-note">${esc(tr("contactLineBrowserNote"))}</p>` : ""}${en && demoProfile.preferredContactChannel === "whatsapp" ? `<p class="demo-contact-channel-note">${esc(tr("contactWhatsAppSelected"))}</p>` : en && !demoProfile.preferredContactChannel ? `<p class="demo-contact-channel-note">${esc(tr("contactEmailSelected"))}</p>` : ""}</section>`}
+      ${payResume.active ? "" : `<section class="demo-contact-channel"><b>${esc(tr("contactChannelTitle"))}</b><p>${esc(tr(en ? "contactChannelEnglishHelp" : "contactChannelThaiHelp"))}</p><div class="demo-contact-channel-actions">${bookingLineConnection() ? `<span class="demo-contact-connected">${esc(tr("contactLineConnected"))}${demoProfile.lineDisplayName ? ` · ${esc(demoProfile.lineDisplayName)}` : ""}</span>` : `<a class="btn demo-line-btn" id="lineConnectBtn" href="${pendingLineConnectHandoff() ? esc(lineConnectionAppUrl(state.lang, isInsideLineClient() ? "line" : "browser", pendingLineConnectHandoff().id)) : "#"}" aria-disabled="${!pendingLineConnectHandoff()}">${contactBrandIcon("line")}${esc(tr(pendingLineConnectHandoff() ? "contactLineConnect" : "contactLinePreparing"))}</a>`}${en ? `<button class="btn demo-wa-btn" id="demoWhatsAppConnectBtn" type="button" aria-pressed="${demoProfile.preferredContactChannel === "whatsapp"}">${contactBrandIcon("whatsapp")}${esc(tr("contactWhatsApp"))}</button>` : ""}</div>${!bookingLineConnection() ? `<p class="demo-line-app-help">${en ? "LINE did not open?" : "LINE ไม่เปิด?"} <a id="lineConnectFallback" href="${esc(lineConnectionWebAppUrl(state.lang, isInsideLineClient() ? "line" : "browser", pendingLineConnectHandoff()?.id || ""))}">${en ? "Try another app link" : "ลองลิงก์เปิดแอปอีกแบบ"}</a></p>` : ""}${!bookingLineConnection() ? `<p class="demo-line-browser-note">${esc(tr("contactLineBrowserNote"))}</p>` : ""}</section>`}
       ${state.calc.retVerified && hasVerifiedAgreementRecord() && demoIdentityExpired() ? `<div class="demo-choice-warning">${en ? "The ID card or passport on your agreement has expired, or expires before the return date, so a new Master Agreement and renewed identity verification are required before this rental. Please upload your current document in step 3." : "บัตรประชาชนหรือ Passport ในสัญญาเดิมหมดอายุแล้ว หรือหมดอายุก่อนวันคืนเครื่อง ต้องทำข้อตกลงหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้งก่อนเช่าครั้งนี้ กรุณาอัปโหลดรูปเอกสารฉบับปัจจุบันในขั้นตอนที่ 3"}</div>` : ""}
       ${demoIdentityCoveredByAgreement() ? `<div class="demo-contract-status">${esc(demoAgreementCoverText())}</div>` : ""}
       ${activeVip() ? `<div class="demo-contract-status"><b>VIP: ${esc(activeVip().name)}</b><br>${esc(en ? "Your personal VIP rental and security-deposit rates are applied automatically." : "ระบบใช้ราคาค่าเช่าและค่าประกัน VIP ของคุณให้อัตโนมัติแล้ว")}</div>` : ""}
@@ -11543,7 +11536,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const origin = isInsideLineClient() ? "line" : "browser";
     const main = byId("lineConnectBtn");
     const fallback = byId("lineConnectFallback");
-    if(main) main.href = lineConnectionAppUrl(state.lang, origin, pending.id);
+    if(main){
+      main.href = lineConnectionAppUrl(state.lang, origin, pending.id);
+      main.setAttribute("aria-disabled", "false");
+      main.innerHTML = `${contactBrandIcon("line")}${esc(tr("contactLineConnect"))}`;
+    }
     if(fallback) fallback.href = lineConnectionWebAppUrl(state.lang, origin, pending.id);
   }
   async function ensureLineConnectHandoff(){
@@ -11613,22 +11610,30 @@ We apologize for the inconvenience and hope everyone stays safe.`
     url.searchParams.set("origin", origin === "line" ? "line" : "browser");
     return url.href;
   }
-  function connectLine(event){
-    // Create the one-time bridge before leaving this browser. A LIFF window
-    // cannot choose which iOS/Android browser an external URL will reopen.
-    const pending = pendingLineConnectHandoff();
-    if(!pending){
-      event.preventDefault();
-      toast(tr("contactLinePreparing"));
-      void ensureLineConnectHandoff().then(() => toast(tr("contactLineReady"))).catch(error => console.warn("LINE connection preparation failed", error));
-      return;
-    }
+  function launchLineConnection(pending){
     pending.launchedAt = Date.now();
     localStorage.setItem(LINE_CONNECT_HANDOFF_KEY, JSON.stringify(pending));
     updateLineConnectLinks(pending);
     saveLocal();
     saveDemoProfile({now:true});
     void pollLineConnectHandoff();
+  }
+  function connectLine(event){
+    // Prepare the one-time bridge before leaving this browser. When a quick
+    // first tap beats the request, continue that same tap after it completes.
+    const pending = pendingLineConnectHandoff();
+    if(!pending){
+      event.preventDefault();
+      const fallback = !!event.target.closest("#lineConnectFallback");
+      void ensureLineConnectHandoff().then(ready => {
+        launchLineConnection(ready);
+        location.assign(fallback
+          ? lineConnectionWebAppUrl(state.lang, isInsideLineClient() ? "line" : "browser", ready.id)
+          : lineConnectionAppUrl(state.lang, isInsideLineClient() ? "line" : "browser", ready.id));
+      }).catch(error => { console.warn("LINE connection preparation failed", error); toast(tr("contactLineFailed")); });
+      return;
+    }
+    launchLineConnection(pending);
   }
   async function completeLineConnectionHandoff(){
     const params = lineBookingHandoffParams();

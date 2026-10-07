@@ -659,7 +659,7 @@ test('editing the rental period on the Rental ID page opens only the queue calen
 test('connecting LINE opens the phone app directly and restores the booking step', () => {
   assert.match(html, /const LINE_CONNECT_HANDOFF_KEY = "aj_line_connect_handoff_v1"/);
   assert.match(html, /new URL\(`line:\/\/app\/\$\{CONFIG\.lineLiffId\}`\)/);
-  assert.match(html, /id="lineConnectBtn" href="\$\{esc\(lineConnectionAppUrl\(/);
+  assert.match(html, /id="lineConnectBtn" href="\$\{pendingLineConnectHandoff\(\) \? esc\(lineConnectionAppUrl\(/);
   assert.doesNotMatch(html, /window\.open\("about:blank"/);
   assert.match(html, /completeLineConnectionHandoff\(\)/);
   assert.match(html, /lineAccessToken:accessToken/);
@@ -680,9 +680,12 @@ test('connecting LINE opens the phone app directly and restores the booking step
   assert.match(html, /toast\(tr\("contactLineConnected"\)\)/);
   assert.match(html, /\/api\/customers\/line-connection\/start/);
   assert.match(html, /pending\.launchedAt = Date\.now\(\)/);
+  assert.match(html, /ensureLineConnectHandoff\(\)\.then\(ready => \{/);
+  assert.doesNotMatch(html, /contactLineReady:/);
+  assert.doesNotMatch(html, /contactEmailSelected:/);
   assert.match(html, /contactLineBrowserNote:"หมายเหตุ:.*Chrome และ Safari เท่านั้น"/);
   assert.match(html, /contactLineBrowserNote:"Note:.*Chrome and Safari only\."/);
-  assert.match(html, /if\(UNIFIED_FLOW_DEMO && state\.calc\.step === 2.*ensureLineConnectHandoff\(\)/);
+  assert.match(html, /if\(UNIFIED_FLOW_DEMO && !payResume\.active && !activeLineConnection\(\) && \(state\.calc\.step === 2 \|\| !state\.beforeRentActive\)\) void ensureLineConnectHandoff\(\)/);
 });
 
 test('Admin → Rentals offers the renter\'s own My rental link in Thai and English', () => {
