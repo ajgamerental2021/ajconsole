@@ -63,7 +63,7 @@
   <script>
     (() => {
       const params = new URLSearchParams(location.search);
-      const copy = {en:{badge:"● Payment successful",title:"Thank you for your payment!",message:"Your payment has been received. AJ will continue processing your rental booking.",rentalCode:"Rental code",amount:"Amount",method:"Payment method",paymentLink:"Payment link ID",reference:"Reference",statusLabel:"Status",status:"Paid",autoNotice:"AJ has been notified automatically through LINE. You do not need to send this screenshot again.",manualNotice:"Please screenshot this page and send it to AJ via LINE, WhatsApp, or Facebook. AJ will verify the payment in the system.",line:"Notify via LINE",whatsapp:"Notify via WhatsApp",facebook:"Notify via Facebook",back:"Back to rental list",close:"Close"},th:{badge:"● ชำระเงินสำเร็จ",title:"ขอบคุณสำหรับการชำระเงิน",message:"ระบบได้รับการชำระเงินแล้ว ทาง AJ จะดำเนินการจองเช่าของคุณต่อไป",rentalCode:"รหัสการเช่า",amount:"จำนวนเงิน",method:"ช่องทางชำระ",paymentLink:"รหัสลิงก์ชำระเงิน",reference:"เลขอ้างอิง",statusLabel:"สถานะ",status:"ชำระแล้ว",autoNotice:"ระบบแจ้งยอดชำระให้ทางร้านผ่าน LINE อัตโนมัติแล้ว ไม่ต้องส่งภาพหน้าจอนี้ซ้ำ",manualNotice:"กรุณาแคปหน้าจอนี้ส่งให้แชทร้านทาง LINE, WhatsApp หรือ Facebook โดยทางร้านจะตรวจสอบยอดจากระบบอีกครั้ง",line:"แจ้งทาง LINE",whatsapp:"แจ้งทาง WhatsApp",facebook:"แจ้งทาง Facebook",back:"กลับไปหน้ารายการเช่า",close:"ปิด"}};
+      const copy = {en:{badge:"● Payment successful",title:"Thank you for your payment!",message:"Your payment has been received. AJ will continue processing your rental booking.",rentalCode:"Rental code",amount:"Amount",method:"Payment method",paymentLink:"Payment link ID",reference:"Reference",statusLabel:"Status",status:"Paid",autoNotice:"AJ has been notified automatically through LINE. You do not need to send this screenshot again.",manualNotice:"Please screenshot this page and send it to AJ via LINE, WhatsApp, or Facebook. AJ will verify the payment in the system.",line:"Report payment via LINE",whatsapp:"Report payment via WhatsApp",facebook:"Notify via Facebook",back:"Back to rental list",close:"Close"},th:{badge:"● ชำระเงินสำเร็จ",title:"ขอบคุณสำหรับการชำระเงิน",message:"ระบบได้รับการชำระเงินแล้ว ทาง AJ จะดำเนินการจองเช่าของคุณต่อไป",rentalCode:"รหัสการเช่า",amount:"จำนวนเงิน",method:"ช่องทางชำระ",paymentLink:"รหัสลิงก์ชำระเงิน",reference:"เลขอ้างอิง",statusLabel:"สถานะ",status:"ชำระแล้ว",autoNotice:"ระบบแจ้งยอดชำระให้ทางร้านผ่าน LINE อัตโนมัติแล้ว ไม่ต้องส่งภาพหน้าจอนี้ซ้ำ",manualNotice:"กรุณาแคปหน้าจอนี้ส่งให้แชทร้านทาง LINE, WhatsApp หรือ Facebook โดยทางร้านจะตรวจสอบยอดจากระบบอีกครั้ง",line:"แจ้งชำระเงินทาง LINE",whatsapp:"แจ้งชำระเงินทาง WhatsApp",facebook:"แจ้งทาง Facebook",back:"กลับไปหน้ารายการเช่า",close:"ปิด"}};
       const lang = params.get("lang") === "th" ? "th" : "en";
       const t = copy[lang];
       const set = (id, value) => { document.getElementById(id).textContent = value || "-"; };
@@ -97,7 +97,7 @@
         lineUrl.searchParams.set("rentalCode", rentalCode);
         lineUrl.searchParams.set("lang", lang);
         document.getElementById("lineButton").href = ctx ? lineUrl.toString() : "https://lin.ee/N4i6cb6";
-        document.getElementById("whatsappButton").hidden = lang !== "en";
+        document.getElementById("whatsappButton").hidden = false;
         document.getElementById("facebookButton").hidden = true;
         document.getElementById("backButton").href = `index.html?myRental=${encodeURIComponent(rentalCode)}&lang=${lang}`;
         confirmRental(rentalCode);
@@ -171,6 +171,24 @@
         try { await navigator.clipboard.writeText(contactMessage); } catch {}
         location.href = "https://m.me/ajgamerental";
       });
+      // Thai customers link their LINE account before leaving this paid page.
+      // LIFF sends a confirmation card and attempts a real customer-originated
+      // chat message; the onward link keeps the action they originally chose.
+      if(unifiedDemo && lang === "th"){
+        document.addEventListener("click", event => {
+          const target = event.target.closest("#lineButton, #whatsappButton, #facebookButton, #backButton, #closeButton, #identityAskButton");
+          if(!target) return;
+          const ctx = String(params.get("ctx") || "").trim();
+          if(!ctx) return;
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          const liff = new URL(document.getElementById("lineButton").href);
+          let next = target.id === "closeButton" ? document.getElementById("backButton").href : target.href;
+          if(target.id === "lineButton") next = "";
+          if(next) liff.searchParams.set("next", next);
+          location.href = liff.toString();
+        }, true);
+      }
       document.getElementById("language").value = lang;
       document.getElementById("language").addEventListener("change", event => { params.set("lang", event.target.value); location.search = params.toString(); });
       document.getElementById("closeButton").addEventListener("click", () => { if(history.length > 1) history.back(); else location.href = document.getElementById("backButton").href; });

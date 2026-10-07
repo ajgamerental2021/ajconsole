@@ -2697,3 +2697,11 @@ paused job shows slightly old numbers rather than an empty section.
 
 - The picker share button now keeps “กับเพื่อน” and “with friends” on their own second line in Thai and English. The translation contains the intentional newline and the label preserves it with `white-space: pre-line`.
 - Verified both languages and a language switch at 375px and 1280px in Chromium: exactly two lines, no button or page overflow, no page errors. Focused share-link tests and inline JavaScript syntax passed.
+
+## 2026-10-07 — Booking and payment follow-up
+
+- Production `index.html` now shows the revised bilingual before-rent hero, moves FAQ into the menu below My rental, uses gold rental/delivery calculator actions, and removes the obsolete delivery-offer line, follower count and explore kicker. Payment success labels specify reporting a payment by LINE or WhatsApp.
+- A returning renter who passes eligibility without an editable profile/token no longer hits a stale profile-save gate at the next step. The queue client allows the availability proxy's full upstream timeout and records the underlying failure reason for later analytics.
+- The Thai payment success actions enter the existing LIFF confirmation-only handoff, which links the LINE account, asks Delivery App to send the paid booking card and attempts a customer-originated message. English only enters LIFF from the LINE action. LINE limits mean an inbound message still needs LINE to accept the LIFF send or the customer to tap Send in chat; the page retains the fallback chat action.
+- Delivery App removes the separate unconfirmed afternoon reminder, suppresses four explicitly cancelled historical Console Pending rental codes across web, contract and payment sources, and allocates Rental IDs for new or cloned Bookings at the backend creation boundary. The form requests a code early and the backend fills it if that request fails.
+- Analytics now groups recorded client-error details. Historical availability events did not include details and the production admin analytics endpoint requires login, so the exact split of the 30 historical failures remains unavailable in this workspace.

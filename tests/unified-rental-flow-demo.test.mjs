@@ -525,7 +525,7 @@ test('a LINE-verified returning renter sees their saved details as one summary w
 });
 
 test('the header menu opens rental prices, the game list and the rental steps like their links do', () => {
-  assert.match(html, /\["prices", "tag", en \? "Rental prices" : "ราคาเช่า"\], \["games", "gamepad", en \? "Game list" : "รายการเกม"\], \["steps", "steps", en \? "How to rent" : "ขั้นตอนการเช่า"\], \["myRental", "receipt", en \? "My rental" : "คิวเช่าของฉัน"\]/);
+  assert.match(html, /\["prices", "tag", en \? "Rental prices" : "ราคาเช่า"\], \["games", "gamepad", en \? "Game list" : "รายการเกม"\], \["steps", "steps", en \? "How to rent" : "วิธีเช่า"\], \["myRental", "receipt", en \? "My rental" : "คิวเช่าของฉัน"\], \["faq", "help", tr\("beforeRentFaq"\)\]/);
   // Line icons drawn like the site's other icons, not emoji.
   assert.match(html, /\$\{icon\(iconName, "site-menu-ico"\)\}<span>\$\{esc\(label\)\}<\/span>/);
   assert.match(html, /const infoIcons = \{about:"info", privacy:"shield", terms:"doc", contact:"contact"\};/);

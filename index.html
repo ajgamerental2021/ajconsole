@@ -1280,6 +1280,15 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   .game-picker-platforms.is-folded{flex-wrap:wrap;overflow-x:visible}
   .game-picker-platforms.is-folded .game-picker-platform-more{position:static;box-shadow:none}
 }
+  .before-rent-hero-icon{display:inline-flex;width:74px;height:74px;align-items:center;justify-content:center;margin:6px auto 2px;border-radius:20px;background:#fff1f2}
+  .before-rent-hero-icon svg{width:58px;height:58px}
+  .before-rent-head .before-rent-devices-line{font-weight:800;color:#344054;margin:8px 0 4px}
+  .before-rent-head .before-rent-hero-terms{font-weight:800;color:#9c0010;margin:12px 0 0}
+  .site-menu-list .site-info-link.site-menu-quote,.before-rent-quote-chip{background:linear-gradient(180deg,#ffd84d,#ffbf1f);border:1px solid #e6a500;color:#3d2600;box-shadow:0 4px 12px rgba(230,165,0,.25);font-weight:900}
+  .site-menu-list .site-menu-quote .site-menu-ico,.before-rent-quote-chip svg{color:#332500}
+  .site-menu-list .site-info-link.site-menu-quote:hover,.before-rent-quote-chip:hover{background:#f4b900;color:#261b00}
+  .before-rent-quote-chip{display:inline-flex;align-items:center;gap:6px}
+  .before-rent-quote-chip svg{width:17px;height:17px}
 </style>
 </head>
 <body>
@@ -1287,7 +1296,6 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   <div class="container nav-inner">
     <div class="brand"><div class="brand-mark"><img src="data:image/png;base64,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" alt="AJ"></div><div id="brandText"><em>AJ</em> เช่าเครื่องเกม</div></div>
     <div class="nav-actions">
-      <button class="btn" id="faqBtn" type="button">FAQ</button>
       <div class="site-menu" id="siteMenu">
         <button class="btn" id="siteMenuBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="siteMenuList">☰ เมนู</button>
         <div class="site-menu-list" id="siteMenuList" role="menu" data-info-links hidden></div>
@@ -1310,13 +1318,16 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
       <div class="before-rent-panel">
         <div class="before-rent-head">
           <span class="before-rent-kicker" data-i18n="beforeRentKicker">BEFORE RENT</span>
-          <h1 data-i18n="beforeRentTitle">ก่อนเช่า เลือกสิ่งที่ต้องการ</h1>
-          <p data-i18n="beforeRentSubtitle">เริ่มเช่า ดูรายชื่อเกม หรืออ่านข้อมูลก่อนตัดสินใจ</p>
+          <span class="before-rent-hero-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none"><rect x="5" y="17" width="54" height="31" rx="13" fill="#b00010"/><path d="M20 31h12m-6-6v12" stroke="white" stroke-width="4" stroke-linecap="round"/><circle cx="43" cy="28" r="3" fill="white"/><circle cx="49" cy="36" r="3" fill="white"/></svg></span>
+          <h1 data-i18n="beforeRentTitle">เช่าเครื่องเกม ส่งถึงบ้าน</h1>
+          <p class="before-rent-devices-line" data-i18n="beforeRentDevicesLine">PS5 • Switch 1/2 • Xbox • VR/AR • PC Handheld</p>
+          <p data-i18n="beforeRentSubtitle">เลือกเครื่อง เช็กคิว ดูราคา และจองออนไลน์</p>
+          <p class="before-rent-hero-terms" data-i18n="beforeRentHeroTerms">ขั้นต่ำ 3 วัน • ส่งกรุงเทพฯ – ปริมณฑล</p>
         </div>
         <div class="before-rent-grid">
           <button class="before-rent-action is-primary" id="beforeRentStart" type="button">
             <span class="before-rent-icon" data-icon="gamepad"></span>
-            <span class="before-rent-copy"><strong data-i18n="beforeRentRent">เช่าเครื่องเกม</strong><span data-i18n="beforeRentRentSub">เลือกเครื่อง เช็ควันว่าง คำนวณราคา แล้วจองได้เลย</span></span>
+            <span class="before-rent-copy"><strong data-i18n="beforeRentRent">เช่าเครื่องเกม</strong><span data-i18n="beforeRentRentSub">เลือกเครื่อง → เช็กวันว่าง → ดูราคา → จองคิว</span></span>
             <span class="before-rent-flag" data-i18n="beforeRentStartHere">จองคิวเลย</span>
           </button>
           <button class="before-rent-action" id="beforeRentGames" type="button">
@@ -1325,19 +1336,17 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
           </button>
           <button class="before-rent-action" id="beforeRentSteps" type="button">
             <span class="before-rent-icon" data-icon="book"></span>
-            <span class="before-rent-copy"><strong data-i18n="beforeRentSteps">ขั้นตอนการเช่า</strong><span data-i18n="beforeRentStepsSub">ดูขั้นตอนตั้งแต่จองจนคืนเครื่อง</span></span>
+            <span class="before-rent-copy"><strong data-i18n="beforeRentSteps">วิธีเช่า</strong><span data-i18n="beforeRentStepsSub">ดูตั้งแต่จองจนถึงคืนเครื่อง</span></span>
           </button>
           <button class="before-rent-action" id="beforeRentFaq" type="button">
             <span class="before-rent-icon" data-icon="help"></span>
-            <span class="before-rent-copy"><strong data-i18n="beforeRentFaq">คำถามที่พบบ่อย</strong><span data-i18n="beforeRentFaqSub">คำตอบเรื่องเช่า จัดส่ง และค่าประกัน</span></span>
+            <span class="before-rent-copy"><strong data-i18n="beforeRentFaq">คำถามที่พบบ่อย</strong><span data-i18n="beforeRentFaqSub">การเช่า จัดส่ง ค่าประกัน และการคืน</span></span>
           </button>
         </div>
-        <p class="before-rent-terms" id="beforeRentTerms"></p>
         <div class="before-rent-trust" id="beforeRentTrust" hidden></div>
         <div class="before-rent-discovery">
           <div class="before-rent-discovery-head">
             <div>
-              <span class="before-rent-kicker" data-i18n="beforeRentExploreKicker">ดูก่อนตัดสินใจ</span>
               <h2 data-i18n="beforeRentExploreTitle">เครื่องเกมทั้งหมดและโปรโมชั่น</h2>
             </div>
           </div>
@@ -2090,20 +2099,21 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       calcCta:"เช็คคิว & คำนวณค่าเช่า",
       identityUploadedPreview:"ดูรูปที่อัปโหลดแบบขยาย",
       beforeRentKicker:"ก่อนเริ่มเช่า",
-      beforeRentTitle:"ก่อนเช่า เลือกสิ่งที่ต้องการ",
-      beforeRentSubtitle:"เริ่มเช่า ดูรายชื่อเกม หรืออ่านข้อมูลก่อนตัดสินใจ",
+      beforeRentTitle:"เช่าเครื่องเกม ส่งถึงบ้าน",
+      beforeRentDevicesLine:"PS5 • Switch 1/2 • Xbox • VR/AR • PC Handheld",
+      beforeRentSubtitle:"เลือกเครื่อง เช็กคิว ดูราคา และจองออนไลน์",
+      beforeRentHeroTerms:"ขั้นต่ำ 3 วัน • ส่งกรุงเทพฯ – ปริมณฑล",
       beforeRentRent:"เช่าเครื่องเกม",
-      beforeRentRentSub:"เลือกเครื่อง เช็ควันว่าง คำนวณราคา แล้วจองได้เลย",
+      beforeRentRentSub:"เลือกเครื่อง → เช็กวันว่าง → ดูราคา → จองคิว",
       beforeRentStartHere:"จองคิวเลย",
       menuBookRental:"จองคิวเช่า",
       beforeRentGames:"ดูรายชื่อเกมก่อน",
       beforeRentGamesSub:"ดูเกมของแต่ละเครื่องก่อนตัดสินใจ",
-      beforeRentSteps:"ขั้นตอนการเช่า",
-      beforeRentStepsSub:"ดูขั้นตอนตั้งแต่จองจนคืนเครื่อง",
+      beforeRentSteps:"วิธีเช่า",
+      beforeRentStepsSub:"ดูตั้งแต่จองจนถึงคืนเครื่อง",
       beforeRentFaq:"คำถามที่พบบ่อย",
-      beforeRentFaqSub:"คำตอบเรื่องเช่า จัดส่ง และค่าประกัน",
+      beforeRentFaqSub:"การเช่า จัดส่ง ค่าประกัน และการคืน",
       beforeRentBack:"← กลับเมนูก่อนเช่า",
-      beforeRentExploreKicker:"ดูก่อนตัดสินใจ",
       beforeRentExploreTitle:"เครื่องเกมทั้งหมดและโปรโมชั่น",
       beforeRentFeatured:"โปรโมชั่น",
       beforeRentPopular:"เครื่องเกมทั้งหมด",
@@ -2111,7 +2121,6 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       beforeRentDevicesCount:"{n} เครื่อง",
       beforeRentTrustGoogle:"Google",
       beforeRentTrustFacebook:"แนะนำบน Facebook",
-      beforeRentTrustFollowers:"ผู้ติดตาม {n}",
       beforeRentTrustVerified:"Facebook เพจยืนยันตัวตน",
       beforeRentTrustReviews:"({n} รีวิว)",
       beforeRentReviews:"รีวิวจากลูกค้าจริง",
@@ -2148,7 +2157,6 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       beforeRentNoteDelivery:"ฟรีค่าส่งสูงสุด ฿100/เที่ยว · 3–6 วัน ฟรีขากลับ · 7+ วัน ฟรีไป-กลับ · ส่งเฉพาะกรุงเทพฯ–ปริมณฑล",
       beforeRentNoteDeposit:"ค่าประกัน ได้คืนเต็มจำนวนเมื่อคืนเครื่องครบสภาพ ไม่ใช่ค่าเช่า",
       beforeRentNoteContract:"หากไม่ยืนยันตัวตน ค่าประกันจะปรับตามรุ่น: PS4, Nintendo Switch 1, XBOX Series S และ PS Portal: ฿2,000 → ฿5,000; รุ่นอื่นที่ค่าประกัน ฿2,000 → ฿10,000; ค่าประกัน ฿4,000 → ฿15,000; Bundle PS5 → ฿15,000",
-      beforeRentTerms:"เช่าขั้นต่ำ <b>3 วัน</b> · ฟรีค่าส่งสูงสุด <b>฿100/เที่ยว</b> (3–6 วัน ฟรีขากลับ · 7+ วัน ฟรีไป-กลับ) · <b>ส่งเฉพาะกรุงเทพฯ–ปริมณฑล</b>",
       beforeRentStartDevice:"ดูคิวและราคา",
       gamePickerAllPlatforms:"👉 เลือกเครื่อง",
       gamePickerMoreConsoles:"เครื่องอื่น +{n}",
@@ -2186,7 +2194,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       lineNoLaunch:"เมื่อเลือกข้อมูลและกดยืนยันจองผ่าน LINE แล้ว ลิงก์เปิดรายการจะแสดงในหน้าต่างนี้",
 lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE", lineHelpLink:"ดูขั้นตอน / เปิด LINE อีกครั้ง", linePreparingStatus:"กำลังเตรียมลิงก์ส่งข้อมูลจองผ่าน LINE กรุณารอสักครู่ สามารถกดดูขั้นตอนได้ด้านล่าง", lineReadyStatus:"ข้อมูลพร้อมแล้ว กดเปิด LINE และรอจนเห็นการ์ดในแชทร้าน AJ — ยังไม่ถือว่าส่งสำเร็จในขั้นตอนนี้", lineOpeningStatus:"กำลังเปิด LINE หากพบคำถาม Open this page in “LINE”? ให้กด Open แล้วรอการ์ดในแชทร้าน AJ ไม่ต้องวางข้อความเอง", lineHelpSteps:"<ol><li>กด <b>เปิด LINE เพื่อส่งข้อมูลจอง</b> ด้านล่าง</li><li>หากพบคำถาม <b>Open this page in “LINE”?</b> ให้กด <b>Open (เปิด)</b> ไม่ใช่ Cancel<img class='line-guide-example' src='assets/line-guide-open.png' width='365' height='133' alt='ตัวอย่างหน้าต่าง ให้กด Open เพื่อเปิด LINE'></li><li>เมื่อเห็นหน้า <b>กำลังส่งการ์ดข้อมูลจอง</b> ให้รอระบบยืนยันบัญชี LINE และส่งการ์ด อย่าปิดหน้าระหว่างรอ<img class='line-guide-example' src='assets/line-guide-sending.png' width='258' height='128' alt='ตัวอย่างหน้ากำลังส่งการ์ดข้อมูลจองและยืนยันบัญชี LINE'></li><li>ตรวจว่าแชทร้าน AJ มีการ์ด <b>ส่งข้อมูลจองแล้ว</b> จึงถือว่าส่งข้อมูลสำเร็จ จากนั้นยืนยันตัวตนหากระบบแจ้ง รอแอดมินยืนยันค่าส่งและยอดชำระ แล้วจึงชำระตามช่องทางที่เลือก</li></ol><p>การส่งข้อมูลยังไม่ใช่การยืนยันคิวหรือยืนยันการชำระเงิน หากเปิด LINE แล้วไม่มีการ์ด ให้กลับมากดเปิดรายการเดิมอีกครั้ง หากยังไม่ได้ให้แจ้งแอดมินพร้อมรหัสการเช่า</p>", lineOpenBooking:"เปิด LINE เพื่อส่งข้อมูลจอง", linePreparingLink:"กำลังเตรียมลิงก์ กรุณารอสักครู่", lineSuccessNext:"ได้รับการยืนยันจากระบบว่าส่งการ์ดแล้ว กรุณาตรวจแชทร้าน AJ ยืนยันตัวตนหากระบบแจ้ง และรอแอดมินยืนยันค่าส่งกับยอดชำระก่อนชำระเงิน", lineHandoffFailedHelp:"ส่งการ์ดไม่สำเร็จ หรือยังยืนยันผลไม่ได้ กรุณาเปิดรายการเดิมเพื่อลองอีกครั้ง หากยังไม่ได้ให้แจ้งแอดมินพร้อมรหัสการเช่า อย่าเริ่มรายการใหม่ซ้ำ", legalNameScriptHint:"กรอกด้วยตัวอักษรไทยเท่านั้น", legalNameScriptError:"กรุณากรอกชื่อ-นามสกุลด้วยตัวอักษรไทยเท่านั้น", phoneScriptHint:"ตัวเลขเท่านั้น", phoneScriptError:"กรอกเบอร์โทรศัพท์เป็นตัวเลขเท่านั้น (9–15 หลัก)", ocrReadError:"อ่านเลขบัตรประชาชนหรือเลข Passport และวันหมดอายุไม่ได้ ลูกค้าสามารถกรอกเองทางช่องด้านล่างครับ", idDocumentPhotoHint:"ถ่ายใกล้ให้บัตรหรือ Passport กินพื้นที่ส่วนใหญ่ของภาพ เห็นครบทั้ง 4 ขอบ เลขและวันหมดอายุคมชัด ไม่มีแสงสะท้อน", lineChatInbound:"ส่งข้อมูลการจอง {code} ให้ร้าน AJ แล้ว", lineChatVisible:"ร้านได้รับข้อความจากคุณในแชต LINE แล้ว", lineChatVisibleFailed:"ส่งการ์ดแล้ว แต่ยังไม่พบข้อความจากคุณในแชตของร้าน กรุณาเพิ่มเพื่อนร้าน AJ เปิดแชต แล้วกดส่งข้อความพร้อมรหัสการเช่าด้านล่าง",
       preparationDetail:"<summary>ระยะเวลาเตรียมเครื่องโดยประมาณ (กดเพื่ออ่าน)</summary><div><span>เริ่มนับหลังจากร้านยืนยันคิว ได้รับรายชื่อเกมครบถ้วน และได้รับยอดจองหรือยอดชำระตามช่องทางที่เลือก</span><ul><li>กรณีต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 2–3 ชั่วโมง</li><li>กรณีไม่ต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 30–60 นาที</li></ul><span>ระยะเวลาจริงอาจเปลี่ยนแปลงตามขนาดเกม ความเร็วในการดาวน์โหลด จำนวนเกม และคิวงานในขณะนั้น ทางร้านจะแจ้งเวลาที่เครื่องพร้อมจัดส่งให้ทราบอีกครั้ง</span></div>",
-      step1:"เลือกเครื่อง/วันที่", step2:"รายละเอียดการจอง", step3:"สรุปและส่ง", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"เลือกเกม", step2DetailsTitle:"การจัดส่ง การชำระเงิน และเอกสาร", step3Title:"สรุปและส่งข้อความ", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"📖 อ่านขั้นตอนการเช่าก่อนเริ่ม", quoteBtn:"🧮 คำนวณค่าเช่า", quoteBtnHint:"รู้ยอดรวมก่อนจอง", quoteTitle:"คำนวณค่าเช่า", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
+      step1:"เลือกเครื่อง/วันที่", step2:"รายละเอียดการจอง", step3:"สรุปและส่ง", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"เลือกเกม", step2DetailsTitle:"การจัดส่ง การชำระเงิน และเอกสาร", step3Title:"สรุปและส่งข้อความ", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"📖 อ่านขั้นตอนการเช่าก่อนเริ่ม", quoteBtn:"คำนวณค่าเช่า/ค่าจัดส่ง", quoteBtnHint:"รู้ยอดรวมก่อนจอง", quoteTitle:"คำนวณค่าเช่า", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
       nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
       deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
       gamePickerTitle:"เลือกเกม", gameStorageWarning:"⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ", gameChangeWarning:"⚠️ ไม่สามารถเพิ่มหรือเปลี่ยนเกมได้ระหว่างระยะเวลาเช่า", summaryHelp:"ตรวจสอบข้อมูล แล้วกดจองผ่านช่องทางที่สะดวก",
@@ -2221,20 +2229,21 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       calcCta:"Check Queue & Calculate",
       identityUploadedPreview:"View uploaded photo larger",
       beforeRentKicker:"BEFORE RENT",
-      beforeRentTitle:"Choose what you need",
-      beforeRentSubtitle:"Start a rental, browse games, or review details first",
+      beforeRentTitle:"Game console rental delivered to your door",
+      beforeRentDevicesLine:"PS5 • Switch 1/2 • Xbox • VR/AR • PC Handheld",
+      beforeRentSubtitle:"Choose a console, check availability, see prices, and book online",
+      beforeRentHeroTerms:"3-day minimum • Bangkok and surrounding provinces",
       beforeRentRent:"Rent a console",
-      beforeRentRentSub:"Pick a console, check dates, get a price, and book",
+      beforeRentRentSub:"Choose a console → Check dates → See prices → Book",
       beforeRentStartHere:"BOOK NOW",
       menuBookRental:"Book a rental",
       beforeRentGames:"Just browsing games",
       beforeRentGamesSub:"Browse games by console",
-      beforeRentSteps:"Rental steps",
-      beforeRentStepsSub:"See the process from booking to return",
+      beforeRentSteps:"How to rent",
+      beforeRentStepsSub:"See everything from booking to returning the console",
       beforeRentFaq:"FAQ",
-      beforeRentFaqSub:"Rental, delivery, and deposit answers",
+      beforeRentFaqSub:"Rental, delivery, deposit, and returns",
       beforeRentBack:"← Back to Before rent",
-      beforeRentExploreKicker:"EXPLORE",
       beforeRentExploreTitle:"All consoles and promotions",
       beforeRentFeatured:"Promotions",
       beforeRentPopular:"All consoles",
@@ -2242,7 +2251,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       beforeRentDevicesCount:"{n} consoles",
       beforeRentTrustGoogle:"Google",
       beforeRentTrustFacebook:"recommend on Facebook",
-      beforeRentTrustFollowers:"{n} followers",
       beforeRentTrustVerified:"Verified Facebook Page",
       beforeRentTrustReviews:"({n} reviews)",
       beforeRentReviews:"Reviews from real customers",
@@ -2279,7 +2287,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       beforeRentNoteDelivery:"Free delivery up to ฿100/trip · 3–6 days: free return · 7+ days: both trips free · Bangkok metro only",
       beforeRentNoteDeposit:"The deposit is fully refunded when the console is returned in good condition — it is not part of the rental fee",
       beforeRentNoteContract:"Without identity verification, the deposit changes by model: PS4, Nintendo Switch 1, XBOX Series S and PS Portal: ฿2,000 → ฿5,000; other ฿2,000 deposits → ฿10,000; ฿4,000 deposits → ฿15,000; PS5 bundles → ฿15,000",
-      beforeRentTerms:"<b>3-day</b> minimum · free delivery up to <b>฿100/trip</b> (3–6 days: free return · 7+ days: both trips free) · <b>Bangkok metropolitan area only</b>",
       beforeRentStartDevice:"Check dates & price",
       gamePickerAllPlatforms:"👉 Pick a console",
       gamePickerMoreConsoles:"More +{n}",
@@ -2317,7 +2324,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       lineNoLaunch:"After completing your details and confirming Book via LINE, the link for your booking will appear here.",
       lineHelpTitle:"Send booking via LINE", lineHelpLink:"View steps / reopen LINE", linePreparingStatus:"Preparing your LINE booking link. Please wait. You can view the steps below.", lineReadyStatus:"Your booking is ready to open in LINE. Wait for the card in AJ's chat — it has not been sent yet.", lineOpeningStatus:"Opening LINE. If asked Open this page in “LINE”?, tap Open and wait for the card in AJ's chat. You do not need to paste a message.", lineHelpSteps:"<ol><li>Tap <b>Open LINE to send booking</b> below.</li><li>Tap <b>Open</b> when prompted.<img class='line-guide-example' src='assets/line-guide-open.png' width='365' height='133' alt='Example: tap Open to continue in LINE'></li><li>Wait on <b>Sending your booking card</b>. Keep this screen open.<img class='line-guide-example' src='assets/line-guide-sending-en.png' width='365' height='139' alt='Example sending screen: verifying your LINE account'></li><li>Check for the card in <b>AJ’s chat</b>. Verify your identity if prompted. Wait for AJ to confirm the total before paying.</li></ol><p>No card? Reopen this booking or contact AJ with your rental code. Sending details does not confirm your reservation.</p>", lineOpenBooking:"Open LINE to send booking", linePreparingLink:"Preparing your link. Please wait.", lineSuccessNext:"The server confirmed card delivery. Check AJ's chat, verify your identity if prompted, and wait for AJ to confirm delivery fees and the amount due before paying.", lineHandoffFailedHelp:"The card could not be sent, or delivery could not be confirmed. Reopen the same booking to retry. If it still fails, contact AJ with your rental code. Do not create a duplicate booking.", legalNameScriptHint:"English letters only", legalNameScriptError:"Enter your legal name using English letters only.", phoneScriptHint:"Digits, with an optional + at the start", phoneScriptError:"Use digits only, with + allowed only at the start (9–15 digits).", ocrReadError:"Could not read the Thai ID or Passport number and expiry date. You can enter them in the fields below.", idDocumentPhotoHint:"Move close so the document fills most of the photo. Keep all four edges, number and expiry visible and sharp, without glare.", lineChatInbound:"I sent booking {code} to AJ.", lineChatVisible:"AJ received your message in LINE chat.", lineChatVisibleFailed:"Your card was sent, but AJ has not received a message from you in chat. Add AJ as a friend, open the chat, and send the message with your Rental ID below.",
       preparationDetail:"<summary>Estimated preparation time (tap to read)</summary><div><span>Preparation begins after AJ confirms availability, receives the complete game list, and receives the reservation deposit or payment through the selected payment method.</span><ul><li>If additional games need to be downloaded or installed: approximately 2–3 hours</li><li>If no additional downloads or installations are required: approximately 30–60 minutes</li></ul><span>Actual preparation time may vary depending on game size, download speed, the number of games, and the current service queue. AJ will confirm the expected delivery-ready time again.</span></div>",
-      step1:"Device / Dates", step2:"Booking details", step3:"Review and send", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Choose games", step2DetailsTitle:"Delivery, payment and documents", step3Title:"Summary and send", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"📖 Read rental steps first", quoteBtn:"🧮 Rental calculator", quoteBtnHint:"See the total before booking", quoteTitle:"Rental calculator", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
+      step1:"Device / Dates", step2:"Booking details", step3:"Review and send", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Choose games", step2DetailsTitle:"Delivery, payment and documents", step3Title:"Summary and send", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"📖 Read rental steps first", quoteBtn:"Rental/delivery cost calculator", quoteBtnHint:"See the total before booking", quoteTitle:"Rental calculator", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
       nextStep:"Next step", backStep:"Back",
       deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", startDate:"Start date", endDate:"Return date",
       gamePickerTitle:"Select Games", gameStorageWarning:"⚠️ Limited device storage. Some games may not all fit.", gameChangeWarning:"⚠️ Games cannot be added or changed during the rental period.", summaryHelp:"Review the details, then book through your preferred channel.",
@@ -3841,7 +3848,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     renderBeforeRentTypeFilter();
     byId("beforeRentDevicesHint").innerHTML = `${icon("swipe")}<span>${esc(tr("beforeRentDevicesHint"))}</span>`;
     byId("beforeRentPromoHint").innerHTML = `${icon("tap")}<span>${esc(tr("beforeRentPromoHint"))}</span>`;
-    byId("beforeRentTerms").innerHTML = tr("beforeRentTerms");
+    // The delivery policy appears in the concise hero line above.
     $$("[data-icon]").forEach(host => { if(!host.firstElementChild) host.innerHTML = icon(host.dataset.icon); });
     // Back to the start only when the customer changed the type filter; a
     // re-render from new data leaves the rail where they scrolled it.
@@ -3879,7 +3886,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return Number.isFinite(value) ? value.toFixed(1) : "";
   }
   function socialGoogleCount(social){ return social.googleAuto?.count || social.googleCount; }
-  function socialFacebookFollowers(social){ return social.facebookAuto?.followers || social.followers; }
   function formatSocialCount(value){
     const number = Number(String(value || "").replace(/,/g, ""));
     return Number.isFinite(number) ? new Intl.NumberFormat(state.lang === "th" ? "th-TH" : "en-US").format(number) : String(value || "");
@@ -3910,10 +3916,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
     if(social.facebookRecommend){
       items.push(`<a class="before-rent-trust-item" href="${esc(safeHref(CONFIG.facebookPageUrl))}" target="_blank" rel="noopener noreferrer">${icon("thumb")}<b>${esc(social.facebookRecommend)}%</b><span>${esc(withCount("beforeRentTrustFacebook", social.facebookCount))}</span></a>`);
-    }
-    const facebookFollowers = socialFacebookFollowers(social);
-    if(facebookFollowers){
-      items.push(`<span class="before-rent-trust-item">${icon("users")}<span>${esc(tr("beforeRentTrustFollowers").replace("{n}", formatSocialCount(facebookFollowers)))}</span></span>`);
     }
     if(social.verified){
       items.push(`<span class="before-rent-trust-verified">${icon("verified")}<span>${esc(tr("beforeRentTrustVerified"))}</span></span>`);
@@ -4014,7 +4016,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const available = new Set(state.consoles.filter(item => item.active !== false).map(item => String(item.type || "").toLowerCase()));
     const types = [["all",tr("beforeRentTypeAll")],["console",tr("type_console")],["vr",tr("type_vr")],["handheld",tr("type_handheld")],["racing",tr("type_racing")]]
       .filter(([id]) => id === "all" || available.has(id));
-    host.innerHTML = types.map(([id,label]) => `<button class="before-rent-typechip ${(state.beforeRentDeviceType||"all")===id?"active":""}" type="button" data-before-type="${esc(id)}" aria-pressed="${(state.beforeRentDeviceType||"all")===id}">${esc(label)}</button>`).join("");
+    host.innerHTML = types.map(([id,label]) => `<button class="before-rent-typechip ${(state.beforeRentDeviceType||"all")===id?"active":""}" type="button" data-before-type="${esc(id)}" aria-pressed="${(state.beforeRentDeviceType||"all")===id}">${esc(label)}</button>`).join("") + `<button class="before-rent-typechip before-rent-quote-chip" type="button" data-before-quote>${icon("calculator")}<span>${esc(tr("quoteBtn"))}</span></button>`;
+    host.querySelector("[data-before-quote]")?.addEventListener("click", () => openQuotePopup("before_rent_filters"));
     host.querySelectorAll("[data-before-type]").forEach(chip => chip.addEventListener("click", () => {
       state.beforeRentDeviceType = chip.dataset.beforeType;
       renderBeforeRentDiscovery();
@@ -4196,7 +4199,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   function applyI18n(){
     byId("brandText").innerHTML = state.lang === "en" ? `<span class="brand-text-aj">AJ</span> Game Rental` : `<span class="brand-text-aj">AJ</span> เช่าเครื่องเกม`;
-    byId("faqBtn").textContent = state.lang === "en" ? "❓ FAQ" : "❓ คำถามที่พบบ่อย";
     byId("langBtn").textContent = state.lang === "en" ? "🇹🇭 TH" : "🇬🇧 EN";
     $$("[data-i18n]").forEach(el => { el.textContent = tr(el.dataset.i18n); });
     $$("[data-i18n-html]").forEach(el => { el.innerHTML = tr(el.dataset.i18nHtml); });
@@ -6599,6 +6601,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       state.calc.retVerificationMethod = "manual";
       state.calc.retVerifiedLineUserId = "";
       state.calc.retVerificationToken = String(result.verificationToken || "");
+      if(!state.calc.retVerificationToken || !result.profile) demoReturningBaseline = "";
       state.calc.vip = normalizeVipEntitlement(result.vip);
       state.calc.masterAgreement = result.masterAgreement || {status:"none"};
       state.calc.masterAgreementAccepted = false;
@@ -7483,8 +7486,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     let resolveRetry, rejectRetry;
     const retry = new Promise((resolve, reject) => { resolveRetry = resolve; rejectRetry = reject; });
     const sourcePair = attempt => Promise.any([
-      fetchJsonWithTimeout(`${CONFIG.availabilityApi}?_ts=${stamp}-${attempt}`, 8000, controller.signal),
-      fetchJsonWithTimeout(`${CONFIG.availabilityUrl}${CONFIG.availabilityUrl.includes("?")?"&":"?"}_ts=${stamp}-${attempt}`, 8000, controller.signal)
+      fetchJsonWithTimeout(`${CONFIG.availabilityApi}?_ts=${stamp}-${attempt}`, 16000, controller.signal),
+      fetchJsonWithTimeout(`${CONFIG.availabilityUrl}${CONFIG.availabilityUrl.includes("?")?"&":"?"}_ts=${stamp}-${attempt}`, 16000, controller.signal)
     ].map(request => request.then(payload => {
       if(!normalizeAvailabilityRows(payload).length) throw new Error("Availability response is empty");
       return payload;
@@ -7497,9 +7500,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       sourcePair(1).then(resolveRetry, rejectRetry);
     };
     void first.catch(startRetry);
-    retryTimer = setTimeout(startRetry, 2000);
+    retryTimer = setTimeout(startRetry, 5000);
     const deadline = new Promise((_, reject) => {
-      deadlineTimer = setTimeout(() => reject(new Error("availability_timeout")), 10000);
+      deadlineTimer = setTimeout(() => reject(new Error("availability_timeout")), 19000);
     });
     try{
       return await Promise.race([Promise.any([first, retry]), deadline]);
@@ -7553,7 +7556,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       }
       state.availability.error = String(error?.message || error || "Availability request failed");
       state.availability.stale = false;
-      trackAnalytics("client_error", {errorCode:"availability_api_failed"});
+      trackAnalytics("client_error", {errorCode:"availability_api_failed", value:state.availability.error.slice(0, 80)});
       return {fresh:false,cached:false};
     }finally{
       state.availability.loading = false;
@@ -10544,8 +10547,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // The header menu also opens the rental prices, the game list and the rental
     // steps, the same pop-ups the ?allConsoles=1, ?games=1 and ?steps=1 links open.
     const en = state.lang === "en";
-    const menuActions = [["book", "gamepad", tr("menuBookRental")], ["quote", "calculator", en ? "Rental calculator" : "คำนวณค่าเช่า"], ["prices", "tag", en ? "Rental prices" : "ราคาเช่า"], ["games", "gamepad", en ? "Game list" : "รายการเกม"], ["steps", "steps", en ? "How to rent" : "ขั้นตอนการเช่า"], ["myRental", "receipt", en ? "My rental" : "คิวเช่าของฉัน"]]
-      .map(([action, iconName, label]) => `<button class="site-info-link${action === "book" ? " site-menu-book" : ""}" type="button" role="menuitem" data-menu-action="${action}">${icon(iconName, "site-menu-ico")}<span>${esc(label)}</span></button>`).join("");
+    const menuActions = [["book", "gamepad", tr("menuBookRental")], ["quote", "calculator", tr("quoteBtn")], ["prices", "tag", en ? "Rental prices" : "ราคาเช่า"], ["games", "gamepad", en ? "Game list" : "รายการเกม"], ["steps", "steps", en ? "How to rent" : "วิธีเช่า"], ["myRental", "receipt", en ? "My rental" : "คิวเช่าของฉัน"], ["faq", "help", tr("beforeRentFaq")]]
+      .map(([action, iconName, label]) => `<button class="site-info-link${action === "book" ? " site-menu-book" : action === "quote" ? " site-menu-quote" : ""}" type="button" role="menuitem" data-menu-action="${action}">${icon(iconName, "site-menu-ico")}<span>${esc(label)}</span></button>`).join("");
     $$('[data-info-links]').forEach(host => {
       host.innerHTML = host.id === "siteMenuList" ? `${menuActions}<span class="site-menu-divider" role="separator"></span>${menuInfo}` : html;
       host.setAttribute("aria-label", state.lang === "en" ? "About AJ and website policies" : "ข้อมูลเกี่ยวกับ AJ และนโยบายเว็บไซต์");
@@ -11245,7 +11248,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
   }
   function lineBookingAppLinks(params){
     const query = new URLSearchParams();
-    for(const key of ["bookingLine", "confirmationOnly", "ctx", "rentalCode", "lang"]){
+    for(const key of ["bookingLine", "confirmationOnly", "ctx", "rentalCode", "lang", "next"]){
       const value = String(params.get(key) || "").trim();
       if(value) query.set(key, value);
     }
@@ -11322,7 +11325,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
       const result = await response.json().catch(() => ({}));
       if(!response.ok || !result?.linked || !result?.flexSent) throw new Error(result.error || `LINE link ${response.status}`);
       const en = params.get("lang") === "en";
-      const chatMessage = tr("lineChatInbound").replace("{code}", rentalCode);
+      const chatMessage = confirmationOnly
+        ? (en ? `I have paid for rental ${rentalCode}. Please confirm my payment.` : `ชำระเงินแล้ว รหัสการเช่า ${rentalCode} กรุณายืนยันยอดชำระด้วยครับ`)
+        : tr("lineChatInbound").replace("{code}", rentalCode);
       try{
         // LIFF success only means LINE accepted the send request. The signed
         // webhook is the evidence that the customer's chat reached our OA.
@@ -11336,6 +11341,13 @@ We apologize for the inconvenience and hope everyone stays safe.`
       localStorage.setItem("aj_line_unique_id", profile.userId);
       localStorage.setItem("aj_line_display_name", profile.displayName || "");
       panel.innerHTML = `<div style="width:54px;height:54px;margin:0 auto 14px;border-radius:50px;display:grid;place-items:center;background:#e8f8ee;color:#16883f;font-size:30px;font-weight:900">✓</div><h1 style="font-size:22px;margin:0 0 12px">${en ? (confirmationOnly ? "Rental confirmation sent" : "Booking card sent") : (confirmationOnly ? "ส่งการ์ดยืนยันการเช่าแล้ว" : "ส่งการ์ดข้อมูลจองแล้ว")}</h1><p style="margin:0 0 20px;color:#667085">${esc(tr(shopChatVisible ? "lineChatVisible" : "lineChatVisibleFailed"))}</p><a href="${CONFIG.lineOaMessageUrl}" style="display:inline-block;border-radius:14px;background:#16883f;color:#fff;text-decoration:none;font-weight:800;padding:13px 24px">${en ? "Open AJ LINE chat" : "เปิดแชต LINE ร้าน AJ"}</a>`;
+      const requestedNext = String(params.get("next") || "").trim();
+      let safeNext = "";
+      if(requestedNext) try{
+        const target = new URL(requestedNext, location.origin);
+        if(target.protocol === "https:" && ["ajgamerental.com", "www.ajgamerental.com", "aj-line-oa-bot.onrender.com", "api.whatsapp.com", "m.me"].includes(target.hostname)) safeNext = target.href;
+      }catch{}
+      if(safeNext) panel.insertAdjacentHTML("beforeend", `<p style="margin:16px 0 0"><a href="${esc(safeNext)}" style="display:inline-block;border-radius:14px;background:#c90012;color:#fff;text-decoration:none;font-weight:800;padding:13px 24px">${en ? "Continue" : "ไปต่อ"}</a></p>`);
       if(!shopChatVisible){
         panel.insertAdjacentHTML("beforeend", `<p style="margin:16px 0 8px;color:#344054;overflow-wrap:anywhere">${esc(chatMessage)}</p><button id="lineCopyChatMessage" type="button" style="border:1px solid #b9c2cf;border-radius:12px;background:#fff;font:inherit;font-weight:700;padding:10px 16px">${en ? "Copy message" : "คัดลอกข้อความ"}</button><p id="lineChatReceiptResult" style="font-size:13px;color:#667085"></p>`);
         panel.querySelector("#lineCopyChatMessage").addEventListener("click", () => void writeBookingClipboard(chatMessage));
@@ -11473,6 +11485,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
           state.calc.retVerificationMethod = "line";
           state.calc.retVerifiedLineUserId = fallbackLineUserId;
           state.calc.retVerificationToken = String(result.verificationToken || "");
+          if(!state.calc.retVerificationToken || !result.profile) demoReturningBaseline = "";
           state.calc.vip = normalizeVipEntitlement(result.vip);
           state.calc.masterAgreement = result.masterAgreement || {status:"none"};
           state.calc.masterAgreementAccepted = false;
@@ -13109,6 +13122,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         if(action === "games") openGamePicker({browseOnly:true, consoleId:String(SPEC.PS5)});
         if(action === "steps") openStepsPopup();
         if(action === "myRental") openMyRentalLookup({code:menuAction.dataset.myRentalOpen || ""});
+        if(action === "faq") openFAQPopup();
         return;
       }
       if(event.target.closest("[data-faq-rental-terms]")){ openRentalTermsReadOnly(); return; }
@@ -13257,7 +13271,6 @@ We apologize for the inconvenience and hope everyone stays safe.`
       render();
       if(state.bookingExtrasOpen) requestAnimationFrame(() => byId("homeSections")?.scrollIntoView({block:"start", behavior:"smooth"}));
     });
-    byId("faqBtn").addEventListener("click", () => { trackAnalytics("faq_opened"); openFAQPopup(); });
     byId("faqLangBtn").addEventListener("click", toggleSimpleModalLang);
     document.addEventListener("submit", event => {
       if(event.target?.id !== "myRentalForm") return;
