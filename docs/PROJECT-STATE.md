@@ -2,7 +2,7 @@
 
 - Returning to the exact original Safari/Chrome tab cannot be selected by LINE or website JavaScript on iOS/Android. The new-tab case now transfers the complete in-progress rental through a private ten-minute Bot handoff, with personal details and bank/Wise account fields excluded from the URL. The LINE return fragment carries a short-lived restore key; the new tab retrieves the draft only after verified LINE completion and clears the key from its address bar.
 - The transferred fields cover Step 1 console/dates/bundle/accessories/games, Step 2 contact and delivery details, refund account or deferred choice, identity-skip and Rental Terms acceptance, manual returning-customer verification and both review selections. Document numbers, photos and signatures are not part of this transfer. A failed upload keeps the renter on the original booking page; a failed return fetch displays a bilingual retry without dropping the temporary restore key.
-- Bot handoff storage is in memory, bounded to 40 KB per draft and the existing ten-minute session. Store/API tests, Thai/English separated-browser runtime tests and the full website suite passed. Native LINE/Safari/Chrome app switching still needs a physical-device smoke test.
+- Bot handoff storage is in memory, bounded to 40 KB per draft and the existing ten-minute session. Store/API tests, Thai/English separated-browser runtime tests, a Chromium fresh-tab return check in both languages, and the full website suite passed. The live Bot accepted a draft upload; the live website served the new code. Native LINE/Safari/Chrome app switching still needs a physical-device smoke test.
 
 ## 2026-10-07 — LINE return restores the selected rental in a new tab
 
