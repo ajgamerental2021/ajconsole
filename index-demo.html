@@ -596,7 +596,11 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .before-rent-devices::-webkit-scrollbar{height:6px}
   .before-rent-devices::-webkit-scrollbar-thumb{background:#d7dbe0;border-radius:999px}
   .before-rent-devices:focus-visible{outline:2px solid #c90012;outline-offset:3px;border-radius:12px}
+  .before-rent-device-wrap{flex:0 0 178px;scroll-snap-align:start;display:flex;flex-direction:column;min-width:0;gap:7px}
   .before-rent-device{position:relative;flex:0 0 178px;scroll-snap-align:start;display:grid;align-content:start;gap:6px;padding:10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;text-align:left;cursor:pointer}
+  .before-rent-device-wrap .before-rent-device{flex:1 1 auto;width:100%}
+  .before-rent-device-games{width:100%;min-height:38px;padding:7px 9px;border:1px solid #ffc6c6;border-radius:9px;background:#fff7f7;color:#991b1b;font-size:11.5px;font-weight:900;line-height:1.3;cursor:pointer}
+  .before-rent-device-games:hover,.before-rent-device-games:focus-visible{border-color:#c90012;background:#ffecee;color:#780000}
   .before-rent-device:hover,.before-rent-device:focus-visible{border-color:#c90012;background:#fff8f8}
   .before-rent-device[disabled]{opacity:.55;cursor:not-allowed}
   .before-rent-device[disabled]:hover{border-color:#e5e7eb;background:#fff}
@@ -669,6 +673,19 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .before-rent-nav{display:flex;align-items:center;gap:20px;margin-right:18px}
   .before-rent-nav button{border:0;background:none;color:#586170;font-size:13px;font-weight:700;white-space:nowrap}
   .before-rent-nav button:first-child,.before-rent-nav button:hover{color:#ee1730}
+  .before-rent-menu{position:relative}
+  .before-rent-menu-btn{white-space:nowrap}
+  .before-rent-menu-btn>span:first-child{font-size:18px;line-height:0}
+  .before-rent-menu-list{position:absolute;right:0;top:calc(100% + 8px);z-index:210;display:flex;flex-direction:column;width:230px;max-height:calc(100dvh - 76px);overflow:auto;padding:6px;border:1px solid #e5e7eb;border-radius:13px;background:#fff;box-shadow:0 12px 32px rgba(15,23,42,.18)}
+  .before-rent-menu-list[hidden]{display:none}
+  .before-rent-menu-item{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:9px 10px;border:0;border-radius:8px;background:#fff;color:#1f2937;text-align:left;font-size:13px;font-weight:800}
+  .before-rent-menu-item .ico{width:17px;height:17px;flex:none;color:#c90012}
+  .before-rent-menu-item:hover,.before-rent-menu-item:focus-visible{background:#fff2f3;color:#c90012}
+  .before-rent-menu-item.is-book{background:#c90012;color:#fff}
+  .before-rent-menu-item.is-book .ico{color:#fff}
+  .before-rent-menu-item.is-quote{margin-top:5px;border:1px solid #e6a500;background:linear-gradient(180deg,#ffd84d,#ffbf1f);color:#3d2600}
+  .before-rent-menu-item.is-quote .ico{color:#3d2600}
+  .before-rent-menu-divider{height:1px;margin:6px 8px;background:#e4e7ec}
   .before-rent-nav-book{border-color:#ee1730;color:#ee1730;border-radius:999px;white-space:nowrap}
   body:not(.before-rent-active) .before-rent-nav,body:not(.before-rent-active) .before-rent-nav-book{display:none}
   body.before-rent-active .brand{white-space:nowrap;font-size:17px}
@@ -714,6 +731,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .before-rent-mini-head{justify-content:center;margin-bottom:12px}
   .before-rent-typefilter{justify-content:center}
   .before-rent-device{flex:0 0 198px;padding:14px;border-radius:15px;box-shadow:0 7px 20px rgba(16,24,40,.05)}
+  .before-rent-device-wrap{flex-basis:198px}
   .before-rent-device-media{background:#fff;aspect-ratio:1.24}
   .before-rent-device-name{font-size:15px}
   .before-rent-promos{display:flex;align-items:stretch;gap:12px;padding:2px 2px 12px;overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
@@ -746,14 +764,29 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   .before-rent-footer-links{display:flex;flex-wrap:wrap;gap:18px}
   .before-rent-footer-links button{border:0;background:none;color:#5f6b7a;font-size:12px;font-weight:700}
   .before-rent-footer-links button:hover{color:#ed1830}
+  .before-rent-footer-bottom{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:19px;padding-top:16px;border-top:1px solid #eef0f3}
+  .before-rent-footer-legal{display:flex;align-items:center;flex-wrap:wrap;gap:7px 15px;color:#8a8f98;font-size:11px}
+  .before-rent-footer-legal button{border:0;background:none;padding:2px 0;color:#475467;text-decoration:underline;text-underline-offset:3px;font-size:11px;font-weight:800}
+  .before-rent-footer-legal button:hover{color:#c90012}
+  .before-rent-footer-socials{display:flex;align-items:center;gap:7px;flex:none}
+  .before-rent-footer-socials a{display:grid;place-items:center;width:34px;height:34px;border:1px solid #e3e6ea;border-radius:9px;color:#7d838d}
+  .before-rent-footer-socials a:hover{border-color:#c90012;color:#c90012;background:#fff7f7}
+  .before-rent-footer-socials svg{width:18px;height:18px;fill:currentColor}
+  .before-rent-info{font-size:14px;line-height:1.7;color:#26303e}
+  .before-rent-info p,.before-rent-info ul,.before-rent-info ol{margin:0 0 14px}
+  .before-rent-info h3{margin:18px 0 8px;font-size:18px;color:#121826}
+  .before-rent-info ul,.before-rent-info ol{padding-left:22px}
+  .before-rent-info a{color:#b90016}
+  .before-rent-info iframe{display:block;width:100%;height:min(72vh,730px);border:0}
   @media(max-width:900px){
-    .before-rent-nav{gap:9px;margin:0}.before-rent-nav button{font-size:11px}
+    .before-rent-nav{display:none}.before-rent-nav button{font-size:11px}
     .before-rent-service-pill>span{padding:0 10px;font-size:12px}
   }
   @media(max-width:767px){
     body.before-rent-active .brand{font-size:14px;min-width:0}body.before-rent-active .brand-mark{width:32px;height:32px}
     body.before-rent-active .nav-inner{padding:0 12px}body.before-rent-active .nav-actions{gap:5px}
     body.before-rent-active #faqBtn,.before-rent-nav{display:none}
+    .before-rent-menu-btn{padding:8px 9px;font-size:11px}
     body.before-rent-active #langBtn{padding:8px 10px;font-size:11px}
     .before-rent-nav-book{padding:8px 10px;font-size:11px}
     .before-rent-section{padding:0 0 30px}.before-rent-section>.container{padding:0 16px}
@@ -772,6 +805,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     .before-rent-action .before-rent-copy strong,.before-rent-action.is-primary .before-rent-copy strong{font-size:16px}
     .before-rent-action .before-rent-copy span{font-size:11px}
     .before-rent-device{flex-basis:168px}.before-rent-promo{flex-basis:72%}
+    .before-rent-device-wrap{flex-basis:168px}
     .before-rent-how,.before-rent-why{padding:35px 0;margin-top:12px}
     .before-rent-how-grid,.before-rent-why-grid{grid-template-columns:1fr;gap:12px;margin-top:20px}
     .before-rent-how-grid>div{grid-template-columns:36px 30px minmax(0,1fr);padding:8px 0}
@@ -780,6 +814,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     .before-rent-footer{margin-top:28px}
     .before-rent-footer-inner{align-items:flex-start;flex-direction:column;gap:15px}
     .before-rent-footer-links{gap:10px 16px}
+    .before-rent-footer-bottom{align-items:flex-start;flex-direction:column}
+    .before-rent-footer-legal{gap:7px 12px}
   }
 </style>
 </head>
@@ -795,6 +831,23 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         <button type="button" data-before-nav="how" data-i18n="beforeRentNavHow">วิธีเช่า</button>
       </div>
       <button class="btn" id="faqBtn" type="button">FAQ</button>
+      <div class="before-rent-menu" id="beforeRentMenu">
+        <button class="btn before-rent-menu-btn" id="beforeRentMenuBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="beforeRentMenuList"><span aria-hidden="true">≡</span><span data-i18n="beforeRentMenu">เมนู</span></button>
+        <div class="before-rent-menu-list" id="beforeRentMenuList" role="menu" hidden>
+          <button class="before-rent-menu-item is-book" type="button" role="menuitem" data-demo-menu="book"><span data-icon="gamepad"></span><span data-i18n="beforeRentMenuBook">จองคิวเช่า</span></button>
+          <button class="before-rent-menu-item is-quote" type="button" role="menuitem" data-demo-menu="quote"><span data-icon="table"></span><span data-i18n="beforeRentMenuQuote">คำนวณค่าเช่า/ค่าจัดส่ง</span></button>
+          <button class="before-rent-menu-item" type="button" role="menuitem" data-demo-menu="prices"><span data-icon="table"></span><span data-i18n="beforeRentMenuPrices">ราคาเช่า</span></button>
+          <button class="before-rent-menu-item" type="button" role="menuitem" data-demo-menu="games"><span data-icon="gamepad"></span><span data-i18n="beforeRentMenuGames">รายการเกม</span></button>
+          <button class="before-rent-menu-item" type="button" role="menuitem" data-demo-menu="steps"><span data-icon="book"></span><span data-i18n="beforeRentMenuSteps">วิธีเช่า</span></button>
+          <button class="before-rent-menu-item" type="button" role="menuitem" data-demo-menu="myRental"><span data-icon="table"></span><span data-i18n="beforeRentMenuMyRental">คิวเช่าของฉัน</span></button>
+          <button class="before-rent-menu-item" type="button" role="menuitem" data-demo-menu="faq"><span data-icon="help"></span><span data-i18n="beforeRentFaq">คำถามที่พบบ่อย</span></button>
+          <span class="before-rent-menu-divider" role="separator"></span>
+          <button class="before-rent-menu-item" type="button" role="menuitem" data-info-page="about"><span data-icon="verified"></span><span data-i18n="beforeRentInfoAbout">เกี่ยวกับเรา</span></button>
+          <button class="before-rent-menu-item" type="button" role="menuitem" data-info-page="privacy"><span data-icon="lock"></span><span data-i18n="beforeRentInfoPrivacy">นโยบายความเป็นส่วนตัว</span></button>
+          <button class="before-rent-menu-item" type="button" role="menuitem" data-info-page="terms"><span data-icon="book"></span><span data-i18n="beforeRentInfoTerms">ข้อกำหนดและเงื่อนไข</span></button>
+          <button class="before-rent-menu-item" type="button" role="menuitem" data-info-page="contact"><span data-icon="pin"></span><span data-i18n="beforeRentInfoContact">ติดต่อเรา</span></button>
+        </div>
+      </div>
       <button class="btn" id="adminBtn" type="button" hidden><span>Admin</span></button>
       <button class="btn primary" id="langBtn" type="button">EN</button>
       <button class="btn before-rent-nav-book" id="beforeRentNavBook" type="button" data-i18n="beforeRentHeroBook">จองคิวเลย</button>
@@ -860,7 +913,6 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
             <div class="before-rent-rail" id="beforeRentDevicesRail">
               <div id="beforeRentDevices" class="before-rent-devices" tabindex="0" role="region" aria-label="รายการเครื่องเกมทั้งหมด"></div>
             </div>
-            <p class="before-rent-note" id="beforeRentDevicesNote"></p>
           </section>
           <section class="before-rent-mini-section" id="beforeRentPromoSection">
             <div class="before-rent-mini-head">
@@ -922,6 +974,16 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       <div class="container before-rent-footer-inner">
         <div class="before-rent-footer-brand"><img src="assets/aj-logo-circle.png" alt="AJ Game Rental"><span><strong>AJ Game Rental</strong><small data-i18n="beforeRentFooterTag">บริการเช่าเครื่องเกม ส่งตรงถึงบ้าน</small></span></div>
         <div class="before-rent-footer-links"><button type="button" data-footer-nav="home" data-i18n="beforeRentNavHome">หน้าแรก</button><button type="button" data-footer-nav="devices" data-i18n="beforeRentNavPrices">ราคาเช่า</button><button type="button" data-footer-nav="games" data-i18n="beforeRentNavGames">รายชื่อเกม</button><button type="button" data-footer-nav="how" data-i18n="beforeRentNavHow">วิธีเช่า</button></div>
+      </div>
+      <div class="container before-rent-footer-bottom">
+        <div class="before-rent-footer-legal"><span data-i18n="beforeRentCopyright">AJ Game Rental © 2026. สงวนลิขสิทธิ์</span><button type="button" data-info-page="about" data-i18n="beforeRentInfoAbout">เกี่ยวกับเรา</button><button type="button" data-info-page="privacy" data-i18n="beforeRentInfoPrivacy">นโยบายความเป็นส่วนตัว</button><button type="button" data-info-page="terms" data-i18n="beforeRentInfoTerms">ข้อกำหนดและเงื่อนไข</button><button type="button" data-info-page="contact" data-i18n="beforeRentInfoContact">ติดต่อเรา</button></div>
+        <div class="before-rent-footer-socials" role="navigation" aria-label="Social media">
+          <a href="https://www.youtube.com/@ajgamerental" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg></a>
+          <a href="https://www.facebook.com/ajgamerental" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7.1V12h3V9.3c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-1.9.9-1.9 1.8V12h3.3l-.5 3.5h-2.8v8.4A12 12 0 0 0 24 12Z"/></svg></a>
+          <a href="https://www.tiktok.com/@ajgamerental" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.7 1c.4 2.4 1.8 3.9 4.3 4.1v3.4a9 9 0 0 1-4.2-1v6.3a6.8 6.8 0 1 1-5.9-6.7v3.5a3.4 3.4 0 1 0 2.5 3.2V1h3.3Z"/></svg></a>
+          <a href="https://lin.ee/5rDwplO" target="_blank" rel="noopener noreferrer" aria-label="LINE"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5C5.9 2.5 1 6.4 1 11.3c0 4.3 3.7 7.9 8.7 8.7l-.4 2.5c-.1.5.5.8.9.5l4.4-3.1c4.8-.9 8.4-4.4 8.4-8.6C23 6.4 18.1 2.5 12 2.5Z"/><text x="12" y="14.3" text-anchor="middle" font-size="6.4" font-weight="900" fill="#fff">LINE</text></svg></a>
+          <a href="https://wa.me/message/LEJ5QD3B2D2TN1" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.7 15l-1.2 4.4 4.5-1.2A10 10 0 1 0 12 2Zm0 2a8 8 0 0 1 6.8 12.2A8 8 0 0 1 7 18.3l-2 .5.5-2A8 8 0 0 1 12 4Zm-3.6 3.3c-.3 0-.7.2-.9.5-.5.5-.8 1.2-.8 2 0 1 .7 2 1.5 3.1 1.6 2.1 3.5 3.4 5.9 3.9.8.2 1.5.1 2-.2.6-.4 1-1.2 1-1.8 0-.2-.1-.4-.4-.5l-2.1-1c-.2-.1-.4-.1-.6.2l-.9 1.1c-.1.2-.3.2-.5.1a8 8 0 0 1-3.5-3c-.2-.3 0-.5.1-.6l.7-.8c.1-.2.2-.4.1-.6l-.9-2.1c-.1-.3-.3-.4-.7-.4Z"/></svg></a>
+        </div>
       </div>
     </footer>
   </section>
@@ -1123,6 +1185,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 
   const CONFIG = {
     version: "index2-clean-1",
+    apiBase: "https://aj-line-oa-bot.onrender.com",
     gamePickerVersion: "20260930-1",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
@@ -1277,6 +1340,104 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     other:{labelTh:"Other",labelEn:"Other",icon:"🕹️",order:99}
   };
 
+  const INFO_COPY = {
+    th:{
+      links:{about:"เกี่ยวกับเรา",privacy:"นโยบายความเป็นส่วนตัว",terms:"ข้อกำหนดและเงื่อนไข",contact:"ติดต่อเรา"},
+      aboutTitle:"เกี่ยวกับ AJ เช่าเครื่องเกม",
+      aboutSubtitle:"ให้บริการเช่าอุปกรณ์เกมแบบจัดส่งในกรุงเทพฯ และปริมณฑล",
+      aboutLead:"AJ เช่าเครื่องเกม ให้บริการเช่าเครื่องเล่นเกม และอุปกรณ์อิเล็กทรอนิกส์แบบรายวัน รายสัปดาห์",
+      aboutPurpose:"เราอยากให้ผู้เล่นเข้าถึงประสบการณ์ใหม่ได้ง่ายขึ้น ไม่ว่าจะต้องการลองก่อนซื้อ เช่าเล่นชั่วคราว เล่นกับครอบครัวหรือเพื่อน จัดปาร์ตี้ กิจกรรม หรืออีเวนต์ของบริษัท",
+      aboutSince:"เปิดให้บริการตั้งแต่ 7 มีนาคม 2564",
+      aboutDelivery:"ส่งถึงที่ รับคืนถึงที่",
+      aboutArea:"กรุงเทพฯ และปริมณฑล",
+      aboutHowTitle:"อยากเช่ากับ AJ ต้องทำอย่างไร",
+      aboutHow:["เลือกเครื่องและอุปกรณ์ที่ต้องการ","เลือกวันเริ่มเช่าและวันคืนเครื่อง พร้อมตรวจสอบคิวว่าง","เลือก Bundle อุปกรณ์เสริม และเกมที่ต้องการ","ระบุสถานที่จัดส่งและตรวจสอบค่าใช้จ่าย","ยืนยันตัวตนและอ่านเงื่อนไขการเช่า","ชำระเงินตามช่องทางที่เลือก แล้วรอร้านยืนยันและจัดเตรียมเครื่อง"],
+      aboutTruth:"AJ ให้บริการแบบส่งถึงที่ ลูกค้าจึงไม่ต้องเดินทางมารับหรือคืนอุปกรณ์เอง ทุกรายการทำผ่านเว็บไซต์และติดต่อกับร้านผ่านช่องทางทางการของร้าน โดยร้านเป็นผู้จัดรถรับ-ส่งให้ตามวันและเวลาที่ตกลงกันไว้ในรายการเช่า",
+      aboutContactTitle:"ติดต่อเรา",
+      contactTitle:"ติดต่อเรา",contactSubtitle:"ช่องทางติดต่อ AJ เช่าเครื่องเกม",
+      aboutContact:["โทร 081-624-4715","LINE @ajgame","อีเมล contact@ajgamerental.com"],
+      privacyTitle:"นโยบายความเป็นส่วนตัว",
+      privacySubtitle:"ข้อมูลที่ AJ ใช้เพื่อดำเนินการเช่า สัญญา การชำระเงิน และการจัดส่ง",
+      termsTitle:"เงื่อนไขการเช่า",
+      termsSubtitle:"เงื่อนไขการเช่าฉบับปัจจุบันสำหรับการเช่ากับ AJ"
+    },
+    en:{
+      links:{about:"About Us",privacy:"Privacy Policy",terms:"Terms & Conditions",contact:"Contact Us"},
+      aboutTitle:"About AJ Game Rental",
+      aboutSubtitle:"Delivery-only gaming equipment rental in Bangkok and Greater Bangkok",
+      aboutLead:"AJ Game Rental rents out game consoles and electronic equipment by the day and by the week.",
+      aboutPurpose:"Our goal is to make gaming experiences easier to access—whether you want to try before buying, play temporarily, enjoy games with family or friends, host a party, or arrange a company activity or event.",
+      aboutSince:"Serving customers since 7 March 2021",
+      aboutDelivery:"Delivered and collected at your door",
+      aboutArea:"Bangkok and Greater Bangkok",
+      aboutHowTitle:"How to rent with AJ",
+      aboutHow:["Choose the console and equipment you need","Select the rental start and return dates and check availability","Choose bundles, accessories, and games","Provide the delivery location and review the charges","Verify your identity and read the Rental Terms","Pay through the selected method, then wait for AJ to confirm and prepare the equipment"],
+      aboutTruth:"AJ delivers to you and collects from you, so there is no trip to make in either direction. Every rental is arranged through this website and through AJ's official contact channels, and AJ books the driver for both trips on the dates agreed in your rental order.",
+      aboutContactTitle:"Contact us",
+      contactTitle:"Contact Us",contactSubtitle:"Contact AJ Game Rental",
+      aboutContact:["Tel. 081-624-4715","LINE @ajgame","Email contact@ajgamerental.com"],
+      privacyTitle:"Privacy Policy",
+      privacySubtitle:"How AJ uses information for rentals, agreements, payments, and delivery",
+      termsTitle:"Rental Terms & Conditions",
+      termsSubtitle:"The current Rental Terms for rentals with AJ"
+    }
+  };
+
+  // Privacy Policy as shipped; the shop can publish its own wording from the admin
+  // panel. Same text format as the Rental Terms: "## " heading, "- " bullet,
+  // "1. " numbered item, other lines paragraphs, **bold**, [label](https://link),
+  // and a line reading [contact] for the contact block.
+  const PRIVACY_DEFAULT = {
+    th:`AJ เก็บและใช้ข้อมูลส่วนบุคคลเท่าที่จำเป็นต่อการให้เช่า ยืนยันตัวตน จัดทำข้อตกลง รับชำระเงิน จัดส่งและรับคืนอุปกรณ์ และแก้ไขปัญหาที่เกิดจากการเช่า
+## ข้อมูลที่เราเก็บ
+- ชื่อ เบอร์โทร อีเมล ที่ใช้ติดต่อผ่าน LINE, WhatsApp หรือ Facebook Messenger
+- เลขบัตรประชาชนหรือ Passport วันหมดอายุเอกสาร รูปเอกสาร และรูปเซลฟี่คู่เอกสาร เพื่อยืนยันตัวตนและจัดทำข้อตกลง
+- ที่อยู่ ลิงก์หรือพิกัด Google Maps และรายละเอียดที่จำเป็นต่อการจัดส่งและรับคืน
+- รายการเช่า ได้แก่ เครื่อง เกม Bundle อุปกรณ์เสริม วันเช่า ค่าเช่า เงินประกัน ค่าจัดส่ง ช่องทางและสถานะการชำระเงิน
+- ลายมือชื่ออิเล็กทรอนิกส์ รหัสการเช่า ใบสั่งเช่าและข้อตกลงในรูปแบบ PDF และประวัติการเช่า
+## วัตถุประสงค์
+- ตรวจสอบคิว คำนวณราคา และดำเนินการตามรายการเช่า
+- ยืนยันตัวตนและจัดทำข้อตกลงหลักหรือใบสั่งเช่า
+- รับและตรวจสอบการชำระเงิน และคืนเงินประกัน
+- ประสานรถรับ-ส่ง และติดต่อเรื่องการจัดส่ง รับคืน หรือเหตุฉุกเฉิน
+- ป้องกันการทุจริต ตรวจสอบความเสียหายหรือการสูญหาย และดำเนินการกรณีข้อพิพาท
+- ปฏิบัติตามกฎหมายและคำสั่งของหน่วยงานที่มีอำนาจ
+## การเปิดเผยและผู้ให้บริการ
+AJ เปิดเผยเฉพาะข้อมูลเท่าที่จำเป็นแก่ผู้ให้บริการที่เกี่ยวข้อง ได้แก่ ผู้ให้บริการรับชำระเงิน ธนาคาร ผู้ให้บริการขนส่ง ระบบจัดเก็บเอกสารและตารางข้อมูลของ Google และช่องทางแจ้งเตือนทาง LINE, WhatsApp และอีเมล รวมถึงที่ปรึกษาหรือหน่วยงานที่มีอำนาจเมื่อกฎหมายกำหนด
+## ข้อมูลการชำระเงิน
+การชำระเงินดำเนินการโดยผู้ให้บริการรับชำระเงิน ลูกค้ากรอกข้อมูลบัตรเครดิตหรือ E-Wallet ในหน้าของผู้ให้บริการโดยตรง AJ ไม่ได้จัดเก็บหมายเลขบัตรหรือข้อมูล E-Wallet ไว้ในระบบ และเก็บเฉพาะผลการชำระเงิน เช่น สถานะ ยอดเงิน ช่องทาง เวลา รหัสอ้างอิง และสลิปที่ลูกค้าส่งมา
+## ระยะเวลาการเก็บรักษา
+สำเนาบัตรประชาชน Passport และรูปยืนยันตัวตนเก็บไว้ไม่เกิน 1 ปีนับจากวันคืนอุปกรณ์ เท่ากับอายุข้อตกลงหลัก เพื่อให้ลูกค้าเดิมไม่ต้องยืนยันตัวตนใหม่ในการเช่าครั้งถัดไป ทั้งนี้สิทธิดังกล่าวใช้ได้ตราบใดที่บัตรประชาชนหรือ Passport ยังไม่หมดอายุ หากเอกสารหมดอายุ ต้องทำข้อตกลงหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้งก่อนการเช่าครั้งถัดไป เมื่อพ้นกำหนดข้อมูลจะถูกลบหรือทำลาย เว้นแต่มีข้อพิพาท คดีความ หรือหน้าที่ตามกฎหมายที่ต้องเก็บนานกว่านั้น
+## สิทธิและความปลอดภัย
+ลูกค้าขอเข้าถึง แก้ไข คัดค้าน จำกัดการใช้ ถอนความยินยอม หรือขอลบข้อมูลได้เท่าที่กฎหมายอนุญาต AJ จำกัดการเข้าถึงข้อมูลเฉพาะผู้ที่จำเป็นต่อการทำงาน และใช้มาตรการที่เหมาะสมเพื่อป้องกันการเข้าถึงหรือเปิดเผยโดยไม่ได้รับอนุญาต
+## ติดต่อเรื่องข้อมูลส่วนบุคคล
+[contact]`,
+    en:`AJ collects and uses personal data only as needed to rent out equipment, verify identity, prepare agreements, take payment, deliver and collect equipment, and resolve problems arising from a rental.
+## Data we collect
+- Name, phone number and email used to reach you through LINE, WhatsApp or Facebook Messenger
+- Thai ID or passport number, its expiry date, document images and a selfie with the document, for identity verification and the agreement
+- Address, Google Maps link or coordinates, and the details needed for delivery and collection
+- The rental itself: equipment, games, bundles, accessories, dates, fees, deposit, delivery charge, payment method and payment status
+- Electronic signature, rental ID, the rental order and agreement as PDFs, and rental history
+## Purposes
+- Check availability, calculate charges and carry out the rental
+- Verify identity and prepare the master agreement or rental order
+- Take and verify payment, and refund the deposit
+- Arrange the delivery and collection driver and contact you about them
+- Prevent fraud, assess damage or loss, and handle disputes
+- Comply with the law and with lawful requests from authorities
+## Disclosures and service providers
+AJ shares only what is necessary with the providers involved: the payment provider, banks, delivery providers, Google's document and spreadsheet services, and notifications through LINE, WhatsApp and email, as well as advisers or authorities where the law requires it.
+## Payment information
+Payments are processed by AJ's payment provider, and card or e-wallet details are entered on the provider's own page. AJ does not store your card number or e-wallet credentials; it keeps only the outcome of a payment — status, amount, method, time, reference and any slip you send.
+## Retention
+Copies of Thai IDs, passports and identity images are kept for no longer than one year from the return date, the same period as the master agreement, so a returning customer does not verify identity again. That applies only while the Thai ID or passport itself is valid: once the document expires, a new Master Agreement and renewed identity verification are required before the next rental. After the retention period the images are deleted or destroyed, unless a dispute, legal proceeding or legal obligation requires longer.
+## Your rights and security
+You may ask to access, correct, object to, restrict or delete your data, or withdraw consent, as far as the law allows. AJ limits access to the people who need it and uses appropriate measures against unauthorised access or disclosure.
+## Privacy contact
+[contact]`
+  };
+
   const I18N = {
     th:{
       calcCta:"เช็คคิว & คำนวณค่าเช่า",
@@ -1294,6 +1455,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentWhyReady:"เครื่องพร้อมเล่น",beforeRentWhyReadySub:"ตรวจเช็คและทำความสะอาดทุกเครื่อง พร้อมเกม ยกกล่อง",
       beforeRentWhySupport:"ตอบแชตไว",beforeRentWhySupportSub:"ทีมงานดูแลเป็นกันเอง ตอบคำถามรวดเร็วตลอดวัน",
       beforeRentFooterTag:"บริการเช่าเครื่องเกม ส่งตรงถึงบ้าน",
+      beforeRentMenu:"เมนู",beforeRentMenuBook:"จองคิวเช่า",beforeRentMenuQuote:"คำนวณค่าเช่า/ค่าจัดส่ง",beforeRentMenuPrices:"ราคาเช่า",beforeRentMenuGames:"รายการเกม",beforeRentMenuSteps:"วิธีเช่า",beforeRentMenuMyRental:"คิวเช่าของฉัน",
+      beforeRentInfoAbout:"เกี่ยวกับเรา",beforeRentInfoPrivacy:"นโยบายความเป็นส่วนตัว",beforeRentInfoTerms:"ข้อกำหนดและเงื่อนไข",beforeRentInfoContact:"ติดต่อเรา",beforeRentCopyright:"AJ Game Rental © 2026. สงวนลิขสิทธิ์",beforeRentDeviceGames:"ดูเกมของเครื่องนี้",
       beforeRentKicker:"ก่อนเริ่มเช่า",
       beforeRentTitle:"ก่อนเช่า เลือกสิ่งที่ต้องการ",
       beforeRentSubtitle:"เริ่มเช่า ดูรายชื่อเกม หรืออ่านข้อมูลก่อนตัดสินใจ",
@@ -1397,6 +1560,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       beforeRentWhyReady:"Ready-to-Play Devices",beforeRentWhyReadySub:"Every console is checked, cleaned, and packed with games.",
       beforeRentWhySupport:"Fast Chat Support",beforeRentWhySupportSub:"Friendly answers from our team throughout the day.",
       beforeRentFooterTag:"Game console rentals delivered to your door",
+      beforeRentMenu:"Menu",beforeRentMenuBook:"Book a rental",beforeRentMenuQuote:"Calculate rental & delivery",beforeRentMenuPrices:"Rental prices",beforeRentMenuGames:"Game list",beforeRentMenuSteps:"How to rent",beforeRentMenuMyRental:"My rental",
+      beforeRentInfoAbout:"About Us",beforeRentInfoPrivacy:"Privacy Policy",beforeRentInfoTerms:"Terms & Conditions",beforeRentInfoContact:"Contact Us",beforeRentCopyright:"AJ Game Rental © 2026. All rights reserved.",beforeRentDeviceGames:"View games for this console",
       beforeRentKicker:"BEFORE RENT",
       beforeRentTitle:"Choose what you need",
       beforeRentSubtitle:"Start a rental, browse games, or review details first",
@@ -2181,7 +2346,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       const flag = ready ? "" : `<span class="before-rent-device-flag">${esc(tr("readyOn"))} ${esc(displayDate(item.readyDate))}</span>`;
       const media = image ? `<img src="${esc(image)}" alt="" loading="lazy">` : icon(deviceIconName(item));
       const minLine = tr("beforeRentDeviceMin").replace("{total}", money(Number(item.rate || 0) * MIN_RENTAL_DAYS));
-      return `<button class="before-rent-device" type="button" data-before-device="${esc(item.id)}" ${ready?"":"disabled"}>
+      const gamesButton = gameUrl(item) ? `<button class="before-rent-device-games" type="button" data-before-device-games="${esc(item.id)}">${esc(tr("beforeRentDeviceGames"))}</button>` : "";
+      return `<div class="before-rent-device-wrap"><button class="before-rent-device" type="button" data-before-device="${esc(item.id)}" ${ready?"":"disabled"}>
         <span class="before-rent-device-media">${media}${flag}</span>
         <span class="before-rent-device-name">${esc(cName(item))}</span>
         <span class="before-rent-device-price"><b>${esc(money(item.rate))}</b>/${esc(tr("day"))}</span>
@@ -2189,7 +2355,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
         <span class="before-rent-device-min">${esc(minLine)}</span>
         <span class="before-rent-device-dep">${icon("lock")}<span>${esc(tr("deposit"))} ${esc(money(item.deposit))}</span><em>${esc(tr("beforeRentDepositBack"))}*</em></span>
         <span class="before-rent-device-cta">${ready ? esc(tr("beforeRentDeviceCta")) : esc(tr("beforeRentDeviceSoon"))}</span>
-      </button>`;
+      </button>${gamesButton}</div>`;
     }).join("");
     const seeAll = `<button class="before-rent-seeall" type="button" data-before-seeall>${icon("table")}<span>${esc(tr("beforeRentSeeAll"))}</span></button>`;
     deviceHost.innerHTML = cards ? cards + seeAll : `<p class="before-rent-empty">${esc(tr("beforeRentEmpty"))}</p>` + seeAll;
@@ -2204,16 +2370,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       selectCalcConsole(button.dataset.beforeDevice);
       setBeforeRent(false,{startGuide:true});
     }));
+    deviceHost.querySelectorAll("[data-before-device-games]").forEach(button => button.addEventListener("click", () => {
+      openGamePicker({browseOnly:true, consoleId:button.dataset.beforeDeviceGames});
+    }));
     deviceHost.querySelector("[data-before-seeall]")?.addEventListener("click", () => showAllConsoles());
     byId("beforeRentDevicesCount").textContent = tr("beforeRentDevicesCount").replace("{n}", String(ordered.length));
     renderBeforeRentTypeFilter();
     byId("beforeRentDevicesHint").innerHTML = `${icon("swipe")}<span>${esc(tr("beforeRentDevicesHint"))}</span>`;
     byId("beforeRentPromoHint").innerHTML = `${icon("tap")}<span>${esc(tr("beforeRentPromoHint"))}</span>`;
-    byId("beforeRentDevicesNote").innerHTML = [
-      ["truck","beforeRentNoteDelivery"],
-      ["lock","beforeRentNoteDeposit"],
-      ["help","beforeRentNoteContract"]
-    ].map(([iconName,key]) => `<span class="before-rent-note-row">${icon(iconName)}<span>${esc(tr(key))}</span></span>`).join("");
     byId("beforeRentTerms").innerHTML = tr("beforeRentTerms");
     $$("[data-icon]").forEach(host => { if(!host.firstElementChild) host.innerHTML = icon(host.dataset.icon); });
     deviceHost.scrollLeft = 0;
@@ -2421,6 +2585,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   }
   function setBeforeRent(active, options={}){
     state.beforeRentActive = !!active;
+    toggleBeforeRentMenu(false);
     if(options.startGuide){
       sessionStorage.removeItem(`${GUIDE_KEY}_closed`);
       resetStepOneGuide();
@@ -2429,6 +2594,14 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     render();
     if(options.scrollTo === false) return;
     requestAnimationFrame(() => window.scrollTo({top:0, behavior:"smooth"}));
+  }
+  function toggleBeforeRentMenu(open){
+    const list = byId("beforeRentMenuList");
+    const button = byId("beforeRentMenuBtn");
+    if(!list || !button) return;
+    const next = typeof open === "boolean" ? open : list.hidden;
+    list.hidden = !next;
+    button.setAttribute("aria-expanded", String(next));
   }
   function applyI18n(){
     byId("brandText").innerHTML = state.beforeRentActive || state.lang === "en"
@@ -4152,9 +4325,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function openGamePicker(options={}){
     const browseOnly = !!options.browseOnly;
     state.gamePickerBrowseOnly = browseOnly;
+    const requested = consoleById(options.consoleId);
     const current = consoleById(state.calc.consoleId);
     const catalogs = gameCatalogConsoles();
-    const first = current && gameUrl(current) ? current : catalogs[0];
+    const first = requested && gameUrl(requested) ? requested : current && gameUrl(current) ? current : catalogs[0];
     if(!first) return;
     state.gamePickerPlatformId = browseOnly ? String(first.id) : "";
     state.gamePickerHowTo = false;
@@ -4184,13 +4358,79 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     byId("gamePickerFrame").contentWindow?.postMessage({type:"AJ_SET_LANG", lang:state.lang}, pickerTargetOrigin());
   }
 
+  let activeDemoInfoPage = "";
+  const demoInfoOverrides = {about:{th:null,en:null}, privacy:{th:null,en:null}};
+  function demoContactHtml(){
+    const en = state.lang === "en";
+    return `<ul><li>${en ? "Tel" : "โทร"}: <a href="tel:+66816244715">081-624-4715</a></li><li>LINE: <a href="https://lin.ee/5rDwplO" target="_blank" rel="noopener noreferrer">@ajgame</a></li><li>Facebook: <a href="https://www.facebook.com/ajgamerental" target="_blank" rel="noopener noreferrer">AJ Game Rental</a></li><li>WhatsApp: <a href="https://wa.me/message/LEJ5QD3B2D2TN1" target="_blank" rel="noopener noreferrer">+66816244715</a></li><li>${en ? "Email" : "อีเมล"}: <a href="mailto:contact@ajgamerental.com">contact@ajgamerental.com</a></li></ul>`;
+  }
+  function demoPrivacyHtml(source){
+    const lines = String(source || "").split(/\r?\n/);
+    let list = "", html = "";
+    const closeList = () => { if(list){ html += `</${list}>`; list = ""; } };
+    for(const raw of lines){
+      const line = raw.trim();
+      if(!line) { closeList(); continue; }
+      if(line === "[contact]") { closeList(); html += demoContactHtml(); continue; }
+      if(line.startsWith("## ")) { closeList(); html += `<h3>${esc(line.slice(3))}</h3>`; continue; }
+      if(line.startsWith("- ")) { if(list !== "ul") { closeList(); html += "<ul>"; list = "ul"; } html += `<li>${esc(line.slice(2))}</li>`; continue; }
+      closeList(); html += `<p>${esc(line)}</p>`;
+    }
+    closeList();
+    return html;
+  }
+  function renderDemoInfo(){
+    if(!activeDemoInfoPage || !byId("simpleModal").classList.contains("open")) return;
+    const copy = INFO_COPY[state.lang];
+    const page = activeDemoInfoPage;
+    byId("simpleModalTitle").textContent = copy[`${page}Title`];
+    byId("faqLangBtn").textContent = state.lang === "en" ? "TH" : "EN";
+    let body = "";
+    if(page === "about"){
+      const override = demoInfoOverrides.about[state.lang] || {};
+      const lead = override.lead || copy.aboutLead;
+      const purpose = override.purpose || copy.aboutPurpose;
+      const how = Array.isArray(override.how) && override.how.length ? override.how : copy.aboutHow;
+      body = `<p>${esc(lead)}</p><p>${esc(override.since || copy.aboutSince)}</p><p>${esc(purpose)}</p><h3>${esc(copy.aboutHowTitle)}</h3><ol>${how.map(item => `<li>${esc(item)}</li>`).join("")}</ol><p>${esc(override.truth || copy.aboutTruth)}</p><h3>${esc(copy.aboutContactTitle)}</h3>${demoContactHtml()}`;
+    }
+    if(page === "contact") body = demoContactHtml();
+    if(page === "privacy") body = demoPrivacyHtml(demoInfoOverrides.privacy[state.lang] || PRIVACY_DEFAULT[state.lang]);
+    if(page === "terms"){
+      const url = new URL("/rental-terms/", CONFIG.apiBase);
+      url.searchParams.set("lang", state.lang);
+      url.searchParams.set("embed", "1");
+      body = `<iframe title="${esc(copy.termsTitle)}" src="${esc(url.toString())}"></iframe>`;
+    }
+    byId("simpleModalBody").innerHTML = `<div class="before-rent-info">${body}</div>`;
+  }
+  async function loadDemoInfo(page){
+    if(!["about","privacy"].includes(page)) return;
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/site-content/${page}?_ts=${Date.now()}`, {cache:"no-store"});
+      if(!response.ok) return;
+      const result = await response.json();
+      if(result?.content && typeof result.content === "object"){
+        ["th","en"].forEach(lang => { demoInfoOverrides[page][lang] = result.content[lang] || null; });
+        if(activeDemoInfoPage === page) renderDemoInfo();
+      }
+    }catch(error){ console.warn("Site information unavailable", error); }
+  }
+  function openDemoInfo(page){
+    if(!["about","privacy","terms","contact"].includes(page)) return;
+    showModal("", "");
+    activeDemoInfoPage = page;
+    byId("faqLangBtn").style.display = "";
+    renderDemoInfo();
+    void loadDemoInfo(page);
+  }
   function showModal(title, bodyHtml){
+    activeDemoInfoPage = "";
     byId("simpleModalTitle").textContent = title;
     byId("simpleModalBody").innerHTML = bodyHtml;
     byId("faqLangBtn").style.display = "none";
     byId("simpleModal").classList.add("open");
   }
-  function closeModal(){ byId("simpleModal").classList.remove("open"); }
+  function closeModal(){ activeDemoInfoPage = ""; byId("simpleModal").classList.remove("open"); }
   function loadLineSdk(){
     if(window.liff) return Promise.resolve(window.liff);
     return new Promise((resolve,reject) => {
@@ -4374,6 +4614,7 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
   function toggleFaqLang(){
     state.lang = state.lang === "en" ? "th" : "en";
     render();
+    if(activeDemoInfoPage){ renderDemoInfo(); return; }
     byId("simpleModalBody").innerHTML = faqModalBody();
     refreshFaqLangBtn();
   }
@@ -5223,6 +5464,23 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
     byId("beforeRentStart").addEventListener("click", () => setBeforeRent(false, {startGuide:true}));
     byId("beforeRentHeroBook").addEventListener("click", () => setBeforeRent(false, {startGuide:true}));
     byId("beforeRentNavBook").addEventListener("click", () => setBeforeRent(false, {startGuide:true}));
+    byId("beforeRentMenuBtn").addEventListener("click", () => toggleBeforeRentMenu());
+    byId("beforeRentMenuList").addEventListener("click", event => {
+      const info = event.target.closest("[data-info-page]");
+      if(info){ toggleBeforeRentMenu(false); openDemoInfo(info.dataset.infoPage); return; }
+      const target = event.target.closest("[data-demo-menu]");
+      if(!target) return;
+      toggleBeforeRentMenu(false);
+      const action = target.dataset.demoMenu;
+      if(action === "book" || action === "quote") setBeforeRent(false, {startGuide:true});
+      if(action === "prices") showAllConsoles();
+      if(action === "games") openGamePicker({browseOnly:true});
+      if(action === "steps") openStepsPopup();
+      if(action === "faq") openFAQPopup();
+      if(action === "myRental") location.href = `https://ajgamerental.com/?myRental=1&lang=${state.lang}`;
+    });
+    document.addEventListener("click", event => { if(!byId("beforeRentMenu").contains(event.target)) toggleBeforeRentMenu(false); });
+    document.addEventListener("keydown", event => { if(event.key === "Escape") toggleBeforeRentMenu(false); });
     byId("beforeRentHeroBrowse").addEventListener("click", () => byId("beforeRentDeviceSection").scrollIntoView({behavior:"smooth",block:"start"}));
     byId("beforeRentNav").addEventListener("click", event => {
       const target = event.target.closest("[data-before-nav]");
@@ -5232,6 +5490,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
       byId(section)?.scrollIntoView({behavior:"smooth",block:"start"});
     });
     byId("beforeRentFooter").addEventListener("click", event => {
+      const info = event.target.closest("[data-info-page]");
+      if(info){ openDemoInfo(info.dataset.infoPage); return; }
       const target = event.target.closest("[data-footer-nav]");
       if(!target) return;
       if(target.dataset.footerNav === "games") { openGamePicker({browseOnly:true}); return; }
