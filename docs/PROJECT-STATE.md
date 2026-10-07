@@ -1,3 +1,9 @@
+## 2026-10-07 — Shop can apply an extension against the refundable deposit
+
+- Delivery App Booking Log → เช่าต่อ now shows an action when the remaining deposit covers the extension and the booking return date still matches the request. It previews the fee, deposit before and after, and new return date; staff must confirm the renter agreed. The backend serializes simultaneous deposit and payment settlement for the same request. A partial deposit settlement remains visible for retry without a second deduction. The Booking refund balance and return date are updated together through the existing extension service; the customer receives its Thai/English LINE confirmation when reachable.
+- Bot Rental Terms 2026-10-07 say AJ may deduct extension rent from a sufficient remaining deposit when renter and shop agree. The 2026-10-05 and 2026-10-06 versions retain their previous prohibition for historical contracts.
+- Verification: Delivery backend and frontend TypeScript checks, extension deposit arithmetic, pending/action retry and concurrent-tap test, queue test, and Bot Rental Terms tests. Live Booking 552 was not altered during testing; staff action remains required.
+
 ## 2026-10-07 — Delivery App My rental copy links use the AJ website
 
 - The Booking Log's TH and EN copy buttons now receive `https://ajgamerental.com/my-rental/?t=<signed token>&lang=th|en` from the Delivery App. The open button and Customers screen use the same website entry. Bookings with only a Booking ID are supported too.
