@@ -668,7 +668,7 @@ test('connecting LINE opens the phone app directly and restores the booking step
   assert.doesNotMatch(connection, /withLoginOnExternalBrowser:true/);
   assert.match(connection, /if\(!liff\.isInClient\?\.\(\)\)\{/);
   assert.doesNotMatch(connection, /id="lineConnectReturn"/);
-  assert.match(connection, /if\(id\)\{\n        \/\/ The original browser has the draft and the poll key/);
+  assert.match(connection, /if\(id\)\{\n        \/\/ A LIFF page cannot select the original iOS\/Android browser task/);
   assert.match(connection, /if\(!response\.ok \|\| !result\.ok\) throw new Error\(result\.error/);
   assert.match(connection, /location\.replace\(returnUrl\.href\)/, 'legacy direct links retain a fallback');
   assert.doesNotMatch(html, /liff\.login\(\{redirectUri:lineConnectReturnUrl\(\)\}\)/);

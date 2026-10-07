@@ -11663,9 +11663,14 @@ We apologize for the inconvenience and hope everyone stays safe.`
       }
       if(!/^U[a-f0-9]{32}$/i.test(String(result.lineUserId || "")) || !result.connectionToken || Number(result.expiresAt) <= Date.now()) throw new Error("line_proof_missing");
       if(id){
-        // The original browser has the draft and the poll key. Opening an
-        // external URL here chooses the system default browser instead.
-        panel.innerHTML = `<div style="width:54px;height:54px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:#e8f8ee;color:#16883f;font-size:30px;font-weight:900">✓</div><h1 style="font-size:22px;margin:0 0 12px">${en ? "LINE connected" : "เชื่อม LINE แล้ว"}</h1><p style="color:#667085;margin:0">${en ? "Return to the browser tab where you started booking. Your LINE status will update there automatically." : "กลับไปที่แท็บเบราว์เซอร์ที่เริ่มจอง ระบบจะอัปเดตสถานะ LINE ให้อัตโนมัติ"}</p>`;
+        // A LIFF page cannot select the original iOS/Android browser task.
+        // The system Back control keeps the renter's existing booking tab.
+        const mobileBackHint = /iPhone|iPad|iPod/i.test(navigator.userAgent)
+          ? (en ? "Tap ‹ Chrome or ‹ Safari at the top left to return to your booking." : "แตะ ‹ Chrome หรือ ‹ Safari มุมซ้ายบน เพื่อกลับไปที่หน้าจองเดิม")
+          : /Android/i.test(navigator.userAgent)
+            ? (en ? "Use your phone's Back gesture or button. If LINE stays open, use Back once more." : "ปัดย้อนกลับหรือกดปุ่มย้อนกลับของโทรศัพท์ หากยังอยู่ใน LINE ให้ย้อนกลับอีกครั้ง")
+            : (en ? "Return to the browser tab where you started booking." : "กลับไปที่แท็บเบราว์เซอร์ที่เริ่มจอง");
+        panel.innerHTML = `<div style="width:54px;height:54px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:#e8f8ee;color:#16883f;font-size:30px;font-weight:900">✓</div><h1 style="font-size:22px;margin:0 0 12px">${en ? "LINE connected" : "เชื่อม LINE แล้ว"}</h1><p style="color:#344054;font-weight:700;margin:0 0 10px">${mobileBackHint}</p><p style="color:#667085;margin:0">${en ? "Your original booking tab will update automatically. No need to connect again." : "หน้าจองเดิมจะอัปเดตสถานะให้อัตโนมัติ ไม่ต้องเชื่อมซ้ำ"}</p>`;
         return;
       }
       const proof = new URLSearchParams({lineConnectionToken:result.connectionToken,lineUserId:result.lineUserId,lineDisplayName:result.displayName || "",lineExpiresAt:String(result.expiresAt)});

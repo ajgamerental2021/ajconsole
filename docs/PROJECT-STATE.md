@@ -1,3 +1,9 @@
+## 2026-10-07 — Fast return from LINE to the original booking browser
+
+- A LIFF page cannot activate the exact Oppo Browser, Chrome or Safari tab that opened LINE. Closing LIFF returns control to LINE on some devices, while opening a web URL can select the wrong default browser, so the verified handoff remains in the original tab.
+- The LINE success screen now gives platform-specific, bilingual system Back guidance: the top-left ‹ Chrome/‹ Safari link on iOS and the phone's Back gesture/button on Android. It confirms that the original booking tab updates automatically and no second LINE connection is needed.
+- Simulated iOS and Android LIFF completions showed the correct guidance without opening another browser; inline syntax and the website suite were checked. Exact native app switching cannot be guaranteed or tested in desktop emulation.
+
 ## 2026-10-07 — LINE connection returns to the browser that started booking
 
 - The booking page now starts a private, ten-minute LINE handoff session before opening LINE. The LIFF URL carries its id; only the original browser retains the poll key. On successful LINE verification, LINE stores the signed proof in the handoff and tells the renter to return to the original tab. The original tab polls and updates its own LINE badge and booking draft automatically, including after app switching or a reload. It no longer relies on LINE opening an external URL in the device's default browser.
