@@ -125,7 +125,7 @@ test('the in-progress rental session expires after 24 hours on each device', () 
   const boot = html.slice(html.indexOf('async function boot(){'));
   assert.ok(boot.indexOf('clearExpiredRentalSession();') < boot.indexOf('loadState();'));
   assert.doesNotMatch(boot, /cleanBookingUrl\.searchParams\.set\("booking", "1"\)/);
-  assert.match(boot, /state\.beforeRentActive = lineConnectReturn \? false : !hasRentalContext\(\)/);
+  assert.match(boot, /state\.beforeRentActive = lineConnectReturn \|\| lineProofReturned \? false : !hasRentalContext\(\)/);
   assert.match(boot, /if\(directBookingEntry\)\{[\s\S]*?cleanEntryUrl\.searchParams\.delete\("booking"\)/);
 });
 
@@ -466,7 +466,7 @@ test('the payment page confirms with AJ, shows what was received and any balance
   assert.match(success, /api\/payments\/confirm-return/);
   assert.match(success, /ยอดคงเหลือชำระตอนรับเครื่อง: \$\{result\.onDelivery\}/);
   assert.match(success, /Balance to pay on delivery: \$\{result\.onDelivery\}/);
-  assert.match(success, /กด LINE เพื่อผูกบัญชีและรับข้อความยืนยันการเช่า/);
+  assert.match(success, /ระบบกำลังยืนยันยอดและจะส่งข้อมูลการเช่าไปยัง LINE ที่เชื่อมไว้/);
   assert.doesNotMatch(success, /รับ Flex ยืนยันการเช่า/);
   assert.match(success, /index\.html\?myRental=\$\{encodeURIComponent\(rentalCode\)\}/);
   assert.match(success, /url\.searchParams\.set\("t", result\.viewToken\)/);
@@ -663,7 +663,7 @@ test('connecting LINE uses the official LIFF link and restores the booking step'
   assert.match(html, /lineAccessToken:accessToken/);
   assert.doesNotMatch(html, /liff\.login\(\{redirectUri:lineConnectReturnUrl\(\)\}\)/);
   const boot = html.slice(html.indexOf('async function boot(){'));
-  assert.match(boot, /if\(lineConnectReturn\)\{\n      state\.calc\.step = lineConnectReturn\.step;/);
+  assert.match(boot, /if\(lineConnectReturn \|\| lineProofReturned\)\{\n      state\.calc\.step = lineConnectReturn\?\.step \|\| 2;/);
   assert.match(boot, /if\(lineConnectReturn\) void pollLineConnectHandoff\(\)/);
   assert.match(html, /saveVerifiedLineConnection\(result\)/);
   assert.match(html, /toast\(tr\("contactLineConnected"\)\)/);
