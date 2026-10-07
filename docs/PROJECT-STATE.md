@@ -1,3 +1,9 @@
+## 2026-10-07 — LINE connection returns to the browser that started booking
+
+- The booking page now starts a private, ten-minute LINE handoff session before opening LINE. The LIFF URL carries its id; only the original browser retains the poll key. On successful LINE verification, LINE stores the signed proof in the handoff and tells the renter to return to the original tab. The original tab polls and updates its own LINE badge and booking draft automatically, including after app switching or a reload. It no longer relies on LINE opening an external URL in the device's default browser.
+- The website prevents launching LINE without a ready session, refreshes expired sessions, and explains retry in Thai and English. The Bot keeps a completed handoff result until expiry so a lost mobile poll response can be retried with the original poll key.
+- Verification: the live Bot start endpoint accepted the site origin; simulated original-browser sessions in Thai and English received the LINE result without URL navigation; simulated LIFF completion opened no external browser. The booking draft remained in the original browser. Browser tests used Chromium; actual Oppo Browser and iOS Safari/Chrome app switching need customer-device verification.
+
 ## 2026-10-07 — Compact booking problem dialogs and current announcement state
 
 - Short booking error dialogs now use a centered, content-height card on phones and desktops. They retain the problem-specific action and add a bilingual Close button beside the header X.
