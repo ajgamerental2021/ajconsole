@@ -10527,6 +10527,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     state.lang = state.lang === "en" ? "th" : "en";
     render();
     refreshGamePickerLangBtn();
+    refreshSectionCopyButtons();
     refreshGamePickerHowToBtn();
     renderGamePickerPlatforms();
     byId("gamePickerFrame").contentWindow?.postMessage({type:"AJ_SET_LANG", lang:state.lang}, pickerTargetOrigin());

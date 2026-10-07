@@ -9,6 +9,7 @@ test('the copy button says what it does, in both languages', () => {
   assert.match(site, /copyGameUrl:"คัดลอกลิงก์เลือกเกมกับเพื่อน"/);
   assert.match(site, /copyGameUrl:"Copy link to pick with friends"/);
   assert.doesNotMatch(site, /\.game-picker-copy-url span\{display:none\}/);
+  assert.match(site, /function toggleGamePickerLang\(\)\{[\s\S]*?refreshGamePickerLangBtn\(\);\s*refreshSectionCopyButtons\(\);/);
 });
 
 test('Copy link makes a new private shared list each time and saves every tap to it', () => {
