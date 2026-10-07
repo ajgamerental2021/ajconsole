@@ -668,7 +668,8 @@ test('connecting LINE opens the phone app directly and restores the booking step
   assert.doesNotMatch(connection, /withLoginOnExternalBrowser:true/);
   assert.match(connection, /if\(!liff\.isInClient\?\.\(\)\)\{/);
   assert.doesNotMatch(connection, /id="lineConnectReturn"/);
-  assert.match(connection, /if\(id\)\{\n        \/\/ A LIFF page cannot select the original iOS\/Android browser task/);
+  assert.match(connection, /liff\.openWindow\(\{url:returnUrl\.href,external:true\}\)/);
+  assert.doesNotMatch(connection, /id="lineReturnFallback"/);
   assert.match(connection, /if\(!response\.ok \|\| !result\.ok\) throw new Error\(result\.error/);
   assert.match(connection, /location\.replace\(returnUrl\.href\)/, 'legacy direct links retain a fallback');
   assert.doesNotMatch(html, /liff\.login\(\{redirectUri:lineConnectReturnUrl\(\)\}\)/);
@@ -679,6 +680,8 @@ test('connecting LINE opens the phone app directly and restores the booking step
   assert.match(html, /toast\(tr\("contactLineConnected"\)\)/);
   assert.match(html, /\/api\/customers\/line-connection\/start/);
   assert.match(html, /pending\.launchedAt = Date\.now\(\)/);
+  assert.match(html, /contactLineBrowserNote:"หมายเหตุ:.*Chrome และ Safari เท่านั้น"/);
+  assert.match(html, /contactLineBrowserNote:"Note:.*Chrome and Safari only\."/);
   assert.match(html, /if\(UNIFIED_FLOW_DEMO && state\.calc\.step === 2.*ensureLineConnectHandoff\(\)/);
 });
 

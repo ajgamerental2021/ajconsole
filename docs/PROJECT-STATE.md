@@ -1,3 +1,9 @@
+## 2026-10-07 — Automatic browser return after LINE connection restored
+
+- Per owner request, a successful LINE connection now opens the verified booking URL in the phone's external browser automatically again. The browser-to-LINE handoff remains: the original tab still polls with its private key, while the return URL carries the signed LINE proof for the browser opened by the OS. No manual return button appears on the success screen. A failed external open automatically navigates the current view; a later revisit to LINE does not trigger another redirect.
+- Step 2 adds a Thai/English note under the LINE action that automatic return is supported for Chrome and Safari only. The pending message now says the booking will reopen automatically.
+- Chromium simulations in both languages verified external open with a signed proof, no return button, and the visible support note. Browser choice and restoration of the exact tab are controlled by iOS/Android, so physical Chrome/Safari app switching still needs device verification.
+
 ## 2026-10-07 — Fast return from LINE to the original booking browser
 
 - A LIFF page cannot activate the exact Oppo Browser, Chrome or Safari tab that opened LINE. Closing LIFF returns control to LINE on some devices, while opening a web URL can select the wrong default browser, so the verified handoff remains in the original tab.
