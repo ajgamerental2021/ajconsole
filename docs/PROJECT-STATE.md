@@ -1,3 +1,9 @@
+## 2026-10-07 — Delivery App My rental copy links use the AJ website
+
+- The Booking Log's TH and EN copy buttons now receive `https://ajgamerental.com/my-rental/?t=<signed token>&lang=th|en` from the Delivery App. The open button and Customers screen use the same website entry. Bookings with only a Booking ID are supported too.
+- The static `/my-rental/` page validates the token's shape, preserves the selected language, and forwards it to Delivery App's existing signed-token customer page. A missing or malformed token shows a bilingual error and a link back to AJ. No booking or LINE account data is embedded in the website page.
+- Tests: Delivery App My rental token/route suite, backend build, website bridge tests in both languages; live website and Delivery App deployment check pending at the time of this entry.
+
 ## 2026-10-07 — LINE linking and My rental checks have bounded waits
 
 - Traced the two customer entrances: Rich Menu My rental opens Delivery `/c/my`, while a shop or email bind link opens website `/line-bind/` and then Delivery `/c/my/link` (or `/c/my/bind-from-rental`). The website's separate My rental popup also says “Checking”. The customer screenshot does not identify which form stalled, and no private customer token was replayed.

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>คิวเช่าของฉัน · AJ Game Rental</title>
+  <style>
+    body{font:16px/1.6 system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;background:#f5f7fb;color:#172033;min-height:100vh;margin:0;display:grid;place-items:center;padding:20px;box-sizing:border-box}
+    main{background:#fff;border:1px solid #dce2eb;border-radius:18px;max-width:440px;width:100%;padding:28px;box-sizing:border-box;box-shadow:0 8px 30px #19233b0d}
+    h1{font-size:22px;margin:0 0 8px}p{margin:0 0 18px;color:#526079}a{color:#c90012;font-weight:700}
+  </style>
+</head>
+<body>
+  <main>
+    <h1 id="heading">กำลังเปิดคิวเช่าของฉัน…</h1>
+    <p id="message">หากหน้านี้ไม่เปลี่ยน กรุณากดลิงก์ด้านล่าง</p>
+    <a id="continue" href="https://ajgamerental.com/">ไปหน้าคิวเช่า</a>
+  </main>
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var token = params.get('t') || '';
+      var lang = params.get('lang') === 'en' ? 'en' : 'th';
+      var en = lang === 'en';
+      document.documentElement.lang = lang;
+      document.title = (en ? 'My rental' : 'คิวเช่าของฉัน') + ' · AJ Game Rental';
+      var heading = document.getElementById('heading');
+      var message = document.getElementById('message');
+      var link = document.getElementById('continue');
+      if (!/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token) || token.length > 1024) {
+        heading.textContent = en ? 'This link cannot be opened' : 'ลิงก์นี้เปิดไม่ได้';
+        message.textContent = en ? 'Please ask AJ for a new My rental link.' : 'กรุณาขอลิงก์คิวเช่าใหม่จากทางร้าน';
+        link.textContent = en ? 'Back to AJ Game Rental' : 'กลับไปหน้ารายการเช่า';
+        link.href = 'https://ajgamerental.com/?lang=' + lang;
+        return;
+      }
+      var target = 'https://delivery-app-backend-68pm.onrender.com/c/my/r/'
+        + encodeURIComponent(token) + '?lang=' + lang;
+      heading.textContent = en ? 'Opening My rental…' : 'กำลังเปิดคิวเช่าของฉัน…';
+      message.textContent = en ? 'If the page does not open, tap the link below.' : 'หากหน้านี้ไม่เปลี่ยน กรุณากดลิงก์ด้านล่าง';
+      link.textContent = en ? 'Open My rental' : 'เปิดคิวเช่าของฉัน';
+      link.href = target;
+      location.replace(target);
+    })();
+  </script>
+</body>
+</html>
