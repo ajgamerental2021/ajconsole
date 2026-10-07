@@ -2680,3 +2680,8 @@ paused job shows slightly old numbers rather than an empty section.
 
 - Switching the game picker between Thai and English now refreshes its shared-link button along with the other controls. Previously the label was set when the picker opened and remained Thai after switching the picker to English.
 - Verified Thai → English → Thai and English → Thai → English in Chromium at 375px and 1280px, with no horizontal overflow or page errors. Website inline JavaScript syntax and all 298 tests passed.
+
+## 2026-10-07 — Shared game link button line break
+
+- The picker share button now keeps “กับเพื่อน” and “with friends” on their own second line in Thai and English. The translation contains the intentional newline and the label preserves it with `white-space: pre-line`.
+- Verified both languages and a language switch at 375px and 1280px in Chromium: exactly two lines, no button or page overflow, no page errors. Focused share-link tests and inline JavaScript syntax passed.

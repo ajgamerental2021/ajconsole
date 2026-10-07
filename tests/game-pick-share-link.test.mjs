@@ -6,9 +6,10 @@ const site = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const picker = fs.readFileSync(new URL('../game_index.html', import.meta.url), 'utf8');
 
 test('the copy button says what it does, in both languages', () => {
-  assert.match(site, /copyGameUrl:"คัดลอกลิงก์เลือกเกมกับเพื่อน"/);
-  assert.match(site, /copyGameUrl:"Copy link to pick with friends"/);
+  assert.match(site, /copyGameUrl:"คัดลอกลิงก์เลือกเกม\\nกับเพื่อน"/);
+  assert.match(site, /copyGameUrl:"Copy link to pick\\nwith friends"/);
   assert.doesNotMatch(site, /\.game-picker-copy-url span\{display:none\}/);
+  assert.match(site, /\.game-picker-copy-url span\{white-space:pre-line;text-align:center\}/);
   assert.match(site, /function toggleGamePickerLang\(\)\{[\s\S]*?refreshGamePickerLangBtn\(\);\s*refreshSectionCopyButtons\(\);/);
 });
 
