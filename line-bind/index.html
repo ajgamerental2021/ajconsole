@@ -7,18 +7,38 @@
   <title>ผูก LINE · AJ Game Rental</title>
   <style>body{font:16px system-ui,sans-serif;color:#202532;background:#f6f7fa;margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;box-sizing:border-box}.card{max-width:440px;background:#fff;padding:32px;border-radius:20px;box-shadow:0 8px 32px #1b253015;text-align:center}h1{font-size:23px}p{line-height:1.6}a{color:#be1e2d}</style>
 </head>
-<body><main class="card"><h1 id="title">กำลังเปิดหน้าผูก LINE</h1><p id="message">กรุณารอสักครู่…</p></main>
+<body><main class="card"><h1 id="title">กำลังเปิดหน้าผูก LINE</h1><p id="message">กรุณารอสักครู่…</p><p id="fallback"><a id="retry" href="#">เปิดหน้าผูก LINE อีกครั้ง</a></p></main>
 <script>
   const params = new URLSearchParams(location.search);
   const token = params.get('t') || '';
   const rentalToken = params.get('r') || '';
   const lang = params.get('lang') === 'en' ? 'en' : 'th';
   document.documentElement.lang = lang;
-  if(/^[A-Za-z0-9_-]{16,256}$/.test(token)) {
-    location.replace('https://delivery-app-backend-68pm.onrender.com/c/my/link?t=' + encodeURIComponent(token) + '&lang=' + lang);
-  } else if(/^[A-Za-z0-9_-]{10,256}\.[A-Za-z0-9_-]{40,64}$/.test(rentalToken)) {
-    location.replace('https://delivery-app-backend-68pm.onrender.com/c/my/bind-from-rental?t=' + encodeURIComponent(rentalToken) + '&lang=' + lang);
+  const base = 'https://delivery-app-backend-68pm.onrender.com/c/my/';
+  const target = /^[A-Za-z0-9_-]{16,256}$/.test(token)
+    ? base + 'link?t=' + encodeURIComponent(token) + '&lang=' + lang
+    : /^[A-Za-z0-9_-]{10,256}\.[A-Za-z0-9_-]{40,64}$/.test(rentalToken)
+      ? base + 'bind-from-rental?t=' + encodeURIComponent(rentalToken) + '&lang=' + lang : '';
+  if(target) {
+    const retry = document.getElementById('retry');
+    retry.href = target;
+    retry.textContent = lang === 'en' ? 'Open LINE linking page again' : 'เปิดหน้าผูก LINE อีกครั้ง';
+    document.getElementById('title').textContent = lang === 'en' ? 'Opening LINE linking' : 'กำลังเปิดหน้าผูก LINE';
+    document.getElementById('message').textContent = lang === 'en' ? 'Please wait a moment…' : 'กรุณารอสักครู่…';
+    // Check that the destination answers before navigating. Otherwise the
+    // browser can leave this loading card on screen for an unlimited time.
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+    fetch(target, {mode:'no-cors', cache:'no-store', signal:controller.signal})
+      .then(() => location.replace(target))
+      .catch(() => {
+        document.getElementById('message').textContent = lang === 'en'
+          ? 'The linking page did not respond. Tap below to try again.'
+          : 'หน้าผูก LINE ไม่ตอบกลับ กดด้านล่างเพื่อลองใหม่';
+      })
+      .finally(() => clearTimeout(timer));
   } else {
+    document.getElementById('fallback').hidden = true;
     document.getElementById('title').textContent = lang === 'en' ? 'Invalid LINE link' : 'ลิงก์ผูก LINE ไม่ถูกต้อง';
     document.getElementById('message').innerHTML = lang === 'en' ? 'Please request a new link from AJ Game Rental.' : 'กรุณาขอลิงก์ใหม่จากร้าน AJ Game Rental';
   }

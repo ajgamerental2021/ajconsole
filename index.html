@@ -9163,13 +9163,25 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return rememberedRentals().find(item => item.code === String(code || "").trim().toUpperCase())?.token || "";
   }
   async function lookupMyRental(query){
-    const response = await fetch(`${CONFIG.apiBase}/api/rentals/lookup`, {
-      method:"POST",
-      cache:"no-store",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(query)
-    });
-    const result = await response.json().catch(() => ({}));
+    const controller = new AbortController();
+    let timer;
+    let response, result;
+    try{
+      ({response, result} = await Promise.race([
+        fetch(`${CONFIG.apiBase}/api/rentals/lookup`, {
+          method:"POST",
+          cache:"no-store",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify(query),
+          signal:controller.signal
+        }).then(async response => ({response, result:await response.json().catch(() => ({}))})),
+        new Promise((_, reject) => {
+          timer = setTimeout(() => { reject(new Error("timeout")); controller.abort(); }, 12000);
+        })
+      ]));
+    }finally{
+      clearTimeout(timer);
+    }
     if(response.ok && (result?.rental || result?.rentals)){
       const rentals = result.rentals || [result.rental];
       rentals.forEach(rental => rememberRental(rental.rentalCode, rental.viewToken));
@@ -9183,6 +9195,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(reason === "too_many") return en ? "Too many tries. Please wait 15 minutes, or contact AJ on LINE." : "ลองหลายครั้งเกินไป กรุณารอ 15 นาที หรือติดต่อร้านทาง LINE";
     if(reason === "incomplete") return en ? "Enter the Rental ID or email, and the phone number you booked with." : "กรอกรหัสการเช่าหรืออีเมล และเบอร์โทรที่ใช้จอง";
     if(reason === "link_expired") return en ? "This link no longer opens the rental. Enter the Rental ID or email and phone number instead." : "ลิงก์นี้เปิดรายการไม่ได้แล้ว กรุณากรอกรหัสการเช่าหรืออีเมล และเบอร์โทรแทน";
+    if(reason === "timeout") return en ? "The check took too long. Please tap Check rental again." : "การตรวจสอบใช้เวลานานเกินไป กรุณากดตรวจสอบรายการอีกครั้ง";
     return en ? "The rental could not be loaded right now. Please try again." : "ตอนนี้โหลดรายการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
   }
   function myRentalDetailsHtml(rental){
