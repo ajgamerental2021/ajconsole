@@ -1291,7 +1291,12 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   body.unified-flow-demo .demo-contact-channel>b{display:block;font-size:16px;font-weight:900;color:#202633}
   body.unified-flow-demo .demo-contact-channel>p{margin:4px 0 0;color:#475467;font-size:13px;line-height:1.5}
   body.unified-flow-demo .demo-contact-channel-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
-  body.unified-flow-demo .demo-contact-channel-actions .btn{min-height:44px}
+  body.unified-flow-demo .demo-contact-channel-actions .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:9px}
+  body.unified-flow-demo .demo-contact-channel-actions .btn svg{width:22px;height:22px;flex:none}
+  body.unified-flow-demo .demo-contact-channel-actions .demo-line-btn{background:#06c755;border-color:#06c755;color:#fff}
+  body.unified-flow-demo .demo-contact-channel-actions .demo-line-btn:hover{background:#05b84f;border-color:#05b84f;color:#fff}
+  body.unified-flow-demo .demo-contact-channel-actions .demo-wa-btn{background:#075e54;border-color:#075e54;color:#fff}
+  body.unified-flow-demo .demo-contact-channel-actions .demo-wa-btn:hover{background:#06483f;border-color:#06483f;color:#fff}
   body.unified-flow-demo .demo-contact-connected{display:inline-block;padding:9px 12px;border:1px solid #a7dfbc;border-radius:10px;background:#edf9f1;color:#176b39;font-weight:800}
   body.unified-flow-demo .demo-contact-channel .demo-contact-channel-note{color:#176b39;font-weight:700}
   .before-rent-head .before-rent-hero-terms{display:inline-block;margin:14px auto 0;padding:6px 15px;border:1px solid #ffd0d4;border-radius:999px;background:#fff3f4;color:#ad0013;font-size:clamp(13px,1.2vw,15px);font-weight:600;line-height:1.4}
@@ -2112,8 +2117,9 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       contactChannelEnglishHelp:"เลือก LINE หรือ WhatsApp ได้ หรือใช้เบอร์โทรและอีเมลต่อโดยไม่เชื่อมตอนนี้",
       contactLineConnect:"เชื่อม LINE เพื่อรับข้อมูลการจอง",
       contactLineConnected:"เชื่อม LINE แล้ว",
+      contactLinePending:"กำลังรอการยืนยันจาก LINE",
+      contactLineRetry:"เปิด LINE อีกครั้ง",
       contactWhatsApp:"ใช้ WhatsApp",
-      contactEmailOnly:"ใช้เบอร์โทรและอีเมล",
       contactEmailSelected:"ใช้เบอร์โทรและอีเมลสำหรับรับข้อมูลการจอง",
       contactWhatsAppSelected:"เลือก WhatsApp แล้ว กรุณากดส่งข้อความที่เตรียมไว้ในแชท",
       contactLineRequired:"กรุณาเชื่อม LINE ให้สำเร็จก่อนดำเนินการต่อ",
@@ -2251,11 +2257,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       identityUploadedPreview:"View uploaded photo larger",
       contactChannelTitle:"Booking updates",
       contactChannelThaiHelp:"Connect LINE before payment to receive your booking updates",
-      contactChannelEnglishHelp:"Connect LINE or use WhatsApp, or continue with your phone and email",
+      contactChannelEnglishHelp:"Connect LINE or use WhatsApp for booking updates. You can also continue using your phone and email.",
       contactLineConnect:"Connect LINE",
       contactLineConnected:"LINE connected",
+      contactLinePending:"Waiting for LINE verification",
+      contactLineRetry:"Open LINE again",
       contactWhatsApp:"Use WhatsApp",
-      contactEmailOnly:"Continue with email",
       contactEmailSelected:"We will use your phone and email for booking updates",
       contactWhatsAppSelected:"WhatsApp selected. Send the prepared message in the chat to reach AJ",
       contactLineRequired:"Connect LINE successfully before continuing",
@@ -4334,6 +4341,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     renderUnifiedFlowDemo();
     renderGuide();
   }
+  function contactBrandIcon(channel){
+    if(channel === "line") return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2.5c-5.7 0-10.3 3.7-10.3 8.3 0 4.2 3.6 7.6 8.4 8.2l-.5 2.6c-.1.6.5.9 1 .6l3.7-3.3c4.6-.8 8-4.1 8-8.1C22.3 6.2 17.7 2.5 12 2.5Z"/><text x="12" y="13.2" text-anchor="middle" fill="#06c755" font-size="6" font-family="Arial,sans-serif" font-weight="900">LINE</text></svg>`;
+    return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a9.7 9.7 0 0 0-8.4 14.5L2.5 21l4.7-1.1A9.7 9.7 0 1 0 12 2Zm0 17.5a7.8 7.8 0 0 1-4-1.1l-.3-.2-2.7.6.6-2.6-.2-.3A7.8 7.8 0 1 1 12 19.5Z"/><path fill="currentColor" d="M8.1 7.4c-.3 0-.6.1-.8.4-.3.4-.9 1-.9 2.3 0 1.4 1 2.7 1.1 2.9.2.2 2 3.3 5 4.4 2.5.9 3 .7 3.5.6.5-.1 1.6-.7 1.8-1.4.2-.7.2-1.3.1-1.4-.1-.2-.5-.3-1-.5l-1.6-.8c-.2-.1-.4-.2-.5.1l-.7.9c-.2.2-.3.3-.6.1-.3-.1-1.2-.4-2.2-1.3-.8-.7-1.3-1.6-1.5-1.9-.2-.3 0-.4.1-.6l.5-.6c.1-.2.2-.4.3-.6.1-.2 0-.4 0-.6l-.8-1.9c-.2-.5-.4-.5-.8-.5Z"/></svg>`;
+  }
   function renderUnifiedFlowDemo(){
     if(!UNIFIED_FLOW_DEMO) return;
     document.body.classList.add("unified-flow-demo");
@@ -4355,7 +4366,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(["Bangkok","กรุงเทพมหานคร"].includes(demoProfile.province)) demoProfile.province = demoAddressAutofilled.province = en ? "Bangkok" : "กรุงเทพมหานคร";
     localizeDemoAddress();
     card.innerHTML = `<h3>${en ? "Customer and delivery details" : "ข้อมูลลูกค้าและที่อยู่จัดส่ง"}</h3>
-      ${payResume.active ? "" : `<section class="demo-contact-channel"><b>${esc(tr("contactChannelTitle"))}</b><p>${esc(tr(en ? "contactChannelEnglishHelp" : "contactChannelThaiHelp"))}</p><div class="demo-contact-channel-actions">${bookingLineConnection() ? `<span class="demo-contact-connected">${esc(tr("contactLineConnected"))}${demoProfile.lineDisplayName ? ` · ${esc(demoProfile.lineDisplayName)}` : ""}</span>` : `<button class="btn primary" id="lineConnectBtn" type="button">${esc(tr("contactLineConnect"))}</button>`}${en ? `<button class="btn" id="demoWhatsAppConnectBtn" type="button" aria-pressed="${demoProfile.preferredContactChannel === "whatsapp"}">${esc(tr("contactWhatsApp"))}</button><button class="btn" id="demoEmailContactBtn" type="button" aria-pressed="${!demoProfile.preferredContactChannel}">${esc(tr("contactEmailOnly"))}</button>` : ""}</div>${en && demoProfile.preferredContactChannel === "whatsapp" ? `<p class="demo-contact-channel-note">${esc(tr("contactWhatsAppSelected"))}</p>` : en && !demoProfile.preferredContactChannel ? `<p class="demo-contact-channel-note">${esc(tr("contactEmailSelected"))}</p>` : ""}</section>`}
+      ${payResume.active ? "" : `<section class="demo-contact-channel"><b>${esc(tr("contactChannelTitle"))}</b><p>${esc(tr(en ? "contactChannelEnglishHelp" : "contactChannelThaiHelp"))}</p><div class="demo-contact-channel-actions">${bookingLineConnection() ? `<span class="demo-contact-connected">${esc(tr("contactLineConnected"))}${demoProfile.lineDisplayName ? ` · ${esc(demoProfile.lineDisplayName)}` : ""}</span>` : `${pendingLineConnectHandoff() ? `<span class="demo-contact-connected">${esc(tr("contactLinePending"))}</span>` : ""}<button class="btn demo-line-btn" id="lineConnectBtn" type="button">${contactBrandIcon("line")}${esc(tr(pendingLineConnectHandoff() ? "contactLineRetry" : "contactLineConnect"))}</button>`}${en ? `<button class="btn demo-wa-btn" id="demoWhatsAppConnectBtn" type="button" aria-pressed="${demoProfile.preferredContactChannel === "whatsapp"}">${contactBrandIcon("whatsapp")}${esc(tr("contactWhatsApp"))}</button>` : ""}</div>${en && demoProfile.preferredContactChannel === "whatsapp" ? `<p class="demo-contact-channel-note">${esc(tr("contactWhatsAppSelected"))}</p>` : en && !demoProfile.preferredContactChannel ? `<p class="demo-contact-channel-note">${esc(tr("contactEmailSelected"))}</p>` : ""}</section>`}
       ${state.calc.retVerified && hasVerifiedAgreementRecord() && demoIdentityExpired() ? `<div class="demo-choice-warning">${en ? "The ID card or passport on your agreement has expired, or expires before the return date, so a new Master Agreement and renewed identity verification are required before this rental. Please upload your current document in step 3." : "บัตรประชาชนหรือ Passport ในสัญญาเดิมหมดอายุแล้ว หรือหมดอายุก่อนวันคืนเครื่อง ต้องทำข้อตกลงหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้งก่อนเช่าครั้งนี้ กรุณาอัปโหลดรูปเอกสารฉบับปัจจุบันในขั้นตอนที่ 3"}</div>` : ""}
       ${demoIdentityCoveredByAgreement() ? `<div class="demo-contract-status">${esc(demoAgreementCoverText())}</div>` : ""}
       ${activeVip() ? `<div class="demo-contract-status"><b>VIP: ${esc(activeVip().name)}</b><br>${esc(en ? "Your personal VIP rental and security-deposit rates are applied automatically." : "ระบบใช้ราคาค่าเช่าและค่าประกัน VIP ของคุณให้อัตโนมัติแล้ว")}</div>` : ""}
@@ -11461,10 +11472,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
       return true;
     }
   }
-  // LINE sign-in leaves the page. Without a return address LINE sends the
-  // customer to the LIFF's home page (the Before rent screen) and the booking
-  // looks lost, so remember the step and come back to the booking page.
+  // A LIFF permalink opens inside LINE. Its browser storage is separate from
+  // Chrome/Safari, so the Bot bridges the verified LINE profile back to this tab.
   const LINE_CONNECTION_KEY = "aj_line_connection_v1";
+  const LINE_CONNECT_HANDOFF_KEY = "aj_line_connect_handoff_v1";
+  let lineConnectPollTimer = 0;
   function activeLineConnection(){
     try{
       const saved = JSON.parse(localStorage.getItem(LINE_CONNECTION_KEY) || "null");
@@ -11474,6 +11486,18 @@ We apologize for the inconvenience and hope everyone stays safe.`
   }
   function bookingLineConnection(){
     return state.lang === "th" || demoProfile.preferredContactChannel === "line" ? activeLineConnection() : null;
+  }
+  function saveVerifiedLineConnection(result){
+    if(!/^U[a-f0-9]{32}$/i.test(String(result?.lineUserId || "")) || !result.connectionToken || Number(result.expiresAt) <= Date.now()) return false;
+    localStorage.setItem(LINE_CONNECTION_KEY, JSON.stringify({userId:result.lineUserId, displayName:result.displayName || "", token:result.connectionToken, expiresAt:result.expiresAt}));
+    localStorage.setItem("aj_line_unique_id", result.lineUserId);
+    localStorage.setItem("aj_line_display_name", result.displayName || "");
+    demoProfile.lineUserId = result.lineUserId;
+    demoProfile.lineDisplayName = result.displayName || "";
+    if(state.lang === "en") demoProfile.preferredContactChannel = "line";
+    saveDemoProfile({now:true});
+    render();
+    return true;
   }
   async function verifyCurrentLineSession(existingLiff=null, existingProfile=null){
     const liff = existingLiff || await loadLineSdk();
@@ -11486,81 +11510,128 @@ We apologize for the inconvenience and hope everyone stays safe.`
       body:JSON.stringify({lineAccessToken:accessToken})
     }, 12000);
     const result = await response.json().catch(() => ({}));
-    if(!response.ok || !result.ok || !/^U[a-f0-9]{32}$/i.test(result.lineUserId) || !result.connectionToken) return false;
+    if(!response.ok || !result.ok) return false;
     const profile = existingProfile || await liff.getProfile().catch(() => null);
     if(profile?.userId && profile.userId !== result.lineUserId) return false;
-    localStorage.setItem(LINE_CONNECTION_KEY, JSON.stringify({userId:result.lineUserId, displayName:result.displayName || "", token:result.connectionToken, expiresAt:result.expiresAt}));
-    localStorage.setItem("aj_line_unique_id", result.lineUserId);
-    localStorage.setItem("aj_line_display_name", result.displayName || "");
-    demoProfile.lineUserId = result.lineUserId;
-    demoProfile.lineDisplayName = result.displayName || "";
-    if(state.lang === "en") demoProfile.preferredContactChannel = "line";
-    saveDemoProfile({now:true});
-    render();
-    return true;
+    return saveVerifiedLineConnection(result);
   }
-  const LINE_CONNECT_RETURN_KEY = "aj_line_connect_return_v1";
-  const LINE_CONNECT_RETURN_TTL_MS = 15 * 60 * 1000;
-  function lineConnectReturnUrl(){
-    const url = new URL(location.href);
-    ["code","state","liffClientId","liffRedirectUri","error","error_description"].forEach(key => url.searchParams.delete(key));
-    url.searchParams.set("booking", "1");
-    url.searchParams.set("lang", state.lang === "en" ? "en" : "th");
-    url.hash = "";
-    return url.href;
-  }
-  function takeLineConnectReturn(){
+  function pendingLineConnectHandoff(){
     try{
-      const saved = JSON.parse(localStorage.getItem(LINE_CONNECT_RETURN_KEY) || "null");
-      localStorage.removeItem(LINE_CONNECT_RETURN_KEY);
-      if(!saved || Date.now() - Number(saved.at || 0) > LINE_CONNECT_RETURN_TTL_MS) return null;
-      return {step:Math.min(3, Math.max(1, Number(saved.step) || 1))};
-    }catch{
-      return null;
-    }
+      const saved = JSON.parse(localStorage.getItem(LINE_CONNECT_HANDOFF_KEY) || "null");
+      if(!saved || !/^[A-Za-z0-9_-]{32,64}$/.test(saved.id) || !/^[A-Za-z0-9_-]{32,64}$/.test(saved.pollKey) || Number(saved.expiresAt) <= Date.now()){
+        localStorage.removeItem(LINE_CONNECT_HANDOFF_KEY);
+        return null;
+      }
+      return saved;
+    }catch{ return null; }
   }
-  function finishLineConnectReturn(){
-    try{ history.replaceState(null, "", lineConnectReturnUrl()); }catch{}
-    const lineUserId = activeLineConnection()?.userId || "";
-    if(!lineUserId){
-      toast(state.lang === "en" ? "LINE was not connected. Please try again." : "ยังเชื่อมต่อ LINE ไม่สำเร็จ กรุณาลองอีกครั้ง");
-      return;
-    }
-    if(UNIFIED_FLOW_DEMO){
-      demoProfile.lineUserId = lineUserId;
-      demoProfile.lineDisplayName = String(localStorage.getItem("aj_line_display_name") || "");
-    }
-    render();
-    toast(state.lang === "en" ? "LINE connected" : "เชื่อมต่อ LINE แล้ว");
-    window.setTimeout(() => {
-      const card = byId("demoCustomerCard");
-      if(card && card.offsetParent) card.scrollIntoView({behavior:"smooth", block:"start"});
-    }, 150);
-  }
-  async function connectLine(){
+  async function pollLineConnectHandoff(){
+    clearTimeout(lineConnectPollTimer);
+    const pending = pendingLineConnectHandoff();
+    if(!pending) return;
     try{
-      const liff = await loadLineSdk();
-      await liff.init({liffId:activeLineLiffId()});
-      if(!liff.isLoggedIn()){
-        saveLocal();
-        saveDemoProfile({now:true});
-        try{ localStorage.setItem(LINE_CONNECT_RETURN_KEY, JSON.stringify({at:Date.now(), step:state.calc.step})); }catch{}
-        liff.login({redirectUri:lineConnectReturnUrl()});
+      const response = await bookingFetch(new URL(`/api/customers/line-connection/${encodeURIComponent(pending.id)}`, CONFIG.contractWebUrl), {
+        cache:"no-store", headers:{"X-Line-Connection-Key":pending.pollKey}
+      }, 10000);
+      const result = await response.json().catch(() => ({}));
+      if(response.ok && result.status === "connected"){
+        localStorage.removeItem(LINE_CONNECT_HANDOFF_KEY);
+        if(saveVerifiedLineConnection(result)){
+          state.calc.step = pending.step;
+          state.beforeRentActive = false;
+          saveLocal();
+          render();
+          toast(tr("contactLineConnected"));
+          byId("demoCustomerCard")?.scrollIntoView({behavior:"smooth",block:"start"});
+          return;
+        }
+      }
+      if(response.status === 404 || result.status === "connected"){
+        localStorage.removeItem(LINE_CONNECT_HANDOFF_KEY);
+        if(!activeLineConnection()) toast(tr("contactLineFailed"));
         return;
       }
-      const profile = await liff.getProfile();
-      if(!(await verifyCurrentLineSession(liff, profile))) throw new Error("line_connection_not_verified");
-      void detectLineReturningEligibility(liff, profile);
-      if(UNIFIED_FLOW_DEMO){
-        demoProfile.lineUserId = String(profile.userId || "");
-        demoProfile.lineDisplayName = String(profile.displayName || "");
-        render();
+    }catch(error){ console.warn("LINE connection polling will retry", error); }
+    lineConnectPollTimer = window.setTimeout(pollLineConnectHandoff, document.visibilityState === "visible" ? 2000 : 5000);
+  }
+  function lineConnectionLiffUrl(id, language){
+    const url = new URL(`https://liff.line.me/${CONFIG.lineLiffId}`);
+    url.searchParams.set("lineConnect", "1");
+    url.searchParams.set("id", id);
+    url.searchParams.set("lang", language === "en" ? "en" : "th");
+    return url.href;
+  }
+  async function connectLine(){
+    saveLocal();
+    saveDemoProfile({now:true});
+    // Open synchronously with the tap; mobile popup blockers would otherwise
+    // reject a tab opened after the async session request.
+    const tab = window.open("about:blank", "_blank");
+    if(tab) tab.document.body.innerHTML = `<p style="font:18px system-ui;padding:30px">${esc(state.lang === "en" ? "Opening LINE…" : "กำลังเปิด LINE…")}</p>`;
+    try{
+      const existing = pendingLineConnectHandoff();
+      if(existing){
+        const url = lineConnectionLiffUrl(existing.id, existing.lang);
+        if(tab && !tab.closed) tab.location.replace(url);
+        else showModal("LINE", `<a class="btn line-share" href="${esc(url)}" target="_blank" rel="noopener">${esc(tr("contactLineRetry"))}</a>`);
+        void pollLineConnectHandoff();
+        return;
       }
-      toast(state.lang==="en" ? "LINE connected" : "เชื่อมต่อ LINE แล้ว");
-      renderSummary();
+      const response = await bookingFetch(new URL("/api/customers/line-connection/start", CONFIG.contractWebUrl), {method:"POST",cache:"no-store"}, 10000);
+      const session = await response.json().catch(() => ({}));
+      if(!response.ok || !session.ok || !/^[A-Za-z0-9_-]{32,64}$/.test(session.id) || !session.pollKey) throw new Error("line_connection_start_failed");
+      localStorage.setItem(LINE_CONNECT_HANDOFF_KEY, JSON.stringify({...session,step:state.calc.step,lang:state.lang}));
+      const url = lineConnectionLiffUrl(session.id, state.lang);
+      if(tab && !tab.closed) tab.location.replace(url);
+      else showModal("LINE", `<p>${esc(state.lang === "en" ? "Open LINE to connect your account, then return to this page." : "เปิด LINE เพื่อเชื่อมบัญชี แล้วกลับมาหน้านี้")}</p><a class="btn line-share" href="${esc(url)}" target="_blank" rel="noopener">${esc(tr("contactLineConnect"))}</a>`);
+      void pollLineConnectHandoff();
     }catch(error){
-      showModal("LINE", `<p class="hint">${esc(state.lang==="en" ? "Unable to connect LINE. Please check LIFF ID in settings." : "เชื่อมต่อ LINE ไม่สำเร็จ กรุณาตรวจสอบ LIFF ID ใน settings")}</p>`);
+      if(tab && !tab.closed) tab.close();
+      console.error("LINE connection start failed", error);
+      toast(tr("contactLineFailed"));
     }
+  }
+  async function completeLineConnectionHandoff(){
+    const params = lineBookingHandoffParams();
+    if(params.get("lineConnect") !== "1") return false;
+    const id = String(params.get("id") || "");
+    const en = params.get("lang") === "en";
+    if(!/^[A-Za-z0-9_-]{32,64}$/.test(id)) return false;
+    const returnUrl = `https://ajgamerental.com/?booking=1&lang=${en ? "en" : "th"}`;
+    document.body.innerHTML = `<main style="min-height:100vh;display:grid;place-items:center;padding:24px;background:#f5f7fb"><section style="max-width:520px;text-align:center;background:#fff;border:1px solid #d9dee8;border-radius:22px;padding:30px;box-shadow:0 12px 35px rgba(15,23,42,.12)"><h1 style="font-size:22px;margin:0 0 12px">${en ? "Connecting LINE" : "กำลังเชื่อม LINE"}</h1><p style="color:#667085">${en ? "Verifying your LINE account…" : "กำลังยืนยันบัญชี LINE…"}</p></section></main>`;
+    const panel = document.body.querySelector("section");
+    try{
+      const liff = await bookingWait(loadLineSdk());
+      await bookingWait(liff.init({liffId:CONFIG.lineLiffId}));
+      if(!liff.isLoggedIn() && liff.isInClient?.()){
+        liff.login();
+        return true;
+      }
+      if(!liff.isLoggedIn()){
+        const official = new URL(`https://line.me/R/app/${CONFIG.lineLiffId}`);
+        official.searchParams.set("lineConnect", "1");
+        official.searchParams.set("id", id);
+        official.searchParams.set("lang", en ? "en" : "th");
+        panel.innerHTML = `<h1>${en ? "Open in LINE" : "เปิดในแอป LINE"}</h1><p>${en ? "Open this link in the LINE app to verify your account." : "เปิดลิงก์นี้ในแอป LINE เพื่อยืนยันบัญชี"}</p><a class="btn line-share" href="${esc(official.href)}">${en ? "Open LINE" : "เปิด LINE"}</a>`;
+        return true;
+      }
+      const accessToken = String(liff.getAccessToken?.() || "").trim();
+      if(!accessToken) throw new Error("line_access_token_missing");
+      const response = await bookingFetch(new URL("/api/customers/line-connection/complete", CONFIG.contractWebUrl), {
+        method:"POST",cache:"no-store",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({id,lineAccessToken:accessToken})
+      }, 12000);
+      if(!response.ok) throw new Error(`line_connection_complete_${response.status}`);
+      panel.innerHTML = `<h1>${en ? "LINE connected" : "เชื่อม LINE แล้ว"}</h1><p>${en ? "Return to the booking page to continue where you left off." : "กลับไปหน้าจองเพื่อทำรายการต่อจากขั้นตอนเดิม"}</p><button class="btn line-share" id="lineConnectReturn" type="button">${en ? "Return to booking" : "กลับหน้าจอง"}</button>`;
+      panel.querySelector("#lineConnectReturn").addEventListener("click", () => {
+        if(liff.isInClient?.() && liff.openWindow) liff.openWindow({url:returnUrl,external:true});
+        else location.href = returnUrl;
+      });
+    }catch(error){
+      console.error("LINE connection completion failed", error);
+      panel.innerHTML = `<h1>${en ? "Could not connect LINE" : "เชื่อม LINE ไม่สำเร็จ"}</h1><p>${en ? "Return to the booking page and try again." : "กลับหน้าจองแล้วลองเชื่อมใหม่อีกครั้ง"}</p><a class="btn" href="${esc(returnUrl)}">${en ? "Return to booking" : "กลับหน้าจอง"}</a>`;
+    }
+    return true;
   }
   function detectLineReturningEligibility(existingLiff=null, existingProfile=null){
     if(returningLineCheckPromise) return returningLineCheckPromise;
@@ -13942,12 +14013,6 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "shareContractFirst"){ closeShareConfirmModal(false); openContract(); }
       if(targetId === "reviewGoogleBtn"){ event.preventDefault(); event.stopPropagation(); open("https://maps.app.goo.gl/QoGqkWe64QRxBGjT6", "_blank"); }
       if(targetId === "reviewFacebookBtn"){ event.preventDefault(); event.stopPropagation(); open("https://www.facebook.com/ajgamerental/reviews", "_blank"); }
-      if(targetId === "demoEmailContactBtn"){
-        demoProfile.preferredContactChannel = "";
-        saveDemoProfile({now:true});
-        render();
-        return;
-      }
       if(targetId === "demoWhatsAppConnectBtn"){ await chooseDemoWhatsApp(); return; }
       if(targetId === "lineConnectBtn") connectLine();
       if(targetId === "lineHistoryBtn") showLineHistory();
@@ -14303,6 +14368,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
   }
 
   async function boot(){
+    if(await completeLineConnectionHandoff()) return;
     if(await completeLineBookingHandoff()) return;
     clearExpiredRentalSession();
     loadState();
@@ -14337,7 +14403,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       state.calc.demoContractSignature = "";
       state.calc.demoOrderOpen = false;
     }
-    const lineConnectReturn = takeLineConnectReturn();
+    const lineConnectReturn = pendingLineConnectHandoff();
     const requestedLanguage = new URLSearchParams(location.search).get("lang");
     if(["th","en"].includes(requestedLanguage)) state.lang = requestedLanguage;
     const directBookingEntry = new URLSearchParams(location.search).get("booking") === "1";
@@ -14436,18 +14502,19 @@ We apologize for the inconvenience and hope everyone stays safe.`
     fetchAvailability().catch(() => {});
     // Coming back from LINE sign-in: init() inside this check completes the
     // login, then the customer is told LINE is connected on the same step.
-    const shouldVerifyLine = state.lang === "th" || !!lineConnectReturn || demoProfile.preferredContactChannel === "line";
+    const shouldVerifyLine = !lineConnectReturn && (state.lang === "th" || demoProfile.preferredContactChannel === "line");
     (shouldVerifyLine ? verifyCurrentLineSession().catch(error => { console.warn("LINE connection check skipped", error); return false; }) : Promise.resolve(false))
-      .then(() => { if(lineConnectReturn) finishLineConnectReturn(); })
+      .then(() => { if(lineConnectReturn) void pollLineConnectHandoff(); })
       .then(() => detectLineReturningEligibility().catch(() => false));
     gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {});
     loadPricingPolicy().catch(error => console.warn("Pricing policy unavailable",error));
     syncBoardGameCatalog().catch(() => {});
-    window.addEventListener("pageshow", resetShareUi);
+    window.addEventListener("pageshow", () => { resetShareUi(); if(pendingLineConnectHandoff()) void pollLineConnectHandoff(); });
     window.addEventListener("pagehide", () => trackAnalytics("step_duration", {value:String(analyticsLastStep), durationMs:Date.now() - analyticsStepEnteredAt}));
     document.addEventListener("visibilitychange", () => {
       if(document.visibilityState === "visible"){
         resetShareUi();
+        if(pendingLineConnectHandoff()) void pollLineConnectHandoff();
         if(payResume.active && payResume.rental?.noContract && !payResume.loading && !payResume.saving) openPayResume(payResume.code, payResume.token, {silent:true});
       }
     });

@@ -656,17 +656,17 @@ test('editing the rental period on the Rental ID page opens only the queue calen
   assert.match(html, /function clearCalendarRange\(\)\{\n    if\(state\.calendar\.fromOrder\)\{/);
 });
 
-test('connecting LINE comes back to the booking step and says LINE is connected', () => {
-  assert.match(html, /const LINE_CONNECT_RETURN_KEY = "aj_line_connect_return_v1"/);
-  assert.match(html, /liff\.login\(\{redirectUri:lineConnectReturnUrl\(\)\}\)/);
-  assert.doesNotMatch(html, /if\(!liff\.isLoggedIn\(\)\)\{ liff\.login\(\); return; \}/);
+test('connecting LINE uses the official LIFF link and restores the booking step', () => {
+  assert.match(html, /const LINE_CONNECT_HANDOFF_KEY = "aj_line_connect_handoff_v1"/);
+  assert.match(html, /new URL\(`https:\/\/liff\.line\.me\/\$\{CONFIG\.lineLiffId\}`\)/);
+  assert.match(html, /completeLineConnectionHandoff\(\)/);
+  assert.match(html, /lineAccessToken:accessToken/);
+  assert.doesNotMatch(html, /liff\.login\(\{redirectUri:lineConnectReturnUrl\(\)\}\)/);
   const boot = html.slice(html.indexOf('async function boot(){'));
-  assert.match(boot, /if\(lineConnectReturn\)\{\n      state\.calc\.step = lineConnectReturn\.step;\n      siteAnnouncementDismissed = true;/);
-  assert.match(html, /if\(!backFromLine && saved && saved\.enabled === true/);
-  assert.match(boot, /verifyCurrentLineSession\(\)\.catch/);
-  assert.match(boot, /if\(lineConnectReturn\) finishLineConnectReturn\(\)/);
-  assert.match(html, /activeLineConnection\(\)\?\.userId/);
-  assert.match(html, /toast\(state\.lang === "en" \? "LINE connected" : "เชื่อมต่อ LINE แล้ว"\)/);
+  assert.match(boot, /if\(lineConnectReturn\)\{\n      state\.calc\.step = lineConnectReturn\.step;/);
+  assert.match(boot, /if\(lineConnectReturn\) void pollLineConnectHandoff\(\)/);
+  assert.match(html, /saveVerifiedLineConnection\(result\)/);
+  assert.match(html, /toast\(tr\("contactLineConnected"\)\)/);
 });
 
 test('Admin → Rentals offers the renter\'s own My rental link in Thai and English', () => {

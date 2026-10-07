@@ -13,7 +13,11 @@ test('Thai checkout requires a verified LINE connection before context and payme
 
 test('English checkout offers WhatsApp and allows no channel selection', () => {
   assert.match(page, /id="demoWhatsAppConnectBtn"/);
-  assert.match(page, /id="demoEmailContactBtn"/);
+  assert.doesNotMatch(page, /id="demoEmailContactBtn"/);
+  assert.match(page, /demo-line-btn/);
+  assert.match(page, /demo-wa-btn/);
+  assert.match(page, /contactBrandIcon\("line"\)/);
+  assert.match(page, /contactBrandIcon\("whatsapp"\)/);
   assert.match(page, /demoProfile\.preferredContactChannel = "whatsapp"/);
   assert.match(page, /contactChannel: UNIFIED_FLOW_DEMO \? \(en \? \(demoProfile\.preferredContactChannel \|\| "email"\) : "line"\)/);
   assert.match(page, /lineBindUrl/);
