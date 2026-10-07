@@ -75,7 +75,8 @@ test('the unpaid email page edits the same rental through the original step cont
   assert.match(html, /if\(payResume\.active\) await savePayResumeEditModal\(\)/);
   assert.match(html, /payResume\.active && payResume\.code\) return payResume\.code/);
   const save = html.slice(html.indexOf('async function savePayResumeChanges('), html.indexOf('async function savePayResumeEditModal('));
-  assert.match(save, /await fetchAvailability\(\)/);
+  assert.match(save, /await fetchAvailability\(true\)/);
+  assert.match(save, /!verifiedQueue\?\.fresh/);
   assert.match(save, /await ensureBookingHold\(payResume\.code, calcRentalContext\(\)\)/);
   assert.match(save, /await fetchDemoDeliveryQuote\(\)/);
   assert.match(save, /\/api\/rentals\/payment-page\/update/);

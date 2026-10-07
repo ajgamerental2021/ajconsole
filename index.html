@@ -7072,7 +7072,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       throw error;
     }
     const hold = await acquireBookingHold(rentalCode, ctx);
-    const refreshed = await fetchAvailability();
+    const refreshed = await fetchAvailability(true);
     if(!refreshed?.fresh){
       await releaseBookingHold(rentalCode);
       throw new Error("booking_availability_refresh_failed");
@@ -7528,13 +7528,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       signal?.removeEventListener("abort", abort);
     }
   }
-  async function fetchAvailabilityPayload(stamp, onRetry = () => {}){
+  async function fetchAvailabilityPayload(stamp, onRetry = () => {}, requireFresh = false){
     const controller = new AbortController();
     let retryTimer, deadlineTimer, retryStarted = false;
     let resolveRetry, rejectRetry;
     const retry = new Promise((resolve, reject) => { resolveRetry = resolve; rejectRetry = reject; });
     const sourcePair = attempt => Promise.any([
-      fetchJsonWithTimeout(`${CONFIG.availabilityApi}?_ts=${stamp}-${attempt}`, 16000, controller.signal),
+      fetchJsonWithTimeout(`${CONFIG.availabilityApi}?_ts=${stamp}-${attempt}${requireFresh ? "&fresh=1" : ""}`, 16000, controller.signal),
       fetchJsonWithTimeout(`${CONFIG.availabilityUrl}${CONFIG.availabilityUrl.includes("?")?"&":"?"}_ts=${stamp}-${attempt}`, 16000, controller.signal)
     ].map(request => request.then(payload => {
       if(!normalizeAvailabilityRows(payload).length) throw new Error("Availability response is empty");
@@ -7568,8 +7568,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       state.availability.holds = mergeBookingHolds(state.availability.holds);
     });
   }
-  function fetchAvailability(){
-    if(availabilityRequest) return availabilityRequest;
+  function fetchAvailability(requireFresh = false){
+    if(availabilityRequest) return requireFresh ? availabilityRequest.then(() => fetchAvailability(true)) : availabilityRequest;
     availabilityRequest = (async () => {
     state.availability.loading = true;
     state.availability.retrying = false;
@@ -7581,12 +7581,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         state.availability.retrying = true;
         renderAvailabilityHint();
         if(state.calendar.open) renderCalendar();
-      });
+      }, requireFresh);
       state.availability.rows = normalizeAvailabilityRows(availabilityPayload);
       if(!state.availability.rows.length) throw new Error("Availability response is empty");
       state.availability.error = "";
       state.availability.stale = false;
-      state.availability.lastSync = Date.now();
+      state.availability.lastSync = Number(availabilityPayload?._ajFetchedAt) || Date.now();
       try{
         localStorage.setItem(AVAILABILITY_CACHE_KEY, JSON.stringify({savedAt:state.availability.lastSync,payload:availabilityPayload}));
       }catch(error){
@@ -9066,7 +9066,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     showDemoBusy(en ? "Checking availability…" : "กำลังเช็คคิวว่าง…");
     let fresh = false;
     for(let attempt = 0; attempt < 2 && !fresh; attempt++){
-      const result = await fetchAvailability().catch(() => null);
+      const result = await fetchAvailability(true).catch(() => null);
       fresh = result?.fresh === true;
     }
     if(!fresh){
@@ -9738,8 +9738,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       state.calc.payment = payResume.method;
       state.calc.maps = demoProfile.maps;
       if(!gameSelectionReady()) throw new Error("games_required");
-      await fetchAvailability();
-      if(state.availability.error || !hasRecentAvailabilitySnapshot()) throw new Error("queue_check_failed");
+      const verifiedQueue = await fetchAvailability(true);
+      if(!verifiedQueue?.fresh || state.availability.error || !hasRecentAvailabilitySnapshot()) throw new Error("queue_check_failed");
       const gate = evaluateAvailability();
       if(!gate.pass){
         hydratePayResumeEditor(current);
