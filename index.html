@@ -1301,6 +1301,8 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   body.unified-flow-demo .demo-contact-channel-actions .demo-wa-btn:hover{background:#06483f;border-color:#06483f;color:#fff}
   body.unified-flow-demo .demo-contact-connected{display:inline-block;padding:9px 12px;border:1px solid #a7dfbc;border-radius:10px;background:#edf9f1;color:#176b39;font-weight:800}
   body.unified-flow-demo .demo-contact-channel .demo-contact-channel-note{color:#176b39;font-weight:700}
+  body.unified-flow-demo .demo-line-app-help{margin:8px 0 0;font-size:12px;color:#667085}
+  body.unified-flow-demo .demo-line-app-help a{color:#08753a;font-weight:800;text-decoration:underline}
   .before-rent-head .before-rent-hero-terms{display:inline-block;margin:14px auto 0;padding:6px 15px;border:1px solid #ffd0d4;border-radius:999px;background:#fff3f4;color:#ad0013;font-size:clamp(13px,1.2vw,15px);font-weight:600;line-height:1.4}
   .site-menu-list .site-info-link.site-menu-quote{margin-top:9px}
   .site-menu-list .site-info-link.site-menu-quote,.before-rent-quote-chip{background:linear-gradient(180deg,#ffd84d,#ffbf1f);border:1px solid #e6a500;color:#3d2600;box-shadow:0 4px 12px rgba(230,165,0,.25);font-weight:900}
@@ -4368,7 +4370,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(["Bangkok","กรุงเทพมหานคร"].includes(demoProfile.province)) demoProfile.province = demoAddressAutofilled.province = en ? "Bangkok" : "กรุงเทพมหานคร";
     localizeDemoAddress();
     card.innerHTML = `<h3>${en ? "Customer and delivery details" : "ข้อมูลลูกค้าและที่อยู่จัดส่ง"}</h3>
-      ${payResume.active ? "" : `<section class="demo-contact-channel"><b>${esc(tr("contactChannelTitle"))}</b><p>${esc(tr(en ? "contactChannelEnglishHelp" : "contactChannelThaiHelp"))}</p><div class="demo-contact-channel-actions">${bookingLineConnection() ? `<span class="demo-contact-connected">${esc(tr("contactLineConnected"))}${demoProfile.lineDisplayName ? ` · ${esc(demoProfile.lineDisplayName)}` : ""}</span>` : `${pendingLineConnectHandoff() ? `<span class="demo-contact-connected">${esc(tr("contactLinePending"))}</span>` : ""}<button class="btn demo-line-btn" id="lineConnectBtn" type="button">${contactBrandIcon("line")}${esc(tr(pendingLineConnectHandoff() ? "contactLineRetry" : "contactLineConnect"))}</button>`}${en ? `<button class="btn demo-wa-btn" id="demoWhatsAppConnectBtn" type="button" aria-pressed="${demoProfile.preferredContactChannel === "whatsapp"}">${contactBrandIcon("whatsapp")}${esc(tr("contactWhatsApp"))}</button>` : ""}</div>${en && demoProfile.preferredContactChannel === "whatsapp" ? `<p class="demo-contact-channel-note">${esc(tr("contactWhatsAppSelected"))}</p>` : en && !demoProfile.preferredContactChannel ? `<p class="demo-contact-channel-note">${esc(tr("contactEmailSelected"))}</p>` : ""}</section>`}
+      ${payResume.active ? "" : `<section class="demo-contact-channel"><b>${esc(tr("contactChannelTitle"))}</b><p>${esc(tr(en ? "contactChannelEnglishHelp" : "contactChannelThaiHelp"))}</p><div class="demo-contact-channel-actions">${bookingLineConnection() ? `<span class="demo-contact-connected">${esc(tr("contactLineConnected"))}${demoProfile.lineDisplayName ? ` · ${esc(demoProfile.lineDisplayName)}` : ""}</span>` : `${pendingLineConnectHandoff() ? `<span class="demo-contact-connected">${esc(tr("contactLinePending"))}</span>` : ""}<a class="btn demo-line-btn" id="lineConnectBtn" href="${esc(lineConnectionAppUrl(state.lang, isInsideLineClient() ? "line" : "browser", pendingLineConnectHandoff()?.id || ""))}">${contactBrandIcon("line")}${esc(tr("contactLineConnect"))}</a>`}${en ? `<button class="btn demo-wa-btn" id="demoWhatsAppConnectBtn" type="button" aria-pressed="${demoProfile.preferredContactChannel === "whatsapp"}">${contactBrandIcon("whatsapp")}${esc(tr("contactWhatsApp"))}</button>` : ""}</div>${!bookingLineConnection() ? `<p class="demo-line-app-help">${en ? "LINE did not open?" : "LINE ไม่เปิด?"} <a id="lineConnectFallback" href="${esc(lineConnectionWebAppUrl(state.lang, isInsideLineClient() ? "line" : "browser", pendingLineConnectHandoff()?.id || ""))}">${en ? "Try another app link" : "ลองลิงก์เปิดแอปอีกแบบ"}</a></p>` : ""}${en && demoProfile.preferredContactChannel === "whatsapp" ? `<p class="demo-contact-channel-note">${esc(tr("contactWhatsAppSelected"))}</p>` : en && !demoProfile.preferredContactChannel ? `<p class="demo-contact-channel-note">${esc(tr("contactEmailSelected"))}</p>` : ""}</section>`}
       ${state.calc.retVerified && hasVerifiedAgreementRecord() && demoIdentityExpired() ? `<div class="demo-choice-warning">${en ? "The ID card or passport on your agreement has expired, or expires before the return date, so a new Master Agreement and renewed identity verification are required before this rental. Please upload your current document in step 3." : "บัตรประชาชนหรือ Passport ในสัญญาเดิมหมดอายุแล้ว หรือหมดอายุก่อนวันคืนเครื่อง ต้องทำข้อตกลงหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้งก่อนเช่าครั้งนี้ กรุณาอัปโหลดรูปเอกสารฉบับปัจจุบันในขั้นตอนที่ 3"}</div>` : ""}
       ${demoIdentityCoveredByAgreement() ? `<div class="demo-contract-status">${esc(demoAgreementCoverText())}</div>` : ""}
       ${activeVip() ? `<div class="demo-contract-status"><b>VIP: ${esc(activeVip().name)}</b><br>${esc(en ? "Your personal VIP rental and security-deposit rates are applied automatically." : "ระบบใช้ราคาค่าเช่าและค่าประกัน VIP ของคุณให้อัตโนมัติแล้ว")}</div>` : ""}
@@ -11553,53 +11555,43 @@ We apologize for the inconvenience and hope everyone stays safe.`
     }catch(error){ console.warn("LINE connection polling will retry", error); }
     lineConnectPollTimer = window.setTimeout(pollLineConnectHandoff, document.visibilityState === "visible" ? 2000 : 5000);
   }
-  function lineConnectionLiffUrl(id, language, origin="browser"){
-    const url = new URL(`https://liff.line.me/${CONFIG.lineLiffId}`);
+  function lineConnectionAppUrl(language, origin="browser", id=""){
+    const url = new URL(`line://app/${CONFIG.lineLiffId}`);
     url.searchParams.set("lineConnect", "1");
-    url.searchParams.set("id", id);
+    if(/^[A-Za-z0-9_-]{32,64}$/.test(id)) url.searchParams.set("id", id);
     url.searchParams.set("lang", language === "en" ? "en" : "th");
     url.searchParams.set("origin", origin === "line" ? "line" : "browser");
     return url.href;
   }
-  async function connectLine(){
+  function lineConnectionWebAppUrl(language, origin="browser", id=""){
+    const url = new URL(`https://line.me/R/app/${CONFIG.lineLiffId}`);
+    url.searchParams.set("lineConnect", "1");
+    if(/^[A-Za-z0-9_-]{32,64}$/.test(id)) url.searchParams.set("id", id);
+    url.searchParams.set("lang", language === "en" ? "en" : "th");
+    url.searchParams.set("origin", origin === "line" ? "line" : "browser");
+    return url.href;
+  }
+  function connectLine(){
+    // This runs during the actual tap on an app URL. An async session request
+    // followed by window.open() loses iOS's app-link gesture and opens Safari.
     saveLocal();
     saveDemoProfile({now:true});
-    // Open synchronously with the tap; mobile popup blockers would otherwise
-    // reject a tab opened after the async session request.
-    const tab = window.open("about:blank", "_blank");
-    if(tab) tab.document.body.innerHTML = `<p style="font:18px system-ui;padding:30px">${esc(state.lang === "en" ? "Opening LINE…" : "กำลังเปิด LINE…")}</p>`;
-    try{
-      const existing = pendingLineConnectHandoff();
-      if(existing){
-        const url = lineConnectionLiffUrl(existing.id, existing.lang, existing.origin);
-        if(tab && !tab.closed) tab.location.replace(url);
-        else showModal("LINE", `<a class="btn line-share" href="${esc(url)}" target="_blank" rel="noopener">${esc(tr("contactLineRetry"))}</a>`);
-        void pollLineConnectHandoff();
-        return;
-      }
-      const response = await bookingFetch(new URL("/api/customers/line-connection/start", CONFIG.contractWebUrl), {method:"POST",cache:"no-store"}, 10000);
-      const session = await response.json().catch(() => ({}));
-      if(!response.ok || !session.ok || !/^[A-Za-z0-9_-]{32,64}$/.test(session.id) || !session.pollKey) throw new Error("line_connection_start_failed");
-      localStorage.setItem(LINE_CONNECT_HANDOFF_KEY, JSON.stringify({...session,step:state.calc.step,lang:state.lang,origin:isInsideLineClient() ? "line" : "browser"}));
-      const url = lineConnectionLiffUrl(session.id, state.lang, isInsideLineClient() ? "line" : "browser");
-      if(tab && !tab.closed) tab.location.replace(url);
-      else showModal("LINE", `<p>${esc(state.lang === "en" ? "Open LINE to connect your account, then return to this page." : "เปิด LINE เพื่อเชื่อมบัญชี แล้วกลับมาหน้านี้")}</p><a class="btn line-share" href="${esc(url)}" target="_blank" rel="noopener">${esc(tr("contactLineConnect"))}</a>`);
-      void pollLineConnectHandoff();
-    }catch(error){
-      if(tab && !tab.closed) tab.close();
-      console.error("LINE connection start failed", error);
-      toast(tr("contactLineFailed"));
-    }
   }
   async function completeLineConnectionHandoff(){
     const params = lineBookingHandoffParams();
     if(params.get("lineConnect") !== "1") return false;
     const id = String(params.get("id") || "");
     const en = params.get("lang") === "en";
-    if(!/^[A-Za-z0-9_-]{32,64}$/.test(id)) return false;
+    if(id && !/^[A-Za-z0-9_-]{32,64}$/.test(id)) return false;
     const returnUrl = new URL(`https://ajgamerental.com/?booking=1&lang=${en ? "en" : "th"}`);
     document.body.innerHTML = `<main style="min-height:100vh;display:grid;place-items:center;padding:24px;background:#f5f7fb"><section style="max-width:520px;text-align:center;background:#fff;border:1px solid #d9dee8;border-radius:22px;padding:30px;box-shadow:0 12px 35px rgba(15,23,42,.12)"><div style="width:38px;height:38px;margin:0 auto 15px;border:4px solid #d2f2dc;border-top-color:#16883f;border-radius:50%;animation:lineConnectSpin .8s linear infinite"></div><h1 style="font-size:22px;margin:0 0 12px">${en ? "Connecting LINE" : "กำลังเชื่อม LINE"}</h1><p style="color:#667085">${en ? "Please keep this page open while we verify your account." : "กรุณาเปิดหน้านี้ไว้ระหว่างยืนยันบัญชี"}</p></section></main>`;
     const panel = document.body.querySelector("section");
+    const showLineAppPrompt = () => {
+      const origin = params.get("origin") === "line" ? "line" : "browser";
+      const appUrl = lineConnectionAppUrl(en ? "en" : "th", origin, id);
+      const official = lineConnectionWebAppUrl(en ? "en" : "th", origin, id);
+      panel.innerHTML = `<h1>${en ? "Open the LINE app" : "เปิดแอป LINE"}</h1><p style="color:#667085;margin-bottom:20px">${en ? "Connect using the LINE account already signed in on this phone." : "เชื่อมด้วยบัญชี LINE ที่ล็อกอินอยู่ในโทรศัพท์เครื่องนี้"}</p><a class="btn line-share" href="${esc(appUrl)}" style="background:#06c755;color:#fff;display:flex;margin-bottom:10px">${en ? "Open LINE app" : "เปิดแอป LINE"}</a><a href="${esc(official)}" style="font-size:13px;color:#475467">${en ? "If LINE did not open, try this link" : "ถ้า LINE ไม่เปิด ให้ลองลิงก์นี้"}</a>`;
+    };
     let liff;
     const tryConnect = async () => {
       panel.querySelector("p").textContent = en ? "Verifying your LINE account…" : "กำลังยืนยันบัญชี LINE…";
@@ -11607,15 +11599,17 @@ We apologize for the inconvenience and hope everyone stays safe.`
       const idToken = String(liff.getIDToken?.() || "").trim();
       if(!accessToken && !idToken) throw new Error("line_token_missing");
       const body = {lineAccessToken:accessToken,lineIdToken:idToken};
-      const endpoint = new URL("/api/customers/line-connection/complete", CONFIG.contractWebUrl);
       let result;
-      try{
-        const response = await bookingFetch(endpoint, {method:"POST",cache:"no-store",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,id})}, 8500);
-        result = await response.json().catch(() => ({}));
-        if(!response.ok || !result.ok) throw new Error(`handoff_${response.status}`);
-      }catch(error){
-        // The one-time handoff lives in server memory and can disappear after a
-        // restart. A verified LINE token still proves the customer's identity.
+      if(id){
+        try{
+          const response = await bookingFetch(new URL("/api/customers/line-connection/complete", CONFIG.contractWebUrl), {method:"POST",cache:"no-store",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,id})}, 8500);
+          result = await response.json().catch(() => ({}));
+          if(!response.ok || !result.ok) result = null;
+        }catch{ result = null; }
+      }
+      if(!result){
+        // A direct LIFF launch has no one-time server session. LINE still
+        // verifies the token before issuing the signed booking connection.
         const direct = await bookingFetch(new URL("/api/customers/line-connection", CONFIG.contractWebUrl), {method:"POST",cache:"no-store",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}, 10000);
         result = await direct.json().catch(() => ({}));
         if(!direct.ok || !result.ok) throw new Error(`line_verify_${direct.status}`);
@@ -11631,28 +11625,29 @@ We apologize for the inconvenience and hope everyone stays safe.`
     };
     try{
       liff = await bookingWait(loadLineSdk(), 10000);
-      await bookingWait(liff.init({liffId:CONFIG.lineLiffId,withLoginOnExternalBrowser:true}), 12000);
+      await bookingWait(liff.init({liffId:CONFIG.lineLiffId}), 12000);
+      // Never start web OAuth in Safari: customers already signed in to the
+      // LINE app should not be asked for an email and password here.
+      if(!liff.isInClient?.()){
+        showLineAppPrompt();
+        return true;
+      }
       if(!liff.isLoggedIn()){
-        if(liff.isInClient?.()){
-          liff.login({redirectUri:location.href});
-          return true;
-        }
-        const official = new URL(`https://line.me/R/app/${CONFIG.lineLiffId}`);
-        official.searchParams.set("lineConnect", "1");
-        official.searchParams.set("id", id);
-        official.searchParams.set("lang", en ? "en" : "th");
-        official.searchParams.set("origin", params.get("origin") === "line" ? "line" : "browser");
-        panel.innerHTML = `<h1>${en ? "Open in LINE" : "เปิดในแอป LINE"}</h1><p>${en ? "Open this link in LINE to connect your account." : "เปิดลิงก์นี้ในแอป LINE เพื่อเชื่อมบัญชี"}</p><a class="btn line-share" href="${esc(official.href)}">${en ? "Open LINE" : "เปิด LINE"}</a>`;
+        liff.login({redirectUri:location.href});
         return true;
       }
       await tryConnect();
     }catch(error){
       console.warn("LINE connection needs retry", error);
+      if(!liff?.isInClient?.()){
+        showLineAppPrompt();
+        return true;
+      }
       panel.innerHTML = `<h1 style="font-size:22px;margin:0 0 12px">${en ? "Still connecting LINE" : "กำลังเชื่อม LINE"}</h1><p style="color:#667085;margin-bottom:20px">${en ? "The connection took longer than expected. Tap below to continue here." : "การเชื่อมต่อใช้เวลานานกว่าปกติ กดด้านล่างเพื่อเชื่อมต่อในหน้านี้"}</p><button class="btn line-share" id="lineConnectRetry" type="button" style="background:#16883f;color:#fff">${en ? "Continue connecting" : "เชื่อมต่ออีกครั้ง"}</button>`;
       panel.querySelector("#lineConnectRetry").addEventListener("click", async (event) => {
         event.currentTarget.disabled = true;
         try{
-          if(!liff){ liff = await bookingWait(loadLineSdk(), 10000); await bookingWait(liff.init({liffId:CONFIG.lineLiffId,withLoginOnExternalBrowser:true}), 12000); }
+          if(!liff){ liff = await bookingWait(loadLineSdk(), 10000); await bookingWait(liff.init({liffId:CONFIG.lineLiffId}), 12000); }
           await tryConnect();
         }catch(retryError){
           console.warn("LINE connection retry failed", retryError);
@@ -14056,7 +14051,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "reviewGoogleBtn"){ event.preventDefault(); event.stopPropagation(); open("https://maps.app.goo.gl/QoGqkWe64QRxBGjT6", "_blank"); }
       if(targetId === "reviewFacebookBtn"){ event.preventDefault(); event.stopPropagation(); open("https://www.facebook.com/ajgamerental/reviews", "_blank"); }
       if(targetId === "demoWhatsAppConnectBtn"){ await chooseDemoWhatsApp(); return; }
-      if(targetId === "lineConnectBtn") connectLine();
+      if(event.target.closest?.("#lineConnectBtn, #lineConnectFallback")){ connectLine(); return; }
       if(targetId === "lineHistoryBtn") showLineHistory();
       if(targetId === "mapsOpen") open("https://www.google.com/maps", "_blank");
       if(targetId === "mapsHelp") showMapsHelp();

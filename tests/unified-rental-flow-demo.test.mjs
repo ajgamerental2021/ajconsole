@@ -656,11 +656,17 @@ test('editing the rental period on the Rental ID page opens only the queue calen
   assert.match(html, /function clearCalendarRange\(\)\{\n    if\(state\.calendar\.fromOrder\)\{/);
 });
 
-test('connecting LINE uses the official LIFF link and restores the booking step', () => {
+test('connecting LINE opens the phone app directly and restores the booking step', () => {
   assert.match(html, /const LINE_CONNECT_HANDOFF_KEY = "aj_line_connect_handoff_v1"/);
-  assert.match(html, /new URL\(`https:\/\/liff\.line\.me\/\$\{CONFIG\.lineLiffId\}`\)/);
+  assert.match(html, /new URL\(`line:\/\/app\/\$\{CONFIG\.lineLiffId\}`\)/);
+  assert.match(html, /id="lineConnectBtn" href="\$\{esc\(lineConnectionAppUrl\(/);
+  assert.doesNotMatch(html, /window\.open\("about:blank"/);
   assert.match(html, /completeLineConnectionHandoff\(\)/);
   assert.match(html, /lineAccessToken:accessToken/);
+  const connection = html.slice(html.indexOf('async function completeLineConnectionHandoff(){'), html.indexOf('function takeLineConnectionProofFromHash(){'));
+  assert.match(connection, /liff\.init\(\{liffId:CONFIG\.lineLiffId\}\)/);
+  assert.doesNotMatch(connection, /withLoginOnExternalBrowser:true/);
+  assert.match(connection, /if\(!liff\.isInClient\?\.\(\)\)\{/);
   assert.doesNotMatch(html, /liff\.login\(\{redirectUri:lineConnectReturnUrl\(\)\}\)/);
   const boot = html.slice(html.indexOf('async function boot(){'));
   assert.match(boot, /if\(lineConnectReturn \|\| lineProofReturned\)\{\n      state\.calc\.step = lineConnectReturn\?\.step \|\| 2;/);
