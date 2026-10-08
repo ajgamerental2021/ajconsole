@@ -10,7 +10,7 @@ test('two ways in: the menu, and step 1 beside the rental steps (TH/EN)', () => 
   assert.match(html, /if\(action === "quote"\) openQuotePopup\("menu"\);/);
   // Not in step 1: there it competed with the booking itself.
   assert.doesNotMatch(html, /id="quoteBtn"/);
-  assert.match(html, /quoteBtn:"Rental\/delivery cost calculator", quoteBtnHint:"See the total before booking", quoteTitle:"Rental calculator"/);
+  assert.match(html, /quoteBtn:"Rental\/delivery cost calculator", quoteBtnHint:"See the total before booking", quoteTitle:"Rental & delivery calculator"/);
 });
 
 test('the pop-up opens at once with the page inside, a language switch and a close button', () => {
@@ -51,10 +51,10 @@ test('"check the queue and book" never opens a new tab: in the pop-up it carries
 });
 
 test('one name everywhere: menu, step 1, pop-up title and the page itself (TH/EN)', () => {
-  assert.match(html, /quoteBtn:"คำนวณค่าเช่า\/ค่าจัดส่ง", quoteBtnHint:"รู้ยอดรวมก่อนจอง", quoteTitle:"คำนวณค่าเช่า"/);
-  assert.match(html, /<h3 id="quoteTitle">คำนวณค่าเช่า<\/h3>/);
-  assert.match(quote, /title: 'คำนวณค่าเช่า'/);
-  assert.match(quote, /title: 'Rental calculator'/);
+  assert.match(html, /quoteBtn:"คำนวณค่าเช่า\/ค่าจัดส่ง", quoteBtnHint:"รู้ยอดรวมก่อนจอง", quoteTitle:"คำนวณค่าเช่า\/ค่าส่ง"/);
+  assert.match(html, /<h3 id="quoteTitle">คำนวณค่าเช่า\/ค่าส่ง<\/h3>/);
+  assert.match(quote, /title: 'คำนวณค่าเช่า\/ค่าส่ง'/);
+  assert.match(quote, /title: 'Rental & delivery calculator'/);
   assert.doesNotMatch(html, /คำนวณค่าเช่าคร่าวๆ/);
 });
 

@@ -263,6 +263,7 @@ Backend routes are mounted in `backend/src/server.ts`. The staff screens are in 
 - `/api/inventory`
 - `/api/padlocks`: bag-lock codes.
 - `/api/dispatch` (staff auth): Lalamove trips from the delivery queue. Routes: `prepare`, `quote`, `confirm` (idempotent on `jobId`; one live trip per booking and leg), `jobs?rows=`, `jobs/:jobId/{refresh,cancel,priority-fee,change-driver}`.
+  - `POST /api/dispatch/quote` may include `customerPoint: {lat,lng,address}`. The selected point replaces the booking destination for delivery, or origin for return. It must be in Thailand; the backend stores it in the held Lalamove quote, so `confirm` uses that same point and quotation. Staff select it in the Delivery App picker hosted at `/dispatch-place/`; named saved places stay on that staff device.
   - Trips are kept on the Sheet tab `Lalamove Jobs`.
   - A 60-second poller sends the customer LINE Flex cards. These never show a fare, the shop address or a tracking link.
   - Delivery cards: confirmed (dropoff, recipient, phone); picked up with ETA; then 30 / 15 / 5 minutes away; then "เครื่องถึงที่อยู่ของคุณแล้ว" on completion. The last one is the shop's delivery card (bag codes, balance), using the payment method the shop confirmed when it sent that card (recorded on the Sheet tab `Delivery Card Sent`); with no confirmed method it has no payment part.

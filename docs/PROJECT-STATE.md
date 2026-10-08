@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-10-08 — Codex: editable Lalamove trip point and quote heading
+
+- **Delivery App `f9426ea`:** Staff can change the destination before a delivery trip or the origin before a return trip. The picker reuses the website place search and pin map, supports current location, and lets staff name, save, select and remove places on the current device. Selecting a point requotes Lalamove and clears the old fare; the held quotation carries the chosen point into the confirmed order. Thailand bounds are checked by the backend.
+- **Website:** Added `/dispatch-place/` as the bilingual picker used by the app. The quote popup and quote page headings now say `คำนวณค่าเช่า/ค่าส่ง` and `Rental & delivery calculator`. The Delivery quote request's optional `customerPoint` is documented in the handover file.
+- **Verification:** Delivery backend TypeScript build, frontend TypeScript check and Expo web export passed; Lalamove dispatch simulation 90/90, including changed delivery/return points and order confirmation; website 309/309. Mobile Chromium exercised search, named save/reselect, current-location bridge, pin-map confirmation, and Thai/English layout. No production Lalamove order was created.
+- **Release:** Push the website before the Delivery App so the picker URL exists when the app starts using it. The web and backend deploy on push. The native location permission and WebView dependency require a new Android APK/iOS build. Build `20261008` is still prepared but not built; this environment has no `EXPO_TOKEN`, so native devices keep the old behavior until a new build is installed. Saved places currently persist per staff device in local app storage.
+
 ## 2026-10-08 — Claude Code: Google Maps on the tracking page, shop name "jj", app build 20261008 prepared
 
 - **Tracking page map** (Delivery App `6388398`):

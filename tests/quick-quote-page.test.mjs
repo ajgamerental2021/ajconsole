@@ -12,8 +12,8 @@ test('the quick quote lives on the booking site at /quote/, calling the Bot for 
 
 test('rental, deposit and the live delivery fee, by the booking site\'s rules, in two languages', () => {
   assert.match(page, /var MONTHLY = \{ 500: 8500, 400: 6500, 350: 5000, 300: 4000 \};/);
-  assert.match(page, /title: 'คำนวณค่าเช่า'/);
-  assert.match(page, /title: 'Rental calculator'/);
+  assert.match(page, /title: 'คำนวณค่าเช่า\/ค่าส่ง'/);
+  assert.match(page, /title: 'Rental & delivery calculator'/);
   assert.doesNotMatch(page, /api\/availability|booking-holds/, 'no queue check');
 });
 
@@ -99,7 +99,7 @@ test('a device not ready yet or with its queue shut is greyed with the reason, a
 });
 
 test('a shared link shows what the page is, not "Google Maps"', () => {
-  assert.match(page, /<meta property="og:title" content="คำนวณค่าเช่าเครื่องเกม · AJ เช่าเครื่องเกม">/);
+  assert.match(page, /<meta property="og:title" content="คำนวณค่าเช่า\/ค่าส่ง · AJ เช่าเครื่องเกม">/);
   assert.match(page, /<meta property="og:description" content="เช็คราคาเช่าเครื่องเกมคร่าวๆ ด้วยตัวเอง/);
   assert.match(page, /<meta name="description" content="เช็คราคาเช่าเครื่องเกมคร่าวๆ/);
   assert.ok(page.includes('og:image" content="https://ajgamerental.com/assets/aj-share-logo.jpg"'));
