@@ -1,3 +1,29 @@
+# Project state
+
+## 2026-10-08 — Claude Code: resynced with Codex's 4–8 Oct work; all suites green
+
+- **Resync.** Fast-forwarded all three repos to `main`, which is where Codex and the owner's account worked from 4 to 8 October:
+  - `ajconsole` `99a3331` (+101 commits)
+  - `aj-line-oa-bot` `5b1b0c4` (+43)
+  - `delivery-app` `ff34a58` (+47)
+- Nothing was lost or overwritten. No local changes were pending.
+- **Current facts, as Claude Code now works from them:**
+  - **Rental Terms** default `2026-10-08`. Built-in history is kept: `09-23`, `09-28`, `10-03`, `10-05`, `10-06`, `10-07`.
+  - **No-identity deposits:** ฿5,000 for PS4 / Switch 1 / Xbox Series S / PS Portal; ฿10,000 for other ฿2,000 models; ฿15,000 for ฿4,000 models and PS5 bundles.
+  - **Post-booking game changes** close at 20:00 Bangkok by default; the hours are configurable in Admin.
+  - **Extension against the deposit:** possible only when the renter and the shop agree (Terms `10-07`), and staff confirm it in the Delivery App.
+  - **Dispatch cards** carry no delivery-fee line by default (prepaid delivery).
+  - **Individual-rate notice** before the payment choice; company rates are requested on LINE @ajgame.
+  - **LINE connect** uses a verified LIFF handoff, and the booking draft returns to the browser.
+  - **Booking Step 2** includes the refund account, identity OCR and returning-renter autofill.
+  - **Analytics board** has กรอบ− / กรอบ+ and restored drag/resize. Today's AJ Chat Management repo is `aj-cm`.
+- **Verification on this checkout:**
+  - Bot `npm test` 582/582. The first run failed 1, only because the new `sharp` dependency was not installed here; `npm ci` fixed it.
+  - Website 309/309.
+  - Delivery App backend and frontend TypeScript clean, and 17 money/booking/extension/card scripts all pass, including confirm-totals 38 with the "no รวมก่อนส่วนลด" check.
+- **Housekeeping only:** the "# Project state" heading had ended up mid-file below newer entries. It is moved back to the top. No entry text changed.
+- **Not verified from here:** live Render and GitHub Pages deploys, because the cloud proxy blocks onrender.com. The live checks Codex recorded are the latest evidence.
+
 ## 2026-10-08 — Codex: rate-notice spacing and resumed-payment amount due
 
 - Owner showed the new individual-rate notice nearly touching the payment summary and that the "ทำรายการชำระเงินต่อ" page lacked the yellow "ยอดที่ต้องชำระ" block. Website commit `0780455` adds 14px space above the notice and uses the Bot's saved `plan.methods[selectedMethod]` to render amount due (pay now / pay on delivery) on the resumed-payment page in Thai and English. The selected method's fee and fee-inclusive total now appear consistently in the summary; changing payment method updates all three values together. No new server-side price calculation or payment write was added.
@@ -156,7 +182,6 @@
 - Delivery App no longer offers deposit deduction in its Extension Pending screen. The server rejects the old deduction action, while separate extension payment remains available.
 - Verification: versioned terms tests and Thai/English generated PDF text; Delivery App backend and frontend TypeScript checks. Bot full suite: 538/539 pass; the remaining pre-existing asset header source-pattern test is unrelated to this change.
 
-# Project state
 
 ## 2026-10-05 — Embedded identity map pin confirmation
 
