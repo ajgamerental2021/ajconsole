@@ -1,7 +1,7 @@
 ## 2026-10-08 — Codex: analytics board drag/resize restored
 
 - Owner reported the orange edit outlines appeared but panels could not be moved or shrunk. The Bot board (`public/analytics/board.js`) deliberately made the one-column layout static. When a narrow window expanded, the old resize callback could run before GridStack updated its column count, leaving the two-column board static despite editing being on. Commit `5b1b0c4` observes the actual GridStack column/class transition and re-enables move/resize in the multi-column layout. It also adds `กรอบ− / กรอบ+` buttons for panel dimensions when dragging an edge is awkward; `A− / A+` remain text-size controls. The cache-buster was bumped. Mobile one-column remains a full-width natural-height list, so panel width changes require a wider window; saved desktop layout is not overwritten by mobile reflow.
-- Full Bot suite: 582/582 passed, including a regression test that switches an editing board from one to 12 columns. The live analytics dashboard was inspected in both narrow and wide window sizes before the change; no saved panel positions were altered during inspection. Deployment/live interaction verification is pending at this handoff entry.
+- Full Bot suite: 582/582 passed, including a regression test that switches an editing board from one to 12 columns. After deployment, a no-cache check confirmed the new `board.js` and cache-buster on Render, and the live analytics app displayed `กรอบ− / กรอบ+` in edit mode. A live drag or frame-size mutation was not performed, to avoid altering the owner's saved arrangement. The app was left out of edit mode.
 
 ## 2026-10-08 — Codex: queue reliability, analytics ranges, individual-rate notice and Terms
 
