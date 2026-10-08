@@ -4,6 +4,7 @@
 - Website Step 2 now starts a returning renter without proven identity on the higher no-verification deposit, while keeping the 10% returning discount. The renter may switch to verification in Step 2 or on the summary; choosing to verify later keeps the higher deposit. LINE and manual lookup both use this rule in Thai and English. Booking drafts preserve the separate identity-evidence state.
 - Delivery App's signed history endpoint reads Booking Log without revealing rows and excludes cancelled, unpaid, and no-contract records from standard-deposit evidence. Its no-contract terms and the Bot's Rental Terms now explain the returning-customer rule in both languages. The Bot's new `2026-10-08-2` terms are used by new contract and Rental Order PDFs; prior version text is retained for historical PDFs.
 - Validation: Delivery backend TypeScript build and 9 deposit-history scenarios; 596 Bot tests; 309 website tests; website inline JavaScript syntax; Chromium load at 390px and 1280px in Thai and English without page errors or overflow. Live customer-account history has not been queried from the cloud workspace.
+- Pushed to all three `main` branches. Live checks: website serves the new Step 2 rule; Bot `/healthz` reports commit `689a570` and Rental Terms `2026-10-08-2` contain both new clauses; Delivery App backend is healthy and the new signed lookup rejects unsigned calls with 401. Live customer history requires the shop credentials and was not queried.
 
 # Project state
 
