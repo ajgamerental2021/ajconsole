@@ -1032,7 +1032,7 @@ body.unified-flow-demo .demo-order-row.is-pay-now b{font-size:18px;color:#b42318
 body.unified-flow-demo .demo-order-row.is-pay-later b{font-size:16px;color:#101828}
 body.unified-flow-demo .demo-order-row .payment-badges{display:inline-flex;vertical-align:middle;margin-left:4px}
 body.unified-flow-demo .demo-payment-schedule-note{margin:6px 0 0;color:#667085;font-size:12.5px;line-height:1.55}
-.individual-rate-notice{margin:0 0 16px;padding:12px 14px;border:1px solid #eacb79;border-radius:12px;background:#fff9e9;color:#684615;font-size:13px;line-height:1.55}
+.individual-rate-notice{margin:14px 0 16px;padding:12px 14px;border:1px solid #eacb79;border-radius:12px;background:#fff9e9;color:#684615;font-size:13px;line-height:1.55}
 .individual-rate-notice a{color:#9b1c1c;font-weight:800;text-decoration:underline}
 body.unified-flow-demo .demo-item-head{display:flex;gap:14px;align-items:center}
 body.unified-flow-demo .demo-item-thumb{width:64px;height:64px;flex:0 0 auto;object-fit:contain;border-radius:12px;background:#f2f4f7}
@@ -6270,10 +6270,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   // What is paid now and what is left for delivery day, for the payment
   // option picked. Shared by the order page and anywhere else the split shows.
-  function paymentScheduleHtml(summary){
+  function paymentScheduleHtml(summary, method = state.calc.payment){
     const en = state.lang === "en";
     const row = (label, value, cls = "") => `<div class="demo-order-row ${cls}"><span>${label}</span><b>${value}</b></div>`;
-    const method = state.calc.payment;
     const methodNote = method === "cash"
       ? (en ? ["Reservation now by card, E-Wallet or Thai QR scan, no fee.", "Balance on delivery: Thai QR scan with no fee, or card +3.50% / E-Wallet +2.95% on that balance."]
             : ["ค่าจองคิวชำระตอนนี้ด้วยเงินโอน บัตร หรือ E-Wallet ไม่มีค่าธรรมเนียม", "ยอดที่เหลือชำระตอนรับเครื่อง: เงินโอนไม่มีค่าธรรมเนียม หรือบัตร +3.50% / E-Wallet +2.95% ของยอดที่เหลือ"])
@@ -6286,7 +6285,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
             : (en ? "Paid in full now by Thai bank transfer, no fee. Nothing to pay on delivery." : "ชำระเต็มจำนวนตอนนี้ด้วยการโอนเข้าบัญชีธนาคาร ไม่มีค่าธรรมเนียม ไม่มียอดชำระตอนรับเครื่อง");
     return `<div class="demo-total-group demo-payment-schedule">
       <div class="demo-payment-schedule-title">${en ? "Amount due" : "ยอดที่ต้องชำระ"}</div>
-      ${row(`${en ? "Pay now" : "ชำระตอนนี้"}: ${esc(upfrontLabel())}`, money(summary.upfront), "is-pay-now")}
+      ${row(`${en ? "Pay now" : "ชำระตอนนี้"}: ${esc(upfrontLabel(method))}`, money(summary.upfront), "is-pay-now")}
       ${row(esc(en ? "Pay on delivery" : "ชำระตอนรับเครื่อง"), money(summary.onDelivery), summary.onDelivery ? "is-pay-later" : "is-muted")}
       <p class="demo-payment-schedule-note">${[].concat(methodNote).map(esc).join("<br>")}</p>
     </div>`;
@@ -7153,9 +7152,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(error?.code === "booking_hold_conflict") return toast(error.message);
     return toast(state.lang === "en" ? "Cannot check availability. Please try again." : "ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่");
   }
-  function upfrontLabel(){
-    if(state.calc.payment === "cash") return state.lang === "en" ? tr("cardDeposit") : "ค่าจองคิว";
-    if(["bank", "credit", "ewallet", "wise"].includes(state.calc.payment)) return tr("fullPaymentConfirm");
+  function upfrontLabel(method = state.calc.payment){
+    if(method === "cash") return state.lang === "en" ? tr("cardDeposit") : "ค่าจองคิว";
+    if(["bank", "credit", "ewallet", "wise"].includes(method)) return tr("fullPaymentConfirm");
     return tr("upfrontConfirm");
   }
   function upfrontLabelHtml(){
@@ -9869,6 +9868,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
          ...(r.payment.amount ? [row(en ? "Amount paid" : "ยอดที่ชำระ", money(r.payment.amount))] : []),
          ...(r.payment.balance ? [row(en ? "Balance due" : "ยอดคงเหลือ", money(r.payment.balance))] : [])]
       : [];
+    const selectedAmounts = r.plan?.methods?.[payResume.method];
     const canPay = !r.paid && Object.keys(r.plan?.methods || {}).length > 0;
     const editNotice = !r.paid && !payResume.editorReady
       ? `<div class="demo-delivery-fallback" role="status"><p><b>${esc(en ? "Editing is temporarily unavailable because the saved pricing details could not be loaded. You can still pay the saved amount or contact AJ." : "ยังแก้ไขรายการไม่ได้ชั่วคราว เพราะโหลดข้อมูลราคาที่บันทึกไว้ไม่ครบ ยังชำระยอดเดิมได้ หรือติดต่อร้าน AJ")}</b></p></div>`
@@ -9900,7 +9900,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           ${discounts.length ? `<div class="demo-total-group">${discounts.join("")}</div>` : ""}
           ${deposits.length ? `<div class="demo-total-group">${deposits.join("")}</div>` : ""}
           ${deliveryRows.length ? `<div class="demo-total-group">${deliveryRows.join("")}</div>` : ""}
-          <div class="demo-total-group demo-total-final">${row(en ? "Total including delivery" : "ยอดรวมทั้งหมด (รวมค่าจัดส่ง)", money(r.plan?.base || 0), "is-grand")}</div>
+          <div class="demo-total-group demo-total-final">${selectedAmounts?.fee ? row(en ? "Payment fee" : "ค่าธรรมเนียมการชำระเงิน", money(selectedAmounts.fee)) : ""}${row(en ? "Total including delivery" : "ยอดรวมทั้งหมด (รวมค่าจัดส่ง)", money(selectedAmounts?.total ?? r.plan?.base ?? 0), "is-grand")}</div>
+          ${!r.paid && selectedAmounts ? paymentScheduleHtml({upfront:selectedAmounts.payNow, onDelivery:selectedAmounts.onDelivery}, payResume.method) : ""}
           ${paidRows.length ? `<div class="demo-total-group">${paidRows.join("")}</div>` : ""}
         </div></section>
         ${individualRateNoticeHtml()}

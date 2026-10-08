@@ -342,7 +342,7 @@ test('the payment page offers the identity link and clears the saved form', () =
 test('delivery is part of the total, the card fee covers it, and each option shows pay-now and on-delivery', () => {
   assert.match(html, /const subtotalBeforePaymentFee = totalBeforeDelivery \+ delivery;/);
   assert.match(html, /const paymentFee = paymentFeeAmount\(subtotalBeforePaymentFee\);/);
-  assert.match(html, /function paymentScheduleHtml\(summary\)/);
+  assert.match(html, /function paymentScheduleHtml\(summary, method = state\.calc\.payment\)/);
   assert.match(html, /\$\{quote \? paymentScheduleHtml\(summary\) : ""\}/);
   assert.match(html, /ชำระตอนนี้/);
   assert.match(html, /ชำระตอนรับเครื่อง/);
