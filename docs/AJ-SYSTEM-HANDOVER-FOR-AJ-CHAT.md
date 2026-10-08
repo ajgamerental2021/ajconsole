@@ -78,7 +78,7 @@ The running handover log is `ajconsole/docs/PROJECT-STATE.md`.
    1. Device and dates. A live queue check (`/api/availability`), closures and ready dates, and holds (`/api/booking-holds`) that keep two people from booking the same slot.
    2. Customer details. LINE connect, returning-customer discount (10%), review discounts, VIP rates, ID or passport and expiry, the no-identity option (deposit ฿2,000 → ฿10,000, ฿4,000 → ฿15,000, any PS5 bundle ฿15,000), address, Google Maps place, and Rental Terms acceptance.
    3. Order page ("Rental ID" page). Payment by Beam (card / e-wallet / PromptPay), bank transfer with a slip check, or pay later.
-   - A failed delivery quote never blocks payment. The customer pays now, and AJ collects the delivery fee on delivery.
+   - The ordinary website booking collects its quoted delivery charge with rent. The Delivery App's dispatch card does not ask the customer to pay that fee again; only an explicitly entered unpaid difference appears on the card. A delivery quote failure must not be presented as a paid fee.
 3. **Identity.** Photos (ID + selfie), refund account (Thai bank or Wise) and signature, now or later ("ยืนยันตอนนี้"). The result is a contract PDF, plus a Master Agreement valid for 1 year.
 4. **Games.** The game picker (`game_index.html`, up to 10 games, storage warning). Games cannot be added or changed during the rental (Rental Terms 2026-10-03, item 9). The game card in LINE has "แก้ไขรายการเกม".
 5. **After booking.**
@@ -261,6 +261,7 @@ Backend routes are mounted in `backend/src/server.ts`. The staff screens are in 
 - `/api/line`:
   - its own LINE webhook;
   - pushes: booking-confirm, payment-request, details-confirmed, delivery-message, no-contract-terms, reminders;
+  - `POST /api/line/push/delivery-message/:rowIndex` builds the same dispatch text used for staff preview and the customer LINE Flex. For ordinary prepaid bookings, omitted, `paid` and legacy `default` delivery-fee choices all omit the delivery-fee line; an explicit positive `difference` is the only exception. The mobile popup no longer shows the "delivery already paid" checkbox. Backend deployment should precede a new app bundle so older staff clients cannot make the sent card ask for the fee again.
   - account bind and unbind;
   - my-rental link.
 - `/api/integrations/aj-rental/*`, called by the Bot:

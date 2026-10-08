@@ -27,7 +27,7 @@ All repositories are on GitHub under `ajgamerental2021`.
 - **One owner per rule. Call it; never copy it.**
   - Prices, deposits and the catalogue belong to the website plus the catalogue Gist.
   - Delivery times belong to the Delivery App (`deliveryTiming.ts`).
-  - Rental Terms belong to the Bot (versioned; currently `2026-10-03`).
+  - Rental Terms belong to the Bot (versioned; latest logged version `2026-10-07`).
   - LINE Flex cards belong to whichever system sends them today.
 - **LINE OA has a single webhook URL,** and it is the Bot's. Do not repoint it. Get events by forwarding from the Bot, after agreeing it with the owner.
 - **Thai and English** wherever a customer reads anything.
@@ -48,3 +48,9 @@ All repositories are on GitHub under `ajgamerental2021`.
 - **Codex** works on AJ Chat Management, and changes the other three only when an agreed integration needs it.
 - **To ask for a change in another agent's repository,** add a "Request" entry at the top of PROJECT-STATE: who is asking, what is needed, and why. The owner relays it.
 - **Open decisions** are listed at the end of the handover file, in section 11. Do not build past them before the owner decides.
+
+## Current handoff — 8 October 2026
+
+- **Delivery card, `delivery-app`:** The ordinary website booking collects delivery with rent. `POST /api/line/push/delivery-message/:rowIndex` now defaults to no delivery-fee line in the Thai/English text and LINE Flex, even if an older app sends `deliveryFee: "default"`; only an explicitly positive `difference` adds a line. The staff popup no longer asks whether delivery was paid, and its preview has no redundant fee-status line. Deploy backend first, then update the staff app; an older app can still show an obsolete fee hint in its local preview even though the backend sends no such line. See `PROJECT-STATE.md` and Delivery App `CHANGELOG.md` for commit/tests.
+- **Before-rent design demo, `ajconsole`:** `index-demo.html` (commit `4337f4e`) has the bilingual menu, footer links, per-console game-list buttons and no three-line note below the console rail. `index.html` production was not changed by that redesign. Demo: `https://ajgamerental.com/index-demo.html?demo=4337f4e`.
+- **Pending owner decision, not implemented:** Place a concise individual-vs-company-rate notice by the booking payment totals, with a smaller heads-up on the price catalogue; link `@ajgame` to `https://lin.ee/VLB7CBe`. If approved, update both languages, a new version of Bot Rental Terms, and new rental contract PDFs together. Do not state that a customer can never receive a receipt without Thai tax/accounting review; a receipt and a VAT tax invoice are different documents. No rate-card, notice, Terms or PDF change has been made for this proposal.
