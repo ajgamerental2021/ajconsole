@@ -1,3 +1,8 @@
+## 2026-10-08 — Codex: rate-notice spacing and resumed-payment amount due
+
+- Owner showed the new individual-rate notice nearly touching the payment summary and that the "ทำรายการชำระเงินต่อ" page lacked the yellow "ยอดที่ต้องชำระ" block. Website commit `0780455` adds 14px space above the notice and uses the Bot's saved `plan.methods[selectedMethod]` to render amount due (pay now / pay on delivery) on the resumed-payment page in Thai and English. The selected method's fee and fee-inclusive total now appear consistently in the summary; changing payment method updates all three values together. No new server-side price calculation or payment write was added.
+- Website suite 309/309 passed and inline scripts parsed. A real customer's payment page was not opened or paid for testing. Deploy and check live source/UI; the saved rental plan remains the source of truth.
+
 ## 2026-10-08 — Codex: analytics board drag/resize restored
 
 - Owner reported the orange edit outlines appeared but panels could not be moved or shrunk. The Bot board (`public/analytics/board.js`) deliberately made the one-column layout static. When a narrow window expanded, the old resize callback could run before GridStack updated its column count, leaving the two-column board static despite editing being on. Commit `5b1b0c4` observes the actual GridStack column/class transition and re-enables move/resize in the multi-column layout. It also adds `กรอบ− / กรอบ+` buttons for panel dimensions when dragging an edge is awkward; `A− / A+` remain text-size controls. The cache-buster was bumped. Mobile one-column remains a full-width natural-height list, so panel width changes require a wider window; saved desktop layout is not overwritten by mobile reflow.

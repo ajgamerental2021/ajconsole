@@ -24,6 +24,8 @@ Update, 2026-10-08 (Codex; live source/API verified): the production booking pag
 
 Additional analytics board fix, 2026-10-08: the Bot re-enables dragging and edge resizing when a `หน้ารวม` edit session expands from a narrow one-column window to a multi-column window. The `กรอบ− / กรอบ+` buttons resize the frame without edge dragging; `A− / A+` size only the text. Mobile remains a full-width ordered list, while the desktop arrangement persists in the admin analytics layout.
 
+Payment UI follow-up, 2026-10-08: the personal-rate notice has spacing below the payment summary. The unpaid "continue payment" page now has the same amount-due breakdown as the first order page. Pay-now, on-delivery, fee and total values come from the selected method in the Bot's saved `plan.methods`; the frontend does not recalculate them independently.
+
 ---
 
 ## 1. The map
