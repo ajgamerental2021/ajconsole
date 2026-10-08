@@ -265,8 +265,9 @@ Backend routes are mounted in `backend/src/server.ts`. The staff screens are in 
 - `/api/dispatch` (staff auth): Lalamove trips from the delivery queue. Routes: `prepare`, `quote`, `confirm` (idempotent on `jobId`; one live trip per booking and leg), `jobs?rows=`, `jobs/:jobId/{refresh,cancel,priority-fee,change-driver}`.
   - Trips are kept on the Sheet tab `Lalamove Jobs`.
   - A 60-second poller sends the customer LINE Flex cards. These never show a fare, the shop address or a tracking link.
-  - Delivery cards: confirmed (dropoff, recipient, phone); picked up with ETA; then 30 / 15 / 5 minutes away. Nothing on completion.
-  - Return cards: confirmed (pickup point, sender, phone); one card on pickup saying when the items reach the shop.
+  - Delivery cards: confirmed (dropoff, recipient, phone); picked up with ETA; then 30 / 15 / 5 minutes away; then "เครื่องถึงที่อยู่ของคุณแล้ว" on completion. The last one is the shop's delivery card (bag codes, balance), using the payment method the shop confirmed when it sent that card (recorded on the Sheet tab `Delivery Card Sent`); with no confirmed method it has no payment part.
+  - Customer tracking page `/c/track/<token>` (deliveries only, HMAC-signed with `AJ_RENTAL_WEBHOOK_SECRET`, prefix `aj-track:`): the customer's point, plus the driver once more than 2 km from the shop, and the ETA. It never shows the shop. JSON at `/c/track/<token>/state`.
+  - Return cards: confirmed (pickup point, sender, phone); one card on pickup saying when the items reach the shop. No updates, no tracking page, no arrival card. Every ETA is labelled as an estimate that depends on traffic and weather.
   - ETA comes from the Google Routes API with traffic, falling back to a distance estimate.
 - `/api/finance`: summary, entries, expenses, sales, refs.
 - `/api/quotation`

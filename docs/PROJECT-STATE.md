@@ -1,5 +1,34 @@
 # Project state
 
+## 2026-10-08 — Claude Code: Lalamove customer tracking page and "it has arrived" card
+
+- **Owner asked** for three changes:
+  - our own tracking page for deliveries only;
+  - an arrival card instead of silence when a delivery completes, carrying the bag code, the balance and the payment method the shop actually confirmed when it sent the delivery card;
+  - a note on every customer ETA that it depends on traffic and the weather.
+  Returns keep only the one pickup notice, with no updates, no page and no arrival card.
+- **Delivery App `1f9684e`:**
+  - **Tracking page** `/c/track/<token>`. The token is HMAC-signed with `AJ_RENTAL_WEBHOOK_SECRET`, prefix `aj-track:`.
+    - Leaflet with OpenStreetMap tiles; TH/EN; refreshes every 15 seconds.
+    - Shows the customer's point, the driver (name, plate) and the ETA.
+    - The driver's dot is hidden until the driver is more than 2 km from the shop, so the start of the trip never gives away the shop. The shop, the fare and Lalamove's link never appear.
+    - Linked from the delivery "on the way" and 30 / 15 / 5-minute cards. A return has no page. Links stop working 6 hours after the trip ends.
+  - **Arrival card** on Lalamove `COMPLETED` (deliveries only). It is the existing delivery card headed "📦 เครื่องถึงที่อยู่ของคุณแล้ว", plus where it was delivered, the recipient, the phone, bag codes and the balance.
+    - The payment part follows the method recorded when the shop pressed "ส่งการ์ดให้ลูกค้าใน LINE" and then "ส่งเลย", and the card really reached the customer:
+      - transfer: the account and "คัดลอกเลขบัญชี";
+      - card or e-wallet: the "กดชำระเงิน" button.
+    - Choosing a chip or backing out of the popup records nothing. With no recorded method, the arrival card has no payment part.
+    - Choices are kept on the new Sheet tab `Delivery Card Sent`. Test sends (`to`/`test`) are not recorded.
+  - **ETA wording:** "เป็นเวลาโดยประมาณ ขึ้นอยู่กับสภาพการจราจรและสภาพอากาศ" on the delivery and return pickup cards and the near cards, and on the page.
+  - **Refactor:** the delivery card's input (padlocks of every booking in the job, balance, rental code) is built in one place, `services/deliveryCardInput.ts`, for both the queue button and the arrival card.
+- **Tests:**
+  - `test:lalamove-dispatch` 86/86. New checks cover the arrival card by transfer, by credit card and with no method; one arrival card only; none for returns; the page hiding the driver near the shop; the signed token; ETA wording.
+  - `test:delivery-card` 58/58; `test:booking-recipient`; `test:dispatch-hold`.
+  - Backend and frontend TypeScript clean. Expo web export builds.
+  - The tracking page was rendered in TH/EN at 390 px against a local server, with map tiles stubbed. A forged token returns 404.
+- **Shared contract:** handover file updated (dispatch section).
+- **Owner actions:** deploy the Delivery App backend (the staff app only gains the "✓ เครื่องถึงแล้ว" line in the tracking panel). The deploy order and sandbox advice in the entry below still apply. Map tiles come from OpenStreetMap's public servers, which is fine at AJ's volume; switch to a paid tile provider if traffic grows.
+
 ## 2026-10-08 — Claude Code: Lalamove trips called and followed from the Delivery App queue
 
 - **Owner asked** for a button on each คิวจัดส่ง/รับคืน job that calls a Lalamove driver from the booking's own name, phone and location, and then follows the trip, with LINE cards to the customer.
