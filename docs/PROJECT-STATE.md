@@ -1,5 +1,11 @@
 # Project state
 
+## 2026-10-08 — Codex: all four Lalamove trip stops editable, defaults retained
+
+- **Bot `c3ec881`:** The signed quote accepts an optional `shopPoint` in Thailand. With none, the configured AJ pickup stays the default. The customer point still defaults to the booking. The quote uses the selected shop point as the delivery origin or return destination; the shop contact name and number stay configured.
+- **Delivery App `d42a98f`:** Staff can change either end of either leg before calling a driver. Both ends start with their normal default, and an overridden end has a “ใช้ค่าเริ่มต้น” action. Every selection or reset requotes the trip, and confirmation uses the held quote's stops. The same saved-place picker serves all four positions.
+- **Verification:** Bot 591/591 tests; Delivery dispatch simulation 95/95, covering default, both overrides, return destination, final order and invalid points; Delivery backend TypeScript build, frontend TypeScript check and Expo web export passed. No live Lalamove order was created. Release Bot before Delivery App; native phones still need a new Android/iOS build as described below.
+
 ## 2026-10-08 — Codex: editable Lalamove trip point and quote heading
 
 - **Delivery App `f9426ea`:** Staff can change the destination before a delivery trip or the origin before a return trip. The picker reuses the website place search and pin map, supports current location, and lets staff name, save, select and remove places on the current device. Selecting a point requotes Lalamove and clears the old fare; the held quotation carries the chosen point into the confirmed order. Thailand bounds are checked by the backend.
