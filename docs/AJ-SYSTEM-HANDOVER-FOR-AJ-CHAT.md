@@ -214,6 +214,7 @@ All routes are in `src/server.js`; logic lives in `src/services/*`.
   - `…/my-rental-change`
   - `…/pay-later-email`
   - `…/pay-later-preview`
+  - `…/lalamove/{setup,quote,order,status,cancel,priority-fee,change-driver}`: the Lalamove gateway for trips called from the delivery queue. The Bot holds the Lalamove credentials and the shop pickup point. Every call is signed and carries `sentAt` (refused when more than 5 minutes off). `order` also requires a `requestId`: the same id within 30 minutes returns the same order, never a second paid one. `leg: 'delivery'` runs shop → customer; `'return'` runs customer → shop. Lalamove's `shareLink` shows both ends of the trip, so it is for staff only.
 - The Bot calls the Delivery App at `/api/integrations/aj-rental/*` (see section 5).
 - Other Bot endpoints the Delivery App uses:
   - `GET /api/id-pending` (game-ID requests);
@@ -261,6 +262,12 @@ Backend routes are mounted in `backend/src/server.ts`. The staff screens are in 
 - `/api/game-accounts`: platforms, plan, assign, release.
 - `/api/inventory`
 - `/api/padlocks`: bag-lock codes.
+- `/api/dispatch` (staff auth): Lalamove trips from the delivery queue. Routes: `prepare`, `quote`, `confirm` (idempotent on `jobId`; one live trip per booking and leg), `jobs?rows=`, `jobs/:jobId/{refresh,cancel,priority-fee,change-driver}`.
+  - Trips are kept on the Sheet tab `Lalamove Jobs`.
+  - A 60-second poller sends the customer LINE Flex cards. These never show a fare, the shop address or a tracking link.
+  - Delivery cards: confirmed (dropoff, recipient, phone); picked up with ETA; then 30 / 15 / 5 minutes away. Nothing on completion.
+  - Return cards: confirmed (pickup point, sender, phone); one card on pickup saying when the items reach the shop.
+  - ETA comes from the Google Routes API with traffic, falling back to a distance estimate.
 - `/api/finance`: summary, entries, expenses, sales, refs.
 - `/api/quotation`
 - `/api/fraud`: blacklist and reports.
@@ -289,6 +296,7 @@ Backend routes are mounted in `backend/src/server.ts`. The staff screens are in 
 - Background jobs:
   - reminders (delivery and return LINE reminders);
   - delivery and extension payment pollers;
+  - Lalamove trip poller (status, ETA, customer cards);
   - Postgres backup;
   - sheet mirror.
 
@@ -354,6 +362,7 @@ show its result in the chat.
 | Send the booking link, game picker, payment request, My rental link | Delivery App `/api/line/push/*`, `/api/line/my-rental-link`; Bot `/api/line/game-picker-card`, `/api/rentals/payment-page/link` | Uses the existing Flex cards |
 | Payment status / check a slip | Bot `/api/payments/beam-status`; the slip flow is automatic for LINE images; Delivery App `/api/integrations/aj-rental/payments` | |
 | Delivery time, driver, proofs | Delivery App `/api/bookings/today|tomorrow|range`, `/:rowIndex/proofs` | |
+| Lalamove trip: status, driver, ETA | Delivery App `/api/dispatch/jobs?rows=`, `/api/dispatch/jobs/:jobId/refresh` | Read-only from a chat. Placing, cancelling and tipping spend the Lalamove wallet; leave them to the queue screen unless the owner agrees otherwise |
 | Extend / change dates | Delivery App `/c/extension…`, `/c/date-change…`, `/c/rental/modify…` (customer links); staff deposit settlement at `/api/extension-pending/:extensionRequestId/deduct-deposit` | Send the customer link for self-service; the staff endpoint reuses the same extension request and rules |
 | Contract / PDFs / identity follow-up | Bot `/api/admin/contracts`, `/api/admin/rentals/:code/resend-confirmation`, `/api/admin/identity-reminders/run` | |
 | Game-ID rental requests | Bot `/api/id-pending` (`?platform=ps5|switch`) | |

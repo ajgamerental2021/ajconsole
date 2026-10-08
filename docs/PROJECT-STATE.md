@@ -1,5 +1,49 @@
 # Project state
 
+## 2026-10-08 — Claude Code: Lalamove trips called and followed from the Delivery App queue
+
+- **Owner asked** for a button on each คิวจัดส่ง/รับคืน job that calls a Lalamove driver from the booking's own name, phone and location, and then follows the trip, with LINE cards to the customer.
+- **Bot `39a9428`: signed Lalamove gateway.**
+  - Endpoints: `POST /api/integrations/delivery-app/lalamove/{setup,quote,order,status,cancel,priority-fee,change-driver}`.
+  - The Bot keeps the Lalamove credentials and the shop pickup point.
+  - Every call is signed with `AJ_RENTAL_WEBHOOK_SECRET` and carries `sentAt` (refused when more than 5 minutes off).
+  - `order` requires a `requestId`. The same id within 30 minutes returns the same order, so a retry never pays twice.
+  - The delivery leg runs shop → customer; the return leg runs customer → shop.
+  - Phones are converted to E.164. The driver note is omitted when blank.
+  - Tests: new `test/lalamove-dispatch.test.js`; full suite 589/589.
+- **Delivery App `495dbb3`: the button, popup, tracking panel and customer cards.**
+  - **Where:** "🛵 เรียกงานขนส่ง Lalamove" on the full card, and a 🛵 icon on the compact row.
+  - **The popup opens with:**
+    - both ends of the trip;
+    - the vehicle the website priced (G29/wheel or 3+ devices → car, otherwise motorcycle), changeable, with an instant re-price;
+    - normal or Priority, with the fee editable;
+    - a live fare, with a warning when it is above what the customer saw at booking;
+    - the driver note.
+  - **Driver note:** the renter's own instruction. On a delivery with an amount due before handover, it adds "รบกวนให้ปลายทางโอนยอด X บาท มาที่เลขบัญชีด้านล่างก่อนจัดส่งของให้ปลายทาง" and the KTB account 8690576029 สมชาย เหมศิริ. It is editable, or can be switched off with "ไม่ใส่โน้ต".
+  - **Telling the customer:** "ส่งการ์ดแจ้งลูกค้า" is ticked by default when the customer has LINE. When the vehicle changed or the fare rose, a second tick tells the customer why (weather or traffic). The extra amount is optional, and blank means no amount is shown.
+  - **After confirming, the same button becomes "📍 ติดตามงาน Lalamove":**
+    - status, driver, plate and phone;
+    - fare, and which cards were sent;
+    - Lalamove's map, for the shop only;
+    - add a priority fee while no driver has accepted;
+    - change driver, with a reason;
+    - cancel, before pickup.
+  - **Customer LINE cards (TH/EN).** No fare, no shop address and no tracking link on any of them.
+    - Delivery: confirmed (dropoff, recipient, phone); picked up, with an ETA ("ประมาณ 25 นาที (ถึงราว 14:35 น.)"); then 30 / 15 / 5 minutes away, each once and only if the trip started further out. No card on completion.
+    - Return: confirmed (pickup point, sender, phone); then one card on pickup saying when the items reach the shop.
+  - **Bookkeeping and alerts:** a completed trip's fare pre-fills the ค่าส่ง field when the job is closed with "จบงาน". When Lalamove cancels a trip or finds no driver, the shop is alerted on Telegram/Discord.
+  - **Storage:** trips are kept on the new Sheet tab `Lalamove Jobs`, so a restart does not resend cards. A 60-second poller follows active trips.
+  - **ETA:** Google Routes API with traffic (`TWO_WHEELER` / `DRIVE`), queried more often as a threshold nears. Without the key or the API, it falls back to a distance estimate.
+  - **Tests:** new `npm run test:lalamove-dispatch` (59 checks, fakes for Bot/LINE/Google/Sheet); backend and frontend TypeScript clean; Expo web export builds. Screens were checked at 1300 px and 390 px against a mocked backend.
+- **Tracking link answer.** Lalamove's share link always shows both stops; it cannot hide the origin or the destination. It is therefore staff-only. A masked page of our own (driver position plus the customer's own point only) is possible later if the owner wants one.
+- **Shared contract.** `AJ-SYSTEM-HANDOVER-FOR-AJ-CHAT.md` is updated with the Bot gateway and the Delivery App `/api/dispatch` routes. For AJ Chat Management, placing, cancelling and tipping spend the Lalamove wallet, so a chat should only read trip status unless the owner agrees otherwise.
+- **Owner actions:**
+  1. Deploy the Bot first, then the Delivery App backend, then update the staff app.
+  2. Test first with a Lalamove **sandbox** key (`pk_test_…`, sandbox base URL) in the Bot's Render env. The popup shows "🧪 Sandbox" while sandbox is on. With the production key, every confirm is a real order paid from the Lalamove wallet.
+  3. Enable **Routes API** on the Google Cloud project behind the Delivery App's `GOOGLE_MAPS_API_KEY`, for traffic-aware ETAs. Without it, ETAs are estimates.
+  4. The shop contact on Lalamove orders is "AJ Game Rental, 0816244715". Say if it should be another number.
+- **Not done in this checkout:** live Lalamove calls (no keys here; the cloud proxy blocks onrender.com) and real LINE pushes. The first live run should be a sandbox order on a test booking whose phone is linked to the owner's LINE test account (`LINE_TEST_USER_ID`), so the cards reach only the owner.
+
 ## 2026-10-08 — Claude Code: resynced with Codex's 4–8 Oct work; all suites green
 
 - **Resync.** Fast-forwarded all three repos to `main`, which is where Codex and the owner's account worked from 4 to 8 October:
