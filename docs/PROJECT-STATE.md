@@ -1,7 +1,7 @@
 ## 2026-10-08 — Codex: rate-notice spacing and resumed-payment amount due
 
 - Owner showed the new individual-rate notice nearly touching the payment summary and that the "ทำรายการชำระเงินต่อ" page lacked the yellow "ยอดที่ต้องชำระ" block. Website commit `0780455` adds 14px space above the notice and uses the Bot's saved `plan.methods[selectedMethod]` to render amount due (pay now / pay on delivery) on the resumed-payment page in Thai and English. The selected method's fee and fee-inclusive total now appear consistently in the summary; changing payment method updates all three values together. No new server-side price calculation or payment write was added.
-- Website suite 309/309 passed and inline scripts parsed. A real customer's payment page was not opened or paid for testing. Deploy and check live source/UI; the saved rental plan remains the source of truth.
+- Website suite 309/309 passed and inline scripts parsed. GitHub Pages deployment for `527ecc1` completed and a no-cache check of the live page confirmed the spacing and resumed-plan code. A real customer's payment page was not opened or paid for testing; the saved rental plan remains the source of truth.
 
 ## 2026-10-08 — Codex: analytics board drag/resize restored
 
