@@ -1,3 +1,8 @@
+## 2026-10-08 — Codex: analytics board drag/resize restored
+
+- Owner reported the orange edit outlines appeared but panels could not be moved or shrunk. The Bot board (`public/analytics/board.js`) deliberately made the one-column layout static. When a narrow window expanded, the old resize callback could run before GridStack updated its column count, leaving the two-column board static despite editing being on. Commit `5b1b0c4` observes the actual GridStack column/class transition and re-enables move/resize in the multi-column layout. It also adds `กรอบ− / กรอบ+` buttons for panel dimensions when dragging an edge is awkward; `A− / A+` remain text-size controls. The cache-buster was bumped. Mobile one-column remains a full-width natural-height list, so panel width changes require a wider window; saved desktop layout is not overwritten by mobile reflow.
+- Full Bot suite: 582/582 passed, including a regression test that switches an editing board from one to 12 columns. The live analytics dashboard was inspected in both narrow and wide window sizes before the change; no saved panel positions were altered during inspection. Deployment/live interaction verification is pending at this handoff entry.
+
 ## 2026-10-08 — Codex: queue reliability, analytics ranges, individual-rate notice and Terms
 
 - Owner requested diagnosis of 34 "API ตรวจคิวล้มเหลว" on 7 Oct. The live analytics dashboard showed 34 events, not unique users: 1 `availability_timeout`, 2 `AggregateError`, 31 lacked detail. On 8 Oct it showed 9 events: 6 timeouts and 3 AggregateErrors. Read-only probes returned HTTP 200 from both Bot availability and direct Apps Script in roughly 3.5–4.9 seconds. Historical root cause beyond the recorded failures cannot be proved without upstream logs.

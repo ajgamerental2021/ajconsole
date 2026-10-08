@@ -22,6 +22,8 @@ The running handover log is `ajconsole/docs/PROJECT-STATE.md`.
 
 Update, 2026-10-08 (Codex; live source/API verified): the production booking page's queue check waits six seconds before one direct Apps Script retry (at most three upstream calls, 18-second deadline) and reports repeated failure at most once a minute per browser; final booking still checks fresh availability. The Bot analytics page adds complete Bangkok-calendar Yesterday, Last week and Last month. New built-in Rental Terms `2026-10-08` add the individual/company-rate notice; `2026-10-07` is retained for earlier acceptances. Both new contract PDF types show that notice near totals, and the booking order and unpaid-resume pages show it below total before payment choice, in Thai/English with `@ajgame` linking to `https://lin.ee/VLB7CBe`. No company Rate Card exists yet. See `PROJECT-STATE.md` for diagnostic evidence, test results and what was not live-tested.
 
+Additional analytics board fix, 2026-10-08: the Bot re-enables dragging and edge resizing when a `หน้ารวม` edit session expands from a narrow one-column window to a multi-column window. The `กรอบ− / กรอบ+` buttons resize the frame without edge dragging; `A− / A+` size only the text. Mobile remains a full-width ordered list, while the desktop arrangement persists in the admin analytics layout.
+
 ---
 
 ## 1. The map
