@@ -25,7 +25,7 @@ test('preparation timing is shown above the calculator and after game selection 
   assert.match(source, /กรณีต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 2–3 ชั่วโมง/);
   assert.match(source, /If additional games need to be downloaded or installed: approximately 2–3 hours/);
   assert.match(source, /state\.calc\.rentalTermsVersion !== RENTAL_TERMS_VERSION/);
-  assert.match(source, /let RENTAL_TERMS_VERSION = "2026-09-23"/);
+  assert.match(source, /let RENTAL_TERMS_VERSION = "2026-10-08-2"/);
   assert.match(source, /fetch\(`\$\{CONFIG\.apiBase\}\/api\/rental-terms/);
 });
 

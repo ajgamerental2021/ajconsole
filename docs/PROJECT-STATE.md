@@ -1,3 +1,10 @@
+## 2026-10-08 — Returning-customer deposit requires identity evidence
+
+- Separated returning-customer discount eligibility from proof of identity. The Bot checks signed contract history and a signed Delivery App lookup for a paid or fulfilled booking at a standard ฿2,000/฿3,000/฿4,000 deposit. An old higher-deposit rental alone no longer produces `legacy_verified`; a later standard-deposit rental does. Older signed agreement records still count. Expired Master Agreements still require renewal.
+- Website Step 2 now starts a returning renter without proven identity on the higher no-verification deposit, while keeping the 10% returning discount. The renter may switch to verification in Step 2 or on the summary; choosing to verify later keeps the higher deposit. LINE and manual lookup both use this rule in Thai and English. Booking drafts preserve the separate identity-evidence state.
+- Delivery App's signed history endpoint reads Booking Log without revealing rows and excludes cancelled, unpaid, and no-contract records from standard-deposit evidence. Its no-contract terms and the Bot's Rental Terms now explain the returning-customer rule in both languages. The Bot's new `2026-10-08-2` terms are used by new contract and Rental Order PDFs; prior version text is retained for historical PDFs.
+- Validation: Delivery backend TypeScript build and 9 deposit-history scenarios; 596 Bot tests; 309 website tests; website inline JavaScript syntax; Chromium load at 390px and 1280px in Thai and English without page errors or overflow. Live customer-account history has not been queried from the cloud workspace.
+
 # Project state
 
 ## 2026-10-08 — Codex: first extension card and repeat-link verification

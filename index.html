@@ -2654,7 +2654,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     retEnabled: false,
     boardGameEnabled: false,
     filter: {type:"all", brand:"all", sort:"brand"},
-    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,retVerified:false,retVerificationMethod:"",retVerifiedLineUserId:"",retVerificationToken:"",vip:null,masterAgreement:null,masterAgreementAccepted:false,masterAgreementAcceptedAt:"",reviewGoogle:false,reviewFacebook:false,noContract:false,rentalTermsAccepted:false,rentalTermsAcceptedAt:"",rentalTermsVersion:"",rentalTermsLanguage:"",payment:"cash",maps:"",games:[],later:true,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",beamPaymentExpiresAt:"",contractSignature:"",demoCustomerName:"",demoCustomerPhone:"",demoContractCompleted:false,demoContractSignature:"",demoOrderOpen:false,demoOrderCode:"",demoIdentityFor:"",demoIdentitySkipped:false,demoIdentityStatus:"",demoContextToken:"",demoAgreementFor:"",guideDone:{},guideConsoleId:""},
+    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,retVerified:false,identityEvidenceChecked:false,retVerificationMethod:"",retVerifiedLineUserId:"",retVerificationToken:"",vip:null,masterAgreement:null,masterAgreementAccepted:false,masterAgreementAcceptedAt:"",reviewGoogle:false,reviewFacebook:false,noContract:false,rentalTermsAccepted:false,rentalTermsAcceptedAt:"",rentalTermsVersion:"",rentalTermsLanguage:"",payment:"cash",maps:"",games:[],later:true,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",beamPaymentExpiresAt:"",contractSignature:"",demoCustomerName:"",demoCustomerPhone:"",demoContractCompleted:false,demoContractSignature:"",demoOrderOpen:false,demoOrderCode:"",demoIdentityFor:"",demoIdentitySkipped:false,demoIdentityStatus:"",demoContextToken:"",demoAgreementFor:"",guideDone:{},guideConsoleId:""},
     availability: {rows:[],holds:[],loading:false,retrying:false,error:"",lastSync:0,stale:false,gate:{mode:"idle",pass:true}},
     queueClosures: {allClosed:false,types:{console:false,vr:false,handheld:false,racing:false},devices:{},rules:{all:{closed:false,startAt:"",endAt:""},types:{},devices:{}},loading:false,error:"",updatedAt:""},
     calendar: {open:false,mode:"start",base:new Date(),draftStart:"",draftEnd:"",fromOrder:false},
@@ -2690,7 +2690,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // place's own link, or the customer's pasted one.
     mapsText:"", mapsPlace:null,
     lineDisplayName:"", lineUserId:"", preferredContactChannel:"", idDocument:null, selfieWithId:null,
-    termsAccepted:false, identitySkipped:false, noThaiAddress:true, addressFromProfile:false, refundBankId:"", refundAccountName:"", refundDeferred:false, noThaiBankAccount:false, wiseEmail:"", agreementConsent:false,
+    termsAccepted:false, termsAcceptedVersion:"", identitySkipped:false, noThaiAddress:true, addressFromProfile:false, refundBankId:"", refundAccountName:"", refundDeferred:false, noThaiBankAccount:false, wiseEmail:"", agreementConsent:false,
     // "" follows the page language (Thai → Thai ID, English → passport) until
     // the customer picks one; a foreign renter can use Thai and still pick passport.
     identityType:"", identityUploaded:false, identityOnFileLast4:"", identityExpiry:"",
@@ -2701,7 +2701,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // the page keeps only that draft's id and last four characters.
   const DEMO_PROFILE_KEY = "aj_demo_profile_v1";
   const DEMO_PROFILE_TTL_MS = 24 * 60 * 60 * 1000;
-  const DEMO_PROFILE_FIELDS = ["preferredContactChannel","refundBankId","refundAccountName","refundDeferred","noThaiBankAccount","wiseEmail","fullName","phone","email","deliveryInstructions","deliveryNoteLocation","deliveryNotes","addressLine","subdistrict","district","province","postalCode","maps","mapsText","mapsPlace","termsAccepted","identitySkipped","noThaiAddress","identityType","identityUploaded","identityExpiry","identityDraftId","identityDraftLast4","identityOnFileLast4","addressFromProfile"];
+  const DEMO_PROFILE_FIELDS = ["preferredContactChannel","refundBankId","refundAccountName","refundDeferred","noThaiBankAccount","wiseEmail","fullName","phone","email","deliveryInstructions","deliveryNoteLocation","deliveryNotes","addressLine","subdistrict","district","province","postalCode","maps","mapsText","mapsPlace","termsAccepted","termsAcceptedVersion","identitySkipped","noThaiAddress","identityType","identityUploaded","identityExpiry","identityDraftId","identityDraftLast4","identityOnFileLast4","addressFromProfile"];
   let demoProfileSaveTimer = 0;
   // The delivery place priced in the calculator, carried into step 2's
   // Google Maps box so the customer does not paste it again. Only a Google
@@ -3492,18 +3492,20 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     state.calc.reviewGoogle = !!state.calc.reviewGoogle;
     state.calc.reviewFacebook = !!state.calc.reviewFacebook;
     state.calc.retVerified = !!state.calc.retVerified;
+    state.calc.identityEvidenceChecked = state.calc.identityEvidenceChecked === true;
     state.calc.retVerificationMethod = ["line","manual"].includes(state.calc.retVerificationMethod) ? state.calc.retVerificationMethod : "";
     state.calc.retVerifiedLineUserId = String(state.calc.retVerifiedLineUserId || "");
     state.calc.retVerificationToken = String(state.calc.retVerificationToken || "");
     state.calc.vip = normalizeVipEntitlement(state.calc.vip);
     state.calc.masterAgreement = state.calc.masterAgreement && typeof state.calc.masterAgreement === "object" ? state.calc.masterAgreement : null;
+    if(state.calc.retVerified && !state.calc.identityEvidenceChecked){
+      state.calc.masterAgreement = {status:"none"};
+      state.calc.noContract = true;
+    }
     state.calc.masterAgreementAccepted = !!state.calc.masterAgreementAccepted && ["valid","legacy_verified"].includes(state.calc.masterAgreement?.status);
-    // Bookings saved before Rental Terms acknowledgement existed must not keep
-    // a silently selected no-contract state. The customer must review and
-    // accept the current version explicitly. A newer published version is
-    // checked once the version in force has loaded (loadRentalTermsVersion).
+    // Keep the higher deposit selected, but require acceptance of the current
+    // terms before payment. Clearing the choice here would quote the lower tier.
     if(state.calc.noContract && (!state.calc.rentalTermsAccepted || !state.calc.rentalTermsVersion)){
-      state.calc.noContract = false;
       state.calc.rentalTermsAccepted = false;
       state.calc.rentalTermsAcceptedAt = "";
       state.calc.rentalTermsVersion = "";
@@ -3512,6 +3514,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const storedLineUserId = lineUniqueId();
     if(state.calc.retVerificationMethod === "line" && storedLineUserId && state.calc.retVerifiedLineUserId !== storedLineUserId){
       state.calc.retVerified = false;
+      state.calc.identityEvidenceChecked = false;
       state.calc.retVerificationMethod = "";
       state.calc.retVerifiedLineUserId = "";
       state.calc.retVerificationToken = "";
@@ -3522,8 +3525,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!state.calc.ret){
       state.calc.reviewGoogle = false;
       state.calc.reviewFacebook = false;
-    }else{
-      state.calc.noContract = false;
     }
     if(!state.calc.guideDone || typeof state.calc.guideDone !== "object" || Array.isArray(state.calc.guideDone)) state.calc.guideDone = {};
     if(String(state.calc.guideConsoleId || "") !== String(state.calc.consoleId || "")) resetStepOneGuide();
@@ -4387,8 +4388,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ${state.calc.retVerified && hasVerifiedAgreementRecord() && demoIdentityExpired() ? `<div class="demo-choice-warning">${en ? "The ID card or passport on your agreement has expired, or expires before the return date, so a new Master Agreement and renewed identity verification are required before this rental. Please upload your current document in step 3." : "บัตรประชาชนหรือ Passport ในสัญญาเดิมหมดอายุแล้ว หรือหมดอายุก่อนวันคืนเครื่อง ต้องทำข้อตกลงหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้งก่อนเช่าครั้งนี้ กรุณาอัปโหลดรูปเอกสารฉบับปัจจุบันในขั้นตอนที่ 3"}</div>` : ""}
       ${demoIdentityCoveredByAgreement() ? `<div class="demo-contract-status">${esc(demoAgreementCoverText())}</div>` : ""}
       ${activeVip() ? `<div class="demo-contract-status"><b>VIP: ${esc(activeVip().name)}</b><br>${esc(en ? "Your personal VIP rental and security-deposit rates are applied automatically." : "ระบบใช้ราคาค่าเช่าและค่าประกัน VIP ของคุณให้อัตโนมัติแล้ว")}</div>` : ""}
-      ${payResume.active ? "" : `<label class="option-row demo-reward-row"><input type="checkbox" id="demoReturningOpt" ${state.calc.ret?"checked":""}><div><b><span class="demo-reward-badge">🏅</span>${activeVip() ? (en ? "VIP returning-customer benefit applied" : "ใช้สิทธิ์ลูกค้าเก่า VIP แล้ว") : (en ? "Apply returning-customer discount — 10% off the rental" : "ใช้สิทธิ์ส่วนลดลูกค้าเก่า — ลด 10% ค่าเช่า")}</b><div class="hint">${state.calc.retVerified ? (en ? "Verified" : "ยืนยันสิทธิ์แล้ว") : (en ? "Enter the previous phone / Rental ID in the verification window." : "ยืนยันด้วยเบอร์เดิมหรือ Rental ID ในหน้าต่างตรวจสอบสิทธิ์")}</div></div></label>`}
+      ${payResume.active ? "" : `<label class="option-row demo-reward-row"><input type="checkbox" id="demoReturningOpt" ${state.calc.ret?"checked":""}><div><b><span class="demo-reward-badge">🏅</span>${activeVip() ? (en ? "VIP returning-customer benefit applied" : "ใช้สิทธิ์ลูกค้าเก่า VIP แล้ว") : (en ? "Apply returning-customer discount — 10% off the rental" : "ใช้สิทธิ์ส่วนลดลูกค้าเก่า — ลด 10% ค่าเช่า")}</b><div class="hint">${state.calc.retVerified ? (en ? "Discount eligibility confirmed" : "ตรวจสิทธิ์ส่วนลดแล้ว") : (en ? "Enter the previous phone / Rental ID in the verification window." : "ยืนยันด้วยเบอร์เดิมหรือ Rental ID ในหน้าต่างตรวจสอบสิทธิ์")}</div></div></label>`}
       ${state.calc.ret ? demoReviewDiscountsHtml() : ""}
+      ${state.calc.retVerified && !demoIdentityCoveredByAgreement() ? `<div class="demo-choice-warning">${en ? "Your returning-customer discount does not confirm a previous identity agreement. The higher deposit applies until you verify your identity and sign the agreement; you can do this now or later." : "ส่วนลดลูกค้าเก่าไม่ใช่หลักฐานว่ายืนยันตัวตนแล้ว ค่าประกันเรทไม่ยืนยันตัวตนจะใช้จนกว่าจะยืนยันตัวตนและทำสัญญา จะทำตอนนี้หรือภายหลังก็ได้"}</div>` : ""}
       ${demoContactCollapsed() ? demoContactSummaryHtml() : ""}
       <div class="demo-profile-grid ${demoContactCollapsed() ? "contact-collapsed" : ""}">
         <div class="field"><label class="label" for="demoCustomerName">${en ? "Legal name" : "ชื่อ-นามสกุลจริง"}<span class="req">*</span></label><input class="input" id="demoCustomerName" autocomplete="name" lang="${en ? "en" : "th"}" pattern="${en ? "[A-Za-z ]+" : "[ก-ฺเ-๎ ]+"}" value="${esc(demoProfile.fullName)}"><p class="hint">${esc(tr("legalNameScriptHint"))}</p></div>
@@ -5871,7 +5873,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ${demoIdGuideHtml()}
       ${demoIdentityUploadGridHtml("demo")}
       ${verifyForDepositActive ? "" : demoIdentityFieldsHtml()}
-      <label class="option-row"><input type="checkbox" id="demoIdentitySkip" ${demoProfile.identitySkipped?"checked":""}><div><b>${en ? "Verify later" : "ยืนยันตัวตนภายหลัง"}</b><div class="hint">${en ? "You may continue to payment, but AJ will show Identity incomplete and will not dispatch equipment until verification is approved." : "ไปหน้าชำระเงินต่อได้ แต่สถานะจะแสดงว่ายืนยันตัวตนยังไม่สำเร็จ และร้านจะไม่จัดส่งจนกว่าจะตรวจสอบผ่าน"}</div></div></label>`;
+      <label class="option-row"><input type="checkbox" id="demoIdentitySkip" ${demoProfile.identitySkipped?"checked":""}><div><b>${en ? "Verify later" : "ยืนยันตัวตนภายหลัง"}</b><div class="hint">${en ? "You can verify later. Until then, the higher deposit applies." : "ยืนยันตัวตนภายหลังได้ ระหว่างนี้ใช้ค่าประกันเรทไม่ยืนยันตัวตน"}</div></div></label>`;
   }
   // One description of what step 2 needs, used both to enable the step and to
   // mark the fields the customer still has to fill in.
@@ -6069,6 +6071,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // order page's buttons. A payment link made for the old deposit is dropped.
   function setDemoNoContract(value){
     state.calc.noContract = !!value;
+    syncDemoNoContractAcceptance();
+    if(!value) demoProfile.identitySkipped = false;
     state.calc.beamPaymentLink = "";
     state.calc.beamPaymentKey = "";
     state.calc.beamPaymentExpiresAt = "";
@@ -6532,7 +6536,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   function closeReturningEligibility(){ byId("returningVerifyModal")?.classList.remove("open"); }
   function hasActiveMasterAgreement(){
-    return ["valid","legacy_verified"].includes(state.calc.masterAgreement?.status) && !!state.calc.masterAgreementAccepted;
+    return ["valid","legacy_verified"].includes(state.calc.masterAgreement?.status) && !demoIdentityExpired() && !!state.calc.masterAgreementAccepted;
   }
   function hasVerifiedAgreementRecord(){ return ["valid","legacy_verified"].includes(state.calc.masterAgreement?.status); }
   function formatAgreementDate(value){
@@ -6557,7 +6561,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   async function openMasterAgreementModal(){
     const agreement = state.calc.masterAgreement;
-    if(!agreement || !["valid","legacy_verified"].includes(agreement.status)){
+    if(!agreement || !demoIdentityCoveredByAgreement()){
       toast(tr("masterAgreementExpired"));
       return;
     }
@@ -6664,21 +6668,25 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(!state.calc.retVerificationToken || !result.profile) demoReturningBaseline = "";
       state.calc.vip = normalizeVipEntitlement(result.vip);
       state.calc.masterAgreement = result.masterAgreement || {status:"none"};
+      state.calc.identityEvidenceChecked = true;
       state.calc.masterAgreementAccepted = false;
       state.calc.masterAgreementAcceptedAt = "";
       state.calc.ret = true;
       applyDemoReturningProfile(result.profile);
       trackAnalytics("returning_customer_verified", {value:"manual"});
-      state.calc.noContract = false;
+      state.calc.noContract = !demoIdentityCoveredByAgreement();
+      syncDemoNoContractAcceptance();
       markGuideDone("ret");
-      markGuideDone("contractChoice");
-      markGuideDone("contractLink");
-      setGuideStage("payment");
+      if(demoIdentityCoveredByAgreement()){
+        markGuideDone("contractChoice");
+        markGuideDone("contractLink");
+        setGuideStage("payment");
+      }else setGuideStage("contractChoice", {syncStep:false});
       saveLocal();
       toast(tr("returningVerifySuccess"));
       closeReturningEligibility();
       render();
-      if(["valid","legacy_verified"].includes(state.calc.masterAgreement?.status)) await openMasterAgreementModal();
+      if(demoIdentityCoveredByAgreement()) await openMasterAgreementModal();
       else if(state.calc.masterAgreement?.status === "expired") toast(tr("masterAgreementExpired"));
     }catch(error){
       console.warn("Returning eligibility check failed", error);
@@ -6727,8 +6735,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn" type="button" id="mapsOpen">Google Maps</button><button class="btn" type="button" id="mapsHelp">${tr("mapsHelp")}</button></div>
       <div class="hint" style="margin:10px 0 12px"><b>${tr("mapsDeliveryArea")}</b><br>${tr("mapsDeliveryPromo")}</div>`;
     const agreementHtml = state.calc.ret && state.calc.masterAgreement ? `<div class="privacy-reassurance"><b>${state.calc.masterAgreement.status === "legacy_verified" ? tr("masterAgreementLegacy") : `${tr("masterAgreementId")}: ${esc(state.calc.masterAgreement.id || "-")}`}</b>${state.calc.masterAgreement.status === "valid" ? `<br>${tr("masterAgreementExpiry")}: ${esc(formatAgreementDate(state.calc.masterAgreement.validUntil))}` : ""}${hasActiveMasterAgreement() ? ` · ✓ ${tr("rentalTermsAccepted")}` : ""}</div>` : "";
-    const agreementActionHtml = state.calc.ret && state.calc.retVerified && hasVerifiedAgreementRecord() ? `<div class="returning-agreement-action">${agreementHtml}${hasActiveMasterAgreement() ? "" : `<button class="btn primary" id="reviewRentalOrderBtn" type="button">${tr("masterAgreementTitle")}</button>`}</div>` : "";
-    const contractHtml = state.calc.ret && state.calc.retVerified && hasVerifiedAgreementRecord() ? "" : `<div class="card" id="contractCard" style="margin:12px 0 0">
+    const agreementActionHtml = state.calc.ret && demoIdentityCoveredByAgreement() ? `<div class="returning-agreement-action">${agreementHtml}${hasActiveMasterAgreement() ? "" : `<button class="btn primary" id="reviewRentalOrderBtn" type="button">${tr("masterAgreementTitle")}</button>`}</div>` : "";
+    const contractHtml = state.calc.ret && demoIdentityCoveredByAgreement() ? "" : `<div class="card" id="contractCard" style="margin:12px 0 0">
       ${state.calc.noContract ? "" : `<h3>${tr("contract")}${selectedConsole ? depositBadge(selectedConsole.deposit, "ok") : ""}</h3><p class="privacy-reassurance">🔒 ${tr("contractPrivacy")}</p><p class="hint" style="color:#c00000;font-weight:800">${tr("contractAge")}</p><button class="btn soft" id="contractBtn" type="button">${tr("contract")}</button><p class="hint" id="contractCodeHint">${state.calc.rentalCode ? `${tr("temporaryRentalCode")}: ${esc(state.calc.rentalCode)}` : ""}</p>`}
       <label class="option-row" style="margin-top:${state.calc.noContract ? 0 : 12}px"><input type="checkbox" id="noContractOpt" ${state.calc.noContract?"checked":""}><div><b>${tr("noContract")}${state.calc.noContract && selectedConsole ? depositBadge(demoDepositChoices().noId, "danger") : ""}</b><div class="hint">${tr("noContractHelp")}</div>${state.calc.noContract ? `<div class="hint" style="color:#18743a;font-weight:800">✓ ${tr("rentalTermsAccepted")} · <a href="${esc(rentalTermsUrl(state.lang))}" target="_blank" rel="noopener">${tr("rentalTermsRead")}</a></div>` : ""}</div></label>
     </div>`;
@@ -8294,15 +8302,29 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
 
   // The version in force comes from the server, so an acceptance is stamped
   // with whatever the shop last published. The shipped version is the fallback.
-  let RENTAL_TERMS_VERSION = "2026-09-23";
+  let RENTAL_TERMS_VERSION = "2026-10-08-2";
+  function syncDemoNoContractAcceptance(){
+    state.calc.beamPaymentLink = "";
+    state.calc.beamPaymentKey = "";
+    state.calc.beamPaymentExpiresAt = "";
+    const accepted = !!state.calc.noContract && !!demoProfile.termsAccepted && demoProfile.termsAcceptedVersion === RENTAL_TERMS_VERSION;
+    state.calc.rentalTermsAccepted = accepted;
+    state.calc.rentalTermsAcceptedAt = accepted ? (state.calc.rentalTermsAcceptedAt || new Date().toISOString()) : "";
+    state.calc.rentalTermsVersion = accepted ? RENTAL_TERMS_VERSION : "";
+    state.calc.rentalTermsLanguage = accepted ? state.lang : "";
+  }
   async function loadRentalTermsVersion(){
     try{
       const response = await fetch(`${CONFIG.apiBase}/api/rental-terms?_ts=${Date.now()}`, {cache:"no-store"});
       if(!response.ok) return;
       const result = await response.json();
       if(result?.version) RENTAL_TERMS_VERSION = String(result.version);
+      if(demoProfile.termsAccepted && demoProfile.termsAcceptedVersion !== RENTAL_TERMS_VERSION){
+        demoProfile.termsAccepted = false;
+        demoProfile.termsAcceptedVersion = "";
+        saveDemoProfile();
+      }
       if(state.calc.noContract && state.calc.rentalTermsVersion && state.calc.rentalTermsVersion !== RENTAL_TERMS_VERSION){
-        state.calc.noContract = false;
         state.calc.rentalTermsAccepted = false;
         state.calc.rentalTermsAcceptedAt = "";
         state.calc.rentalTermsVersion = "";
@@ -9003,7 +9025,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
   }
   async function guardedBookingShare(channel, action){
-    if(state.calc.ret && state.calc.retVerified && !hasActiveMasterAgreement()){
+    if(state.calc.ret && state.calc.retVerified && !state.calc.noContract && demoIdentityCoveredByAgreement() && !hasActiveMasterAgreement()){
       pendingAgreementShare = {channel, action};
       await openMasterAgreementModal();
       return false;
@@ -11670,7 +11692,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(selection && selection.length <= 350) url.searchParams.set("lineSelection", selection);
     return url.href;
   }
-  const LINE_DRAFT_CALC_FIELDS = ["step","type","consoleId","start","end","datesTouched","bundleId","extras","boardgames","bundleOpen","bgOpen","ret","retVerified","retVerificationMethod","retVerifiedLineUserId","retVerificationToken","vip","masterAgreement","masterAgreementAccepted","masterAgreementAcceptedAt","reviewGoogle","reviewFacebook","noContract","rentalTermsAccepted","rentalTermsAcceptedAt","rentalTermsVersion","rentalTermsLanguage","maps","games","later","guideDone","guideConsoleId"];
+  const LINE_DRAFT_CALC_FIELDS = ["step","type","consoleId","start","end","datesTouched","bundleId","extras","boardgames","bundleOpen","bgOpen","ret","retVerified","identityEvidenceChecked","retVerificationMethod","retVerifiedLineUserId","retVerificationToken","vip","masterAgreement","masterAgreementAccepted","masterAgreementAcceptedAt","reviewGoogle","reviewFacebook","noContract","rentalTermsAccepted","rentalTermsAcceptedAt","rentalTermsVersion","rentalTermsLanguage","maps","games","later","guideDone","guideConsoleId"];
   function lineBookingDraft(){
     return {
       version:1,
@@ -11901,15 +11923,20 @@ We apologize for the inconvenience and hope everyone stays safe.`
           if(!state.calc.retVerificationToken || !result.profile) demoReturningBaseline = "";
           state.calc.vip = normalizeVipEntitlement(result.vip);
           state.calc.masterAgreement = result.masterAgreement || {status:"none"};
+          state.calc.identityEvidenceChecked = true;
           state.calc.masterAgreementAccepted = false;
           state.calc.masterAgreementAcceptedAt = "";
           state.calc.ret = true;
-          state.calc.noContract = false;
+          state.calc.noContract = !demoIdentityCoveredByAgreement();
+          syncDemoNoContractAcceptance();
           markGuideDone("ret");
-          markGuideDone("contractChoice");
-          markGuideDone("contractLink");
+          if(demoIdentityCoveredByAgreement()){
+            markGuideDone("contractChoice");
+            markGuideDone("contractLink");
+          }
         }else if(state.calc.retVerificationMethod === "line"){
           state.calc.retVerified = false;
+          state.calc.identityEvidenceChecked = false;
           state.calc.retVerificationMethod = "";
           state.calc.retVerifiedLineUserId = "";
           state.calc.retVerificationToken = "";
@@ -12523,10 +12550,12 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(state.calc.retVerified){
         markGuideDone("ret");
         state.calc.ret = true;
-        state.calc.noContract = false;
-        markGuideDone("contractChoice");
-        markGuideDone("contractLink");
-        setGuideStage("payment");
+        state.calc.noContract = !demoIdentityCoveredByAgreement();
+        if(demoIdentityCoveredByAgreement()){
+          markGuideDone("contractChoice");
+          markGuideDone("contractLink");
+          setGuideStage("payment");
+        }else setGuideStage("contractChoice", {syncStep:false});
         saveLocal();
         render();
       }else{
@@ -13901,13 +13930,12 @@ We apologize for the inconvenience and hope everyone stays safe.`
         state.calc.ret = event.target.checked;
         trackAnalytics("returning_customer_selected", {value:state.calc.ret ? "selected" : "cleared"});
         if(state.calc.ret){
-          state.calc.noContract = false;
-          state.calc.rentalTermsAccepted = false;
-          state.calc.rentalTermsAcceptedAt = "";
-          state.calc.rentalTermsVersion = "";
-          state.calc.rentalTermsLanguage = "";
-          markGuideDone("contractChoice");
-          markGuideDone("contractLink");
+          state.calc.noContract = state.calc.retVerified && !demoIdentityCoveredByAgreement();
+          syncDemoNoContractAcceptance();
+          if(demoIdentityCoveredByAgreement()){
+            markGuideDone("contractChoice");
+            markGuideDone("contractLink");
+          }
         }else{
           state.calc.reviewGoogle = false;
           state.calc.reviewFacebook = false;
@@ -13917,7 +13945,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         // from an earlier selection, so generic guide advancement could skip
         // as far as next3 and silently change state.calc.step to 3.
         markGuideDone("ret");
-        setGuideStage(state.calc.ret ? "payment" : "contractChoice", {syncStep:false});
+        setGuideStage(state.calc.ret && demoIdentityCoveredByAgreement() ? "payment" : "contractChoice", {syncStep:false});
         saveLocal();
         render();
       }
@@ -14027,7 +14055,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     document.addEventListener("change", event => {
       if(demoEditStep && event.target.closest?.("#demoEditBody")) window.setTimeout(updateDemoEditMissing, 0);
       if(!UNIFIED_FLOW_DEMO) return;
-      if(event.target.id === "demoTermsOpt"){ demoProfile.termsAccepted = event.target.checked; clearDemoFieldError("demoTermsOpt"); saveDemoProfile(); renderStepActions(); }
+      if(event.target.id === "demoTermsOpt"){ demoProfile.termsAccepted = event.target.checked; demoProfile.termsAcceptedVersion = event.target.checked ? RENTAL_TERMS_VERSION : ""; syncDemoNoContractAcceptance(); clearDemoFieldError("demoTermsOpt"); saveDemoProfile(); saveLocal(); renderStepActions(); }
       if(event.target.id === "demoEmail") showDemoEmailError();
       if(event.target.id === "demoCustomerName") showDemoContactFieldError("demoCustomerName", tr("legalNameScriptError"));
       if(event.target.id === "demoCustomerPhone") showDemoContactFieldError("demoCustomerPhone", tr("phoneScriptError"));
@@ -14058,6 +14086,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(event.target.id === "demoAgreementConsent"){ demoProfile.agreementConsent = event.target.checked; clearDemoFieldError("demoAgreementConsent"); renderStepActions(); }
       if(event.target.id === "demoIdentitySkip"){
         demoProfile.identitySkipped = event.target.checked;
+        if(event.target.checked) state.calc.noContract = true;
+        syncDemoNoContractAcceptance();
         saveDemoProfile();
         render();
       }

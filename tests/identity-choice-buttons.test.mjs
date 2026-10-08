@@ -23,7 +23,7 @@ test('verification left for later: a red-outlined button skips it for the higher
   assert.match(html, /noId:bundleName \? Math.max\(Number\(deposit\) \|\| 0, pricingPolicy\?\.bundleNoIdentityDeposit \|\| 15000\)/);
   // One switch for the step 2 checkbox and these buttons; it drops a payment
   // link made for the old deposit.
-  assert.match(html, /function setDemoNoContract\(value\)\{\n    state\.calc\.noContract = !!value;\n    state\.calc\.beamPaymentLink = "";/);
+  assert.match(html, /function setDemoNoContract\(value\)\{\n    state\.calc\.noContract = !!value;[\s\S]*?state\.calc\.beamPaymentLink = "";/);
   assert.match(html, /if\(event\.target\.id === "demoNoContractOpt"\)\{\n        setDemoNoContract\(event\.target\.checked\);/);
   assert.doesNotMatch(html, /id="demoIdentityNoContractOpt"/);
 });
