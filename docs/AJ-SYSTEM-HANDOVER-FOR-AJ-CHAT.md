@@ -214,7 +214,7 @@ All routes are in `src/server.js`; logic lives in `src/services/*`.
   - `…/my-rental-change`
   - `…/pay-later-email`
   - `…/pay-later-preview`
-  - `…/lalamove/{setup,quote,order,status,cancel,priority-fee,change-driver}`: the Lalamove gateway for trips called from the delivery queue. The Bot holds the Lalamove credentials and the shop pickup point. Every call is signed and carries `sentAt` (refused when more than 5 minutes off). `order` also requires a `requestId`: the same id within 30 minutes returns the same order, never a second paid one. `leg: 'delivery'` runs shop → customer; `'return'` runs customer → shop. Lalamove's `shareLink` shows both ends of the trip, so it is for staff only.
+  - `…/lalamove/{setup,quote,order,status,cancel,priority-fee,change-driver}`: the Lalamove gateway for trips called from the delivery queue. The Bot holds the Lalamove credentials and the shop pickup point. Every call is signed and carries `sentAt` (refused when more than 5 minutes off). `order` also requires a `requestId`: the same id within 30 minutes returns the same order, never a second paid one. `leg: 'delivery'` runs shop → customer; `'return'` runs customer → shop. The shop end is named `jj`, phone `0816244715`. Lalamove's `shareLink` shows both ends of the trip, so it is for staff only.
 - The Bot calls the Delivery App at `/api/integrations/aj-rental/*` (see section 5).
 - Other Bot endpoints the Delivery App uses:
   - `GET /api/id-pending` (game-ID requests);
@@ -266,7 +266,7 @@ Backend routes are mounted in `backend/src/server.ts`. The staff screens are in 
   - Trips are kept on the Sheet tab `Lalamove Jobs`.
   - A 60-second poller sends the customer LINE Flex cards. These never show a fare, the shop address or a tracking link.
   - Delivery cards: confirmed (dropoff, recipient, phone); picked up with ETA; then 30 / 15 / 5 minutes away; then "เครื่องถึงที่อยู่ของคุณแล้ว" on completion. The last one is the shop's delivery card (bag codes, balance), using the payment method the shop confirmed when it sent that card (recorded on the Sheet tab `Delivery Card Sent`); with no confirmed method it has no payment part.
-  - Customer tracking page `/c/track/<token>` (deliveries only, HMAC-signed with `AJ_RENTAL_WEBHOOK_SECRET`, prefix `aj-track:`): the customer's point, plus the driver once more than 2 km from the shop, and the ETA. It never shows the shop. JSON at `/c/track/<token>/state`.
+  - Customer tracking page `/c/track/<token>` (deliveries only, HMAC-signed with `AJ_RENTAL_WEBHOOK_SECRET`, prefix `aj-track:`): the customer's point, plus the driver once more than 2 km from the shop, and the ETA. It never shows the shop. JSON at `/c/track/<token>/state`. The map is Google Maps, using the Bot's `GOOGLE_MAPS_BROWSER_KEY` from `/api/config`, with an OpenStreetMap fallback.
   - Return cards: confirmed (pickup point, sender, phone); one card on pickup saying when the items reach the shop. No updates, no tracking page, no arrival card. Every ETA is labelled as an estimate that depends on traffic and weather.
   - ETA comes from the Google Routes API with traffic, falling back to a distance estimate.
 - `/api/finance`: summary, entries, expenses, sales, refs.

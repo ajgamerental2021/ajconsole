@@ -1,5 +1,19 @@
 # Project state
 
+## 2026-10-08 — Claude Code: Google Maps on the tracking page, shop name "jj", app build 20261008 prepared
+
+- **Tracking page map** (Delivery App `6388398`):
+  - It now draws Google Maps with the Bot's browser key (`/api/config` → `googleMapsBrowserKey`), the same key the place-pin map uses, in Thai or English with region TH.
+  - If there is no key, the script fails, or Google refuses the key (`gm_authFailure`), it switches to Leaflet/OpenStreetMap.
+  - Both paths were checked in a browser: Google stubbed, and a missing key.
+- **Shop name on Lalamove orders** (Bot `126b533`): `jj`, phone `0816244715` unchanged. Test added; Bot suite 590/590.
+- **App build 20261008:** `versionCode` and `APP_VERSION_CODE` are bumped, and `CHANGELOG.md` has a `## build 20261008` section covering everything since build 20260913. **The APK was not built:** this cloud session's network policy blocks `api.expo.dev`, and there is no `EXPO_TOKEN`. `render.yaml` is unchanged; `LATEST_APK_URL` and `MIN_ANDROID_VERSION_CODE` wait for the real APK link.
+- **Deploying:** pushing to `main` deploys both Render services (`autoDeploy: true`). Order and APK steps are now written in `SHARED-WORKSPACE.md`, under "Deploying and releasing".
+- **Owner actions:**
+  1. In Render, confirm `aj-line-oa-bot` shows Live on `126b533` before `delivery-app-backend` goes Live on `6388398`. Both started on push.
+  2. In Google Cloud, add `https://delivery-app-backend-68pm.onrender.com/*` to the HTTP referrers allowed on the browser key (`GOOGLE_MAPS_BROWSER_KEY`). Without it the tracking page quietly uses OpenStreetMap.
+  3. Build the APK: `cd delivery-app/frontend && npx eas-cli build -p android --profile preview`. Paste the expo.dev link into the changelog and `LATEST_APK_URL`. Raise `MIN_ANDROID_VERSION_CODE` to `20261008` only after the shop phones have it.
+
 ## 2026-10-08 — Claude Code: Lalamove customer tracking page and "it has arrived" card
 
 - **Owner asked** for three changes:

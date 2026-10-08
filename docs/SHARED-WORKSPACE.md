@@ -49,8 +49,29 @@ All repositories are on GitHub under `ajgamerental2021`.
 - **To ask for a change in another agent's repository,** add a "Request" entry at the top of PROJECT-STATE: who is asking, what is needed, and why. The owner relays it.
 - **Open decisions** are listed at the end of the handover file, in section 11. Do not build past them before the owner decides.
 
+## Deploying and releasing
+
+- **Render deploys on push.** The Bot (`aj-line-oa-bot`) and both Delivery App services (`delivery-app-backend`, `delivery-app-web`) have `autoDeploy: true`. A push to `main` is the deploy; watch the service's Events in Render until it says Live.
+- **Order, when an API changes between them:** push the Bot first and wait for Live; then the Delivery App backend; then release the app.
+- **Delivery App APK (Android):**
+  1. Bump `android.versionCode` in `frontend/app.json` and `APP_VERSION_CODE` in `frontend/src/utils/appVersion.ts` to the same number (`YYYYMMDD`).
+  2. Add a `## build <versionCode>` section to `delivery-app/CHANGELOG.md`.
+  3. Build it with `cd frontend && npx eas-cli build -p android --profile preview` (needs an Expo login or `EXPO_TOKEN`). The result is an `expo.dev/artifacts/…apk` link.
+  4. Put that link in the changelog section, and in `render.yaml` as `LATEST_APK_URL`.
+  5. Only once the new APK is installed on the shop phones, raise `MIN_ANDROID_VERSION_CODE` in `render.yaml` to the new number. Raising it earlier locks every phone out until it updates.
+- The cloud sessions here cannot reach expo.dev, so the APK build is done from the owner's computer, or from a session whose network allows `api.expo.dev` and that has `EXPO_TOKEN` set.
+
 ## Current handoff — 8 October 2026
 
+- **Lalamove from the Delivery App queue, 8 Oct (Claude Code):**
+  - **Bot:** the signed gateway `…/integrations/delivery-app/lalamove/*` (`39a9428`). The shop end of every trip is named **jj** on `0816244715` (`126b533`).
+  - **Delivery App backend:**
+    - `/api/dispatch/*` (`495dbb3`, `1f9684e`, `6388398`);
+    - the customer cards: confirmed, on the way, 30/15/5 minutes, arrived;
+    - the "arrived" card reuses the shop's delivery card and the payment method the shop confirmed when sending it (Sheet `Delivery Card Sent`);
+    - the customer tracking page `/c/track/<token>`, deliveries only: Google Maps with the Bot's browser key, falling back to OpenStreetMap. It never shows the shop; the driver is hidden within 2 km of the shop.
+  - **App:** build **20261008** is prepared (version bumped, changelog written) but **not built yet**.
+  - Details are in PROJECT-STATE.
 - **Payment UI, 8 Oct:** Website commit `0780455` separates the individual-rate notice from the total card and adds the missing yellow amount-due block to resumed payments. It reads the Bot's saved payment plan for the selected method, including fees and pay-on-delivery balance. Thai/English and 309 website tests passed; GitHub Pages and live source checks passed. No payment was submitted during testing.
 - **Analytics board editing:** Bot commit `5b1b0c4` corrects a resize-order race that could leave the two-column `หน้ารวม` board static after opening narrow. Drag/edge-resize return when the actual GridStack columns widen; `กรอบ− / กรอบ+` provide an explicit frame-size fallback. One-column/mobile stays a natural-height list and does not overwrite the saved 12-column arrangement. Bot tests 582/582 passed; live Render source and visible buttons were verified, but saved panels were not moved as a production test.
 - **Queue/analytics and company-rate notice, 8 Oct:** Website availability checks had a 2-second redundant hedge against two sources; normal 3–5-second replies could produce four upstream calls. It now waits 6 seconds, retries only the direct Apps Script source, caps at three calls and 18 seconds, and rate-limits repeated error reporting per browser to once a minute. It still requires a fresh queue result at booking. Analytics gets Bangkok-calendar Yesterday/Last week/Last month. The live 7 Oct dashboard showed 34 failure *events* (only 1 timeout and 2 AggregateErrors specified); 8 Oct had 9 (6 timeouts, 3 AggregateErrors). This is not 34 unique renters, and exact historical upstream failures cannot be recovered from the 31 events without detail. No-cache live checks confirmed updated website, Bot Terms and analytics source after deployment; monitor failure counts/details over subsequent days.
