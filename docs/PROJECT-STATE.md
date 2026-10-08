@@ -1,5 +1,10 @@
 # Project state
 
+## 2026-10-08 — Codex: first extension card and repeat-link verification
+
+- **Delivery App `f8f30d7`:** The original extension request card already carried Edit request in both languages. The first customer LINE push is now awaited before the request page responds, and the staff test-card preview includes the same button.
+- **Verification:** The new backend simulation checks the actual first-card push payload in Thai and English, and opens the customer extension route again in both languages before and after changing the request from one day to three. It confirms the same request ID and selected days. Backend TypeScript build passed. No live customer LINE push was made. Existing LINE messages already sent before the edit button was added cannot be changed retrospectively; customers can reopen their My Rental extension link to edit the current request.
+
 ## 2026-10-08 — Codex: one unpaid rental extension and editable request
 
 - **Delivery App backend `8d6058b`:** One unresolved extension request per Booking. Repeated taps open the existing request for editing; while payment is being checked or multiple older requests already exist, new requests are blocked. An expired request has a cancellation action before a new request can be made.
