@@ -1,5 +1,12 @@
 # Project state
 
+## 2026-10-08 — Codex: one unpaid rental extension and editable request
+
+- **Delivery App backend `8d6058b`:** One unresolved extension request per Booking. Repeated taps open the existing request for editing; while payment is being checked or multiple older requests already exist, new requests are blocked. An expired request has a cancellation action before a new request can be made.
+- **LINE:** The request Flex card has an Edit request button in Thai and English. Editing days shows the recalculated total and new return date, then sends the complete card headed “แก้ไขคำขอเช่าต่อแล้ว” / “Extension request updated”. Bank transfers keep their reference; Beam card and e-wallet edits rotate the reference and checkout amount. Cancel and settlement share a lock; money on an old checkout never moves the return date automatically and alerts the shop for review.
+- **Verification:** Backend TypeScript build, 60 extension pricing checks, pending/deposit checks, and the new duplicate/edit/card/slip/old-checkout simulation passed. Git `origin/main` is `8d6058b`. Production `/api/version` reported `8d6058b`; TH/EN demo extension pages returned HTTP 200. No live payment or customer LINE message was sent by the test.
+- **Existing double requests:** The screenshot's already duplicated requests and the 270 THB transfer still require staff to choose the intended request and reconcile the payment; the system cannot infer which return date the customer paid for.
+
 ## 2026-10-08 — Codex: all four Lalamove trip stops editable, defaults retained
 
 - **Bot `c3ec881`:** The signed quote accepts an optional `shopPoint` in Thailand. With none, the configured AJ pickup stays the default. The customer point still defaults to the booking. The quote uses the selected shop point as the delivery origin or return destination; the shop contact name and number stay configured.
