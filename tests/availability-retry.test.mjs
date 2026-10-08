@@ -33,25 +33,25 @@ test('a fast queue result does not start a redundant retry', async () => {
   assert.equal(calls.length, 2);
 });
 
-test('a queue request still pending after two seconds starts a second check', async () => {
+test('a queue request still pending after six seconds hedges only the direct source', async () => {
   const calls = [];
   let retries = 0;
   const check = queueCheck(url => {
     calls.push(url);
-    return url.includes('-1') && url.includes('bot.test') ? Promise.resolve(validResponse()) : stalled();
+    return url.includes('retry') && url.includes('script.test') ? Promise.resolve(validResponse()) : stalled();
   });
   const result = await check(123, () => { retries += 1; });
   assert.equal(result.rows[0].deviceName, 'PS5');
   assert.equal(retries, 1);
-  assert.equal(calls.length, 4);
+  assert.equal(calls.length, 3);
 });
 
-test('a failed or stalled queue check finishes within ten seconds without claiming availability', async () => {
+test('a failed or stalled queue check finishes within eighteen seconds without claiming availability', async () => {
   const calls = [];
   const check = queueCheck(url => { calls.push(url); return stalled(); });
   const started = performance.now();
   await assert.rejects(check(123));
-  assert.equal(calls.length, 4);
+  assert.equal(calls.length, 3);
   assert.ok(performance.now() - started < 250);
 });
 

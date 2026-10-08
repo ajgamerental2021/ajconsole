@@ -1032,6 +1032,8 @@ body.unified-flow-demo .demo-order-row.is-pay-now b{font-size:18px;color:#b42318
 body.unified-flow-demo .demo-order-row.is-pay-later b{font-size:16px;color:#101828}
 body.unified-flow-demo .demo-order-row .payment-badges{display:inline-flex;vertical-align:middle;margin-left:4px}
 body.unified-flow-demo .demo-payment-schedule-note{margin:6px 0 0;color:#667085;font-size:12.5px;line-height:1.55}
+.individual-rate-notice{margin:0 0 16px;padding:12px 14px;border:1px solid #eacb79;border-radius:12px;background:#fff9e9;color:#684615;font-size:13px;line-height:1.55}
+.individual-rate-notice a{color:#9b1c1c;font-weight:800;text-decoration:underline}
 body.unified-flow-demo .demo-item-head{display:flex;gap:14px;align-items:center}
 body.unified-flow-demo .demo-item-thumb{width:64px;height:64px;flex:0 0 auto;object-fit:contain;border-radius:12px;background:#f2f4f7}
 body.unified-flow-demo .demo-item-thumb-icon{display:grid;place-items:center;font-size:30px}
@@ -2109,6 +2111,8 @@ You may ask to access, correct, object to, restrict or delete your data, or with
 
   const I18N = {
     th:{
+      individualRateBefore:"ราคานี้เป็นเรทเช่าในนามบุคคล หากต้องการเอกสารในนามบริษัท เช่น ใบเสร็จ ใบกำกับภาษี หรือเอกสารผู้ให้เช่า โปรดขอเรทบริษัททาง LINE ",
+      individualRateAfter:" ก่อนจอง",
       calcCta:"เช็คคิว & คำนวณค่าเช่า",
       identityUploadedPreview:"ดูรูปที่อัปโหลดแบบขยาย",
       contactChannelTitle:"ช่องทางรับข้อมูลการจอง",
@@ -2256,6 +2260,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       faqTitle:"คำถามที่พบบ่อย", faqExpand:"ดูคำถามทั้งหมด", faqCollapse:"ย่อคำถาม", adminLogin:"เข้าสู่ระบบ Admin", adminUser:"ผู้ใช้", adminPassword:"รหัสผ่าน", adminSubmit:"เข้าสู่ระบบ", adminPasskeyLogin:"เข้าสู่ระบบด้วย Passkey", adminPasskeyRegister:"เพิ่ม Passkey", adminPasskeyLabel:"ชื่อ Passkey เช่น MacBook หรือ iPhone", adminPasskeySaved:"เพิ่ม Passkey เรียบร้อยแล้ว", adminPasskeyFailed:"ไม่สามารถใช้ Passkey ได้ กรุณาลองใหม่หรือใช้รหัสผ่าน", wrongPassword:"ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", rentalCode:"รหัสการเช่า", temporaryRentalCode:"รหัสรายการชั่วคราว", save:"บันทึก", add:"เพิ่ม", edit:"แก้ไข", delete:"ลบ", sync:"Sync", pull:"Pull", push:"Push"
     },
     en:{
+      individualRateBefore:"This is an individual rental rate. For company documents such as a receipt, tax invoice, or lessor documents, request a company rate via LINE ",
+      individualRateAfter:" before booking.",
       calcCta:"Check Queue & Calculate",
       identityUploadedPreview:"View uploaded photo larger",
       contactChannelTitle:"Booking updates",
@@ -2409,6 +2415,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   const byId = id => document.getElementById(id);
   const tr = key => key === "beforeRentNoteContract" ? pricingExplanation(state.lang) : key === "noContractHelp" ? `${state.lang === "en" ? "You must still read and accept the Rental Terms. " : "ยังต้องอ่านและยอมรับเงื่อนไขการเช่า "}${pricingExplanation(state.lang)}` : (I18N[state.lang] && I18N[state.lang][key]) || key;
   const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const individualRateNoticeHtml = () => `<div class="individual-rate-notice" role="note">${esc(tr("individualRateBefore"))}<a href="https://lin.ee/VLB7CBe" target="_blank" rel="noopener noreferrer">@ajgame</a>${esc(tr("individualRateAfter"))}</div>`;
   const safeHref = (value, fallback="#") => {
     const raw = String(value || "").trim();
     if(!raw) return fallback;
@@ -2861,6 +2868,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   const OWN_BOOKING_HOLD_KEY = "aj_booking_own_hold";
   const AVAILABILITY_CACHE_KEY = "aj_booking_availability_cache";
   const AVAILABILITY_VERIFIED_TTL_MS = 5 * 60 * 1000;
+  const AVAILABILITY_ERROR_REPORT_INTERVAL_MS = 60 * 1000;
+  let lastAvailabilityErrorReportAt = 0;
   const LINE_GAME_CARD_SENT_PREFIX = "aj_line_game_picker_card_sent_";
   const LINE_GAME_CARD_TTL_MS = 24 * 60 * 60 * 1000;
   const ANALYTICS_VISITOR_KEY = "aj_analytics_visitor_v1";
@@ -6257,7 +6266,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         ${row(en ? "Total including delivery" : "ยอดรวมทั้งหมด (รวมค่าจัดส่ง)", quote ? money(summary.total) : esc(en ? "Awaiting delivery quote" : "รอค่าจัดส่ง"), "is-grand")}
       </div>
       ${quote ? paymentScheduleHtml(summary) : ""}
-    </div>`;
+    </div>${individualRateNoticeHtml()}`;
   }
   // What is paid now and what is left for delivery day, for the payment
   // option picked. Shared by the order page and anywhere else the split shows.
@@ -7550,12 +7559,18 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(retryStarted || controller.signal.aborted) return;
       retryStarted = true;
       onRetry();
-      sourcePair(1).then(resolveRetry, rejectRetry);
+      fetchJsonWithTimeout(`${CONFIG.availabilityUrl}${CONFIG.availabilityUrl.includes("?")?"&":"?"}_ts=${stamp}-retry`, 16000, controller.signal)
+        .then(payload => {
+          if(!normalizeAvailabilityRows(payload).length) throw new Error("Availability response is empty");
+          return payload;
+        }).then(resolveRetry, rejectRetry);
     };
     void first.catch(startRetry);
-    retryTimer = setTimeout(startRetry, 2000);
+    // Typical cold requests take 3-5 seconds. A 2-second hedge multiplied
+    // one customer's check into four requests against the same Apps Script.
+    retryTimer = setTimeout(startRetry, 6000);
     const deadline = new Promise((_, reject) => {
-      deadlineTimer = setTimeout(() => reject(new Error("availability_timeout")), 10000);
+      deadlineTimer = setTimeout(() => reject(new Error("availability_timeout")), 18000);
     });
     try{
       return await Promise.race([Promise.any([first, retry]), deadline]);
@@ -7609,7 +7624,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       }
       state.availability.error = String(error?.message || error || "Availability request failed");
       state.availability.stale = false;
-      trackAnalytics("client_error", {errorCode:"availability_api_failed", value:state.availability.error.slice(0, 80)});
+      if(Date.now() - lastAvailabilityErrorReportAt >= AVAILABILITY_ERROR_REPORT_INTERVAL_MS){
+        lastAvailabilityErrorReportAt = Date.now();
+        trackAnalytics("client_error", {errorCode:"availability_api_failed", value:state.availability.error.slice(0, 80)});
+      }
       return {fresh:false,cached:false};
     }finally{
       state.availability.loading = false;
@@ -9885,6 +9903,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           <div class="demo-total-group demo-total-final">${row(en ? "Total including delivery" : "ยอดรวมทั้งหมด (รวมค่าจัดส่ง)", money(r.plan?.base || 0), "is-grand")}</div>
           ${paidRows.length ? `<div class="demo-total-group">${paidRows.join("")}</div>` : ""}
         </div></section>
+        ${individualRateNoticeHtml()}
         ${canPay ? `<section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${paymentPickerHtml({selected:payResume.method, amountHtml:payResumeAmountHtml, choiceAttr:"data-pay-resume-choice", inputName:"payResumeChoice", allowWise:false, deliveryReady:true})}<div class="demo-payment-launch">${payResume.queueBlocked ? `<p class="field-error" role="alert">${esc(payResume.queueBlocked)} ${esc(en ? "Please contact AJ on LINE @ajgame." : "กรุณาติดต่อร้านทาง LINE @ajgame")}</p>` : ""}<button class="btn primary demo-pay-btn" id="payResumePay" type="button" ${payResume.queueBlocked ? "disabled" : ""}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${en ? "Pay now" : "ชำระเงิน"}</span></button></div></section>`
           : r.paid ? `<p class="hint">${esc(en ? "This rental has been paid. Thank you." : "รายการนี้ชำระเงินเรียบร้อยแล้ว ขอบคุณที่ใช้บริการ")}</p>` : ""}
       </div>

@@ -20,6 +20,8 @@ Facts come from the code as of today:
 
 The running handover log is `ajconsole/docs/PROJECT-STATE.md`.
 
+Update, 2026-10-08 (Codex; pending deployment): the production booking page's queue check waits six seconds before one direct Apps Script retry (at most three upstream calls, 18-second deadline) and reports repeated failure at most once a minute per browser; final booking still checks fresh availability. The Bot analytics page adds complete Bangkok-calendar Yesterday, Last week and Last month. New built-in Rental Terms `2026-10-08` add the individual/company-rate notice; `2026-10-07` is retained for earlier acceptances. Both new contract PDF types show that notice near totals, and the booking order and unpaid-resume pages show it below total before payment choice, in Thai/English with `@ajgame` linking to `https://lin.ee/VLB7CBe`. No company Rate Card exists yet. See `PROJECT-STATE.md` for diagnostic evidence, test results and deployment caveats.
+
 ---
 
 ## 1. The map
@@ -78,6 +80,7 @@ The running handover log is `ajconsole/docs/PROJECT-STATE.md`.
    1. Device and dates. A live queue check (`/api/availability`), closures and ready dates, and holds (`/api/booking-holds`) that keep two people from booking the same slot.
    2. Customer details. LINE connect, returning-customer discount (10%), review discounts, VIP rates, ID or passport and expiry, the no-identity option (deposit ฿2,000 → ฿10,000, ฿4,000 → ฿15,000, any PS5 bundle ฿15,000), address, Google Maps place, and Rental Terms acceptance.
    3. Order page ("Rental ID" page). Payment by Beam (card / e-wallet / PromptPay), bank transfer with a slip check, or pay later.
+   - Before choosing payment, individual-rate pricing and the company-document contact are shown after totals; the same notice appears when resuming payment. The website does not promise or categorically refuse a receipt or VAT tax invoice.
    - The ordinary website booking collects its quoted delivery charge with rent. The Delivery App's dispatch card does not ask the customer to pay that fee again; only an explicitly entered unpaid difference appears on the card. A delivery quote failure must not be presented as a paid fee.
 3. **Identity.** Photos (ID + selfie), refund account (Thai bank or Wise) and signature, now or later ("ยืนยันตอนนี้"). The result is a contract PDF, plus a Master Agreement valid for 1 year.
 4. **Games.** The game picker (`game_index.html`, up to 10 games, storage warning). Games cannot be added or changed during the rental (Rental Terms 2026-10-03, item 9). The game card in LINE has "แก้ไขรายการเกม".
@@ -88,6 +91,7 @@ The running handover log is `ajconsole/docs/PROJECT-STATE.md`.
 7. **Analytics** for the shop at `/analytics/` on the Bot:
    - three tabs: website, quick quote, greeting buttons;
    - a 🧩 "หน้ารวม" board the admin arranges, saved per admin.
+   - The website tab can select Yesterday, previous Monday–Sunday and previous calendar month in Bangkok time; availability failures are event counts, not unique customers.
 
 ---
 
@@ -119,7 +123,7 @@ All routes are in `src/server.js`; logic lives in `src/services/*`.
 - `POST /api/contracts` creates a contract.
 - `GET /api/contracts/search` and `GET /api/contracts/history` find contracts.
 - PDFs come from `services/pdf.js`: the contract and the Rental Order, with the full Rental Terms of the accepted version.
-- `services/rental-terms.js`: versioned Rental Terms, current `2026-10-03`.
+- `services/rental-terms.js`: versioned Rental Terms, latest built-in `2026-10-08` (preserve earlier versions for accepted orders; an admin-published version may supersede the built-in default).
   - `GET /api/rental-terms` reads them; admin publishes with `PUT /api/admin/rental-terms`.
 - Identity:
   - `/api/identity-drafts` (the number is kept server-side; the page keeps only the last 4 digits);
