@@ -2,7 +2,7 @@
 
 - Delivery App now sends a separate customer LINE card as soon as Lalamove assigns a delivery driver. It shows the driver name and plate, estimated minutes, Bangkok arrival time and route distance from the driver to the pickup point. The delivery card contains no driver-to-shop map image, map link, shop address, fare or Lalamove tracking link.
 - Both delivery and return initial confirmation cards say that the system is searching for a driver and will send assignment details in the chat. The assigned ETA cards in Thai and English mark times as estimates. The staff tracking panel shows the assignment and ETA notifications for both legs.
-- Validation: Delivery App dispatch simulation 127/127, backend TypeScript build, frontend TypeScript check. External LINE/Lalamove calls were faked; no paid vehicle order or live customer card was sent in this verification.
+- Validation: Delivery App dispatch simulation 127/127, backend TypeScript build, frontend TypeScript check. External LINE/Lalamove calls were faked; no paid vehicle order or live customer card was sent in this verification. Pushed Delivery App `cef0c19` to `main` and confirmed production `/api/version` reports `cef0c19`. The staff panel change needs a new native app build for installed phones.
 
 ## 2026-10-08 — Returning-customer deposit requires identity evidence
 
