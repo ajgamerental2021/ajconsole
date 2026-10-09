@@ -994,7 +994,7 @@ body.unified-flow-demo .demo-watermark-frame-large .demo-watermark-strip{padding
 body.unified-flow-demo .demo-upload-kept{margin:0 0 12px;padding:11px 13px;border-radius:10px;background:#eef8f1;color:#176b39;font-weight:800;line-height:1.5}
 body.unified-flow-demo .demo-upload-actions{display:flex;flex-wrap:wrap;gap:10px}
 body.unified-flow-demo .demo-upload-btn{flex:1 1 150px;padding:11px 14px;font-weight:800}
-body.unified-flow-demo .demo-camera-input{display:none}
+body.unified-flow-demo .demo-camera-input{position:absolute;width:1px;height:1px;padding:0;opacity:0;overflow:hidden;clip-path:inset(50%)}
 body.unified-flow-demo .demo-terms-heading{margin:28px 0 10px;padding-top:20px;border-top:1px solid #eef0f3}
 body.unified-flow-demo .demo-example-image{display:block;max-width:100%;width:auto;height:auto;max-height:calc(100dvh - 190px);object-fit:contain;margin:10px auto 0;border-radius:12px}
 body.unified-flow-demo .demo-order-page{display:none;margin-top:18px}
@@ -5817,33 +5817,36 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const en = state.lang === "en";
     const documentName = demoProfile.idDocument?.name || "";
     const selfieName = demoProfile.selfieWithId?.name || "";
+    // Explicit verification must keep both upload methods available even
+    // when an older Verify later choice is still saved on this device.
+    const uploadDisabled = demoProfile.identitySkipped && !verifyForDepositActive;
     const documentPreview = demoIdentityPreviewUrl("id", demoProfile.idDocument);
     const selfiePreview = demoIdentityPreviewUrl("selfie", demoProfile.selfieWithId);
-    const keptNotice = demoProfile.identitySkipped && (documentName || selfieName)
+    const keptNotice = uploadDisabled && (documentName || selfieName)
       ? `<p class="demo-upload-kept">${en ? "Your selected photos are still kept on this page. Untick Verify later to submit them now." : "รูปที่เลือกไว้ยังอยู่ในหน้านี้ เอาเครื่องหมายยืนยันตัวตนภายหลังออกเมื่อต้องการส่งรูปตอนนี้"}</p>`
       : "";
     return `${keptNotice}<div class="demo-identity-grid">
         <label class="demo-upload">
           <b>${demoIdentityType()==="passport" ? (en ? "1. Passport photo page only" : "1. รูป Passport หน้าข้อมูลอย่างเดียว") : (en ? "1. Thai ID card only" : "1. รูปบัตรประชาชนอย่างเดียว")}</b>
           <span class="hint">${tr("idDocumentPhotoHint")}</span>
-          <input id="${prefix}IdDocument" data-identity-file="id" type="file" accept="image/jpeg,image/png,image/webp" ${demoProfile.identitySkipped?"disabled":""}>
+          <input id="${prefix}IdDocument" data-identity-file="id" type="file" accept="image/jpeg,image/png,image/webp" ${uploadDisabled?"disabled":""}>
           <span class="demo-upload-file">${esc(documentName)}</span>
           ${documentPreview ? `<button class="demo-upload-preview" type="button" data-identity-preview="id" aria-label="${esc(tr("identityUploadedPreview"))}">${demoIdentityWatermarkHtml(documentPreview)}</button>` : ""}
           <span class="demo-upload-actions">
             <input id="${prefix}IdDocumentCamera" class="demo-camera-input" type="file" accept="image/*" capture="environment" data-camera-for="${prefix}IdDocument">
-            <button class="btn demo-upload-btn" type="button" data-open-camera="${prefix}IdDocumentCamera" ${demoProfile.identitySkipped?"disabled":""}>${en ? "📸 Take a photo" : "📸 ถ่ายรูปเอกสาร"}</button>
+            <button class="btn demo-upload-btn" type="button" data-open-camera="${prefix}IdDocumentCamera" ${uploadDisabled?"disabled":""}>${en ? "📸 Take a photo" : "📸 ถ่ายรูปเอกสาร"}</button>
             <button class="btn demo-upload-btn" type="button" data-identity-example="id">${en ? "See an example" : "ดูรูปตัวอย่าง"}</button>
           </span>
         </label>
         <label class="demo-upload">
           <b>${en ? "2. Selfie holding the same document" : "2. รูปเซลฟี่คู่บัตรประชาชน/Passport"}</b>
           <span class="hint">${en ? "Face and document both visible, no sunglasses or mask, no glare, and the document not cropped." : "เห็นใบหน้าและเอกสารครบ ไม่ใส่แว่นดำหรือหน้ากาก ไม่มีแสงสะท้อน และไม่ตัดขอบบัตร"}</span>
-          <input id="${prefix}SelfieWithId" data-identity-file="selfie" type="file" accept="image/jpeg,image/png,image/webp" ${demoProfile.identitySkipped?"disabled":""}>
+          <input id="${prefix}SelfieWithId" data-identity-file="selfie" type="file" accept="image/jpeg,image/png,image/webp" ${uploadDisabled?"disabled":""}>
           <span class="demo-upload-file">${esc(selfieName)}</span>
           ${selfiePreview ? `<button class="demo-upload-preview" type="button" data-identity-preview="selfie" aria-label="${esc(tr("identityUploadedPreview"))}">${demoIdentityWatermarkHtml(selfiePreview)}</button>` : ""}
           <span class="demo-upload-actions">
             <input id="${prefix}SelfieCamera" class="demo-camera-input" type="file" accept="image/*" capture="user" data-camera-for="${prefix}SelfieWithId">
-            <button class="btn demo-upload-btn" type="button" data-open-camera="${prefix}SelfieCamera" ${demoProfile.identitySkipped?"disabled":""}>${en ? "📸 Take a selfie" : "📸 ถ่ายรูปเซลฟี่"}</button>
+            <button class="btn demo-upload-btn" type="button" data-open-camera="${prefix}SelfieCamera" ${uploadDisabled?"disabled":""}>${en ? "📸 Take a selfie" : "📸 ถ่ายรูปเซลฟี่"}</button>
             <button class="btn demo-upload-btn" type="button" data-identity-example="selfie">${en ? "See an example" : "ดูรูปตัวอย่าง"}</button>
           </span>
         </label>
@@ -6086,6 +6089,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     verifyForDepositSnapshot = {profile:{...demoProfile}, calc:JSON.parse(JSON.stringify(state.calc)), delivery:{...demoDelivery}};
     verifyForDepositActive = true;
     state.calc.noContract = false;
+    // This is an explicit switch from Verify later to Verify now. The
+    // snapshot above restores the previous choice if the customer closes it.
+    demoProfile.identitySkipped = false;
+    state.calc.demoIdentitySkipped = false;
     state.calc.beamPaymentLink = "";
     state.calc.beamPaymentKey = "";
     state.calc.beamPaymentExpiresAt = "";
