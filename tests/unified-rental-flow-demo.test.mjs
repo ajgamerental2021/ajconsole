@@ -263,11 +263,15 @@ test('a returning customer sees the document AJ already holds', () => {
   assert.match(html, /profile\.identityLast4/);
 });
 
-test('document expiry is read after photo upload and validated on step 3', () => {
+test('optional photo reading never blocks manual document details on step 3', () => {
   assert.match(html, /id="demoIdentityExpiry"/);
   assert.match(html, /function demoIdentityExpired\(\)/);
   assert.match(html, /window\.AJIdentityOCR\.recognize\(file\)/);
-  assert.match(html, /need\("demoIdentityExpiry", !demoOcr\.busy/);
+  assert.match(html, /data-read-ocr="id"/);
+  assert.match(html, /if\(event\.target\.closest\("\[data-read-ocr\]"\)\)/);
+  assert.doesNotMatch(html, /if\(file && event\.target\.dataset\.identityFile === "id"\) void readDemoIdentity\(file\)/);
+  assert.match(html, /need\("demoIdentityExpiry", !!demoProfile\.identityExpiry && !demoIdentityExpired\(\)/);
+  assert.doesNotMatch(html, /need\("demoIdentityExpiry", !demoOcr\.busy/);
 });
 
 test('email is required because the confirmation is sent there', () => {
@@ -586,7 +590,7 @@ test('the ID card or passport must expire after the return date, or the renter c
   assert.equal(issue('2026-10-31', rental), 'on_return');
   assert.equal(issue('2026-11-01', rental), '');
   assert.equal(issue('', rental), '');
-  assert.match(html, /need\("demoIdentityExpiry", !demoOcr\.busy/);
+  assert.match(html, /need\("demoIdentityExpiry", !!demoProfile\.identityExpiry && !demoIdentityExpired\(\)/);
   assert.match(html, /field:"demoIdentityExpiry"/);
   assert.match(html, /step:3, field:"demoIdentityExpiry"/);
 });

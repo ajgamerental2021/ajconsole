@@ -2115,6 +2115,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       individualRateAfter:" ก่อนจอง",
       calcCta:"เช็คคิว & คำนวณค่าเช่า",
       identityUploadedPreview:"ดูรูปที่อัปโหลดแบบขยาย",
+      identityReadOptional:"อ่านเลขจากรูป (ไม่จำเป็น)", identityPhotoReady:"เลือกรูปแล้ว: {name} (ส่งเมื่อกดยืนยัน)", identityFileType:"ใช้รูป JPG, PNG, WebP หรือ HEIC ไม่เกิน 40 MB ระบบจะย่อก่อนส่ง", identityPhotoDecode:"เปิดรูปนี้ไม่ได้ กรุณาเลือกรูป JPG หรือถ่ายใหม่", identityOcrBusy:"กำลังอ่านรูป คุณกรอกข้อมูลเองได้ระหว่างนี้",
       contactChannelTitle:"ช่องทางรับข้อมูลการจอง",
       contactChannelThaiHelp:"เชื่อม LINE ก่อนชำระเงิน เพื่อรับการยืนยันและดูคิวเช่าของคุณ",
       contactChannelEnglishHelp:"เลือก LINE หรือ WhatsApp ได้ หรือใช้เบอร์โทรและอีเมลต่อโดยไม่เชื่อมตอนนี้",
@@ -2264,6 +2265,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       individualRateAfter:" before booking.",
       calcCta:"Check Queue & Calculate",
       identityUploadedPreview:"View uploaded photo larger",
+      identityReadOptional:"Read details from photo (optional)", identityPhotoReady:"Photo selected: {name} (sent when you confirm)", identityFileType:"Use a JPG, PNG, WebP or HEIC photo up to 40 MB. It will be resized before sending.", identityPhotoDecode:"This photo could not be opened. Choose a JPG or take it again.", identityOcrBusy:"Reading the photo; you can enter the details yourself meanwhile.",
       contactChannelTitle:"Booking updates",
       contactChannelThaiHelp:"Connect LINE before payment to receive your booking updates",
       contactChannelEnglishHelp:"Connect LINE or use WhatsApp for booking updates.",
@@ -5026,15 +5028,46 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   // Phone photos are resized and re-encoded before upload: small enough to send
   // reliably, still sharp enough to read the document number.
+  function demoIdentityFileAllowed(file){
+    return Boolean(file && (/^image\/(jpeg|png|webp|heic|heif)$/i.test(file.type) || /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name || "")) && file.size <= 40 * 1024 * 1024);
+  }
+  function syncDemoIdentityInputs(kind, file){
+    try{
+      const selected = new DataTransfer();
+      selected.items.add(file);
+      document.querySelectorAll(`input[data-identity-file="${kind}"]`).forEach(input => { input.files = selected.files; });
+    }catch{ /* The selected-photo label and preview still show the saved file. */ }
+  }
   async function demoImageDataUrl(file){
-    const bitmap = await createImageBitmap(file);
-    const scale = Math.min(1, 1800 / Math.max(bitmap.width, bitmap.height));
+    let image;
+    try{ image = await createImageBitmap(file); }
+    catch{
+      // Safari can display camera HEIC/JPEG files that createImageBitmap rejects.
+      const url = URL.createObjectURL(file);
+      try{
+        image = await new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = () => reject(new Error("identity_image_decode_failed"));
+          img.src = url;
+        });
+      }finally{ URL.revokeObjectURL(url); }
+    }
+    const width = image.width || image.naturalWidth;
+    const height = image.height || image.naturalHeight;
+    if(!width || !height){ image.close?.(); throw new Error("identity_image_decode_failed"); }
+    const scale = Math.min(1, 1600 / Math.max(width, height));
     const canvas = document.createElement("canvas");
-    canvas.width = Math.round(bitmap.width * scale);
-    canvas.height = Math.round(bitmap.height * scale);
-    canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-    bitmap.close?.();
-    return canvas.toDataURL("image/jpeg", 0.85);
+    canvas.width = Math.max(1, Math.round(width * scale));
+    canvas.height = Math.max(1, Math.round(height * scale));
+    const context = canvas.getContext("2d");
+    if(!context){ image.close?.(); throw new Error("identity_image_decode_failed"); }
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    image.close?.();
+    let result = canvas.toDataURL("image/jpeg", 0.8);
+    if(result.length > 7 * 1024 * 1024) result = canvas.toDataURL("image/jpeg", 0.65);
+    if(!result.startsWith("data:image/jpeg;base64,") || result.length > 8 * 1024 * 1024) throw new Error("identity_image_decode_failed");
+    return result;
   }
   async function uploadDemoIdentity(contextToken, rentalCode){
     const body = JSON.stringify({
@@ -5072,7 +5105,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ${demoIdentityUploadGridHtml("verifyNow")}
       ${demoIdentityFieldsHtml()}
       <div class="card verify-now-agreement" id="verifyNowAgreementHost"></div>
-      <div class="my-rental-verify"><button class="btn primary" type="button" id="verifyNowSubmit" ${verifyNowBusy || demoOcr.busy ? "disabled" : ""}>${verifyNowBusy ? (en ? "Sending…" : "กำลังส่ง…") : (en ? "Send identity verification" : "ส่งยืนยันตัวตน")}</button></div>
+      <div class="my-rental-verify"><button class="btn primary" type="button" id="verifyNowSubmit" ${verifyNowBusy ? "disabled" : ""}>${verifyNowBusy ? (en ? "Sending…" : "กำลังส่ง…") : (en ? "Send identity verification" : "ส่งยืนยันตัวตน")}</button></div>
     </div>`;
   }
   function lendCustomerCard(){
@@ -5193,7 +5226,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       toast(en ? "Identity verification sent" : "ส่งยืนยันตัวตนแล้ว");
     }catch(error){
       console.error("Verify now failed", error);
-      toast(en ? "The photos could not be sent. Please try again." : "ส่งรูปไม่สำเร็จ กรุณาลองใหม่");
+      toast(error?.message === "identity_image_decode_failed" ? tr("identityPhotoDecode") : (en ? "The photos could not be sent. Please try again." : "ส่งรูปไม่สำเร็จ กรุณาลองใหม่"));
     }finally{
       if(verifyNowBusy){
         verifyNowBusy = false;
@@ -5646,9 +5679,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     need("demoIdDocument", demoIdentityReady(), en ? "Upload both photos, or choose Verify later." : "อัปโหลดรูปทั้ง 2 รูป หรือเลือกยืนยันตัวตนภายหลัง");
     if(!demoProfile.identitySkipped && !demoIdentityCoveredByAgreement() && !state.calc.noContract){
       const identity = String(demoProfile.identityNumber || "").trim();
-      need("demoIdentityNumber", !demoOcr.busy && ((!identity && demoProfile.identityDraftLast4) || (demoIdentityType() === "passport" ? /^[A-Z0-9]{6,10}$/i.test(identity) : thaiIdValid(identity))),
+      need("demoIdentityNumber", ((!identity && demoProfile.identityDraftLast4) || (demoIdentityType() === "passport" ? /^[A-Z0-9]{6,10}$/i.test(identity) : thaiIdValid(identity))),
         en ? "Retake a clear document photo or check the document number." : "ถ่ายรูปเอกสารใหม่ให้ชัดหรือตรวจเลขเอกสาร");
-      need("demoIdentityExpiry", !demoOcr.busy && !!demoProfile.identityExpiry && !demoIdentityExpired(),
+      need("demoIdentityExpiry", !!demoProfile.identityExpiry && !demoIdentityExpired(),
         en ? "Retake a clear photo or check the expiry date." : "ถ่ายรูปใหม่ให้เห็นวันหมดอายุชัดเจนหรือตรวจวันที่");
     }
 
@@ -5764,7 +5797,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function demoIdentityFieldsHtml(){
     const en = state.lang === "en";
     const status = demoOcr.busy
-      ? (en ? "Reading the document on your device…" : "กำลังอ่านข้อมูลจากรูปบนเครื่องของคุณ…")
+      ? tr("identityOcrBusy")
       : demoOcr.error ? (tr("ocrReadError"))
       : demoOcr.success ? (en ? "Details read from your photo. Please check them before continuing." : "อ่านข้อมูลจากรูปแล้ว กรุณาตรวจสอบก่อนทำรายการต่อ") : "";
     return `<div class="demo-ocr-status ${demoOcr.error ? "is-error" : ""}" role="status">${esc(status)}</div>
@@ -5776,35 +5809,58 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   async function readDemoIdentity(file){
     if(!file || !window.AJIdentityOCR) return;
-    demoOcr.attempts++;
+    const attempt = ++demoOcr.attempts;
     demoOcr.busy = true;
     demoOcr.success = false;
     demoOcr.error = "";
-    renderDemoIdentityCard();
-    renderVerifyNowModal();
+    updateDemoOcrStatus();
+    let timer;
     try{
-      const found = await window.AJIdentityOCR.recognize(file);
-      if(file !== demoProfile.idDocument) return;
+      const found = await Promise.race([window.AJIdentityOCR.recognize(file), new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("ocr_timeout")), 10000); })]);
+      if(file !== demoProfile.idDocument || attempt !== demoOcr.attempts) return;
       if(!found.number || !found.expiry) throw new Error("ocr_incomplete");
-      demoProfile.identityType = found.type;
-      demoProfile.identityNumber = found.number;
-      demoProfile.identityExpiry = found.expiry;
-      if(demoIdentityExpired()) throw new Error("ocr_expired");
-      demoOcr.success = true;
-      await saveIdentityDraft();
+      // Reading is optional. A late result must not overwrite manually entered details.
+      if(!demoProfile.identityNumber && !demoProfile.identityExpiry){
+        demoProfile.identityType = found.type;
+        demoProfile.identityNumber = found.number;
+        demoProfile.identityExpiry = found.expiry;
+        if(demoIdentityExpired()) throw new Error("ocr_expired");
+        demoOcr.success = true;
+        document.querySelectorAll('[id="demoIdentityNumber"]').forEach(input => {
+          input.value = found.number;
+          input.maxLength = found.type === "passport" ? 10 : 13;
+          input.inputMode = found.type === "passport" ? "text" : "numeric";
+          const label = input.closest(".field")?.querySelector("label.label");
+          if(label?.firstChild) label.firstChild.textContent = found.type === "passport"
+            ? (state.lang === "en" ? "Passport number" : "เลข Passport")
+            : (state.lang === "en" ? "Thai ID number" : "เลขบัตรประชาชน");
+        });
+        document.querySelectorAll('[id="demoIdentityExpiry"]').forEach(input => { input.value = found.expiry; });
+        document.querySelectorAll(`input[name="demoIdentityType"][value="${found.type}"]`).forEach(input => { input.checked = true; });
+        void saveIdentityDraft();
+      }
     }catch(error){
-      if(file !== demoProfile.idDocument) return;
+      if(file !== demoProfile.idDocument || attempt !== demoOcr.attempts) return;
       demoOcr.error = String(error?.message || "ocr_failed");
-      demoProfile.identityNumber = "";
-      demoProfile.identityExpiry = "";
     }finally{
-      if(file === demoProfile.idDocument){
+      clearTimeout(timer);
+      if(file === demoProfile.idDocument && attempt === demoOcr.attempts){
         demoOcr.busy = false;
-        renderDemoIdentityCard();
-        renderVerifyNowModal();
+        updateDemoOcrStatus();
         renderStepActions();
       }
     }
+  }
+  function updateDemoOcrStatus(){
+    const en = state.lang === "en";
+    const message = demoOcr.busy
+      ? tr("identityOcrBusy")
+      : demoOcr.error ? tr("ocrReadError")
+      : demoOcr.success ? (en ? "Details read from your photo. Please check them before continuing." : "อ่านข้อมูลจากรูปแล้ว กรุณาตรวจสอบก่อนทำรายการต่อ") : "";
+    document.querySelectorAll(".demo-ocr-status").forEach(node => {
+      node.textContent = message;
+      node.classList.toggle("is-error", Boolean(demoOcr.error));
+    });
   }
   const demoIdentityPreviews = {id:null, selfie:null};
   function demoIdentityPreviewUrl(kind, file){
@@ -5850,20 +5906,21 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <label class="demo-upload">
           <b>${demoIdentityType()==="passport" ? (en ? "1. Passport photo page only" : "1. รูป Passport หน้าข้อมูลอย่างเดียว") : (en ? "1. Thai ID card only" : "1. รูปบัตรประชาชนอย่างเดียว")}</b>
           <span class="hint">${tr("idDocumentPhotoHint")}</span>
-          <input id="${prefix}IdDocument" data-identity-file="id" type="file" accept="image/jpeg,image/png,image/webp" ${uploadDisabled?"disabled":""}>
-          <span class="demo-upload-file">${esc(documentName)}</span>
+          <input id="${prefix}IdDocument" data-identity-file="id" type="file" accept="image/*" ${uploadDisabled?"disabled":""}>
+          <span class="demo-upload-file">${documentName ? esc(tr("identityPhotoReady").replace("{name}", documentName)) : ""}</span>
           ${documentPreview ? `<button class="demo-upload-preview" type="button" data-identity-preview="id" aria-label="${esc(tr("identityUploadedPreview"))}">${demoIdentityWatermarkHtml(documentPreview)}</button>` : ""}
           <span class="demo-upload-actions">
             <input id="${prefix}IdDocumentCamera" class="demo-camera-input" type="file" accept="image/*" capture="environment" data-camera-for="${prefix}IdDocument">
             <button class="btn demo-upload-btn" type="button" data-open-camera="${prefix}IdDocumentCamera" ${uploadDisabled?"disabled":""}>${en ? "📸 Take a photo" : "📸 ถ่ายรูปเอกสาร"}</button>
             <button class="btn demo-upload-btn" type="button" data-identity-example="id">${en ? "See an example" : "ดูรูปตัวอย่าง"}</button>
+            ${documentName ? `<button class="btn demo-upload-btn" type="button" data-read-ocr="id">${esc(tr("identityReadOptional"))}</button>` : ""}
           </span>
         </label>
         <label class="demo-upload">
           <b>${en ? "2. Selfie holding the same document" : "2. รูปเซลฟี่คู่บัตรประชาชน/Passport"}</b>
           <span class="hint">${en ? "Face and document both visible, no sunglasses or mask, no glare, and the document not cropped." : "เห็นใบหน้าและเอกสารครบ ไม่ใส่แว่นดำหรือหน้ากาก ไม่มีแสงสะท้อน และไม่ตัดขอบบัตร"}</span>
-          <input id="${prefix}SelfieWithId" data-identity-file="selfie" type="file" accept="image/jpeg,image/png,image/webp" ${uploadDisabled?"disabled":""}>
-          <span class="demo-upload-file">${esc(selfieName)}</span>
+          <input id="${prefix}SelfieWithId" data-identity-file="selfie" type="file" accept="image/*" ${uploadDisabled?"disabled":""}>
+          <span class="demo-upload-file">${selfieName ? esc(tr("identityPhotoReady").replace("{name}", selfieName)) : ""}</span>
           ${selfiePreview ? `<button class="demo-upload-preview" type="button" data-identity-preview="selfie" aria-label="${esc(tr("identityUploadedPreview"))}">${demoIdentityWatermarkHtml(selfiePreview)}</button>` : ""}
           <span class="demo-upload-actions">
             <input id="${prefix}SelfieCamera" class="demo-camera-input" type="file" accept="image/*" capture="user" data-camera-for="${prefix}SelfieWithId">
@@ -9276,7 +9333,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ]);
       if(identitySent.status === "rejected"){
         console.error("Identity upload failed", identitySent.reason);
-        showDemoProgressProblem(state.lang === "en" ? "The identity images could not be sent. Please try again, or choose Verify later." : "ส่งรูปยืนยันตัวตนไม่สำเร็จ กรุณาลองใหม่ หรือเลือกยืนยันตัวตนภายหลัง");
+        showDemoProgressProblem(identitySent.reason?.message === "identity_image_decode_failed" ? tr("identityPhotoDecode") : (state.lang === "en" ? "The identity images could not be sent. Please try again, or choose Verify later." : "ส่งรูปยืนยันตัวตนไม่สำเร็จ กรุณาลองใหม่ หรือเลือกยืนยันตัวตนภายหลัง"));
         return;
       }
       if(agreementSaved.status === "rejected"){
@@ -14150,6 +14207,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
         const target = byId(event.target.dataset.cameraFor || "");
         const file = event.target.files?.[0];
         if(target && file){
+          if(!demoIdentityFileAllowed(file)){
+            event.target.value = "";
+            toast(tr("identityFileType"));
+            return;
+          }
           try{
             const transfer = new DataTransfer();
             transfer.items.add(file);
@@ -14161,24 +14223,25 @@ We apologize for the inconvenience and hope everyone stays safe.`
           demoProfile.identityUploaded = false;
           render();
           renderVerifyNowModal();
-          if(target.dataset.identityFile === "id") void readDemoIdentity(file);
+          syncDemoIdentityInputs(target.dataset.identityFile, file);
         }
         return;
       }
       if(event.target.dataset?.identityFile){
         const file = event.target.files?.[0] || null;
-        if(file && (!/^image\/(jpeg|png|webp)$/i.test(file.type) || file.size > 8 * 1024 * 1024)){
+        if(file && !demoIdentityFileAllowed(file)){
           event.target.value = "";
-          toast(state.lang === "en" ? "Use a JPG, PNG or WebP image up to 8 MB." : "ใช้ไฟล์ JPG, PNG หรือ WebP ขนาดไม่เกิน 8 MB");
+          toast(tr("identityFileType"));
           return;
         }
+        if(!file) return;
         if(event.target.dataset.identityFile === "id") demoProfile.idDocument = file;
         else demoProfile.selfieWithId = file;
         demoProfile.identityUploaded = false;
         demoProfile.identitySkipped = false;
         render();
         renderVerifyNowModal();
-        if(file && event.target.dataset.identityFile === "id") void readDemoIdentity(file);
+        syncDemoIdentityInputs(event.target.dataset.identityFile, file);
       }
     });
     document.addEventListener("click", async event => {
@@ -14248,6 +14311,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(cameraTrigger){ byId(cameraTrigger.dataset.openCamera)?.click(); return; }
       const exampleTrigger = event.target.closest("[data-identity-example]");
       if(exampleTrigger){ showDemoIdentityExample(exampleTrigger.dataset.identityExample); return; }
+      if(event.target.closest("[data-read-ocr]")){ if(demoProfile.idDocument) void readDemoIdentity(demoProfile.idDocument); return; }
       const uploadedPreview = event.target.closest("[data-identity-preview]");
       if(uploadedPreview){ showDemoIdentityUploadedPreview(uploadedPreview.dataset.identityPreview); return; }
       if(targetId === "demoConfirmOrder"){
