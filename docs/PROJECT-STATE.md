@@ -1,3 +1,39 @@
+## 2026-10-09 — Claude Code: full audit of booking, identity, payment and Lalamove dispatch (TH/EN)
+
+- **Owner asked:**
+  - a detailed check of every Delivery App system and every Lalamove trip, both delivery and return;
+  - the website from booking through identity, later identity verification by email or link, and every payment channel;
+  - that the website, Bot and Delivery App link to each other correctly, in Thai and English;
+  - errors and suggestions reported.
+- **How it was checked:**
+  - all test suites;
+  - a contract check of every cross-system call (paths, HMAC header, DA version-gate allowlist, response shapes);
+  - Playwright walkthroughs of the website in TH/EN: verify now / verify later; deposit, full bank, credit, e-wallet, Wise; the payment-success page; the Bot's `/verify-identity/:token` page. External services were mocked;
+  - a code review of the dispatch poller, staff actions and customer cards for delivery and return.
+- **Bugs found and fixed:**
+  1. **Website, English Wise payment** always ended in "Unable to open the payment page": Wise has no Beam link. It now shows the transfer details (amount, Rental ID as reference, account, name, email, "No SWIFT code is needed", WhatsApp/LINE buttons) in TH/EN.
+  2. **Website, Beam checkout description** was blank for the Thai reservation and for full bank payment ("  - AJ-…"). These now read "ค่าจองคิว" / "Reservation by Card, E-Wallet or Thai QR scan" and "ชำระเต็มจำนวนด้วยการสแกน QR" / "Full payment by Thai QR scan".
+  3. **Bot, Console Pending duplicate rows:** concurrent upserts for one Rental ID could both append. They are now serialised per Rental ID (Bot `e543b9a`).
+  4. **Delivery App, Lalamove jobs:**
+     - the poller, the staff refresh and staff actions (payment method, cancel, tip, change driver, proofs) could work on one job at once, sending duplicate customer cards (proven: 3 "picked up" cards) or saving a stale copy over a staff change;
+     - every job change now goes through a per-job lock and re-reads the job (DA `9e09934`).
+  5. **Delivery App test** `test:my-rental-link` failed when run after 20:00 Bangkok. The test is now time-independent (test only).
+- **Verified OK:**
+  - every Bot↔DA↔website endpoint and the allowlist;
+  - booking steps 1–3 TH/EN, including the LINE requirement for Thai and the WhatsApp option for English;
+  - Thai ID checksum, identity drafts, verify later (deposit raised, pay-later email queued);
+  - all payment amounts and fees (reservation 200/1,000, credit +3.5%, e-wallet +2.95%, Wise weekdays EN only);
+  - the payment-success page TH/EN; the later-verification page TH/EN;
+  - Lalamove delivery and return cards, proofs, driver change, cancel and the tracking page;
+  - the DA kept awake by Bot pings.
+- **Verification:** website 317/317; Bot 607/607; DA `tsc` clean, `test:lalamove-dispatch` 221/221, `test:flex-ledger` 23/23, `test:my-rental-link` 141/141, `test:delivery-card` 58/58, `test:dispatch-hold` 27/27, `test:auto-dispatch` ok.
+- **Not tested live:** real LINE pushes, Beam payments, Lalamove orders, Google Maps (no keys here; the proxy blocks them).
+- **Suggestions:**
+  - remove the unused `refundBlock` in the Bot's `public/verify-identity/index.html`;
+  - after the later-verification upload, say "ส่งแล้ว รอร้านตรวจ" / "Sent — the shop will review" rather than "verified";
+  - give the APK build an `EXPO_TOKEN`;
+  - make sure the Google browser key's referrers include `delivery-app-backend-68pm.onrender.com`.
+
 ## 2026-10-09 — Claude Code: payment on Lalamove driver cards, no stale driver photo, route on the tracking page
 
 - **Owner asked:**

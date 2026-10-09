@@ -7084,11 +7084,40 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(state.lang === "en" && state.calc.payment === "cash") return Math.min(1000, Number(summary.total) || 0);
     return ["credit","ewallet"].includes(state.calc.payment) ? Number(summary.total) || 0 : 0;
   }
+  // The line the renter reads on Beam's checkout. Every method that reaches
+  // Beam names itself: a Thai reservation and a full Thai QR payment used to
+  // go out as " - AJ-…", with nothing before the Rental ID.
   function paymentLinkLabel(){
-    if(state.lang === "en" && state.calc.payment === "cash") return "Reservation by Card, E-Wallet or Thai QR scan";
-    if(state.calc.payment === "credit") return state.lang === "en" ? "Full payment by Credit Card" : "ชำระเต็มจำนวนด้วยบัตรเครดิต";
-    if(state.calc.payment === "ewallet") return state.lang === "en" ? "Full payment by E-Wallet" : "ชำระเต็มจำนวนด้วย E-Wallet";
-    return "";
+    const en = state.lang === "en";
+    if(state.calc.payment === "cash") return en ? "Reservation by Card, E-Wallet or Thai QR scan" : "ค่าจองคิว";
+    if(state.calc.payment === "credit") return en ? "Full payment by Credit Card" : "ชำระเต็มจำนวนด้วยบัตรเครดิต";
+    if(state.calc.payment === "ewallet") return en ? "Full payment by E-Wallet" : "ชำระเต็มจำนวนด้วย E-Wallet";
+    if(state.calc.payment === "bank") return en ? "Full payment by Thai QR scan" : "ชำระเต็มจำนวนด้วยการสแกน QR";
+    return en ? "AJ Game Rental" : "AJ เช่าเครื่องเกม";
+  }
+  // Wise is a transfer the renter makes in their own Wise app, not a Beam
+  // checkout: what to send, where, and where to send the receipt.
+  function wiseTransferHtml(summary, code){
+    const en = state.lang === "en";
+    const row = (label, value) => `<div class="demo-order-row"><span>${esc(label)}</span><b>${esc(value)}</b></div>`;
+    const message = en
+      ? `AJ Game Rental Wise transfer\nRental ID: ${code}\nAmount: ${money(summary.upfront)}\nI will attach the Wise receipt.`
+      : `แจ้งโอนผ่าน Wise\nรหัสการเช่า: ${code}\nยอด: ${money(summary.upfront)}\nแนบหลักฐานการโอนจาก Wise`;
+    const whatsapp = `https://api.whatsapp.com/send/?phone=${encodeURIComponent(CONFIG.whatsappPhone)}&text=${encodeURIComponent(message)}`;
+    return `<div class="wise-transfer">
+      <p class="hint">${esc(en ? "Your rental is reserved. Send the full amount in your Wise app to the Thai account below, with the Rental ID as the reference, then send us the Wise receipt." : "จองคิวไว้แล้ว กรุณาโอนยอดเต็มผ่านแอป Wise เข้าบัญชีไทยด้านล่าง ใส่รหัสการเช่าเป็นข้อความอ้างอิง แล้วส่งหลักฐานการโอนให้ร้าน")}</p>
+      ${row(en ? "Amount" : "ยอดโอน", money(summary.upfront))}
+      ${row(en ? "Reference" : "ข้อความอ้างอิง", code)}
+      ${row(en ? "Bank account no." : "เลขบัญชี", CONFIG.reservationBankAccount)}
+      ${row(en ? "Bank" : "ธนาคาร", CONFIG.wiseBankNameEn)}
+      ${row(en ? "Account name" : "ชื่อบัญชี", CONFIG.wiseAccountNameEn)}
+      ${row("Email", CONFIG.wiseEmail)}
+      <p class="hint">${esc(en ? "No SWIFT code is needed. AJ confirms the rental once the transfer arrives." : "ไม่ต้องใช้ SWIFT code ร้านจะยืนยันการเช่าเมื่อได้รับยอด")}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <a class="btn primary" href="${esc(whatsapp)}" target="_blank" rel="noopener">${esc(en ? "Send the receipt on WhatsApp" : "ส่งหลักฐานทาง WhatsApp")}</a>
+        <a class="btn" href="${esc(CONFIG.lineUrl)}" target="_blank" rel="noopener">${esc(en ? "Send on LINE" : "ส่งทาง LINE")}</a>
+      </div>
+    </div>`;
   }
   function currentBeamPaymentKey(summary, rentalCode=""){
     const amount = paymentLinkAmount(summary);
@@ -9651,6 +9680,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       await ensureBookingHold(code);
       consolePendingRental = {code, handoff, channel:"demo-payment"};
       const pendingWrite = queueConsolePendingUpsert();
+      // Wise has no checkout to open: the rental is held and in Console Pending,
+      // and the renter is shown where to send the money. Opening Beam for it
+      // asked for a zero-baht link and failed with "Unable to open the payment page".
+      if(state.calc.payment === "wise"){
+        await pendingWrite;
+        hideDemoBusy();
+        renderDemoOrderPage();
+        showModal(state.lang === "en" ? "Pay by Wise" : "ชำระผ่าน Wise", wiseTransferHtml(summary, code));
+        return;
+      }
       const url = await ensureBeamPaymentLink(summary, code, {holdAcquired:true});
       if(!url) throw new Error("Beam payment link unavailable");
       void pendingWrite;
