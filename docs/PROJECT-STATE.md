@@ -1,3 +1,9 @@
+## 2026-10-09 — Driver assigned cards for delivery and return
+
+- Delivery App now sends a separate customer LINE card as soon as Lalamove assigns a delivery driver. It shows the driver name and plate, estimated minutes, Bangkok arrival time and route distance from the driver to the pickup point. The delivery card contains no driver-to-shop map image, map link, shop address, fare or Lalamove tracking link.
+- Both delivery and return initial confirmation cards say that the system is searching for a driver and will send assignment details in the chat. The assigned ETA cards in Thai and English mark times as estimates. The staff tracking panel shows the assignment and ETA notifications for both legs.
+- Validation: Delivery App dispatch simulation 127/127, backend TypeScript build, frontend TypeScript check. External LINE/Lalamove calls were faked; no paid vehicle order or live customer card was sent in this verification.
+
 ## 2026-10-08 — Returning-customer deposit requires identity evidence
 
 - Separated returning-customer discount eligibility from proof of identity. The Bot checks signed contract history and a signed Delivery App lookup for a paid or fulfilled booking at a standard ฿2,000/฿3,000/฿4,000 deposit. An old higher-deposit rental alone no longer produces `legacy_verified`; a later standard-deposit rental does. Older signed agreement records still count. Expired Master Agreements still require renewal.
