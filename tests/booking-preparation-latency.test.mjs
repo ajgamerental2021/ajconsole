@@ -31,6 +31,7 @@ test('a stalled optional message PATCH does not lose a usable context token', as
 test('preview and checkout share one rental-code allocation', async()=>{
   let resolve, calls=0;
   const context=vm.createContext({calcSummary:()=>({}),rentalSignature:()=> 'same',
+    reconcileConfirmedIdentitySignature(){},
     allocateRentalCodeForDraft:()=>{calls++; return new Promise(r=>{resolve=r;});}
   });
   vm.runInContext('let rentalCodeRequest=null;'+fn('ensureRentalCode'),context);

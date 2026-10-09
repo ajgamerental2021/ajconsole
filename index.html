@@ -7996,6 +7996,21 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       // identity photos stay filed under the ID they pay for.
     ].join("|");
   }
+  function reconcileConfirmedIdentitySignature(summary=calcSummary()){
+    const current = rentalSignature(summary);
+    const previous = String(state.calc.rentalCodeSig || "");
+    if(previous === current || !state.calc.demoOrderOpen || !state.calc.rentalCode
+      || state.calc.rentalCode !== state.calc.demoOrderCode) return;
+    // Recover a confirmed order saved by the earlier site version after the
+    // customer changed only Verify later/Verify now. Every actual rental field
+    // must still match before the existing Rental ID can be used for payment.
+    const before = previous.split("|");
+    const after = current.split("|");
+    if(before.length !== 12 || after.length !== 12
+      || !before.every((value, index) => index === 8 || value === after[index])) return;
+    state.calc.rentalCodeSig = current;
+    saveLocal();
+  }
   function demoAgreementSignature(){
     return [rentalSignature(), state.calc.maps, state.calc.demoCustomerName, state.calc.demoCustomerPhone].map(value => String(value || "").trim()).join("|");
   }
@@ -8083,6 +8098,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   async function ensureRentalCode(summary=calcSummary()){
     if(typeof payResume !== "undefined" && payResume.active && payResume.code) return payResume.code;
     const sig = rentalSignature(summary);
+    reconcileConfirmedIdentitySignature(summary);
     if(rentalCodeRequest){
       if(rentalCodeRequest.sig === sig) return rentalCodeRequest.promise;
       await rentalCodeRequest.promise.catch(() => {});
@@ -9518,6 +9534,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       .finally(() => { paidRentalNotice.loading = false; renderPaidRentalNotice(); });
   }
   function confirmedRentalCodeForPayment(summary){
+    reconcileConfirmedIdentitySignature(summary);
     const code = String(state.calc.rentalCode || "").trim();
     if(!state.calc.demoOrderOpen || !code || (state.calc.demoOrderCode && state.calc.demoOrderCode !== code)
       || state.calc.rentalCodeSig !== rentalSignature(summary)

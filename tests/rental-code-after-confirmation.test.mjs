@@ -14,8 +14,8 @@ function fn(name, async = false) {
 test('the payment step keeps the confirmed Rental ID in both languages', () => {
   for (const lang of ['th', 'en']) {
     const state = {lang, calc: {demoOrderOpen:true, demoOrderCode:'AJ-20261006-R0060', rentalCode:'AJ-20261006-R0060', rentalCodeSig:'same', demoAgreementFor:'AJ-20261006-R0060', demoIdentityFor:'AJ-20261006-R0060'}};
-    const ctx = vm.createContext({state, rentalSignature:()=> 'same'});
-    vm.runInContext(fn('confirmedRentalCodeForPayment'), ctx);
+    const ctx = vm.createContext({state, rentalSignature:()=> 'same', saveLocal(){}});
+    vm.runInContext(fn('reconcileConfirmedIdentitySignature') + fn('confirmedRentalCodeForPayment'), ctx);
     assert.equal(ctx.confirmedRentalCodeForPayment({}), 'AJ-20261006-R0060');
     state.calc.rentalCode = 'AJ-20261006-R0070';
     state.calc.rentalCodeSig = 'same';
@@ -57,7 +57,8 @@ test('switching identity choice on the confirmed order keeps its Rental ID, but 
       syncDemoNoContractAcceptance(){}, saveLocal(){}, render(){},
       pricingPolicy:{}, byId:()=>null});
     Object.assign(state.calc, {bundleId:'', extras:[], boardgames:[], games:[], ret:false, reviewGoogle:false, reviewFacebook:false});
-    vm.runInContext(fn('rentalSignature') + fn('setDemoNoContract') + fn('openDemoVerifyForDeposit')
+    vm.runInContext(fn('rentalSignature') + fn('reconcileConfirmedIdentitySignature')
+      + fn('setDemoNoContract') + fn('openDemoVerifyForDeposit')
       + fn('confirmedRentalCodeForPayment'), ctx);
     state.calc.rentalCodeSig = ctx.rentalSignature();
     ctx.setDemoNoContract(false);
@@ -65,4 +66,25 @@ test('switching identity choice on the confirmed order keeps its Rental ID, but 
     state.calc.start = '2026-10-10';
     assert.throws(() => ctx.confirmedRentalCodeForPayment({}), /rental_details_changed/);
   }
+});
+
+test('a saved checkout from the older site recovers only the identity-choice mismatch', async () => {
+  const code = 'AJ-20261009-R0063';
+  const state = {calc:{consoleId:'N2', start:'2026-10-09', end:'2026-10-12', noContract:true,
+    bundleId:'', extras:[], boardgames:[], games:[], ret:false, reviewGoogle:false, reviewFacebook:false,
+    rentalCode:code, demoOrderCode:code, demoOrderOpen:true, rentalCodeSig:''}};
+  let saves = 0;
+  const ctx = vm.createContext({state, calcSummary:()=>({}), consoleHasGameCatalog:()=>false,
+    saveLocal(){saves++;}});
+  vm.runInContext('let rentalCodeRequest=null;' + fn('rentalSignature')
+    + fn('reconcileConfirmedIdentitySignature') + fn('ensureRentalCode', true)
+    + fn('allocateRentalCodeForDraft', true) + fn('confirmedRentalCodeForPayment'), ctx);
+  state.calc.rentalCodeSig = ctx.rentalSignature();
+  state.calc.noContract = false; // stored by the previous version without updating rentalCodeSig
+  assert.equal(await ctx.ensureRentalCode({}), code);
+  assert.equal(ctx.confirmedRentalCodeForPayment({}), code);
+  assert.equal(state.calc.rentalCodeSig, ctx.rentalSignature());
+  assert.equal(saves, 1);
+  state.calc.end = '2026-10-13';
+  assert.throws(() => ctx.confirmedRentalCodeForPayment({}), /rental_details_changed/);
 });
