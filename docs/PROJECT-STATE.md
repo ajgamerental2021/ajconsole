@@ -1,3 +1,28 @@
+## 2026-10-10 — Claude Code: edit origin/destination name and phone on the Lalamove dispatch card
+
+- **Owner asked:** on the dispatch card, for both delivery and return trips, be able to change the origin and destination contact name and phone. It should start from the system default, in Thai and English.
+- **Bot `d90f1dc`:**
+  - `/api/integrations/delivery-app/lalamove/order` accepts optional `sender` (origin) and `recipient` (destination) `{name, phone}`.
+  - `dispatchContacts` keeps the defaults for anything blank: delivery is jj · 0816244715 → the customer; return is jj on the customer's number → jj · 0816244715.
+  - A bad phone is still refused (`phone_required`).
+- **Delivery App `366316e`:**
+  - Card: each end shows 👤 name · 📞 phone with "แก้ไขชื่อ-เบอร์ / Edit name & phone". It reads "แก้ไขสำหรับงานนี้ / Changed for this trip" once edited, and "ใช้ค่าเริ่มต้น / Use default" resets it.
+  - Phone check: a phone Lalamove would refuse shows a TH/EN warning and blocks confirm. The backend refuses it too (`invalid_contact_phone`), before any order.
+  - Confirm dialog: lists both contacts.
+  - Auto-dispatch: saves the contacts (`fromContact`/`toContact`) and uses them.
+  - Trip panel: shows a changed contact.
+  - Backend: `prepare` returns the default `contacts`. Only changed ends are sent to the Bot and stored on the job.
+- **Verification:**
+  - Bot 608/608.
+  - DA: `tsc` (backend and frontend) clean; `test:lalamove-dispatch` 229/229; `test:auto-dispatch`; `test:flex-ledger` 23/23; `test:delivery-card` 58/58; `test:dispatch-hold` 27/27; `test:my-rental-link` 141/141.
+  - Expo web harness at 320/390 px: defaults; edit; bad-phone block; confirm payload and dialog; reset; typed-back-to-default counts as default; auto-save payload.
+  - A label that overflowed at 390 px was shortened before the push.
+- **Release:**
+  - Render deploys the Bot, DA backend and staff web on push. The Bot was pushed first.
+  - The APK needs build 20261010 (needs `EXPO_TOKEN`).
+  - `APP_VERSION_CODE` had stayed at 20261008 in APK 20261009, so that APK reports 20261008. Do not raise `MIN_ANDROID_VERSION_CODE` to 20261009; wait until 20261010 is installed.
+- **Logged** in `delivery-app/SHARED-WORKSPACE.md` §4 and `CHANGELOG.md`.
+
 ## 2026-10-09 — Claude Code: full audit of booking, identity, payment and Lalamove dispatch (TH/EN)
 
 - **Owner asked:**
