@@ -46,3 +46,23 @@ test('an older preview request cannot replace an identity or agreement Rental ID
   await assert.rejects(ctx.allocateRentalCodeForDraft(), /rental_details_changed/);
   assert.equal(allocations,1);
 });
+
+test('switching identity choice on the confirmed order keeps its Rental ID, but another rental change is rejected', () => {
+  for (const lang of ['th', 'en']) {
+    const code = 'AJ-20261009-R0063';
+    const state = {lang, calc:{consoleId:'N2', start:'2026-10-09', end:'2026-10-12', noContract:true,
+      rentalCode:code, demoOrderCode:code, demoOrderOpen:true, rentalCodeSig:''}};
+    const ctx = vm.createContext({state, demoProfile:{identitySkipped:true}, demoDelivery:{},
+      calcSummary:()=>({}), consoleHasGameCatalog:()=>false,
+      syncDemoNoContractAcceptance(){}, saveLocal(){}, render(){},
+      pricingPolicy:{}, byId:()=>null});
+    Object.assign(state.calc, {bundleId:'', extras:[], boardgames:[], games:[], ret:false, reviewGoogle:false, reviewFacebook:false});
+    vm.runInContext(fn('rentalSignature') + fn('setDemoNoContract') + fn('openDemoVerifyForDeposit')
+      + fn('confirmedRentalCodeForPayment'), ctx);
+    state.calc.rentalCodeSig = ctx.rentalSignature();
+    ctx.setDemoNoContract(false);
+    assert.equal(ctx.confirmedRentalCodeForPayment({}), code);
+    state.calc.start = '2026-10-10';
+    assert.throws(() => ctx.confirmedRentalCodeForPayment({}), /rental_details_changed/);
+  }
+});

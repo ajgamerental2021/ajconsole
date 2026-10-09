@@ -31,6 +31,7 @@ test('choosing the lower deposit unlocks identity photos and cancel restores the
     window: {},
     Object,
     JSON,
+    rentalSignature() { return 'unchanged'; },
   };
   const source = `let verifyForDepositActive = false; let verifyForDepositSnapshot = null;\n${sourceBetween('  function openDemoVerifyForDeposit(){', '  // "No verification":')}\n${sourceBetween('  function closeModal(){', '  function loadLineSdk(){')}\nglobalThis.isUpgradeOpen = () => verifyForDepositActive;`;
   runInNewContext(source, context);

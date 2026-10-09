@@ -1,3 +1,9 @@
+## 2026-10-09 — Codex: checkout quote and manual Booking identity request
+
+- Website checkout: switching verification on the confirmed order now keeps its Rental ID while preserving the guard against equipment/date changes. A malformed delivery quote falls back to paying rental and deposit now with delivery settled later; quote requests time out sooner, and a reply for an old map pin cannot overwrite or save the current quote. The Thai and English checkout follow the same path.
+- Delivery App and LINE Bot: a shop-created Booking can send a bilingual identity card. The deployed backend reserves and stores a Rental ID through `bookingRepo`; the Bot seeds its normal signed identity and agreement form with the shop's existing deposit. The customer enters a legal name, ID/passport number and expiry, uploads document and selfie, signs, and confirms. This uses the existing contract and identity callbacks. Staff can tap Send while a status check is unavailable.
+- Verification: website 314/314 tests; Bot 605/605 tests including manual contract-schema checks; Delivery backend/frontend TypeScript, flex-ledger 23/23, Expo web export, and inline JavaScript syntax passed. A live customer payment or LINE push was not executed by tests.
+
 ## 2026-10-09 — Codex: deposit-reduction identity photos unlocked
 
 - **Website `ajconsole` `47c3815`:** Fixed the verification modal opened from “Verify your identity to lower the deposit”. A previously saved Verify later flag stayed on and disabled both file and camera controls. The modal now clears that flag while verification is in progress, preserves the prior choice in its snapshot, and restores it on cancel. The upload grid also ignores stale skip state while this modal is active. Camera inputs remain visually hidden but are no longer `display:none`, improving mobile picker compatibility. The existing Thai and English labels remain available.

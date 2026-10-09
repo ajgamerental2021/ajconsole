@@ -4581,7 +4581,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // with no way forward, and the renter could not pay at all.
   async function fetchDemoDeliveryQuote(attempt = 0){
     attempt = Number(attempt) || 0;
-    demoDelivery.key = demoDeliveryQuoteKey();
+    const quoteKey = demoDeliveryQuoteKey();
+    const requestId = (demoDelivery.requestId || 0) + 1;
+    demoDelivery.requestId = requestId;
+    demoDelivery.key = quoteKey;
     demoDelivery.status = "loading";
     demoDelivery.quote = null;
     demoDelivery.error = "";
@@ -4603,9 +4606,19 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           rentalCode: state.calc.demoOrderOpen ? String(state.calc.rentalCode || "") : "",
           attempt
         })
-      }, 20000);
+      }, 8000);
       const result = await response.json().catch(() => ({}));
-      if(response.ok && result?.ok){
+      if(requestId !== demoDelivery.requestId) return;
+      if(quoteKey !== demoDeliveryQuoteKey()){
+        demoDelivery.status = "idle";
+        demoDelivery.key = "";
+        return fetchDemoDeliveryQuote();
+      }
+      // An "ok" response without a usable quote must not leave the button
+      // disabled forever in the ready-without-price state.
+      if(response.ok && result?.ok && result.quote
+        && typeof result.quote.total === "number" && Number.isFinite(result.quote.total)
+        && typeof result.quote.subtotal === "number" && Number.isFinite(result.quote.subtotal)){
         demoDelivery.status = "ready";
         demoDelivery.quote = result.quote;
         if(!payResume.active){
@@ -4618,13 +4631,20 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         demoDelivery.error = String(result?.reason || result?.error || "");
       }
     }catch(error){
+      if(requestId !== demoDelivery.requestId) return;
+      if(quoteKey !== demoDeliveryQuoteKey()){
+        demoDelivery.status = "idle";
+        demoDelivery.key = "";
+        return fetchDemoDeliveryQuote();
+      }
       console.warn("Delivery quote unavailable", error);
       demoDelivery.status = "unavailable";
       demoDelivery.error = "network_error";
     }
     // A cold server or a Lalamove hiccup usually clears on a second try.
     if(demoDelivery.status === "unavailable" && attempt === 0 && demoDelivery.key === demoDeliveryQuoteKey()){
-      await new Promise(resolve => setTimeout(resolve, 2500));
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      if(requestId !== demoDelivery.requestId) return;
       return fetchDemoDeliveryQuote(1);
     }
     if(deliveryQuoteFallback()){
@@ -4641,7 +4661,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   // No live price, but the renter can still pay: delivery is settled with AJ.
   function deliveryQuoteFallback(){
-    return demoDelivery.status === "unavailable" || demoDelivery.status === "needs_pin";
+    return demoDelivery.status === "unavailable" || demoDelivery.status === "needs_pin"
+      || (demoDelivery.status === "ready" && !demoDelivery.quote);
   }
   // The rental is paid without a delivery fee in it; AJ collects that later.
   function deliveryFeePending(){
@@ -6073,7 +6094,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // One switch for "no identity verification": the step 2 checkbox and the
   // order page's buttons. A payment link made for the old deposit is dropped.
   function setDemoNoContract(value){
+    const unchangedRental = state.calc.rentalCodeSig === rentalSignature();
     state.calc.noContract = !!value;
+    // The renter can change the identity/deposit choice on the confirmed
+    // order page. It does not change the rental the already issued ID names.
+    if(unchangedRental && state.calc.demoOrderOpen && state.calc.rentalCode === state.calc.demoOrderCode){
+      state.calc.rentalCodeSig = rentalSignature();
+    }
     syncDemoNoContractAcceptance();
     if(!value) demoProfile.identitySkipped = false;
     state.calc.beamPaymentLink = "";
@@ -6088,7 +6115,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function openDemoVerifyForDeposit(){
     verifyForDepositSnapshot = {profile:{...demoProfile}, calc:JSON.parse(JSON.stringify(state.calc)), delivery:{...demoDelivery}};
     verifyForDepositActive = true;
+    const unchangedRental = state.calc.rentalCodeSig === rentalSignature();
     state.calc.noContract = false;
+    if(unchangedRental && state.calc.demoOrderOpen && state.calc.rentalCode === state.calc.demoOrderCode){
+      state.calc.rentalCodeSig = rentalSignature();
+    }
     // This is an explicit switch from Verify later to Verify now. The
     // snapshot above restores the previous choice if the customer closes it.
     demoProfile.identitySkipped = false;

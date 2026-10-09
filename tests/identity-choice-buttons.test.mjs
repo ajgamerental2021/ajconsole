@@ -9,7 +9,8 @@ test('no verification chosen: a green button offers verification for the normal 
   // The same popup holds step 2 customer details and step 3 refund/signature,
   // with identity photos; cancelling restores the earlier choice.
   assert.match(html, /function openDemoVerifyForDeposit\(\)\{\n    verifyForDepositSnapshot =/);
-  assert.match(html, /verifyForDepositActive = true;\n    state\.calc\.noContract = false;/);
+  assert.match(html, /verifyForDepositActive = true;[\s\S]*?state\.calc\.noContract = false;/);
+  assert.match(html, /if\(unchangedRental && state\.calc\.demoOrderOpen && state\.calc\.rentalCode === state\.calc\.demoOrderCode\)/);
   assert.match(html, /render\(\);\n    openVerifyNowModal\(\);/);
   assert.match(html, /verifyForDepositActive \? `<div class="card verify-now-customer"/);
   assert.match(html, /lendCustomerCard\(\);\n    lendAgreementCard\(\);/);
@@ -23,7 +24,7 @@ test('verification left for later: a red-outlined button skips it for the higher
   assert.match(html, /noId:bundleName \? Math.max\(Number\(deposit\) \|\| 0, pricingPolicy\?\.bundleNoIdentityDeposit \|\| 15000\)/);
   // One switch for the step 2 checkbox and these buttons; it drops a payment
   // link made for the old deposit.
-  assert.match(html, /function setDemoNoContract\(value\)\{\n    state\.calc\.noContract = !!value;[\s\S]*?state\.calc\.beamPaymentLink = "";/);
+  assert.match(html, /function setDemoNoContract\(value\)\{[\s\S]*?state\.calc\.noContract = !!value;[\s\S]*?state\.calc\.beamPaymentLink = "";/);
   assert.match(html, /if\(event\.target\.id === "demoNoContractOpt"\)\{\n        setDemoNoContract\(event\.target\.checked\);/);
   assert.doesNotMatch(html, /id="demoIdentityNoContractOpt"/);
 });
