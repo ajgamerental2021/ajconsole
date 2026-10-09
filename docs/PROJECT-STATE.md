@@ -1,3 +1,24 @@
+## 2026-10-09 — Claude Code: payment on Lalamove driver cards, no stale driver photo, route on the tracking page
+
+- **Owner asked:**
+  1. no "รูปคนขับจัดส่งของคุณ" card when it would arrive more than 3 minutes after the driver card;
+  2. bag codes, balance and payment channel inside the "ได้คนขับจัดส่งแล้ว" and "ได้คนขับจัดส่งใหม่แล้ว" cards;
+  3. the driver's route with distance and time on the tracking page, like Lalamove's.
+- **Delivery App `a4dbd68`** (backend only; no new APK needed). It builds on the dispatch work already on `main` from the owner's other sessions (`fd58d45` and earlier):
+  - **Photo card:** sent only within 3 minutes of the driver card (`sent.driverIntroAt`). A later photo is marked handled and not sent. This applies to a new driver too.
+  - **Driver cards:** when a channel was chosen at dispatch, or later confirmed in the queue, the delivery driver card carries the shop's delivery-card section: bag codes, balance, and either the bank account with copy button or the pay button. This applies once per driver per channel (`sent.driverPaymentKey`). The pickup card is then the plain "on the way" card. A channel chosen afterwards still gets its separate payment card, as before. With no channel chosen, there is no payment section. Thai and English.
+  - **Tracking page:**
+    - Draws Google's road route from the driver to the customer as an orange line, with the stretch already driven trimmed off.
+    - Shows the distance left in the ETA line, in a chip on the map ("🛵 18 นาที · 6.3 กม." / "18 min away · 6.3 km") and in the details.
+    - The route is refreshed every 2 minutes, and shown only once the driver is more than 2 km from the shop.
+    - A destination that is only coordinates reads "ตำแหน่งที่ปักหมุดไว้" / "Your pinned location".
+- **Verification:**
+  - `test:lalamove-dispatch` 219/219 (new checks: photo window, payment on assigned and new-driver cards in TH/EN, plain pickup card, route and distance only when the driver is shown); `test:flex-ledger` 23/23; `test:auto-dispatch`; `test:delivery-card` 58/58.
+  - Backend and frontend `tsc` clean (frontend after `npm ci` for packages another session added).
+  - Page rendered at 390 px in TH/EN, both with Leaflet and with a stubbed Google Maps.
+- **Logged** in `delivery-app/SHARED-WORKSPACE.md` §4 and `CHANGELOG.md`.
+- **Owner action:** none beyond the Render deploy, which started on push. The route uses the Routes API key already used for ETAs.
+
 ## 2026-10-09 — Codex: checkout quote and manual Booking identity request
 
 - Website checkout: switching verification on the confirmed order now keeps its Rental ID while preserving the guard against equipment/date changes. Previously saved checkouts with only the old identity-choice signature are repaired on revisit, so the affected customer can continue with the same code. A malformed delivery quote falls back to paying rental and deposit now with delivery settled later; quote requests time out sooner, and a reply for an old map pin cannot overwrite or save the current quote. The Thai and English checkout follow the same path.
