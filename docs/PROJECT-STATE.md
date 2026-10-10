@@ -1,3 +1,23 @@
+## 2026-10-10 — Claude Code: customer trip page (Delivery App `23065a5`)
+
+- **Owner asked:** a customer version of the staff "ติดตามงาน" panel. Staff open it and copy it from that panel; LINE buttons are unchanged. TH/EN.
+  - **Delivery:** destination only; the driver photo and pin after pickup and beyond the threshold; ETA and distance; a tracking link to copy and open; the amount by chosen channel; the bag code.
+  - **Return:** pickup point only; the driver photo, minutes and distance at once; the shop tracking link hidden unless staff show it, and staff can open it.
+  - The owner chose the shop's own tracking link, not Lalamove's, for both.
+- **Built:**
+  - `/c/trip/<token>`: a separate signing prefix `aj-trip:`, so a forwarded `/c/track` link can't open it. It is served from `routes/customerTrack.ts`, with the map code shared with the tracking page.
+  - `publicTripState`:
+    - track state plus `driverCard`;
+    - `trackUrl` (delivery always; return only when `customerPageTrackLink`);
+    - `locks`;
+    - `payment` via the new `resolveDeliveryPayment` export (bank: no fee), cached 5 minutes.
+  - `/c/track` now handles return legs: on the way to the customer, then no position after pickup. Return route `returnRoute` is refreshed every 2 minutes while ON_GOING.
+  - Staff:
+    - `GET/POST /api/dispatch/jobs/:jobId/customer-page`;
+    - a "หน้าสำหรับลูกค้า / Customer page" section: Open, Copy link; on returns, a "show tracking link" switch and a staff open link.
+- **Verification:** `test:lalamove-dispatch` 259/259 (12 new trip-page checks); flex-ledger 23/23; backend and frontend `tsc` clean. Page rendered at 390 px TH/EN in 4 states: delivery bank on the way, delivery credit preparing, return on the way, return collected with the link shown. Copy and open, and the staff section with copy and the switch, checked in Expo web.
+- **Release:** backend on push. The staff button needs APK build 20261010; the staff web has it after deploy.
+
 ## 2026-10-10 — Claude Code: later identity verification that works, Verify-later dialog, back from payment, photo reading, Thai cards for Thai names
 
 - **Owner asked:**
