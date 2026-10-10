@@ -1,3 +1,15 @@
+## 2026-10-10 — Claude Code: AJ sign-off and logo at the foot of the customer pages (Delivery App)
+
+- **Owner asked:** under the tracking page, "AJ Delivery System Powered By AJ Game Rental" with the shop logo, a little larger than the text, in TH and EN, and where the logo should go.
+- **Built:**
+  - Recommended and built: logo on the left, two lines on the right, centred as a pair.
+  - On `/c/track` and `/c/trip` under the update line, via `poweredFooter`/`poweredLines` in `routes/customerTrack.ts`.
+  - The logo is `public/aj-logo.jpg`, cut from the owner's image to 192 px.
+  - TH: "ระบบจัดส่ง AJ Delivery System / ให้บริการโดย AJ Game Rental". EN: "AJ Delivery System / Powered By AJ Game Rental".
+  - The saved trip picture footer matches.
+- **Verification:** `test:lalamove-dispatch` 301/301; footers screenshotted (track TH, trip EN, saved picture EN).
+- **Release:** backend only; live on deploy.
+
 ## 2026-10-10 — Claude Code: driver alerts on the shop phones; Grab as a second company beside Lalamove (Delivery App `bd89c84`, Bot `c9d896c`)
 
 - **Owner asked:**
