@@ -1,3 +1,15 @@
+## 2026-10-10 — Claude Code: auto-dispatch did not call after an earlier manual order (Delivery App)
+
+- **Owner reported:** a return (ภูมิ, PS5-9, 18:00) was called by hand and cancelled, then set to auto-call at 17:45. Nothing was called.
+- **Cause:** `autoDispatchTick` skipped any job whose latest order was placed today ("even one cancelled later"). It set `lastSuccessKey` silently, with no `lastError` and no alert.
+- **Fix:**
+  - `plan.armedAt` is stamped on every save with auto on.
+  - A today order blocks the call only if it was created after `max(armedAt || enabledAt, global.enabledAt)`, meaning staff took it over.
+  - Any skip writes a reason to `lastError`, which the queue card shows. A take-over also sends `sendShopAlert`.
+  - Old plans fall back to `enabledAt`.
+- **Verification:** `test:auto-dispatch` with both cases added; `test:lalamove-dispatch` 301/301.
+- **Release:** backend only.
+
 ## 2026-10-10 — Claude Code: AJ sign-off and logo at the foot of the customer pages (Delivery App)
 
 - **Owner asked:** under the tracking page, "AJ Delivery System Powered By AJ Game Rental" with the shop logo, a little larger than the text, in TH and EN, and where the logo should go.
