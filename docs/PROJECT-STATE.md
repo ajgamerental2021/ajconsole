@@ -1,3 +1,59 @@
+## 2026-10-10 — Claude Code: driver alerts on the shop phones; Grab as a second company beside Lalamove (Delivery App `bd89c84`, Bot `c9d896c`)
+
+- **Owner asked:**
+  - A phone notification when a driver is assigned or cancels.
+  - Prepare Grab as an alternative to Lalamove, switchable at any time, working and notifying customers exactly the same way.
+- **Alerts built:**
+  - **When:** `refreshJob` raises `staffAlertDue` alerts: driver assigned, new driver, driver cancelled (back to finding one), or trip cancelled/expired by the company.
+  - **No repeats:** each fires once per trip and driver (`job.staffAlerts`). Staff's own cancel or switch raises no alert.
+  - **Delivery:** `services/staffAlertService.ts` sends each alert three ways:
+    - Expo push to phones registered at sign-in (sheet tab "Staff Push Devices"; `DeviceNotRegistered` tokens are dropped);
+    - `WebPushService.broadcast` to the staff web's existing web-push subscriptions;
+    - an in-memory feed `GET /api/staff-alerts?since=`. The app (`src/services/staffAlerts.ts`) reads it every 20 s while open and shows alerts itself when it has no push token; on the web it uses `Notification` unless web push is active.
+  - Logout unregisters the token.
+  - **Push with the app closed needs Firebase.** `frontend/app.config.js` adds `googleServicesFile` only when `google-services.json` exists or the EAS file env `GOOGLE_SERVICES_JSON` is set; the file is gitignored. The owner must:
+    - create a Firebase Android app for `com.ajgame.deliveryapp`;
+    - set the EAS file env;
+    - upload the FCM V1 service-account key (`eas credentials`);
+    - build APK 20261010.
+
+    Optional: `EXPO_ACCESS_TOKEN` on Render if Expo enhanced push security is turned on.
+- **Grab built:**
+  - **Bot:** `services/grab-express.js` uses GrabExpress Delivery API v1:
+    - OAuth `grab_express.partner_deliveries`; staging until `GRAB_SANDBOX=false`; off until `GRAB_CLIENT_ID`/`GRAB_CLIENT_SECRET` are set.
+    - Routes `/api/integrations/delivery-app/grab/{setup,quote,order,status,proofs,cancel}` mirror the Lalamove shapes.
+    - A Grab price is held in the Bot under a `grabq_` id, and statuses are mapped onto Lalamove's. Priority fee and change driver return `not_supported_by_provider`.
+    - Written from the documented v1 shape and a third-party OpenAPI profile, because developer.grab.com is unreachable from this session. Verify field names on staging first.
+  - **Delivery App:**
+    - `job.provider` (absent = Lalamove); `botClient` routes by provider.
+    - `prepareTrip` returns `providers[]` with configured/sandbox/features.
+    - Switching uses `confirmTrip({ replacesJobId })`:
+      - only before pickup;
+      - cancels the old order first, under its lock; if that fails, nothing changes;
+      - copies `sent.confirmed`, so there is no second confirmation;
+      - sends "driver changing" only if a driver had been announced;
+      - if the new order fails, the old trip's cancel card goes out;
+      - a retry after a lost reply does not cancel or announce again.
+    - `publicTrackState` and `publicTripState` follow `switchedTo`, so links already sent keep working.
+    - Customer flex footer, return-handover text, waiting-time button (Lalamove only) and the trip page's "masked plate" line name the provider.
+    - Auto-dispatch config has `provider`.
+    - Staff UI:
+      - company chips on the call form;
+      - "🔁 เปลี่ยนไปเรียก …" on the trip panel;
+      - tip and change driver hidden for Grab;
+      - queue labels name the company.
+- **Verification:**
+  - DA `test:lalamove-dispatch` 299/299 (31 new: Grab flow, switch, failed cancel, failed new order, lost-reply retry, alerts and their de-duplication, push fan-out). All other DA suites pass except `header-guard`/`bind-rental-code`, which need Google credentials this environment lacks.
+  - Backend and frontend `tsc`; `npm run build:web` OK.
+  - Bot 621/621 (8 new).
+  - Dispatch card checked on the exported web at 390 px (Grab chosen, switch banner, Grab trip panel, Grab not set up). Web alert fallback checked in Chromium.
+- **Release:**
+  - Bot and DA backend deploy on push, in either order: Grab shows "not set up" until the Bot has credentials.
+  - The new staff UI and phone push need APK 20261010. It is not built: there is no `EXPO_TOKEN` here, and `api.expo.dev` is blocked.
+  - The staff web gets the UI on deploy.
+  - Keep `MIN_ANDROID_VERSION_CODE` at 20260913 until phones run 20261010.
+- **Seen, not changed:** `webPushService.ts` keeps a fallback VAPID private key in source (pre-existing). Set `WEB_PUSH_VAPID_PUBLIC_KEY`/`WEB_PUSH_VAPID_PRIVATE_KEY` on Render and remove the fallback in a separate change.
+
 ## 2026-10-10 — Claude Code: one-tap "message the shop" on LINE cards; APK 20261010 still waits for Expo (Delivery App `255de9f`, Bot `ae8380b`)
 
 - **Owner asked:**
