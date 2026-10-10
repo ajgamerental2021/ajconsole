@@ -12,8 +12,9 @@ test('no verification chosen: a green button offers verification for the normal 
   assert.match(html, /verifyForDepositActive = true;[\s\S]*?state\.calc\.noContract = false;/);
   assert.match(html, /if\(unchangedRental && state\.calc\.demoOrderOpen && state\.calc\.rentalCode === state\.calc\.demoOrderCode\)/);
   assert.match(html, /render\(\);\n    openVerifyNowModal\(\);/);
-  assert.match(html, /verifyForDepositActive \? `<div class="card verify-now-customer"/);
-  assert.match(html, /lendCustomerCard\(\);\n    lendAgreementCard\(\);/);
+  // The pop-up asks for identity only; the rental's own details are edited on the order page.
+  assert.doesNotMatch(html, /verify-now-customer|lendCustomerCard|demoVerifyMapModal/);
+  assert.match(html, /function openVerifyNowModal\(\)\{[\s\S]*?lendAgreementCard\(\);/);
   assert.match(html, /if\(verifyForDepositActive && verifyForDepositSnapshot\)\{/);
   assert.match(html, /\.demo-verify-btn\{background:#15803d;border-color:#15803d;color:#fff\}/);
 });

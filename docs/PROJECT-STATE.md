@@ -1,3 +1,45 @@
+## 2026-10-10 — Claude Code: later identity verification that works, Verify-later dialog, back from payment, photo reading, Thai cards for Thai names
+
+- **Owner asked:**
+  1. Thai names always get Thai cards.
+  2. What "Read details from photo" is, since tapping it did nothing.
+  3. Step 3 "Verify later" jumped back to step 2 and ticked "prefer not to verify". It should ask Yes/No; Yes goes to the summary, No unticks.
+  4. Back from Beam left "Opening the payment page…" on screen. It should say payment was not completed, with pay later / try again.
+  5. "Verify to lower the deposit": Send did nothing with no reason given, and closing lost the photos, ID number and expiry. Must be reliable; image size must not be a problem. All in TH/EN.
+- **Causes found:**
+  - **(5)**
+    - The pop-up re-sent the booking with the 24-hour LINE connection token, plus the Bot's in-memory booking context, which is lost on every deploy. When either had gone, sending was blocked with "connect LINE".
+    - Every message went to a toast at `bottom:24px`, under the phone browser's bottom bar, so nothing appeared to happen.
+    - Closing restored the whole pre-open snapshot, so the entered photos and ID were lost.
+  - **(2)** It is an optional on-device reader (Tesseract) for the document number and expiry. The first use downloads about 10 MB but was allowed 10 seconds. Its status was shown far below the button, and a late result never replaced typed text.
+  - **(3)** Ticking set `noContract`, and the no-verification flow has no step 3.
+- **Bot `7547bf8`:**
+  - `POST /api/identity-upgrade/link` exchanges the page's view token for the signed upgrade token, plus CORS for `/api/identity-upgrade` from the booking site.
+  - Console Pending rewrites keep server-owned fields (contract, identity photos and document, `identityUpgradedAt`) from the existing row when the browser doesn't send them.
+- **Website:**
+  - The verify pop-up submits to `/api/identity-upgrade/:token`; no LINE token or context is needed. It falls back to the old path only for a rental with no view token on this device.
+  - It asks for identity only: photos, number, expiry, consent, signature. The step-2 card and its location pop-up were removed; details are edited from the order page.
+  - The answer, or what is missing, appears in a red box above Send and on the fields.
+  - Closing keeps the photos, number, expiry and consent.
+  - Toast raised above the browser bar (safe-area + 96 px).
+  - Verify-later Yes/No dialog → `confirmDemoOrder`.
+  - Back from Beam: a `sessionStorage` marker, plus `pageshow` / reload, opens "การชำระเงินไม่สำเร็จ / Payment not completed" with "ชำระเงินทีหลัง / Pay later" and "ลองชำระเงินอีกครั้ง / Try paying again". The success and failed pages clear the marker.
+  - Photo reader: renamed "อ่านเลขและวันหมดอายุจากรูป (ไม่บังคับ)" / "Fill number and expiry from the photo (optional)"; progress shown under its button; 120 s; a tap replaces the boxes.
+- **Delivery App `7ef2855`:** a Thai-letter name is always sent Thai (`resolveLanguage` / `languageForBooking`). The Bot's own cards follow the booking page, whose name field is Thai-only on TH and English-only on EN, so they already match.
+- **Verification:**
+  - Bot 611/611; website 321/321 (4 new); DA `test:booking-language` 18/18, `test:lalamove-dispatch` 245/245, flex-ledger 23/23.
+  - Playwright TH/EN with mocks:
+    - photo reader progress, then fill;
+    - Verify-later No/Yes;
+    - verify pop-up with an expired LINE connection: close/reopen keeps entries; missing consent/signature shown; success lowers the deposit to the normal one;
+    - server refusals (expiry, 503) shown above Send;
+    - a 4032×3024 photo; the old-path fallback;
+    - back from a fake Beam page → dialog → retry → back → pay later;
+    - plain reload shows no dialog;
+    - step-2 "prefer not to verify" still reaches the order page;
+    - normal TH deposit and EN credit payments still open Beam.
+- **Known, not changed:** paying from the website order page in Thai still needs a live LINE connection (24 h). After that, the customer is asked to connect LINE again. The pay-later link and the payment page don't need it.
+
 ## 2026-10-10 — Claude Code: foreign customer numbers on Lalamove, 3.8 km at Sinthorn, payment cards checked
 
 - **Owner asked:**

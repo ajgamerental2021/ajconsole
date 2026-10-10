@@ -6,6 +6,8 @@
   const base = new URL('vendor/ocr/', (typeof document !== 'undefined' && document.currentScript?.src) || global.location?.href || 'https://ajgamerental.com/assets/identity-ocr.js');
   let library;
   let worker;
+  // The worker is made once; each reading points its progress at its own caller.
+  let progressListener = null;
   const thaiIdValid = (digits) => {
     if (!/^\d{13}$/.test(digits)) return false;
     let sum = 0;
@@ -208,6 +210,7 @@
   }
   async function recognize(file, onProgress) {
     if (!file || !/^image\//.test(file.type)) throw new Error('ocr_invalid_image');
+    progressListener = typeof onProgress === 'function' ? onProgress : null;
     const tesseract = await loadScript();
     if (!worker) worker = tesseract.createWorker('eng+tha', 1, {
       workerPath: new URL('worker.min.js', base).href,
@@ -215,9 +218,10 @@
       langPath: base.href.replace(/\/$/, ''),
       workerBlobURL: false,
       cacheMethod: 'none',
-      logger: (event) => { if (onProgress && event.status === 'recognizing text') onProgress(event.progress); }
+      logger: (event) => { if (progressListener) progressListener(event.progress, event.status); }
     }).catch((error) => { worker = null; throw error; });
     const instance = await worker;
+    if (progressListener) progressListener(0, 'recognizing text');
     let crops = [];
     try { crops = await cardCrops(file); } catch (_) { /* Keep the original-photo fallback. */ }
     let found = { type: '', number: '', expiry: '', source: '' };

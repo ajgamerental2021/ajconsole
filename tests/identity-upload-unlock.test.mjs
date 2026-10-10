@@ -12,7 +12,7 @@ function sourceBetween(start, end) {
   return html.slice(from, to);
 }
 
-test('choosing the lower deposit unlocks identity photos and cancel restores the previous choice', () => {
+test('choosing the lower deposit unlocks identity photos; closing restores the deposit choice and keeps what was entered', () => {
   const profile = { identitySkipped: true, fullName: 'Test Renter' };
   const state = { calc: { noContract: true, demoIdentitySkipped: true, beamPaymentLink: 'old-link', beamPaymentKey: 'old-key', beamPaymentExpiresAt: 'old-expiry' } };
   const delivery = { status: 'ready' };
@@ -25,7 +25,6 @@ test('choosing the lower deposit unlocks identity photos and cancel restores the
     openVerifyNowModal() { modalOpenedWithUploadsEnabled = !profile.identitySkipped && !state.calc.noContract; },
     byId() { return { focus() {}, classList: { remove() {} } }; },
     returnAgreementCard() {},
-    returnCustomerCard() {},
     saveDemoProfile() {},
     saveLocal() {},
     window: {},
@@ -33,14 +32,26 @@ test('choosing the lower deposit unlocks identity photos and cancel restores the
     JSON,
     rentalSignature() { return 'unchanged'; },
   };
-  const source = `let verifyForDepositActive = false; let verifyForDepositSnapshot = null;\n${sourceBetween('  function openDemoVerifyForDeposit(){', '  // "No verification":')}\n${sourceBetween('  function closeModal(){', '  function loadLineSdk(){')}\nglobalThis.isUpgradeOpen = () => verifyForDepositActive;`;
+  const kept = html.match(/const VERIFY_NOW_KEPT_FIELDS = (\[[^\]]*\]);/)[1];
+  const source = `let verifyForDepositActive = false; let verifyForDepositSnapshot = null; const VERIFY_NOW_KEPT_FIELDS = ${kept};\n${sourceBetween('  function openDemoVerifyForDeposit(){', '  // "No verification":')}\n${sourceBetween('  function closeModal(){', '  function loadLineSdk(){')}\nglobalThis.isUpgradeOpen = () => verifyForDepositActive;`;
   runInNewContext(source, context);
   context.openDemoVerifyForDeposit();
   assert.equal(modalOpenedWithUploadsEnabled, true);
   assert.equal(profile.identitySkipped, false);
   assert.equal(state.calc.demoIdentitySkipped, false);
   assert.equal(context.isUpgradeOpen(), true);
+  // What the renter entered before closing is there when they reopen.
+  profile.identityNumber = '1100600181747';
+  profile.identityExpiry = '2026-12-31';
+  profile.idDocument = { name: 'id.jpg' };
+  profile.selfieWithId = { name: 'selfie.jpg' };
+  profile.agreementConsent = true;
   context.closeModal();
+  assert.equal(profile.identityNumber, '1100600181747');
+  assert.equal(profile.identityExpiry, '2026-12-31');
+  assert.equal(profile.idDocument.name, 'id.jpg');
+  assert.equal(profile.selfieWithId.name, 'selfie.jpg');
+  assert.equal(profile.agreementConsent, true);
   assert.equal(profile.identitySkipped, true);
   assert.equal(state.calc.noContract, true);
   assert.equal(state.calc.demoIdentitySkipped, true);

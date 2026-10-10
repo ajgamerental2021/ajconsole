@@ -266,7 +266,7 @@ test('a returning customer sees the document AJ already holds', () => {
 test('optional photo reading never blocks manual document details on step 3', () => {
   assert.match(html, /id="demoIdentityExpiry"/);
   assert.match(html, /function demoIdentityExpired\(\)/);
-  assert.match(html, /window\.AJIdentityOCR\.recognize\(file\)/);
+  assert.match(html, /window\.AJIdentityOCR\.recognize\(file, progress\)/);
   assert.match(html, /data-read-ocr="id"/);
   assert.match(html, /if\(event\.target\.closest\("\[data-read-ocr\]"\)\)/);
   assert.doesNotMatch(html, /if\(file && event\.target\.dataset\.identityFile === "id"\) void readDemoIdentity\(file\)/);
@@ -360,7 +360,7 @@ test('delivery is part of the total, the card fee covers it, and each option sho
 test('the order page asks for a fresh delivery quote after a refresh or an edit', () => {
   assert.match(html, /function demoDeliveryQuoteKey\(\)/);
   assert.match(html, /if\(state\.calc\.demoOrderOpen && demoDelivery\.status !== "loading" && demoDelivery\.key !== demoDeliveryQuoteKey\(\)\)\{\n      void fetchDemoDeliveryQuote\(\);/);
-  assert.match(html, /demoDelivery\.key = demoDeliveryQuoteKey\(\);/);
+  assert.match(html, /const quoteKey = demoDeliveryQuoteKey\(\);[\s\S]*?demoDelivery\.key = quoteKey;/);
 });
 
 test('the Rental ID page opens at the preparation notice', () => {

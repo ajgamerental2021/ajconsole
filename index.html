@@ -663,7 +663,7 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .home-card.tone-amber:after{background:linear-gradient(180deg,rgba(150,85,0,.04),rgba(60,34,0,.9))}
 .home-card h3{font-size:24px;line-height:1.15}
 .home-card p{color:#eee;font-size:13px;margin-top:5px}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);opacity:0;background:#111;color:#fff;padding:12px 16px;border-radius:999px;z-index:1000;transition:.22s;font-weight:800}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom, 0px) + 96px);transform:translateX(-50%) translateY(20px);opacity:0;background:#111;color:#fff;padding:12px 16px;border-radius:16px;z-index:100001;transition:.22s;font-weight:800;width:max-content;max-width:min(92vw,520px);text-align:center;line-height:1.45;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .picker-card{position:relative;background:#fff;width:min(1180px,100%);height:min(92vh,900px);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow2)}
 .picker-frame{flex:1;border:0;background:#fff}
@@ -1062,19 +1062,20 @@ body.unified-flow-demo .demo-verify-btn:hover{background:#166534;border-color:#1
 .pay-resume-verify{display:block;width:100%;margin-top:12px;text-align:center;text-decoration:none}
 #identityUpgradeModal .modal-card{width:min(760px,100%);height:min(94dvh,980px);display:flex;flex-direction:column;overflow:hidden}
 #identityUpgradeFrame{display:block;width:100%;flex:1;min-height:0;border:0;background:#fff}
-#demoVerifyMapModal{z-index:540}
-#demoVerifyMapModal .modal-card{width:min(550px,100%);max-height:calc(100dvh - 24px);overflow:auto}
-.demo-verify-map-body{padding:18px;display:grid;gap:12px}
-.demo-verify-map-body .input{width:100%}
-.demo-verify-map-actions{display:flex;gap:8px;flex-wrap:wrap}
-.demo-verify-map-actions .btn{flex:1;min-width:130px}
-.demo-verify-map-changed{color:#067647;font-weight:700}
 #simpleModal:has(.verify-now) .modal-card{width:min(760px,100%);max-height:calc(100dvh - 24px);overflow:auto}
-#simpleModal:has(.verify-now) .verify-now-customer{margin-bottom:16px}
+.verify-now-status{margin:14px 0 0;padding:12px 14px;border-radius:12px;font-weight:800;line-height:1.5;background:#fef3f2;color:#b42318;border:1px solid #fecdca}
+.verify-now-status.busy{background:#eff8ff;color:#175cd3;border-color:#b2ddff}
+.verify-now-status.ok{background:#ecfdf3;color:#067647;border-color:#abefc6}
 
 @media(max-width:600px){#identityUpgradeModal .modal-card{width:100%;height:100dvh;max-height:none;border-radius:0}}
 /* Short booking problem dialogs stay readable without filling a phone screen. */
 #simpleModal:has(.queue-retry-actions){padding:16px;align-items:center;justify-content:center}
+#simpleModal:has(.ask-actions){padding:16px;align-items:center;justify-content:center}
+#simpleModal:has(.ask-actions) .modal-card{width:min(440px,100%);height:auto;max-height:calc(100dvh - 32px);border-radius:18px;overflow:auto}
+#simpleModal:has(.ask-actions) .modal-head{position:static;padding:14px 18px}
+.ask-box{padding:18px;font-size:16px;line-height:1.6}
+.ask-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:18px}
+.ask-actions .btn{min-width:96px}
 #simpleModal:has(.queue-retry-actions) .modal-card{width:min(440px,100%);height:auto;max-height:calc(100dvh - 32px);border-radius:18px;overflow:auto}
 #simpleModal:has(.queue-retry-actions) .modal-head{position:static;padding:14px 18px}
 #simpleModal:has(.queue-retry-actions) .calendar-body{padding:18px}
@@ -1597,13 +1598,6 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   </div>
 </div>
 
-<div class="modal-overlay" id="demoVerifyMapModal" role="dialog" aria-modal="true" aria-labelledby="demoVerifyMapTitle">
-  <div class="modal-card"><div class="modal-head"><h3 id="demoVerifyMapTitle"></h3><div class="modal-head-actions"><button class="btn" id="demoVerifyMapLang" type="button"></button><button class="xbtn" id="demoVerifyMapClose" type="button" aria-label="Close">&times;</button></div></div>
-    <div class="demo-verify-map-body"><input class="input" id="demoVerifyMapInput" type="text" autocomplete="off" enterkeyhint="search"><p class="hint" id="demoVerifyMapHint"></p>
-      <div class="demo-verify-map-actions"><button class="btn" id="demoVerifyMapCurrent" type="button"></button><button class="btn" id="demoVerifyMapPin" type="button"></button></div>
-      <p class="hint" id="demoVerifyMapResult" role="status"></p><div class="demo-verify-map-actions"><button class="btn" id="demoVerifyMapCancel" type="button"></button><button class="btn primary" id="demoVerifyMapConfirm" type="button"></button></div></div>
-  </div>
-</div>
 
 <div class="modal-overlay" id="demoEditModal" role="dialog" aria-modal="true" aria-labelledby="demoEditTitle">
   <div class="modal-card demo-edit-card">
@@ -1785,7 +1779,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 <script src="assets/vendor/simplewebauthn-browser-14.0.0.umd.min.js"></script>
 <script src="assets/admin-passkey.js"></script>
 <script src="assets/place-search.js?v=20261003-6"></script>
-<script src="assets/identity-ocr.js?v=20261006-6"></script>
+<script src="assets/identity-ocr.js?v=20261010-1"></script>
 <script>
 (() => {
   "use strict";
@@ -2115,7 +2109,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       individualRateAfter:" ก่อนจอง",
       calcCta:"เช็คคิว & คำนวณค่าเช่า",
       identityUploadedPreview:"ดูรูปที่อัปโหลดแบบขยาย",
-      identityReadOptional:"อ่านเลขจากรูป (ไม่จำเป็น)", identityPhotoReady:"เลือกรูปแล้ว: {name} (ส่งเมื่อกดยืนยัน)", identityFileType:"ใช้รูป JPG, PNG, WebP หรือ HEIC ไม่เกิน 40 MB ระบบจะย่อก่อนส่ง", identityPhotoDecode:"เปิดรูปนี้ไม่ได้ กรุณาเลือกรูป JPG หรือถ่ายใหม่", identityOcrBusy:"กำลังอ่านรูป คุณกรอกข้อมูลเองได้ระหว่างนี้",
+      identityReadOptional:"อ่านเลขและวันหมดอายุจากรูป (ไม่บังคับ)", identityPhotoReady:"เลือกรูปแล้ว: {name} (ส่งเมื่อกดยืนยัน)", identityFileType:"ใช้รูป JPG, PNG, WebP หรือ HEIC ไม่เกิน 40 MB ระบบจะย่อก่อนส่ง", identityPhotoDecode:"เปิดรูปนี้ไม่ได้ กรุณาเลือกรูป JPG หรือถ่ายใหม่", identityOcrBusy:"กำลังอ่านรูป คุณกรอกข้อมูลเองได้ระหว่างนี้",
       contactChannelTitle:"ช่องทางรับข้อมูลการจอง",
       contactChannelThaiHelp:"เชื่อม LINE ก่อนชำระเงิน เพื่อรับการยืนยันและดูคิวเช่าของคุณ",
       contactChannelEnglishHelp:"เลือก LINE หรือ WhatsApp ได้ หรือใช้เบอร์โทรและอีเมลต่อโดยไม่เชื่อมตอนนี้",
@@ -2265,7 +2259,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       individualRateAfter:" before booking.",
       calcCta:"Check Queue & Calculate",
       identityUploadedPreview:"View uploaded photo larger",
-      identityReadOptional:"Read details from photo (optional)", identityPhotoReady:"Photo selected: {name} (sent when you confirm)", identityFileType:"Use a JPG, PNG, WebP or HEIC photo up to 40 MB. It will be resized before sending.", identityPhotoDecode:"This photo could not be opened. Choose a JPG or take it again.", identityOcrBusy:"Reading the photo; you can enter the details yourself meanwhile.",
+      identityReadOptional:"Fill number and expiry from the photo (optional)", identityPhotoReady:"Photo selected: {name} (sent when you confirm)", identityFileType:"Use a JPG, PNG, WebP or HEIC photo up to 40 MB. It will be resized before sending.", identityPhotoDecode:"This photo could not be opened. Choose a JPG or take it again.", identityOcrBusy:"Reading the photo; you can enter the details yourself meanwhile.",
       contactChannelTitle:"Booking updates",
       contactChannelThaiHelp:"Connect LINE before payment to receive your booking updates",
       contactChannelEnglishHelp:"Connect LINE or use WhatsApp for booking updates.",
@@ -4401,10 +4395,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         ${demoIdentityCoveredByAgreement() || payResume.active ? "" : `<div class="field wide">
         <label class="option-row"><input type="checkbox" id="demoNoContractOpt" ${state.calc.noContract?"checked":""}><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b><div class="hint">${en ? "No ID number or Thai ID/Passport photos are required, and no identity verification is performed." : "ไม่ต้องกรอกเลขบัตร และไม่ต้องส่งรูปบัตรประชาชน/Passport และไม่มีการยืนยันตัวตน"}</div>${pricingTierHtml(state.lang,true,true)}</div></label>
         </div>`}
-        <div class="field wide"><label class="label" for="demoMaps">${en ? "Delivery place · Google Maps" : "สถานที่ส่ง · Google Maps"}<span class="req">*</span></label>${verifyForDepositActive ? `<input type="hidden" id="demoMaps" value="${esc(demoMapsBoxText())}"><button class="btn" type="button" id="demoVerifyMapOpen">${en ? "Change Google Maps location" : "เปลี่ยนตำแหน่ง Google Maps"}</button><p class="hint"><a href="${esc(safeHref(demoProfile.maps))}" target="_blank" rel="noopener">${esc(demoProfile.mapsPlace?.name || demoProfile.mapsText || demoProfile.maps || (en ? "No location selected" : "ยังไม่ได้เลือกตำแหน่ง"))}</a></p><p class="demo-verify-map-changed" id="demoVerifyMapChanged" ${demoProfile.maps !== verifyForDepositSnapshot?.profile.maps ? "" : "hidden"}>${en ? "Location changed — delivery will be recalculated." : "เปลี่ยนตำแหน่งแล้ว — ระบบจะคำนวณค่าจัดส่งใหม่"}</p>` : `<input class="input" id="demoMaps" type="text" autocomplete="off" enterkeyhint="search" value="${esc(demoMapsBoxText())}" placeholder="${en ? "Type a place or address, or paste a Google Maps link" : "พิมพ์ชื่อสถานที่ / ที่อยู่ หรือวางลิงก์ Google Maps"}">${demoMapsFoundHtml()}<div class="demo-locate-row"><button class="btn demo-locate-btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><button class="btn demo-locate-btn" type="button" data-demo-pin-map>${en ? "🗺️ Pin it on a map" : "🗺️ ปักหมุดบนแผนที่"}</button></div></div>`}
+        <div class="field wide"><label class="label" for="demoMaps">${en ? "Delivery place · Google Maps" : "สถานที่ส่ง · Google Maps"}<span class="req">*</span></label><input class="input" id="demoMaps" type="text" autocomplete="off" enterkeyhint="search" value="${esc(demoMapsBoxText())}" placeholder="${en ? "Type a place or address, or paste a Google Maps link" : "พิมพ์ชื่อสถานที่ / ที่อยู่ หรือวางลิงก์ Google Maps"}">${demoMapsFoundHtml()}<div class="demo-locate-row"><button class="btn demo-locate-btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><button class="btn demo-locate-btn" type="button" data-demo-pin-map>${en ? "🗺️ Pin it on a map" : "🗺️ ปักหมุดบนแผนที่"}</button></div></div>
         <div class="field wide"><label class="label" for="demoDeliveryInstructions">${en ? "Delivery note (optional)" : "โน็ตสำหรับจัดส่ง (ถ้ามี)"}</label><textarea class="input" id="demoDeliveryInstructions" rows="2" maxlength="300" placeholder="${en ? "Condo or village name, house number, entrance, or landmark" : "ชื่อคอนโด หมู่บ้าน บ้านเลขที่ ทางเข้า หรือจุดสังเกต"}">${esc(demoProfile.deliveryInstructions || "")}</textarea></div>
       </div>
-      ${verifyForDepositActive && demoRefundReady() ? "" : `<div class="demo-step2-refund" id="demoRefundSection">${demoRefundSectionHtml()}</div>`}
+      <div class="demo-step2-refund" id="demoRefundSection">${demoRefundSectionHtml()}</div>
       ${payResume.active ? "" : `<h3 class="demo-terms-heading">${en ? "Rental Terms" : "เงื่อนไขการเช่า"}</h3>
       <iframe class="demo-terms-frame" title="Rental Terms" src="${esc(`${CONFIG.apiBase}/rental-terms/?lang=${en?"en":"th"}&embed=1`)}"></iframe>
       <p class="hint"><a href="${esc(`${CONFIG.apiBase}/rental-terms/?lang=${en?"en":"th"}`)}" target="_blank" rel="opener">${en ? "Open the Rental Terms in a new tab" : "เปิดอ่านเงื่อนไขการเช่าในแท็บใหม่"}</a></p>
@@ -4823,78 +4817,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(state.calc.demoOrderOpen) renderDemoOrderPage();
     toast(en ? "Location added. Check that it is the delivery address." : "ใส่ตำแหน่งแล้ว กรุณาตรวจว่าเป็นที่อยู่จัดส่ง");
   }
-  let demoVerifyMapSearch = null;
-  let demoVerifyMapDraft = {url:"", label:"", place:null};
-  function localizeDemoVerifyMap(){
-    const en = state.lang === "en";
-    byId("demoVerifyMapTitle").textContent = en ? "Change delivery location" : "เปลี่ยนสถานที่จัดส่ง";
-    byId("demoVerifyMapLang").textContent = en ? "TH" : "EN";
-    byId("demoVerifyMapInput").placeholder = en ? "Paste a Google Maps link or search a place" : "วางลิงก์ Google Maps หรือค้นหาสถานที่";
-    byId("demoVerifyMapHint").textContent = en ? "Choose a result, use your current location, or pin the map." : "เลือกจากรายการ ใช้ตำแหน่งปัจจุบัน หรือปักหมุดบนแผนที่";
-    byId("demoVerifyMapCurrent").textContent = en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน";
-    byId("demoVerifyMapPin").textContent = en ? "🗺️ Pin it on a map" : "🗺️ ปักหมุดบนแผนที่";
-    byId("demoVerifyMapCancel").textContent = en ? "Cancel" : "ยกเลิก";
-    byId("demoVerifyMapConfirm").textContent = en ? "Confirm" : "ยืนยัน";
-  }
-  function openDemoVerifyMap(){
-    localizeDemoVerifyMap();
-    demoVerifyMapDraft = {url:demoProfile.maps,label:demoProfile.mapsText,place:demoProfile.mapsPlace};
-    byId("demoVerifyMapInput").value = demoProfile.mapsText || demoProfile.maps;
-    byId("demoVerifyMapResult").textContent = "";
-    byId("demoVerifyMapModal").classList.add("open");
-    if(!demoVerifyMapSearch && window.AJPlaceSearch){
-      demoVerifyMapSearch = window.AJPlaceSearch.create({
-        input:"#demoVerifyMapInput", api:()=>CONFIG.apiBase, lang:()=>state.lang,
-        onInput:()=>{ demoVerifyMapDraft = {url:"",label:"",place:null}; byId("demoVerifyMapResult").textContent = ""; },
-        onPlace:place=>{ demoVerifyMapDraft = {url:String(place?.link || place?.pin || ""),label:String(place?.name || place?.address || ""),place:demoMapsPlace(place)}; byId("demoVerifyMapResult").textContent = demoVerifyMapDraft.label; }
-      });
-    }
-    byId("demoVerifyMapInput").focus();
-  }
-  function closeDemoVerifyMap(){ byId("demoVerifyMapModal").classList.remove("open"); }
-  function confirmDemoVerifyMap(){
-    const typed = byId("demoVerifyMapInput").value.trim();
-    const link = demoVerifyMapDraft.url || (window.AJPlaceSearch?.isLink(typed) ? typed : "");
-    if(!link){ byId("demoVerifyMapResult").textContent = state.lang === "en" ? "Choose a location or paste a Google Maps link." : "เลือกสถานที่หรือวางลิงก์ Google Maps"; return; }
-    demoProfile.maps = link;
-    demoProfile.mapsText = demoVerifyMapDraft.label || typed;
-    demoProfile.mapsPlace = demoVerifyMapDraft.place;
-    state.calc.maps = link;
-    restoreDeliveryNoteForPlace();
-    byId("demoMaps").value = demoProfile.mapsText;
-    const mapLink = byId("demoVerifyMapOpen")?.nextElementSibling?.querySelector("a");
-    if(mapLink){ mapLink.href = safeHref(link); mapLink.textContent = demoProfile.mapsText; }
-    const changed = byId("demoVerifyMapChanged");
-    if(changed) changed.hidden = link === verifyForDepositSnapshot?.profile.maps;
-    clearDemoFieldError("demoMaps");
-    demoDelivery.key = ""; demoDelivery.status = "idle"; demoDelivery.quote = null;
-    closeDemoVerifyMap();
-    void previewDemoVerifyDeliveryQuote();
-  }
-  async function previewDemoVerifyDeliveryQuote(){
-    const link = demoProfile.maps;
-    const changed = byId("demoVerifyMapChanged");
-    if(changed) changed.textContent = state.lang === "en" ? "Calculating the new delivery fee…" : "กำลังคำนวณค่าจัดส่งใหม่…";
-    demoDelivery.status = "loading";
-    try{
-      const response = await bookingFetch(new URL("/api/delivery/quote", CONFIG.apiBase), {
-        method:"POST", cache:"no-store", headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({mapsUrl:link,address:demoAddressText(),deviceCount:1+(state.calc.extras?.length?1:0),hasLargeItem:deliveryNeedsCar(),days:calcSummary().days,lang:state.lang})
-      }, 20000);
-      const result = await response.json().catch(()=>({}));
-      if(!response.ok || !result?.ok || !result.quote) throw new Error(result?.error || "delivery_quote_failed");
-      if(demoProfile.maps !== link) return;
-      demoDelivery.key = demoDeliveryQuoteKey();
-      demoDelivery.quote = result.quote;
-      demoDelivery.status = "ready";
-      if(changed) changed.textContent = state.lang === "en" ? `Location changed — delivery now ${money(result.quote.total)}.` : `เปลี่ยนตำแหน่งแล้ว — ค่าจัดส่งใหม่ ${money(result.quote.total)}`;
-    }catch(error){
-      if(demoProfile.maps !== link) return;
-      demoDelivery.status = "unavailable";
-      demoDelivery.quote = null;
-      if(changed) changed.textContent = state.lang === "en" ? "Could not calculate delivery. Reopen the location popup and confirm again." : "คำนวณค่าจัดส่งไม่สำเร็จ กรุณาเปิด Popup ตำแหน่งและกดยืนยันอีกครั้ง";
-    }
-  }
   // ── Step 2's place box ── the same box as the rental calculator
   // (assets/place-search.js): type a place and choose it from the list, or
   // paste a link; the place found shows in green and opens in Google Maps.
@@ -5093,39 +5015,23 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // step-3 card itself, lent to the pop-up while it is open, so the two can
   // never differ; it goes back to step 3 when the pop-up closes.
   let verifyNowBusy = false;
+  // What happened on the last tap, shown above the button: on a phone the
+  // toast sits under the browser's bottom bar, so a refusal looked like nothing.
+  let verifyNowStatus = {text:"", tone:""};
+  const VERIFY_NOW_KEPT_FIELDS = ["idDocument","selfieWithId","identityType","identityNumber","identityExpiry","identityDraftId","identityDraftLast4","agreementConsent"];
   let verifyForDepositActive = false;
   let verifyForDepositSnapshot = null;
-  let customerCardHome = null;
   let agreementCardHome = null;
   function verifyNowBodyHtml(){
     const en = state.lang === "en";
     return `<div class="verify-now">
-      ${verifyForDepositActive ? `<div class="card verify-now-customer" id="verifyNowCustomerHost"></div>` : ""}
-      <p class="hint">${en ? "Upload a close, sharp image of your identity document and a selfie holding the same document, then sign. Your refund account is in step 2. AJ reviews everything before delivery." : "อัปโหลดรูปเอกสารใกล้ ๆ ให้คมชัดและรูปเซลฟี่คู่เอกสารใบเดียวกัน แล้วเซ็นชื่อ บัญชีคืนค่าประกันอยู่ในขั้นตอนที่ 2 ร้านจะตรวจสอบก่อนจัดส่ง"}</p>
+      <p class="hint">${en ? "Upload a close, sharp image of your identity document and a selfie holding the same document, then sign. Your refund account is the one from step 2. AJ reviews everything before delivery." : "อัปโหลดรูปเอกสารใกล้ ๆ ให้คมชัดและรูปเซลฟี่คู่เอกสารใบเดียวกัน แล้วเซ็นชื่อ บัญชีคืนค่าประกันใช้บัญชีจากขั้นตอนที่ 2 ร้านจะตรวจสอบก่อนจัดส่ง"}</p>
       ${demoIdentityUploadGridHtml("verifyNow")}
       ${demoIdentityFieldsHtml()}
       <div class="card verify-now-agreement" id="verifyNowAgreementHost"></div>
+      <p class="verify-now-status ${esc(verifyNowStatus.tone)}" id="verifyNowStatus" role="alert" ${verifyNowStatus.text ? "" : "hidden"}>${esc(verifyNowStatus.text)}</p>
       <div class="my-rental-verify"><button class="btn primary" type="button" id="verifyNowSubmit" ${verifyNowBusy ? "disabled" : ""}>${verifyNowBusy ? (en ? "Sending…" : "กำลังส่ง…") : (en ? "Send identity verification" : "ส่งยืนยันตัวตน")}</button></div>
     </div>`;
-  }
-  function lendCustomerCard(){
-    const card = byId("demoCustomerCard");
-    const host = byId("verifyNowCustomerHost");
-    if(!card || !host) return;
-    if(!customerCardHome){
-      customerCardHome = document.createComment("demoCustomerCard");
-      card.parentNode.insertBefore(customerCardHome, card);
-    }
-    host.appendChild(card);
-    card.classList.remove("card");
-  }
-  function returnCustomerCard(){
-    const card = byId("demoCustomerCard");
-    if(!card || !customerCardHome?.parentNode) return;
-    card.classList.add("card");
-    customerCardHome.parentNode.insertBefore(card, customerCardHome);
-    customerCardHome.remove();
-    customerCardHome = null;
   }
   // The step-3 card moves into the pop-up and back; its fields keep their ids,
   // handlers and the signature already drawn.
@@ -5154,79 +5060,184 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function renderVerifyNowModal(){
     if(!byId("simpleModalBody")?.querySelector(".verify-now")) return;
     returnAgreementCard();
-    returnCustomerCard();
     byId("simpleModalTitle").textContent = state.lang === "en" ? "Verify your identity" : "ยืนยันตัวตน";
     byId("simpleModalBody").innerHTML = verifyNowBodyHtml();
-    lendCustomerCard();
     lendAgreementCard();
   }
+  function setVerifyNowStatus(text, tone = "error"){
+    verifyNowStatus = {text:String(text || ""), tone:text ? tone : ""};
+    const node = byId("verifyNowStatus");
+    if(!node) return;
+    node.textContent = verifyNowStatus.text;
+    node.className = `verify-now-status ${verifyNowStatus.tone}`;
+    node.hidden = !verifyNowStatus.text;
+    if(verifyNowStatus.text && tone !== "busy") node.scrollIntoView({behavior:"smooth", block:"center"});
+  }
   function openVerifyNowModal(){
+    verifyNowStatus = {text:"", tone:""};
     showModal(state.lang === "en" ? "Verify your identity" : "ยืนยันตัวตน", verifyNowBodyHtml(), {relocalize:renderVerifyNowModal});
-    lendCustomerCard();
     lendAgreementCard();
   }
   // What is still missing in the pop-up, marked on the fields themselves.
   function verifyNowProblems(){
     const en = state.lang === "en";
     const problems = demoStep3Problems().filter(problem => problem.id !== "demoIdDocument");
-    if(verifyForDepositActive){
-      problems.unshift(...demoStep2Problems());
-      if(demoProfile.maps !== verifyForDepositSnapshot?.profile.maps && (demoDelivery.status !== "ready" || demoDelivery.key !== demoDeliveryQuoteKey())) problems.unshift({id:"demoMaps",message:en ? "Wait for the new delivery quote before sending." : "รอคำนวณค่าจัดส่งใหม่ก่อนส่งข้อมูล"});
+    // The confirmed rental is checked against its saved booking, so only the
+    // identity part is asked for here; the rental's own details are edited on
+    // the order page. The full number is needed: a draft held only by the Bot's
+    // memory may be gone.
+    if(verifyForDepositActive && !String(demoProfile.identityNumber || "").trim() && !problems.some(problem => problem.id === "demoIdentityNumber")){
+      problems.unshift({id:"demoIdentityNumber", message: demoIdentityType() === "passport"
+        ? (en ? "Enter your passport number." : "กรอกเลข Passport")
+        : (en ? "Enter your Thai ID number." : "กรอกเลขบัตรประชาชน")});
     }
     if(!demoProfile.idDocument || !demoProfile.selfieWithId){
       problems.unshift({id: demoProfile.idDocument ? "verifyNowSelfieWithId" : "verifyNowIdDocument", message: en ? "Upload both photos." : "อัปโหลดรูปทั้ง 2 รูป"});
     }
     return problems;
   }
+  // The same signed "verify to lower the deposit" the email and payment-page
+  // links use: the Bot reads the rental from its booking record, so this works
+  // after the 24-hour LINE connection or the in-memory booking context is gone.
+  const identityUpgradeLink = {code:"", token:""};
+  async function identityUpgradeTokenForOrder(){
+    const code = String(state.calc.rentalCode || "").trim().toUpperCase();
+    const viewToken = rentalViewToken(code);
+    if(!code || !viewToken) return "";
+    if(identityUpgradeLink.code === code && identityUpgradeLink.token) return identityUpgradeLink.token;
+    let response;
+    try{
+      response = await bookingFetch(`${CONFIG.apiBase}/api/identity-upgrade/link`, {method:"POST", cache:"no-store", headers:{"Content-Type":"application/json"}, body:JSON.stringify({rentalCode:code, viewToken})}, 30000);
+    }catch{ throw Object.assign(new Error("network"), {code:"network"}); }
+    const result = await response.json().catch(() => ({}));
+    // An older Bot, or a token it does not know: the booking-context path stays.
+    if(!response.ok || !result.token) return "";
+    Object.assign(identityUpgradeLink, {code, token:String(result.token)});
+    return identityUpgradeLink.token;
+  }
+  async function submitIdentityUpgrade(token){
+    const body = JSON.stringify({
+      lang: state.lang,
+      identityType: demoIdentityType(),
+      identityNumber: String(demoProfile.identityNumber || "").trim().toUpperCase(),
+      identityExpiry: String(demoProfile.identityExpiry || "").slice(0, 10),
+      idCardImageDataUrl: await demoImageDataUrl(demoProfile.idDocument),
+      selfieImageDataUrl: await demoImageDataUrl(demoProfile.selfieWithId),
+      signatureDataUrl: demoAgreement.signature,
+      consentAccepted: !!demoProfile.agreementConsent,
+      fullName: demoProfile.fullName,
+      email: demoProfile.email,
+    });
+    let response;
+    try{
+      response = await bookingFetch(`${CONFIG.apiBase}/api/identity-upgrade/${encodeURIComponent(token)}`, {method:"POST", cache:"no-store", headers:{"Content-Type":"application/json"}, body}, 120000);
+    }catch{ throw Object.assign(new Error("network"), {code:"network"}); }
+    const result = await response.json().catch(() => ({}));
+    if(response.ok && result.ok) return result;
+    if(result.error === "already_upgraded") return {ok:true, already:true};
+    throw Object.assign(new Error(result.error || `identity_upgrade_${response.status}`), {code:result.error || (response.status === 413 ? "too_large" : `http_${response.status}`), fields:Array.isArray(result.fields) ? result.fields : []});
+  }
+  // A refusal in words the renter can act on, and the field it is about.
+  function verifyNowProblemFor(error){
+    const en = state.lang === "en";
+    const code = String(error?.code || error?.message || "");
+    const fields = Array.isArray(error?.fields) ? error.fields : [];
+    const has = (...names) => names.some(name => fields.includes(name));
+    const passport = demoIdentityType() === "passport";
+    if(code === "identity_image_decode_failed") return {id:"verifyNowIdDocument", message:tr("identityPhotoDecode")};
+    if(code === "id_expires_before_return" || has("idExpiry")) return {id:"demoIdentityExpiry", message:en ? "The document expires before the return date. Please use one valid through the rental, or check the expiry date." : "เอกสารหมดอายุก่อนวันคืนเครื่อง กรุณาใช้เอกสารที่ยังไม่หมดอายุตลอดการเช่า หรือตรวจวันหมดอายุ"};
+    if(has("idNumber")) return {id:"demoIdentityNumber", message:passport ? (en ? "Check the passport number (6–10 letters or digits)." : "ตรวจเลข Passport (ตัวอักษรหรือตัวเลข 6–10 ตัว)") : (en ? "Check the 13-digit Thai ID number." : "ตรวจเลขบัตรประชาชน 13 หลัก")};
+    if(has("idCardImageDataUrl") || code === "too_large") return {id:"verifyNowIdDocument", message:en ? "The document photo could not be sent. Please choose it again, or take a new photo." : "ส่งรูปเอกสารไม่สำเร็จ กรุณาเลือกรูปอีกครั้ง หรือถ่ายรูปใหม่"};
+    if(has("selfieImageDataUrl")) return {id:"verifyNowSelfieWithId", message:en ? "The selfie could not be sent. Please choose it again, or take a new photo." : "ส่งรูปเซลฟี่ไม่สำเร็จ กรุณาเลือกรูปอีกครั้ง หรือถ่ายรูปใหม่"};
+    if(has("signatureDataUrl")) return {id:"demoSignaturePad", message:en ? "Sign inside the box again." : "กรุณาเซ็นลายเซ็นในกรอบอีกครั้ง"};
+    if(has("consentAccepted")) return {id:"demoAgreementConsent", message:en ? "Tick to confirm and agree." : "ติ๊กยืนยันและยอมรับ"};
+    if(has("fullName", "phone", "email", "address", "maps")) return {id:"", message:en ? "Some rental details are incomplete. Close this window and use Edit on the order page, then try again." : "ข้อมูลการเช่าบางส่วนไม่ครบ กรุณาปิดหน้าต่างนี้แล้วกดแก้ไขในหน้ารายการ จากนั้นส่งอีกครั้ง"};
+    if(code === "details_incomplete") return {id:"", message:en ? "The refund account or another detail of this rental is incomplete. Please contact AJ on LINE @ajgame with your Rental ID." : "บัญชีคืนค่าประกันหรือข้อมูลอื่นของรายการนี้ไม่ครบ กรุณาติดต่อร้านทาง LINE @ajgame พร้อมรหัสการเช่า"};
+    if(code === "upgrade_in_progress") return {id:"", message:en ? "Your verification is already being sent. Please wait a moment." : "กำลังส่งการยืนยันตัวตนอยู่ กรุณารอสักครู่"};
+    if(code === "too_many_attempts") return {id:"", message:en ? "Too many tries. Please wait 30 minutes or contact AJ on LINE @ajgame." : "ลองหลายครั้งเกินไป กรุณารอ 30 นาที หรือติดต่อร้านทาง LINE @ajgame"};
+    if(code === "booking_not_found") return {id:"", message:en ? "AJ is still saving this rental. Please tap Send again in a minute." : "ระบบกำลังบันทึกรายการเช่านี้ กรุณากดส่งอีกครั้งในอีก 1 นาที"};
+    if(code === "line_connection_required") return {id:"", message:tr("contactLineRequired")};
+    return {id:"", message:en ? "Could not send — the connection or AJ's system did not answer. Everything you entered is still here; tap Send again." : "ส่งไม่สำเร็จ — สัญญาณอินเทอร์เน็ตหรือระบบไม่ตอบ ข้อมูลที่กรอกยังอยู่ครบ กดส่งอีกครั้งได้"};
+  }
+  // The earlier path, for a rental this device has no view token for.
+  async function submitVerifyNowByContext(){
+    let token = state.calc.demoContextToken;
+    if(verifyForDepositActive || !token){
+      // The earlier no-verification context has the old deposit and address.
+      // Replace it with this signed choice before submitting the agreement.
+      const handoff = await prepareContractHandoff(await ensureRentalCode(calcSummary()), "web");
+      token = handoff.contextToken || (verifyForDepositActive ? "" : token);
+      if(token) state.calc.demoContextToken = token;
+    }
+    if(!token) throw new Error("identity_context_unavailable");
+    // The agreement is sent again with the refund account and signature as
+    // they stand now, then the photos; either one failing says which.
+    demoAgreement.submittedFor = "";
+    state.calc.demoAgreementFor = "";
+    try{
+      await submitDemoAgreement(token);
+    }catch(error){
+      const problem = demoAgreementProblem(error);
+      throw Object.assign(new Error("agreement_refused"), {problem:{id:problem.field || "", message:problem.message}});
+    }
+    await uploadDemoIdentity(token);
+  }
   async function submitVerifyNow(){
     const en = state.lang === "en";
     if(verifyNowBusy) return;
     const problems = verifyNowProblems();
     if(problems.length){
+      // The line above the button says what is wrong; the page then scrolls
+      // to the first field, which is marked in red with the same words.
+      setVerifyNowStatus(problems.length > 1
+        ? `${problems[0].message} ${en ? `(and ${problems.length - 1} more, marked in red)` : `(และอีก ${problems.length - 1} รายการที่ขึ้นสีแดง)`}`
+        : problems[0].message);
       showDemoStep3Problems(problems, ".verify-now");
-      toast(problems[0].message, 4000);
       return;
     }
+    showDemoStep3Problems([], ".verify-now");
     verifyNowBusy = true;
     renderVerifyNowModal();
+    setVerifyNowStatus(en ? "Sending your photos and signature… This can take up to a minute. Please keep this page open." : "กำลังส่งรูปและลายเซ็น… อาจใช้เวลาประมาณ 1 นาที กรุณาอย่าปิดหน้านี้", "busy");
     try{
-      let token = state.calc.demoContextToken;
-      if(verifyForDepositActive || !token){
-        // The earlier no-verification context has the old deposit and address.
-        // Replace it with this signed choice before submitting the agreement.
-        const handoff = await prepareContractHandoff(await ensureRentalCode(calcSummary()), "web");
-        token = handoff.contextToken || (verifyForDepositActive ? "" : token);
-        if(token) state.calc.demoContextToken = token;
+      const upgradeToken = verifyForDepositActive ? await identityUpgradeTokenForOrder() : "";
+      if(upgradeToken){
+        await submitIdentityUpgrade(upgradeToken);
+        // The rental now has its contract and the normal deposit: the order
+        // page and the payment that follows must not ask for either again.
+        const code = String(state.calc.rentalCode || "").trim().toUpperCase();
+        state.calc.noContract = false;
+        demoProfile.identityUploaded = true;
+        state.calc.demoIdentityFor = code;
+        demoAgreement.submittedFor = code;
+        state.calc.demoAgreementFor = code;
+        state.calc.beamPaymentLink = "";
+        state.calc.beamPaymentKey = "";
+        state.calc.beamPaymentExpiresAt = "";
+        demoProfile.idDocument = null;
+        demoProfile.selfieWithId = null;
+      }else{
+        await submitVerifyNowByContext();
       }
-      if(!token) throw new Error("identity_context_unavailable");
-      // The agreement is sent again with the refund account and signature as
-      // they stand now, then the photos; either one failing says which.
-      demoAgreement.submittedFor = "";
-      state.calc.demoAgreementFor = "";
-      try{
-        await submitDemoAgreement(token);
-      }catch(error){
-        verifyNowBusy = false;
-        renderVerifyNowModal();
-        const problem = demoAgreementProblem(error);
-        toast(problem.message, 5000);
-        return;
-      }
-      await uploadDemoIdentity(token);
       demoProfile.identitySkipped = false;
       state.calc.demoIdentitySkipped = false;
       state.calc.demoIdentityStatus = demoIdentityStatus();
-      saveDemoProfile();
+      saveDemoProfile({now:true});
       saveLocal();
       verifyNowBusy = false;
       verifyForDepositActive = false;
       verifyForDepositSnapshot = null;
+      verifyNowStatus = {text:"", tone:""};
       closeModal();
       render();
-      toast(en ? "Identity verification sent" : "ส่งยืนยันตัวตนแล้ว");
+      toast(en ? "Identity verification sent. AJ will review it before delivery." : "ส่งยืนยันตัวตนแล้ว ร้านจะตรวจสอบก่อนจัดส่ง", 5000);
     }catch(error){
       console.error("Verify now failed", error);
-      toast(error?.message === "identity_image_decode_failed" ? tr("identityPhotoDecode") : (en ? "The photos could not be sent. Please try again." : "ส่งรูปไม่สำเร็จ กรุณาลองใหม่"));
+      const problem = error?.problem || verifyNowProblemFor(error);
+      verifyNowBusy = false;
+      renderVerifyNowModal();
+      setVerifyNowStatus(problem.message);
+      if(problem.id && byId("simpleModalBody")?.contains(byId(problem.id))) showDemoStep3Problems([problem], ".verify-now");
     }finally{
       if(verifyNowBusy){
         verifyNowBusy = false;
@@ -5793,54 +5804,78 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function demoIdentityReady(){
     return demoIdentityCoveredByAgreement() || state.calc.noContract || demoProfile.identitySkipped || demoProfile.identityUploaded || (!!demoProfile.idDocument && !!demoProfile.selfieWithId);
   }
-  const demoOcr = {busy:false, attempts:0, success:false, error:""};
+  // "Read details from photo": an optional helper that reads the document
+  // number and expiry from the document photo on this device (nothing is sent)
+  // and fills the two boxes. Its status sits right under its button.
+  const demoOcr = {busy:false, attempts:0, success:false, error:"", progress:0, stage:""};
+  function demoOcrBusyLabel(){
+    const en = state.lang === "en";
+    const pct = Math.round(demoOcr.progress * 100);
+    return `${en ? "Reading the photo…" : "กำลังอ่านรูป…"}${pct > 0 ? ` ${pct}%` : ""}`;
+  }
+  function demoOcrStatusText(){
+    const en = state.lang === "en";
+    if(demoOcr.busy) return demoOcr.stage === "loading"
+      ? (en ? "Preparing the reader. The first time can take up to a minute; you can type the details yourself meanwhile." : "กำลังเตรียมตัวอ่านรูป ครั้งแรกอาจใช้เวลาประมาณ 1 นาที ระหว่างนี้กรอกเองได้")
+      : (en ? "Reading the number and expiry from your photo… you can type them yourself meanwhile." : "กำลังอ่านเลขและวันหมดอายุจากรูป… ระหว่างนี้กรอกเองได้");
+    if(demoOcr.error === "ocr_expired") return en ? "The photo shows a document that has expired. Please use a valid document." : "เอกสารในรูปหมดอายุแล้ว กรุณาใช้เอกสารที่ยังไม่หมดอายุ";
+    if(demoOcr.error) return tr("ocrReadError");
+    if(demoOcr.success) return en ? "Number and expiry filled in from your photo. Please check they match the document." : "กรอกเลขและวันหมดอายุจากรูปให้แล้ว กรุณาตรวจให้ตรงกับเอกสาร";
+    return "";
+  }
   function demoIdentityFieldsHtml(){
     const en = state.lang === "en";
-    const status = demoOcr.busy
-      ? tr("identityOcrBusy")
-      : demoOcr.error ? (tr("ocrReadError"))
-      : demoOcr.success ? (en ? "Details read from your photo. Please check them before continuing." : "อ่านข้อมูลจากรูปแล้ว กรุณาตรวจสอบก่อนทำรายการต่อ") : "";
-    return `<div class="demo-ocr-status ${demoOcr.error ? "is-error" : ""}" role="status">${esc(status)}</div>
-      <div class="demo-profile-grid">
+    return `<div class="demo-profile-grid">
         <div class="field wide"><span class="label">${en ? "Document type" : "ประเภทเอกสาร"}</span><div class="demo-id-type" role="radiogroup"><label><input type="radio" name="demoIdentityType" value="thai_id" ${demoIdentityType()==="thai_id"?"checked":""}>${en ? "Thai ID card" : "บัตรประชาชน"}</label><label><input type="radio" name="demoIdentityType" value="passport" ${demoIdentityType()==="passport"?"checked":""}>Passport</label></div></div>
         <div class="field"><label class="label" for="demoIdentityNumber">${demoIdentityType()==="passport" ? (en ? "Passport number" : "เลข Passport") : (en ? "Thai ID number" : "เลขบัตรประชาชน")}<span class="req">*</span></label><input class="input" id="demoIdentityNumber" autocomplete="off" ${demoIdentityType()==="passport" ? "maxlength=10 autocapitalize=characters" : "inputmode=numeric maxlength=13"} value="${esc(demoProfile.identityNumber)}" placeholder="${demoProfile.identityDraftLast4 && !demoProfile.identityNumber ? esc(`${"•".repeat(8)}${demoProfile.identityDraftLast4}`) : ""}"></div>
         <div class="field"><label class="label" for="demoIdentityExpiry">${demoIdentityType()==="passport" ? (en ? "Passport expiry date" : "วันหมดอายุ Passport") : (en ? "Thai ID card expiry date" : "วันหมดอายุของบัตรประชาชน")}<span class="req">*</span></label><input class="input${demoIdentityExpired() ? " is-invalid" : ""}" id="demoIdentityExpiry" type="date" value="${esc(demoProfile.identityExpiry)}"></div>
       </div>`;
   }
   async function readDemoIdentity(file){
-    if(!file || !window.AJIdentityOCR) return;
+    if(!file || demoOcr.busy) return;
     const attempt = ++demoOcr.attempts;
-    demoOcr.busy = true;
-    demoOcr.success = false;
-    demoOcr.error = "";
+    Object.assign(demoOcr, {busy:true, success:false, error:"", progress:0, stage:"loading"});
     updateDemoOcrStatus();
     let timer;
     try{
-      const found = await Promise.race([window.AJIdentityOCR.recognize(file), new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("ocr_timeout")), 10000); })]);
+      if(!window.AJIdentityOCR) throw new Error("ocr_library_unavailable");
+      // The first run downloads the reader (about 10 MB); on a phone that is
+      // well over the 10 seconds this used to allow, so it always "failed".
+      const progress = (value, status) => {
+        if(attempt !== demoOcr.attempts) return;
+        const reading = /recogniz/i.test(String(status || ""));
+        demoOcr.stage = reading ? "reading" : "loading";
+        if(reading && Number.isFinite(value)) demoOcr.progress = Math.max(0, Math.min(1, value));
+        updateDemoOcrStatus();
+      };
+      const found = await Promise.race([window.AJIdentityOCR.recognize(file, progress), new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("ocr_timeout")), 120000); })]);
       if(file !== demoProfile.idDocument || attempt !== demoOcr.attempts) return;
+      if(!found.number && !found.expiry) throw new Error("ocr_incomplete");
+      // The customer asked for it: what was read replaces what is in the boxes.
+      if(found.type) demoProfile.identityType = found.type;
+      if(found.number) demoProfile.identityNumber = found.number;
+      if(found.expiry) demoProfile.identityExpiry = found.expiry;
+      const type = demoIdentityType();
+      document.querySelectorAll('[id="demoIdentityNumber"]').forEach(input => {
+        input.value = demoProfile.identityNumber || "";
+        input.maxLength = type === "passport" ? 10 : 13;
+        input.inputMode = type === "passport" ? "text" : "numeric";
+        const label = input.closest(".field")?.querySelector("label.label");
+        if(label?.firstChild) label.firstChild.textContent = type === "passport"
+          ? (state.lang === "en" ? "Passport number" : "เลข Passport")
+          : (state.lang === "en" ? "Thai ID number" : "เลขบัตรประชาชน");
+      });
+      document.querySelectorAll('[id="demoIdentityExpiry"]').forEach(input => { input.value = demoProfile.identityExpiry || ""; });
+      document.querySelectorAll(`input[name="demoIdentityType"][value="${type}"]`).forEach(input => { input.checked = true; });
+      ["demoIdentityNumber","demoIdentityExpiry"].forEach(clearDemoFieldError);
+      void saveIdentityDraft();
+      saveDemoProfile();
       if(!found.number || !found.expiry) throw new Error("ocr_incomplete");
-      // Reading is optional. A late result must not overwrite manually entered details.
-      if(!demoProfile.identityNumber && !demoProfile.identityExpiry){
-        demoProfile.identityType = found.type;
-        demoProfile.identityNumber = found.number;
-        demoProfile.identityExpiry = found.expiry;
-        if(demoIdentityExpired()) throw new Error("ocr_expired");
-        demoOcr.success = true;
-        document.querySelectorAll('[id="demoIdentityNumber"]').forEach(input => {
-          input.value = found.number;
-          input.maxLength = found.type === "passport" ? 10 : 13;
-          input.inputMode = found.type === "passport" ? "text" : "numeric";
-          const label = input.closest(".field")?.querySelector("label.label");
-          if(label?.firstChild) label.firstChild.textContent = found.type === "passport"
-            ? (state.lang === "en" ? "Passport number" : "เลข Passport")
-            : (state.lang === "en" ? "Thai ID number" : "เลขบัตรประชาชน");
-        });
-        document.querySelectorAll('[id="demoIdentityExpiry"]').forEach(input => { input.value = found.expiry; });
-        document.querySelectorAll(`input[name="demoIdentityType"][value="${found.type}"]`).forEach(input => { input.checked = true; });
-        void saveIdentityDraft();
-      }
+      if(demoIdentityExpired()) throw new Error("ocr_expired");
+      demoOcr.success = true;
     }catch(error){
       if(file !== demoProfile.idDocument || attempt !== demoOcr.attempts) return;
+      console.warn("Identity photo reading failed", error);
       demoOcr.error = String(error?.message || "ocr_failed");
     }finally{
       clearTimeout(timer);
@@ -5852,14 +5887,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
   }
   function updateDemoOcrStatus(){
-    const en = state.lang === "en";
-    const message = demoOcr.busy
-      ? tr("identityOcrBusy")
-      : demoOcr.error ? tr("ocrReadError")
-      : demoOcr.success ? (en ? "Details read from your photo. Please check them before continuing." : "อ่านข้อมูลจากรูปแล้ว กรุณาตรวจสอบก่อนทำรายการต่อ") : "";
+    const message = demoOcrStatusText();
     document.querySelectorAll(".demo-ocr-status").forEach(node => {
       node.textContent = message;
       node.classList.toggle("is-error", Boolean(demoOcr.error));
+    });
+    document.querySelectorAll("[data-read-ocr]").forEach(button => {
+      button.disabled = demoOcr.busy;
+      button.textContent = demoOcr.busy ? demoOcrBusyLabel() : tr("identityReadOptional");
     });
   }
   const demoIdentityPreviews = {id:null, selfie:null};
@@ -5913,8 +5948,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
             <input id="${prefix}IdDocumentCamera" class="demo-camera-input" type="file" accept="image/*" capture="environment" data-camera-for="${prefix}IdDocument">
             <button class="btn demo-upload-btn" type="button" data-open-camera="${prefix}IdDocumentCamera" ${uploadDisabled?"disabled":""}>${en ? "📸 Take a photo" : "📸 ถ่ายรูปเอกสาร"}</button>
             <button class="btn demo-upload-btn" type="button" data-identity-example="id">${en ? "See an example" : "ดูรูปตัวอย่าง"}</button>
-            ${documentName ? `<button class="btn demo-upload-btn" type="button" data-read-ocr="id">${esc(tr("identityReadOptional"))}</button>` : ""}
+            ${documentName ? `<button class="btn demo-upload-btn" type="button" data-read-ocr="id" ${demoOcr.busy ? "disabled" : ""}>${esc(demoOcr.busy ? demoOcrBusyLabel() : tr("identityReadOptional"))}</button>` : ""}
           </span>
+          ${documentName ? `<span class="demo-ocr-status ${demoOcr.error ? "is-error" : ""}" role="status">${esc(demoOcrStatusText())}</span>` : ""}
         </label>
         <label class="demo-upload">
           <b>${en ? "2. Selfie holding the same document" : "2. รูปเซลฟี่คู่บัตรประชาชน/Passport"}</b>
@@ -6187,6 +6223,47 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     render();
     openVerifyNowModal();
     byId("verifyNowIdDocument")?.focus({preventScroll:true});
+  }
+  // Step 3's "Verify later", confirmed in a small dialog.
+  function askDemoVerifyLater(){
+    const en = state.lang === "en";
+    const deposits = demoDepositChoices();
+    showModal(en ? "Verify later?" : "ยืนยันตัวตนภายหลัง?", `<div class="ask-box"><p>${en
+      ? `Do you want to verify your identity later? Until you do, the deposit is ${money(deposits.noId)}; verifying later lowers it to ${money(deposits.normal)}.`
+      : `ต้องการยืนยันตัวตนภายหลังใช่ไหม? ระหว่างนี้ค่าประกันเป็น ${money(deposits.noId)} และลดเหลือ ${money(deposits.normal)} เมื่อยืนยันตัวตนภายหลัง`}</p><div class="ask-actions"><button class="btn" type="button" data-verify-later-no>${en ? "No" : "ไม่"}</button><button class="btn primary" type="button" data-verify-later-yes>${en ? "Yes" : "ใช่"}</button></div></div>`);
+  }
+  async function acceptDemoVerifyLater(){
+    demoProfile.identitySkipped = true;
+    state.calc.demoIdentitySkipped = true;
+    state.calc.noContract = true;
+    syncDemoNoContractAcceptance();
+    saveDemoProfile({now:true});
+    saveLocal();
+    render();
+    await confirmDemoOrder();
+  }
+  // Back from the payment page without paying: the "Opening the payment page"
+  // cover was still up when the browser restored this page.
+  const BEAM_DEPARTURE_KEY = "aj_beam_departure_v1";
+  function rememberBeamDeparture(kind, code){
+    try{ sessionStorage.setItem(BEAM_DEPARTURE_KEY, JSON.stringify({kind, code:String(code || ""), at:Date.now()})); }catch{}
+  }
+  function takeBeamDeparture(){
+    try{
+      const left = JSON.parse(sessionStorage.getItem(BEAM_DEPARTURE_KEY) || "null");
+      sessionStorage.removeItem(BEAM_DEPARTURE_KEY);
+      return left && Date.now() - Number(left.at) < 6 * 3600000 ? left : null;
+    }catch{ return null; }
+  }
+  function handleReturnFromPayment(){
+    const left = takeBeamDeparture();
+    if(!left) return;
+    hideDemoBusy();
+    const en = state.lang === "en";
+    const code = esc(left.code || state.calc.rentalCode || "");
+    showModal(en ? "Payment not completed" : "การชำระเงินไม่สำเร็จ", `<div class="ask-box"><p>${en
+      ? `Payment for ${code} was not completed. You can pay later from this page or the link in your email, or try paying again now. If you did pay, AJ confirms it automatically.`
+      : `ยังไม่ได้ชำระเงินสำหรับรายการ ${code} กดชำระเงินทีหลังได้จากหน้านี้หรือลิงก์ในอีเมล หรือลองชำระเงินอีกครั้งตอนนี้ หากชำระเงินไปแล้ว ระบบจะยืนยันให้อัตโนมัติ`}</p><div class="ask-actions"><button class="btn" type="button" data-payment-later>${en ? "Pay later" : "ชำระเงินทีหลัง"}</button><button class="btn primary" type="button" data-payment-retry="${left.kind === "resume" ? "resume" : "demo"}">${en ? "Try paying again" : "ลองชำระเงินอีกครั้ง"}</button></div></div>`);
   }
   // "No verification": the higher deposit at once; the verify button brings
   // the normal one back.
@@ -9696,6 +9773,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       // The payment provider refuses to be framed, so checkout takes over the
       // tab and its return URL brings the customer back to AJ.
       renderDemoOrderPage();
+      rememberBeamDeparture("demo", code);
       location.href = url;
     }catch(error){
       hideDemoBusy();
@@ -10132,6 +10210,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       }, 30000);
       const result = await response.json().catch(() => ({}));
       if(!response.ok || !result.url) throw Object.assign(new Error(result.error || "payment_unavailable"), {code:result.error || ""});
+      rememberBeamDeparture("resume", r.rentalCode);
       location.href = result.url;
     }catch(error){
       hideDemoBusy();
@@ -11456,7 +11535,6 @@ We apologize for the inconvenience and hope everyone stays safe.`
   let simpleModalRelocalize = null;
   function showModal(title, bodyHtml, {relocalize = null} = {}){
     returnAgreementCard();
-    returnCustomerCard();
     byId("simpleModalTitle").textContent = title;
     byId("simpleModalBody").innerHTML = bodyHtml;
     const problemActions = byId("simpleModalBody").querySelector(".queue-retry-actions");
@@ -11486,10 +11564,12 @@ We apologize for the inconvenience and hope everyone stays safe.`
   }
   function closeModal(){
     returnAgreementCard();
-    returnCustomerCard();
     byId("simpleModal").classList.remove("open");
     if(verifyForDepositActive && verifyForDepositSnapshot){
-      Object.assign(demoProfile, verifyForDepositSnapshot.profile);
+      // Closing puts the deposit choice back, not the work: the photos, the
+      // document number and expiry and the consent stay for the next try.
+      const kept = Object.fromEntries(VERIFY_NOW_KEPT_FIELDS.map(key => [key, demoProfile[key]]));
+      Object.assign(demoProfile, verifyForDepositSnapshot.profile, kept);
       state.calc = verifyForDepositSnapshot.calc;
       Object.assign(demoDelivery, verifyForDepositSnapshot.delivery);
       verifyForDepositActive = false;
@@ -13689,17 +13769,6 @@ We apologize for the inconvenience and hope everyone stays safe.`
     document.addEventListener("click", event => {
       if(event.target.closest("#siteMenuBtn")){ toggleSiteMenu(); return; }
       if(!event.target.closest("#siteMenu")) toggleSiteMenu(false);
-      const mapAction = event.target.id;
-      if(mapAction === "demoVerifyMapOpen"){ openDemoVerifyMap(); return; }
-      if(mapAction === "demoVerifyMapLang"){ toggleSimpleModalLang(); localizeDemoVerifyMap(); return; }
-      if(mapAction === "demoVerifyMapClose" || mapAction === "demoVerifyMapCancel"){ closeDemoVerifyMap(); return; }
-      if(mapAction === "demoVerifyMapConfirm"){ confirmDemoVerifyMap(); return; }
-      if(mapAction === "demoVerifyMapCurrent" || mapAction === "demoVerifyMapPin"){
-        if(!demoVerifyMapSearch) return;
-        const action = mapAction === "demoVerifyMapCurrent" ? demoVerifyMapSearch.locate() : demoVerifyMapSearch.pickOnMap({center:demoProfile.mapsPlace});
-        Promise.resolve(action).then(at=>{ if(at) demoVerifyMapSearch.usePin(at); });
-        return;
-      }
       if(event.target.closest("[data-demo-locate]")){ useDemoCurrentLocation(); return; }
       if(event.target.closest("[data-demo-pin-map]")){ pinDemoOnMap(); return; }
       const infoPage = event.target.closest("[data-info-page]");
@@ -14236,8 +14305,15 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(event.target.dataset?.wiseField === "wiseCurrency"){ demoAgreement.wise.wiseCurrency = event.target.value; clearDemoFieldError(event.target.id); renderStepActions(); }
       if(event.target.id === "demoAgreementConsent"){ demoProfile.agreementConsent = event.target.checked; clearDemoFieldError("demoAgreementConsent"); renderStepActions(); }
       if(event.target.id === "demoIdentitySkip"){
-        demoProfile.identitySkipped = event.target.checked;
-        if(event.target.checked) state.calc.noContract = true;
+        // Ticking asks first; Yes goes straight to the order summary, No
+        // leaves the box unticked on this step.
+        if(event.target.checked){
+          event.target.checked = false;
+          askDemoVerifyLater();
+          return;
+        }
+        demoProfile.identitySkipped = false;
+        state.calc.noContract = false;
         syncDemoNoContractAcceptance();
         saveDemoProfile();
         render();
@@ -14384,6 +14460,16 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "demoRefundEdit"){ demoRefundEditing = true; renderDemoRefundSection(); byId("demoRefundBank")?.focus(); return; }
       if(targetId === "demoConfirmFromDetails"){
         await confirmDemoOrder();
+        return;
+      }
+      if(event.target.closest("[data-verify-later-no]")){ closeModal(); render(); return; }
+      if(event.target.closest("[data-verify-later-yes]")){ closeModal(); await acceptDemoVerifyLater(); return; }
+      if(event.target.closest("[data-payment-later]")){ closeModal(); return; }
+      const paymentRetry = event.target.closest("[data-payment-retry]");
+      if(paymentRetry){
+        closeModal();
+        if(paymentRetry.dataset.paymentRetry === "resume") await launchPayResume();
+        else await launchDemoBeamPayment();
         return;
       }
       const payResumeEdit = event.target.closest("[data-pay-resume-edit]");
@@ -14932,7 +15018,15 @@ We apologize for the inconvenience and hope everyone stays safe.`
     gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {});
     loadPricingPolicy().catch(error => console.warn("Pricing policy unavailable",error));
     syncBoardGameCatalog().catch(() => {});
-    window.addEventListener("pageshow", () => { resetShareUi(); if(pendingLineConnectHandoff()?.launchedAt) void pollLineConnectHandoff(); });
+    window.addEventListener("pageshow", event => {
+      resetShareUi();
+      if(pendingLineConnectHandoff()?.launchedAt) void pollLineConnectHandoff();
+      // The browser's back button restores this page as it was when the
+      // payment page opened, cover and all.
+      if(event.persisted) window.setTimeout(handleReturnFromPayment, 150);
+    });
+    // Or reloads it, when the browser did not keep it.
+    window.setTimeout(handleReturnFromPayment, 600);
     window.addEventListener("pagehide", () => trackAnalytics("step_duration", {value:String(analyticsLastStep), durationMs:Date.now() - analyticsStepEnteredAt}));
     document.addEventListener("visibilitychange", () => {
       if(document.visibilityState === "visible"){

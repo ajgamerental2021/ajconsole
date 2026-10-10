@@ -19,6 +19,8 @@
     <div class="actions"><button class="button primary" id="retryButton" type="button">Try payment again</button><a class="button secondary" id="contactButton" href="https://lin.ee/N4i6cb6">Contact AJ</a></div>
   </main>
   <script>
+    // The booking page asks "payment not completed?" only when the customer comes back without reaching here.
+    try{ sessionStorage.removeItem("aj_beam_departure_v1"); }catch{}
     (() => {
       const params = new URLSearchParams(location.search);
       const lang = params.get("lang") === "th" ? "th" : "en";

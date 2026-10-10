@@ -103,8 +103,14 @@ test('"Verify now" reuses step 2 refund details and asks only for identity photo
   assert.match(extract('showModal'), /returnAgreementCard\(\);/);
   // Nothing missing is sent: the same checks as step 3, plus both photos.
   assert.match(extract('verifyNowProblems'), /demoStep3Problems\(\)\.filter\(problem => problem\.id !== "demoIdDocument"\)/);
+  // A confirmed rental is verified through the signed upgrade API (no LINE
+  // connection or in-memory context needed); the agreement-then-photos path
+  // stays for a rental this device has no view token for.
   const submit = extract('submitVerifyNow');
-  assert.ok(submit.indexOf('await submitDemoAgreement(token)') < submit.indexOf('await uploadDemoIdentity(token)'));
+  assert.ok(submit.indexOf('await identityUpgradeTokenForOrder()') < submit.indexOf('await submitIdentityUpgrade(upgradeToken)'));
+  assert.match(submit, /await submitVerifyNowByContext\(\);/);
+  const byContext = extract('submitVerifyNowByContext');
+  assert.ok(byContext.indexOf('await submitDemoAgreement(token)') < byContext.indexOf('await uploadDemoIdentity(token)'));
   // The refund block now lives in step 2 and offers Wise on English bookings.
   assert.match(html, /class="demo-step2-refund" id="demoRefundSection"/);
   assert.doesNotMatch(extract('renderDemoAgreementCard'), /demoRefundSectionHtml/);
