@@ -1,3 +1,26 @@
+## 2026-10-10 — Claude Code: foreign customer numbers on Lalamove, 3.8 km at Sinthorn, payment cards checked
+
+- **Owner asked:**
+  1. The customer's end carries the customer's name (the return origin was jj). A + number is not given to Lalamove, and the driver gets a note instead.
+  2. The tracking page waits until 3.8 km from the Sinthorn village origin (155 ซอย 31 หมู่บ้านสินธร… / 13°47'09.5"N 100°38'15.4"E), deliveries only; elsewhere 2 km.
+  3. Check the payment content of the dispatch cards and show real TH/EN examples.
+- **Bot `1bd40f8`:**
+  - `dispatchContacts`: the customer end uses the customer's name.
+  - `isForeignPhone` is `+`/`00` other than `+66`. That end gets the shop number. This also applies to a foreign number typed on the card.
+- **Delivery App `3070742`:**
+  - `withForeignContactNote` appends `FOREIGN_CONTACT_NOTE[leg]` (the owner's wording) to the remarks, after the balance note. It is sent even with "no note", not duplicated, cut to fit 1,000 characters, skipped when a Thai number is typed on the card, and used by auto-dispatch.
+  - Card: shows a 🌏 TH/EN hint, the note that will be added, and the confirm dialog's actual number.
+  - `hideNearOriginMeters`: 3,800 m at the Sinthorn address or within 100 m of the pin, otherwise 2,000 m. Used by the tracking page and its route refresh.
+- **Payment cards (checked, no change):**
+  - Bank: bag code + balance + account + copy button.
+  - Credit card: balance + 3.50% fee + total + pay button.
+  - E-Wallet: 2.95%.
+  - Fees round up, e.g. ฿3,291 → ฿3,407 / ฿3,389.
+  - The driver-assigned and arrival cards were rendered TH (บรรยง) and EN (Thomas).
+- **Language:** a Latin-only name always gets English. A Thai-script name gets Thai unless the web booking was made in English or, with no booking row, the stored preference is English. Reported to the owner; not changed.
+- **Verification:** Bot 609/609; DA `tsc` (backend and frontend) clean; `test:lalamove-dispatch` 245/245; `test:auto-dispatch`; `test:flex-ledger` 23/23; `test:delivery-card` 58/58; `test:booking-language` 15/15; Expo web harness checked for return/delivery foreign and Thai.
+- **Release:** the APK is still build 20261010 (not built; needs `EXPO_TOKEN`). Staff web and backend deploy on push.
+
 ## 2026-10-10 — Claude Code: edit origin/destination name and phone on the Lalamove dispatch card
 
 - **Owner asked:** on the dispatch card, for both delivery and return trips, be able to change the origin and destination contact name and phone. It should start from the system default, in Thai and English.
