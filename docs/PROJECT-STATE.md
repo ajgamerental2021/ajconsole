@@ -1,3 +1,24 @@
+## 2026-10-10 — Claude Code: "เซฟรูปขนส่ง" on the customer trip page (Delivery App `4f49c9f`)
+
+- **Owner asked:**
+  - Confirmed: the trip page is reached from the staff "ติดตามงาน" panel, and the return LINE cards are unchanged (no track button added). Everything else stays as it was.
+  - New: a save-image button, because iPhone cannot take a long screenshot. Two choices:
+    - full details;
+    - a summary with only what the customer needs: no tracking link, no copy-account button.
+  - Both in TH and EN.
+- **Built:**
+  - The button "📷 เซฟรูปขนส่ง / Save trip image" sits under the status card and opens a sheet: "รูปรายละเอียดเต็ม / Full details" or "รูปรายละเอียดย่อ / Summary".
+  - The page draws the picture itself on a canvas, at 2× and 390 px wide; there is no DOM screenshot. Thai lines break with `Intl.Segmenter`; times, links and amounts never split.
+  - Full includes the track card plus copy/open, copy-account and pay buttons. The summary leaves all of those out but keeps the status, ETA, map, driver, bag code, amount and bank account.
+  - Saving: iPhone uses the share sheet ("บันทึกรูปภาพ"), with long-press as a fallback; other browsers download the file. File name: `<rentalId>.png` or `<rentalId>-summary.png`.
+  - New same-origin routes, so the canvas can be exported (`services/dispatch/tripImages.ts`):
+    - `GET /c/trip/:token/map.png`: Google Static Maps, which needs `GOOGLE_MAPS_API_KEY`; without the key the picture has no map. It marks the customer's point, plus the driver and route when shown, never the shop. Cached 2 minutes.
+    - `GET /c/trip/:token/driver-photo`: https png/jpeg/webp only, ≤3 MB, cached 10 minutes.
+- **Verification:**
+  - `test:lalamove-dispatch` 268/268 (9 new checks); flex-ledger, auto-dispatch, delivery-card and dispatch-hold suites pass; backend and frontend `tsc` clean.
+  - All 8 pictures generated in headless Chromium (delivery and return × TH/EN × full/summary) and checked by eye.
+- **Release:** backend only. Live on the next Render deploy, with no APK needed.
+
 ## 2026-10-10 — Claude Code: customer trip page (Delivery App `23065a5`)
 
 - **Owner asked:** a customer version of the staff "ติดตามงาน" panel. Staff open it and copy it from that panel; LINE buttons are unchanged. TH/EN.
