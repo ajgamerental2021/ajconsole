@@ -1,3 +1,27 @@
+## 2026-10-10 — Claude Code: one-tap "message the shop" on LINE cards; APK 20261010 still waits for Expo (Delivery App `255de9f`, Bot `ae8380b`)
+
+- **Owner asked:**
+  - A customer booked on the website, linked LINE, paid and got every card, yet the shop could not see the chat in LINE OA Manager until staff phoned and asked them to write. Make a message come from the customer's chat so the shop sees it, in TH and EN.
+  - Build the APK, and update the changelog and the min version.
+- **Why:**
+  - OA Manager lists a chat only after the customer writes. Pushed cards never count.
+  - The website's existing `liff.sendMessages` handoff works only when LIFF is opened from inside the OA chat. The current flow connects LINE from the browser (LIFF context `external`), so nothing is sent.
+  - The shop cannot write as the customer. A LINE `message` action is the only thing that does.
+- **Built:**
+  - Delivery App `services/chatShopButton.ts` adds "💬 รับทราบ · ทักแชทร้าน" / "💬 Got it · message the shop" to three cards: booking confirmation, identity received, and LINE linked.
+  - Tapping it sends, from the customer's account, "👋 รับทราบข้อมูลการจองแล้ว\nรหัสการเช่า AJ-…" (or the identity/linked text, or the English equivalent). All existing buttons stay, in the same order.
+  - Bot `services/chat-shop-message.js` plus the greeting gate:
+    - those exact texts never go to Dialogflow, even days after the card;
+    - the day is marked, so the customer's next messages stay with staff;
+    - a customer's own "👋 …" still goes to the chatbot.
+  - Phrases must stay identical in both repos; each file names the other.
+- **Verification:** new DA `test:chat-shop` 34/34; every DA suite passes except `header-guard` and `bind-rental-code`, which need Google credentials that this environment lacks; DA `tsc`; Bot 613/613 (2 new gate tests). The LINE validate API is unreachable from here, so the Flex JSON was not validated by LINE. Labels are ≤40 characters and texts ≤300.
+- **APK:** not built. This session has no `EXPO_TOKEN`, and the network policy blocks `api.expo.dev`.
+  - Build 20261010 is ready: `versionCode` and `APP_VERSION_CODE` are both 20261010.
+  - The CHANGELOG build section now lists the staff customer-page section and the release order.
+  - `MIN_ANDROID_VERSION_CODE` stays at 20260913 on purpose. Raising it before an APK exists would lock every shop phone out (426). Once the APK link exists: set `LATEST_APK_URL`, install on the shop phones, then raise it to 20261010.
+- **Release:** DA backend and Bot deploy on push. The chat button needs no app update.
+
 ## 2026-10-10 — Claude Code: "เซฟรูปขนส่ง" on the customer trip page (Delivery App `4f49c9f`)
 
 - **Owner asked:**
