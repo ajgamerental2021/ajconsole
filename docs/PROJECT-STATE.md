@@ -1,3 +1,16 @@
+## 2026-10-11 — Claude Code: padlock photo opens full size when tapped (Delivery App `c63b57e`)
+
+- **Owner asked:**
+  - The padlock photo on the cards should open larger when tapped.
+  - Add "กดที่รูปเพื่อขยาย" under it, TH/EN, on every card that has the photo.
+- **Built:**
+  - In `padlockRowsFlex`, the photo is a box with a `uri` action to `/c/padlock/:code/:photoId?full=1`. That route serves Google's preview at s1600, cached separately from the s640 card image.
+  - A caption under the photo reads "กดที่รูปเพื่อขยาย" / "Tap the photo to enlarge".
+  - It covers every card that uses `padlockRowsFlex`: driver found, arrived, the delivery card and the return-day card.
+- **Verification:**
+  - `test:delivery-card` 67/67, `test:return-day-card` 36/36, `test:lalamove-dispatch` 331/331, `test:flex-ledger` 24/24; tsc passes.
+  - How it renders in real LINE has not been checked from here.
+
 ## 2026-10-11 — Claude Code: staff map follows the driver, place-based driver notes, delivery auto-close, quote page loading, padlock photos (Delivery App `123ee9f` `9da407e`, ajconsole `be2c2e8`)
 
 - **Owner asked:**
