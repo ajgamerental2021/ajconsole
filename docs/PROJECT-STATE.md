@@ -1,3 +1,38 @@
+## 2026-10-11 — Claude Code: staff map follows the driver, place-based driver notes, delivery auto-close, quote page loading, padlock photos (Delivery App `123ee9f` `9da407e`, ajconsole `be2c2e8`)
+
+- **Owner asked:**
+  1. The staff live map was zoomed out; zoom to where the driver is, as the customer page does.
+  2. In the Lalamove note, write "ต้นทางแจ้ง:" instead of "ลูกค้าแจ้ง:".
+  3. Deliveries only: when the trip shows delivered, close the queue task automatically with the real fare from Lalamove. Returns stay manual.
+  4. The ajgamerental.com calculator stuck on "กำลังโหลดรายการเครื่อง".
+  5. Padlock photos by code on the bag-code cards, managed from Inventory (top right), with a per-lock tick that adds the three unlock steps, TH/EN.
+- **Built:**
+  - **(1)** The staff map fits the driver, where they are heading (the pickup before PICKED_UP, the drop-off after) and the route, on every update. It stops following once staff pan or zoom; "📍 ตามคนขับ" resumes.
+  - **(2)** "ต้นทางแจ้ง:" on a return. On a delivery the customer is the drop-off, so "ปลายทางแจ้ง:" is used instead; "ต้นทาง" there would mean the shop. Old "ลูกค้าแจ้ง:" text in staff notes is still de-duplicated.
+  - **(3)** `services/taskDoneService.finishTask` is extracted from `PUT /api/bookings/:row/done`.
+    - `refreshJob` calls it when a delivery becomes COMPLETED, with `job.fare` (the order's `priceBreakdown.total`, including the priority fee).
+    - A cost staff already filed wins.
+    - It is skipped when the task is already done (`autoFinished='already'`) or when the row now holds another booking (`'row_moved'`).
+    - The notice reads "(อัตโนมัติ · Lalamove ส่งสำเร็จ)".
+  - **(4)** Cause: `quote/index.html` waited on the gist catalogue and Bot `/api/pricing-policy` together with no timeout, so a Render cold start or slow sheet hung it for good (reproduced in a browser). Fix:
+    - the list shows from the catalogue at once and prices are applied when they arrive;
+    - both requests time out and the catalogue retries twice;
+    - a localStorage cache gives instant return visits;
+    - `QUOTE_PAGE_VERSION` is 20261011-1.
+  - **(5)** Padlock photos:
+    - Padlock Registry gains columns E–H.
+    - `POST`/`DELETE /api/padlocks/:code/photo` store the photo through ProofService, folder "Booking PADLOCKS - รูปแม่กุญแจ".
+    - `/c/padlock/:code/:photoId` is a public image proxy; the file id must match, and an expired Drive preview is re-read from the folder.
+    - `padlockRowsFlex` shows the photo beside the code on every bag-code card. Delivery cards also print the steps for ticked locks.
+    - In the app, Inventory header "🔐 แม่กุญแจ" opens `PadlockManagerModal`. `utils/photoPicker` is shared with the queue.
+- **Verification:**
+  - DA `test:lalamove-dispatch` 331/331, `test:delivery-card` 64/64, `test:return-day-card` 36/36, `test:flex-ledger` 24/24; tsc and `build:web` pass.
+  - Browser checks:
+    - the staff map zooms on the driver and 🏠;
+    - the quote page shows devices within 1 s with pricing hung, and updates prices when they arrive late;
+    - the padlock manager: add code, upload photo, tick steps.
+- **Not verifiable here:** the deployed Drive upload path for padlock photos (Apps Script or service account) and how LINE renders the photo in a real card. Check after deploy by adding one photo and sending a delivery card to the LINE test recipient.
+
 ## 2026-10-11 — Claude Code: return live map follows the staff tick (Delivery App `48eec5f`, corrects `addcbf6`)
 
 - **Owner clarified:**
