@@ -730,34 +730,73 @@
 
   applyLanguage();
   track('quick_quote_opened');
-  Promise.all([
-    fetch(CATALOGUE + '?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }),
-    fetch(API + '/api/pricing-policy', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; })
-  ]).then(function (results) {
-      var data = results[0];
-      pricingPolicy = results[1].policy || null;
-      consoles = (Array.isArray(data.consoles) ? data.consoles : [])
-        .filter(function (c) { return c && (c.name || c.nameEn); })
-        .map(function (c) {
-          // The booking site's defaults (normalizeConsole / ratePack).
-          var rate = Number(c.rate) || 300;
-          var pack = rate >= 500 ? { weekly: 3000, deposit: 4000 } : rate >= 400 ? { weekly: 2500, deposit: 2000 } : rate >= 350 ? { weekly: 1800, deposit: 2000 } : { weekly: 1500, deposit: 2000 };
-          return { id: c.id, name: String(c.name || c.nameEn).trim(), nameEn: String(c.nameEn || c.name).trim(), brand: c.brand, type: String(c.type || 'console'), readyDate: String(c.readyDate || c.unavailableUntil || '').trim(), rate: rate, weekly: Number(c.weekly) || pack.weekly, deposit: Number(c.deposit) || pack.deposit };
-        });
-      if (pricingPolicy) consoles.forEach(function (c) {
-        var name = String(c.nameEn || c.name).toLowerCase().replace(/[^a-z0-9]+/g, '');
-        var priced = pricingPolicy.devices.find(function (row) { return String(row.name).toLowerCase().replace(/[^a-z0-9]+/g, '') === name; });
-        if (priced) { c.rate = priced.dailyRate; c.weekly = priced.weeklyRate; c.deposit = priced.securityDeposit; }
+  // The list shows as soon as the catalogue arrives; the shop's prices are
+  // laid over it whenever they come. Neither request may hang the page: a
+  // Bot that is still waking up, or a slow sheet behind it, once left the list
+  // on "loading" for good. The last good list and prices are kept on this
+  // device, so a return visit shows them at once.
+  var CACHE_KEY = 'aj-quote-catalogue-v1';
+  var catalogueData = null, pickedOnce = false;
+  function timedJson(url, ms) {
+    var ctl = typeof AbortController === 'function' ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctl) ctl.abort(); }, ms);
+    return fetch(url, ctl ? { cache: 'no-store', signal: ctl.signal } : { cache: 'no-store' })
+      .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error(r.status); return r.json(); },
+        function (error) { clearTimeout(timer); throw error; });
+  }
+  function saveCache() {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ data: catalogueData, policy: pricingPolicy, at: Date.now() })); } catch (e) {}
+  }
+  function useCatalogue() {
+    var data = catalogueData || {};
+    consoles = (Array.isArray(data.consoles) ? data.consoles : [])
+      .filter(function (c) { return c && (c.name || c.nameEn); })
+      .map(function (c) {
+        // The booking site's defaults (normalizeConsole / ratePack).
+        var rate = Number(c.rate) || 300;
+        var pack = rate >= 500 ? { weekly: 3000, deposit: 4000 } : rate >= 400 ? { weekly: 2500, deposit: 2000 } : rate >= 350 ? { weekly: 1800, deposit: 2000 } : { weekly: 1500, deposit: 2000 };
+        return { id: c.id, name: String(c.name || c.nameEn).trim(), nameEn: String(c.nameEn || c.name).trim(), brand: c.brand, type: String(c.type || 'console'), readyDate: String(c.readyDate || c.unavailableUntil || '').trim(), rate: rate, weekly: Number(c.weekly) || pack.weekly, deposit: Number(c.deposit) || pack.deposit };
       });
-      if (Array.isArray(data.rentalAccessories)) accessories = data.rentalAccessories.map(function (x) { return Object.assign({}, x, { consoleIds: Array.isArray(x.consoleIds) ? x.consoleIds.map(String) : [] }); });
-      if (Array.isArray(data.rentalBundles)) bundles = data.rentalBundles.map(function (b) {
-        return { id: String(b.id || ''), th: String(b.th || b.titleTh || 'Bundle'), en: String(b.en || b.titleEn || b.th || 'Bundle'), rate: Number(b.rate) || 0, weekly: Number(b.weekly) || 0, deposit: Number(b.deposit) || 0, readyDate: String(b.readyDate || b.unavailableUntil || '') };
-      }).filter(function (b) { return b.id && b.rate > 0; });
-      fillDevices();
-      renderAddOns();
-      chooseDevice(wantedDevice);
+    if (pricingPolicy && Array.isArray(pricingPolicy.devices)) consoles.forEach(function (c) {
+      var name = String(c.nameEn || c.name).toLowerCase().replace(/[^a-z0-9]+/g, '');
+      var priced = pricingPolicy.devices.find(function (row) { return String(row.name).toLowerCase().replace(/[^a-z0-9]+/g, '') === name; });
+      if (priced) { c.rate = priced.dailyRate; c.weekly = priced.weeklyRate; c.deposit = priced.securityDeposit; }
+    });
+    if (Array.isArray(data.rentalAccessories)) accessories = data.rentalAccessories.map(function (x) { return Object.assign({}, x, { consoleIds: Array.isArray(x.consoleIds) ? x.consoleIds.map(String) : [] }); });
+    if (Array.isArray(data.rentalBundles)) bundles = data.rentalBundles.map(function (b) {
+      return { id: String(b.id || ''), th: String(b.th || b.titleTh || 'Bundle'), en: String(b.en || b.titleEn || b.th || 'Bundle'), rate: Number(b.rate) || 0, weekly: Number(b.weekly) || 0, deposit: Number(b.deposit) || 0, readyDate: String(b.readyDate || b.unavailableUntil || '') };
+    }).filter(function (b) { return b.id && b.rate > 0; });
+    if (!consoles.length) return;
+    fillDevices();
+    renderAddOns();
+    // The device asked for in the link is picked once; after that the
+    // customer's own choice stays when prices or the list refresh.
+    if (!pickedOnce) { pickedOnce = true; chooseDevice(wantedDevice); } else render();
+  }
+  try {
+    var kept = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+    if (kept && kept.data && Array.isArray(kept.data.consoles)) {
+      catalogueData = kept.data;
+      pricingPolicy = kept.policy && Array.isArray(kept.policy.devices) ? kept.policy : null;
+      useCatalogue();
+    }
+  } catch (e) {}
+  function loadCatalogue(attempt) {
+    timedJson(CATALOGUE + '?t=' + Date.now(), 12000)
+      .then(function (data) { catalogueData = data; useCatalogue(); saveCache(); })
+      .catch(function () {
+        if (attempt < 2) return setTimeout(function () { loadCatalogue(attempt + 1); }, 1500);
+        if (!consoles.length) $('device').innerHTML = '<option value="">' + t('catalogueFail') + '</option>';
+      });
+  }
+  loadCatalogue(0);
+  timedJson(API + '/api/pricing-policy', 15000)
+    .then(function (result) {
+      if (!result || !result.policy || !Array.isArray(result.policy.devices)) return;
+      pricingPolicy = result.policy;
+      if (catalogueData) { useCatalogue(); saveCache(); }
     })
-    .catch(function () { $('device').innerHTML = '<option value="">' + t('catalogueFail') + '</option>'; });
+    .catch(function () {});
   // The shop's queue closures, from the same place the booking page reads them.
   fetch(API + '/api/queue-closures?_ts=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
