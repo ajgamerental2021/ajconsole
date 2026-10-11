@@ -1,3 +1,24 @@
+## 2026-10-11 — Claude Code: return trips: live map for the shop only (Delivery App `addcbf6`)
+
+- **Owner confirmed:** a customer must never see a return driver's realtime pin or map, through any card or link. Only the shop sees it, in the Delivery App.
+- **Gap found:**
+  - `f39d7ee` had turned on the map for returns on the customer trip page.
+  - The older staff switch could also show the return tracking link, and `/c/track` served returns.
+- **Built:**
+  - `publicTripState` strips the driver's lat/lng, route and `driverHidden` for returns, and `trackUrl` is delivery only.
+  - `publicTrackState` returns null for returns, and `/c/trip/:token/map.png` 404s.
+  - The trip page and the saved image draw no map for returns. Return wording no longer mentions a map.
+  - `customerPageTrackLink`, `setCustomerPageTrackLink` and the modal switch are removed. `POST customer-page` just returns the links, so older apps still work.
+  - The staff map (`/c/staff-map`) is unchanged.
+- **Left as is (cards unchanged):** the "ได้คนขับรับคืนแล้ว" LINE card still carries:
+  - a static map snapshot taken when the driver is assigned (cached per driver);
+  - a Google Maps directions button from that position to the pickup.
+  - Neither is live.
+- **Verification:**
+  - `test:lalamove-dispatch` 320/320, with new checks for no position, no link, no track page, and the staff map still showing the driver. `test:flex-ledger` 24/24.
+  - Both tsc pass; `build:web` passes.
+  - Browser check of the return trip page in TH and EN, fed a state that still carried coordinates: no map and no link.
+
 ## 2026-10-11 — Claude Code: live map in the staff trip panel; trip page shows arrival time and map (Delivery App `f39d7ee`)
 
 - **Owner asked:**
