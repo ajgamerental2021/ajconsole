@@ -54,7 +54,7 @@ export function buildSwitchPage(ps5Html = read('ajgameid/index.html'), sourceDat
 
   // --- The page is one folder deeper
   replace('src="../assets/vendor/', 'src="../../assets/vendor/');
-  replace('src="../assets/admin-passkey.js"', 'src="../../assets/admin-passkey.js"');
+  replace('src="../assets/admin-passkey.js?v=20261011-1"', 'src="../../assets/admin-passkey.js?v=20261011-1"');
   replace("['assets/help/rent-step-", "['../assets/help/rent-step-", 10);
 
   // --- Which list this is

@@ -34,7 +34,7 @@ test('a list with no Gist file yet keeps its own data instead of loading the oth
 test('the Switch page speaks Switch and resolves paths one folder deeper', () => {
   assert.match(sw, /<title>รายการไอดีเกม Nintendo Switch<\/title>/);
   assert.match(sw, /og:url" content="https:\/\/ajgamerental\.com\/ajgameid\/switch\/"/);
-  assert.match(sw, /src="\.\.\/\.\.\/assets\/admin-passkey\.js"/);
+  assert.match(sw, /src="\.\.\/\.\.\/assets\/admin-passkey\.js(\?v=[\w-]+)?"/);
   assert.match(sw, /\['\.\.\/assets\/help\/rent-step-1\.png'/);
   assert.doesNotMatch(sw, /aj-video\.mp4/);
   assert.match(sw, /Nintendo Account ของทางร้าน/);

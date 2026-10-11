@@ -26,10 +26,12 @@ test('add-friend wording in Thai and English', () => {
 
 test('the site invitation shows at most once a day, can be switched off in Admin, and never during the add-friend step', () => {
   assert.match(page, /const LINE_FRIEND_PROMO_DAY_KEY = "aj_line_friend_promo_day_v1";/);
-  assert.match(page, /if\(seenDay === bangkokDay\(\)\) return;/);
+  assert.match(page, /return localStorage\.getItem\(LINE_FRIEND_PROMO_DAY_KEY\) === bangkokDay\(\);/);
   assert.match(page, /\/api\/site-content\/line-friend-popup/);
   assert.match(page, /\/api\/admin\/site-content\/line-friend-popup/);
   assert.match(page, /lineFriendPromoSetting = \{enabled: result\?\.content\?\.enabled !== false\};/, 'on until the shop switches it off');
-  assert.match(page, /lineFriendEverClicked\(\) \|\| lineFriendGateShown/);
+  assert.match(page, /lineFriendGateShown \|\| lineFriendPromoSeenToday\(\)/);
+  assert.doesNotMatch(page.slice(page.indexOf('async function maybeShowLineFriendPromo'), page.indexOf('function lineFriendPromoSeenToday')), /state\.adminToken/, 'a signed-in admin still sees it once Admin is closed');
+  assert.match(page, /waited < 600/, 'waits for the announcement to be closed');
   assert.match(page, /id="adminAnnouncement">\$\{adminAnnouncementHtml\(\)\}\$\{adminLineFriendPromoHtml\(\)\}/);
 });

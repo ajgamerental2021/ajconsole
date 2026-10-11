@@ -1809,7 +1809,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 <div class="guide-highlight" id="guideHighlight"></div>
 
 <script src="assets/vendor/simplewebauthn-browser-14.0.0.umd.min.js"></script>
-<script src="assets/admin-passkey.js"></script>
+<script src="assets/admin-passkey.js?v=20261011-1"></script>
 <script src="assets/place-search.js?v=20261003-6"></script>
 <script src="assets/identity-ocr.js?v=20261010-1"></script>
 <script>
@@ -11859,9 +11859,6 @@ We apologize for the inconvenience and hope everyone stays safe.`
       return !!saved && !!connection && saved.userId === connection.userId;
     }catch{ return false; }
   }
-  function lineFriendEverClicked(){
-    try{ return !!localStorage.getItem(LINE_FRIEND_KEY); }catch{ return false; }
-  }
   function markLineFriendClicked(){
     try{ localStorage.setItem(LINE_FRIEND_KEY, JSON.stringify({userId:activeLineConnection()?.userId || "", at:Date.now()})); }catch{}
   }
@@ -11932,23 +11929,29 @@ We apologize for the inconvenience and hope everyone stays safe.`
   }
   async function maybeShowLineFriendPromo(){
     const url = new URL(location.href);
-    // Not on the way back from connecting LINE, where the add-friend step has its own pop-up.
+    // Not on the way back from connecting LINE, where the add-friend step has
+    // its own pop-up, nor inside LINE or an embedded page.
     const skip = () => isInsideLineClient() || url.searchParams.has("lineConnect") || url.searchParams.has("lineReturn") || url.searchParams.has("embed")
-      || !!pendingLineConnectHandoff()?.launchedAt || lineFriendEverClicked() || lineFriendGateShown;
+      || !!pendingLineConnectHandoff()?.launchedAt || lineFriendGateShown || lineFriendPromoSeenToday();
     if(skip()) return;
-    let seenDay = "";
-    try{ seenDay = localStorage.getItem(LINE_FRIEND_PROMO_DAY_KEY) || ""; }catch{}
-    if(seenDay === bangkokDay()) return;
     const setting = await loadLineFriendPromoSetting();
     if(!setting?.enabled) return;
-    // Not on top of the shop's announcement, the add-friend step or Admin.
-    for(let waited = 0; waited < 90; waited += 1){
-      const busy = byId("siteAnnouncement")?.classList.contains("open") || byId("lineFriendGate")?.classList.contains("open") || !!state.adminToken
-        || !!document.querySelector(".modal-overlay.open, .modal-overlay.show");
-      if(!busy) break;
+    // Wait its turn: after the shop's announcement is closed, and never over
+    // the add-friend step, the Admin windows or another dialog.
+    const busy = () => byId("siteAnnouncement")?.classList.contains("open") || byId("lineFriendGate")?.classList.contains("open")
+      || byId("adminOverlay")?.classList.contains("open") || byId("adminLoginOverlay")?.classList.contains("open")
+      || !!document.querySelector(".modal-overlay.open, .modal-overlay.show");
+    for(let waited = 0; busy() && waited < 600; waited += 1){
       await new Promise(resolve => window.setTimeout(resolve, 1000));
     }
-    if(skip() || byId("siteAnnouncement")?.classList.contains("open") || byId("lineFriendGate")?.classList.contains("open") || state.adminToken) return;
+    if(skip() || busy()) return;
+    showLineFriendPromo();
+    try{ localStorage.setItem(LINE_FRIEND_PROMO_DAY_KEY, bangkokDay()); }catch{}
+  }
+  function lineFriendPromoSeenToday(){
+    try{ return localStorage.getItem(LINE_FRIEND_PROMO_DAY_KEY) === bangkokDay(); }catch{ return false; }
+  }
+  function showLineFriendPromo(){
     const host = byId("lineFriendPromo");
     if(!host) return;
     fillLineFriendLogos();
@@ -11958,7 +11961,6 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("lineFriendPromoAdd").innerHTML = `${contactBrandIcon("line")} ${esc(tr("lineFriendPromoAdd"))}`;
     host.classList.add("open");
     host.setAttribute("aria-hidden", "false");
-    try{ localStorage.setItem(LINE_FRIEND_PROMO_DAY_KEY, bangkokDay()); }catch{}
   }
   function adminLineFriendPromoHtml(){
     const en = state.lang === "en";
@@ -11984,21 +11986,16 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(response.status === 401) throw new Error("unauthorized");
       if(!response.ok) throw new Error(`HTTP ${response.status}`);
       lineFriendPromoSetting = {enabled};
-      if(status) status.textContent = enabled ? (en ? "Saved: the pop-up is on." : "บันทึกแล้ว: เปิดป๊อปอัพ") : (en ? "Saved: the pop-up is off." : "บันทึกแล้ว: ปิดป๊อปอัพ");
+      if(status) status.textContent = enabled
+        ? (en ? "Saved: the pop-up is on. Each phone or computer sees it once a day, so this one may already have had today's; use Preview to see it." : "บันทึกแล้ว: เปิดป๊อปอัพ ลูกค้าแต่ละเครื่องเห็นวันละครั้ง เครื่องนี้อาจเห็นของวันนี้ไปแล้ว กด ดูตัวอย่าง เพื่อดูหน้าตา")
+        : (en ? "Saved: the pop-up is off." : "บันทึกแล้ว: ปิดป๊อปอัพ");
     }catch(error){
       if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
       else if(status) status.textContent = error.message;
     }
   }
   function previewLineFriendPromo(){
-    fillLineFriendLogos();
-    byId("lineFriendPromoTitle").textContent = tr("lineFriendPromoTitle");
-    byId("lineFriendPromoText").textContent = tr("lineFriendPromoText");
-    byId("lineFriendPromoClose").textContent = tr("lineFriendPromoClose");
-    byId("lineFriendPromoAdd").innerHTML = `${contactBrandIcon("line")} ${esc(tr("lineFriendPromoAdd"))}`;
-    const host = byId("lineFriendPromo");
-    host?.classList.add("open");
-    host?.setAttribute("aria-hidden", "false");
+    showLineFriendPromo();
   }
   async function verifyCurrentLineSession(existingLiff=null, existingProfile=null){
     const liff = existingLiff || await loadLineSdk();
@@ -13041,6 +13038,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("adminUserInput").value = "";
     byId("adminPassInput").value = "";
     byId("adminPasskeyLogin").hidden = !window.AJAdminPasskey?.supported?.();
+    // Ask for the sign-in challenge now, while the window opens.
+    window.AJAdminPasskey?.prepare?.(CONFIG.apiBase);
     byId("adminLoginOverlay").classList.add("open");
     setTimeout(() => byId("adminUserInput").focus(), 60);
   }

@@ -1,3 +1,29 @@
+## 2026-10-11 — Claude Code: faster Admin Passkey sign-in; LINE add-friend pop-up shows reliably (Bot `c6fa289`, ajconsole)
+
+- **Owner reported:**
+  1. Admin Passkey login is very slow before the phone asks to sign in.
+  2. With the add-friend pop-up switched on, it did not appear on the home page (TH/EN).
+- **Causes:**
+  1. Before returning a challenge, `listAdminPasskeys` ran `ensureSheetHeaderByTitle` (spreadsheets.get plus a header write) and then a read. Verify did the same and awaited a full clear-and-rewrite before answering. On top of that, the challenge was only requested after the tap.
+  2. The pop-up was skipped whenever `state.adminToken` was set (the owner was signed in to Admin in the same visit), or once add friend had ever been tapped in booking. It also gave up after 90 s if the announcement was still open, and it is once a day per device.
+- **Built:**
+  - **Bot (passkeys):**
+    - the header is checked once per process;
+    - the passkey list is cached for 60 s and replaced by every save;
+    - verify issues the session first and saves the counter in the background.
+  - **Website (passkeys):**
+    - `AJAdminPasskey.prepare()` fetches the options when the login window opens, on index, game_index, ajgameid and switch (regenerated);
+    - a challenge is used once and refetched after 4 min;
+    - the script URL now carries `?v=20261011-1`.
+  - **Pop-up:**
+    - it no longer looks at the admin token or earlier taps;
+    - it waits while the announcement, the gate, Admin or another dialog is open, for up to 10 min;
+    - once a day via `lineFriendPromoSeenToday`;
+    - the Admin save message explains once-a-day and points to Preview.
+- **Verification:**
+  - ajconsole `node --test` 327/327; Bot `npm test` 627/627.
+  - Browser, TH and EN: with the announcement open the pop-up waits, then shows after OK, even when add friend was tapped before.
+
 ## 2026-10-11 — Claude Code: LINE add-friend step in booking + daily add-friend pop-up (ajconsole)
 
 - **Owner asked:**

@@ -3257,7 +3257,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="assets/vendor/simplewebauthn-browser-14.0.0.umd.min.js"></script>
-<script src="assets/admin-passkey.js"></script>
+<script src="assets/admin-passkey.js?v=20261011-1"></script>
 <script>
 /* ──────────────────────────────────────
    DEFAULT DATA
@@ -4595,6 +4595,8 @@ function showLogin() {
   document.getElementById('login-pass').value = '';
   document.getElementById('login-error').style.display = 'none';
   document.getElementById('catalog-passkey-login').hidden = !window.AJAdminPasskey?.supported?.();
+  // Ask for the sign-in challenge now, so a tap on Passkey goes straight to Face ID.
+  window.AJAdminPasskey?.prepare?.(ADMIN_API_BASE);
   document.getElementById('login-overlay').classList.add('open');
   setTimeout(() => document.getElementById('login-user').focus(), 100);
 }

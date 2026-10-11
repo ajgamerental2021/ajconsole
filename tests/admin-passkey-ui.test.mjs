@@ -35,3 +35,10 @@ test('the shared helper binds ceremonies to the page origin and keeps bearer aut
   assert.match(helper, /\/api\/admin\/passkeys\/registration\/options/);
   assert.match(helper, /Authorization: `Bearer \$\{adminToken\}`/);
 });
+
+test('the Passkey challenge is fetched when the login window opens, so Face ID comes up on the tap', () => {
+  assert.match(helper, /function prepare\(apiBase\)/);
+  assert.match(helper, /const PREPARED_MAX_AGE_MS = 4 \* 60 \* 1000;/);
+  assert.match(helper, /prepared = null;/, 'a challenge is used once');
+  assert.match(helper, /Object\.freeze\(\{ supported, prepare, login, register \}\)/);
+});

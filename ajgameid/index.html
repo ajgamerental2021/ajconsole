@@ -516,7 +516,7 @@
 
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="../assets/vendor/simplewebauthn-browser-14.0.0.umd.min.js"></script>
-  <script src="../assets/admin-passkey.js"></script>
+  <script src="../assets/admin-passkey.js?v=20261011-1"></script>
   <script>
     // Which ID list this page is. The Switch page (ajgameid/switch/) is built
     // from this file by scripts/build-switch-id-page.mjs, which changes this.
@@ -2354,6 +2354,8 @@
       el.adminPanel.classList.add('hidden');
       el.loginErrorText.textContent = '';
       document.getElementById('adminPasskeyLoginBtn').hidden = !window.AJAdminPasskey?.supported?.();
+      // Ask for the sign-in challenge now, so a tap on Passkey goes straight to Face ID.
+      window.AJAdminPasskey?.prepare?.(ADMIN_API_BASE);
       setTimeout(() => el.adminUserInput.focus(), 30);
     }
 
