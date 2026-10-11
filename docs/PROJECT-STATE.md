@@ -1,3 +1,26 @@
+## 2026-10-11 — Claude Code: "มีคำขอเช่าต่อหลายรายการ" dead end fixed (Delivery App `e14016e`)
+
+- **Owner reported:**
+  - Booking "Pro2 กัญจเจศ 4–11/10": tapping "เช่าต่อ" on the return-day card showed "มีคำขอเช่าต่อหลายรายการ — please contact the shop".
+  - They asked whether it affects other customers, and to stop it happening.
+- **Cause:**
+  - `GET /c/extension` refuses when `openExtensionRequestsForBooking` returns more than one.
+  - "Open" includes `pending_payment` and `expired`, even after the 24 h window, until the customer cancels. That rule came in with `6ded092` on 2026-10-08.
+  - Before that commit nothing stopped duplicate requests. Any booking with two or more such lapsed rows was stuck, and other customers were affected the same way.
+  - The production sheet was not readable from here, so the exact rows for this booking were not seen. The code path allows no other way to reach the state.
+- **Built:**
+  - `services/extensionStaleRequests.closeLapsedExtensionRequests(bookingId)` runs before the page renders and before a request is created.
+  - It marks `failed` ("closed automatically: payment window passed without payment") any request that is `expired`, or `pending_payment` past `expiresAt`, and has no `transactionId`. This happens under the settlement lock.
+  - Card and e-wallet requests are checked with `checkExtensionBeamStatus` first; paid or unknown are left open.
+  - Settlement refuses such requests anyway, and a late Beam payment on a failed one already alerts the shop, so no money changes.
+  - If more than one is still open, `alertShopMultipleExtensions` sends a shop alert with each request (at most every 6 h per booking).
+- **Verification:**
+  - New `test:extension-stale`, 3 scenarios:
+    - a legacy bank pair is closed and a new request is possible;
+    - paid or transacted requests are kept and alert the shop once;
+    - Beam paid or unknown is kept, confirmed unpaid is closed.
+  - The other extension suites pass: queue 11, editing, pricing 60, deposit 15, pending; flex-ledger 24; tsc passes.
+
 ## 2026-10-11 — Claude Code: no add-friend prompts for Thai returning customers (ajconsole)
 
 - **Owner asked:**
