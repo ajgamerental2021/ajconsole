@@ -1,3 +1,24 @@
+## 2026-10-11 — Claude Code: complete driver notes, alerts for every trip event, Lalamove money alerts, lost padlock ฿1,500 (Delivery App `fa66bf2`, Bot `efc3c89`)
+
+- **Owner asked:**
+  1. The customer's delivery note (delivery) and "ลูกค้าแจ้ง" (return) were not reaching the Lalamove note. Add them above the transfer and foreign notes, never replacing them.
+  2. Return-day card padlock box: add "สูญหาย: ฿1,500" with an emoji, and use ฿ instead of บาท.
+  3. Rental Terms and contract PDF: add "หรือสูญหาย" after destroying the padlock and after damaged fitted equipment, TH/EN.
+  4. A delivery (บรรยง) failed because the Lalamove wallet was short. They want a popup on the queue and a phone notification, plus a warning below ฿200 before it runs out.
+  5. No notifications arrive for called, driver found, cancelled, changed, picked up or delivered, on iPhone, Android or the web app.
+- **Causes:**
+  - (1) `defaultDriverNote` never read the return note (it lives in `modifyNote` as "DD/MM HH:MM ลูกค้าแจ้ง (รับคืน): …"). "ไม่ใส่โน้ต" was ticked by default, and auto plans default to `noNote`, so even the delivery note and transfer were dropped.
+  - (5) Only 4 alert kinds existed. Phones need APK 20261010, which is not yet built: the old app neither registers push nor reads the feed. Web needs web push switched on (iPhone: Home Screen PWA).
+- **Built:**
+  - **Notes:** `customerDriverNotes`, `systemDriverNotes` and `composeDriverNote` are applied in `confirmTrip`, so manual, auto and older apps all get the same note. The order is: staff note, customer notes, transfer, foreign. Duplicates of an old pre-filled default are skipped. Prepare returns `systemNotes`, which the card shows as "ส่งให้คนขับเสมอ".
+  - **Alerts:** `staffAlertsDue` returns a list. New kinds: `order_placed`, `order_failed`, `picked_up`, `completed`, the shop's own cancel and change-driver, and `wallet_low`/`wallet_empty`. `POST /api/staff-alerts/test`; Profile → "Driver alerts" card with per-device status and a test button. The queue shows a popup for wallet and failure kinds.
+  - **Wallet:** the Bot maps a refusal for lack of money to `lalamove_insufficient_balance`. The Bot `/webhook/lalamove` is auto-registered at start-up via `PATCH /v3/webhook`; this replaces any other webhook URL on the Lalamove account, and `LALAMOVE_WEBHOOK_AUTO_REGISTER=false` disables it. `WALLET_BALANCE_CHANGED` below ฿200 goes to DA `POST /api/integrations/aj-rental/staff-alert` (version gate allow-listed), at most every 3 hours while low. The setup answer carries `wallet`, and the card shows the balance.
+  - **Terms:** Bot Rental Terms 2026-10-11, effective 2026-10-11 11:30 Bangkok. 2026-10-09-2 is kept for signed contracts. The PDF uses the same text.
+  - **Card:** "❓ สูญหาย: ฿1,500" and ฿ amounts.
+- **Unverified:** the Lalamove wallet webhook payload and refusal code could not be confirmed (developers.lalamove.com is unreachable here), so both are parsed defensively. Check the Bot log line "Lalamove wallet balance" after the first top-up or order.
+- **Verification:** DA `test:lalamove-dispatch` 312/312, `test:return-day-card` 36/36, other suites pass except the two that need credentials; tsc and web build OK; card checked at 390 px. Bot 622/622 at first run; new wallet tests 5/5.
+- **Release:** backend and web on deploy. Phone push still needs APK 20261010 with Firebase. If the shop published Rental Terms from the admin panel with a version ≥ 2026-10-11, that version wins.
+
 ## 2026-10-10 — Claude Code: auto-dispatch did not call after an earlier manual order (Delivery App)
 
 - **Owner reported:** a return (ภูมิ, PS5-9, 18:00) was called by hand and cancelled, then set to auto-call at 17:45. Nothing was called.
