@@ -6,8 +6,8 @@ const page = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
 test('after connecting LINE, booking asks for one tap on "add friend" before it can go on', () => {
   assert.match(page, /const LINE_FRIEND_URL = "https:\/\/lin\.ee\/9CIG3uzq";/);
-  assert.match(page, /if\(!payResume\.active && bookingLineConnection\(\)\) need\("lineFriendBtn", lineFriendClicked\(\), tr\("lineFriendRequired"\)\);/);
-  assert.match(page, /\$\{bookingLineConnection\(\) \? lineFriendStepHtml\(\) : ""\}/, 'the button sits under the LINE connection');
+  assert.match(page, /if\(!payResume\.active && bookingLineConnection\(\) && !lineFriendExempt\(\)\) need\("lineFriendBtn", lineFriendClicked\(\), tr\("lineFriendRequired"\)\);/);
+  assert.match(page, /\$\{bookingLineConnection\(\) && !lineFriendExempt\(\) \? lineFriendStepHtml\(\) : ""\}/, 'the button sits under the LINE connection');
   assert.match(page, /return !!saved && !!connection && saved.userId === connection.userId;/, 'remembered per LINE account');
 });
 
@@ -15,7 +15,7 @@ test('the pop-up after connecting has one green button and no way to close it ot
   const gate = page.match(/<div class="line-friend-modal" id="lineFriendGate"[\s\S]*?<\/div>\n<\/div>/)[0];
   assert.match(gate, /id="lineFriendGateAdd" href="https:\/\/lin\.ee\/9CIG3uzq"/);
   assert.doesNotMatch(gate, /<button/, 'no cancel or close button');
-  assert.match(page, /if\(!payResume\.active && !lineFriendClicked\(\)\) window\.setTimeout\(openLineFriendGate, 250\);/);
+  assert.match(page, /if\(!payResume\.active && !lineFriendClicked\(\)\) void openLineFriendGateAfterReturningCheck\(\);/);
   assert.match(page, /closeLineFriendGate\(\);\n      render\(\);\n      focusDemoCustomerName\(\);/, 'straight on to the name box');
 });
 
@@ -34,4 +34,20 @@ test('the site invitation shows at most once a day, can be switched off in Admin
   assert.doesNotMatch(page.slice(page.indexOf('async function maybeShowLineFriendPromo'), page.indexOf('function lineFriendPromoSeenToday')), /state\.adminToken/, 'a signed-in admin still sees it once Admin is closed');
   assert.match(page, /waited < 600/, 'waits for the announcement to be closed');
   assert.match(page, /id="adminAnnouncement">\$\{adminAnnouncementHtml\(\)\}\$\{adminLineFriendPromoHtml\(\)\}/);
+});
+
+test('Thai customers who have rented before are never asked to add the shop; English keeps the button', () => {
+  assert.match(page, /return state\.lang === "th" && knownReturningCustomer\(\);/);
+  assert.match(page, /\$\{bookingLineConnection\(\) && !lineFriendExempt\(\) \? lineFriendStepHtml\(\) : ""\}/);
+  assert.match(page, /bookingLineConnection\(\) && !lineFriendExempt\(\)\) need\("lineFriendBtn"/);
+  assert.match(page, /if\(lineFriendClicked\(\) \|\| !bookingLineConnection\(\) \|\| lineFriendExempt\(\)\) return;/);
+  assert.match(page, /await settleReturningCheck\(\);\n    if\(lineFriendExempt\(\)\) return;/, 'the site pop-up waits for the returning check');
+  assert.match(page, /if\(state\.calc\.retVerified\) rememberReturningCustomer\(\);/, 'a verified returning customer is remembered on the device');
+  assert.match(page, /if\(eligible\)\{\n          rememberReturningCustomer\(\);/, 'and so is one found by LINE in the rental history');
+  assert.doesNotMatch(page.slice(page.indexOf('function knownReturningCustomer'), page.indexOf('function lineFriendExempt')), /activeLineConnection|bookingLineConnection/, 'a LINE connection alone is not a returning customer');
+});
+
+test('a LINE SDK tag that failed to load does not hang later LINE checks', () => {
+  assert.match(page, /if\(old && old\.dataset\.lineLiffState !== "failed"\)/);
+  assert.match(page, /s\.onerror = error => \{ s\.dataset\.lineLiffState = "failed"; reject\(error\); \};/);
 });

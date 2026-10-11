@@ -3605,6 +3605,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
   }
   function saveLocal(){
+    if(state.calc.retVerified) rememberReturningCustomer();
     writeJson(LS.consoles, state.consoles);
     writeJson(LS.images, state.images);
     writeJson(LS.home, state.home);
@@ -4434,7 +4435,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(["Bangkok","กรุงเทพมหานคร"].includes(demoProfile.province)) demoProfile.province = demoAddressAutofilled.province = en ? "Bangkok" : "กรุงเทพมหานคร";
     localizeDemoAddress();
     card.innerHTML = `<h3>${en ? "Customer and delivery details" : "ข้อมูลลูกค้าและที่อยู่จัดส่ง"}</h3>
-      ${payResume.active ? "" : `<section class="demo-contact-channel"><b>${esc(tr("contactChannelTitle"))}</b><p>${esc(tr(en ? "contactChannelEnglishHelp" : "contactChannelThaiHelp"))}</p><div class="demo-contact-channel-actions">${bookingLineConnection() ? `<span class="demo-contact-connected">${esc(tr("contactLineConnected"))}${demoProfile.lineDisplayName ? ` · ${esc(demoProfile.lineDisplayName)}` : ""}</span>` : `<a class="btn demo-line-btn" id="lineConnectBtn" href="${pendingLineConnectHandoff() ? esc(lineConnectionAppUrl(state.lang, isInsideLineClient() ? "line" : "browser", pendingLineConnectHandoff().id, lineBookingSelection())) : "#"}" aria-disabled="${!pendingLineConnectHandoff()}">${contactBrandIcon("line")}${esc(tr(pendingLineConnectHandoff() ? "contactLineConnect" : "contactLinePreparing"))}</a>`}${en ? `<button class="btn demo-wa-btn" id="demoWhatsAppConnectBtn" type="button" aria-pressed="${demoProfile.preferredContactChannel === "whatsapp"}">${contactBrandIcon("whatsapp")}${esc(tr("contactWhatsApp"))}</button>` : ""}</div>${bookingLineConnection() ? lineFriendStepHtml() : ""}${!bookingLineConnection() ? `<p class="demo-line-app-help">${en ? "LINE did not open?" : "LINE ไม่เปิด?"} <a id="lineConnectFallback" href="${esc(lineConnectionWebAppUrl(state.lang, isInsideLineClient() ? "line" : "browser", pendingLineConnectHandoff()?.id || "", lineBookingSelection()))}">${en ? "Try another app link" : "ลองลิงก์เปิดแอปอีกแบบ"}</a></p>` : ""}${!bookingLineConnection() ? `<p class="demo-line-browser-note">${esc(tr("contactLineBrowserNote"))}</p>` : ""}</section>`}
+      ${payResume.active ? "" : `<section class="demo-contact-channel"><b>${esc(tr("contactChannelTitle"))}</b><p>${esc(tr(en ? "contactChannelEnglishHelp" : "contactChannelThaiHelp"))}</p><div class="demo-contact-channel-actions">${bookingLineConnection() ? `<span class="demo-contact-connected">${esc(tr("contactLineConnected"))}${demoProfile.lineDisplayName ? ` · ${esc(demoProfile.lineDisplayName)}` : ""}</span>` : `<a class="btn demo-line-btn" id="lineConnectBtn" href="${pendingLineConnectHandoff() ? esc(lineConnectionAppUrl(state.lang, isInsideLineClient() ? "line" : "browser", pendingLineConnectHandoff().id, lineBookingSelection())) : "#"}" aria-disabled="${!pendingLineConnectHandoff()}">${contactBrandIcon("line")}${esc(tr(pendingLineConnectHandoff() ? "contactLineConnect" : "contactLinePreparing"))}</a>`}${en ? `<button class="btn demo-wa-btn" id="demoWhatsAppConnectBtn" type="button" aria-pressed="${demoProfile.preferredContactChannel === "whatsapp"}">${contactBrandIcon("whatsapp")}${esc(tr("contactWhatsApp"))}</button>` : ""}</div>${bookingLineConnection() && !lineFriendExempt() ? lineFriendStepHtml() : ""}${!bookingLineConnection() ? `<p class="demo-line-app-help">${en ? "LINE did not open?" : "LINE ไม่เปิด?"} <a id="lineConnectFallback" href="${esc(lineConnectionWebAppUrl(state.lang, isInsideLineClient() ? "line" : "browser", pendingLineConnectHandoff()?.id || "", lineBookingSelection()))}">${en ? "Try another app link" : "ลองลิงก์เปิดแอปอีกแบบ"}</a></p>` : ""}${!bookingLineConnection() ? `<p class="demo-line-browser-note">${esc(tr("contactLineBrowserNote"))}</p>` : ""}</section>`}
       ${state.calc.retVerified && hasVerifiedAgreementRecord() && demoIdentityExpired() ? `<div class="demo-choice-warning">${en ? "The ID card or passport on your agreement has expired, or expires before the return date, so a new Master Agreement and renewed identity verification are required before this rental. Please upload your current document in step 3." : "บัตรประชาชนหรือ Passport ในสัญญาเดิมหมดอายุแล้ว หรือหมดอายุก่อนวันคืนเครื่อง ต้องทำข้อตกลงหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้งก่อนเช่าครั้งนี้ กรุณาอัปโหลดรูปเอกสารฉบับปัจจุบันในขั้นตอนที่ 3"}</div>` : ""}
       ${demoIdentityCoveredByAgreement() ? `<div class="demo-contract-status">${esc(demoAgreementCoverText())}</div>` : ""}
       ${activeVip() ? `<div class="demo-contract-status"><b>VIP: ${esc(activeVip().name)}</b><br>${esc(en ? "Your personal VIP rental and security-deposit rates are applied automatically." : "ระบบใช้ราคาค่าเช่าและค่าประกัน VIP ของคุณให้อัตโนมัติแล้ว")}</div>` : ""}
@@ -6087,7 +6088,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!payResume.active && (state.lang === "th" || demoProfile.preferredContactChannel === "line")) need("lineConnectBtn", !!activeLineConnection(), tr("contactLineRequired"));
     // Connected, the customer must also open "add friend": LINE only delivers
     // the rental details to someone who has added the shop.
-    if(!payResume.active && bookingLineConnection()) need("lineFriendBtn", lineFriendClicked(), tr("lineFriendRequired"));
+    if(!payResume.active && bookingLineConnection() && !lineFriendExempt()) need("lineFriendBtn", lineFriendClicked(), tr("lineFriendRequired"));
     need("demoCustomerName", demoLegalNameValid(demoProfile.fullName), tr("legalNameScriptError"));
     need("demoCustomerPhone", demoPhoneValid(demoProfile.phone), tr("phoneScriptError"));
     problems.push(...demoRefundProblems());
@@ -11640,13 +11641,16 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(window.liff) return Promise.resolve(window.liff);
     return new Promise((resolve,reject) => {
       const old = document.querySelector('script[data-line-liff]');
-      if(old){ old.addEventListener("load", () => resolve(window.liff)); old.addEventListener("error", reject); return; }
+      // A tag that already failed fires no more events: waiting on it hung every
+      // later LINE check (and what waits on it) for good. Try a fresh one instead.
+      if(old && old.dataset.lineLiffState !== "failed"){ old.addEventListener("load", () => resolve(window.liff)); old.addEventListener("error", reject); return; }
+      old?.remove();
       const s = document.createElement("script");
       s.src = "https://static.line-scdn.net/liff/edge/2/sdk.js";
       s.async = true;
       s.dataset.lineLiff = "1";
-      s.onload = () => resolve(window.liff);
-      s.onerror = reject;
+      s.onload = () => { s.dataset.lineLiffState = "loaded"; resolve(window.liff); };
+      s.onerror = error => { s.dataset.lineLiffState = "failed"; reject(error); };
       document.head.appendChild(s);
     });
   }
@@ -11841,8 +11845,43 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(state.lang === "en") demoProfile.preferredContactChannel = "line";
     saveDemoProfile({now:true});
     render();
-    if(!payResume.active && !lineFriendClicked()) window.setTimeout(openLineFriendGate, 250);
+    // A returning customer is looked up first: someone who has rented before
+    // has added the shop already and is not asked (Thai booking).
+    if(!payResume.active && !lineFriendClicked()) void openLineFriendGateAfterReturningCheck();
     return true;
+  }
+  // ── Customers who have rented before ──────────────────────────────────────
+  // Proved by the returning-customer check (by phone/Rental ID, or by LINE
+  // against the rental history), and kept on this device. In Thai they are
+  // never asked to add the shop on LINE: not in step 2, not by the site pop-up.
+  // English booking keeps the button for everyone, as LINE or WhatsApp is the
+  // customer's choice there.
+  var RETURNING_CUSTOMER_KEY = "aj_returning_customer_v1";
+  function rememberReturningCustomer(){
+    try{ localStorage.setItem(RETURNING_CUSTOMER_KEY, JSON.stringify({at:Date.now(), lineUserId:String(lineUniqueId() || "")})); }catch{}
+  }
+  function knownReturningCustomer(){
+    if(state.calc.retVerified) return true;
+    try{ return !!JSON.parse(localStorage.getItem(RETURNING_CUSTOMER_KEY) || "null")?.at; }catch{ return false; }
+  }
+  function lineFriendExempt(){
+    return state.lang === "th" && knownReturningCustomer();
+  }
+  // The returning check now running (if any), never waited on for more than a few seconds.
+  async function settleReturningCheck(maxMs = 8000){
+    const pending = returningLineCheckPromise;
+    if(!pending) return;
+    await Promise.race([pending.catch(() => false), new Promise(resolve => window.setTimeout(resolve, maxMs))]);
+  }
+  async function openLineFriendGateAfterReturningCheck(){
+    try{
+      // The check started at page load ran before this LINE account was known;
+      // ask again with it, so a customer who just connected is recognised.
+      await settleReturningCheck();
+      await Promise.race([detectLineReturningEligibility().catch(() => false), new Promise(resolve => window.setTimeout(resolve, 8000))]);
+    }catch{}
+    if(lineFriendExempt()){ render(); return; }
+    openLineFriendGate();
   }
   // ── Add the shop as a LINE friend ─────────────────────────────────────────
   // LINE delivers the rental details only to customers who have added the
@@ -11870,7 +11909,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     $$("[data-line-logo]").forEach(node => { if(!node.innerHTML) node.innerHTML = contactBrandIcon("line"); });
   }
   function openLineFriendGate(){
-    if(lineFriendClicked() || !bookingLineConnection()) return;
+    if(lineFriendClicked() || !bookingLineConnection() || lineFriendExempt()) return;
     const host = byId("lineFriendGate");
     if(!host) return;
     fillLineFriendLogos();
@@ -11936,6 +11975,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(skip()) return;
     const setting = await loadLineFriendPromoSetting();
     if(!setting?.enabled) return;
+    // Thai: not for someone who has rented before; the check run at page load decides.
+    await settleReturningCheck();
+    if(lineFriendExempt()) return;
     // Wait its turn: after the shop's announcement is closed, and never over
     // the add-friend step, the Admin windows or another dialog.
     const busy = () => byId("siteAnnouncement")?.classList.contains("open") || byId("lineFriendGate")?.classList.contains("open")
@@ -11944,7 +11986,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     for(let waited = 0; busy() && waited < 600; waited += 1){
       await new Promise(resolve => window.setTimeout(resolve, 1000));
     }
-    if(skip() || busy()) return;
+    if(skip() || busy() || lineFriendExempt()) return;
     showLineFriendPromo();
     try{ localStorage.setItem(LINE_FRIEND_PROMO_DAY_KEY, bangkokDay()); }catch{}
   }
@@ -12358,6 +12400,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
         }
         const eligible = !!result.eligible;
         if(eligible){
+          rememberReturningCustomer();
+          if(state.lang === "th" && byId("lineFriendGate")?.classList.contains("open")) closeLineFriendGate();
           state.calc.retVerified = true;
           state.calc.retVerificationMethod = "line";
           state.calc.retVerifiedLineUserId = fallbackLineUserId;

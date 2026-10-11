@@ -1,3 +1,31 @@
+## 2026-10-11 — Claude Code: no add-friend prompts for Thai returning customers (ajconsole)
+
+- **Owner asked:**
+  - A customer who has rented before (used the returning-customer discount, or has a LINE ID with rental history) must never see the home-page add-friend pop-up or the step-2 add-friend button. A LINE connection alone does not count, since that customer may never have rented.
+  - English keeps the button for everyone, with LINE or WhatsApp to choose.
+  - Booking must never be held up.
+- **Built:**
+  - `knownReturningCustomer()` is true when `state.calc.retVerified` holds, or when the device flag `aj_returning_customer_v1` is set.
+    - The flag is set by `saveLocal` whenever `retVerified` holds, which covers phone or Rental ID verification and the LINE check.
+    - It is also set when the LINE returning check (`/api/customers/returning-eligibility`, rental history) answers eligible.
+  - `lineFriendExempt()` is Thai only and applies to:
+    - the step-2 button;
+    - the `need("lineFriendBtn")` check;
+    - the gate pop-up;
+    - the site pop-up.
+  - After a LINE connection, the gate waits for the returning check, re-run with the new LINE ID. Each wait is capped at 8 s and then the gate opens, so the flow is never stuck. If the check answers eligible later, an open gate closes.
+  - The site pop-up waits for the page-load returning check (capped) before deciding.
+  - `loadLineSdk`: a script tag that had failed to load made every later call wait forever. It now retries with a fresh tag.
+- **Verification:**
+  - `node --test` 329/329.
+  - Browser with a LIFF stub:
+    - new TH or EN customer: gate, button and Next blocked until tapped;
+    - returning TH (answer in 0.3 s or 3 s): no gate, no button, Next not blocked by add friend;
+    - returning EN: gate and button as before;
+    - home pop-up: new TH shown, returning TH hidden, returning EN shown.
+  - Earlier suites still pass: gate → name box, step button, promo once a day and after the announcement.
+- **Limit:** a returning customer on a new device, without a LINE account the site can recognise and before verifying as returning, is treated as new until the check proves otherwise.
+
 ## 2026-10-11 — Claude Code: faster Admin Passkey sign-in; LINE add-friend pop-up shows reliably (Bot `c6fa289`, ajconsole)
 
 - **Owner reported:**
