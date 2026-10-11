@@ -1,3 +1,25 @@
+## 2026-10-11 — Claude Code: bag-code box redesign, sharp full-screen padlock photo (Delivery App `28142c8`)
+
+- **Owner asked:**
+  - The bag-code box is too cramped; space out the lines.
+  - "กดที่รูปเพื่อขยาย" is too easy to miss, so make it stand out.
+  - Make the photo bigger.
+  - The enlarged photo opened small; show it full size and sharp. TH/EN.
+- **Built:**
+  - With a photo, `padlockRowsFlex` lays out vertically:
+    1. model/colour and the code;
+    2. the photo at full width, 4:5;
+    3. a red pill button "🔍 กดที่รูปเพื่อขยาย" / "🔍 Tap the photo to enlarge";
+    4. the steps at size md with md spacing.
+    - The photo and the button both open `/c/padlock/:code/:photoId/view?lang=`, a dark full-screen page with the image at `width:100%` and pinch zoom allowed.
+  - That page's image is `?full=1`, which now reads the Drive original first (`readReturnProofImage(..., full=true)`) before falling back to a 2000 px preview. The preview regex also handles the `sz=w…` form.
+  - The app uploads at 1600 px, quality 0.8; the backend accepts up to 16 MB of base64.
+- **Verification:**
+  - `test:delivery-card` 68/68 (includes the viewer page TH/EN), `test:return-day-card` 36/36, `test:lalamove-dispatch` 336/336, `test:flex-ledger` 24/24; both tsc pass.
+  - The viewer page and an HTML mock of the box were checked at 390 px.
+  - Real LINE rendering is not verified.
+- **Note:** a photo uploaded before this change was shrunk to 900 px on the web. For the sharpest result, upload it again from Inventory → 🔐 แม่กุญแจ.
+
 ## 2026-10-11 — Claude Code: customer cards name the edited contact (Delivery App `63b8177`)
 
 - **Owner reported:** staff changed the recipient's name and number in the trip panel ("คุณว่าน · 0653549950 (แก้ไขแล้ว)"), but the customer's cards still showed the booking's name and number ("ดลญา · 0969687826"). Fix both legs (on a return, the sender at the origin), TH/EN.
