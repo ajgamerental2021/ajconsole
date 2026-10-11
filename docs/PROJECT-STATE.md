@@ -1,3 +1,15 @@
+## 2026-10-11 — Claude Code: customer cards name the edited contact (Delivery App `63b8177`)
+
+- **Owner reported:** staff changed the recipient's name and number in the trip panel ("คุณว่าน · 0653549950 (แก้ไขแล้ว)"), but the customer's cards still showed the booking's name and number ("ดลญา · 0969687826"). Fix both legs (on a return, the sender at the origin), TH/EN.
+- **Cause:** `customerEnd` in `dispatch/flex.ts`, the arrival card input and the trip/track `recipient` all read `job.customer`. `job.contacts`, which `confirmTrip` stores only when an end is edited, went to Lalamove alone.
+- **Built:**
+  - `customerContactOf(job)` returns `contacts.to` on a delivery and `contacts.from` on a return, falling back field by field to the booking.
+  - It is used in `customerEnd`, which covers every card with the ส่งถึง/จุดรับเครื่อง box; in the arrival card (`buildPaymentCard`); and in the `recipient` of the trip and track states.
+  - The greeting still uses the booking customer.
+- **Verification:**
+  - `test:lalamove-dispatch` 336/336: edited delivery TH/EN, driver card, edited return sender, greeting unchanged, unedited unchanged.
+  - `test:delivery-card` 67/67, `test:flex-ledger` 24/24; tsc passes.
+
 ## 2026-10-11 — Claude Code: padlock photo opens full size when tapped (Delivery App `c63b57e`)
 
 - **Owner asked:**
