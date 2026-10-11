@@ -1,3 +1,22 @@
+## 2026-10-11 — Claude Code: return live map follows the staff tick (Delivery App `48eec5f`, corrects `addcbf6`)
+
+- **Owner clarified:**
+  - The tick that lets a customer see the return live map must stay, as before.
+  - They only wanted to confirm that without the tick, normal cards give the customer no way in.
+- **Answer:** yes. No return LINE card links the trip page or the tracking page; those links only reach a customer if staff send them.
+- **Built:**
+  - Restored the `customerPageTrackLink` switch; the modal label is now "ให้ลูกค้าเห็นแผนที่สดและลิงก์ติดตาม".
+  - The switch now gates the map too, via `returnLiveShown`:
+    - **Unticked:** `publicTripState` strips the driver's position and route, `trackUrl` is empty, `publicTrackState` returns null, and `map.png` 404s.
+    - **Ticked:** live map and tracking link.
+    - **Unticked again:** both stop at once.
+  - The client draws a return map only when the server sends a position.
+  - The staff map is always on.
+- **Verification:**
+  - `test:lalamove-dispatch` 324/324 (unticked, tick, untick, staff map) and `test:flex-ledger` 24/24.
+  - Both tsc and `build:web` pass.
+  - Browser check of the return trip page in TH and EN: unticked has no map; ticked shows the map and the link.
+
 ## 2026-10-11 — Claude Code: return trips: live map for the shop only (Delivery App `addcbf6`)
 
 - **Owner confirmed:** a customer must never see a return driver's realtime pin or map, through any card or link. Only the shop sees it, in the Delivery App.
