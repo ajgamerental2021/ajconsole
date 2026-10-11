@@ -1,3 +1,30 @@
+## 2026-10-12 — Claude Code: add-friend pop-ups: no booking pop-up on the home page, close button, one Admin switch, faster (ajconsole)
+
+- **Owner reported:**
+  1. The add-friend pop-up took very long to appear on the home page.
+  2. The pop-up seen in LINE's browser on the home page was the booking one ("เพิ่มเพื่อนเพื่อรับข้อมูลการเช่า"). They asked for a close button on it, the sentence "ร้านจะส่งข้อมูลการเช่าให้ทาง LINE" removed, and for no pop-up to appear anywhere once it is switched off in Admin. TH/EN.
+  3. They also asked whether the pop-up is annoying.
+- **Cause:**
+  - Inside LINE, `verifyCurrentLineSession` confirms the remembered LINE sign-in on every page load and calls `saveVerifiedLineConnection`. That opened the booking gate over the home page after LIFF init plus a Bot call, so it looked slow.
+  - The real invitation was skipped inside LINE, and elsewhere waited 2.5 s plus the setting fetch plus up to 8 s for the returning check.
+- **Built:**
+  - **Gate:**
+    - opens only when booking is on the customer step (`!beforeRentActive && step === 2`), checked after the first await;
+    - has an × button; closing does not count as added, so the step-2 button is still required;
+    - the sentence is removed in both languages.
+  - **Switch:** `lineFriendPopupsAllowed()` makes the Admin switch govern both pop-ups. The setting is fetched once per visit with a 5 s timeout; unreadable means no pop-up. The Admin hint was reworded. The step-2 button stays.
+  - **Invitation:**
+    - the setting is requested at boot; the pop-up shows at 2 s and waits at most 3 s for the returning check;
+    - it now also shows in LINE's browser;
+    - only on the page before booking (`beforeRentActive`).
+- **Verification:**
+  - `node --test` 330/330.
+  - Browser:
+    - signed in to LINE on the home page (TH/EN): no gate, invitation at about 2.3 s;
+    - switch off, or setting unreadable: no gate after connecting, no invitation, step button kept;
+    - × closes the gate and Next still asks for the tap;
+    - earlier suites still pass (gate → name box, returning exemptions, once a day, after the announcement).
+
 ## 2026-10-11 — Claude Code: "มีคำขอเช่าต่อหลายรายการ" dead end fixed (Delivery App `e14016e`)
 
 - **Owner reported:**

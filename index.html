@@ -258,6 +258,7 @@ html.ajps-map-open #langBtn,#quoteModal.pin-map-open #quoteLangBtn{visibility:hi
 .line-friend-modal{position:fixed;inset:0;z-index:100001;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(16,24,40,.62)}
 .line-friend-modal.open{display:flex}
 .line-friend-card{position:relative;width:min(420px,100%);background:#fff;border-radius:20px;padding:26px 22px 22px;text-align:center;box-shadow:0 24px 64px rgba(16,24,40,.35)}
+.line-friend-x{position:absolute;top:10px;right:12px;width:40px;height:40px;border:0;background:transparent;font-size:30px;line-height:1;color:#667085;cursor:pointer}
 .line-friend-logo{width:68px;height:68px;margin:0 auto 12px;border-radius:18px;background:#06c755;color:#fff;display:flex;align-items:center;justify-content:center}
 .line-friend-logo svg{width:44px;height:44px}
 .line-friend-card h3{margin:0 0 8px;font-size:21px;line-height:1.35;color:#101828}
@@ -1640,6 +1641,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 </div>
 <div class="line-friend-modal" id="lineFriendGate" role="alertdialog" aria-modal="true" aria-labelledby="lineFriendGateTitle" aria-hidden="true">
   <div class="line-friend-card">
+    <button class="line-friend-x" type="button" id="lineFriendGateClose" aria-label="Close">&times;</button>
     <div class="line-friend-logo" aria-hidden="true" data-line-logo></div>
     <h3 id="lineFriendGateTitle"></h3>
     <p id="lineFriendGateText"></p>
@@ -2158,7 +2160,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       lineFriendDone:"✅ กดเพิ่มเพื่อนแล้ว · เพิ่มเพื่อนเสร็จแล้ว กลับมาทำรายการเช่าต่อที่หน้านี้",
       lineFriendRequired:"กรุณากดปุ่มเพิ่มเพื่อน LINE ก่อน เพื่อรับข้อมูลการเช่าหลังชำระเงิน",
       lineFriendGateTitle:"เพิ่มเพื่อนเพื่อรับข้อมูลการเช่า",
-      lineFriendGateText:"ร้านจะส่งข้อมูลการเช่าให้ทาง LINE หลังชำระเงิน เมื่อเพิ่มเพื่อนเสร็จแล้ว กลับมาที่หน้านี้เพื่อทำรายการเช่าต่อ",
+      lineFriendGateText:"เมื่อเพิ่มเพื่อนเสร็จแล้ว กลับมาที่หน้านี้เพื่อทำรายการเช่าต่อ",
       lineFriendGateButton:"เพิ่มเพื่อน",
       lineFriendPromoTitle:"เพิ่มเพื่อน AJ เช่าเครื่องเกม ทาง LINE",
       lineFriendPromoText:"รับข้อมูลข่าวสารและโปรโมชั่นจากทางร้าน",
@@ -2319,7 +2321,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       lineFriendDone:"✅ Add friend opened · Once added, come back here to finish your booking",
       lineFriendRequired:"Tap Add friend on LINE first, so you receive your rental details after payment",
       lineFriendGateTitle:"Add us as a friend to get your rental details",
-      lineFriendGateText:"We send your rental details on LINE after payment. Once you have added us, come back to this page to finish your booking.",
+      lineFriendGateText:"Once you have added us, come back to this page to finish your booking.",
       lineFriendGateButton:"Add friend",
       lineFriendPromoTitle:"Add AJ Game Rental on LINE",
       lineFriendPromoText:"Get our news and promotions",
@@ -11874,6 +11876,12 @@ We apologize for the inconvenience and hope everyone stays safe.`
     await Promise.race([pending.catch(() => false), new Promise(resolve => window.setTimeout(resolve, maxMs))]);
   }
   async function openLineFriendGateAfterReturningCheck(){
+    // Only on the booking's customer step: a LINE sign-in remembered from an
+    // earlier visit is confirmed on every page load, and must not put this
+    // pop-up over the home page.
+    if(!(await lineFriendPopupsAllowed())) return;
+    // (Checked after a wait: the LINE return sets the step just after saving the connection.)
+    if(state.beforeRentActive || state.calc.step !== 2) return;
     try{
       // The check started at page load ran before this LINE account was known;
       // ask again with it, so a customer who just connected is recognised.
@@ -11881,6 +11889,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       await Promise.race([detectLineReturningEligibility().catch(() => false), new Promise(resolve => window.setTimeout(resolve, 8000))]);
     }catch{}
     if(lineFriendExempt()){ render(); return; }
+    if(state.beforeRentActive || state.calc.step !== 2) return;
     openLineFriendGate();
   }
   // ── Add the shop as a LINE friend ─────────────────────────────────────────
@@ -11909,7 +11918,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     $$("[data-line-logo]").forEach(node => { if(!node.innerHTML) node.innerHTML = contactBrandIcon("line"); });
   }
   function openLineFriendGate(){
-    if(lineFriendClicked() || !bookingLineConnection() || lineFriendExempt()) return;
+    if(lineFriendClicked() || !bookingLineConnection() || lineFriendExempt() || lineFriendPromoSetting?.enabled !== true) return;
     const host = byId("lineFriendGate");
     if(!host) return;
     fillLineFriendLogos();
@@ -11948,15 +11957,34 @@ We apologize for the inconvenience and hope everyone stays safe.`
   // The once-a-day invitation on the site, which the shop can switch off in Admin.
   const LINE_FRIEND_PROMO_DAY_KEY = "aj_line_friend_promo_day_v1";
   let lineFriendPromoSetting = null;
-  async function loadLineFriendPromoSetting(){
-    try{
-      const response = await fetch(`${CONFIG.apiBase}/api/site-content/line-friend-popup?_ts=${Date.now()}`, {cache:"no-store"});
-      if(!response.ok) return lineFriendPromoSetting;
-      const result = await response.json().catch(() => null);
-      // On until the shop switches it off.
-      lineFriendPromoSetting = {enabled: result?.content?.enabled !== false};
-    }catch(error){ console.warn("LINE friend pop-up setting unavailable", error); }
-    return lineFriendPromoSetting;
+  let lineFriendSettingRequest = null;
+  // One switch in Admin for both add-friend pop-ups (the site one and the one
+  // after connecting LINE). Read once per visit; when it cannot be read, no
+  // pop-up shows, so a switched-off pop-up never appears.
+  function loadLineFriendPromoSetting(){
+    if(lineFriendSettingRequest) return lineFriendSettingRequest;
+    lineFriendSettingRequest = (async () => {
+      try{
+        const controller = typeof AbortController === "function" ? new AbortController() : null;
+        const timer = window.setTimeout(() => controller?.abort(), 5000);
+        const response = await fetch(`${CONFIG.apiBase}/api/site-content/line-friend-popup?_ts=${Date.now()}`, {cache:"no-store", signal:controller?.signal});
+        window.clearTimeout(timer);
+        if(!response.ok) throw new Error(`HTTP ${response.status}`);
+        const result = await response.json().catch(() => null);
+        // On until the shop switches it off.
+        lineFriendPromoSetting = {enabled: result?.content?.enabled !== false};
+      }catch(error){
+        console.warn("LINE friend pop-up setting unavailable", error);
+        lineFriendSettingRequest = null;
+        return lineFriendPromoSetting;
+      }
+      return lineFriendPromoSetting;
+    })();
+    return lineFriendSettingRequest;
+  }
+  async function lineFriendPopupsAllowed(){
+    const setting = await loadLineFriendPromoSetting();
+    return setting?.enabled === true;
   }
   function bangkokDay(){
     return new Date(Date.now() + 7 * 3600000).toISOString().slice(0, 10);
@@ -11970,13 +11998,15 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const url = new URL(location.href);
     // Not on the way back from connecting LINE, where the add-friend step has
     // its own pop-up, nor inside LINE or an embedded page.
-    const skip = () => isInsideLineClient() || url.searchParams.has("lineConnect") || url.searchParams.has("lineReturn") || url.searchParams.has("embed")
-      || !!pendingLineConnectHandoff()?.launchedAt || lineFriendGateShown || lineFriendPromoSeenToday();
+    // Only on the page before booking: once the customer has started a booking
+    // it would only get in the way.
+    const skip = () => url.searchParams.has("lineConnect") || url.searchParams.has("lineReturn") || url.searchParams.has("embed")
+      || !!pendingLineConnectHandoff()?.launchedAt || lineFriendGateShown || lineFriendPromoSeenToday() || !state.beforeRentActive;
     if(skip()) return;
-    const setting = await loadLineFriendPromoSetting();
-    if(!setting?.enabled) return;
-    // Thai: not for someone who has rented before; the check run at page load decides.
-    await settleReturningCheck();
+    if(!(await lineFriendPopupsAllowed())) return;
+    // Thai: not for someone who has rented before; the check run at page load
+    // decides, but the pop-up does not wait on it for long.
+    await settleReturningCheck(3000);
     if(lineFriendExempt()) return;
     // Wait its turn: after the shop's announcement is closed, and never over
     // the add-friend step, the Admin windows or another dialog.
@@ -11986,7 +12016,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     for(let waited = 0; busy() && waited < 600; waited += 1){
       await new Promise(resolve => window.setTimeout(resolve, 1000));
     }
-    if(skip() || busy() || lineFriendExempt()) return;
+    if(skip() || busy() || lineFriendExempt() || lineFriendPromoSetting?.enabled !== true) return;
     showLineFriendPromo();
     try{ localStorage.setItem(LINE_FRIEND_PROMO_DAY_KEY, bangkokDay()); }catch{}
   }
@@ -12007,8 +12037,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
   function adminLineFriendPromoHtml(){
     const en = state.lang === "en";
     const on = lineFriendPromoSetting ? lineFriendPromoSetting.enabled : true;
-    return `<div class="card" style="margin-top:14px"><h3>${en ? "LINE add-friend pop-up" : "ป๊อปอัพชวนเพิ่มเพื่อน LINE"}</h3>
-      <p class="hint">${en ? "Invites visitors to add the shop on LINE for news and promotions, at most once a day per device (Thai and English). The add-friend step after connecting LINE in booking is always on." : "ชวนลูกค้าเพิ่มเพื่อนทาง LINE เพื่อรับข่าวสารและโปรโมชั่น ขึ้นไม่เกินวันละครั้งต่อเครื่อง (ไทยและอังกฤษ) ส่วนขั้นตอนเพิ่มเพื่อนหลังเชื่อม LINE ตอนจองเปิดอยู่เสมอ"}</p>
+    return `<div class="card" style="margin-top:14px"><h3>${en ? "LINE add-friend pop-ups" : "ป๊อปอัพชวนเพิ่มเพื่อน LINE"}</h3>
+      <p class="hint">${en ? "Both pop-ups, Thai and English: the invitation on the page before booking (at most once a day per device) and the one after connecting LINE in booking. Switched off, neither shows anywhere; the add-friend button in booking step 2 stays." : "คุมป๊อปอัพทั้งสองแบบ ทั้งไทยและอังกฤษ: ป๊อปอัพชวนเพิ่มเพื่อนหน้าก่อนเช่า (ไม่เกินวันละครั้งต่อเครื่อง) และป๊อปอัพหลังเชื่อม LINE ตอนจอง ปิดแล้วจะไม่ขึ้นที่หน้าไหนเลย ส่วนปุ่มเพิ่มเพื่อนในขั้นตอนที่ 2 ยังอยู่"}</p>
       <label class="option-row"><input type="checkbox" id="lineFriendPromoEnabled" ${on ? "checked" : ""}><div><b>${en ? "Show the pop-up" : "เปิดแสดงป๊อปอัพ"}</b></div></label>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"><button class="btn primary" type="button" id="saveLineFriendPromo">${en ? "Save" : "บันทึก"}</button><button class="btn" type="button" id="previewLineFriendPromo">${en ? "Preview" : "ดูตัวอย่าง"}</button></div>
       <p class="hint" id="lineFriendPromoStatus"></p>
@@ -14699,6 +14729,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "saveLineFriendPromo"){ void saveLineFriendPromoFromAdmin(); return; }
       if(targetId === "previewLineFriendPromo"){ previewLineFriendPromo(); return; }
       if(targetId === "lineFriendPromoClose"){ closeLineFriendPromo(); return; }
+      // Closing is not adding: the button in step 2 still has to be tapped.
+      if(targetId === "lineFriendGateClose"){ closeLineFriendGate(); return; }
       if(targetId === "saveRentalCutoff"){ void saveRentalCutoffFromAdmin(); return; }
       if(targetId === "adminRentalFind"){ void findAdminRental(); return; }
       if(targetId === "myRentalCopyUrl"){ void copySectionUrl("myRental"); return; }
@@ -15220,7 +15252,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
     // Shown first on every visit, above whatever pop-up the link opens.
     void loadSiteAnnouncement().then(applySiteAnnouncement);
     void loadBookingSettings();
-    window.setTimeout(() => { void maybeShowLineFriendPromo(); }, 2500);
+    void loadLineFriendPromoSetting();
+    window.setTimeout(() => { void maybeShowLineFriendPromo(); }, 2000);
     // The link opens LINE; the page notes the tap and carries on.
     document.addEventListener("click", event => {
       const link = event.target.closest("#lineFriendBtn, #lineFriendGateAdd, #lineFriendPromoAdd");
