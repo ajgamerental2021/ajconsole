@@ -1,3 +1,34 @@
+## 2026-10-11 — Claude Code: LINE add-friend step in booking + daily add-friend pop-up (ajconsole)
+
+- **Owner asked:**
+  - After the customer connects LINE in booking step 2 (TH; EN when LINE is chosen), require one tap on an add-friend button (https://lin.ee/9CIG3uzq) under the connect button, with a note to come back to finish.
+  - On return from connecting, show a pop-up "เพิ่มเพื่อนเพื่อรับข้อมูลการเช่า": one green button, no cancel. Tapping it counts, closes the pop-up and moves to the name box.
+  - Block "next" until the tap.
+  - Add a site pop-up inviting visitors to add friend for news and promotions: LINE logo, Close and Add friend, at most once a day, switchable in Admin, TH/EN.
+  - English keeps LINE and WhatsApp, both optional.
+- **Why it helps:** LINE delivers Messaging API pushes only to users who have added the OA, and the OA chat list has no thread for someone who has never added or written. The step makes both happen before payment.
+- **Built (index.html):**
+  - Step 2:
+    - `lineFriendStepHtml` under the connect row whenever `bookingLineConnection()`.
+    - `demoStep2Problems` adds `need("lineFriendBtn", lineFriendClicked(), …)`.
+    - The tap is stored per LINE userId in `aj_line_friend_clicked_v1`.
+  - Gate pop-up `#lineFriendGate` opens from `saveVerifiedLineConnection` when not yet tapped. Its only control is the add-friend link; tapping marks, closes, re-renders and focuses `#demoCustomerName`.
+  - Promo pop-up `#lineFriendPromo`:
+    - shown 2.5 s after load, at most once per Bangkok day (`aj_line_friend_promo_day_v1`);
+    - skipped inside LINE, on the return from LINE connect, in embeds, once add friend was ever tapped, and while the announcement, gate or Admin is open;
+    - setting stored in site-content key `line-friend-popup` `{enabled}`, on by default; Admin → ประกาศหน้าเว็บ has a toggle and preview.
+  - English with WhatsApp (no LINE connection) has no add-friend requirement.
+- **Also fixed:** the earlier quote-page change (`be2c2e8`) broke one `quick-quote-page` test assertion; it was updated, with a new test for the non-blocking load.
+- **Verification:**
+  - `node --test tests/*.test.mjs` 326/326, including the new `line-friend.test.mjs`.
+  - Browser at 390 px, TH and EN:
+    - return from LINE opens the gate;
+    - tapping closes it, focuses the name box and opens lin.ee;
+    - Next before tapping shows "กรุณากดปุ่มเพิ่มเพื่อน LINE ก่อน…";
+    - the step button marks it done;
+    - the promo shows once, not again after reload, and not when switched off.
+- **Limit:** a tap is not proof of friendship; LINE gives the website no such signal.
+
 ## 2026-10-11 — Claude Code: bag-code box redesign, sharp full-screen padlock photo (Delivery App `28142c8`)
 
 - **Owner asked:**

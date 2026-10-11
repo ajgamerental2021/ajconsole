@@ -255,6 +255,22 @@ html.ajps-map-open #langBtn,#quoteModal.pin-map-open #quoteLangBtn{visibility:hi
 .demo-maps-found a{color:inherit;text-decoration:underline;text-underline-offset:2px}
 .queue-retry-actions{display:flex;justify-content:flex-end;margin-top:14px}
 /* Site announcement: above every other pop-up, Thai left / English right. */
+.line-friend-modal{position:fixed;inset:0;z-index:100001;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(16,24,40,.62)}
+.line-friend-modal.open{display:flex}
+.line-friend-card{position:relative;width:min(420px,100%);background:#fff;border-radius:20px;padding:26px 22px 22px;text-align:center;box-shadow:0 24px 64px rgba(16,24,40,.35)}
+.line-friend-logo{width:68px;height:68px;margin:0 auto 12px;border-radius:18px;background:#06c755;color:#fff;display:flex;align-items:center;justify-content:center}
+.line-friend-logo svg{width:44px;height:44px}
+.line-friend-card h3{margin:0 0 8px;font-size:21px;line-height:1.35;color:#101828}
+.line-friend-card p{margin:0 0 18px;font-size:15px;line-height:1.6;color:#475467}
+.line-friend-actions{display:flex;gap:10px;justify-content:center}
+.line-friend-actions .btn{flex:1;min-height:48px;font-size:16px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.line-friend-actions .btn svg{width:24px;height:24px;flex:none}
+.btn.line-friend-green,a.btn.line-friend-green{background:#06c755;border-color:#06c755;color:#fff}
+.line-friend-step{margin-top:14px;padding-top:14px;border-top:1px dashed #d0d5dd}
+.line-friend-step .btn{background:#06c755;border-color:#06c755;color:#fff;display:inline-flex;align-items:center;gap:8px}
+.line-friend-step .btn svg{width:22px;height:22px}
+.line-friend-step .hint{margin-top:8px}
+.line-friend-step .hint.done{color:#067647;font-weight:700}
 .site-announcement{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(16,24,40,.62)}
 .site-announcement.open{display:flex}
 .site-announcement-card{width:min(980px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:20px;border:3px solid #f5b400;box-shadow:0 24px 64px rgba(16,24,40,.35)}
@@ -1622,6 +1638,22 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
     <div class="site-announcement-actions"><button class="btn primary" type="button" id="siteAnnouncementOk">รับทราบ · OK</button></div>
   </div>
 </div>
+<div class="line-friend-modal" id="lineFriendGate" role="alertdialog" aria-modal="true" aria-labelledby="lineFriendGateTitle" aria-hidden="true">
+  <div class="line-friend-card">
+    <div class="line-friend-logo" aria-hidden="true" data-line-logo></div>
+    <h3 id="lineFriendGateTitle"></h3>
+    <p id="lineFriendGateText"></p>
+    <div class="line-friend-actions"><a class="btn line-friend-green" id="lineFriendGateAdd" href="https://lin.ee/9CIG3uzq" target="_blank" rel="noopener"></a></div>
+  </div>
+</div>
+<div class="line-friend-modal" id="lineFriendPromo" role="dialog" aria-modal="true" aria-labelledby="lineFriendPromoTitle" aria-hidden="true">
+  <div class="line-friend-card">
+    <div class="line-friend-logo" aria-hidden="true" data-line-logo></div>
+    <h3 id="lineFriendPromoTitle"></h3>
+    <p id="lineFriendPromoText"></p>
+    <div class="line-friend-actions"><button class="btn" type="button" id="lineFriendPromoClose"></button><a class="btn line-friend-green" id="lineFriendPromoAdd" href="https://lin.ee/9CIG3uzq" target="_blank" rel="noopener"></a></div>
+  </div>
+</div>
 <script>
 // Ask the server for the current setting before showing a site announcement.
 // A cached enabled notice may be stale after the shop disables it in Admin.
@@ -2121,6 +2153,17 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       contactLineRetry:"เปิด LINE อีกครั้ง",
       contactWhatsApp:"ใช้ WhatsApp",
       contactLineRequired:"กรุณาเชื่อม LINE ให้สำเร็จก่อนดำเนินการต่อ",
+      lineFriendAdd:"เพิ่มเพื่อน LINE เพื่อรับข้อมูลการเช่า",
+      lineFriendNote:"ถ้าไม่เพิ่มเพื่อน จะไม่ได้รับข้อมูลการเช่าหลังชำระเงิน · เพิ่มเพื่อนเสร็จแล้ว กลับมาที่หน้านี้เพื่อทำรายการเช่าต่อ",
+      lineFriendDone:"✅ กดเพิ่มเพื่อนแล้ว · เพิ่มเพื่อนเสร็จแล้ว กลับมาทำรายการเช่าต่อที่หน้านี้",
+      lineFriendRequired:"กรุณากดปุ่มเพิ่มเพื่อน LINE ก่อน เพื่อรับข้อมูลการเช่าหลังชำระเงิน",
+      lineFriendGateTitle:"เพิ่มเพื่อนเพื่อรับข้อมูลการเช่า",
+      lineFriendGateText:"ร้านจะส่งข้อมูลการเช่าให้ทาง LINE หลังชำระเงิน เมื่อเพิ่มเพื่อนเสร็จแล้ว กลับมาที่หน้านี้เพื่อทำรายการเช่าต่อ",
+      lineFriendGateButton:"เพิ่มเพื่อน",
+      lineFriendPromoTitle:"เพิ่มเพื่อน AJ เช่าเครื่องเกม ทาง LINE",
+      lineFriendPromoText:"รับข้อมูลข่าวสารและโปรโมชั่นจากทางร้าน",
+      lineFriendPromoClose:"ปิด",
+      lineFriendPromoAdd:"เพิ่มเพื่อน",
       contactLineFailed:"ยังเชื่อม LINE ไม่สำเร็จ กรุณาลองอีกครั้ง",
       contactDraftSaveFailed:"บันทึกข้อมูลจองก่อนเปิด LINE ไม่สำเร็จ กรุณาลองอีกครั้ง",
       contactDraftRestoreTitle:"กำลังกู้ข้อมูลการจอง",
@@ -2271,6 +2314,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       contactLineRetry:"Open LINE again",
       contactWhatsApp:"Use WhatsApp",
       contactLineRequired:"Connect LINE successfully before continuing",
+      lineFriendAdd:"Add AJ on LINE to get your rental details",
+      lineFriendNote:"Without adding us as a friend, you will not receive your rental details after payment · Once added, come back to this page to finish your booking",
+      lineFriendDone:"✅ Add friend opened · Once added, come back here to finish your booking",
+      lineFriendRequired:"Tap Add friend on LINE first, so you receive your rental details after payment",
+      lineFriendGateTitle:"Add us as a friend to get your rental details",
+      lineFriendGateText:"We send your rental details on LINE after payment. Once you have added us, come back to this page to finish your booking.",
+      lineFriendGateButton:"Add friend",
+      lineFriendPromoTitle:"Add AJ Game Rental on LINE",
+      lineFriendPromoText:"Get our news and promotions",
+      lineFriendPromoClose:"Close",
+      lineFriendPromoAdd:"Add friend",
       contactLineFailed:"LINE was not connected. Please try again",
       contactDraftSaveFailed:"Could not save your booking before opening LINE. Please try again",
       contactDraftRestoreTitle:"Still restoring your booking",
@@ -4380,7 +4434,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(["Bangkok","กรุงเทพมหานคร"].includes(demoProfile.province)) demoProfile.province = demoAddressAutofilled.province = en ? "Bangkok" : "กรุงเทพมหานคร";
     localizeDemoAddress();
     card.innerHTML = `<h3>${en ? "Customer and delivery details" : "ข้อมูลลูกค้าและที่อยู่จัดส่ง"}</h3>
-      ${payResume.active ? "" : `<section class="demo-contact-channel"><b>${esc(tr("contactChannelTitle"))}</b><p>${esc(tr(en ? "contactChannelEnglishHelp" : "contactChannelThaiHelp"))}</p><div class="demo-contact-channel-actions">${bookingLineConnection() ? `<span class="demo-contact-connected">${esc(tr("contactLineConnected"))}${demoProfile.lineDisplayName ? ` · ${esc(demoProfile.lineDisplayName)}` : ""}</span>` : `<a class="btn demo-line-btn" id="lineConnectBtn" href="${pendingLineConnectHandoff() ? esc(lineConnectionAppUrl(state.lang, isInsideLineClient() ? "line" : "browser", pendingLineConnectHandoff().id, lineBookingSelection())) : "#"}" aria-disabled="${!pendingLineConnectHandoff()}">${contactBrandIcon("line")}${esc(tr(pendingLineConnectHandoff() ? "contactLineConnect" : "contactLinePreparing"))}</a>`}${en ? `<button class="btn demo-wa-btn" id="demoWhatsAppConnectBtn" type="button" aria-pressed="${demoProfile.preferredContactChannel === "whatsapp"}">${contactBrandIcon("whatsapp")}${esc(tr("contactWhatsApp"))}</button>` : ""}</div>${!bookingLineConnection() ? `<p class="demo-line-app-help">${en ? "LINE did not open?" : "LINE ไม่เปิด?"} <a id="lineConnectFallback" href="${esc(lineConnectionWebAppUrl(state.lang, isInsideLineClient() ? "line" : "browser", pendingLineConnectHandoff()?.id || "", lineBookingSelection()))}">${en ? "Try another app link" : "ลองลิงก์เปิดแอปอีกแบบ"}</a></p>` : ""}${!bookingLineConnection() ? `<p class="demo-line-browser-note">${esc(tr("contactLineBrowserNote"))}</p>` : ""}</section>`}
+      ${payResume.active ? "" : `<section class="demo-contact-channel"><b>${esc(tr("contactChannelTitle"))}</b><p>${esc(tr(en ? "contactChannelEnglishHelp" : "contactChannelThaiHelp"))}</p><div class="demo-contact-channel-actions">${bookingLineConnection() ? `<span class="demo-contact-connected">${esc(tr("contactLineConnected"))}${demoProfile.lineDisplayName ? ` · ${esc(demoProfile.lineDisplayName)}` : ""}</span>` : `<a class="btn demo-line-btn" id="lineConnectBtn" href="${pendingLineConnectHandoff() ? esc(lineConnectionAppUrl(state.lang, isInsideLineClient() ? "line" : "browser", pendingLineConnectHandoff().id, lineBookingSelection())) : "#"}" aria-disabled="${!pendingLineConnectHandoff()}">${contactBrandIcon("line")}${esc(tr(pendingLineConnectHandoff() ? "contactLineConnect" : "contactLinePreparing"))}</a>`}${en ? `<button class="btn demo-wa-btn" id="demoWhatsAppConnectBtn" type="button" aria-pressed="${demoProfile.preferredContactChannel === "whatsapp"}">${contactBrandIcon("whatsapp")}${esc(tr("contactWhatsApp"))}</button>` : ""}</div>${bookingLineConnection() ? lineFriendStepHtml() : ""}${!bookingLineConnection() ? `<p class="demo-line-app-help">${en ? "LINE did not open?" : "LINE ไม่เปิด?"} <a id="lineConnectFallback" href="${esc(lineConnectionWebAppUrl(state.lang, isInsideLineClient() ? "line" : "browser", pendingLineConnectHandoff()?.id || "", lineBookingSelection()))}">${en ? "Try another app link" : "ลองลิงก์เปิดแอปอีกแบบ"}</a></p>` : ""}${!bookingLineConnection() ? `<p class="demo-line-browser-note">${esc(tr("contactLineBrowserNote"))}</p>` : ""}</section>`}
       ${state.calc.retVerified && hasVerifiedAgreementRecord() && demoIdentityExpired() ? `<div class="demo-choice-warning">${en ? "The ID card or passport on your agreement has expired, or expires before the return date, so a new Master Agreement and renewed identity verification are required before this rental. Please upload your current document in step 3." : "บัตรประชาชนหรือ Passport ในสัญญาเดิมหมดอายุแล้ว หรือหมดอายุก่อนวันคืนเครื่อง ต้องทำข้อตกลงหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้งก่อนเช่าครั้งนี้ กรุณาอัปโหลดรูปเอกสารฉบับปัจจุบันในขั้นตอนที่ 3"}</div>` : ""}
       ${demoIdentityCoveredByAgreement() ? `<div class="demo-contract-status">${esc(demoAgreementCoverText())}</div>` : ""}
       ${activeVip() ? `<div class="demo-contract-status"><b>VIP: ${esc(activeVip().name)}</b><br>${esc(en ? "Your personal VIP rental and security-deposit rates are applied automatically." : "ระบบใช้ราคาค่าเช่าและค่าประกัน VIP ของคุณให้อัตโนมัติแล้ว")}</div>` : ""}
@@ -6031,6 +6085,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const need = (id, ok, message) => { if(!ok) problems.push({id, message}); };
     const identity = String(demoProfile.identityNumber || "").trim();
     if(!payResume.active && (state.lang === "th" || demoProfile.preferredContactChannel === "line")) need("lineConnectBtn", !!activeLineConnection(), tr("contactLineRequired"));
+    // Connected, the customer must also open "add friend": LINE only delivers
+    // the rental details to someone who has added the shop.
+    if(!payResume.active && bookingLineConnection()) need("lineFriendBtn", lineFriendClicked(), tr("lineFriendRequired"));
     need("demoCustomerName", demoLegalNameValid(demoProfile.fullName), tr("legalNameScriptError"));
     need("demoCustomerPhone", demoPhoneValid(demoProfile.phone), tr("phoneScriptError"));
     problems.push(...demoRefundProblems());
@@ -11784,7 +11841,164 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(state.lang === "en") demoProfile.preferredContactChannel = "line";
     saveDemoProfile({now:true});
     render();
+    if(!payResume.active && !lineFriendClicked()) window.setTimeout(openLineFriendGate, 250);
     return true;
+  }
+  // ── Add the shop as a LINE friend ─────────────────────────────────────────
+  // LINE delivers the rental details only to customers who have added the
+  // shop, and a chat appears for the shop only once there is a friendship. So
+  // after connecting LINE the customer opens "add friend" once (from the step
+  // or the pop-up) before the booking can go on. Remembered per LINE account.
+  const LINE_FRIEND_URL = "https://lin.ee/9CIG3uzq";
+  const LINE_FRIEND_KEY = "aj_line_friend_clicked_v1";
+  let lineFriendGateShown = false;
+  function lineFriendClicked(){
+    const connection = activeLineConnection();
+    try{
+      const saved = JSON.parse(localStorage.getItem(LINE_FRIEND_KEY) || "null");
+      return !!saved && !!connection && saved.userId === connection.userId;
+    }catch{ return false; }
+  }
+  function lineFriendEverClicked(){
+    try{ return !!localStorage.getItem(LINE_FRIEND_KEY); }catch{ return false; }
+  }
+  function markLineFriendClicked(){
+    try{ localStorage.setItem(LINE_FRIEND_KEY, JSON.stringify({userId:activeLineConnection()?.userId || "", at:Date.now()})); }catch{}
+  }
+  function lineFriendStepHtml(){
+    const done = lineFriendClicked();
+    return `<div class="line-friend-step"><a class="btn" id="lineFriendBtn" href="${esc(LINE_FRIEND_URL)}" target="_blank" rel="noopener">${contactBrandIcon("line")}${esc(tr("lineFriendAdd"))}</a><p class="hint${done ? " done" : ""}">${esc(tr(done ? "lineFriendDone" : "lineFriendNote"))}</p></div>`;
+  }
+  function fillLineFriendLogos(){
+    $$("[data-line-logo]").forEach(node => { if(!node.innerHTML) node.innerHTML = contactBrandIcon("line"); });
+  }
+  function openLineFriendGate(){
+    if(lineFriendClicked() || !bookingLineConnection()) return;
+    const host = byId("lineFriendGate");
+    if(!host) return;
+    fillLineFriendLogos();
+    byId("lineFriendGateTitle").textContent = tr("lineFriendGateTitle");
+    byId("lineFriendGateText").textContent = tr("lineFriendGateText");
+    byId("lineFriendGateAdd").innerHTML = `${contactBrandIcon("line")} ${esc(tr("lineFriendGateButton"))}`;
+    closeLineFriendPromo();
+    lineFriendGateShown = true;
+    host.classList.add("open");
+    host.setAttribute("aria-hidden", "false");
+  }
+  function closeLineFriendGate(){
+    const host = byId("lineFriendGate");
+    host?.classList.remove("open");
+    host?.setAttribute("aria-hidden", "true");
+  }
+  // Straight on to the name box, the next thing to fill in.
+  function focusDemoCustomerName(){
+    const input = byId("demoCustomerName");
+    if(!input) return;
+    input.scrollIntoView({behavior:"smooth", block:"center"});
+    window.setTimeout(() => { try{ input.focus({preventScroll:true}); }catch{ input.focus(); } }, 400);
+  }
+  function onLineFriendClicked(source){
+    markLineFriendClicked();
+    if(source === "gate"){
+      closeLineFriendGate();
+      render();
+      focusDemoCustomerName();
+    }else if(source === "step"){
+      render();
+    }else{
+      closeLineFriendPromo();
+    }
+  }
+  // The once-a-day invitation on the site, which the shop can switch off in Admin.
+  const LINE_FRIEND_PROMO_DAY_KEY = "aj_line_friend_promo_day_v1";
+  let lineFriendPromoSetting = null;
+  async function loadLineFriendPromoSetting(){
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/site-content/line-friend-popup?_ts=${Date.now()}`, {cache:"no-store"});
+      if(!response.ok) return lineFriendPromoSetting;
+      const result = await response.json().catch(() => null);
+      // On until the shop switches it off.
+      lineFriendPromoSetting = {enabled: result?.content?.enabled !== false};
+    }catch(error){ console.warn("LINE friend pop-up setting unavailable", error); }
+    return lineFriendPromoSetting;
+  }
+  function bangkokDay(){
+    return new Date(Date.now() + 7 * 3600000).toISOString().slice(0, 10);
+  }
+  function closeLineFriendPromo(){
+    const host = byId("lineFriendPromo");
+    host?.classList.remove("open");
+    host?.setAttribute("aria-hidden", "true");
+  }
+  async function maybeShowLineFriendPromo(){
+    const url = new URL(location.href);
+    // Not on the way back from connecting LINE, where the add-friend step has its own pop-up.
+    const skip = () => isInsideLineClient() || url.searchParams.has("lineConnect") || url.searchParams.has("lineReturn") || url.searchParams.has("embed")
+      || !!pendingLineConnectHandoff()?.launchedAt || lineFriendEverClicked() || lineFriendGateShown;
+    if(skip()) return;
+    let seenDay = "";
+    try{ seenDay = localStorage.getItem(LINE_FRIEND_PROMO_DAY_KEY) || ""; }catch{}
+    if(seenDay === bangkokDay()) return;
+    const setting = await loadLineFriendPromoSetting();
+    if(!setting?.enabled) return;
+    // Not on top of the shop's announcement, the add-friend step or Admin.
+    for(let waited = 0; waited < 90; waited += 1){
+      const busy = byId("siteAnnouncement")?.classList.contains("open") || byId("lineFriendGate")?.classList.contains("open") || !!state.adminToken
+        || !!document.querySelector(".modal-overlay.open, .modal-overlay.show");
+      if(!busy) break;
+      await new Promise(resolve => window.setTimeout(resolve, 1000));
+    }
+    if(skip() || byId("siteAnnouncement")?.classList.contains("open") || byId("lineFriendGate")?.classList.contains("open") || state.adminToken) return;
+    const host = byId("lineFriendPromo");
+    if(!host) return;
+    fillLineFriendLogos();
+    byId("lineFriendPromoTitle").textContent = tr("lineFriendPromoTitle");
+    byId("lineFriendPromoText").textContent = tr("lineFriendPromoText");
+    byId("lineFriendPromoClose").textContent = tr("lineFriendPromoClose");
+    byId("lineFriendPromoAdd").innerHTML = `${contactBrandIcon("line")} ${esc(tr("lineFriendPromoAdd"))}`;
+    host.classList.add("open");
+    host.setAttribute("aria-hidden", "false");
+    try{ localStorage.setItem(LINE_FRIEND_PROMO_DAY_KEY, bangkokDay()); }catch{}
+  }
+  function adminLineFriendPromoHtml(){
+    const en = state.lang === "en";
+    const on = lineFriendPromoSetting ? lineFriendPromoSetting.enabled : true;
+    return `<div class="card" style="margin-top:14px"><h3>${en ? "LINE add-friend pop-up" : "ป๊อปอัพชวนเพิ่มเพื่อน LINE"}</h3>
+      <p class="hint">${en ? "Invites visitors to add the shop on LINE for news and promotions, at most once a day per device (Thai and English). The add-friend step after connecting LINE in booking is always on." : "ชวนลูกค้าเพิ่มเพื่อนทาง LINE เพื่อรับข่าวสารและโปรโมชั่น ขึ้นไม่เกินวันละครั้งต่อเครื่อง (ไทยและอังกฤษ) ส่วนขั้นตอนเพิ่มเพื่อนหลังเชื่อม LINE ตอนจองเปิดอยู่เสมอ"}</p>
+      <label class="option-row"><input type="checkbox" id="lineFriendPromoEnabled" ${on ? "checked" : ""}><div><b>${en ? "Show the pop-up" : "เปิดแสดงป๊อปอัพ"}</b></div></label>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"><button class="btn primary" type="button" id="saveLineFriendPromo">${en ? "Save" : "บันทึก"}</button><button class="btn" type="button" id="previewLineFriendPromo">${en ? "Preview" : "ดูตัวอย่าง"}</button></div>
+      <p class="hint" id="lineFriendPromoStatus"></p>
+    </div>`;
+  }
+  async function saveLineFriendPromoFromAdmin(){
+    const en = state.lang === "en";
+    const enabled = !!byId("lineFriendPromoEnabled")?.checked;
+    const status = byId("lineFriendPromoStatus");
+    if(status) status.textContent = en ? "Saving…" : "กำลังบันทึก…";
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/admin/site-content/line-friend-popup`, {
+        method:"PUT",
+        headers:{"Content-Type":"application/json",Authorization:`Bearer ${state.adminToken}`},
+        body:JSON.stringify({content:{enabled}})
+      });
+      if(response.status === 401) throw new Error("unauthorized");
+      if(!response.ok) throw new Error(`HTTP ${response.status}`);
+      lineFriendPromoSetting = {enabled};
+      if(status) status.textContent = enabled ? (en ? "Saved: the pop-up is on." : "บันทึกแล้ว: เปิดป๊อปอัพ") : (en ? "Saved: the pop-up is off." : "บันทึกแล้ว: ปิดป๊อปอัพ");
+    }catch(error){
+      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
+      else if(status) status.textContent = error.message;
+    }
+  }
+  function previewLineFriendPromo(){
+    fillLineFriendLogos();
+    byId("lineFriendPromoTitle").textContent = tr("lineFriendPromoTitle");
+    byId("lineFriendPromoText").textContent = tr("lineFriendPromoText");
+    byId("lineFriendPromoClose").textContent = tr("lineFriendPromoClose");
+    byId("lineFriendPromoAdd").innerHTML = `${contactBrandIcon("line")} ${esc(tr("lineFriendPromoAdd"))}`;
+    const host = byId("lineFriendPromo");
+    host?.classList.add("open");
+    host?.setAttribute("aria-hidden", "false");
   }
   async function verifyCurrentLineSession(existingLiff=null, existingProfile=null){
     const liff = existingLiff || await loadLineSdk();
@@ -12908,7 +13122,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         ${["queue","announcement","rentals","vip","pickup","about","privacy","terms","pricing","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
       </div>
       <div class="admin-panel ${state.adminTab==="queue"?"active":""}" id="adminQueue">${adminRentalCutoffHtml()}${adminQueueHtml()}</div>
-      <div class="admin-panel ${state.adminTab==="announcement"?"active":""}" id="adminAnnouncement">${adminAnnouncementHtml()}</div>
+      <div class="admin-panel ${state.adminTab==="announcement"?"active":""}" id="adminAnnouncement">${adminAnnouncementHtml()}${adminLineFriendPromoHtml()}</div>
       <div class="admin-panel ${state.adminTab==="rentals"?"active":""}" id="adminRentals">${adminRentalsHtml()}</div>
       <div class="admin-panel ${state.adminTab==="vip"?"active":""}" id="adminVip">${adminVipHtml()}</div>
       <div class="admin-panel ${state.adminTab==="pickup"?"active":""}" id="adminPickup">${adminPickupHtml()}</div>
@@ -14439,6 +14653,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "demoSignatureClear"){ clearDemoSignature(); return; }
       if(targetId === "siteAnnouncementOk"){ closeSiteAnnouncement(); return; }
       if(targetId === "saveAnnouncement"){ void saveAnnouncementFromAdmin(); return; }
+      if(targetId === "saveLineFriendPromo"){ void saveLineFriendPromoFromAdmin(); return; }
+      if(targetId === "previewLineFriendPromo"){ previewLineFriendPromo(); return; }
+      if(targetId === "lineFriendPromoClose"){ closeLineFriendPromo(); return; }
       if(targetId === "saveRentalCutoff"){ void saveRentalCutoffFromAdmin(); return; }
       if(targetId === "adminRentalFind"){ void findAdminRental(); return; }
       if(targetId === "myRentalCopyUrl"){ void copySectionUrl("myRental"); return; }
@@ -14960,6 +15177,13 @@ We apologize for the inconvenience and hope everyone stays safe.`
     // Shown first on every visit, above whatever pop-up the link opens.
     void loadSiteAnnouncement().then(applySiteAnnouncement);
     void loadBookingSettings();
+    window.setTimeout(() => { void maybeShowLineFriendPromo(); }, 2500);
+    // The link opens LINE; the page notes the tap and carries on.
+    document.addEventListener("click", event => {
+      const link = event.target.closest("#lineFriendBtn, #lineFriendGateAdd, #lineFriendPromoAdd");
+      if(!link) return;
+      onLineFriendClicked(link.id === "lineFriendGateAdd" ? "gate" : link.id === "lineFriendBtn" ? "step" : "promo");
+    });
     void loadGameUpdateHoursForAdmin();
     if(paidRentalNotice) window.setTimeout(() => showPaidRentalNotice(paidRentalNotice), 300);
     if(payLink) openPayResume(payLink.code, payLink.token);

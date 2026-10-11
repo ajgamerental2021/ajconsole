@@ -115,5 +115,14 @@ test('a device can be chosen for the page: ?device= or a message from the bookin
   assert.match(page, /var wantedDevice = String\(params\.get\('device'\) \|\| ''\);/);
   assert.match(page, /if \(data\.type === 'AJ_SET_DEVICE'\) chooseDevice\(data\.consoleId\);/);
   assert.match(page, /if \(!option \|\| option\.disabled\) return;/, 'a closed device is not chosen');
-  assert.match(page, /renderAddOns\(\);\n      chooseDevice\(wantedDevice\);/);
+  // Picked once from the link; a later price or list refresh keeps the customer's choice.
+  assert.match(page, /if \(!pickedOnce\) \{ pickedOnce = true; chooseDevice\(wantedDevice\); \} else render\(\);/);
+});
+
+test('the equipment list never waits on the pricing API, and neither request can hang', () => {
+  assert.doesNotMatch(page, /Promise\.all\(\[\s*fetch\(CATALOGUE/, 'the catalogue and prices are not awaited together');
+  assert.match(page, /timedJson\(CATALOGUE \+ '\?t=' \+ Date\.now\(\), 12000\)/);
+  assert.match(page, /timedJson\(API \+ '\/api\/pricing-policy', 15000\)/);
+  assert.match(page, /if \(attempt < 2\) return setTimeout/, 'the catalogue retries');
+  assert.match(page, /var CACHE_KEY = 'aj-quote-catalogue-v1';/, 'the last good list is kept on the device');
 });
