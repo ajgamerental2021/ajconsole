@@ -1,3 +1,29 @@
+## 2026-10-11 — Claude Code: live map in the staff trip panel; trip page shows arrival time and map (Delivery App `f39d7ee`)
+
+- **Owner asked:**
+  1. Staff trip panel (call and track views): remove every "/ English" after the Thai text.
+  2. Customer trip page `/c/trip`: show "อีกประมาณ … · ถึงราว …" and the realtime pin and map, as the track page does; hide the long URL and keep only Copy and Open; return trips too. Customers get the same cards as before.
+  3. Staff trip panel: a realtime map under the destination box for delivery and return, visible only in the Delivery App.
+- **Built:**
+  - **Panel:** `LalamoveDispatchModal` text is Thai only.
+  - **Staff map:** `DispatchLiveMap` (native WebView, web iframe), 280 px, under the destination. The data path is:
+    - `GET /api/dispatch/jobs/:jobId/staff-map` (staff login) → `staffMapUrl`;
+    - `/c/staff-map/<token>`, where `aj-staffmap:` is an HMAC with a 12 h expiry;
+    - `/state` → `staffMapState`: shop, customer, driver, route, ETA.
+    - The page shows 🏪 shop, 🏠 customer, 🛵 driver, the route and a Thai info box, refreshed every 15 s.
+    - `mapScript` gained `origin()`, used by the staff page only; a test checks customer pages never call it.
+  - **Trip page:**
+    - ETA uses `etaText` (TH/EN) even without a driver position.
+    - The map shows from `on_the_way`, for returns too; the driver stays hidden until picked up and away from the shop.
+    - `#trackUrl` text is removed; the Copy and Open buttons stay.
+  - LINE cards are unchanged.
+- **Verification:**
+  - DA `test:lalamove-dispatch` 320/320, `test:flex-ledger` 24/24.
+  - Backend and frontend tsc pass; `build:web` passes.
+  - Screenshots at 390 px: the trip page (ETA, map, buttons only), the staff map page, and the panel with the map under the destination.
+  - The panel screenshot caught "…เหมือนเดิม's cards stay the same." left over from the English strip; fixed before the commit.
+- **Release:** staff web and customer pages on deploy. The in-app map on phones needs the next APK, which is still blocked on EXPO_TOKEN and Firebase.
+
 ## 2026-10-11 — Claude Code: complete driver notes, alerts for every trip event, Lalamove money alerts, lost padlock ฿1,500 (Delivery App `fa66bf2`, Bot `efc3c89`)
 
 - **Owner asked:**
