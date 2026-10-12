@@ -26,6 +26,10 @@ Additional analytics board fix, 2026-10-08: the Bot re-enables dragging and edge
 
 Payment UI follow-up, 2026-10-08: the personal-rate notice has spacing below the payment summary. The unpaid "continue payment" page now has the same amount-due breakdown as the first order page. Pay-now, on-delivery, fee and total values come from the selected method in the Bot's saved `plan.methods`; the frontend does not recalculate them independently.
 
+Delivery follow-up, 2026-10-12 (Codex; `delivery-app` `4f08399`): Delivery App caps a stale Rental Payments balance at the Booking “ยอดโอนก่อนส่ง” so a ฿200 reservation is not charged twice on the customer card. Later verified payments can still lower the amount. The staff-only map computes a route to pickup for delivery and return jobs, with distance and ETA; its embedded view can expand full-screen and close. This does not change the customer map/card. Driver notes use the selected method's actual amount (bank base, credit +3.50%, E-Wallet +2.95%) before placing the order. Backend/frontend TypeScript, 346 dispatch cases, 68 delivery-card cases, auto-dispatch, 24 flex-ledger cases and 5 amount-cap cases passed; no real trip or APK was released.
+
+LINE OA chat limitation: the existing website handoff already calls `liff.sendMessages` automatically and waits for its signed inbound webhook. LINE permits a customer-origin message only for a LIFF app opened from that chat, with `chat_message.write` consent. A booking-site redirect to LIFF does not inherit that chat context. Bot push cards can reach the customer but cannot impersonate an inbound customer message or guarantee an unseen conversation appears in OA Manager. AJ Chat Management must not treat a push as proof of customer-origin chat visibility; show the separate customer-contact/alert state instead.
+
 ---
 
 ## 1. The map

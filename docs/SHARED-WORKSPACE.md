@@ -23,6 +23,8 @@ All repositories are on GitHub under `ajgamerental2021`.
 
 ## Rules for both agents
 
+- **Never imply LINE can silently create a customer-origin chat from the booking site.** The existing LIFF auto-text is best effort and only works when opened from the OA chat with `chat_message.write`; check the signed inbound webhook before reporting the chat visible. External browser/LIFF redirects cannot meet LINE's chat-context rule.
+- **Delivery amount ceiling.** The shop's Booking “ยอดโอนก่อนส่ง” excludes the reservation. A lagging Rental Payments row must not raise the customer's delivery card above that Booking amount; verified later payments may reduce it. Keep driver-note surcharges consistent with the customer payment channel.
 - **Secrets.** Never commit an API key, token or password. They live in `.env` / Render env. Docs name variables, never values. If a value is needed, the owner sets it.
 - **One owner per rule. Call it; never copy it.**
   - Prices, deposits and the catalogue belong to the website plus the catalogue Gist.
