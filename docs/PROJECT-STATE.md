@@ -1,10 +1,10 @@
-## 2026-10-12 — Codex: delivery balance, driver note and staff route; LINE chat limitation (`delivery-app` 4f08399)
+## 2026-10-12 — Codex: delivery balance, driver note and staff route; LINE chat limitation (`delivery-app` 4f08399, 3c0d85a, 402e66d)
 
 - Delivery App: the delivery card now caps a stale payment-ledger balance at Booking's “ยอดโอนก่อนส่ง” (e.g. ฿3,288 ledger vs ฿3,088 Booking after ฿200 reservation), while later verified payments can lower it. This prevents the card charging a reservation twice; the customer's map/card layout is otherwise unchanged.
 - Staff-only map: while the driver is going to pickup, both delivery and return jobs show the route, distance and estimated arrival time. The app map can expand to full screen, follow the driver and close back to the trip panel. Driver name and plate remain visible. When Google Routes is unavailable the line/distance are labelled an estimate.
 - Driver note before placing a trip follows the selected remaining-balance method: bank is the base amount; credit adds 3.50%; E-Wallet adds 2.95%. The duplicated English suffixes on the specified Thai Delivery App controls are removed.
 - LINE chat visibility: the website already attempts a LIFF `sendMessages` text automatically after linking and checks for an inbound webhook before claiming the shop can see it. LINE's official API permits this only when the LIFF app was opened from that chat with `chat_message.write` permission. A LIFF redirect from the external booking site cannot send on the customer's behalf; the system cannot guarantee that a never-messaged OA chat appears without a user action. No permission bypass or false “delivered to shop” state was added.
-- Verification: Delivery backend/frontend TypeScript, balance-cap 5 cases, dispatch 346 cases, delivery-card 68 cases, auto-dispatch, flex-ledger 24 cases. No live customer message, real driver trip, production payment or Android APK was tested/released.
+- Verification: Delivery backend/frontend TypeScript, balance-cap 5 cases, dispatch 346 cases, delivery-card 68 cases, auto-dispatch, flex-ledger 24 cases. Android preview APK build 20261013 succeeded: https://expo.dev/artifacts/eas/yV2ld4Z8Wjz5uU0EWbQjfJNogkWy3yW2k-mM-M7yQf8.apk (HTTP 200). No live customer message, real driver trip, production payment or installation on a physical phone was tested. The backend minimum app version was not raised.
 
 ## 2026-10-12 — Claude Code: add-friend pop-ups: no booking pop-up on the home page, close button, one Admin switch, faster (ajconsole)
 
