@@ -10009,7 +10009,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       payResume.method = result.rental.plan?.methods?.[chosen] ? chosen : "cash";
       hydratePayResumeEditor(result.rental);
     }).catch(error => {
-      if(!silent) payResume.error = error.message === "link_invalid" || error.message === "rental_not_found" ? "link_invalid" : "unavailable";
+      if(!silent) payResume.error = error.message === "link_invalid" ? "link_invalid" : "unavailable";
     }).finally(() => {
       payResume.loading = false;
       renderPayResume();
@@ -10136,7 +10136,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(payResume.error || !payResume.rental){
       return `<div class="demo-order-box"><p><b>${esc(payResume.error === "link_invalid"
         ? (en ? "This payment link no longer opens a rental." : "ลิงก์ชำระเงินนี้ใช้ไม่ได้แล้ว")
-        : (en ? "The rental could not be loaded right now. Please try again." : "ตอนนี้โหลดรายการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"))}</b></p><p class="hint">${esc(en ? "Please contact AJ on LINE @ajgame." : "กรุณาติดต่อร้านทาง LINE @ajgame")}</p></div>`;
+        : (en ? "The rental could not be loaded right now. Please try again." : "ตอนนี้โหลดรายการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"))}</b></p>${payResume.error === "link_invalid" ? "" : `<button class="btn" type="button" onclick="window.location.reload()">${esc(en ? "Try again" : "ลองอีกครั้ง")}</button>`}<p class="hint">${esc(en ? "Please contact AJ on LINE @ajgame." : "กรุณาติดต่อร้านทาง LINE @ajgame")}</p></div>`;
     }
     const r = payResume.rental;
     const {item} = payResumeContext(r);
