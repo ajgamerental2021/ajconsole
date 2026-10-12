@@ -50,6 +50,11 @@ test('LINE reservation action checks a fresh queue before automatically opening 
   assert.match(html, /openPayResume\(payLink\.code, payLink\.token, \{autoReservation:payParams\.get\("checkout"\) === "reservation"\}\)/);
   assert.match(html, /const snapshot = await fetchAvailability\(requireFresh\)/);
   assert.match(html, /!snapshot\?\.fresh/);
+  const launch = html.slice(html.indexOf('async function launchPayResume()'), html.indexOf('async function notifyDemoLine()'));
+  assert.match(launch, /const verifiedQueue = await fetchAvailability\(true\)/);
+  assert.match(launch, /if\(!verifiedQueue\?\.fresh/);
+  assert.match(launch, /const gate = evaluateAvailability\(ctx\)/);
+  assert.ok(launch.indexOf('await ensureBookingHold') < launch.indexOf('/api/rentals/payment-page/link'));
 });
 
 test('the payment page opens from the email link and pays through the server', () => {

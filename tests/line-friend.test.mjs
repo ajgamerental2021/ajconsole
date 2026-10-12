@@ -46,15 +46,18 @@ test('the site invitation shows at most once a day, can be switched off in Admin
   assert.match(page, /id="adminAnnouncement">\$\{adminAnnouncementHtml\(\)\}\$\{adminLineFriendPromoHtml\(\)\}/);
 });
 
-test('Thai customers who have rented before are never asked to add the shop; English keeps the button', () => {
-  assert.match(page, /return state\.lang === "th" && knownReturningCustomer\(\);/);
+test('verified returning customers in both languages skip add-friend for their own LINE account', () => {
+  assert.match(page, /return knownReturningCustomer\(\);/);
   assert.match(page, /\$\{bookingLineConnection\(\) && !lineFriendExempt\(\) \? lineFriendStepHtml\(\) : ""\}/);
   assert.match(page, /bookingLineConnection\(\) && !lineFriendExempt\(\)\) need\("lineFriendBtn"/);
   assert.match(page, /if\(lineFriendClicked\(\) \|\| !bookingLineConnection\(\) \|\| lineFriendExempt\(\) \|\|/);
   assert.match(page, /await settleReturningCheck\(3000\);/, 'the site pop-up waits briefly for the returning check');
   assert.match(page, /if\(state\.calc\.retVerified\) rememberReturningCustomer\(\);/, 'a verified returning customer is remembered on the device');
   assert.match(page, /if\(eligible\)\{\n          rememberReturningCustomer\(\);/, 'and so is one found by LINE in the rental history');
-  assert.doesNotMatch(page.slice(page.indexOf('function knownReturningCustomer'), page.indexOf('function lineFriendExempt')), /activeLineConnection|bookingLineConnection/, 'a LINE connection alone is not a returning customer');
+  const known = page.slice(page.indexOf('function knownReturningCustomer'), page.indexOf('function lineFriendExempt'));
+  assert.match(known, /saved\?\.lineUserId === connectedId/);
+  assert.match(known, /state\.calc\.retVerifiedLineUserId === connectedId/);
+  assert.match(page, /if\(byId\("lineFriendGate"\)\?\.classList\.contains\("open"\)\) closeLineFriendGate\(\);/);
 });
 
 test('a LINE SDK tag that failed to load does not hang later LINE checks', () => {

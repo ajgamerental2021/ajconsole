@@ -10269,12 +10269,15 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!r || r.paid || payResume.queueBlocked) return;
     showDemoBusy(en ? "Checking the queue and opening the payment page…" : "กำลังตรวจคิวและเปิดหน้าชำระเงิน…");
     try{
-      // The queue may have filled since the rental was saved.
+      // The queue may have filled since the rental was saved. Every resume
+      // payment, including the LINE shortcut, must pass a fresh check.
       const {ctx} = payResumeContext(r);
-      if(ctx.consoleId && ctx.start && ctx.end){
-        if(!state.availability.rows.length) await fetchAvailability().catch(() => null);
-        await ensureBookingHold(r.rentalCode, ctx);
-      }
+      if(!ctx.consoleId || !ctx.start || !ctx.end) throw new Error("queue_check_failed");
+      const verifiedQueue = await fetchAvailability(true);
+      if(!verifiedQueue?.fresh || state.availability.error || !hasRecentAvailabilitySnapshot()) throw new Error("queue_check_failed");
+      const gate = evaluateAvailability(ctx);
+      if(!gate.pass) throw Object.assign(new Error(gate.message), {code:"booking_hold_conflict"});
+      await ensureBookingHold(r.rentalCode, ctx);
       const response = await bookingFetch(`${CONFIG.apiBase}/api/rentals/payment-page/link`, {
         method:"POST",
         cache:"no-store",
@@ -10293,6 +10296,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         return;
       }
       if(error?.code === "already_paid"){ openPayResume(payResume.code, payResume.token); return; }
+      if(error?.message === "queue_check_failed"){
+        toast(en ? "The queue could not be checked. Please try again." : "เช็คคิวไม่สำเร็จ กรุณาลองอีกครั้ง", 4500);
+        return;
+      }
       toast(en ? "Unable to open the payment page. Please try again." : "เปิดหน้าชำระเงินไม่สำเร็จ กรุณาลองใหม่");
     }
   }
@@ -11860,27 +11867,33 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(state.lang === "en") demoProfile.preferredContactChannel = "line";
     saveDemoProfile({now:true});
     render();
-    // A returning customer is looked up first: someone who has rented before
-    // has added the shop already and is not asked (Thai booking).
+    // Check prior rental history before asking for an add-friend step in either
+    // language. English customers can still choose WhatsApp instead of LINE.
     if(!payResume.active && !lineFriendClicked()) void openLineFriendGateAfterReturningCheck();
     return true;
   }
   // ── Customers who have rented before ──────────────────────────────────────
   // Proved by the returning-customer check (by phone/Rental ID, or by LINE
-  // against the rental history), and kept on this device. In Thai they are
-  // never asked to add the shop on LINE: not in step 2, not by the site pop-up.
-  // English booking keeps the button for everyone, as LINE or WhatsApp is the
-  // customer's choice there.
+  // against the rental history). A saved LINE result belongs to that account;
+  // switching accounts must run the check again. Both languages skip the
+  // add-friend step for a verified returning customer.
   var RETURNING_CUSTOMER_KEY = "aj_returning_customer_v1";
   function rememberReturningCustomer(){
     try{ localStorage.setItem(RETURNING_CUSTOMER_KEY, JSON.stringify({at:Date.now(), lineUserId:String(lineUniqueId() || "")})); }catch{}
   }
   function knownReturningCustomer(){
-    if(state.calc.retVerified) return true;
-    try{ return !!JSON.parse(localStorage.getItem(RETURNING_CUSTOMER_KEY) || "null")?.at; }catch{ return false; }
+    const connectedId = activeLineConnection()?.userId || "";
+    if(state.calc.retVerified){
+      if(state.calc.retVerificationMethod !== "line") return true;
+      if(connectedId && state.calc.retVerifiedLineUserId === connectedId) return true;
+    }
+    try{
+      const saved = JSON.parse(localStorage.getItem(RETURNING_CUSTOMER_KEY) || "null");
+      return !!connectedId && saved?.lineUserId === connectedId && !!saved?.at;
+    }catch{ return false; }
   }
   function lineFriendExempt(){
-    return state.lang === "th" && knownReturningCustomer();
+    return knownReturningCustomer();
   }
   // The returning check now running (if any), never waited on for more than a few seconds.
   async function settleReturningCheck(maxMs = 8000){
@@ -12444,7 +12457,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         const eligible = !!result.eligible;
         if(eligible){
           rememberReturningCustomer();
-          if(state.lang === "th" && byId("lineFriendGate")?.classList.contains("open")) closeLineFriendGate();
+          if(byId("lineFriendGate")?.classList.contains("open")) closeLineFriendGate();
           state.calc.retVerified = true;
           state.calc.retVerificationMethod = "line";
           state.calc.retVerifiedLineUserId = fallbackLineUserId;
