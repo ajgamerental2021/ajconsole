@@ -9991,7 +9991,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     render();
     return true;
   }
-  function openPayResume(code, token, {silent=false}={}){
+  function openPayResume(code, token, {silent=false, autoReservation=false}={}){
     if(!silent) Object.assign(payResume, {active:true, code, token, loading:true, saving:false, error:"", rental:null, queueBlocked:"", editorReady:false});
     document.body.classList.add("pay-resume-open");
     try{ sessionStorage.setItem(PAY_RESUME_TOKEN_KEY, JSON.stringify({code, token})); }catch{}
@@ -10010,10 +10010,18 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       hydratePayResumeEditor(result.rental);
     }).catch(error => {
       if(!silent) payResume.error = error.message === "link_invalid" ? "link_invalid" : "unavailable";
-    }).finally(() => {
+    }).finally(async () => {
       payResume.loading = false;
       renderPayResume();
-      if(payResume.rental && !payResume.rental.paid) void checkPayResumeQueue();
+      if(payResume.rental && !payResume.rental.paid){
+        const queueReady = await checkPayResumeQueue(autoReservation);
+        if(autoReservation && queueReady && !payResume.queueBlocked){
+          payResume.method = "cash";
+          renderPayResume();
+          try{ const url = new URL(location.href); url.searchParams.delete("checkout"); history.replaceState(null, "", url.pathname + url.search + url.hash); }catch{}
+          await launchPayResume();
+        }
+      }
     });
   }
   // Opening the link checks the queue at once: dates taken since the rental was
@@ -10024,18 +10032,23 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     renderPayResume();
     showModal(en ? "These dates are no longer available" : "คิวช่วงนี้ไม่ว่างแล้ว", `<p>${esc(payResume.queueBlocked)}</p><p class="hint">${esc(en ? "This rental can no longer be paid for these dates. Please contact AJ on LINE @ajgame to choose new dates." : "รายการนี้ไม่สามารถชำระเงินสำหรับวันที่เดิมได้แล้ว กรุณาติดต่อร้านทาง LINE @ajgame เพื่อเลือกวันใหม่")}</p><div class="queue-retry-actions"><a class="btn primary" href="https://line.me/R/ti/p/@ajgame" target="_blank" rel="noopener">${esc(en ? "Contact AJ on LINE" : "ติดต่อร้านทาง LINE")}</a></div>`);
   }
-  async function checkPayResumeQueue(){
+  async function checkPayResumeQueue(requireFresh=false){
     const r = payResume.rental;
-    if(!r) return;
+    if(!r) return false;
     // The catalogue may still be loading on a device that never booked here.
     let found = payResumeContext(r);
     if(!found.item){ await gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {}); found = payResumeContext(r); }
     const {ctx} = found;
-    if(!ctx.consoleId || !ctx.start || !ctx.end) return;
-    await fetchAvailability().catch(() => null);
-    if(payResume.rental !== r) return;
+    if(!ctx.consoleId || !ctx.start || !ctx.end) return false;
+    const snapshot = await fetchAvailability(requireFresh).catch(() => null);
+    if(payResume.rental !== r) return false;
+    if(requireFresh && (!snapshot?.fresh || state.availability.error || !hasRecentAvailabilitySnapshot())){
+      toast(state.lang === "en" ? "The queue could not be checked. Please try again." : "เช็คคิวไม่สำเร็จ กรุณาลองอีกครั้ง", 4500);
+      return false;
+    }
     const gate = evaluateAvailability(ctx);
-    if(!gate.pass) showPayResumeQueuePopup(gate.message);
+    if(!gate.pass){ showPayResumeQueuePopup(gate.message); return false; }
+    return true;
   }
   function payResumeContext(rental){
     const wanted = norm(rental.deviceName);
@@ -15262,7 +15275,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     });
     void loadGameUpdateHoursForAdmin();
     if(paidRentalNotice) window.setTimeout(() => showPaidRentalNotice(paidRentalNotice), 300);
-    if(payLink) openPayResume(payLink.code, payLink.token);
+    if(payLink) openPayResume(payLink.code, payLink.token, {autoReservation:payParams.get("checkout") === "reservation"});
     bindBeforeRentSectionAnalytics();
     trackAnalytics("page_view");
     render();

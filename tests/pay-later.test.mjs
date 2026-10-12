@@ -32,8 +32,8 @@ test('under the pay button: the email comes in 15 minutes, or has been sent (TH/
 });
 
 test('opening the payment link checks the queue at once and says so in a pop-up', () => {
-  assert.match(html, /if\(payResume\.rental && !payResume\.rental\.paid\) void checkPayResumeQueue\(\);/);
-  const check = html.slice(html.indexOf('async function checkPayResumeQueue()'), html.indexOf('function payResumeContext('));
+  assert.match(html, /const queueReady = await checkPayResumeQueue\(autoReservation\);/);
+  const check = html.slice(html.indexOf('async function checkPayResumeQueue(requireFresh=false)'), html.indexOf('function payResumeContext('));
   assert.match(check, /evaluateAvailability\(ctx\)/);
   assert.match(check, /showPayResumeQueuePopup\(gate\.message\)/);
   assert.match(html, /คิวช่วงนี้ไม่ว่างแล้ว/);
@@ -42,9 +42,19 @@ test('opening the payment link checks the queue at once and says so in a pop-up'
   assert.match(html, /id="payResumePay" type="button" \$\{payResume\.queueBlocked \? "disabled" : ""\}/);
 });
 
+test('LINE reservation action checks a fresh queue before automatically opening Beam', () => {
+  const open = html.slice(html.indexOf('function openPayResume('), html.indexOf('function showPayResumeQueuePopup('));
+  assert.match(open, /if\(autoReservation && queueReady && !payResume\.queueBlocked\)/);
+  assert.match(open, /payResume\.method = "cash"/);
+  assert.match(open, /await launchPayResume\(\)/);
+  assert.match(html, /openPayResume\(payLink\.code, payLink\.token, \{autoReservation:payParams\.get\("checkout"\) === "reservation"\}\)/);
+  assert.match(html, /const snapshot = await fetchAvailability\(requireFresh\)/);
+  assert.match(html, /!snapshot\?\.fresh/);
+});
+
 test('the payment page opens from the email link and pays through the server', () => {
   assert.match(html, /payParams\.has\("pay"\)/);
-  assert.match(html, /if\(payLink\) openPayResume\(payLink\.code, payLink\.token\);/);
+  assert.match(html, /if\(payLink\) openPayResume\(payLink\.code, payLink\.token, \{autoReservation:payParams\.get\("checkout"\) === "reservation"\}\);/);
   assert.match(html, /\/api\/rentals\/payment-page`/);
   const launch = html.slice(html.indexOf('async function launchPayResume()'), html.indexOf('async function notifyDemoLine()'));
   assert.match(launch, /await ensureBookingHold\(r\.rentalCode, ctx\)/);
