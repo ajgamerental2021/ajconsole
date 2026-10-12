@@ -58,6 +58,7 @@
       <p id="identityAskText"></p>
       <a class="button identity" id="identityAskButton" href="#"></a>
     </div>
+    <div id="lineChatAction" hidden><p id="lineChatHelp"></p><div class="contact-actions"><a class="button line" id="lineChatButton" href="https://line.me/R/oaMessage/%40ajgame/"></a></div><p id="lineChatText" style="white-space:pre-wrap;margin-top:12px"></p></div>
     <div class="contact-actions" id="contactActions"><a class="button line" id="lineButton" href="https://lin.ee/N4i6cb6">LINE</a><a class="button whatsapp" id="whatsappButton" href="#">WhatsApp</a><a class="button facebook" id="facebookButton" href="https://m.me/ajgamerental">Facebook</a></div>
     <div class="actions"><a class="button primary" id="backButton" href="index.html">Back to rental list</a><button class="button secondary" id="closeButton" type="button">Close</button></div>
   </main>
@@ -66,7 +67,7 @@
     try{ sessionStorage.removeItem("aj_beam_departure_v1"); }catch{}
     (() => {
       const params = new URLSearchParams(location.search);
-      const copy = {en:{badge:"● Payment successful",title:"Thank you for your payment!",message:"Your payment has been received. AJ will continue processing your rental booking.",rentalCode:"Rental code",amount:"Amount",method:"Payment method",paymentLink:"Payment link ID",reference:"Reference",statusLabel:"Status",status:"Paid",autoNotice:"AJ has been notified automatically through LINE. You do not need to send this screenshot again.",manualNotice:"Please screenshot this page and send it to AJ via LINE, WhatsApp, or Facebook. AJ will verify the payment in the system.",line:"Report payment via LINE",whatsapp:"Report payment via WhatsApp",facebook:"Notify via Facebook",back:"Back to rental list",close:"Close"},th:{badge:"● ชำระเงินสำเร็จ",title:"ขอบคุณสำหรับการชำระเงิน",message:"ระบบได้รับการชำระเงินแล้ว ทาง AJ จะดำเนินการจองเช่าของคุณต่อไป",rentalCode:"รหัสการเช่า",amount:"จำนวนเงิน",method:"ช่องทางชำระ",paymentLink:"รหัสลิงก์ชำระเงิน",reference:"เลขอ้างอิง",statusLabel:"สถานะ",status:"ชำระแล้ว",autoNotice:"ระบบแจ้งยอดชำระให้ทางร้านผ่าน LINE อัตโนมัติแล้ว ไม่ต้องส่งภาพหน้าจอนี้ซ้ำ",manualNotice:"ระบบกำลังตรวจสอบยอดชำระ หากต้องการติดต่อร้านใช้ WhatsApp หรือ Facebook",line:"แจ้งชำระเงินทาง LINE",whatsapp:"แจ้งชำระเงินทาง WhatsApp",facebook:"แจ้งทาง Facebook",back:"กลับไปหน้ารายการเช่า",close:"ปิด"}};
+      const copy = {en:{badge:"● Payment successful",title:"Thank you for your payment!",message:"Your payment has been received. AJ will continue processing your rental booking.",rentalCode:"Rental code",amount:"Amount",method:"Payment method",paymentLink:"Payment link ID",reference:"Reference",statusLabel:"Status",status:"Paid",autoNotice:"AJ receives the payment notice automatically. To open a chat AJ can reply to, tap the payment message button in your LINE rental card or send the message below. This is optional.",manualNotice:"Please screenshot this page and send it to AJ via LINE, WhatsApp, or Facebook. AJ will verify the payment in the system.",line:"Report payment via LINE",whatsapp:"Report payment via WhatsApp",facebook:"Notify via Facebook",back:"Back to rental list",close:"Close"},th:{badge:"● ชำระเงินสำเร็จ",title:"ขอบคุณสำหรับการชำระเงิน",message:"ระบบได้รับการชำระเงินแล้ว ทาง AJ จะดำเนินการจองเช่าของคุณต่อไป",rentalCode:"รหัสการเช่า",amount:"จำนวนเงิน",method:"ช่องทางชำระ",paymentLink:"รหัสลิงก์ชำระเงิน",reference:"เลขอ้างอิง",statusLabel:"สถานะ",status:"ชำระแล้ว",autoNotice:"ระบบแจ้งยอดชำระให้ร้านอัตโนมัติแล้ว หากต้องการให้ร้านเห็นแชทและตอบกลับ กดปุ่มแจ้งชำระในการ์ด LINE หรือส่งข้อความด้านล่างจากบัญชีของคุณ",manualNotice:"ระบบกำลังตรวจสอบยอดชำระ หากต้องการติดต่อร้านใช้ WhatsApp หรือ Facebook",line:"แจ้งชำระเงินทาง LINE",whatsapp:"แจ้งชำระเงินทาง WhatsApp",facebook:"แจ้งทาง Facebook",back:"กลับไปหน้ารายการเช่า",close:"ปิด"}};
       const lang = params.get("lang") === "th" ? "th" : "en";
       const t = copy[lang];
       const set = (id, value) => { document.getElementById(id).textContent = value || "-"; };
@@ -85,7 +86,7 @@
       const notice = document.getElementById("notice");
       notice.textContent = unifiedDemo
         ? (lineConnected
-          ? (lang === "th" ? "ระบบกำลังยืนยันยอดและจะส่งข้อมูลการเช่าไปยัง LINE ที่เชื่อมไว้ ไม่ต้องแจ้งซ้ำ" : "AJ is confirming your payment and will send rental details to your connected LINE. No extra message is needed.")
+          ? (lang === "th" ? "ระบบกำลังยืนยันยอดและจะส่งการ์ดไปยัง LINE ที่เชื่อมไว้ หากต้องการให้ร้านเห็นแชทและตอบกลับ ให้กดปุ่มแจ้งชำระในการ์ดหรือส่งข้อความด้านล่าง" : "AJ is confirming your payment and will send your rental card to LINE. To open a chat AJ can reply to, tap its payment message button or send the message below. This is optional.")
           : (lang === "th" ? "ระบบกำลังยืนยันยอดและจะส่งข้อมูลการเช่าทางอีเมล" : "AJ is confirming your payment. You can contact AJ on LINE or WhatsApp if needed."))
         : (lineConnected ? t.autoNotice : t.manualNotice);
       notice.classList.toggle("auto", lineConnected || unifiedDemo);
@@ -96,6 +97,19 @@
       document.getElementById("contactActions").hidden = (!unifiedDemo && lineConnected)
         || (unifiedDemo && lineButton.hidden && whatsappButton.hidden);
       const contactMessage = lang === "th" ? `แจ้งยืนยันการชำระเงิน รหัสการเช่า ${params.get("rentalCode") || "-"}` : `AJ Game Rental payment confirmation\nRental ID: ${params.get("rentalCode") || "-"}\nPayment is complete. I will attach the successful-payment screenshot. Please confirm my rental details.`;
+      const lineChatAction = document.getElementById("lineChatAction");
+      const lineChatText = lang === "th"
+        ? `👋 ชำระค่าเช่าแล้ว\nรหัสการเช่า ${params.get("rentalCode") || "-"}`
+        : `👋 I have paid for my rental\nRental ID ${params.get("rentalCode") || "-"}`;
+      document.getElementById("lineChatHelp").textContent = lang === "th"
+        ? "การ์ดที่ร้านส่งไม่ทำให้แชทของลูกค้าปรากฏฝั่งร้าน กดเปิด LINE แล้วส่งข้อความนี้หนึ่งครั้ง:"
+        : "A pushed card alone does not open a customer chat for AJ. If you want AJ to reply in LINE, open the chat and send this message:";
+      document.getElementById("lineChatText").textContent = lineChatText;
+      const lineChatButton = document.getElementById("lineChatButton");
+      lineChatButton.textContent = lang === "th" ? "เปิดแชท LINE และส่งข้อความ" : "Open LINE chat and send message";
+      lineChatButton.href = `https://line.me/R/oaMessage/%40ajgame/?${encodeURIComponent(lineChatText)}`;
+      lineChatButton.addEventListener("click", () => { void navigator.clipboard?.writeText(lineChatText).catch(() => {}); });
+      lineChatAction.hidden = !lineConnected || unifiedDemo;
       document.getElementById("whatsappButton").href = `https://api.whatsapp.com/send/?phone=66816244715&text=${encodeURIComponent(contactMessage)}`;
       if(unifiedDemo){
         const ctx = String(params.get("ctx") || "").trim();
@@ -157,6 +171,7 @@
               result.onDelivery && result.onDelivery !== "฿0" ? (en ? `Balance to pay on delivery: ${result.onDelivery}` : `ยอดคงเหลือชำระตอนรับเครื่อง: ${result.onDelivery}`) : (en ? "Nothing more to pay." : "ไม่มียอดคงเหลือ"),
               result.emailSent ? (en ? "A confirmation email with your rental agreement has been sent." : "ส่งอีเมลยืนยันการเช่าพร้อมสัญญาไปที่อีเมลของคุณแล้ว") : ""
             ].filter(Boolean);
+            if(lineConnected) lineChatAction.hidden = false;
             box.className = "rental-result ok";
             box.innerHTML = lines.map((line, index) => index === 0 ? `<strong>${escapeText(line)}</strong>` : `<span>${escapeText(line)}</span>`).join("");
             const back = document.getElementById("backButton");

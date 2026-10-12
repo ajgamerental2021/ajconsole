@@ -470,7 +470,11 @@ test('the payment page confirms with AJ, shows what was received and any balance
   assert.match(success, /api\/payments\/confirm-return/);
   assert.match(success, /ยอดคงเหลือชำระตอนรับเครื่อง: \$\{result\.onDelivery\}/);
   assert.match(success, /Balance to pay on delivery: \$\{result\.onDelivery\}/);
-  assert.match(success, /ระบบกำลังยืนยันยอดและจะส่งข้อมูลการเช่าไปยัง LINE ที่เชื่อมไว้/);
+  assert.match(success, /ระบบกำลังยืนยันยอดและจะส่งการ์ดไปยัง LINE ที่เชื่อมไว้/);
+  assert.match(success, /A pushed card alone does not open a customer chat for AJ/);
+  assert.match(success, /lineChatButton\.href = `https:\/\/line\.me\/R\/oaMessage\/%40ajgame\/\?\$\{encodeURIComponent\(lineChatText\)\}`/);
+  assert.match(success, /if\(lineConnected\) lineChatAction\.hidden = false/);
+  assert.match(success, /lineChatAction\.hidden = !lineConnected \|\| unifiedDemo/);
   assert.doesNotMatch(success, /รับ Flex ยืนยันการเช่า/);
   assert.match(success, /index\.html\?myRental=\$\{encodeURIComponent\(rentalCode\)\}/);
   assert.match(success, /url\.searchParams\.set\("t", result\.viewToken\)/);
