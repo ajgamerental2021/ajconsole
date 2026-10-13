@@ -2479,7 +2479,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
   };
   const clone = value => JSON.parse(JSON.stringify(value));
-  const money = value => "฿" + Number(value || 0).toLocaleString();
+  const money = value => "฿" + Number(value || 0).toLocaleString("en-US");
   // Minimum rental length in days; drives the "starts at" price shown up front so
   // the per-day figure is never read as a one-day total.
   const MIN_RENTAL_DAYS = 3;
@@ -4628,10 +4628,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const name = [consoleItem.name, consoleItem.nameEn, consoleItem.brand, bundle?.id, bundle?.th, bundle?.en].filter(Boolean).join(" ");
     return /G29|Logitech/i.test(name);
   }
-  // A failed price never stops a payment: after one quiet retry the order page
-  // lets the renter pay the rental and deposit now, and AJ collects delivery
-  // on delivery day. Booking 2026-10-02: the pay button sat on "รอราคาค่าส่ง"
-  // with no way forward, and the renter could not pay at all.
+  // Retry a transient quote failure once. Payment stays disabled until the
+  // full round-trip fare is known, so a booking cannot omit delivery.
   async function fetchDemoDeliveryQuote(attempt = 0){
     attempt = Number(attempt) || 0;
     const quoteKey = demoDeliveryQuoteKey();
@@ -4659,7 +4657,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           rentalCode: state.calc.demoOrderOpen ? String(state.calc.rentalCode || "") : "",
           attempt
         })
-      }, 8000);
+      }, 18000);
       const result = await response.json().catch(() => ({}));
       if(requestId !== demoDelivery.requestId) return;
       if(quoteKey !== demoDeliveryQuoteKey()){
@@ -4702,22 +4700,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
     if(deliveryQuoteFallback()){
       trackAnalytics("client_error", {errorCode:`delivery_quote_${demoDelivery.status}`});
-      // The Console Pending row learns the fee is still to come, and the
-      // pay-later email can go out without it.
-      if(!payResume.active){
-        void queueConsolePendingUpsert();
-        maybeSendPayLaterEmail();
-      }
     }
     if(payResume.active) renderPayResume();
     else renderDemoOrderPage();
   }
-  // No live price, but the renter can still pay: delivery is settled with AJ.
+  // Keep a visible retry/help state; it is not permission to pay.
   function deliveryQuoteFallback(){
     return demoDelivery.status === "unavailable" || demoDelivery.status === "needs_pin"
       || (demoDelivery.status === "ready" && !demoDelivery.quote);
   }
-  // The rental is paid without a delivery fee in it; AJ collects that later.
+  // Retained for identifying legacy drafts; current checkout cannot pay them.
   function deliveryFeePending(){
     return UNIFIED_FLOW_DEMO && !!state.calc.demoOrderOpen && !(demoDelivery.status === "ready" && demoDelivery.quote);
   }
@@ -4728,8 +4720,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ? (en ? "Your map link has no exact pin, so the delivery fee could not be worked out." : "ลิงก์แผนที่ยังไม่มีหมุดที่แน่นอน ระบบจึงคิดค่าส่งไม่ได้")
       : (en ? "The delivery fee could not be calculated right now." : "ระบบคำนวณค่าส่งไม่สำเร็จในตอนนี้");
     const next = en
-      ? "You can still pay the rental and deposit now. AJ will tell you the delivery fee in the chat, and you pay it on delivery."
-      : "ชำระค่าเช่าและค่าประกันได้เลย ร้านจะแจ้งค่าส่งทางแชท และชำระค่าส่งตอนรับเครื่อง";
+      ? "Please retry the delivery quote or contact AJ on LINE before paying."
+      : "กรุณาคำนวณค่าส่งอีกครั้ง หรือติดต่อร้านทาง LINE ก่อนชำระเงิน";
     return `<div class="demo-delivery-fallback" role="status">
       <p><b>${esc(why)}</b><br>${esc(next)}</p>
       <div class="demo-pin-actions">
@@ -6525,8 +6517,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     ];
     const quoteHelp = demoDelivery.status === "unavailable"
       ? `<div class="demo-pin-help"><p>${esc(en
-          ? "The live delivery price could not be loaded. You can still pay below; AJ will confirm the delivery fee, payable on delivery."
-          : "ยังดึงราคาค่าส่งจริงไม่ได้ ชำระค่าเช่าด้านล่างได้เลย ร้านจะแจ้งค่าส่ง และชำระค่าส่งตอนรับเครื่อง")}</p><div class="demo-pin-actions"><button class="btn" type="button" data-delivery-quote-retry>${en ? "Calculate again" : "คำนวณค่าส่งอีกครั้ง"}</button><button class="btn" type="button" data-demo-edit="2">${en ? "Check delivery details" : "ตรวจสอบข้อมูลจัดส่ง"}</button></div></div>`
+          ? "The delivery price could not be loaded. Please retry or contact AJ before paying."
+          : "ยังดึงราคาค่าส่งไม่ได้ กรุณาลองอีกครั้งหรือติดต่อร้านก่อนชำระเงิน")}</p><div class="demo-pin-actions"><button class="btn" type="button" data-delivery-quote-retry>${en ? "Calculate again" : "คำนวณค่าส่งอีกครั้ง"}</button><button class="btn" type="button" data-demo-edit="2">${en ? "Check delivery details" : "ตรวจสอบข้อมูลจัดส่ง"}</button></div></div>`
       : "";
     const deliveryRows = quote
       ? [
@@ -6602,11 +6594,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ? `<div class="demo-order-action"><button class="btn demo-skip-id-btn" id="demoSkipIdentity" type="button">${en ? `No verification · deposit becomes ${money(deposits.noId)}` : `ไม่ต้องการยืนยันตัวตน · ค่าประกันปรับเป็น ${money(deposits.noId)}`}</button><button class="btn demo-verify-btn" id="demoVerifyLater" type="button">${en?"Verify now":"ยืนยันตอนนี้"}</button></div>`
       : "";
     const deliveryReady = demoDelivery.status === "ready" && !!demoDelivery.quote;
-    const canPay = deliveryReady || deliveryQuoteFallback();
+    const canPay = deliveryReady;
     const payLabel = deliveryReady
       ? (en ? "Pay now" : "ชำระเงิน")
       : deliveryQuoteFallback()
-        ? (en ? "Pay now · delivery fee later" : "ชำระเงิน · ค่าส่งจ่ายตอนรับเครื่อง")
+        ? (en ? "Delivery quote required" : "ต้องคำนวณค่าส่งก่อน")
         : (en ? "Calculating delivery…" : "กำลังคำนวณค่าส่ง…");
     patchHTML(host, `<div class="demo-order-grid">
       <div>
@@ -8602,7 +8594,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       // discount, and what the customer pays, for the shop's booking and card.
       // True when the renter goes ahead without a live delivery price.
       deliveryPending: deliveryFeePending(),
-      deliveryQuote: demoDelivery.status === "ready" && demoDelivery.quote ? {subtotal:Number(demoDelivery.quote.subtotal) || 0, discount:Number(demoDelivery.quote.discount) || 0, total:Number(demoDelivery.quote.total) || 0, serviceType:String(demoDelivery.quote.serviceType || "")} : null,
+      deliveryQuote: demoDelivery.status === "ready" && demoDelivery.quote ? {subtotal:Number(demoDelivery.quote.subtotal) || 0, discount:Number(demoDelivery.quote.discount) || 0, total:Number(demoDelivery.quote.total) || 0, serviceType:String(demoDelivery.quote.serviceType || ""), quotationId:String(demoDelivery.quote.outbound?.quotationId || "")} : null,
       paymentLink: generatedPaymentLink(s, code),
       paymentLinkLabel: paymentLinkLabel(),
       paymentBankAccount: CONFIG.reservationBankAccount,
@@ -9824,11 +9816,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   async function launchDemoBeamPayment(){
     showDemoBusy(state.lang === "en" ? "Opening the payment page…" : "กำลังเปิดหน้าชำระเงิน…");
     try{
-      // Without a live price the renter pays the rental and deposit now and
-      // the delivery fee on delivery; the booking is marked so AJ knows.
-      if((demoDelivery.status !== "ready" || !demoDelivery.quote) && !deliveryQuoteFallback()){
+      // A disabled button is not a security boundary; recheck at launch.
+      if(demoDelivery.status !== "ready" || !demoDelivery.quote){
         await fetchDemoDeliveryQuote();
-        if((demoDelivery.status !== "ready" || !demoDelivery.quote) && !deliveryQuoteFallback()){
+        if(demoDelivery.status !== "ready" || !demoDelivery.quote){
           hideDemoBusy();
           toast(state.lang === "en" ? "Still calculating the delivery fee. Please try again in a moment." : "ยังคำนวณค่าส่งอยู่ กรุณากดอีกครั้งในอีกสักครู่");
           return;
@@ -9930,7 +9921,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const contextToken = state.calc.demoContextToken;
     if(!UNIFIED_FLOW_DEMO || !state.calc.demoOrderOpen || !code || !contextToken) return;
     if(payLaterEmail.code === code || payLaterEmail.sending) return;
-    if((demoDelivery.status !== "ready" || !demoDelivery.quote) && !deliveryQuoteFallback()) return;
+    if(demoDelivery.status !== "ready" || !demoDelivery.quote) return;
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(demoProfile.email || "").trim())) return;
     payLaterEmail.sending = true;
     Promise.resolve(consolePendingWrites)

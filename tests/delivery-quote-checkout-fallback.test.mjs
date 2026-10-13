@@ -10,7 +10,7 @@ function fn(name, async = false) {
   return source.slice(start, source.indexOf('\n  }', start) + 4);
 }
 
-test('a successful quote response without a price falls back so checkout can continue', async () => {
+test('a successful quote response without a price remains unavailable for retry', async () => {
   const demoDelivery = {status:'idle', quote:null, key:'', error:''};
   const state = {calc:{demoOrderOpen:true, rentalCode:'AJ-20261009-R0063', extras:[]}, lang:'th'};
   const ctx = vm.createContext({demoDelivery, state, demoProfile:{maps:'pin'},

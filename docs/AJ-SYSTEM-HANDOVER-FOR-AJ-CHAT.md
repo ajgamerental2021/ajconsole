@@ -404,3 +404,10 @@ Integration needed in the existing systems (agree with the owner first):
 3. When a staff member replies in the chat app, should the chatbot (Dialogflow) stay quiet for that customer for the day? The Bot's `greeting-gate.js` already does this for cards.
 4. Which staff accounts and roles does the chat app need? Today there is one admin login per system, plus passkeys on the Bot.
 5. Should the chat app write bookings directly (Delivery App API), or only send customers the existing links and cards?
+
+## 12. 13 Oct 2026 pricing and payment handover
+
+- The website must not offer payment or a pay-later link without a complete two-leg delivery quote. Bot booking context verifies the quote ID against a server-issued quotation before creating a Beam link; old unquoted rentals must be manually repriced before resuming payment.
+- Outside Bangkok/Nonthaburi/Pathum Thani/Samut Prakan/Samut Sakhon/Nakhon Pathom: Lalamove CAR only, with ฿100 Priority allowance for the outbound and return legs. If Lalamove refuses the route, block checkout and ask AJ to arrange it; never substitute a zero fee.
+- Display money with comma grouping in both languages. Incoming `3,300` and `3.300` both mean 3300; `4.30` means 4.30. The Delivery App's verified payment ledger total overrides an expected upfront amount in its pending queue.
+- Historical rental `AJ-20261013-R0001`: Beam's customer receipt in the supplied screenshot says ฿1,000, while My Rentals/Booking showed ฿1 and the confirmation email was miscomputed. Before sending a correction, verify the actual Beam transaction, Bot booking, Delivery payment ledger and Booking Log under authorized access; determine the true round-trip fare and then correct/resend. Old emails and customer-facing messages cannot be edited in place.
