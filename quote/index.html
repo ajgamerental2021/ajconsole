@@ -48,6 +48,7 @@
   .row span:first-child { color:#4b515c; }
   .row b { white-space:nowrap; }
   .row.discount b { color:var(--ok); }
+  .outside-metro-note { margin:3px 0 9px;color:#c50016;font-size:13px;font-weight:800;line-height:1.5; }
   .row.muted span, .row.muted b { color:var(--muted); font-weight:500; font-size:13px; }
   .row.total { border-bottom:0; padding-top:12px; font-size:17px; }
   .row.total b { color:var(--red); font-size:20px; }
@@ -155,6 +156,7 @@
       book: 'เช็คคิวและจองเครื่องนี้', sendLine: 'ส่งราคานี้ให้ร้านทาง LINE', lineHead: 'สนใจเช่าตามราคานี้ครับ/ค่ะ',
       noIdAsk: 'ไม่ยืนยันตัวตน', noIdHint: 'ค่าประกันเพิ่มเป็น {deposit} (ปกติ {normal})',
       delivery: 'ค่าจัดส่งไป-กลับ', vehicle: 'ประเภทรถ', car: 'รถยนต์', moto: 'มอเตอร์ไซค์', deliveryDiscount: 'ส่วนลดค่าจัดส่งจากร้าน',
+      outsideMetro: 'นอกพื้นที่กรุงเทพฯและปริมณฑล ใช้รถยนต์ขนส่งทุกกรณี',
       deliveryPay: 'ค่าจัดส่งที่ต้องชำระ', deliveryNone: 'ยังไม่ได้คำนวณ', total: 'ยอดรวมทั้งหมด', totalNoDelivery: 'ยอดรวม (ยังไม่รวมค่าส่ง)',
       perDay: 'วัน', perWeek: 'สัปดาห์', perMonth: '30 วัน', dayUnit: 'วัน', weekTier: 'เรทรายสัปดาห์', monthTier: 'เรทรายเดือน',
       minDays: 'เช่าขั้นต่ำ 3 วัน', needDevice: 'เลือกเครื่องก่อน', needMaps: 'ใส่ลิงก์ Google Maps หรือพิมพ์ชื่อสถานที่ก่อน',
@@ -185,6 +187,7 @@
       book: 'Check the queue and book this', sendLine: 'Send this quote to AJ on LINE', lineHead: 'I am interested in renting at this price.',
       noIdAsk: 'No identity verification', noIdHint: 'The deposit goes up to {deposit} (normally {normal})',
       delivery: 'Round-trip delivery', vehicle: 'Vehicle', car: 'Car', moto: 'Motorcycle', deliveryDiscount: 'AJ delivery discount',
+      outsideMetro: 'Outside Bangkok and the surrounding provinces, both delivery trips use a car.',
       deliveryPay: 'Delivery you pay', deliveryNone: 'Not calculated yet', total: 'Total', totalNoDelivery: 'Total (delivery not included)',
       perDay: 'day', perWeek: 'week', perMonth: '30 days', dayUnit: 'days', weekTier: 'weekly rate', monthTier: 'monthly rate',
       minDays: 'The minimum rental is 3 days.', needDevice: 'Choose the equipment first.', needMaps: 'Paste a Google Maps link or type a place first.',
@@ -466,7 +469,10 @@
     var L = lines();
     $('result').hidden = !L;
     if (!L) return;
-    var html = L.rows.map(function (r) { return row(r[0], r[1], r[2]); }).join('');
+    var html = L.rows.map(function (r) {
+      return row(r[0], r[1], r[2]) + (r[3] === 'delivery' && quote && quote.outsideBangkokMetro === true
+        ? '<p class="outside-metro-note" role="note">' + t('outsideMetro') + '</p>' : '');
+    }).join('');
     // The vehicle is named on the delivery line itself.
     if (!quote) html += row(t('delivery'), t('deliveryNone'), 'muted');
     html += row(quote ? t('total') : t('totalNoDelivery'), money(L.total), 'total');

@@ -405,6 +405,13 @@ Integration needed in the existing systems (agree with the owner first):
 4. Which staff accounts and roles does the chat app need? Today there is one admin login per system, plus passkeys on the Bot.
 5. Should the chat app write bookings directly (Delivery App API), or only send customers the existing links and cards?
 
+## 13. Existing-rental financial correction and revised email (13 Oct 2026)
+
+- Owner: Delivery App Booking Log staff UI. Its authenticated `POST /api/bookings/:rowIndex/rental-correction/{quote,preview,save,send}` calls the Bot's signed `/api/integrations/delivery-app/rental-correction/:action` with `AJ_RENTAL_WEBHOOK_SECRET`. Do not expose the secret to browsers. It works for any Booking Log row with a valid Rental ID, including past rentals.
+- `quote` resolves the saved delivery map pin, reverse-geocodes its province, then asks Lalamove for a current round trip. Outside Bangkok and the surrounding provinces the Bot forces CAR and adds ฿100 priority for each leg. The result includes `outsideBangkokMetro`; the website calculator and payment breakdown use that server flag for the red TH/EN notice. A quote may expire before staff saves, so re-quote if necessary.
+- `preview` returns itemized repricing, verified amount paid, balance, recipient, language, and the complete subject/plain-text/HTML of the *revised* confirmation. Language is inferred from the customer name. `save` requires an audit reason and writes Bot rental history plus Console Pending, the Delivery App Booking Log correction snapshot and the Rental Payments total/status; it does **not** create a payment event or email. `send` requires the SHA-256 preview hash of the saved current email and consistent ledger, then sends manually. If a write fails mid-way, retry/reconcile before sending.
+- For `AJ-20261013-R0001`, source evidence before correction: Beam/Payment Match/Rental Payments received ฿1,000; rental ฿3,300, deposit ฿2,000, delivery omitted, old ledger total `5.3` and wrong `FULLY_PAID`. A live 9-day Chon Buri quote at inspection was ฿1,809 before ฿200 delivery promotion = ฿1,609 payable, yielding a provisional ฿6,909 total and ฿5,909 balance. Refresh the quote before a production correction; the original signed PDF is unchanged and the revised email says so.
+
 ## 12. 13 Oct 2026 pricing and payment handover
 
 - The website must not offer payment or a pay-later link without a complete two-leg delivery quote. Bot booking context verifies the quote ID against a server-issued quotation before creating a Beam link; old unquoted rentals must be manually repriced before resuming payment.
