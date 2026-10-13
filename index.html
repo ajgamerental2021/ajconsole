@@ -4804,7 +4804,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     fill("phone", profile.phone);
     fill("email", profile.email);
     applyDemoSavedAddress(profile.address);
-    if(/^https:\/\/(?:www\.google\.com\/maps|maps\.google\.com|maps\.app\.goo\.gl|goo\.gl\/maps)\S*$/i.test(String(profile.maps || "").trim()) && !demoProfile.maps){
+    if(validDemoMapsLink(profile.maps) && !demoProfile.maps){
       demoProfile.maps = String(profile.maps).trim();
       demoProfile.mapsText = demoProfile.maps;
       demoProfile.mapsPlace = null;
@@ -5388,6 +5388,35 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   let demoReturningBankName = "";
   let demoReturningBaseline = "";
   let demoReturningSaving = false;
+  let demoReturningRetryAction = null;
+  let demoReturningRenewalBaseline = "";
+  let demoReturningProblemField = "";
+  function validDemoMapsLink(value){
+    try{
+      if(String(value || "").trim().length > 500) return false;
+      const url = new URL(String(value || "").trim());
+      if(url.protocol !== "https:" || url.port || url.username || url.password) return false;
+      const host = url.hostname.toLowerCase();
+      if(["maps.app.goo.gl","maps.google.com","maps.google.co.th","maps.apple.com","maps.apple"].includes(host)) return url.pathname !== "/" || Boolean(url.search);
+      if(host === "goo.gl") return url.pathname.startsWith("/maps");
+      return ["google.com","www.google.com","google.co.th","www.google.co.th","google.co.uk","www.google.co.uk"].includes(host)
+        && url.pathname.startsWith("/maps");
+    }catch{ return false; }
+  }
+  function showReturningSaveProblem(message, {field="", expired=false}={}){
+    const en = state.lang === "en";
+    demoReturningProblemField = field;
+    if(field && demoContactCollapsed()) { demoContactEditing = true; render(); }
+    showModal(en ? "Could not save your changes" : "บันทึกข้อมูลที่แก้ไม่สำเร็จ", `
+      <p>${esc(message)}</p>
+      <div class="queue-retry-actions"><button class="btn primary" type="button" data-returning-save-${expired ? "verify" : field ? "edit" : "retry"}>${en ? (expired ? "Verify again" : field ? "Edit this field" : "Try saving again") : (expired ? "ยืนยันสิทธิ์อีกครั้ง" : field ? "แก้ไขช่องนี้" : "ลองบันทึกอีกครั้ง")}</button></div>`);
+    if(field){
+      const input = byId(field === "maps" ? "demoMaps" : field === "fullName" ? "demoCustomerName" : field === "phone" ? "demoCustomerPhone" : field === "email" ? "demoEmail" : "demoRefundBank");
+      input?.classList.add("is-invalid");
+      const host = input?.closest(".field");
+      if(host && !host.querySelector(".field-error")) host.insertAdjacentHTML("beforeend", `<p class="field-error">${esc(message)}</p>`);
+    }
+  }
   function demoReturningEditableProfile(){
     return {
       fullName:String(demoProfile.fullName || "").trim(), phone:String(demoProfile.phone || "").trim(),
@@ -5407,22 +5436,31 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const en = state.lang === "en";
     const token = String(state.calc.retVerificationToken || "");
     if(!token){
-      showDemoProgressProblem(en ? "Please verify your returning-customer status again before saving changes." : "กรุณายืนยันสิทธิลูกค้าเก่าอีกครั้งก่อนบันทึกข้อมูลที่แก้");
+      demoReturningRenewalBaseline = demoReturningBaseline;
+      showReturningSaveProblem(en ? "Your returning-customer verification has ended. Verify again to save these changes; your entries will stay on this page." : "สิทธิ์ยืนยันลูกค้าเก่าหมดอายุ กรุณายืนยันอีกครั้งเพื่อบันทึกข้อมูลที่แก้ ข้อมูลที่กรอกจะยังอยู่ในหน้านี้", {expired:true});
       return false;
     }
-    if(!demoLegalNameValid(profile.fullName) || !demoPhoneValid(profile.phone) || !demoEmailValid(profile.email)
-      || !/^https:\/\/(?:www\.google\.com\/maps|maps\.google\.com|maps\.app\.goo\.gl|goo\.gl\/maps)\S*$/i.test(profile.maps) || !demoRefundReady()){
-      showDemoProgressProblem(en ? "Check your contact, delivery location and refund account before saving." : "ตรวจชื่อ เบอร์โทร อีเมล สถานที่จัดส่ง และบัญชีคืนค่าประกันก่อนบันทึก");
+    if(!validDemoMapsLink(profile.maps)){
+      showReturningSaveProblem(en ? "The delivery link is not a supported Maps link. Paste a Google Maps or Apple Maps link, or choose a place from the list, then try again." : "ลิงก์สถานที่ส่งใช้ไม่ได้ กรุณาวางลิงก์ Google Maps หรือ Apple Maps หรือเลือกสถานที่จากรายการ แล้วลองอีกครั้ง", {field:"maps"});
+      return false;
+    }
+    if(!demoLegalNameValid(profile.fullName) || !demoPhoneValid(profile.phone) || !demoEmailValid(profile.email) || !demoRefundReady()){
+      showReturningSaveProblem(en ? "Check your name, phone, email and refund account, then try again." : "กรุณาตรวจชื่อ เบอร์โทร อีเมล และบัญชีคืนค่าประกัน แล้วลองอีกครั้ง");
       return false;
     }
     demoReturningSaving = true;
     try{
-      const response = await fetch(`${CONFIG.apiBase}/api/customers/returning-profile`, {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({verificationToken:token, ...profile})
-      });
+      const controller = new AbortController();
+      const timer = window.setTimeout(() => controller.abort(), 30000);
+      let response;
+      try{
+        response = await fetch(`${CONFIG.apiBase}/api/customers/returning-profile`, {
+          method:"POST", headers:{"Content-Type":"application/json"}, signal:controller.signal,
+          body:JSON.stringify({verificationToken:token, ...profile})
+        });
+      }finally{ window.clearTimeout(timer); }
       const result = await response.json().catch(() => ({}));
-      if(!response.ok || !result.ok) throw new Error(result.error || `profile_save_${response.status}`);
+      if(!response.ok || !result.ok) throw Object.assign(new Error(result.error || `profile_save_${response.status}`), {status:response.status, field:result.field || ""});
       demoReturningBaseline = JSON.stringify(profile);
       demoContactEditing = false;
       demoRefundEditing = false;
@@ -5431,9 +5469,19 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       return true;
     }catch(error){
       console.warn("Returning profile save failed", error);
-      showDemoProgressProblem(error.message === "verification_expired"
-        ? (en ? "Verification expired. Confirm your returning-customer status again, then retry." : "สิทธิยืนยันหมดอายุ กรุณายืนยันลูกค้าเก่าอีกครั้งแล้วลองใหม่")
-        : (en ? "Your changes were not saved to the shop. Please try again." : "ยังบันทึกข้อมูลที่แก้ให้ร้านไม่สำเร็จ กรุณาลองอีกครั้ง"));
+      if(error.message === "verification_expired"){
+        demoReturningRenewalBaseline = demoReturningBaseline;
+        showReturningSaveProblem(en ? "Your returning-customer verification expired while this page was open. Verify again here; your entries are still saved on this page." : "สิทธิ์ยืนยันลูกค้าเก่าหมดอายุระหว่างเปิดหน้านี้ ยืนยันอีกครั้งได้จากตรงนี้ ข้อมูลที่กรอกยังอยู่", {expired:true});
+      }else if(error.message === "invalid_profile"){
+        const fields = {maps:en ? "The Maps link is not supported. Paste a Google Maps or Apple Maps link, or choose a place from the list." : "ลิงก์แผนที่ใช้ไม่ได้ กรุณาวางลิงก์ Google Maps หรือ Apple Maps หรือเลือกสถานที่จากรายการ", fullName:en ? "Check the customer's full name." : "กรุณาตรวจชื่อและนามสกุล", phone:en ? "Check the phone number." : "กรุณาตรวจเบอร์โทร", email:en ? "Check the email address." : "กรุณาตรวจอีเมล", refundAccount:en ? "Check the refund bank, account number and account name." : "กรุณาตรวจธนาคาร เลขบัญชี และชื่อบัญชีคืนเงิน", wiseEmail:en ? "Check the Wise email address." : "กรุณาตรวจอีเมล Wise"};
+        showReturningSaveProblem(fields[error.field] || (en ? "Some details need correcting before they can be saved." : "ข้อมูลบางช่องยังไม่ถูกต้อง กรุณาตรวจสอบแล้วลองอีกครั้ง"), {field:error.field});
+      }else{
+        showReturningSaveProblem(error.name === "AbortError"
+          ? (en ? "Saving took too long. Your entries are still here. Tap Try saving again." : "บันทึกใช้เวลานานเกินไป ข้อมูลที่กรอกยังอยู่ กดลองบันทึกอีกครั้ง")
+          : error.status >= 500
+          ? (en ? "The shop server could not save your changes right now. Your entries are still here. Tap Try saving again." : "ระบบร้านยังบันทึกข้อมูลไม่ได้ในขณะนี้ ข้อมูลที่กรอกยังอยู่ กดลองบันทึกอีกครั้ง")
+          : (en ? "The connection was interrupted while saving. Your entries are still here. Tap Try saving again." : "การเชื่อมต่อขัดข้องระหว่างบันทึก ข้อมูลที่กรอกยังอยู่ กดลองบันทึกอีกครั้ง"));
+      }
       return false;
     }finally{ demoReturningSaving = false; }
   }
@@ -6095,8 +6143,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     need("demoCustomerPhone", demoPhoneValid(demoProfile.phone), tr("phoneScriptError"));
     problems.push(...demoRefundProblems());
     need("demoEmail", demoEmailValid(demoProfile.email), demoEmailMessage());
-    need("demoMaps", /^https?:\/\//i.test(demoProfile.maps.trim()), String(demoProfile.mapsText || "").trim()
-      ? (en ? "Choose the delivery place from the list under the box, or paste a Google Maps link." : "เลือกสถานที่ส่งจากรายการใต้ช่อง หรือวางลิงก์ Google Maps")
+    need("demoMaps", validDemoMapsLink(demoProfile.maps), String(demoProfile.mapsText || "").trim()
+      ? (en ? "Choose the delivery place from the list, or paste a valid Google Maps or Apple Maps link." : "เลือกสถานที่ส่งจากรายการ หรือวางลิงก์ Google Maps หรือ Apple Maps ที่ถูกต้อง")
       : (en ? "Type the delivery place and choose it from the list, or paste a Google Maps link." : "พิมพ์สถานที่ส่งแล้วเลือกจากรายการ หรือวางลิงก์ Google Maps"));
     if(!payResume.active) need("demoTermsOpt", demoProfile.termsAccepted, en ? "Read the Rental Terms to the end and accept them." : "เลื่อนอ่านเงื่อนไขการเช่า จนจบ แล้วติ๊กยอมรับ");
     return problems;
@@ -6904,7 +6952,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       state.calc.masterAgreementAccepted = false;
       state.calc.masterAgreementAcceptedAt = "";
       state.calc.ret = true;
-      applyDemoReturningProfile(result.profile);
+      if(!demoReturningRenewalBaseline) applyDemoReturningProfile(result.profile);
+      if(demoReturningRenewalBaseline){
+        demoReturningBaseline = demoReturningRenewalBaseline;
+        demoReturningRenewalBaseline = "";
+      }
       trackAnalytics("returning_customer_verified", {value:"manual"});
       state.calc.noContract = !demoIdentityCoveredByAgreement();
       syncDemoNoContractAcceptance();
@@ -9402,6 +9454,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   async function advanceDemoStep(next){
     const en = state.lang === "en";
+    demoReturningRetryAction = () => advanceDemoStep(next);
     showDemoBusy(en ? "Checking availability…" : "กำลังเช็คคิวว่าง…");
     try{
       if(state.calc.step === 1 && (!state.calc.consoleId || !startDateAllowed(state.calc.start) || selectedDays() < 3 || !gameSelectionReady())){
@@ -9419,6 +9472,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   async function confirmDemoOrder(){
     const en = state.lang === "en";
+    demoReturningRetryAction = () => confirmDemoOrder();
     showDemoBusy(en ? "Checking availability and preparing payment…" : "กำลังเช็คคิวและเตรียมข้อมูลไปหน้าชำระเงิน…");
     try{
       const problems = state.calc.step === 2 ? demoStep2Problems() : demoStep3Problems();
@@ -12525,7 +12579,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         });
         const result = await response.json().catch(() => ({}));
         if(!response.ok) throw new Error(result.error || `LINE eligibility ${response.status}`);
-        if(UNIFIED_FLOW_DEMO && accessToken && result.profile){
+        if(UNIFIED_FLOW_DEMO && accessToken && result.profile && !demoReturningRenewalBaseline){
           applyDemoReturningProfile(result.profile, {
             lineUserId:fallbackLineUserId,
             lineDisplayName:String(result.profile.lineDisplayName || profile?.displayName || "")
@@ -14821,6 +14875,34 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(uploadedPreview){ showDemoIdentityUploadedPreview(uploadedPreview.dataset.identityPreview); return; }
       if(targetId === "demoConfirmOrder"){
         await confirmDemoOrder();
+        return;
+      }
+      if(event.target.closest("[data-returning-save-retry]")){
+        closeModal();
+        if(demoReturningRetryAction) await demoReturningRetryAction();
+        return;
+      }
+      if(event.target.closest("[data-returning-save-edit]")){
+        closeModal();
+        const field = byId(demoReturningProblemField === "maps" ? "demoMaps" : demoReturningProblemField === "fullName" ? "demoCustomerName" : demoReturningProblemField === "phone" ? "demoCustomerPhone" : demoReturningProblemField === "email" ? "demoEmail" : "demoRefundBank");
+        field?.scrollIntoView({behavior:"smooth",block:"center"});
+        field?.focus({preventScroll:true});
+        return;
+      }
+      if(event.target.closest("[data-returning-save-verify]")){
+        closeModal();
+        if(state.calc.retVerificationMethod === "line"){
+          const oldBaseline = demoReturningRenewalBaseline || demoReturningBaseline;
+          const verified = await detectLineReturningEligibility();
+          if(verified && state.calc.retVerificationToken){
+            demoReturningBaseline = oldBaseline;
+            demoReturningRenewalBaseline = "";
+            if(demoReturningRetryAction) await demoReturningRetryAction();
+            return;
+          }
+          demoReturningBaseline = oldBaseline;
+        }
+        openReturningEligibility();
         return;
       }
       if(event.target.closest("[data-queue-retry-continue]")){ await retryQueueAndConfirm(); return; }

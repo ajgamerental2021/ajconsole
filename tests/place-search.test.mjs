@@ -69,7 +69,7 @@ test('step 2: typed text counts once a place is chosen; a link counts at once; t
   assert.match(html, /<p class="hint demo-maps-found" id="demoMapsFound"\$\{text \? "" : " hidden"\}><a id="demoMapsFoundLink" href="\$\{esc\(text \? safeHref\(demoProfile\.maps\) : "#"\)\}" target="_blank" rel="noopener">/);
   assert.match(html, /📍 ส่งไปที่: \$\{label\} \(กดเพื่อเปิดดูใน Google Maps\)/);
   assert.match(html, /📍 Delivering to: \$\{label\} \(tap to open in Google Maps\)/);
-  assert.match(html, /"เลือกสถานที่ส่งจากรายการใต้ช่อง หรือวางลิงก์ Google Maps"/);
+  assert.match(html, /"เลือกสถานที่ส่งจากรายการ หรือวางลิงก์ Google Maps หรือ Apple Maps ที่ถูกต้อง"/);
   assert.doesNotMatch(html, /demoMaps:"maps"/, 'the box is the place search\'s, not a plain text field');
   // A saved link, the calculator's link or "my location" is looked up once, quietly.
   assert.match(html, /demoMapsLookedUp !== demoProfile\.maps\)\{\n      demoMapsLookedUp = demoProfile\.maps;\n      search\.lookup\(\{force:true, quiet:true\}\);/);
