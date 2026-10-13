@@ -11697,7 +11697,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const rawState = String(direct.get("liff.state") || "").trim();
     if(!rawState) return direct;
     try{
-      const decoded = decodeURIComponent(rawState);
+      // URLSearchParams already decodes the outer liff.state layer. Decoding
+      // again turns an encoded & inside `next` into a new query parameter.
+      const decoded = rawState.includes('?') ? rawState : decodeURIComponent(rawState);
       const queryStart = decoded.indexOf("?");
       if(queryStart < 0) return direct;
       const fromLiffState = new URLSearchParams(decoded.slice(queryStart + 1).split("#")[0]);
@@ -11709,6 +11711,81 @@ We apologize for the inconvenience and hope everyone stays safe.`
       console.warn("Unable to read LIFF handoff state", error);
       return direct;
     }
+  }
+  function bookingChatGateDestination(params){
+    const raw = String(params.get('next') || '').trim();
+    if(!raw) return '';
+    try{
+      const url = new URL(raw);
+      const host = url.hostname.toLowerCase();
+      const allowed = ['ajgamerental.com','www.ajgamerental.com','ajgamerental.onrender.com',
+        'aj-line-oa-bot.onrender.com','delivery-app-backend-68pm.onrender.com',
+        'liff.line.me','maps.app.goo.gl','www.google.com','drive.google.com',
+        'docs.google.com','pay.beamcheckout.com'];
+      return url.protocol === 'https:' && !url.username && !url.password && allowed.includes(host) ? url.href : '';
+    }catch{ return ''; }
+  }
+  async function completeBookingChatGate(){
+    const params = lineBookingHandoffParams();
+    if(params.get('chatGate') !== '1') return false;
+    const rentalCode = String(params.get('rentalCode') || '').trim().toUpperCase();
+    const next = bookingChatGateDestination(params);
+    const copy = String(params.get('copy') || '').trim().slice(0, 200);
+    const en = params.get('lang') === 'en';
+    document.body.innerHTML = `<main style="min-height:100vh;display:grid;place-items:center;padding:20px;background:#f5f7fb"><section id="chatGatePanel" style="width:min(100%,460px);padding:25px;border-radius:18px;background:white;border:1px solid #d9dee8"><h1 style="font-size:20px">${en?'Opening your rental option':'กำลังเปิดรายการที่เลือก'}</h1><p id="chatGateStatus">${en?'Checking your AJ LINE chat…':'กำลังตรวจสอบแชท LINE กับร้าน…'}</p><div id="chatGateActions"></div></section></main>`;
+    const status = document.getElementById('chatGateStatus');
+    const actions = document.getElementById('chatGateActions');
+    const button = (label, onClick) => { const item=document.createElement('button'); item.type='button'; item.textContent=label; item.className='btn primary'; item.style.margin='6px 6px 0 0'; item.addEventListener('click',onClick); actions.appendChild(item); };
+    if(!/^AJ-[A-Z0-9-]{6,40}$/.test(rentalCode) || (!next && !copy)){
+      status.textContent = en?'This rental link is invalid. Please open the original card again.':'ลิงก์รายการไม่ถูกต้อง กรุณาเปิดจากการ์ดอีกครั้ง'; return true;
+    }
+    const finish = () => {
+      if(next){ location.replace(next); return; }
+      status.textContent = en?'Tap below to copy the details.':'กดปุ่มด้านล่างเพื่อคัดลอกข้อมูล';
+      actions.replaceChildren();
+      button(en?'Copy details':'คัดลอกข้อมูล', async () => {
+        try{ await navigator.clipboard.writeText(copy); status.textContent=en?'Copied':'คัดลอกแล้ว'; }
+        catch{ status.textContent=copy; }
+      });
+    };
+    const fallback = () => {
+      status.textContent = en?'LINE could not confirm this chat automatically. You can message AJ once and continue.':'LINE ยังยืนยันแชทอัตโนมัติไม่ได้ คุณสามารถส่งข้อความถึงร้านหนึ่งครั้งแล้วทำรายการต่อ';
+      actions.replaceChildren();
+      const text = en ? `👋 Open my rental chat\nRental ID ${rentalCode}` : `👋 เปิดแชทเรื่องการเช่า\nรหัสการเช่า ${rentalCode}`;
+      const link=document.createElement('a'); link.className='btn primary'; link.textContent=en?'Message AJ':'ส่งข้อความถึงร้าน';
+      link.href=`https://line.me/R/oaMessage/%40ajgame/?${encodeURIComponent(text)}`;
+      actions.appendChild(link);
+      button(en?'Continue to my option':'ไปยังรายการที่เลือก',finish);
+    };
+    try{
+      const liff = await bookingWait(loadLineSdk(),10000);
+      await bookingWait(liff.init({liffId:CONFIG.lineLiffId}),12000);
+      if(!liff.isInClient?.() || liff.getContext?.()?.type !== 'utou'){
+        fallback(); return true;
+      }
+      const accessToken=String(liff.getAccessToken?.() || '');
+      if(!accessToken) throw new Error('LINE access token unavailable');
+      const presence=async(claim=false)=>{
+        const response=await bookingFetch(new URL('/api/customers/line-chat-presence',CONFIG.contractWebUrl),{
+          method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({lineAccessToken:accessToken,claim})
+        },8000);
+        const data=await response.json().catch(()=>({}));
+        if(!response.ok) throw new Error(data.error || 'LINE chat check failed');
+        return {ready:data.ready===true,sendAllowed:data.sendAllowed===true};
+      };
+      const first=await presence(true);
+      if(first.ready){ finish(); return true; }
+      status.textContent=en?'Opening your chat with AJ…':'กำลังเปิดแชทกับร้าน…';
+      if(first.sendAllowed) await bookingWait(liff.sendMessages([{type:'text',text:en
+        ? `👋 Open my rental chat\nRental ID ${rentalCode}`
+        : `👋 เปิดแชทเรื่องการเช่า\nรหัสการเช่า ${rentalCode}`}]),8000);
+      for(let attempt=0;attempt<6;attempt++){
+        await new Promise(resolve=>setTimeout(resolve,800));
+        if((await presence()).ready){ finish(); return true; }
+      }
+      fallback();
+    }catch(error){ console.warn('Booking chat gate could not confirm LINE message',error); fallback(); }
+    return true;
   }
   function lineBookingAppLinks(params){
     const query = new URLSearchParams();
@@ -15183,6 +15260,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
   }
 
   async function boot(){
+    if(await completeBookingChatGate()) return;
     if(await completeLineConnectionHandoff()) return;
     if(await completeLineBookingHandoff()) return;
     const lineProofReturned = takeLineConnectionProofFromHash();
