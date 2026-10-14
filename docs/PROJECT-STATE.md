@@ -1,3 +1,8 @@
+## 2026-10-14 — Refund bank placeholder removed from My Rental
+
+- Removed the example bank name from the deposit-refund bank field in both Thai and English. The field now stays visually blank when no bank was saved; actual saved bank names are unchanged. This is backend-served HTML, so no new APK or minimum-version change was needed.
+- Delivery App commit `a6630e1` is live. The production Thai My Rental page contains the empty-placeholder branch and no `bankNameHint`/Kasikorn example. My Rental 159/159, version gate 24/24 and backend/frontend TypeScript passed.
+
 ## 2026-10-14 — Delivery App driver-map overlap and Android release
 
 - Fixed the staff-only map in normal and expanded views: the “ตามคนขับ” / “Follow driver” button and ETA/distance chip now share a vertical flex container with a real gap. This replaces the fixed-pixel top offset that overlapped on some phone sizes. Customer tracking cards are unchanged.
