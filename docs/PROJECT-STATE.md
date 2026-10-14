@@ -3742,3 +3742,9 @@ paused job shows slightly old numbers rather than an empty section.
 ## 2026-10-14 — Codex: outside-metro notice size
 
 - Increased the outside-Bangkok/metro car-delivery note to 14px in both the live booking payment summary and the standalone quote page, matching the no-identity deposit warning size. Thai and English text and delivery calculations are unchanged. The outside-metro note test passes.
+## 2026-10-14 — Delivery App driver-map overlap and Android release
+
+- Fixed the staff-only map in normal and expanded views: the “ตามคนขับ” / “Follow driver” button and ETA/distance chip now share a vertical flex container with a real gap. This replaces the fixed-pixel top offset that overlapped on some phone sizes. Customer tracking cards are unchanged.
+- Delivery App backend commit `ec85621` and release commit `2188b58` are live. Lalamove dispatch tests 363/363, version-gate tests 24/24, backend/frontend TypeScript and web export passed.
+- Android APK `versionCode 20261014` built successfully: https://expo.dev/artifacts/eas/lcUDs8nte_D-DCd5zTHt-qqryQ_3L7MReFZESzp17F4.apk (HTTP 200, 78,949,882 bytes). `CHANGELOG.md`, `render.yaml` minimum and latest APK URL are updated. Production `/api/version` reports minimum 20261014 and that URL; an old Android version gets 426, the new version passes the gate (then receives 401 on an unauthenticated bookings request). Physical-device installation and a real active trip were not tested.
+
