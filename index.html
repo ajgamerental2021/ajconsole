@@ -4620,6 +4620,18 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function demoDeliveryQuoteKey(){
     return [demoProfile.maps, state.calc.consoleId, state.calc.bundleId || "", state.calc.extras?.length ? 1 : 0, state.calc.start, state.calc.end].join("|");
   }
+  function confirmedDemoDeliveryQuote(){
+    const quote = demoDelivery.quote;
+    return demoDelivery.status === "ready" && demoDelivery.key === demoDeliveryQuoteKey()
+      && Number.isFinite(quote?.subtotal) && Number.isFinite(quote?.total)
+      && !!String(quote?.outbound?.quotationId || "").trim();
+  }
+  async function ensureDemoDeliveryQuote(force = false){
+    if(force || !confirmedDemoDeliveryQuote()) await fetchDemoDeliveryQuote();
+    if(confirmedDemoDeliveryQuote()) return;
+    const code = demoDelivery.status === "needs_pin" ? "delivery_location_unresolved" : "delivery_quote_required";
+    throw Object.assign(new Error(code), {code});
+  }
   // A Logitech G29 needs a car: rented on its own or in a PS5 bundle
   // (PS5 + Logitech G29). Everything else fits a motorcycle.
   function deliveryNeedsCar(){
@@ -4673,7 +4685,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         && typeof result.quote.subtotal === "number" && Number.isFinite(result.quote.subtotal)){
         demoDelivery.status = "ready";
         demoDelivery.quote = result.quote;
-        if(!payResume.active){
+        if(!payResume.active && state.calc.demoOrderOpen){
           void recordDemoDeliveryQuote(result.quote);
           void queueConsolePendingUpsert();
           maybeSendPayLaterEmail();
@@ -8765,7 +8777,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           demoProfile.lineUserId = "";
           throw Object.assign(new Error(failure.error), {code:"line_connection_required"});
         }
-        throw new Error(failure.error || `Contract context ${response.status}`);
+        const code = String(failure.error || `contract_context_${response.status}`);
+        throw Object.assign(new Error(code), {code});
       }
       const result = await response.json();
       if(!result?.contextToken) throw new Error("Contract context response invalid");
@@ -9529,20 +9542,29 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         showDemoAgreementProblem(Object.assign(new Error("agreement_incomplete"), {fields:["idNumber"]}));
         return;
       }
+      // The Bot refuses a unified booking without a live, server-issued
+      // delivery quotation. Obtain it before creating the booking context.
+      await ensureDemoDeliveryQuote();
       const summary = calcSummary();
       const code = await ensureRentalCode(summary);
       rememberRental(code);
       state.calc.maps = demoProfile.maps;
-      const handoff = await prepareContractHandoff(code, "web");
+      let handoff;
+      try{
+        handoff = await prepareContractHandoff(code, "web");
+      }catch(error){
+        // A Bot restart can forget an in-memory quotation between the quote
+        // and context requests. Requote once, then retry the same Rental ID.
+        if(error?.code !== "delivery_quote_required") throw error;
+        await ensureDemoDeliveryQuote(true);
+        handoff = await prepareContractHandoff(code, "web");
+      }
       if(handoff.contextToken) state.calc.demoContextToken = handoff.contextToken;
       // The rental shows in Console Pending as soon as it is confirmed here, so
       // AJ can follow up even if payment is never finished. A slow sheet write
       // (the Bot can be cold) runs in the background and never holds step 3.
       consolePendingRental = {code, handoff, channel:"unified-flow-demo"};
       void queueConsolePendingUpsert();
-      // The live delivery price is fetched alongside the agreement; when it
-      // arrives the Console Pending row is written again with the fee.
-      if(demoDelivery.status !== "loading" && !(demoDelivery.status === "ready" && demoDelivery.key === demoDeliveryQuoteKey())) void fetchDemoDeliveryQuote();
       // The identity images and the signed agreement are sent at the same time.
       const sendsIdentity = !state.calc.noContract && !demoProfile.identitySkipped && !demoProfile.identityUploaded && !!demoProfile.idDocument && !!demoProfile.selfieWithId;
       if(sendsIdentity) showDemoBusy(state.lang === "en" ? "Sending your identity photos and agreement…" : "กำลังส่งรูปยืนยันตัวตนและสัญญา…");
@@ -9576,6 +9598,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         state.calc.step = 2;
         render();
         showDemoProgressProblem(tr("contactLineRequired"), 2);
+        return;
+      }
+      if(error?.code === "delivery_quote_required" || error?.code === "delivery_location_unresolved"){
+        const needsPin = error.code === "delivery_location_unresolved";
+        showDemoProgressProblem(needsPin
+          ? (state.lang === "en" ? "The delivery location does not have an exact map pin. Please choose a pin and try again. No payment was started." : "สถานที่จัดส่งยังไม่มีหมุดแผนที่ที่แน่นอน กรุณาปักหมุดแล้วลองอีกครั้ง ยังไม่มีการชำระเงิน")
+          : (state.lang === "en" ? "The round-trip delivery price could not be confirmed. Please check the map pin and try again; no rental or payment was submitted." : "ยังยืนยันราคาค่าส่งไป-กลับไม่ได้ กรุณาตรวจหมุดแผนที่แล้วลองอีกครั้ง ยังไม่มีการส่งรายการเช่าหรือชำระเงิน"), 2);
         return;
       }
       showDemoProgressProblem(error?.code === "rental_details_changed"

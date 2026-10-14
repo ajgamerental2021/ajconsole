@@ -84,8 +84,9 @@ test('legal name accepts only the alphabet selected by the page language', () =>
 test('Console Pending gets the live delivery fee once it is quoted', () => {
   const order = extract('openDemoOrder');
   assert.match(order, /consolePendingRental = \{code, handoff, channel:"unified-flow-demo"\};\n      void queueConsolePendingUpsert\(\);/);
-  // The quote starts with the agreement, not after the order page opens.
-  assert.ok(order.indexOf('void fetchDemoDeliveryQuote()') < order.indexOf('Promise.allSettled'));
+  // The Bot requires its issued quote before it will create a booking context.
+  assert.ok(order.indexOf('await ensureDemoDeliveryQuote()') < order.indexOf('await prepareContractHandoff(code, "web")'));
+  assert.ok(order.indexOf('await prepareContractHandoff(code, "web")') < order.indexOf('Promise.allSettled'));
   assert.match(extract('fetchDemoDeliveryQuote'), /void recordDemoDeliveryQuote\(result\.quote\);\s+void queueConsolePendingUpsert\(\);/);
   const queue = extract('queueConsolePendingUpsert');
   assert.match(queue, /const fresh = bookingStructured\(rental\.code\) \|\| \{\};/);
