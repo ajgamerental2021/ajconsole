@@ -3770,3 +3770,7 @@ paused job shows slightly old numbers rather than an empty section.
 - Customer screenshot showed Step 2 stuck at “Preparing LINE” before authorization. This does not prove whether the customer tapped Allow; the live Bot handoff-start endpoint returned 201 successfully during diagnosis. The website previously started the bridge in the background, hid preparation failures in the console, and could leave the disabled-looking button without a visible recovery path.
 - Step 2 now always offers an actionable Connect LINE button. The handoff starts on tap; preparation failures and expired handoffs show a visible bilingual error with retry. Both languages explicitly say to tap Allow if LINE asks for permission, and the help question now reads “เชื่อม LINE ไม่ได้?” / “Can't connect LINE?”. The LINE handoff prompt repeats the Allow guidance.
 - Website tests 349/349 and inline script syntax passed; Thai/English Step 2 checked in the browser, including a 375px mobile viewport. No Bot route or credential changes and no real customer account was linked during testing.
+
+## 2026-10-15 — Codex: make alternative LINE connection visible
+
+- The Step 2 “Can't connect LINE?” / “เชื่อม LINE ไม่ได้?” recovery link was easy to miss below the consent instructions. It is now a separate green-bordered help panel with extra top spacing and a full-width, 44px-high alternative-connect action in both languages. The existing LINE handoff/retry behavior is unchanged.
