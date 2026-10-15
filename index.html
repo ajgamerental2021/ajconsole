@@ -1323,16 +1323,17 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   body.unified-flow-demo .demo-contact-channel-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
   body.unified-flow-demo .demo-contact-channel-actions .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:9px}
   body.unified-flow-demo .demo-contact-channel-actions .btn svg{width:22px;height:22px;flex:none}
-  body.unified-flow-demo .demo-contact-channel-actions .demo-line-btn{flex:1 1 100%;min-height:52px;padding:12px 16px;background:#06c755;border-color:#06c755;color:#fff;font-size:16px;font-weight:900;box-shadow:0 4px 12px rgba(6,199,85,.25)}
+  body.unified-flow-demo .demo-contact-channel-actions .demo-line-btn{flex:0 1 auto;min-height:52px;padding:12px 20px;background:#06c755;border-color:#06c755;color:#fff;font-size:16px;font-weight:900;box-shadow:0 4px 12px rgba(6,199,85,.25)}
   body.unified-flow-demo .demo-contact-channel-actions .demo-line-btn:hover{background:#05b84f;border-color:#05b84f;color:#fff}
   body.unified-flow-demo .demo-contact-channel-actions .demo-wa-btn{background:#075e54;border-color:#075e54;color:#fff}
   body.unified-flow-demo .demo-contact-channel-actions .demo-wa-btn:hover{background:#06483f;border-color:#06483f;color:#fff}
   body.unified-flow-demo .demo-contact-connected{display:inline-block;padding:9px 12px;border:1px solid #a7dfbc;border-radius:10px;background:#edf9f1;color:#176b39;font-weight:800}
   body.unified-flow-demo .demo-contact-channel .demo-line-browser-note{margin-top:18px;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#eef2f6;color:#475467;font-size:12px;font-weight:600;line-height:1.5}
   body.unified-flow-demo .demo-contact-channel-actions .demo-line-btn[aria-busy="true"]{background:#b5d9c2;border-color:#b5d9c2;cursor:wait}
-  body.unified-flow-demo .demo-line-app-help{margin:18px 0 0;padding:12px 14px;border:1px solid #f2c36d;border-radius:10px;background:#fff9eb;color:#8a5400;font-size:14px;font-weight:800;line-height:1.5}
-  body.unified-flow-demo .demo-line-app-help a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin-top:9px;padding:9px 14px;border:1px solid #ae6900;border-radius:8px;background:#fff;color:#8a5400;font-size:14px;font-weight:800;text-align:center;text-decoration:none}
+  body.unified-flow-demo .demo-line-app-help{width:fit-content;max-width:100%;box-sizing:border-box;margin:18px 0 0;padding:10px 14px;border:1px solid #f2c36d;border-radius:10px;background:#fff9eb;color:#8a5400;font-size:14px;font-weight:800;line-height:1.5}
+  body.unified-flow-demo .demo-line-app-help a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin:0 0 0 10px;padding:9px 14px;border:1px solid #ae6900;border-radius:8px;background:#fff;color:#8a5400;font-size:14px;font-weight:800;text-align:center;text-decoration:none}
   body.unified-flow-demo .demo-line-app-help a:hover,body.unified-flow-demo .demo-line-app-help a:focus-visible{background:#fff0cc;color:#663e00;outline:3px solid #f6d48c;outline-offset:2px}
+  @media(max-width:600px){body.unified-flow-demo .demo-contact-channel-actions .demo-line-btn{flex:1 1 100%}body.unified-flow-demo .demo-line-app-help a{margin:9px 0 0}}
   body.unified-flow-demo .demo-line-consent-help{margin:8px 0 0;font-size:13px;line-height:1.55;color:#344054}
   body.unified-flow-demo .demo-line-error{margin:10px 0 0;padding:10px 12px;border:1px solid #fda29b;border-radius:10px;background:#fef3f2;color:#b42318;font-size:13px;font-weight:700;line-height:1.5}
   .before-rent-head .before-rent-hero-terms{display:inline-block;margin:14px auto 0;padding:6px 15px;border:1px solid #ffd0d4;border-radius:999px;background:#fff3f4;color:#ad0013;font-size:clamp(13px,1.2vw,15px);font-weight:600;line-height:1.4}
@@ -2154,7 +2155,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       contactLineConnect:"เชื่อม LINE เพื่อรับข้อมูลการจอง",
       contactLineConnected:"เชื่อม LINE แล้ว",
       contactLineConsentHelp:"หลังแตะเชื่อม LINE หาก LINE แสดงหน้าขออนุญาต ให้กด อนุญาต (Allow) แล้วรอจนกลับมาหน้าจอง หากกดยกเลิกจะเชื่อมไม่สำเร็จ",
-      contactLineTrouble:"เชื่อม LINE ไม่ได้? กดปุ่มด้านล่างเพื่อเปิดอีกวิธี",
+      contactLineTrouble:"เชื่อม LINE ไม่ได้? ลองกดปุ่มนี้แทน",
       contactLineTryAlternative:"ลองเปิด LINE อีกวิธี",
       contactLineStartFailed:"ยังเตรียมการเชื่อม LINE ไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ตแล้วกดเชื่อม LINE อีกครั้ง",
       contactLineBrowserNote:"หมายเหตุ: การกลับหน้าจองอัตโนมัติหลังเชื่อม LINE รองรับ Chrome และ Safari เท่านั้น",
@@ -2319,7 +2320,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       contactLineConnect:"Connect LINE",
       contactLineConnected:"LINE connected",
       contactLineConsentHelp:"After tapping Connect LINE, if LINE asks for permission, tap Allow and wait to return to this booking. Cancelling will not connect your account.",
-      contactLineTrouble:"Can't connect LINE? Use the button below to try another way.",
+      contactLineTrouble:"Can't connect LINE? Try this button instead.",
       contactLineTryAlternative:"Try another way to open LINE",
       contactLineStartFailed:"Could not prepare the LINE connection. Check your internet connection, then tap Connect LINE again.",
       contactLineBrowserNote:"Note: Automatic return after connecting LINE supports Chrome and Safari only.",

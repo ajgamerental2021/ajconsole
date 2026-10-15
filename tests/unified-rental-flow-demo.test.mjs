@@ -701,8 +701,8 @@ test('connecting LINE opens the phone app directly and restores the booking step
   assert.match(html, /lineConnectErrorKey = \/\^line_handoff_\//);
   assert.match(html, /contactLineConsentHelp:"หลังแตะเชื่อม LINE.*อนุญาต \(Allow\)/);
   assert.match(html, /contactLineConsentHelp:"After tapping Connect LINE.*tap Allow/);
-  assert.match(html, /contactLineTrouble:"เชื่อม LINE ไม่ได้\? กดปุ่มด้านล่างเพื่อเปิดอีกวิธี"/);
-  assert.match(html, /contactLineTrouble:"Can't connect LINE\? Use the button below to try another way\."/);
+  assert.match(html, /contactLineTrouble:"เชื่อม LINE ไม่ได้\? ลองกดปุ่มนี้แทน"/);
+  assert.match(html, /contactLineTrouble:"Can't connect LINE\? Try this button instead\."/);
   assert.doesNotMatch(html, /LINE did not open\?\s*"\s*:\s*"LINE ไม่เปิด\?/);
 });
 
