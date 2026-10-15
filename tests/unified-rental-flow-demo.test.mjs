@@ -667,7 +667,8 @@ test('editing the rental period on the Rental ID page opens only the queue calen
 test('connecting LINE opens the phone app directly and restores the booking step', () => {
   assert.match(html, /const LINE_CONNECT_HANDOFF_KEY = "aj_line_connect_handoff_v1"/);
   assert.match(html, /new URL\(`line:\/\/app\/\$\{CONFIG\.lineLiffId\}`\)/);
-  assert.match(html, /id="lineConnectBtn" href="\$\{pendingLineConnectHandoff\(\) \? esc\(lineConnectionAppUrl\(/);
+  assert.match(html, /id="lineConnectBtn" href="#"/);
+  assert.match(html, /let pending = await ensureLineConnectHandoff\(\)/);
   assert.doesNotMatch(html, /window\.open\("about:blank"/);
   assert.match(html, /completeLineConnectionHandoff\(\)/);
   assert.match(html, /lineAccessToken:accessToken/);
@@ -694,7 +695,15 @@ test('connecting LINE opens the phone app directly and restores the booking step
   assert.doesNotMatch(html, /contactEmailSelected:/);
   assert.match(html, /contactLineBrowserNote:"หมายเหตุ:.*Chrome และ Safari เท่านั้น"/);
   assert.match(html, /contactLineBrowserNote:"Note:.*Chrome and Safari only\."/);
-  assert.match(html, /if\(UNIFIED_FLOW_DEMO && !payResume\.active && !activeLineConnection\(\) && \(state\.calc\.step === 2 \|\| !state\.beforeRentActive\)\) void ensureLineConnectHandoff\(\)/);
+  assert.match(html, /id="lineConnectBtn" href="#"/);
+  assert.doesNotMatch(html, /id="lineConnectBtn"[^>]*aria-disabled=/);
+  assert.match(html, /lineConnectErrorKey = "contactLineExpired"/);
+  assert.match(html, /lineConnectErrorKey = \/\^line_handoff_\//);
+  assert.match(html, /contactLineConsentHelp:"หลังแตะเชื่อม LINE.*อนุญาต \(Allow\)/);
+  assert.match(html, /contactLineConsentHelp:"After tapping Connect LINE.*tap Allow/);
+  assert.match(html, /contactLineTrouble:"เชื่อม LINE ไม่ได้\?"/);
+  assert.match(html, /contactLineTrouble:"Can't connect LINE\?"/);
+  assert.doesNotMatch(html, /LINE did not open\?\s*"\s*:\s*"LINE ไม่เปิด\?/);
 });
 
 test('Admin → Rentals offers the renter\'s own My rental link in Thai and English', () => {
