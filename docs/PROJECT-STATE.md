@@ -702,6 +702,12 @@
 
 # Project state
 
+## 2026-10-15 — Manual Wise verification in Delivery App Console Pending
+
+- Wise is manual: staff must see the incoming transfer in the actual Wise account, then enter its transfer reference and explicitly attest to the received amount in the Console Pending card. A Wise-specific action appears only for unpaid English-language requests whose customer name is Latin script; the ordinary Confirm route refuses an unpaid Wise request. Unpaid Wise requests remain in Console Pending for seven days rather than the usual twelve hours so a weekend transfer does not vanish before staff can verify it.
+- The Delivery App checks its authenticated staff session, live pending row and reused transfer references. The Bot independently checks the latest saved Wise payment choice, English customer name, full amount, email, agreement and current payment status. A signed inter-service call records a full Wise payment and creates the Booking, then the normal paid-rental completion emails the customer with a signed agreement PDF (or the rental-order PDF governed by an accepted Master Agreement). Missing PDF/email is reported as partial success and requires a manual resend from Booking Log; no email is silently called successful.
+- No historical rental was marked paid and no real customer email was sent for this change. Local verification: Bot 645/645 tests and server `/healthz` + `/liff/` 200; Delivery backend/frontend TypeScript passed, web export passed, web booking parse 18/18 and auto-booking-payment tests passed. The existing console-pending reservation script still fails in unrelated card-button expectations and its local test environment lacks a URL value; investigate separately.
+
 ## 2026-10-08 — Codex: first extension card and repeat-link verification
 
 - **Delivery App `f8f30d7`:** The original extension request card already carried Edit request in both languages. The first customer LINE push is now awaited before the request page responds, and the staff test-card preview includes the same button.
