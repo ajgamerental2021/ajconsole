@@ -51,6 +51,7 @@ test('"verify to lower the deposit" uses the signed upgrade API, keeps entries a
   const link = functionSource('identityUpgradeTokenForOrder');
   assert.match(link, /\/api\/identity-upgrade\/link/);
   assert.match(link, /rentalViewToken\(code\)/);
+  assert.match(link, /if\(!response.ok \|\| !result.token\) throw Object.assign\(new Error\("identity_upgrade_unavailable"\)/);
   const upgrade = functionSource('submitIdentityUpgrade');
   for (const key of ['identityType', 'identityNumber', 'identityExpiry', 'idCardImageDataUrl', 'selfieImageDataUrl', 'signatureDataUrl', 'consentAccepted']) assert.match(upgrade, new RegExp(`${key}:`), key);
   assert.match(upgrade, /if\(result\.error === "already_upgraded"\) return \{ok:true, already:true\};/);
@@ -60,6 +61,11 @@ test('"verify to lower the deposit" uses the signed upgrade API, keeps entries a
   assert.match(functionSource('verifyNowBodyHtml'), /id="verifyNowStatus" role="alert"/);
   const submit = functionSource('submitVerifyNow');
   assert.match(submit, /setVerifyNowStatus\(problem\.message\);/);
+  assert.match(submit, /if\(verifyForDepositActive\)\{\s*await submitIdentityUpgrade\(upgradeToken\);/);
+  assert.match(submit, /toast\(upgradeToken \? tr\("identityUpgradePaymentNext"\)/);
+  assert.match(functionSource('submitVerifyNowByContext'), /if\(verifyForDepositActive\) throw Object.assign\(new Error\("identity_upgrade_unavailable"\)/);
+  assert.match(html, /identityUpgradePaymentNext:"ยืนยันตัวตนแล้ว ค่าประกันลดลง/);
+  assert.match(html, /identityUpgradePaymentNext:"Identity verified. Your deposit has been reduced/);
   assert.match(functionSource('closeModal'), /Object\.assign\(demoProfile, verifyForDepositSnapshot\.profile, kept\);/);
   for (const key of ['idDocument', 'selfieWithId', 'identityNumber', 'identityExpiry', 'agreementConsent']) assert.match(html, new RegExp(`VERIFY_NOW_KEPT_FIELDS = \\[[^\\]]*"${key}"`), key);
   // A phone's bottom bar no longer hides the toast.
