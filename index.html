@@ -1838,9 +1838,10 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
     location.replace(`https://${CANONICAL_HOST}${location.pathname}${location.search}${location.hash}`);
   }
   const PAGE_PARAMS = new URLSearchParams(location.search);
-  // The unified flow is production default. Keep the previous flow available
-  // temporarily for an explicit rollback without redeploying.
-  const UNIFIED_FLOW_DEMO = PAGE_PARAMS.get("legacyFlow") !== "1";
+  // The staged-agreement flow is the only public booking path.
+  // The legacy contract-first path can issue a signed PDF before payment.
+  // Keep every public booking on the staged-agreement checkout path.
+  const UNIFIED_FLOW_DEMO = true;
   // While the unified flow is on trial, Beam charges ฿1. Set to false to charge
   // the real amount: the reservation (฿200 / ฿1,000) or the full amount, every
   // option through Beam except Wise, which is paid by Wise transfer.
@@ -4703,7 +4704,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         demoDelivery.quote = result.quote;
         if(!payResume.active && state.calc.demoOrderOpen){
           void recordDemoDeliveryQuote(result.quote);
-          void queueConsolePendingUpsert();
+          void queueConsolePendingUpsert().catch(error => console.warn("Console Pending update deferred until payment", error));
           maybeSendPayLaterEmail();
         }
       }else{
@@ -7196,7 +7197,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // One payment picker for the booking page and the demo's Rental ID page, so
   // the logos, fees and refund notes can never drift apart.
   // The booking page's picker; the pay-later page passes its own selection,
-  // the amounts the server worked out, and inputs of its own (no Wise there).
+  // the amounts the server worked out, and inputs of its own.
   function paymentPickerHtml({disabled = "", wiseStatus = null, selected = state.calc.payment, amountHtml = paymentOptionAmountHtml, choiceAttr = "data-payment-choice", inputName = "paymentChoice", allowWise = state.lang === "en", deliveryReady = demoDelivery.status === "ready"} = {}){
     const en = state.lang === "en";
     const status = wiseStatus || (en ? wisePaymentAvailability() : {available:true, reason:"", iso:bangkokNow().iso});
@@ -8959,12 +8960,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       return submitRentalToSheet(calcSummary(), rental.code, rental.channel, message, data, 25000);
     };
     consolePendingWrites = consolePendingWrites
+      .catch(() => {})
       .then(write)
       .catch(error => {
         console.warn("Rental sheet append will be retried", error);
         return write();
       })
-      .catch(error => console.error("Rental sheet append failed twice", error));
+      .catch(error => {
+        console.error("Rental sheet append failed twice", error);
+        throw error;
+      });
     return consolePendingWrites;
   }
   function lineUniqueId(){
@@ -9598,7 +9603,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       // AJ can follow up even if payment is never finished. A slow sheet write
       // (the Bot can be cold) runs in the background and never holds step 3.
       consolePendingRental = {code, handoff, channel:"unified-flow-demo"};
-      void queueConsolePendingUpsert();
+      void queueConsolePendingUpsert().catch(error => console.warn("Console Pending update deferred until payment", error));
       // The identity images and the signed agreement are sent at the same time.
       const sendsIdentity = !state.calc.noContract && !demoProfile.identitySkipped && !demoProfile.identityUploaded && !!demoProfile.idDocument && !!demoProfile.selfieWithId;
       if(sendsIdentity) showDemoBusy(state.lang === "en" ? "Sending your identity photos and agreement…" : "กำลังส่งรูปยืนยันตัวตนและสัญญา…");
@@ -9931,17 +9936,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       state.calc.beamPaymentLink = "";
       state.calc.beamPaymentKey = "";
       state.calc.beamPaymentExpiresAt = "";
-      // Reserve the queue once, then create the checkout and persist Console
-      // Pending in parallel. `keepalive` lets the Sheet upsert finish after the
-      // browser leaves for Beam, so a slow Sheet can no longer strand checkout.
+      // Do not send a customer to Beam or Wise until the shop can see this
+      // rental in Console Pending. A failed write stays retryable here.
       await ensureBookingHold(code);
       consolePendingRental = {code, handoff, channel:"demo-payment"};
-      const pendingWrite = queueConsolePendingUpsert();
+      await queueConsolePendingUpsert().catch(error => {
+        throw Object.assign(new Error("console_pending_submission_failed", {cause:error}), {code:"console_pending_submission_failed"});
+      });
       // Wise has no checkout to open: the rental is held and in Console Pending,
       // and the renter is shown where to send the money. Opening Beam for it
       // asked for a zero-baht link and failed with "Unable to open the payment page".
       if(state.calc.payment === "wise"){
-        void pendingWrite;
         hideDemoBusy();
         renderDemoOrderPage();
         showModal(state.lang === "en" ? "Pay by Wise" : "ชำระผ่าน Wise", wiseTransferHtml(summary, code));
@@ -9949,7 +9954,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       }
       const url = await ensureBeamPaymentLink(summary, code, {holdAcquired:true});
       if(!url) throw new Error("Beam payment link unavailable");
-      void pendingWrite;
       // The payment provider refuses to be framed, so checkout takes over the
       // tab and its return URL brings the customer back to AJ.
       renderDemoOrderPage();
@@ -9965,7 +9969,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         showDemoProgressProblem(tr("contactLineRequired"), 2);
         return;
       }
-      toast(error?.code === "rental_details_changed"
+      toast(error?.code === "console_pending_submission_failed"
+        ? (state.lang === "en" ? "We could not save your rental for the shop. No payment was started. Please try again." : "บันทึกรายการให้ร้านไม่สำเร็จ ยังไม่ได้เริ่มชำระเงิน กรุณาลองอีกครั้ง")
+        : error?.code === "rental_details_changed"
         ? (state.lang === "en" ? "This rental changed after confirmation. Please review it before paying; no new Rental ID was created." : "รายละเอียดการเช่าเปลี่ยนหลังยืนยัน กรุณาตรวจรายการก่อนชำระเงิน ระบบไม่ได้สร้างรหัสการเช่าใหม่")
         : (state.lang === "en" ? "Unable to open the payment page. Please try again." : "เปิดหน้าชำระเงินไม่สำเร็จ กรุณาลองใหม่"));
     }
@@ -10116,12 +10122,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     document.body.classList.add("pay-resume-open");
     try{ sessionStorage.setItem(PAY_RESUME_TOKEN_KEY, JSON.stringify({code, token})); }catch{}
     if(!silent){ renderPayResume(); window.scrollTo(0, 0); }
-    fetch(`${CONFIG.apiBase}/api/rentals/payment-page`, {
+    bookingFetch(`${CONFIG.apiBase}/api/rentals/payment-page`, {
       method:"POST",
       cache:"no-store",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({rentalCode:code, token})
-    }).then(async response => {
+    }, 15000).then(async response => {
       const result = await response.json().catch(() => ({}));
       if(!response.ok || !result.rental) throw new Error(result.error || "unavailable");
       payResume.rental = result.rental;
@@ -10350,7 +10356,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           ${paidRows.length ? `<div class="demo-total-group">${paidRows.join("")}</div>` : ""}
         </div></section>
         ${individualRateNoticeHtml()}
-        ${canPay ? `<section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${paymentPickerHtml({selected:payResume.method, amountHtml:payResumeAmountHtml, choiceAttr:"data-pay-resume-choice", inputName:"payResumeChoice", allowWise:false, deliveryReady:true})}<div class="demo-payment-launch">${payResume.queueBlocked ? `<p class="field-error" role="alert">${esc(payResume.queueBlocked)} ${esc(en ? "Please contact AJ on LINE @ajgame." : "กรุณาติดต่อร้านทาง LINE @ajgame")}</p>` : ""}<button class="btn primary demo-pay-btn" id="payResumePay" type="button" ${payResume.queueBlocked ? "disabled" : ""}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${en ? "Pay now" : "ชำระเงิน"}</span></button></div></section>`
+        ${canPay ? `<section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${paymentPickerHtml({selected:payResume.method, amountHtml:payResumeAmountHtml, choiceAttr:"data-pay-resume-choice", inputName:"payResumeChoice", allowWise:en && !!r.plan?.methods?.wise, deliveryReady:true})}<div class="demo-payment-launch">${payResume.queueBlocked ? `<p class="field-error" role="alert">${esc(payResume.queueBlocked)} ${esc(en ? "Please contact AJ on LINE @ajgame." : "กรุณาติดต่อร้านทาง LINE @ajgame")}</p>` : ""}<button class="btn primary demo-pay-btn" id="payResumePay" type="button" ${payResume.queueBlocked ? "disabled" : ""}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${en ? "Pay now" : "ชำระเงิน"}</span></button></div></section>`
           : r.paid ? `<p class="hint">${esc(en ? "This rental has been paid. Thank you." : "รายการนี้ชำระเงินเรียบร้อยแล้ว ขอบคุณที่ใช้บริการ")}</p>` : ""}
       </div>
     </div>`;
@@ -10399,6 +10405,22 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const gate = evaluateAvailability(ctx);
       if(!gate.pass) throw Object.assign(new Error(gate.message), {code:"booking_hold_conflict"});
       await ensureBookingHold(r.rentalCode, ctx);
+      if(payResume.method === "wise"){
+        if(!en || !wisePaymentAvailability().available) throw Object.assign(new Error("wise_unavailable"), {code:"wise_unavailable"});
+        const response = await bookingFetch(`${CONFIG.apiBase}/api/rentals/payment-page/wise`, {
+          method:"POST",
+          cache:"no-store",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({token:payResume.token})
+        }, 30000);
+        const result = await response.json().catch(() => ({}));
+        if(!response.ok || !result.ok) throw Object.assign(new Error(result.error || "payment_unavailable"), {code:result.error || ""});
+        payResume.rental.paymentOption = "wise";
+        hideDemoBusy();
+        renderPayResume();
+        showModal(en ? "Pay by Wise" : "ชำระผ่าน Wise", wiseTransferHtml({upfront:result.amount}, r.rentalCode));
+        return;
+      }
       const response = await bookingFetch(`${CONFIG.apiBase}/api/rentals/payment-page/link`, {
         method:"POST",
         cache:"no-store",
@@ -10419,6 +10441,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(error?.code === "already_paid"){ openPayResume(payResume.code, payResume.token); return; }
       if(error?.message === "queue_check_failed"){
         toast(en ? "The queue could not be checked. Please try again." : "เช็คคิวไม่สำเร็จ กรุณาลองอีกครั้ง", 4500);
+        return;
+      }
+      if(error?.code === "wise_unavailable"){
+        toast(en ? "Wise is unavailable today. Please choose another payment method." : "วันนี้ยังชำระผ่าน Wise ไม่ได้ กรุณาเลือกช่องทางอื่น", 4500);
         return;
       }
       toast(en ? "Unable to open the payment page. Please try again." : "เปิดหน้าชำระเงินไม่สำเร็จ กรุณาลองใหม่");

@@ -83,14 +83,14 @@ test('legal name accepts only the alphabet selected by the page language', () =>
 
 test('Console Pending gets the live delivery fee once it is quoted', () => {
   const order = extract('openDemoOrder');
-  assert.match(order, /consolePendingRental = \{code, handoff, channel:"unified-flow-demo"\};\n      void queueConsolePendingUpsert\(\);/);
+  assert.match(order, /consolePendingRental = \{code, handoff, channel:"unified-flow-demo"\};\n      void queueConsolePendingUpsert\(\)\.catch/);
   // The Bot requires its issued quote before it will create a booking context.
   assert.ok(order.indexOf('await ensureDemoDeliveryQuote()') < order.indexOf('await prepareContractHandoff(code, "web")'));
   assert.ok(order.indexOf('await prepareContractHandoff(code, "web")') < order.indexOf('Promise.allSettled'));
-  assert.match(extract('fetchDemoDeliveryQuote'), /void recordDemoDeliveryQuote\(result\.quote\);\s+void queueConsolePendingUpsert\(\);/);
+  assert.match(extract('fetchDemoDeliveryQuote'), /void recordDemoDeliveryQuote\(result\.quote\);\s+void queueConsolePendingUpsert\(\)\.catch/);
   const queue = extract('queueConsolePendingUpsert');
   assert.match(queue, /const fresh = bookingStructured\(rental\.code\) \|\| \{\};/);
-  assert.match(queue, /consolePendingWrites = consolePendingWrites\n      \.then\(write\)/);
+  assert.match(queue, /consolePendingWrites = consolePendingWrites\n      \.catch\(\(\) => \{\}\)\n      \.then\(write\)/);
 });
 
 test('"Verify now" reuses step 2 refund details and asks only for identity photos, consent and signature', () => {

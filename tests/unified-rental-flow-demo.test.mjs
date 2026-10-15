@@ -5,10 +5,11 @@ import fs from 'node:fs';
 const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const entry = fs.readFileSync(new URL('../rental-flow-demo.html', import.meta.url), 'utf8');
 
-test('unified flow is the production default and legacy flow remains available for rollback', () => {
+test('all public bookings use the staged-agreement flow, including legacy links', () => {
   assert.match(entry, /flowDemo', '1'/);
   assert.match(entry, /booking', '1'/);
-  assert.match(html, /const UNIFIED_FLOW_DEMO = PAGE_PARAMS\.get\("legacyFlow"\) !== "1"/);
+  assert.match(html, /const UNIFIED_FLOW_DEMO = true;/);
+  assert.doesNotMatch(html, /PAGE_PARAMS\.get\("legacyFlow"\)/);
   assert.match(html, /body\.classList\.add\("unified-flow-demo"\)/);
 });
 

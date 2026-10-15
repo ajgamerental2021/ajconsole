@@ -41,7 +41,7 @@ function checkout({ lang, noContract, failFirstContext = false, failQuote = fals
       if(failFirstContext && contexts++ === 0) throw Object.assign(new Error('delivery_quote_required'), { code: 'delivery_quote_required' });
       return { contextToken: 'ctx', message: 'safe test', data: {} };
     },
-    queueConsolePendingUpsert() {}, uploadDemoIdentity: async () => { calls.push('identity'); },
+    queueConsolePendingUpsert: async () => {}, uploadDemoIdentity: async () => { calls.push('identity'); },
     submitDemoAgreement: async () => { calls.push('agreement'); },
     demoIdentityStatus: () => 'submitted', saveLocal() {}, render() {}, scrollToDemoOrderTop() {},
     maybeSendPayLaterEmail() {}, showDemoProgressProblem: (message, step) => messages.push({ message, step }),

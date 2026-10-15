@@ -34,7 +34,8 @@ test('Wise shows where to send the money instead of opening a zero-baht Beam lin
   const wise = pay.indexOf('if(state.calc.payment === "wise")');
   const beam = pay.indexOf('await ensureBeamPaymentLink(summary, code');
   assert.ok(wise > 0 && wise < beam, 'Wise is handled before any Beam link is asked for');
-  assert.match(pay.slice(wise, beam), /void pendingWrite;/);
+  assert.match(pay.slice(0, wise), /await queueConsolePendingUpsert\(\)/);
+  assert.doesNotMatch(pay.slice(wise, beam), /pendingWrite|ensureBeamPaymentLink/);
   assert.match(pay.slice(wise, beam), /showModal\(state\.lang === "en" \? "Pay by Wise" : "ชำระผ่าน Wise", wiseTransferHtml\(summary, code\)\)/);
 
   const render = new Function('state', 'CONFIG', 'money', 'esc', `${functionSource('wiseTransferHtml')}; return wiseTransferHtml;`);

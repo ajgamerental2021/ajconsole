@@ -18,7 +18,7 @@ test('a successful quote response without a price remains unavailable for retry'
     bookingFetch:async()=>({ok:true, json:async()=>({ok:true, quote:null})}),
     URL, CONFIG:{apiBase:'https://example.test'}, demoAddressText:()=>'',
     deliveryNeedsCar:()=>false, calcSummary:()=>({days:3}),
-    trackAnalytics(){}, queueConsolePendingUpsert(){}, maybeSendPayLaterEmail(){},
+    trackAnalytics(){}, queueConsolePendingUpsert:async()=>{}, maybeSendPayLaterEmail(){},
     setTimeout:(callback)=>{callback(); return 1;}, console:{warn(){}},
   });
   vm.runInContext(fn('fetchDemoDeliveryQuote', true) + fn('deliveryQuoteFallback'), ctx);
@@ -40,7 +40,7 @@ test('a quote for an old delivery pin cannot replace or save the new pin quote',
     URL, CONFIG:{apiBase:'https://example.test'}, demoAddressText:()=>'',
     deliveryNeedsCar:()=>false, calcSummary:()=>({days:3}),
     recordDemoDeliveryQuote:quote=>saved.push(quote),
-    trackAnalytics(){}, queueConsolePendingUpsert(){}, maybeSendPayLaterEmail(){},
+    trackAnalytics(){}, queueConsolePendingUpsert:async()=>{}, maybeSendPayLaterEmail(){},
     setTimeout, console:{warn(){}},
   });
   vm.runInContext(fn('fetchDemoDeliveryQuote', true) + fn('deliveryQuoteFallback'), ctx);

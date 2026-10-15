@@ -4,18 +4,19 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
-test('Console Pending submissions use the acknowledged Bot upsert and survive checkout navigation', () => {
+test('Console Pending must acknowledge the rental before checkout navigation', () => {
   assert.match(html, /new URL\("\/api\/console-pending-submissions", CONFIG\.contractWebUrl\)/);
   assert.doesNotMatch(html, /fetch\(endpoint, \{method:"POST", mode:"no-cors"/);
-  // Checkout writes Console Pending in parallel with Beam. keepalive lets the
-  // write finish after navigation, so a slow Sheet cannot strand payment.
+  // A failed sheet write must not leave a customer paying an untracked rental.
   assert.equal((html.match(/await submitRentalToSheet\(/g) || []).length, 5);
   assert.match(html, /keepalive:true/);
   // Web rental writes are queued so an older row never lands after a newer one.
-  assert.match(html, /consolePendingRental = \{code, handoff, channel:"demo-payment"\};\n      const pendingWrite = queueConsolePendingUpsert\(\);/);
+  assert.match(html, /consolePendingRental = \{code, handoff, channel:"demo-payment"\};\n      await queueConsolePendingUpsert\(\)/);
+  assert.ok(html.indexOf('await queueConsolePendingUpsert().catch(error => {') < html.indexOf('const url = await ensureBeamPaymentLink(summary, code, {holdAcquired:true})'));
   assert.match(html, /return submitRentalToSheet\(calcSummary\(\), rental\.code, rental\.channel, message, data, 25000\);/);
   assert.match(html, /Rental sheet append will be retried/);
   assert.match(html, /if\(!response\.ok \|\| !result\?\.ok\) throw new Error/);
+  assert.match(html, /code:"console_pending_submission_failed"/);
 });
 
 test('booking viewer reads the latest server row and never recovers an old Beam URL', () => {

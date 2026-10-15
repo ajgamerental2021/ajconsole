@@ -19,7 +19,7 @@ test('no extra button: the pay-later email goes out after step 3 is confirmed', 
   assert.match(fn, /\/api\/rentals\/pay-later/);
   assert.doesNotMatch(fn, /ensureBookingHold|ensureBeamPaymentLink/);
   assert.match(html, /scrollToDemoOrderTop\(\);\n\s*maybeSendPayLaterEmail\(\);/);
-  assert.match(html, /void queueConsolePendingUpsert\(\);\n\s*maybeSendPayLaterEmail\(\);/);
+  assert.match(html, /void queueConsolePendingUpsert\(\)\.catch\(error => console\.warn\("Console Pending update deferred until payment", error\)\);\n\s*maybeSendPayLaterEmail\(\);/);
 });
 
 test('under the pay button: the email comes in 15 minutes, or has been sent (TH/EN)', () => {
@@ -104,6 +104,15 @@ test('the unpaid email page edits the same rental through the original step cont
 test('no floating "เช็คคิว & คำนวณค่าเช่า" button', () => {
   assert.doesNotMatch(html, /id="floatCalc"/);
   assert.doesNotMatch(html, /\.float-calc/);
+});
+
+test('payment resume times out and sends English Wise to manual transfer, not Beam', () => {
+  assert.match(html, /bookingFetch\(`\$\{CONFIG\.apiBase\}\/api\/rentals\/payment-page`, \{[\s\S]*?\}, 15000\)\.then/);
+  assert.match(html, /inputName:"payResumeChoice", allowWise:en && !!r\.plan\?\.methods\?\.wise/);
+  const launch = html.slice(html.indexOf('async function launchPayResume()'), html.indexOf('async function notifyDemoLine()'));
+  assert.ok(launch.indexOf('if(payResume.method === "wise")') < launch.indexOf('/api/rentals/payment-page/link'));
+  assert.match(launch, /\/api\/rentals\/payment-page\/wise/);
+  assert.match(launch, /wiseTransferHtml\(\{upfront:result\.amount\}, r\.rentalCode\)/);
 });
 
 test('same-day rentals close at 18:00, from one setting, in both languages', () => {
