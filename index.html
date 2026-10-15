@@ -5075,7 +5075,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       selfieImageDataUrl: await demoImageDataUrl(demoProfile.selfieWithId)
     });
     const endpoint = new URL(`/api/booking-context/${encodeURIComponent(contextToken)}/identity`, CONFIG.apiBase);
-    const response = await bookingFetch(endpoint, {method:"POST", cache:"no-store", headers:{"Content-Type":"application/json"}, body}, 60000);
+    const response = await bookingFetch(endpoint, {method:"POST", cache:"no-store", headers:{"Content-Type":"application/json"}, body}, 30000);
     const result = await response.json().catch(() => ({}));
     if(!response.ok || !result?.ok) throw new Error(result?.error || `identity upload ${response.status}`);
     demoProfile.identityUploaded = true;
@@ -5914,7 +5914,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         refundAccountNumber: demoAgreement.account,
         refundAccountName: String(demoProfile.refundAccountName || "").trim()
       })
-    }, 45000);
+    }, 30000);
     const result = await response.json().catch(() => ({}));
     // The signature and details are kept until payment; the contract is made
     // only once the rental is paid.
@@ -6305,7 +6305,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const en = state.lang === "en";
       recovery.innerHTML = `<span>${esc(en ? "Still checking the queue? Your dates are saved. You can reload this page and try again." : "ยังเช็คคิวอยู่หรือไม่? วันที่เลือกไว้บันทึกแล้ว สามารถโหลดหน้านี้ใหม่แล้วลองอีกครั้ง")}</span><br><button class="btn" type="button" data-busy-reload>${esc(en ? "Reload this page" : "โหลดหน้านี้ใหม่")}</button>`;
       recovery.hidden = false;
-    }, 25000);
+    }, 10000);
   }
   function hideDemoBusy(){
     clearTimeout(demoBusyRecoveryTimer);
