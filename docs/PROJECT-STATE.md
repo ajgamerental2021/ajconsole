@@ -3777,3 +3777,8 @@ paused job shows slightly old numbers rather than an empty section.
 - Follow-up: the fallback looked stronger than the primary LINE action. The primary is now a full-width, larger LINE-green button; the fallback is a quieter amber attention note explicitly saying to use it only if LINE did not connect, with an outlined secondary action. Thai and English use the same hierarchy.
 - Desktop follow-up: constrained the primary action and amber fallback panel to their content width, while the primary still fills narrow mobile screens. The fallback instruction now says “this button” in both languages because the button sits beside the text on wide screens.
 - The alternate button now says “ลองเชื่อม LINE อีกวิธี” / “Try another way to connect LINE”; behavior is unchanged.
+
+## 2026-10-15 — Codex: game ID release ordering
+
+- PS5 game IDs that became ready were previously forced below every newly added ID, regardless of dates. ID #73 therefore appeared behind #72 after its 15 October release. Ready IDs and new IDs now share a descending display timeline based on the later of creation and ready date; future new IDs naturally appear ahead. IDs still marked not ready remain in the top group. The existing featured-ID placement remains unchanged.
+- Regenerated the Switch page from the PS5 source so its sorting stays in sync. Added a regression test covering #73, #72, previously released #66, and future #74.

@@ -1642,6 +1642,13 @@
       return dateOnly(year, month, day) <= todayInBangkok();
     }
 
+    function itemDisplaySortValue(item) {
+      const createdAt = itemCreatedAtSortValue(item);
+      if (!isReleasedFromNotReady(item)) return createdAt;
+      const readyAt = Date.parse(`${readyDateSortValue(item)}T00:00:00+07:00`);
+      return Math.max(createdAt, Number.isFinite(readyAt) ? readyAt : 0);
+    }
+
     function placeFeaturedIdsBeforeIdSixtyNine(items) {
       const ordered = [...items];
       const featuredIds = [70, 8, 71];
@@ -1666,20 +1673,8 @@
           const dateOrder = readyDateSortValue(b).localeCompare(readyDateSortValue(a));
           if (dateOrder) return dateOrder;
         }
-        const aReleased = isReleasedFromNotReady(a);
-        const bReleased = isReleasedFromNotReady(b);
-        const aNew = !aReleased && itemCreatedAtSortValue(a) > 0;
-        const bNew = !bReleased && itemCreatedAtSortValue(b) > 0;
-        if (aNew !== bNew) return aNew ? -1 : 1;
-        if (aReleased !== bReleased) return aReleased ? -1 : 1;
-        if (!aNotReady && !bNotReady && !aReleased && !bReleased) {
-          const createdOrder = itemCreatedAtSortValue(b) - itemCreatedAtSortValue(a);
-          if (createdOrder) return createdOrder;
-        }
-        if (aReleased && bReleased) {
-          const readyOrder = readyDateSortValue(a).localeCompare(readyDateSortValue(b));
-          if (readyOrder) return readyOrder;
-        }
+        const displayOrder = itemDisplaySortValue(b) - itemDisplaySortValue(a);
+        if (displayOrder) return displayOrder;
         return (Number(a?.idNo) || 0) - (Number(b?.idNo) || 0);
       });
       return placeFeaturedIdsBeforeIdSixtyNine(sorted);
