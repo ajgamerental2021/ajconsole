@@ -1112,6 +1112,9 @@ body.unified-flow-demo .demo-skip-id-btn:hover{background:#fff5f5}
 .demo-busy{position:fixed;inset:0;z-index:99998;display:grid;place-items:center;background:rgba(240,242,245,.78);backdrop-filter:blur(1.5px)}
 .demo-busy[hidden]{display:none}
 .demo-busy-card{display:flex;align-items:center;gap:12px;padding:18px 24px;border-radius:14px;background:#fff;box-shadow:0 12px 32px rgba(15,23,42,.16);font-weight:800;color:#344054}
+.demo-busy-recovery{margin-top:14px;font-size:13px;font-weight:600;line-height:1.5;text-align:center}
+.demo-busy-recovery[hidden]{display:none}
+.demo-busy-recovery .btn{margin-top:9px;min-height:44px}
 .demo-busy-spinner{width:20px;height:20px;border-radius:50%;border:3px solid #e4e7ec;border-top-color:#d71920;animation:demoBusySpin .8s linear infinite}
 @keyframes demoBusySpin{to{transform:rotate(360deg)}}
 
@@ -1634,7 +1637,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 </div>
 
 <div class="demo-busy" id="demoBusy" role="status" aria-live="polite" hidden>
-  <div class="demo-busy-card"><span class="demo-busy-spinner" aria-hidden="true"></span><span id="demoBusyText"></span></div>
+  <div><div class="demo-busy-card"><span class="demo-busy-spinner" aria-hidden="true"></span><span id="demoBusyText"></span></div><div class="demo-busy-recovery" id="demoBusyRecovery" hidden></div></div>
 </div>
 
 <div class="site-announcement" id="siteAnnouncement" role="alertdialog" aria-modal="true" aria-labelledby="siteAnnouncementTitle" aria-hidden="true">
@@ -1883,6 +1886,8 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
     wiseBankNameEn: "Krung Thai",
     wiseAccountNameEn: "Somchai Hemsiri",
     wiseEmail: "ajgamerental2021@gmail.com",
+    wiseTag: "@somchaih6",
+    wisePayUrl: "https://wise.com/pay/me/somchaih6",
     lineLiffId: "2010212481-IXO3gDQp",
     facebookPageUrl: "https://www.facebook.com/ajgamerental",
     youtubeUrl: "https://www.youtube.com/@ajgamerental",
@@ -5887,7 +5892,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!demoAgreementNeeded()) return;
     if(state.calc.rentalCode && (demoAgreement.submittedFor === state.calc.rentalCode || state.calc.demoAgreementFor === state.calc.rentalCode)) return;
     if(!contextToken) throw new Error("agreement_context_unavailable");
-    const response = await fetch(`${CONFIG.apiBase}/api/booking-context/${encodeURIComponent(contextToken)}/agreement`, {
+    const response = await bookingFetch(`${CONFIG.apiBase}/api/booking-context/${encodeURIComponent(contextToken)}/agreement`, {
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
@@ -5909,7 +5914,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         refundAccountNumber: demoAgreement.account,
         refundAccountName: String(demoProfile.refundAccountName || "").trim()
       })
-    });
+    }, 45000);
     const result = await response.json().catch(() => ({}));
     // The signature and details are kept until payment; the contract is made
     // only once the rental is paid.
@@ -6286,13 +6291,24 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   // The confirm and pay steps talk to several services before the page moves,
   // so the customer sees that something is happening and cannot double-submit.
-  function showDemoBusy(message){
+  let demoBusyRecoveryTimer = 0;
+  function showDemoBusy(message, {queueRecovery = false} = {}){
     const host = byId("demoBusy");
     if(!host) return;
+    clearTimeout(demoBusyRecoveryTimer);
     byId("demoBusyText").textContent = message;
+    const recovery = byId("demoBusyRecovery");
+    if(recovery) recovery.hidden = true;
     host.hidden = false;
+    if(queueRecovery && recovery) demoBusyRecoveryTimer = setTimeout(() => {
+      if(host.hidden) return;
+      const en = state.lang === "en";
+      recovery.innerHTML = `<span>${esc(en ? "Still checking the queue? Your dates are saved. You can reload this page and try again." : "ยังเช็คคิวอยู่หรือไม่? วันที่เลือกไว้บันทึกแล้ว สามารถโหลดหน้านี้ใหม่แล้วลองอีกครั้ง")}</span><br><button class="btn" type="button" data-busy-reload>${esc(en ? "Reload this page" : "โหลดหน้านี้ใหม่")}</button>`;
+      recovery.hidden = false;
+    }, 25000);
   }
   function hideDemoBusy(){
+    clearTimeout(demoBusyRecoveryTimer);
     const host = byId("demoBusy");
     if(host) host.hidden = true;
   }
@@ -7314,21 +7330,23 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const en = state.lang === "en";
     const row = (label, value) => `<div class="demo-order-row"><span>${esc(label)}</span><b>${esc(value)}</b></div>`;
     const message = en
-      ? `AJ Game Rental Wise transfer\nRental ID: ${code}\nAmount: ${money(summary.upfront)}\nI will attach the Wise receipt.`
-      : `แจ้งโอนผ่าน Wise\nรหัสการเช่า: ${code}\nยอด: ${money(summary.upfront)}\nแนบหลักฐานการโอนจาก Wise`;
+      ? `Hello AJ, I have paid by Wise.\nRental ID: ${code}\nAmount: ${money(summary.upfront)}\nI will attach the Wise receipt.`
+      : `สวัสดีครับ ชำระเงินผ่าน Wise แล้ว\nรหัสการเช่า: ${code}\nยอด: ${money(summary.upfront)}\nจะแนบหลักฐานการโอนจาก Wise`;
     const whatsapp = `https://api.whatsapp.com/send/?phone=${encodeURIComponent(CONFIG.whatsappPhone)}&text=${encodeURIComponent(message)}`;
+    const line = `${CONFIG.lineOaMessageUrl}?${encodeURIComponent(message)}`;
     return `<div class="wise-transfer">
-      <p class="hint">${esc(en ? "Your rental is reserved. Send the full amount in your Wise app to the Thai account below, with the Rental ID as the reference, then send us the Wise receipt." : "จองคิวไว้แล้ว กรุณาโอนยอดเต็มผ่านแอป Wise เข้าบัญชีไทยด้านล่าง ใส่รหัสการเช่าเป็นข้อความอ้างอิง แล้วส่งหลักฐานการโอนให้ร้าน")}</p>
+      <p class="hint">${esc(en ? "Your rental is reserved. Pay the full amount through Wise using the tag or link below. Include the Rental ID as your reference." : "จองคิวไว้แล้ว กรุณาชำระเต็มจำนวนผ่าน Wise ด้วยแท็กหรือลิงก์ด้านล่าง และใส่รหัสการเช่าเป็นข้อความอ้างอิง")}</p>
       ${row(en ? "Amount" : "ยอดโอน", money(summary.upfront))}
       ${row(en ? "Reference" : "ข้อความอ้างอิง", code)}
-      ${row(en ? "Bank account no." : "เลขบัญชี", CONFIG.reservationBankAccount)}
-      ${row(en ? "Bank" : "ธนาคาร", CONFIG.wiseBankNameEn)}
-      ${row(en ? "Account name" : "ชื่อบัญชี", CONFIG.wiseAccountNameEn)}
-      ${row("Email", CONFIG.wiseEmail)}
-      <p class="hint">${esc(en ? "No SWIFT code is needed. AJ confirms the rental once the transfer arrives." : "ไม่ต้องใช้ SWIFT code ร้านจะยืนยันการเช่าเมื่อได้รับยอด")}</p>
+      ${row("Wise Tag", CONFIG.wiseTag)}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px">
+        <button class="btn" type="button" data-wise-copy-tag>${esc(en ? "Copy Wise Tag" : "คัดลอก Wise Tag")}</button>
+        <a class="btn primary" href="${esc(CONFIG.wisePayUrl)}" target="_blank" rel="noopener noreferrer">${esc(en ? "Pay with Wise" : "ชำระผ่านลิงก์ Wise")}</a>
+      </div>
+      <p class="hint">${esc(en ? "After paying, use the same channel you contacted AJ on below. The message includes your Rental ID and amount; attach your receipt and tap Send in WhatsApp or LINE." : "ชำระแล้วให้แจ้งทางช่องทางที่ใช้ติดต่อร้านด้านล่าง ข้อความจะใส่รหัสการเช่าและยอดไว้ให้ กรุณาแนบสลิปแล้วกดส่งใน WhatsApp หรือ LINE")}</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-        <a class="btn primary" href="${esc(whatsapp)}" target="_blank" rel="noopener">${esc(en ? "Send the receipt on WhatsApp" : "ส่งหลักฐานทาง WhatsApp")}</a>
-        <a class="btn" href="${esc(CONFIG.lineUrl)}" target="_blank" rel="noopener">${esc(en ? "Send on LINE" : "ส่งทาง LINE")}</a>
+        <a class="btn primary" href="${esc(whatsapp)}" target="_blank" rel="noopener noreferrer">${esc(en ? "Notify on WhatsApp" : "แจ้งชำระทาง WhatsApp")}</a>
+        <a class="btn" href="${esc(line)}" target="_blank" rel="noopener noreferrer">${esc(en ? "Notify on LINE" : "แจ้งชำระทาง LINE")}</a>
       </div>
     </div>`;
   }
@@ -9452,16 +9470,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <p>${esc(message || (en ? "AJ could not check the queue for your dates just now. Please check again; once it works, you go straight on to payment." : "ตอนนี้ระบบเช็คคิวของวันที่เลือกไม่สำเร็จ กรุณากดเช็คคิวอีกครั้ง เมื่อเช็คผ่านจะไปหน้าชำระเงินให้ทันที"))}</p>
       <div class="queue-retry-actions"><button class="btn primary" type="button" data-queue-retry-continue>${en ? "Check the queue again" : "ลองเช็คคิวอีกครั้ง"}</button></div>`);
   }
-  function showDemoProgressProblem(message, step = state.calc.step){
+  function showDemoProgressProblem(message, step = state.calc.step, {retryConfirm = false} = {}){
     const en = state.lang === "en";
     showModal(en ? "Cannot continue yet" : "ยังไปขั้นตอนถัดไปไม่ได้", `
       <p>${esc(message)}</p>
-      <div class="queue-retry-actions"><button class="btn primary" type="button" data-progress-problem-close>${en ? "Check the details" : "ตรวจสอบข้อมูล"}</button></div>`);
+      <div class="queue-retry-actions"><button class="btn" type="button" data-progress-problem-close>${en ? "Check the details" : "ตรวจสอบข้อมูล"}</button>${retryConfirm ? `<button class="btn primary" type="button" data-progress-retry-confirm>${en ? "Send again" : "ส่งอีกครั้ง"}</button>` : ""}</div>`);
     if(step !== state.calc.step) goCalcStep(step, {scrollTabs:true});
   }
   async function checkDemoQueueAutomatically(){
     const en = state.lang === "en";
-    showDemoBusy(en ? "Checking availability…" : "กำลังเช็คคิวว่าง…");
+    showDemoBusy(en ? "Checking availability…" : "กำลังเช็คคิวว่าง…", {queueRecovery:true});
     let fresh = false;
     for(let attempt = 0; attempt < 2 && !fresh; attempt++){
       const result = await fetchAvailability(true).catch(() => null);
@@ -9480,7 +9498,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   async function advanceDemoStep(next){
     const en = state.lang === "en";
     demoReturningRetryAction = () => advanceDemoStep(next);
-    showDemoBusy(en ? "Checking availability…" : "กำลังเช็คคิวว่าง…");
+    showDemoBusy(en ? "Checking availability…" : "กำลังเช็คคิวว่าง…", {queueRecovery:true});
     try{
       if(state.calc.step === 1 && (!state.calc.consoleId || !startDateAllowed(state.calc.start) || selectedDays() < 3 || !gameSelectionReady())){
         showDemoProgressProblem(stepReadiness(1).text, 1);
@@ -9498,7 +9516,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   async function confirmDemoOrder(){
     const en = state.lang === "en";
     demoReturningRetryAction = () => confirmDemoOrder();
-    showDemoBusy(en ? "Checking availability and preparing payment…" : "กำลังเช็คคิวและเตรียมข้อมูลไปหน้าชำระเงิน…");
+    showDemoBusy(en ? "Checking availability and preparing payment…" : "กำลังเช็คคิวและเตรียมข้อมูลไปหน้าชำระเงิน…", {queueRecovery:true});
     try{
       const problems = state.calc.step === 2 ? demoStep2Problems() : demoStep3Problems();
       if(problems.length){
@@ -9546,6 +9564,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     showDemoBusy(state.lang === "en" ? "Preparing your rental…" : "กำลังเตรียมข้อมูลการเช่า…");
     try{
       if((state.lang === "th" || demoProfile.preferredContactChannel === "line") && !bookingLineConnection()){
+        hideDemoBusy();
         showDemoProgressProblem(tr("contactLineRequired"), 2);
         return;
       }
@@ -9587,7 +9606,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ]);
       if(identitySent.status === "rejected"){
         console.error("Identity upload failed", identitySent.reason);
-        showDemoProgressProblem(identitySent.reason?.message === "identity_image_decode_failed" ? tr("identityPhotoDecode") : (state.lang === "en" ? "The identity images could not be sent. Please try again, or choose Verify later." : "ส่งรูปยืนยันตัวตนไม่สำเร็จ กรุณาลองใหม่ หรือเลือกยืนยันตัวตนภายหลัง"));
+        showDemoProgressProblem(identitySent.reason?.message === "identity_image_decode_failed" ? tr("identityPhotoDecode") : (state.lang === "en" ? "The identity images could not be sent. Your selected photos are still here; tap Send again, or choose Verify later." : "ส่งรูปยืนยันตัวตนไม่สำเร็จ รูปที่เลือกยังอยู่ กดส่งอีกครั้งหรือเลือกยืนยันตัวตนภายหลัง"), state.calc.step, {retryConfirm:true});
         return;
       }
       if(agreementSaved.status === "rejected"){
@@ -9863,7 +9882,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return code;
   }
   async function launchDemoBeamPayment(){
-    showDemoBusy(state.lang === "en" ? "Opening the payment page…" : "กำลังเปิดหน้าชำระเงิน…");
+    showDemoBusy(state.calc.payment === "wise"
+      ? (state.lang === "en" ? "Confirming your queue for Wise…" : "กำลังยืนยันคิวสำหรับ Wise…")
+      : (state.lang === "en" ? "Opening the payment page…" : "กำลังเปิดหน้าชำระเงิน…"));
     try{
       // A disabled button is not a security boundary; recheck at launch.
       if(demoDelivery.status !== "ready" || !demoDelivery.quote){
@@ -9875,6 +9896,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         }
       }
       if((state.lang === "th" || demoProfile.preferredContactChannel === "line") && !bookingLineConnection()){
+        hideDemoBusy();
         showDemoProgressProblem(tr("contactLineRequired"), 2);
         return;
       }
@@ -9915,7 +9937,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       // and the renter is shown where to send the money. Opening Beam for it
       // asked for a zero-baht link and failed with "Unable to open the payment page".
       if(state.calc.payment === "wise"){
-        await pendingWrite;
+        void pendingWrite;
         hideDemoBusy();
         renderDemoOrderPage();
         showModal(state.lang === "en" ? "Pay by Wise" : "ชำระผ่าน Wise", wiseTransferHtml(summary, code));
@@ -14970,7 +14992,10 @@ We apologize for the inconvenience and hope everyone stays safe.`
         openReturningEligibility();
         return;
       }
+      if(event.target.closest("[data-busy-reload]")){ location.reload(); return; }
+      if(event.target.closest("[data-wise-copy-tag]")){ await writeBookingClipboard(CONFIG.wiseTag); return; }
       if(event.target.closest("[data-queue-retry-continue]")){ await retryQueueAndConfirm(); return; }
+      if(event.target.closest("[data-progress-retry-confirm]")){ closeModal(); await confirmDemoOrder(); return; }
       if(event.target.closest("[data-progress-problem-close], [data-booking-problem-dismiss]")){ closeModal(); return; }
       if(event.target.closest("[data-queue-back-to-dates]")){ closeModal(); goCalcStep(1, {scrollTabs:true}); return; }
       if(targetId === "demoSignatureClear"){ clearDemoSignature(); return; }

@@ -315,9 +315,18 @@ test('payment groups collapse so only one is open at a time', () => {
 });
 
 test('slow steps show a busy veil and edits open in a dialog', () => {
-  assert.match(html, /function showDemoBusy\(message\)/);
+  assert.match(html, /function showDemoBusy\(message, \{queueRecovery = false\} = \{\}\)/);
+  assert.match(html, /data-busy-reload/);
+  assert.match(html, /queueRecovery:true/);
+  assert.match(html, /demoBusyRecoveryTimer = setTimeout\([\s\S]*?25000\)/);
   assert.match(html, /id="demoEditModal"/);
   assert.match(html, /function openDemoEditModal\(step\)/);
+});
+
+test('identity and agreement uploads finish or offer a retry without reloading selected photos', () => {
+  assert.match(html, /bookingFetch\(`\$\{CONFIG\.apiBase\}\/api\/booking-context\/\$\{encodeURIComponent\(contextToken\)\}\/agreement`[\s\S]*?\}, 45000\)/);
+  assert.match(html, /data-progress-retry-confirm/);
+  assert.match(html, /Your selected photos are still here; tap Send again/);
 });
 
 test('the About page can be edited by the shop and read by everyone', () => {
