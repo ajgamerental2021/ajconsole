@@ -3774,3 +3774,4 @@ paused job shows slightly old numbers rather than an empty section.
 ## 2026-10-15 — Codex: make alternative LINE connection visible
 
 - The Step 2 “Can't connect LINE?” / “เชื่อม LINE ไม่ได้?” recovery link was easy to miss below the consent instructions. It is now a separate green-bordered help panel with extra top spacing and a full-width, 44px-high alternative-connect action in both languages. The existing LINE handoff/retry behavior is unchanged.
+- Follow-up: the fallback looked stronger than the primary LINE action. The primary is now a full-width, larger LINE-green button; the fallback is a quieter amber attention note explicitly saying to use it only if LINE did not connect, with an outlined secondary action. Thai and English use the same hierarchy.
