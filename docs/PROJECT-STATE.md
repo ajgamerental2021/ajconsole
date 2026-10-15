@@ -3758,3 +3758,9 @@ paused job shows slightly old numbers rather than an empty section.
 ## 2026-10-14 — Codex: outside-metro notice size
 
 - Increased the outside-Bangkok/metro car-delivery note to 14px in both the live booking payment summary and the standalone quote page, matching the no-identity deposit warning size. Thai and English text and delivery calculations are unchanged. The outside-metro note test passes.
+
+## 2026-10-15 — Codex: LINE refund-account update receipt
+
+- A saved refund account via the signed My Rental link could show in “My details” without a LINE confirmation: the send path depended on the selected Customers row having a LINE ID, while the verified ID can live on the booking; a failed booking-note write could also stop the subsequent push. Delivery backend now resolves the recipient from the booking and customer register, sends the bilingual change card before optional booking notes, and links its action back to the signed rental page.
+- Added an authenticated staff-only refund-account receipt resend by Rental ID, using only the current verified booking/customer data. It never takes a recipient or account number from the request. Delivered one Thai card for `AJ-20261006-R0073` to verified LINE account `Ub2…8d4f` via production backend; LINE API accepted the push. The customer's saved bank details and booking amounts were not changed.
+- Delivery backend deployed commit `80fbca8`; My Rental 164/164, flex-ledger 24/24, backend TypeScript passed. No APK or min-version change. No Booking Log, Customers, or Inventory writes were added; Phase 5 data paths unchanged.
