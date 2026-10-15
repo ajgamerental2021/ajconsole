@@ -702,6 +702,11 @@
 
 # Project state
 
+## 2026-10-15 — Return driver overdue ETA updates
+
+- Delivery App backend `94a3a49` detects a return trip still `PICKED_UP` after the ETA already shown on the collection card has passed. With fresh driver GPS, it recalculates the route to AJ and automatically pushes a bilingual LINE Flex headed “อัพเดทระยะทางคนขับ” / “Driver distance update”, showing current status, minutes, Bangkok arrival time, route distance, the traffic/weather caveat and AJ's promise to notify upon receipt. It records the next announced ETA and a five-minute cooldown; another missed ETA can produce another update. Completed trips, stale GPS and failed LINE sends are handled without silently marking a card sent.
+- The live rental `AJ-20261012-R0011` remained in transit. After deployment, the LINE OA chat showed the update card delivered at 16:23 Bangkok time with about 24 minutes / 11.9 km remaining and arrival around 16:47. This is an estimate, not confirmation that AJ has received the equipment. No separate manual card was sent, avoiding a duplicate. Verification: dispatch simulation 373/373, flex-ledger 24/24, backend TypeScript; no APK/frontend change and no Booking Log/Customers/Inventory write.
+
 ## 2026-10-15 — Manual Wise verification in Delivery App Console Pending
 
 - Wise is manual: staff must see the incoming transfer in the actual Wise account, then type the amount actually received, enter its transfer reference and explicitly attest to receipt in the Console Pending card. The amount must equal the latest full rental total. A Wise-specific action appears only for unpaid English-language requests whose customer name is Latin script; the ordinary Confirm route refuses an unpaid Wise request. Unpaid Wise requests remain in Console Pending for seven days rather than the usual twelve hours so a weekend transfer does not vanish before staff can verify it.
