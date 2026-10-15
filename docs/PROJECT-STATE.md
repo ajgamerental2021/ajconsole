@@ -1,3 +1,8 @@
+## 2026-10-15 — Missing deposit-refund account alert on LINE return receipt
+
+- The “AJ received the rental” Flex card now puts a red-bordered warning before the large proof photo when the customer's refund account is missing. Its bold Thai/English heading, separate instruction line (“กรุณาแจ้งเลขบัญชีที่ปุ่มด้านล่างครับ” / “Please provide your account using the button below.”) and large red primary account button sit in one alert box. The button retains the existing signed edit URL; if no URL is available the card does not refer to a nonexistent button. Cards with an existing account are unchanged.
+- Delivery App commit `e6e1a62` is live; `/api/version` reports it. Lalamove dispatch 365/365, version gate 24/24 and backend/frontend TypeScript passed. This is backend-generated LINE content, so no APK or minimum-version change. No message was sent to a real customer as a test.
+
 ## 2026-10-14 — Refund bank placeholder removed from My Rental
 
 - Removed the example bank name from the deposit-refund bank field in both Thai and English. The field now stays visually blank when no bank was saved; actual saved bank names are unchanged. This is backend-served HTML, so no new APK or minimum-version change was needed.
