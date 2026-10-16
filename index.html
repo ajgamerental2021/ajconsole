@@ -1064,7 +1064,9 @@ body.unified-flow-demo .demo-item-details{margin:0;padding-left:20px;color:#4754
 body.unified-flow-demo .demo-item-empty{margin:0;color:#667085;font-size:13px;line-height:1.7}
 body.unified-flow-demo .demo-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px}
 body.unified-flow-demo .demo-section-head h3{margin:0}
-body.unified-flow-demo .demo-edit-btn{padding:7px 14px;font-weight:800}
+body.unified-flow-demo .demo-edit-btn{min-height:44px;padding:9px 16px;border:2px solid #155eef;border-radius:12px;background:#eaf1ff;color:#1246a0;font-size:15px;font-weight:800;box-shadow:0 2px 6px rgba(21,94,239,.15)}
+body.unified-flow-demo .demo-edit-btn:hover,body.unified-flow-demo .demo-edit-btn:focus-visible{background:#d6e5ff;border-color:#1246a0;outline:2px solid #155eef;outline-offset:2px}
+body.unified-flow-demo .demo-edit-help{margin:0 0 18px;padding:12px 14px;border:1px solid #b5caff;border-left:4px solid #155eef;border-radius:10px;background:#f0f5ff;color:#1246a0;font-size:14px;font-weight:700;line-height:1.5}
 body.unified-flow-demo .demo-identity-art{margin:14px 0 6px}
 body.unified-flow-demo .demo-identity-art svg{width:100%;max-width:360px;height:auto;display:block}
 body.unified-flow-demo .demo-reward-row{border-color:#f2c94c;background:#fffdf5}
@@ -2308,7 +2310,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       pickGames:"เลือก / แก้ไขรายชื่อเกม", sendLater:"แจ้งรายชื่อเกมภายหลัง", clearGames:"ล้างรายชื่อเกม", noGameList:"รุ่นนี้ไม่มีรายการเกมให้เลือกในระบบ",
       summaryTitle:"สรุปค่าเช่า", summaryEmpty:"เลือกเครื่องและวันที่เพื่อดูสรุป", rental:"ค่าเช่า", discount:"ส่วนลด", promo:"โปรโมชัน", total:"ยอดรวม", grandTotal:"ยอดรวมก่อนค่าจัดส่ง", upfront:"โอนล่วงหน้า", upfrontConfirm:"โอนล่วงหน้า (ยืนยันการจอง)", fullPaymentConfirm:"ชำระยอดเต็ม (เพื่อยืนยันการจอง)", onDelivery:"จ่ายตอนของถึง", payOnDelivery:"จ่ายตอนของถึง", delivery:"ค่าส่งแจ้งทางแชท", finalActionHelp:"ตรวจสอบข้อมูลแล้ว กดจองผ่านช่องทางแชทที่คุยกับร้านเพื่อส่งรายละเอียด",
       returningDiscount:"ส่วนลดลูกค้าเก่า 10%", consoleDiscount:"ส่วนลดเครื่องเกม", boardGameDiscount:"ส่วนลดบอร์ดเกม", boardGameDeposit:"ค่าประกันบอร์ดเกม", rentalDays:"จำนวนวันเช่า", boardGameRental:"ค่าเช่าบอร์ดเกม", boardGameList:"รายการบอร์ดเกม",
-      equipmentDetails:"รายละเอียดอุปกรณ์", selectedGamesHeading:"เกมที่เลือก", noSelectedGames:"ไม่มีรายชื่อเกมที่เลือก", payResumeEdit:"แก้ไข", payResumeSaveSuccess:"บันทึกการแก้ไขและอัปเดตให้ร้านแล้ว", payResumeSaveFailed:"บันทึกการแก้ไขไม่สำเร็จ กรุณาลองอีกครั้ง", payResumeRentalEditTitle:"แก้ไขเครื่อง อุปกรณ์ และเกม", players:"จำนวนผู้เล่น", playTime:"เวลาเล่น", age:"อายุแนะนำ", packageRental:"ค่าเช่าตามแพ็ก", oneDay:"1 วัน", threeDays:"3 วัน", sevenDays:"7 วัน", howToPlay:"วิธีเล่นคร่าว ๆ", noContractDepositNote:"ค่าประกัน (ไม่ยืนยันตัวตน)", noContractLabel:"ไม่ยืนยันตัวตน", standardTier:"เรทมาตรฐาน", planning:"วางแผน", recommendedChannel:"ช่องทางแนะนำ", identityUpgradeUnavailable:"ระบบกำลังบันทึกรายการเช่า กรุณาลองยืนยันตัวตนอีกครั้งในอีกสักครู่ รูปและลายเซ็นยังอยู่ครบ และยังไม่มีการส่งสัญญาหรือชำระเงิน", identityUpgradePaymentNext:"ยืนยันตัวตนแล้ว ค่าประกันลดลง กรุณาเลือกช่องทางชำระเงินด้านล่าง ระบบจะส่งสัญญา PDF หลังชำระเงิน",
+      equipmentDetails:"รายละเอียดอุปกรณ์", selectedGamesHeading:"เกมที่เลือก", noSelectedGames:"ไม่มีรายชื่อเกมที่เลือก", payResumeEdit:"แก้ไข", payResumeEditDetails:"แก้ไขข้อมูล", payResumeEditHelp:"ต้องการเปลี่ยนข้อมูล? กดปุ่มแก้ไขสีฟ้าด้านล่างได้ก่อนชำระเงิน", payResumeSaveSuccess:"บันทึกการแก้ไขและอัปเดตให้ร้านแล้ว", payResumeSaveFailed:"บันทึกการแก้ไขไม่สำเร็จ กรุณาลองอีกครั้ง", payResumeRentalEditTitle:"แก้ไขเครื่อง อุปกรณ์ และเกม", players:"จำนวนผู้เล่น", playTime:"เวลาเล่น", age:"อายุแนะนำ", packageRental:"ค่าเช่าตามแพ็ก", oneDay:"1 วัน", threeDays:"3 วัน", sevenDays:"7 วัน", howToPlay:"วิธีเล่นคร่าว ๆ", noContractDepositNote:"ค่าประกัน (ไม่ยืนยันตัวตน)", noContractLabel:"ไม่ยืนยันตัวตน", standardTier:"เรทมาตรฐาน", planning:"วางแผน", recommendedChannel:"ช่องทางแนะนำ", identityUpgradeUnavailable:"ระบบกำลังบันทึกรายการเช่า กรุณาลองยืนยันตัวตนอีกครั้งในอีกสักครู่ รูปและลายเซ็นยังอยู่ครบ และยังไม่มีการส่งสัญญาหรือชำระเงิน", identityUpgradePaymentNext:"ยืนยันตัวตนแล้ว ค่าประกันลดลง กรุณาเลือกช่องทางชำระเงินด้านล่าง ระบบจะส่งสัญญา PDF หลังชำระเงิน",
       copy:"📋 Copy ข้อความจองเช่า", line:"จองผ่าน Line", whatsapp:"จองผ่าน WhatsApp", messenger:"จองผ่าน Messenger", copied:"คัดลอกแล้ว", minDays:"ขั้นต่ำ 3 วัน", busy:"เครื่องอาจไม่ว่างในช่วงนี้", available:"ช่วงนี้ผ่านการเช็คคิวแล้ว", checking:"กำลังเช็คคิว...", checkingAgain:"กำลังเช็คคิวอีกครั้ง...", queueCheckingCell:"เช็กคิว", queueError:"ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่", retryQueue:"ลองเช็คคิวอีกครั้ง", queueRetryCell:"ลองเช็คใหม่", queueClosed:"ปิดคิวในช่วงเวลานี้", bookingHold:"มี 1 คิวกำลังทำรายการ กรุณาเช็คคิวใหม่ใน {minutes} นาที", bookingHoldCell:"กำลังจอง · เช็คใหม่ใน {minutes} นาที", bookingHoldLost:"มีลูกค้ารายอื่นกำลังจองเครื่องนี้ กรุณาเช็คคิวใหม่ใน {minutes} นาที", stepNeedConsole:"เลือกเครื่องเกมก่อนเพื่อเริ่มเช็คคิว", stepNeedStart:"เลือกวันที่เริ่มเช่า", stepNeedEnd:"เลือกวันคืนเครื่อง", stepNeedMinDays:"เลือกช่วงเช่าอย่างน้อย 3 วัน", stepQueueChecking:"กำลังตรวจสอบคิว กรุณารอสักครู่", stepQueueUnavailable:"ช่วงวันที่เลือกยังไม่พร้อมให้จอง", stepReadyDates:"เครื่องและช่วงวันที่พร้อม ไปขั้นตอนถัดไปได้", stepNeedGames:"เลือกรายชื่อเกม หรือเลือกแจ้งรายชื่อเกมภายหลัง", stepReadyGames:"ข้อมูลเกมพร้อมแล้ว ไปขั้นตอนถัดไปได้", stepReadyReview:"ตรวจสอบช่องทางชำระเงิน สัญญา และแผนที่ แล้วดูสรุปได้",
       shareConfirmTitle:"ยืนยันส่งข้อความจอง", shareConfirmMessage:"คุณกำลังจะส่งข้อความจองเช่าผ่าน {channel}", shareConfirmNote:"เพื่อป้องกันการส่งซ้ำ ระบบจะกันการกดซ้ำชั่วคราวหลังยืนยันส่ง", shareConfirmContractNote:"ลูกค้าใหม่ควรยืนยันตัวตนก่อนส่งข้อความจอง เพื่อให้ข้อมูลไม่หลุดและลดการส่งซ้ำ", shareConfirmMessengerNote:"Messenger ไม่สามารถใส่ข้อความให้อัตโนมัติ กรุณาคัดลอกข้อความ แล้วเปิดแชท AJ เพื่อวางและกดส่ง", shareConfirmSend:"ยืนยันส่งข้อความจอง", shareContractFirst:"ยืนยันตัวตนก่อน", shareCancel:"ยกเลิก", shareCooldown:"กำลังเตรียมหรือเพิ่งเปิดข้อความจอง กรุณารอสักครู่ก่อนกดซ้ำ", sharePreparing:"กำลังเตรียมข้อความจองสำหรับ {channel} กรุณาอย่ากดซ้ำ", shareReady:"ข้อความพร้อมแล้ว กรุณาคัดลอกและเปิด Messenger", shareOpened:"เปิด {channel} แล้ว กรุณากดส่งข้อความในแชท และรอสักครู่ก่อนกดซ้ำ", messengerHandoffTitle:"ส่งข้อความผ่าน Messenger", messengerHandoffHelp:"1. กดคัดลอกข้อความ  2. เปิด Messenger  3. วางข้อความในแชทและกดส่ง", messengerCopy:"คัดลอกข้อความ", messengerOpen:"เปิด Messenger", messengerCopied:"คัดลอกข้อความแล้ว กรุณาเปิด Messenger และวางในแชท",
       bookingFallbackTitle:"ส่งรายการจองอัตโนมัติไม่สำเร็จ", bookingFallbackHelp:"ระบบเตรียมข้อความจองไว้ให้แล้ว กรุณากดคัดลอก แล้วนำไปวางและส่งในแชทที่ติดต่อกับร้าน AJ", bookingFallbackCopy:"คัดลอกข้อความจอง", bookingFallbackOpen:"เปิด {channel}", bookingFallbackCopied:"คัดลอกแล้ว กรุณาวางข้อความและกดส่งในแชท",
@@ -2473,7 +2475,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       pickGames:"Choose / Edit games", sendLater:"Send game list later", clearGames:"Clear games", noGameList:"This model has no game catalog in the system.",
       summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Total before delivery", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", fullPaymentConfirm:"Full payment (to confirm booking)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat", paymentFee:"Payment fee", cardDeposit:"Card / E-Wallet / Thai QR reservation (no fee)", paymentLink:"Payment link", finalActionHelp:"Review the details, then book via the same chat channel to send them to AJ.",
       returningDiscount:"Returning customer 10% discount", consoleDiscount:"Console discount", boardGameDiscount:"Board game discount", boardGameDeposit:"Board game deposit", rentalDays:"Rental days", boardGameRental:"Board game rental", boardGameList:"Board game list",
-      equipmentDetails:"Equipment details", selectedGamesHeading:"Selected games", noSelectedGames:"No games selected", payResumeEdit:"Edit", payResumeSaveSuccess:"Changes saved and updated for AJ", payResumeSaveFailed:"Changes could not be saved. Please try again.", payResumeRentalEditTitle:"Edit equipment and games", players:"Players", playTime:"Play time", age:"Recommended age", packageRental:"Package rental", oneDay:"1 day", threeDays:"3 days", sevenDays:"7 days", howToPlay:"Quick how to play", noContractDepositNote:"Deposit (no identity verification)", noContractLabel:"No identity verification", standardTier:"Standard tier", planning:"Planning", recommendedChannel:"Recommended", identityUpgradeUnavailable:"The booking is still being saved. Please try verification again shortly; your photos and signature are still here. No payment or agreement was submitted.", identityUpgradePaymentNext:"Identity verified. Your deposit has been reduced; choose a payment method below. The agreement PDF follows payment.",
+      equipmentDetails:"Equipment details", selectedGamesHeading:"Selected games", noSelectedGames:"No games selected", payResumeEdit:"Edit", payResumeEditDetails:"Edit details", payResumeEditHelp:"Need to change anything? Use the blue Edit buttons below before paying.", payResumeSaveSuccess:"Changes saved and updated for AJ", payResumeSaveFailed:"Changes could not be saved. Please try again.", payResumeRentalEditTitle:"Edit equipment and games", players:"Players", playTime:"Play time", age:"Recommended age", packageRental:"Package rental", oneDay:"1 day", threeDays:"3 days", sevenDays:"7 days", howToPlay:"Quick how to play", noContractDepositNote:"Deposit (no identity verification)", noContractLabel:"No identity verification", standardTier:"Standard tier", planning:"Planning", recommendedChannel:"Recommended", identityUpgradeUnavailable:"The booking is still being saved. Please try verification again shortly; your photos and signature are still here. No payment or agreement was submitted.", identityUpgradePaymentNext:"Identity verified. Your deposit has been reduced; choose a payment method below. The agreement PDF follows payment.",
       copy:"📋 Copy booking message", line:"Book via LINE", whatsapp:"Book via WhatsApp", messenger:"Book via Messenger", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", checkingAgain:"Checking the queue again...", queueCheckingCell:"Checking", queueError:"Unable to check the queue. Please try again.", retryQueue:"Retry queue check", queueRetryCell:"Retry check", queueClosed:"Queue closed during this period", bookingHold:"1 customer is completing this booking. Check again in {minutes} minutes.", bookingHoldCell:"In progress · retry in {minutes} min", bookingHoldLost:"Another customer is booking this console. Check again in {minutes} minutes.", stepNeedConsole:"Choose a console to start the queue check.", stepNeedStart:"Choose the rental start date.", stepNeedEnd:"Choose the return date.", stepNeedMinDays:"Choose a rental period of at least 3 days.", stepQueueChecking:"Checking the queue. Please wait a moment.", stepQueueUnavailable:"The selected dates are not ready to book.", stepReadyDates:"Console and dates are ready. You can continue.", stepNeedGames:"Choose games or select Send game list later.", stepReadyGames:"Game selection is ready. You can continue.", stepReadyReview:"Review payment, contract and map options, then continue to the summary.",
       shareConfirmTitle:"Confirm booking message", shareConfirmMessage:"You are about to send this booking message via {channel}.", shareConfirmNote:"To prevent duplicate messages, the buttons will be briefly locked after confirmation.", shareConfirmContractNote:"First-time customers should verify their identity before sending the booking message, so the details do not get missed or duplicated.", shareConfirmMessengerNote:"Messenger cannot prefill this message. Please copy it, open AJ's chat, paste it, and tap Send.", shareConfirmSend:"Confirm and send", shareContractFirst:"Verify identity first", shareCancel:"Cancel", shareCooldown:"Your booking message is being prepared or was just opened. Please wait before trying again.", sharePreparing:"Preparing your booking message for {channel}. Please do not tap again.", shareReady:"Your message is ready. Copy it and open Messenger.", shareOpened:"{channel} opened. Please send the message in the chat and wait before trying again.", messengerHandoffTitle:"Send via Messenger", messengerHandoffHelp:"1. Copy the message  2. Open Messenger  3. Paste it into the chat and tap Send", messengerCopy:"Copy message", messengerOpen:"Open Messenger", messengerCopied:"Message copied. Open Messenger and paste it into the chat.",
       bookingFallbackTitle:"Automatic booking delivery failed", bookingFallbackHelp:"Your booking message is ready. Copy it, then paste and send it in the chat you use to contact AJ.", bookingFallbackCopy:"Copy booking message", bookingFallbackOpen:"Open {channel}", bookingFallbackCopied:"Copied. Paste the message into the chat and tap Send.",
@@ -6501,8 +6503,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     window.setTimeout(() => { if(Math.abs(place("")) > 40) place("auto"); }, 900);
   }
   function demoSectionHeadHtml(title, step){
-    const en = state.lang === "en";
-    return `<div class="demo-section-head"><h3>${esc(title)}</h3><button class="btn demo-edit-btn" type="button" data-demo-edit="${step}">${en ? "Edit" : "แก้ไข"}</button></div>`;
+    return `<div class="demo-section-head"><h3>${esc(title)}</h3><button class="btn demo-edit-btn" type="button" data-demo-edit="${step}">${esc(tr("payResumeEditDetails"))}</button></div>`;
   }
   function demoRentalItemHtml(item, summary){
     const en = state.lang === "en";
@@ -6653,7 +6654,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       : deliveryQuoteFallback()
         ? (en ? "Delivery quote required" : "ต้องคำนวณค่าส่งก่อน")
         : (en ? "Calculating delivery…" : "กำลังคำนวณค่าส่ง…");
-    patchHTML(host, `<div class="demo-order-grid">
+    patchHTML(host, `<p class="demo-edit-help">${esc(tr("payResumeEditHelp"))}</p><div class="demo-order-grid">
       <div>
         <section class="demo-order-section">${demoSectionHeadHtml(en ? "Rental item" : "สินค้าที่เช่า", 1)}${demoRentalItemHtml(item, summary)}</section>
         <section class="demo-order-section"><h3>${en ? "Details" : "รายละเอียด"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Rental ID":"รหัสการเช่า"}</span><b>${esc(state.calc.rentalCode || "-")}</b></div><div class="demo-order-row"><span>${en?"Rental status":"สถานะการเช่า"}</span><b class="demo-status is-awaiting">${en?"Awaiting payment":"รอชำระเงิน"}</b></div></div></section>
@@ -10117,7 +10118,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     render();
     return true;
   }
-  function openPayResume(code, token, {silent=false, autoReservation=false}={}){
+  function focusPayResumePayment(){
+    const target = byId("payResumePayment");
+    if(!target) return;
+    const header = document.querySelector("nav")?.getBoundingClientRect().height || 0;
+    window.scrollTo({top:Math.max(0, window.scrollY + target.getBoundingClientRect().top - header - 12), behavior:"smooth"});
+  }
+  function openPayResume(code, token, {silent=false, autoCheckout=false, focusPayment=false}={}){
     if(!silent) Object.assign(payResume, {active:true, code, token, loading:true, saving:false, error:"", rental:null, queueBlocked:"", editorReady:false});
     document.body.classList.add("pay-resume-open");
     try{ sessionStorage.setItem(PAY_RESUME_TOKEN_KEY, JSON.stringify({code, token})); }catch{}
@@ -10140,12 +10147,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       payResume.loading = false;
       renderPayResume();
       if(payResume.rental && !payResume.rental.paid){
-        const queueReady = await checkPayResumeQueue(autoReservation);
-        if(autoReservation && queueReady && !payResume.queueBlocked){
-          payResume.method = "cash";
-          renderPayResume();
+        if(focusPayment && !autoCheckout){
+          window.setTimeout(focusPayResumePayment, 100);
+          window.setTimeout(focusPayResumePayment, 900);
+        }
+        const queueReady = await checkPayResumeQueue(autoCheckout);
+        if(autoCheckout && queueReady && !payResume.queueBlocked){
           try{ const url = new URL(location.href); url.searchParams.delete("checkout"); history.replaceState(null, "", url.pathname + url.search + url.hash); }catch{}
           await launchPayResume();
+        }else if(autoCheckout){
+          window.setTimeout(focusPayResumePayment, 100);
         }
       }
     });
@@ -10165,7 +10176,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     let found = payResumeContext(r);
     if(!found.item){ await gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {}); found = payResumeContext(r); }
     const {ctx} = found;
-    if(!ctx.consoleId || !ctx.start || !ctx.end) return false;
+    if(!ctx.consoleId || !ctx.start || !ctx.end){
+      if(requireFresh) toast(state.lang === "en" ? "The rental details could not be checked. Please try again." : "ตรวจสอบข้อมูลการเช่าไม่สำเร็จ กรุณาลองอีกครั้ง", 4500);
+      return false;
+    }
     const snapshot = await fetchAvailability(requireFresh).catch(() => null);
     if(payResume.rental !== r) return false;
     if(requireFresh && (!snapshot?.fresh || state.availability.error || !hasRecentAvailabilitySnapshot())){
@@ -10193,9 +10207,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     </span>`;
   }
   function payResumeSectionHeadHtml(title, kind, editable=true){
-    const en = state.lang === "en";
     const canEdit = editable && !payResume.rental?.paid && payResume.editorReady && !payResume.saving;
-    return `<div class="demo-section-head"><h3>${esc(title)}</h3>${canEdit ? `<button class="btn demo-edit-btn" type="button" data-pay-resume-edit="${esc(kind)}">${esc(tr("payResumeEdit"))}</button>` : ""}</div>`;
+    return `<div class="demo-section-head"><h3>${esc(title)}</h3>${canEdit ? `<button class="btn demo-edit-btn" type="button" data-pay-resume-edit="${esc(kind)}">${esc(tr("payResumeEditDetails"))}</button>` : ""}</div>`;
   }
   async function savePayResumeChanges(source="rental"){
     const en = state.lang === "en";
@@ -10324,7 +10337,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const editNotice = !r.paid && !payResume.editorReady
       ? `<div class="demo-delivery-fallback" role="status"><p><b>${esc(en ? "Editing is temporarily unavailable because the saved pricing details could not be loaded. You can still pay the saved amount or contact AJ." : "ยังแก้ไขรายการไม่ได้ชั่วคราว เพราะโหลดข้อมูลราคาที่บันทึกไว้ไม่ครบ ยังชำระยอดเดิมได้ หรือติดต่อร้าน AJ")}</b></p></div>`
       : payResume.saving ? `<p class="hint" role="status">${esc(en ? "Saving your changes…" : "กำลังบันทึกการแก้ไข…")}</p>` : "";
-    return `${editNotice}<div class="demo-order-grid">
+    return `${editNotice}${!r.paid && payResume.editorReady ? `<p class="demo-edit-help">${esc(tr("payResumeEditHelp"))}</p>` : ""}<div class="demo-order-grid">
       <div>
         <section class="demo-order-section">${payResumeSectionHeadHtml(en ? "Rental item" : "สินค้าที่เช่า", "rental")}<div class="demo-order-box demo-item-box">
           <div class="demo-item-head">
@@ -10356,7 +10369,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           ${paidRows.length ? `<div class="demo-total-group">${paidRows.join("")}</div>` : ""}
         </div></section>
         ${individualRateNoticeHtml()}
-        ${canPay ? `<section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${paymentPickerHtml({selected:payResume.method, amountHtml:payResumeAmountHtml, choiceAttr:"data-pay-resume-choice", inputName:"payResumeChoice", allowWise:en && !!r.plan?.methods?.wise, deliveryReady:true})}<div class="demo-payment-launch">${payResume.queueBlocked ? `<p class="field-error" role="alert">${esc(payResume.queueBlocked)} ${esc(en ? "Please contact AJ on LINE @ajgame." : "กรุณาติดต่อร้านทาง LINE @ajgame")}</p>` : ""}<button class="btn primary demo-pay-btn" id="payResumePay" type="button" ${payResume.queueBlocked ? "disabled" : ""}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${en ? "Pay now" : "ชำระเงิน"}</span></button></div></section>`
+        ${canPay ? `<section class="demo-order-section" id="payResumePayment"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${paymentPickerHtml({selected:payResume.method, amountHtml:payResumeAmountHtml, choiceAttr:"data-pay-resume-choice", inputName:"payResumeChoice", allowWise:en && !!r.plan?.methods?.wise, deliveryReady:true})}<div class="demo-payment-launch">${payResume.queueBlocked ? `<p class="field-error" role="alert">${esc(payResume.queueBlocked)} ${esc(en ? "Please contact AJ on LINE @ajgame." : "กรุณาติดต่อร้านทาง LINE @ajgame")}</p>` : ""}<button class="btn primary demo-pay-btn" id="payResumePay" type="button" ${payResume.queueBlocked ? "disabled" : ""}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${en ? "Pay now" : "ชำระเงิน"}</span></button></div></section>`
           : r.paid ? `<p class="hint">${esc(en ? "This rental has been paid. Thank you." : "รายการนี้ชำระเงินเรียบร้อยแล้ว ขอบคุณที่ใช้บริการ")}</p>` : ""}
       </div>
     </div>`;
@@ -15568,7 +15581,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     });
     void loadGameUpdateHoursForAdmin();
     if(paidRentalNotice) window.setTimeout(() => showPaidRentalNotice(paidRentalNotice), 300);
-    if(payLink) openPayResume(payLink.code, payLink.token, {autoReservation:payParams.get("checkout") === "reservation"});
+    if(payLink) openPayResume(payLink.code, payLink.token, {autoCheckout:["selected", "reservation"].includes(payParams.get("checkout")), focusPayment:payParams.get("focus") === "payment"});
     bindBeforeRentSectionAnalytics();
     trackAnalytics("page_view");
     render();

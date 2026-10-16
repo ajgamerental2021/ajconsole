@@ -1,3 +1,9 @@
+## 2026-10-16 — LINE pending-payment shortcuts and visible edit controls
+
+- Synced delivery-app, Bot, and booking site with the latest `origin/main` before editing. The pending-payment LINE card now displays the saved payment method's due-now amount and total, including the payment fee when applicable. Its primary action opens the private payment page with automatic checkout for that same method; the Bot still calculates the payable amount and the website still checks availability before opening Beam. Wise opens its existing transfer instructions.
+- The card's change-method action adds `focus=payment`; once the private page loads it scrolls to the payment choices. Legacy `checkout=reservation` links still open. Both booking summary and payment-resume edit buttons are larger blue controls with explicit Thai and English guidance.
+- Verification: Bot pay-later/payment-method tests 25/25; booking-site pay-later/payment-method tests 15/15; booking-site inline JavaScript syntax check passed. Live LINE and Beam navigation was not exercised with a customer payment.
+
 ## 2026-10-15 — Four follow-up checkout guards: Wise resume, timeout, pending row, legacy contract
 
 - English pay-later page now offers Wise with its full, fee-free amount, preserves Wise after unpaid identity upgrade, and opens the manual Wise instructions after saving the choice on the Bot; it never asks Beam for a Wise link. The Bot rejects this route for Thai rentals or paid rentals.
