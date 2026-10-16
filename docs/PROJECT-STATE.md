@@ -1,3 +1,36 @@
+## 2026-10-16 — Booking to payment hardened end to end (TH/EN): photos, slow Google, deploys, payment groups
+
+- Owner request: shorter wait than 2.5 min, smaller but legible photos, and find anything that can stop a renter between the steps and a normal payment, in Thai and English.
+- **How it was checked:** the real Bot ran locally behind a fake of every outside service (scratchpad harness, not committed): an in-memory Sheets API, Apps Script Drive/history with configurable latency and hangs, Beam checkout with signed webhooks, Lalamove, LINE and Telegram. The website was served as `ajgamerental.com` and driven with Playwright at 390 px.
+- **Matrix, all passing on the final code:**
+  - Thai and English verify-now, verify-later, and full payment by card or bank, each ending at Beam paid and the success page;
+  - a Bot restart while the renter is on the payment page;
+  - slow Google: Sheets 0.8–2.5 s per call, Drive 6–15 s with 30 % of uploads hanging. Confirm to payment page took 19–20 s; Pay now to Beam took 5–7 s;
+  - a total Drive outage: a clear error at about 37 s; once Drive is back, "Send again" opens the payment page in 4 s;
+  - verify-to-lower-deposit from the order page, Thai and English;
+  - the "continue payment" link opened after a restart.
+  - At normal latency, confirm to payment page takes about 4–5 s and Pay now to Beam about 2 s.
+- **Photos:**
+  - Long edge 1440 px. JPEG quality steps down from 0.72 until each photo is at or under about 300 KB; before, it was 1600 px at 0.8 with no size cap. Applies to the website and to the Bot's verify-identity, LIFF and verify pages.
+  - Each photo is encoded once, as soon as it is chosen.
+  - The smallest print on an ID card stayed readable in tests.
+  - The watermarked copy is saved at quality 82 with mozjpeg.
+- **Bot `638a7d4`:**
+  - The renter waits only for the two original photos to reach Drive. Each upload has a second attempt started after 7 s and a hard limit of 35 s.
+  - Watermarked copies, the status merge into both stores (retried for up to about 2 min), the delivery-app forward and the shop alert now run after the answer.
+  - The identity upgrade still waits for its copies, but uploads them alongside the originals.
+  - Delivery quotes now carry an HMAC seal: identity-link secret, falling back to the LINE secret, valid 6 h. Before, after any restart or deploy every Pay now was refused with `delivery_quote_required`, and the renter saw "Unable to open the payment page" on every retry. Found by the restart test.
+  - Console Pending writes from the booking page no longer scan the whole contract sheet for a LINE ID; the server already verified the LINE account.
+  - Sheet header rows are written once per process, the contract tab lookup is cached for 10 min, and the device catalogue for 60 s (cleared on admin edits).
+- **Website:**
+  - The status poll waits up to 60 s, down from 150 s.
+  - Pay now quotes again if the Bot no longer knows the quote. It continues only if the total is unchanged; otherwise it shows the new total and asks the renter to tap again (TH/EN).
+  - The sealed quote is sent with the booking and with the recorded quote.
+  - **Bug fixed:** an opened "Pay the full amount before delivery" group snapped shut on the page's redraw (DOM morph), so a renter who opened it right after the order page appeared could not pick card, bank or e-wallet. Reproduced before the fix and confirmed fixed. The opened group is now remembered per picker.
+  - The pay-later email request uses the newest booking context.
+- **Tests:** Bot 664/665 (new `test/delivery-quote-seal.test.js`, rewritten behavioural identity-storage tests). The one failure, `current bilingual return handover clause…`, is the same pre-existing failure from the 2026-10-16 terms commits. Website 359/359 (new `tests/checkout-resilience.test.mjs`).
+- **Not changed, owner decision needed:** when Lalamove cannot quote at all, confirm stops with "The round-trip delivery price could not be confirmed. Please check the map pin…". This is the rule from `c48cf38` / `631aa98`, so a Lalamove outage blocks every booking. Options are a delivery-fee-pending path that the shop confirms later, or at least wording that does not blame the map pin.
+
 ## 2026-10-16 — Identity photos: "Send again" looped and never reached payment
 
 - Report (21:10–21:14, `AJ-20261016-R0029`, English): step 3 showed “The identity images could not be sent” although Telegram already had “ลูกค้าส่งรูปยืนยันตัวตนแล้ว / Identity images received”; every Send again ran for a while and failed again.

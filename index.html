@@ -4771,7 +4771,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       await fetch(new URL(`/api/booking-context/${encodeURIComponent(state.calc.demoContextToken)}/delivery`, CONFIG.apiBase), {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({quotationId})
+        body:JSON.stringify({quotationId, seal:String(quote?.seal || "")})
       });
     }catch(error){
       console.warn("Delivery quote not recorded", error);
@@ -5041,7 +5041,27 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       document.querySelectorAll(`input[data-identity-file="${kind}"]`).forEach(input => { input.files = selected.files; });
     }catch{ /* The selected-photo label and preview still show the saved file. */ }
   }
-  async function demoImageDataUrl(file){
+  // Identity photos are sent small. A 1440 px long edge keeps the smallest
+  // print on a Thai ID card or a passport readable, and each photo stays near
+  // 300 KB, so a phone on a weak signal sends both in a few seconds. Each photo
+  // is prepared once, as soon as it is chosen, so Confirm does not wait for it.
+  const IDENTITY_PHOTO_EDGE = 1440;
+  const IDENTITY_PHOTO_MAX_BYTES = 300 * 1024;
+  const demoImageEncodings = new WeakMap();
+  function demoImageDataUrl(file){
+    if(!file) return Promise.reject(new Error("identity_image_decode_failed"));
+    let pending = demoImageEncodings.get(file);
+    if(!pending){
+      pending = encodeDemoIdentityImage(file);
+      demoImageEncodings.set(file, pending);
+      pending.catch(() => demoImageEncodings.delete(file));
+    }
+    return pending;
+  }
+  function prepareDemoIdentityImage(file){
+    if(file) demoImageDataUrl(file).catch(() => { /* Reported when the photos are sent. */ });
+  }
+  async function encodeDemoIdentityImage(file){
     let image;
     try{ image = await createImageBitmap(file); }
     catch{
@@ -5056,21 +5076,31 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         });
       }finally{ URL.revokeObjectURL(url); }
     }
-    const width = image.width || image.naturalWidth;
-    const height = image.height || image.naturalHeight;
-    if(!width || !height){ image.close?.(); throw new Error("identity_image_decode_failed"); }
-    const scale = Math.min(1, 1600 / Math.max(width, height));
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.max(1, Math.round(width * scale));
-    canvas.height = Math.max(1, Math.round(height * scale));
-    const context = canvas.getContext("2d");
-    if(!context){ image.close?.(); throw new Error("identity_image_decode_failed"); }
-    context.drawImage(image, 0, 0, canvas.width, canvas.height);
-    image.close?.();
-    let result = canvas.toDataURL("image/jpeg", 0.8);
-    if(result.length > 7 * 1024 * 1024) result = canvas.toDataURL("image/jpeg", 0.65);
-    if(!result.startsWith("data:image/jpeg;base64,") || result.length > 8 * 1024 * 1024) throw new Error("identity_image_decode_failed");
-    return result;
+    try{
+      const width = image.width || image.naturalWidth;
+      const height = image.height || image.naturalHeight;
+      if(!width || !height) throw new Error("identity_image_decode_failed");
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      if(!context) throw new Error("identity_image_decode_failed");
+      const encode = (edge, quality) => {
+        const scale = Math.min(1, edge / Math.max(width, height));
+        canvas.width = Math.max(1, Math.round(width * scale));
+        canvas.height = Math.max(1, Math.round(height * scale));
+        context.imageSmoothingQuality = "high";
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL("image/jpeg", quality);
+      };
+      const bytes = url => Math.floor((url.length - url.indexOf(",") - 1) * 3 / 4);
+      let result = encode(IDENTITY_PHOTO_EDGE, 0.72);
+      if(bytes(result) > IDENTITY_PHOTO_MAX_BYTES) result = encode(IDENTITY_PHOTO_EDGE, 0.62);
+      if(bytes(result) > IDENTITY_PHOTO_MAX_BYTES) result = encode(1280, 0.62);
+      if(bytes(result) > IDENTITY_PHOTO_MAX_BYTES * 1.5) result = encode(1120, 0.6);
+      if(!result.startsWith("data:image/jpeg;base64,") || result.length > 8 * 1024 * 1024) throw new Error("identity_image_decode_failed");
+      return result;
+    }finally{
+      image.close?.();
+    }
   }
   // Each pair of photos gets one upload id. Storing them can take longer than a
   // phone waits on one request, and the Bot carries on after the page gives up;
@@ -5131,7 +5161,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
     const waiting = en ? "Still saving your identity photos… please keep this page open." : "กำลังบันทึกรูปยืนยันตัวตน… กรุณาเปิดหน้านี้ไว้";
     if(onWaiting) onWaiting(waiting); else showDemoBusy(waiting);
-    const deadline = Date.now() + 150000;
+    const deadline = Date.now() + 60000;
     while(Date.now() < deadline){
       await new Promise(resolve => setTimeout(resolve, 3000));
       const status = await demoIdentityUploadState(contextToken, uploadId).catch(() => null);
@@ -7252,6 +7282,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // the logos, fees and refund notes can never drift apart.
   // The booking page's picker; the pay-later page passes its own selection,
   // the amounts the server worked out, and inputs of its own.
+  // Which payment group the renter opened by hand, per picker. The page is
+  // redrawn every few seconds (queue holds, delivery quote), and the redraw
+  // used to snap "Pay the full amount" shut while they were choosing a method.
+  const paymentGroupOpened = {};
   function paymentPickerHtml({disabled = "", wiseStatus = null, selected = state.calc.payment, amountHtml = paymentOptionAmountHtml, choiceAttr = "data-payment-choice", inputName = "paymentChoice", allowWise = state.lang === "en", deliveryReady = demoDelivery.status === "ready"} = {}){
     const en = state.lang === "en";
     const status = wiseStatus || (en ? wisePaymentAvailability() : {available:true, reason:"", iso:bangkokNow().iso});
@@ -7273,7 +7307,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const recommended = en ? "Recommended" : "แนะนำ";
     // One group is open at a time so the list reads as a short choice. The
     // group holding the current selection opens; reservation leads by default.
-    const fullSelected = ["bank", "wise", "credit", "ewallet"].includes(selected);
+    const fullSelected = paymentGroupOpened[inputName]
+      ? paymentGroupOpened[inputName] === "full"
+      : ["bank", "wise", "credit", "ewallet"].includes(selected);
     // Drawn chevron: points down when the group is open, right when closed (CSS).
     const caret = () => `<span class="payment-group-caret" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
     const deliveryNote = deliveryReady ? "" : `<p class="payment-picker-note">${en ? "Amounts below do not yet include delivery." : "ยอดด้านล่างยังไม่รวมค่าจัดส่ง"}</p>`;
@@ -8703,7 +8739,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       // discount, and what the customer pays, for the shop's booking and card.
       // True when the renter goes ahead without a live delivery price.
       deliveryPending: deliveryFeePending(),
-      deliveryQuote: demoDelivery.status === "ready" && demoDelivery.quote ? {subtotal:Number(demoDelivery.quote.subtotal) || 0, discount:Number(demoDelivery.quote.discount) || 0, total:Number(demoDelivery.quote.total) || 0, serviceType:String(demoDelivery.quote.serviceType || ""), outsideBangkokMetro:demoDelivery.quote.outsideBangkokMetro === true, quotationId:String(demoDelivery.quote.outbound?.quotationId || "")} : null,
+      deliveryQuote: demoDelivery.status === "ready" && demoDelivery.quote ? {subtotal:Number(demoDelivery.quote.subtotal) || 0, discount:Number(demoDelivery.quote.discount) || 0, total:Number(demoDelivery.quote.total) || 0, serviceType:String(demoDelivery.quote.serviceType || ""), outsideBangkokMetro:demoDelivery.quote.outsideBangkokMetro === true, quotationId:String(demoDelivery.quote.outbound?.quotationId || ""), seal:String(demoDelivery.quote.seal || "")} : null,
       paymentLink: generatedPaymentLink(s, code),
       paymentLinkLabel: paymentLinkLabel(),
       paymentBankAccount: CONFIG.reservationBankAccount,
@@ -9965,7 +10001,24 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       }
       const summary = calcSummary();
       const code = confirmedRentalCodeForPayment(summary);
-      const handoff = await prepareContractHandoff(code, "web");
+      let handoff;
+      try{
+        handoff = await prepareContractHandoff(code, "web");
+      }catch(error){
+        // The Bot no longer knows the quote shown (it restarted, or the page
+        // sat open for hours). Quote again; go on only if the price is the
+        // same, otherwise show the new figures before taking any money.
+        if(error?.code !== "delivery_quote_required") throw error;
+        const shownTotal = Number(demoDelivery.quote?.total) || 0;
+        await ensureDemoDeliveryQuote(true);
+        if((Number(demoDelivery.quote?.total) || 0) !== shownTotal){
+          hideDemoBusy();
+          renderDemoOrderPage();
+          toast(state.lang === "en" ? "The delivery fee was updated. Please check the new total, then tap Pay now again." : "ค่าจัดส่งอัปเดตแล้ว กรุณาตรวจยอดใหม่ แล้วกดชำระเงินอีกครั้ง", 6000);
+          return;
+        }
+        handoff = await prepareContractHandoff(code, "web");
+      }
       state.calc.demoContextToken = handoff.contextToken || "";
       // The signed agreement must be filed under the Rental ID being paid for,
       // or no contract is made when the payment arrives.
@@ -10059,12 +10112,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(demoDelivery.status !== "ready" || !demoDelivery.quote) return;
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(demoProfile.email || "").trim())) return;
     payLaterEmail.sending = true;
+    // The token is read after the row is written: a Pay now in between can
+    // replace the booking context, and the Bot only knows the newest one.
     Promise.resolve(consolePendingWrites)
       .then(() => bookingFetch(`${CONFIG.apiBase}/api/rentals/pay-later`, {
         method:"POST",
         cache:"no-store",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({contextToken})
+        body:JSON.stringify({contextToken:state.calc.demoContextToken || contextToken})
       }, 30000))
       .then(async response => {
         const result = await response.json().catch(() => ({}));
@@ -14457,6 +14512,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
         const group = paymentGroup.closest(".payment-group");
         const picker = paymentGroup.closest(".payment-picker");
         if(group && picker){
+          const choice = picker.querySelector("input[type=radio]");
+          if(choice?.name) paymentGroupOpened[choice.name] = paymentGroup.dataset.paymentGroup;
           $$(".payment-group", picker).forEach(item => item.classList.toggle("is-collapsed", item !== group));
           $$("[data-payment-group]", picker).forEach(button => {
             const open = !button.closest(".payment-group").classList.contains("is-collapsed");
@@ -14963,6 +15020,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
           else demoProfile.selfieWithId = file;
           demoProfile.identitySkipped = false;
           demoProfile.identityUploaded = false;
+          prepareDemoIdentityImage(file);
           render();
           renderVerifyNowModal();
           syncDemoIdentityInputs(target.dataset.identityFile, file);
@@ -14981,6 +15039,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         else demoProfile.selfieWithId = file;
         demoProfile.identityUploaded = false;
         demoProfile.identitySkipped = false;
+        prepareDemoIdentityImage(file);
         render();
         renderVerifyNowModal();
         syncDemoIdentityInputs(event.target.dataset.identityFile, file);
