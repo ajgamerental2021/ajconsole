@@ -1,3 +1,15 @@
+## 2026-10-16 — Identity photos: "Send again" looped and never reached payment
+
+- Report (21:10–21:14, `AJ-20261016-R0029`, English): step 3 showed “The identity images could not be sent” although Telegram already had “ลูกค้าส่งรูปยืนยันตัวตนแล้ว / Identity images received”; every Send again ran for a while and failed again.
+- Cause: the Bot saves the photos with four Drive uploads through Apps Script (30 s each, one retry) and then two sheet writes with retries. That took longer than the page's 30 s wait. The Bot finished and notified the shop after the page had given up, and every Send again started a fresh, equally slow upload: a new Telegram message and another timeout.
+- Bot `58b322a`: each photo pair carries a random upload id. A repeat joins the running upload or gets its finished result; only new photos count to the 3-per-context limit. `GET /api/booking-context/:token/identity/:uploadId` reports pending, ok, failed or unknown, with no personal data. Each upload logs `Identity upload finished` with its duration, to tell a slow Drive from a broken one. Old pages without an id behave as before.
+- Website: the page asks for the status first; if the Bot already holds the photos it goes on with no upload. Otherwise it waits up to 60 s on the upload. If the answer is lost, it shows “Still saving your identity photos…” and checks the status every 3 s for up to 150 s instead of failing. The selected photos stay if the upload really failed. The agreement request wait went from 30 s to 60 s because it uses the same slow storage. The Verify-now pop-up shows the waiting line in its own status.
+- Verification:
+  - website 355/355, including new `tests/identity-upload-retry.test.mjs`, which runs the real page functions: lost answer, already stored, new photos, refused, never received;
+  - Bot 659/660 with new `test/identity-upload-jobs.test.js`. The one failure, `current bilingual return handover clause…`, also fails on `main` before this change and comes from the 2026-10-16 terms commits;
+  - page loads with no script errors.
+  - Not exercised with a real customer upload or live Drive.
+
 ## 2026-10-16 — Revised returning-customer deposit conditions
 
 - The Bot now ships rental terms version `2026-10-16` with the owner's three-paragraph returning-customer deposit wording in Thai and English. The shared versioned terms feed the public rental-terms page, LIFF, contract PDF and rental-order PDF. Version `2026-10-11` remains built in so previously accepted terms rebuild unchanged.

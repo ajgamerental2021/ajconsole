@@ -325,8 +325,8 @@ test('slow steps show a busy veil and edits open in a dialog', () => {
 });
 
 test('identity and agreement uploads finish or offer a retry without reloading selected photos', () => {
-  assert.match(html, /bookingFetch\(`\$\{CONFIG\.apiBase\}\/api\/booking-context\/\$\{encodeURIComponent\(contextToken\)\}\/agreement`[\s\S]*?\}, 30000\)/);
-  assert.match(html, /bookingFetch\(endpoint, \{method:"POST", cache:"no-store", headers:\{"Content-Type":"application\/json"\}, body\}, 30000\)/);
+  assert.match(html, /bookingFetch\(`\$\{CONFIG\.apiBase\}\/api\/booking-context\/\$\{encodeURIComponent\(contextToken\)\}\/agreement`[\s\S]*?\}, 60000\)/);
+  assert.match(html, /bookingFetch\(endpoint, \{method:"POST", cache:"no-store", headers:\{"Content-Type":"application\/json"\}, body\}, 60000\)/);
   assert.match(html, /data-progress-retry-confirm/);
   assert.match(html, /Your selected photos are still here; tap Send again/);
 });
@@ -646,7 +646,7 @@ test('pop-ups that can switch language share one language button', () => {
 test('Verify now opens the identity photos in a pop-up, not step 3', () => {
   assert.match(html, /if\(targetId === "demoVerifyLater"\)\{ openVerifyNowModal\(\); return; \}/);
   assert.match(html, /\$\{demoIdentityUploadGridHtml\("verifyNow"\)\}/);
-  assert.match(html, /await uploadDemoIdentity\(token\);/);
+  assert.match(html, /await uploadDemoIdentity\(token, state\.calc\.rentalCode, \{onWaiting:/);
 });
 
 test('the Rental ID stays the same when only the payment choice or delivery quote changes', () => {

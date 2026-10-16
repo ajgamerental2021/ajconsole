@@ -5072,22 +5072,75 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!result.startsWith("data:image/jpeg;base64,") || result.length > 8 * 1024 * 1024) throw new Error("identity_image_decode_failed");
     return result;
   }
-  async function uploadDemoIdentity(contextToken, rentalCode){
-    const body = JSON.stringify({
-      idCardImageDataUrl: await demoImageDataUrl(demoProfile.idDocument),
-      selfieImageDataUrl: await demoImageDataUrl(demoProfile.selfieWithId)
-    });
-    const endpoint = new URL(`/api/booking-context/${encodeURIComponent(contextToken)}/identity`, CONFIG.apiBase);
-    const response = await bookingFetch(endpoint, {method:"POST", cache:"no-store", headers:{"Content-Type":"application/json"}, body}, 30000);
+  // Each pair of photos gets one upload id. Storing them can take longer than a
+  // phone waits on one request, and the Bot carries on after the page gives up;
+  // with the id, "Send again" joins that upload or gets its result instead of
+  // starting another one (and another shop message) every time.
+  let demoIdentityUpload = null;
+  function demoIdentityUploadId(){
+    if(!demoIdentityUpload || demoIdentityUpload.idDocument !== demoProfile.idDocument || demoIdentityUpload.selfieWithId !== demoProfile.selfieWithId){
+      const bytes = new Uint8Array(18);
+      crypto.getRandomValues(bytes);
+      const id = btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      demoIdentityUpload = {id, idDocument:demoProfile.idDocument, selfieWithId:demoProfile.selfieWithId};
+    }
+    return demoIdentityUpload.id;
+  }
+  async function demoIdentityUploadState(contextToken, uploadId){
+    const endpoint = new URL(`/api/booking-context/${encodeURIComponent(contextToken)}/identity/${encodeURIComponent(uploadId)}`, CONFIG.apiBase);
+    const response = await bookingFetch(endpoint, {cache:"no-store"}, 10000);
     const result = await response.json().catch(() => ({}));
-    if(!response.ok || !result?.ok) throw new Error(result?.error || `identity upload ${response.status}`);
+    if(!response.ok) throw new Error(result?.error || `identity status ${response.status}`);
+    return result;
+  }
+  function markDemoIdentityUploaded(rentalCode){
     demoProfile.identityUploaded = true;
     state.calc.demoIdentityFor = String(rentalCode || state.calc.rentalCode || "");
     saveLocal();
     demoProfile.idDocument = null;
     demoProfile.selfieWithId = null;
+    demoIdentityUpload = null;
     // Kept on this device, so a reload still shows the photos as sent.
     saveDemoProfile();
+  }
+  async function uploadDemoIdentity(contextToken, rentalCode, {onWaiting} = {}){
+    const en = state.lang === "en";
+    const uploadId = demoIdentityUploadId();
+    // After a lost answer the Bot may already hold these photos.
+    const before = await demoIdentityUploadState(contextToken, uploadId).catch(() => null);
+    if(before?.state === "ok") return markDemoIdentityUploaded(rentalCode);
+    if(before?.state !== "pending"){
+      const body = JSON.stringify({
+        uploadId,
+        idCardImageDataUrl: await demoImageDataUrl(demoProfile.idDocument),
+        selfieImageDataUrl: await demoImageDataUrl(demoProfile.selfieWithId)
+      });
+      const endpoint = new URL(`/api/booking-context/${encodeURIComponent(contextToken)}/identity`, CONFIG.apiBase);
+      let response = null;
+      try{
+        response = await bookingFetch(endpoint, {method:"POST", cache:"no-store", headers:{"Content-Type":"application/json"}, body}, 60000);
+      }catch(error){
+        // Timed out or the connection dropped: the upload may still be running.
+        console.warn("Identity upload answer lost; checking with AJ", error);
+      }
+      if(response){
+        const result = await response.json().catch(() => ({}));
+        if(response.ok && result?.ok) return markDemoIdentityUploaded(rentalCode);
+        throw new Error(result?.error || `identity upload ${response.status}`);
+      }
+    }
+    const waiting = en ? "Still saving your identity photos… please keep this page open." : "กำลังบันทึกรูปยืนยันตัวตน… กรุณาเปิดหน้านี้ไว้";
+    if(onWaiting) onWaiting(waiting); else showDemoBusy(waiting);
+    const deadline = Date.now() + 150000;
+    while(Date.now() < deadline){
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      const status = await demoIdentityUploadState(contextToken, uploadId).catch(() => null);
+      if(status?.state === "ok") return markDemoIdentityUploaded(rentalCode);
+      if(status?.state === "failed") throw new Error(status.error || "identity_upload_failed");
+      // Never reached the Bot (or the Bot restarted): Send again uploads them.
+      if(status?.state === "unknown") throw new Error("identity_upload_not_received");
+    }
+    throw new Error("identity_upload_timeout");
   }
   // "Verify now" on the Rental ID page, for a renter who chose "Verify later":
   // everything step 3 asks for, in a pop-up — the two photos, the deposit
@@ -5264,7 +5317,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const problem = demoAgreementProblem(error);
       throw Object.assign(new Error("agreement_refused"), {problem:{id:problem.field || "", message:problem.message}});
     }
-    await uploadDemoIdentity(token);
+    await uploadDemoIdentity(token, state.calc.rentalCode, {onWaiting:message => setVerifyNowStatus(message, "busy")});
   }
   async function submitVerifyNow(){
     const en = state.lang === "en";
@@ -5921,7 +5974,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         refundAccountNumber: demoAgreement.account,
         refundAccountName: String(demoProfile.refundAccountName || "").trim()
       })
-    }, 30000);
+    }, 60000);
     const result = await response.json().catch(() => ({}));
     // The signature and details are kept until payment; the contract is made
     // only once the rental is paid.
