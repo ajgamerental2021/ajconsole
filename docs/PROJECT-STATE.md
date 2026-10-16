@@ -1,3 +1,8 @@
+## 2026-10-16 — Revised returning-customer deposit conditions
+
+- The Bot now ships rental terms version `2026-10-16` with the owner's three-paragraph returning-customer deposit wording in Thai and English. The shared versioned terms feed the public rental-terms page, LIFF, contract PDF and rental-order PDF. Version `2026-10-11` remains built in so previously accepted terms rebuild unchanged.
+- Verification: Bot rental-terms tests 9/9; generated Thai and English contract PDFs and extracted the revised headings and deposit amounts with `pdftotext`.
+
 ## 2026-10-16 — LINE pending-payment shortcuts and visible edit controls
 
 - Synced delivery-app, Bot, and booking site with the latest `origin/main` before editing. The pending-payment LINE card now displays the saved payment method's due-now amount and total, including the payment fee when applicable. Its primary action opens the private payment page with automatic checkout for that same method; the Bot still calculates the payable amount and the website still checks availability before opening Beam. Wise opens its existing transfer instructions.
