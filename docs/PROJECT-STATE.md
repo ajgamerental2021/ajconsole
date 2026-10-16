@@ -2,6 +2,7 @@
 
 - The Bot now ships rental terms version `2026-10-16` with the owner's three-paragraph returning-customer deposit wording in Thai and English. The shared versioned terms feed the public rental-terms page, LIFF, contract PDF and rental-order PDF. Version `2026-10-11` remains built in so previously accepted terms rebuild unchanged.
 - Verification: Bot rental-terms tests 9/9; generated Thai and English contract PDFs and extracted the revised headings and deposit amounts with `pdftotext`.
+- Follow-up: Bot version `2026-10-16-2` removes “พร้อมแก้ไข” / “Revised” from the heading on the page and in new PDFs. The earlier `2026-10-16` wording remains available for agreements already issued under that version. Tests 9/9 and generated Thai/English PDFs checked again.
 
 ## 2026-10-16 — LINE pending-payment shortcuts and visible edit controls
 
