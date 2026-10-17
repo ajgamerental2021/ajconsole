@@ -1,3 +1,20 @@
+## 2026-10-17 — Same-day delivery time counted from when the money arrived (TH/EN)
+
+- **Owner report:** booking 584 (AJ-20261017-R0003) was requested at 09:31 and paid at 15:24. Its confirmation card said delivery 12:30; under the shop's 3-hour rule it should be 18:30.
+- **Cause (DA):** `confirmConsolePending` computed the same-day schedule from the request's `createdAt`, even when the booking was created by a payment that arrived hours later.
+- **DA `7cbc1c2`:**
+  - New `deliveryTiming.preparationStartsAt(requestedAt, startedAt)`, which uses whichever is later.
+  - `ConfirmConsoleInput.scheduleFrom` carries the start time:
+    - the payment's `paidAt` (Beam webhook and poller, slip, manual Wise) via `confirmConsolePendingByRentalCode`;
+    - otherwise the moment it was seen;
+    - for a staff Confirm, the moment staff pressed it.
+  - A time the shop typed still wins. The existing rules stand: cutoff → 10:00, after 22:00 → 13:00, 19:00–19:59 → +1 h, advance rentals → 10:00.
+  - The confirmation card, in both Thai and English, reads the booking's time, so both are fixed.
+  - The Bot already sends `paidAt` on every path; no Bot change.
+- **Tests:** delivery-timing 59/59 (including the booking 584 case: 09:31 request, 15:24 payment → 18:30), console-pending-overrides 30/30, auto-booking-payment passed, flex-ledger 24/24, tsc passed.
+  - `test:console-pending-reservation` has 4 failures (pay-now button order in the card). They are pre-existing and identical on main before this change.
+- **Not changed:** booking 584 keeps 12:30 until it is edited by hand. No APK needed.
+
 ## 2026-10-17 — Order summary and payment choice no longer show under steps 1–3 (TH/EN)
 
 - **Owner report (screenshot):** step 1 (เลือกเครื่องและวันที่) was showing with the whole order page under it: the Rental ID, customer, payment summary, payment choice and Pay button.
