@@ -1,3 +1,12 @@
+## 2026-10-17 — Delivery-fee problem box: Thai shows LINE only
+
+- Owner request: in Thai, the delivery-fee problem box and dialog (not served / error / slow) offer LINE only. English keeps LINE and WhatsApp.
+- Changed `deliveryQuoteActionsHtml` and `showDeliveryQuoteProblem`.
+- Checked in the browser with an out-of-area quote against the local Bot:
+  - TH: ปิด / ตรวจหมุดแผนที่ / เช็คค่าส่งอีกครั้ง / ติดต่อร้านทาง LINE;
+  - EN: Close / Check the map pin / Check delivery fee again / Contact AJ on LINE / Contact AJ on WhatsApp.
+- Website tests 360/360.
+
 ## 2026-10-17 — Delivery fee from Lalamove shown in step 2; still required before payment (TH/EN)
 
 - Owner decision: keep blocking without a delivery fee, but the fee must work reliably and appear from the start so the renter decides with it. If checking takes long, offer "check again" and "contact the shop", in Thai and English.

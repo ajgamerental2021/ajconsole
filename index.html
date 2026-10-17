@@ -4788,7 +4788,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ${pin ? `<button class="btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><button class="btn" type="button" data-demo-pin-map>${en ? "🗺️ Pin it on a map" : "🗺️ ปักหมุดบนแผนที่"}</button>` : ""}
       ${retry ? `<button class="btn primary" type="button" data-delivery-quote-retry>${en ? "Check delivery fee again" : "เช็คค่าส่งอีกครั้ง"}</button>` : ""}
       <a class="btn" href="${esc(CONFIG.lineUrl)}" target="_blank" rel="noopener">${en ? "Contact AJ on LINE" : "ติดต่อร้านทาง LINE"}</a>
-      <a class="btn" href="https://wa.me/message/LEJ5QD3B2D2TN1" target="_blank" rel="noopener">${en ? "Contact AJ on WhatsApp" : "ติดต่อร้านทาง WhatsApp"}</a>
+      ${en ? `<a class="btn" href="https://wa.me/message/LEJ5QD3B2D2TN1" target="_blank" rel="noopener">Contact AJ on WhatsApp</a>` : ""}
     </div>`;
   }
   function deliveryQuoteStatusText({settled = false} = {}){
@@ -4841,7 +4841,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         ${demoDelivery.status === "needs_pin" || demoDelivery.status === "out_of_area" ? `<button class="btn" type="button" data-progress-problem-close>${en ? "Check the map pin" : "ตรวจหมุดแผนที่"}</button>` : ""}
         <button class="btn primary" type="button" data-delivery-quote-retry-continue>${en ? "Check delivery fee again" : "เช็คค่าส่งอีกครั้ง"}</button>
         <a class="btn" href="${esc(CONFIG.lineUrl)}" target="_blank" rel="noopener">${en ? "Contact AJ on LINE" : "ติดต่อร้านทาง LINE"}</a>
-        <a class="btn" href="https://wa.me/message/LEJ5QD3B2D2TN1" target="_blank" rel="noopener">${en ? "Contact AJ on WhatsApp" : "ติดต่อร้านทาง WhatsApp"}</a>
+        ${en ? `<a class="btn" href="https://wa.me/message/LEJ5QD3B2D2TN1" target="_blank" rel="noopener">Contact AJ on WhatsApp</a>` : ""}
       </div>`);
   }
   // Keep a visible retry/help state; it is not permission to pay.

@@ -77,6 +77,10 @@ test('the delivery fee shows in step 2 and step 3 cannot open without it (TH/EN)
   const dialog = fn('showDeliveryQuoteProblem');
   assert.match(dialog, /data-delivery-quote-retry-continue/);
   assert.match(dialog, /CONFIG\.lineUrl/);
-  assert.match(dialog, /wa\.me\/message\/LEJ5QD3B2D2TN1/);
+  // Thai: LINE only. English: LINE and WhatsApp.
+  for (const html of [dialog, fn('deliveryQuoteActionsHtml')]) {
+    assert.match(html, /\$\{en \? `<a class="btn" href="https:\/\/wa\.me\/message\/LEJ5QD3B2D2TN1" target="_blank" rel="noopener">Contact AJ on WhatsApp<\/a>` : ""\}/);
+    assert.doesNotMatch(html, /ติดต่อร้านทาง WhatsApp/);
+  }
   assert.match(fn('fetchDemoDeliveryQuote'), /stage: payResume\.active \? "pay_resume" : "booking",/);
 });

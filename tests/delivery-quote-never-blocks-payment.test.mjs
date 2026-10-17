@@ -26,7 +26,7 @@ test('the fallback is both failure kinds, and explained right above the button i
   const actions = between('function deliveryQuoteActionsHtml(', '\n  }');
   assert.match(actions, /"Check delivery fee again" : "เช็คค่าส่งอีกครั้ง"/);
   assert.match(actions, /"Contact AJ on LINE" : "ติดต่อร้านทาง LINE"/);
-  assert.match(actions, /"Contact AJ on WhatsApp" : "ติดต่อร้านทาง WhatsApp"/);
+  assert.match(actions, /\$\{en \? `<a [^`]*>Contact AJ on WhatsApp<\/a>` : ""\}/);
   assert.match(html, /เช็คค่าส่งกับ Lalamove ไม่สำเร็จชั่วคราว กรุณากดเช็คอีกครั้ง หรือติดต่อร้าน/);
   assert.match(html, /The delivery fee could not be checked with Lalamove just now\. Please check again, or contact AJ\./);
 });
