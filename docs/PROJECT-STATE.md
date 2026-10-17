@@ -1,3 +1,13 @@
+## 2026-10-17 — Customer tracking page: "ติดตามคนขับ / Follow driver" after the map is moved
+
+- **Owner report:** on the customer's ติดตามการจัดส่ง page (DA `/c/track/<token>`), once the map was moved there was no way back to following the driver.
+- **Cause:** that page fitted the map only once (`if (!fitted)`). The customer trip page (`/c/trip`) already had a follow button; this page did not.
+- **DA `7240889`:**
+  - The map now re-fits to the driver and route on every 15 s update until the customer drags, pinches or scrolls it.
+  - After that, a "📍 ติดตามคนขับ" / "📍 Follow driver" button appears at the bottom centre of the map, clear of the ETA chip and the zoom buttons. Tapping it resumes following and hides the button.
+  - Works with Google Maps and the OpenStreetMap fallback.
+- **Checked:** in a 390 px mobile browser, TH and EN (the button is hidden at first, shows after a drag, and goes after a tap); lalamove-dispatch 376/376; flex-ledger 24/24; tsc passed. Takes effect after the next Render deploy of the DA backend.
+
 ## 2026-10-17 — Customer delivery cards always show the booking's ยอดโอนก่อนส่ง (TH/EN)
 
 - **Owner report:** booking 584 (AJ-20261017-R0003) showed ยอดโอนก่อนส่ง 2,967 in the Delivery App, but the delivery card sent to the customer said 2,867. The owner asked for the Delivery App booking to be the source.
