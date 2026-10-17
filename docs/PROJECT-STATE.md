@@ -1,3 +1,13 @@
+## 2026-10-17 — Step-2 delivery fee box: one line per item, colour-coded (TH/EN)
+
+- Owner request: separate the lines clearly, put the vehicle type on its own line, separate the discount and the amount to pay, and use colour.
+- The box now has a title "🚚 ค่าจัดส่ง (Lalamove) / Delivery fee (Lalamove)", then one row each for:
+  - ค่าจัดส่งไป-กลับ / Round-trip delivery;
+  - ประเภทรถ / Vehicle type;
+  - ส่วนลดค่าจัดส่งจากทางร้าน / AJ delivery discount, in green;
+  - ค่าจัดส่งที่ต้องชำระ / Delivery fee you pay, a larger red figure on a light-red band.
+- Checked in the browser at 390 px in both languages. Website tests 360/360.
+
 ## 2026-10-17 — Delivery-fee problem box: Thai shows LINE only
 
 - Owner request: in Thai, the delivery-fee problem box and dialog (not served / error / slow) offer LINE only. English keeps LINE and WhatsApp.

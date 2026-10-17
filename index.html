@@ -340,7 +340,16 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .delivery-quote-box{margin:10px 0 0;padding:12px 14px;border-radius:12px;font-size:15px;line-height:1.55;border:1px solid #d0d5dd;background:#f8fafc;color:#1d2939}
 .delivery-quote-box p{margin:0 0 6px}
 .delivery-quote-box p:last-child{margin-bottom:0}
-.delivery-quote-box.is-ready{background:#ecfdf3;border-color:#75e0a7;color:#054f31}
+.delivery-quote-box.is-ready{background:#fff;border-color:#75e0a7;color:#1d2939}
+.delivery-quote-title{font-weight:700;color:#054f31;margin-bottom:8px!important}
+.delivery-quote-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:7px 0;border-top:1px solid #eaecf0}
+.delivery-quote-row span{color:#475467}
+.delivery-quote-row b{white-space:nowrap;font-variant-numeric:tabular-nums}
+.delivery-quote-row.is-muted b{font-weight:600;color:#344054}
+.delivery-quote-row.is-discount span,.delivery-quote-row.is-discount b{color:#067647}
+.delivery-quote-row.is-total{margin-top:4px;padding:10px 12px;border:0;border-radius:10px;background:#fff1f1}
+.delivery-quote-row.is-total span{color:#7a0010;font-weight:700}
+.delivery-quote-row.is-total b{color:#c90012;font-size:20px;font-weight:800}
 .delivery-quote-box.is-problem{background:#fff8e6;border-color:#f5b840;color:#5c3b00}
 .delivery-quote-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .delivery-quote-actions .btn{flex:1 1 auto;min-height:44px;text-align:center}
@@ -4814,9 +4823,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
     const quote = demoDelivery.status === "ready" ? demoDelivery.quote : null;
     if(quote){
+      const vehicle = quote.serviceType === "CAR" ? (en ? "Car" : "รถยนต์") : (en ? "Motorcycle" : "มอเตอร์ไซค์");
       return `<div class="delivery-quote-box is-ready" id="demoDeliveryQuoteBox" role="status">
-        <p><b>${en ? "🚚 Round-trip delivery (Lalamove)" : "🚚 ค่าจัดส่งไป-กลับ (Lalamove)"}</b> ${money(quote.subtotal)} · ${esc(quote.serviceType === "CAR" ? (en ? "Car" : "รถยนต์") : (en ? "Motorcycle" : "มอเตอร์ไซค์"))}</p>
-        <p>${en ? "AJ delivery promotion" : "ส่วนลดค่าจัดส่งจากร้าน"} -${money(quote.discount)} · <b>${en ? "You pay" : "ค่าจัดส่งที่ต้องชำระ"} ${money(quote.total)}</b></p>
+        <p class="delivery-quote-title">${en ? "🚚 Delivery fee (Lalamove)" : "🚚 ค่าจัดส่ง (Lalamove)"}</p>
+        <div class="delivery-quote-row"><span>${en ? "Round-trip delivery" : "ค่าจัดส่งไป-กลับ"}</span><b>${money(quote.subtotal)}</b></div>
+        <div class="delivery-quote-row is-muted"><span>${en ? "Vehicle type" : "ประเภทรถ"}</span><b>${esc(vehicle)}</b></div>
+        <div class="delivery-quote-row is-discount"><span>${en ? "AJ delivery discount" : "ส่วนลดค่าจัดส่งจากทางร้าน"}</span><b>-${money(quote.discount)}</b></div>
+        <div class="delivery-quote-row is-total"><span>${en ? "Delivery fee you pay" : "ค่าจัดส่งที่ต้องชำระ"}</span><b>${money(quote.total)}</b></div>
       </div>`;
     }
     const loading = demoDelivery.status === "loading";
