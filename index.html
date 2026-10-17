@@ -1039,6 +1039,9 @@ body.unified-flow-demo .demo-example-image{display:block;max-width:100%;width:au
 body.unified-flow-demo .demo-order-page{display:none;margin-top:18px}
 body.unified-flow-demo.demo-order-open .calc-shell{display:none}
 body.unified-flow-demo.demo-order-open .demo-order-page{display:block}
+/* .demo-only is display:block!important in this flow; the order page must still
+   hide whenever the renter is back on the steps, or it shows under step 1-3. */
+body.unified-flow-demo:not(.demo-order-open) #demoOrderPage{display:none!important}
 #payResumeSection{display:none;padding:18px 0 40px}
 body.pay-resume-open #payResumeSection{display:block}
 body.pay-resume-open main > section:not(#payResumeSection){display:none!important}
@@ -4513,7 +4516,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     renderDemoRefundSection();
     renderDemoIdentityCard();
     document.body.classList.toggle("demo-order-open", !!state.calc.demoOrderOpen);
+    // Back on the steps, the old summary and its Pay button are removed, not
+    // just hidden: it would otherwise sit under step 1-3 and repeat their ids.
     if(state.calc.demoOrderOpen) renderDemoOrderPage();
+    else if(byId("demoOrderPage")?.firstChild) byId("demoOrderPage").innerHTML = "";
   }
   function demoIdentityType(){
     return demoProfile.identityType || (state.lang === "en" ? "passport" : "thai_id");

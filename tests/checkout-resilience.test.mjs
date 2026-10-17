@@ -126,3 +126,11 @@ test('the emailed payment link shows a moved delivery price before paying (TH/EN
   assert.match(dialog, /"Lalamove has now priced the round-trip delivery for this rental\." : "ได้ราคาค่าส่งไป-กลับจาก Lalamove สำหรับรายการนี้แล้ว"/);
   assert.match(dialog, /\$\{shownBefore \? `<div class="delivery-quote-row">/);
 });
+
+test('the order page never shows under step 1-3 (TH/EN)', () => {
+  // .demo-only is display:block!important in the unified flow, which beat the
+  // order page's own display:none: back on the steps (a refused payment, an
+  // agreement problem…), the old summary and Pay button sat under step 1.
+  assert.match(source, /body\.unified-flow-demo:not\(\.demo-order-open\) #demoOrderPage\{display:none!important\}/);
+  assert.match(source, /if\(state\.calc\.demoOrderOpen\) renderDemoOrderPage\(\);\s*else if\(byId\("demoOrderPage"\)\?\.firstChild\) byId\("demoOrderPage"\)\.innerHTML = "";/);
+});

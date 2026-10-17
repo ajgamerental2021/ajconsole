@@ -1,3 +1,16 @@
+## 2026-10-17 — Order summary and payment choice no longer show under steps 1–3 (TH/EN)
+
+- **Owner report (screenshot):** step 1 (เลือกเครื่องและวันที่) was showing with the whole order page under it: the Rental ID, customer, payment summary, payment choice and Pay button.
+- **Cause:** in the unified flow, `.demo-only{display:block!important}` beat `#demoOrderPage`'s own `display:none`. Whenever the renter was sent back to the steps, the last order page stayed visible under them. Several code paths do this: a payment refused for an expired LINE link, an agreement problem, a reset after changing details, and others.
+- **Fix:**
+  - CSS: `body.unified-flow-demo:not(.demo-order-open) #demoOrderPage{display:none!important}`.
+  - The order page's HTML is cleared when the renter leaves it, so its Pay button and ids are not duplicated.
+- **Reproduced against the local Bot:** reached the order page, then made Pay now fail with `line_connection_required`.
+  - Before the fix: steps and order page were visible together.
+  - After the fix, TH and EN: step 2 only, and the order HTML was emptied.
+  - Normal TH reservation: still reached Beam (฿200) and paid.
+- **Tests:** website 363/363.
+
 ## 2026-10-17 — Delivery App: delivery fare report (booking quote vs actual Lalamove fare)
 
 - Owner chose option (b): a report page in the Delivery App, instead of exporting sheets.
