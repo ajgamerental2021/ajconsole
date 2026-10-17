@@ -4869,13 +4869,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function showDeliveryQuoteChanged(error, continueAction){
     const en = state.lang === "en";
     deliveryQuoteRetryAction = continueAction || null;
+    // A rental that had no delivery price yet (the payment link) has no "before".
+    const shownBefore = error?.before !== null && error?.before !== undefined && Number.isFinite(Number(error.before));
     const up = Number(error?.after) > Number(error?.before);
     showModal(en ? "Delivery fee updated" : "ค่าจัดส่งอัปเดตแล้ว", `
-      <p>${esc(en
+      <p>${esc(!shownBefore
+        ? (en ? "Lalamove has now priced the round-trip delivery for this rental." : "ได้ราคาค่าส่งไป-กลับจาก Lalamove สำหรับรายการนี้แล้ว")
+        : en
         ? `Lalamove's price for your delivery has ${up ? "gone up" : "gone down"} since it was shown, because of current traffic and driver availability.`
         : `ราคาค่าส่งจาก Lalamove ${up ? "สูงขึ้น" : "ลดลง"}จากที่แสดงไว้ก่อนหน้า ตามสภาพการจราจรและจำนวนรถในขณะนี้`)}</p>
       <div class="delivery-quote-change">
-        <div class="delivery-quote-row"><span>${en ? "Shown before" : "ยอดเดิม"}</span><b><s>${money(error?.before)}</s></b></div>
+        ${shownBefore ? `<div class="delivery-quote-row"><span>${en ? "Shown before" : "ยอดเดิม"}</span><b><s>${money(error?.before)}</s></b></div>` : ""}
         <div class="delivery-quote-row is-total"><span>${en ? "Delivery fee you pay now" : "ค่าจัดส่งที่ต้องชำระตอนนี้"}</span><b>${money(error?.after)}</b></div>
       </div>
       <p class="hint">${esc(en ? "No payment has been taken. The new price holds for 30 minutes." : "ยังไม่มีการเก็บเงิน ราคาใหม่นี้ใช้ได้ 30 นาที")}</p>
@@ -10684,7 +10688,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const en = state.lang === "en";
     const r = payResume.rental;
     if(!r || r.paid || payResume.queueBlocked) return;
-    showDemoBusy(en ? "Checking the queue and opening the payment page…" : "กำลังตรวจคิวและเปิดหน้าชำระเงิน…");
+    showDemoBusy(en ? "Checking the queue and the delivery fee, then opening the payment page…" : "กำลังตรวจคิว เช็คค่าส่ง และเปิดหน้าชำระเงิน…");
     try{
       // The queue may have filled since the rental was saved. Every resume
       // payment, including the LINE shortcut, must pass a fresh check.
@@ -10704,7 +10708,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           body:JSON.stringify({token:payResume.token})
         }, 30000);
         const result = await response.json().catch(() => ({}));
-        if(!response.ok || !result.ok) throw Object.assign(new Error(result.error || "payment_unavailable"), {code:result.error || ""});
+        if(!response.ok || !result.ok) throw Object.assign(new Error(result.error || "payment_unavailable"), {code:result.error || "", result});
         payResume.rental.paymentOption = "wise";
         hideDemoBusy();
         renderPayResume();
@@ -10718,7 +10722,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         body:JSON.stringify({token:payResume.token, method:payResume.method})
       }, 30000);
       const result = await response.json().catch(() => ({}));
-      if(!response.ok || !result.url) throw Object.assign(new Error(result.error || "payment_unavailable"), {code:result.error || ""});
+      if(!response.ok || !result.url) throw Object.assign(new Error(result.error || "payment_unavailable"), {code:result.error || "", result});
       rememberBeamDeparture("resume", r.rentalCode);
       location.href = result.url;
     }catch(error){
@@ -10729,6 +10733,26 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         return;
       }
       if(error?.code === "already_paid"){ openPayResume(payResume.code, payResume.token); return; }
+      // The delivery price is older than 30 minutes and Lalamove's has moved:
+      // the Bot saved the new one on the rental. Show the new amounts, then
+      // old and new, before anything is charged.
+      if(error?.code === "delivery_quote_changed"){
+        if(error.result?.rental){
+          payResume.rental = error.result.rental;
+          hydratePayResumeEditor(error.result.rental);
+          demoDelivery.previousTotal = Number.isFinite(Number(error.result.before)) ? Number(error.result.before) : null;
+          demoDelivery.quotedAt = Date.now();
+          renderPayResume();
+        }
+        showDeliveryQuoteChanged(error.result || {}, () => launchPayResume());
+        return;
+      }
+      if(error?.code === "delivery_quote_required" || error?.code === "delivery_out_of_area"){
+        demoDelivery.status = error.code === "delivery_out_of_area" ? "out_of_area" : "unavailable";
+        renderPayResume();
+        showDeliveryQuoteProblem(() => launchPayResume());
+        return;
+      }
       if(error?.message === "queue_check_failed"){
         toast(en ? "The queue could not be checked. Please try again." : "เช็คคิวไม่สำเร็จ กรุณาลองอีกครั้ง", 4500);
         return;

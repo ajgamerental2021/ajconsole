@@ -1,3 +1,27 @@
+## 2026-10-17 — Emailed "continue payment" link asks Lalamove again before paying (TH/EN)
+
+- Owner request: the "ทำรายการชำระเงินต่อ / Continue to payment" link in the pay-later email should behave like the booking page before payment.
+- **Bot `fb9db8c`:**
+  - Every stored delivery quote now carries `quotedAt`.
+  - Pay now (Beam) and Wise on the private payment page check the stored price first. If it is older than 30 min, or the rental was never priced, the Bot asks Lalamove again, using the place stored on the rental, never one the page sends.
+  - Same price: payment goes straight on, and the price holds another 30 min.
+  - New price: the Bot saves it on Console Pending (quote, fee, the delivery line in costs, total, pay-now and balance amounts) before telling the page. The page then gets 409 `delivery_quote_changed` with old, new and the updated rental. The history mirror is updated too; if the mirror lags, the Bot only logs it, because Console Pending wins.
+  - Lalamove down: 409 `delivery_quote_required` and an alert to the shop. Out of area: 422 `delivery_out_of_area`.
+  - Edits from that page now keep a delivery price only if this server sealed it. A made-up price is ignored, and Pay re-quotes.
+  - The identity-upgrade reprice now uses the same code, and it also updates the delivery line.
+  - New module: `src/services/rental-delivery-quote.js`.
+- **Website:**
+  - New price on the payment page: the page shows the new amounts, then the same "ค่าจัดส่งอัปเดตแล้ว / Delivery fee updated" dialog, old struck out and new. **ดำเนินการต่อด้วยยอดใหม่ / Continue with the new price** pays.
+  - A rental priced for the first time shows "ได้ราคาค่าส่งไป-กลับจาก Lalamove สำหรับรายการนี้แล้ว / Lalamove has now priced…" with no struck-out amount.
+  - No price: the "ต้องได้ค่าส่งก่อนไปต่อ / Delivery fee needed first" dialog.
+- **E2E against the local Bot** (rental booked with pay-later; stored quote aged to 35 min; fake Lalamove ฿265 per trip):
+  - TH: dialog ฿230 → ฿430; the page showed ฿630 / -฿200 / ฿430, total ฿13,330; Beam reservation ฿200 paid.
+  - EN: the same dialog, with WhatsApp; Beam reservation ฿1,000 paid.
+  - Stored price unchanged after re-quote: went straight to Beam.
+  - The Lalamove-down path on this page is covered by unit tests only.
+- **Tests:** Bot 676/677 (the one pre-existing terms failure), website 362/362.
+- **Still open:** comparing the actual Lalamove fare against the delivery fee charged (needs production data).
+
 ## 2026-10-17 — Delivery price holds 30 minutes; a changed price is shown before payment (TH/EN)
 
 - Owner request: 6 h is too long, because rain or a driver shortage raises Lalamove's price.

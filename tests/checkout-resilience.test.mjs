@@ -111,3 +111,18 @@ test('a delivery price older than 30 minutes is asked for again; a changed one i
   assert.match(dialog, /ยังไม่มีการเก็บเงิน ราคาใหม่นี้ใช้ได้ 30 นาที/);
   assert.match(source, /const DELIVERY_QUOTE_FRESH_MS = 28 \* 60 \* 1000;/);
 });
+
+test('the emailed payment link shows a moved delivery price before paying (TH/EN)', () => {
+  const launch = fn('launchPayResume');
+  // The Bot asks Lalamove again after 30 minutes; a new price comes back with
+  // the rental, whose new amounts are shown under the old-and-new dialog.
+  assert.match(launch, /if\(error\?\.code === "delivery_quote_changed"\)\{[\s\S]*?payResume\.rental = error\.result\.rental;\s*hydratePayResumeEditor\(error\.result\.rental\);[\s\S]*?showDeliveryQuoteChanged\(error\.result \|\| \{\}, \(\) => launchPayResume\(\)\);/);
+  // No price: the same "delivery fee needed first" dialog as the booking page.
+  assert.match(launch, /if\(error\?\.code === "delivery_quote_required" \|\| error\?\.code === "delivery_out_of_area"\)\{[\s\S]*?showDeliveryQuoteProblem\(\(\) => launchPayResume\(\)\);/);
+  // Both the Beam and the Wise answers carry the Bot's reply to the handler.
+  assert.equal(launch.match(/\{code:result\.error \|\| "", result\}/g)?.length, 2);
+  // A rental priced only now has no "before" to strike through.
+  const dialog = fn('showDeliveryQuoteChanged');
+  assert.match(dialog, /"Lalamove has now priced the round-trip delivery for this rental\." : "ได้ราคาค่าส่งไป-กลับจาก Lalamove สำหรับรายการนี้แล้ว"/);
+  assert.match(dialog, /\$\{shownBefore \? `<div class="delivery-quote-row">/);
+});
