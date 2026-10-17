@@ -1,3 +1,15 @@
+## 2026-10-17 — Customer delivery cards always show the booking's ยอดโอนก่อนส่ง (TH/EN)
+
+- **Owner report:** booking 584 (AJ-20261017-R0003) showed ยอดโอนก่อนส่ง 2,967 in the Delivery App, but the delivery card sent to the customer said 2,867. The owner asked for the Delivery App booking to be the source.
+- **Cause:** `ensureDeliveryPaymentLink` showed whichever was lower: the Rental Payments ledger remaining (grandTotal − paidTotal = 2,867) or the booking (2,967).
+- **Not established:** why the booking holds 2,967. By its own lines it should be 3,067 − 200 = 2,867. The confirmation card sent at 15:24 already read 2,867 from the booking, so the field changed afterwards. Production data is not reachable from here.
+- **DA `933f3c2`:**
+  - The delivery card, arrival card, customer trip page and delivery payment link (bank / card / e-wallet) now use the booking's ยอดโอนก่อนส่ง. The ledger is used only when no booking figure is given.
+  - **Kept in sync:** when the ledger takes a payment as new for a booking that already exists, `applyPaymentToBooking` lowers ยอดโอนก่อนส่ง by the amount received and raises ชำระแล้ว. It builds on the booking's own figures, so a hand-corrected balance stays the base.
+  - **Skipped:** duplicates, a failed ledger write, the payment that created the booking, and bookings with a shop-requested reservation (tracked separately).
+- **Tests:** delivery-balance-cap 11, auto-booking-payment (new existing-booking cases), delivery-card 68, lalamove-dispatch 374, paid-booking-line, payment-not-new-booking 9, bundle-from-payment 20, payment-request 36, flex-ledger 24, tsc passed. The live `testDeliveryPaymentLink` needs Sheets credentials and was not run.
+- **Action for the shop:** correct booking 584's ยอดโอนก่อนส่ง in Edit Booking if 2,867 is right. Booking Log already flags "⚠️ ยอดไม่ตรง" when the balance ≠ total − paid.
+
 ## 2026-10-17 — Same-day delivery time counted from when the money arrived (TH/EN)
 
 - **Owner report:** booking 584 (AJ-20261017-R0003) was requested at 09:31 and paid at 15:24. Its confirmation card said delivery 12:30; under the shop's 3-hour rule it should be 18:30.
