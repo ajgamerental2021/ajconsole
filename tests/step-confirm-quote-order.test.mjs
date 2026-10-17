@@ -24,11 +24,12 @@ function checkout({ lang, noContract, failFirstContext = false, failQuote = fals
     stepReady: () => true, showDemoBusy() {}, hideDemoBusy() {},
     bookingLineConnection: () => ({ token: 'verified-line' }),
     demoAgreementNeeded: () => !noContract, ensureIdentityDraftAlive: async () => true,
-    demoDeliveryQuoteKey: () => 'same-pin-and-dates',
+    demoDeliveryQuoteKey: () => 'same-pin-and-dates', DELIVERY_QUOTE_FRESH_MS: 28 * 60 * 1000, renderDeliveryQuoteViews() {},
     fetchDemoDeliveryQuote: async () => {
       calls.push('quote');
       demoDelivery.status = failQuote ? 'unavailable' : 'ready';
       demoDelivery.key = 'same-pin-and-dates';
+      demoDelivery.quotedAt = Date.now();
       demoDelivery.quote = failQuote ? null : { subtotal: 500, total: 400, outbound: { quotationId: `q-${calls.length}` } };
     },
     calcSummary: () => ({ total: 3400 }),

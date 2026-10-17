@@ -170,8 +170,8 @@ test('round-trip delivery price comes from the Bot and is never shown as final w
   assert.ok(html.includes('needs_pin: en ? "Map pin needed" : "ต้องปักหมุดแผนที่"'));
   assert.match(html, /hasLargeItem: deliveryNeedsCar\(\)/);
   assert.match(html, /data-delivery-quote-retry/);
-  assert.match(html, /Still calculating the delivery fee\. Please try again in a moment\./);
-  assert.match(html, /ยังคำนวณค่าส่งอยู่ กรุณากดอีกครั้งในอีกสักครู่/);
+  assert.match(html, /Checking the round-trip delivery fee with Lalamove…/);
+  assert.match(html, /กำลังเช็คค่าส่งไป-กลับกับ Lalamove…/);
 });
 
 test('privacy policy explains that AJ stores no card or e-wallet details', () => {

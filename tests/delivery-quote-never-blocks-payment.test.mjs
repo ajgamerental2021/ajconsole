@@ -40,8 +40,8 @@ test('one quiet retry before giving up on the live price', () => {
 
 test('payment launch retries and stops without a live price', () => {
   const launch = between('async function launchDemoBeamPayment(){', 'const summary = calcSummary();');
-  assert.match(launch, /if\(demoDelivery\.status !== "ready" \|\| !demoDelivery\.quote\)/);
-  assert.match(launch, /Still calculating the delivery fee/);
+  assert.match(launch, /try\{ await ensureDemoDeliveryQuote\(\); \}/);
+  assert.match(launch, /else showDeliveryQuoteProblem\(\(\) => launchDemoBeamPayment\(\)\);/);
   assert.match(html, /if\(demoDelivery\.status !== "ready" \|\| !demoDelivery\.quote\) return;/);
   assert.match(html, /deliveryPending: deliveryFeePending\(\),/);
   assert.match(html, /else if\(deliveryFeePending\(\)\) costs\.push\(\{label: en \? "Round-trip delivery" : "ค่าจัดส่งไป-กลับ", value: en \? "AJ to confirm, paid on delivery" : "ร้านแจ้งยอด ชำระตอนรับเครื่อง"\}\);/);

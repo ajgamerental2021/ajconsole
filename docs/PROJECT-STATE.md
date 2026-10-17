@@ -1,3 +1,23 @@
+## 2026-10-17 — Delivery price holds 30 minutes; a changed price is shown before payment (TH/EN)
+
+- Owner request: 6 h is too long, because rain or a driver shortage raises Lalamove's price.
+- **Bot `611eb79`:** an issued or sealed delivery quote is valid for 30 min, down from 6 h.
+- **Website:**
+  - The page treats a quote as fresh for 28 min.
+  - "Next" at step 2, "Confirm" at step 3 and "Pay now" each ask Lalamove again if the quote is older than that.
+  - Same price: the renter goes on without noticing.
+  - Different price: a dialog "ค่าจัดส่งอัปเดตแล้ว / Delivery fee updated" explains that Lalamove's price went up or down because of current traffic and driver availability. It shows the old amount struck out, then "ค่าจัดส่งที่ต้องชำระตอนนี้ / Delivery fee you pay now", and says nothing has been charged and the new price holds 30 min.
+  - The dialog offers **ดำเนินการต่อด้วยยอดใหม่ / Continue with the new price**, contact on LINE (and WhatsApp in English only), and close.
+  - The step-2 box also notes "อัปเดตเป็นราคาปัจจุบันของ Lalamove แล้ว (เดิม ฿X)".
+  - The Rental ID stays the same.
+- **E2E against the local Bot** (fake Lalamove; the page clock moved 35 min; price raised to ฿215 per trip):
+  - TH and EN: the dialog showed ฿230 → ฿330, then "continue" opened Beam;
+  - EN full bank payment: Beam charged ฿5,230 (was ฿5,130).
+- **Tests:** website 361/361, Bot 667/668 (the one pre-existing terms failure).
+- **Open:**
+  - the emailed "continue payment" link still uses the stored delivery price (link valid 48 h) and does not re-quote;
+  - the actual Lalamove fare versus the delivery fee charged has not been compared yet, because production data is not reachable from the dev container.
+
 ## 2026-10-17 — Step-2 delivery fee box: one line per item, colour-coded (TH/EN)
 
 - Owner request: separate the lines clearly, put the vehicle type on its own line, separate the discount and the amount to pay, and use colour.

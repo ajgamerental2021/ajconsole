@@ -350,6 +350,9 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .delivery-quote-row.is-total{margin-top:4px;padding:10px 12px;border:0;border-radius:10px;background:#fff1f1}
 .delivery-quote-row.is-total span{color:#7a0010;font-weight:700}
 .delivery-quote-row.is-total b{color:#c90012;font-size:20px;font-weight:800}
+.delivery-quote-updated{margin:8px 0 0!important;font-size:13px;color:#b54708;font-weight:600}
+.delivery-quote-change{margin:10px 0;padding:4px 12px;border:1px solid #eaecf0;border-radius:12px}
+.delivery-quote-change s{color:#667085;font-weight:600}
 .delivery-quote-box.is-problem{background:#fff8e6;border-color:#f5b840;color:#5c3b00}
 .delivery-quote-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .delivery-quote-actions .btn{flex:1 1 auto;min-height:44px;text-align:center}
@@ -4658,15 +4661,32 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function demoDeliveryQuoteKey(){
     return [demoProfile.maps, state.calc.consoleId, state.calc.bundleId || "", state.calc.extras?.length ? 1 : 0, state.calc.start, state.calc.end].join("|");
   }
+  // A delivery price holds for 30 minutes on the Bot (rain or a shortage of
+  // drivers changes it). The page asks again a little before that.
+  const DELIVERY_QUOTE_FRESH_MS = 28 * 60 * 1000;
   function confirmedDemoDeliveryQuote(){
     const quote = demoDelivery.quote;
     return demoDelivery.status === "ready" && demoDelivery.key === demoDeliveryQuoteKey()
       && Number.isFinite(quote?.subtotal) && Number.isFinite(quote?.total)
-      && !!String(quote?.outbound?.quotationId || "").trim();
+      && !!String(quote?.outbound?.quotationId || "").trim()
+      && Date.now() - (Number(demoDelivery.quotedAt) || 0) < DELIVERY_QUOTE_FRESH_MS;
   }
+  // Asks Lalamove again when the price shown has expired. If the price the
+  // renter saw for the same trip has changed, the caller is told, so nothing
+  // is charged before the renter has seen the new figure.
   async function ensureDemoDeliveryQuote(force = false){
+    const shown = demoDelivery.status === "ready" && demoDelivery.key === demoDeliveryQuoteKey() && Number.isFinite(demoDelivery.quote?.total)
+      ? Number(demoDelivery.quote.total) : null;
     if(force || !confirmedDemoDeliveryQuote()) await fetchDemoDeliveryQuote();
-    if(confirmedDemoDeliveryQuote()) return;
+    if(confirmedDemoDeliveryQuote()){
+      const now = Number(demoDelivery.quote.total);
+      if(shown !== null && now !== shown){
+        demoDelivery.previousTotal = shown;
+        renderDeliveryQuoteViews();
+        throw Object.assign(new Error("delivery_quote_changed"), {code:"delivery_quote_changed", before:shown, after:now});
+      }
+      return;
+    }
     const code = demoDelivery.status === "needs_pin" ? "delivery_location_unresolved" : "delivery_quote_required";
     throw Object.assign(new Error(code), {code});
   }
@@ -4735,6 +4755,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         && typeof result.quote.subtotal === "number" && Number.isFinite(result.quote.subtotal)){
         demoDelivery.status = "ready";
         demoDelivery.quote = result.quote;
+        demoDelivery.quotedAt = Date.now();
         if(!payResume.active && state.calc.demoOrderOpen){
           void recordDemoDeliveryQuote(result.quote);
           void queueConsolePendingUpsert().catch(error => console.warn("Console Pending update deferred until payment", error));
@@ -4830,6 +4851,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <div class="delivery-quote-row is-muted"><span>${en ? "Vehicle type" : "ประเภทรถ"}</span><b>${esc(vehicle)}</b></div>
         <div class="delivery-quote-row is-discount"><span>${en ? "AJ delivery discount" : "ส่วนลดค่าจัดส่งจากทางร้าน"}</span><b>-${money(quote.discount)}</b></div>
         <div class="delivery-quote-row is-total"><span>${en ? "Delivery fee you pay" : "ค่าจัดส่งที่ต้องชำระ"}</span><b>${money(quote.total)}</b></div>
+        ${Number.isFinite(demoDelivery.previousTotal) && demoDelivery.previousTotal !== quote.total ? `<p class="delivery-quote-updated">${en ? `Updated to Lalamove's current price (was ${money(demoDelivery.previousTotal)})` : `อัปเดตเป็นราคาปัจจุบันของ Lalamove แล้ว (เดิม ${money(demoDelivery.previousTotal)})`}</p>` : ""}
       </div>`;
     }
     const loading = demoDelivery.status === "loading";
@@ -4841,6 +4863,27 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function renderDemoDeliveryQuoteBox(){
     const host = byId("demoDeliveryQuoteBox");
     if(host) host.outerHTML = demoDeliveryQuoteBoxHtml();
+  }
+  // The price was asked for again (it had expired) and it is different: show
+  // old and new before going on. Nothing has been charged.
+  function showDeliveryQuoteChanged(error, continueAction){
+    const en = state.lang === "en";
+    deliveryQuoteRetryAction = continueAction || null;
+    const up = Number(error?.after) > Number(error?.before);
+    showModal(en ? "Delivery fee updated" : "ค่าจัดส่งอัปเดตแล้ว", `
+      <p>${esc(en
+        ? `Lalamove's price for your delivery has ${up ? "gone up" : "gone down"} since it was shown, because of current traffic and driver availability.`
+        : `ราคาค่าส่งจาก Lalamove ${up ? "สูงขึ้น" : "ลดลง"}จากที่แสดงไว้ก่อนหน้า ตามสภาพการจราจรและจำนวนรถในขณะนี้`)}</p>
+      <div class="delivery-quote-change">
+        <div class="delivery-quote-row"><span>${en ? "Shown before" : "ยอดเดิม"}</span><b><s>${money(error?.before)}</s></b></div>
+        <div class="delivery-quote-row is-total"><span>${en ? "Delivery fee you pay now" : "ค่าจัดส่งที่ต้องชำระตอนนี้"}</span><b>${money(error?.after)}</b></div>
+      </div>
+      <p class="hint">${esc(en ? "No payment has been taken. The new price holds for 30 minutes." : "ยังไม่มีการเก็บเงิน ราคาใหม่นี้ใช้ได้ 30 นาที")}</p>
+      <div class="queue-retry-actions delivery-quote-actions">
+        <button class="btn primary" type="button" data-delivery-quote-retry-continue>${en ? "Continue with the new price" : "ดำเนินการต่อด้วยยอดใหม่"}</button>
+        <a class="btn" href="${esc(CONFIG.lineUrl)}" target="_blank" rel="noopener">${en ? "Contact AJ on LINE" : "ติดต่อร้านทาง LINE"}</a>
+        ${en ? `<a class="btn" href="https://wa.me/message/LEJ5QD3B2D2TN1" target="_blank" rel="noopener">Contact AJ on WhatsApp</a>` : ""}
+      </div>`);
   }
   // Going on without a delivery fee is not allowed: say why and offer the ways out.
   let deliveryQuoteRetryAction = null;
@@ -9724,9 +9767,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(state.calc.step === 2 && UNIFIED_FLOW_DEMO && !payResume.active){
         showDemoBusy(en ? "Checking the delivery fee with Lalamove…" : "กำลังเช็คค่าส่งกับ Lalamove…");
         try{ await ensureDemoDeliveryQuote(); }
-        catch{
+        catch(error){
           hideDemoBusy();
-          showDeliveryQuoteProblem(() => advanceDemoStep(next));
+          if(error?.code === "delivery_quote_changed") showDeliveryQuoteChanged(error, () => advanceDemoStep(next));
+          else showDeliveryQuoteProblem(() => advanceDemoStep(next));
           return;
         }
         showDemoBusy(en ? "Checking availability…" : "กำลังเช็คคิวว่าง…", {queueRecovery:true});
@@ -9851,6 +9895,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         state.calc.step = 2;
         render();
         showDemoProgressProblem(tr("contactLineRequired"), 2);
+        return;
+      }
+      if(error?.code === "delivery_quote_changed"){
+        showDeliveryQuoteChanged(error, () => confirmDemoOrder());
         return;
       }
       if(error?.code === "delivery_quote_required" || error?.code === "delivery_location_unresolved"){
@@ -10106,14 +10154,15 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ? (state.lang === "en" ? "Confirming your queue for Wise…" : "กำลังยืนยันคิวสำหรับ Wise…")
       : (state.lang === "en" ? "Opening the payment page…" : "กำลังเปิดหน้าชำระเงิน…"));
     try{
-      // A disabled button is not a security boundary; recheck at launch.
-      if(demoDelivery.status !== "ready" || !demoDelivery.quote){
-        await fetchDemoDeliveryQuote();
-        if(demoDelivery.status !== "ready" || !demoDelivery.quote){
-          hideDemoBusy();
-          toast(state.lang === "en" ? "Still calculating the delivery fee. Please try again in a moment." : "ยังคำนวณค่าส่งอยู่ กรุณากดอีกครั้งในอีกสักครู่");
-          return;
-        }
+      // A disabled button is not a security boundary; recheck at launch. A
+      // price older than its 30 minutes is asked for again first, and a
+      // changed price is shown before anything is charged.
+      try{ await ensureDemoDeliveryQuote(); }
+      catch(error){
+        hideDemoBusy();
+        if(error?.code === "delivery_quote_changed") showDeliveryQuoteChanged(error, () => launchDemoBeamPayment());
+        else showDeliveryQuoteProblem(() => launchDemoBeamPayment());
+        return;
       }
       if((state.lang === "th" || demoProfile.preferredContactChannel === "line") && !bookingLineConnection()){
         hideDemoBusy();
@@ -10130,12 +10179,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         // sat open for hours). Quote again; go on only if the price is the
         // same, otherwise show the new figures before taking any money.
         if(error?.code !== "delivery_quote_required") throw error;
-        const shownTotal = Number(demoDelivery.quote?.total) || 0;
-        await ensureDemoDeliveryQuote(true);
-        if((Number(demoDelivery.quote?.total) || 0) !== shownTotal){
+        try{ await ensureDemoDeliveryQuote(true); }
+        catch(quoteError){
           hideDemoBusy();
-          renderDemoOrderPage();
-          toast(state.lang === "en" ? "The delivery fee was updated. Please check the new total, then tap Pay now again." : "ค่าจัดส่งอัปเดตแล้ว กรุณาตรวจยอดใหม่ แล้วกดชำระเงินอีกครั้ง", 6000);
+          if(quoteError?.code === "delivery_quote_changed") showDeliveryQuoteChanged(quoteError, () => launchDemoBeamPayment());
+          else showDeliveryQuoteProblem(() => launchDemoBeamPayment());
           return;
         }
         handoff = await prepareContractHandoff(code, "web");

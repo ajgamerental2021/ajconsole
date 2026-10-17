@@ -51,7 +51,8 @@ test('Pay now quotes again when the Bot no longer knows the quote, and stops if 
   const retry = launch.indexOf('if(error?.code !== "delivery_quote_required") throw error;');
   assert.ok(retry > 0);
   assert.ok(launch.indexOf('await ensureDemoDeliveryQuote(true);', retry) > retry);
-  assert.match(launch, /if\(\(Number\(demoDelivery\.quote\?\.total\) \|\| 0\) !== shownTotal\)\{[\s\S]*?toast\(state\.lang === "en" \? "The delivery fee was updated\. Please check the new total, then tap Pay now again\." : "ค่าจัดส่งอัปเดตแล้ว กรุณาตรวจยอดใหม่ แล้วกดชำระเงินอีกครั้ง", 6000\);\s*return;/);
+  // A changed price is shown (old and new) before anything is charged.
+  assert.match(launch, /if\(quoteError\?\.code === "delivery_quote_changed"\) showDeliveryQuoteChanged\(quoteError, \(\) => launchDemoBeamPayment\(\)\);/);
   // The sealed quote travels with the booking and with the recorded quote.
   assert.match(source, /quotationId:String\(demoDelivery\.quote\.outbound\?\.quotationId \|\| ""\), seal:String\(demoDelivery\.quote\.seal \|\| ""\)\}/);
   assert.match(fn('recordDemoDeliveryQuote'), /JSON\.stringify\(\{quotationId, seal:String\(quote\?\.seal \|\| ""\)\}\)/);
@@ -73,7 +74,7 @@ test('the delivery fee shows in step 2 and step 3 cannot open without it (TH/EN)
   assert.match(source, /"Lalamove does not deliver to this location\. Please check the pin, or contact AJ to arrange delivery\."\s*:\s*"Lalamove ไม่ให้บริการส่งถึงตำแหน่งนี้ กรุณาตรวจหมุด หรือติดต่อร้านเพื่อจัดการการส่ง"/);
   // Step 2 → 3 is gated on a confirmed quote, with the same dialog as confirm.
   const advance = fn('advanceDemoStep');
-  assert.match(advance, /try\{ await ensureDemoDeliveryQuote\(\); \}\s*catch\{[\s\S]*?showDeliveryQuoteProblem\(\(\) => advanceDemoStep\(next\)\);/);
+  assert.match(advance, /try\{ await ensureDemoDeliveryQuote\(\); \}\s*catch\(error\)\{[\s\S]*?showDeliveryQuoteChanged\(error, \(\) => advanceDemoStep\(next\)\);\s*else showDeliveryQuoteProblem\(\(\) => advanceDemoStep\(next\)\);/);
   const dialog = fn('showDeliveryQuoteProblem');
   assert.match(dialog, /data-delivery-quote-retry-continue/);
   assert.match(dialog, /CONFIG\.lineUrl/);
@@ -83,4 +84,30 @@ test('the delivery fee shows in step 2 and step 3 cannot open without it (TH/EN)
     assert.doesNotMatch(html, /ติดต่อร้านทาง WhatsApp/);
   }
   assert.match(fn('fetchDemoDeliveryQuote'), /stage: payResume\.active \? "pay_resume" : "booking",/);
+});
+
+test('a delivery price older than 30 minutes is asked for again; a changed one is shown before paying', async () => {
+  const demoDelivery = { status: 'ready', key: 'k', quote: { subtotal: 430, discount: 200, total: 230, outbound: { quotationId: 'q1' } }, quotedAt: Date.now() - 29 * 60 * 1000 };
+  let next = { subtotal: 530, discount: 200, total: 330, outbound: { quotationId: 'q2' } };
+  const context = {
+    demoDelivery, DELIVERY_QUOTE_FRESH_MS: 28 * 60 * 1000, Date, Number, Object, Error,
+    demoDeliveryQuoteKey: () => 'k', renderDeliveryQuoteViews() {},
+    fetchDemoDeliveryQuote: async () => { demoDelivery.status = 'ready'; demoDelivery.quote = next; demoDelivery.quotedAt = Date.now(); },
+  };
+  vm.runInNewContext(`${fn('confirmedDemoDeliveryQuote')}\n${fn('ensureDemoDeliveryQuote')}\nthis.ensure = ensureDemoDeliveryQuote;`, context);
+  await assert.rejects(context.ensure(), (error) => error.code === 'delivery_quote_changed' && error.before === 230 && error.after === 330);
+  assert.equal(demoDelivery.previousTotal, 230);
+  // Fresh now: going on again does not ask Lalamove or complain.
+  await context.ensure();
+  // Same price after expiry: no interruption.
+  demoDelivery.quotedAt = Date.now() - 29 * 60 * 1000;
+  next = { ...next, outbound: { quotationId: 'q3' } };
+  await context.ensure();
+  assert.equal(demoDelivery.quote.outbound.quotationId, 'q3');
+  // The dialog shows old and new, says nothing was charged, TH and EN.
+  const dialog = fn('showDeliveryQuoteChanged');
+  assert.match(dialog, /"Delivery fee updated" : "ค่าจัดส่งอัปเดตแล้ว"/);
+  assert.match(dialog, /"Continue with the new price" : "ดำเนินการต่อด้วยยอดใหม่"/);
+  assert.match(dialog, /ยังไม่มีการเก็บเงิน ราคาใหม่นี้ใช้ได้ 30 นาที/);
+  assert.match(source, /const DELIVERY_QUOTE_FRESH_MS = 28 \* 60 \* 1000;/);
 });
