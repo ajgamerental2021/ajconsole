@@ -1,3 +1,22 @@
+## 2026-10-17 — Delivery App: delivery fare report (booking quote vs actual Lalamove fare)
+
+- Owner chose option (b): a report page in the Delivery App, instead of exporting sheets.
+- **DA `c72d762`:** new Finance tab **"🚚 ค่าส่ง"**. It shows the last 6 months, grouped by rental start date. It is read only.
+- **Per rental, it shows:**
+  - the round trip quoted at booking (Booking Log Delivery Fee + Delivery Discount), the shop discount, and what the customer paid;
+  - the actual cost of each leg: completed Lalamove Jobs trips (fare includes the priority fee; a redelivery counts every trip; cancelled trips are ignored), or the cost filed when the task was closed (ค่าส่งขาไป / ค่าส่งคืนเครื่อง);
+  - the change from the booking quote (แพงขึ้น / ถูกลง) and what the shop paid on top of the customer's fee.
+- **Rules:**
+  - A customer pickup or drop-off counts as ฿0.
+  - A trip carrying several rentals counts once, on the rental it was called from.
+  - A task closed with no cost is "ยังไม่ทราบ" (unknown), not ฿0.
+  - Bundle partner rows and cancelled rentals are left out.
+- **Month summary:** quote / paid / actual / change / shop extra. It counts only rentals whose two legs are both known, and shows how many came in over or under the quote. Filters: all / over the quote / incomplete.
+- **Backend:** `GET /api/dispatch/fare-report?from&to` (auth). Test `test:delivery-fare-report` 19/19.
+- **Checked:** at 390 px with sample data from the test, through the built web app with the API mocked. Backend and frontend tsc passed; flex-ledger 24/24; lalamove-dispatch 374/374.
+- **Not run against production data,** because the container cannot reach it. The owner can open it on the web app after the next Render deploy; the APK gets it with the next build.
+- **Caveat:** for bookings made before the web Lalamove quote, "quote" is the fee typed by hand.
+
 ## 2026-10-17 — Delivery App web: iPhone no longer zooms when a text box is tapped
 
 - Owner request: on iPhone, tapping a text box (for example "เรียกก่อนเวลางาน" in the Lalamove dispatch form, or "Customer Name" in Edit Booking) zoomed the screen in and left it zoomed. Staff had to pinch out every time.
