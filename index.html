@@ -337,6 +337,16 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .demo-ocr-status.is-error{color:#a92323}
 .link-btn{appearance:none;border:0;background:none;padding:0;color:#c90012;font:inherit;font-weight:800;text-decoration:underline;cursor:pointer}
 .demo-pin-help{margin:6px 0 2px;padding:10px 12px;border-radius:10px;background:#fff8e6;border:1px solid #f5d48a}
+.delivery-quote-box{margin:10px 0 0;padding:12px 14px;border-radius:12px;font-size:15px;line-height:1.55;border:1px solid #d0d5dd;background:#f8fafc;color:#1d2939}
+.delivery-quote-box p{margin:0 0 6px}
+.delivery-quote-box p:last-child{margin-bottom:0}
+.delivery-quote-box.is-ready{background:#ecfdf3;border-color:#75e0a7;color:#054f31}
+.delivery-quote-box.is-problem{background:#fff8e6;border-color:#f5b840;color:#5c3b00}
+.delivery-quote-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.delivery-quote-actions .btn{flex:1 1 auto;min-height:44px;text-align:center}
+.delivery-quote-spinner{display:inline-block;width:14px;height:14px;margin-right:8px;border:2px solid #98a2b3;border-top-color:transparent;border-radius:50%;vertical-align:-2px;animation:deliveryQuoteSpin .8s linear infinite}
+@keyframes deliveryQuoteSpin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.delivery-quote-spinner{animation:none}}
 .demo-delivery-fallback{margin:0 0 12px;padding:12px 14px;border-radius:12px;background:#fff8e6;border:1px solid #f5b840;color:#5c3b00;font-size:14px;line-height:1.5}
 .demo-delivery-fallback p{margin:0 0 8px}
 .demo-delivery-fallback b{color:#8a4b00}
@@ -4472,7 +4482,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         ${demoIdentityCoveredByAgreement() || payResume.active ? "" : `<div class="field wide">
         <label class="option-row"><input type="checkbox" id="demoNoContractOpt" ${state.calc.noContract?"checked":""}><div><b>${en ? "I prefer not to verify my identity or share personal documents" : "ไม่ต้องการยืนยันตัวตน / ไม่ต้องการให้ข้อมูลส่วนตัว"}</b><div class="hint">${en ? "No ID number or Thai ID/Passport photos are required, and no identity verification is performed." : "ไม่ต้องกรอกเลขบัตร และไม่ต้องส่งรูปบัตรประชาชน/Passport และไม่มีการยืนยันตัวตน"}</div>${pricingTierHtml(state.lang,true,true)}</div></label>
         </div>`}
-        <div class="field wide"><label class="label" for="demoMaps">${en ? "Delivery place · Google Maps" : "สถานที่ส่ง · Google Maps"}<span class="req">*</span></label><input class="input" id="demoMaps" type="text" autocomplete="off" enterkeyhint="search" value="${esc(demoMapsBoxText())}" placeholder="${en ? "Type a place or address, or paste a Google Maps link" : "พิมพ์ชื่อสถานที่ / ที่อยู่ หรือวางลิงก์ Google Maps"}">${demoMapsFoundHtml()}<div class="demo-locate-row"><button class="btn demo-locate-btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><button class="btn demo-locate-btn" type="button" data-demo-pin-map>${en ? "🗺️ Pin it on a map" : "🗺️ ปักหมุดบนแผนที่"}</button></div></div>
+        <div class="field wide"><label class="label" for="demoMaps">${en ? "Delivery place · Google Maps" : "สถานที่ส่ง · Google Maps"}<span class="req">*</span></label><input class="input" id="demoMaps" type="text" autocomplete="off" enterkeyhint="search" value="${esc(demoMapsBoxText())}" placeholder="${en ? "Type a place or address, or paste a Google Maps link" : "พิมพ์ชื่อสถานที่ / ที่อยู่ หรือวางลิงก์ Google Maps"}">${demoMapsFoundHtml()}${demoDeliveryQuoteBoxHtml()}<div class="demo-locate-row"><button class="btn demo-locate-btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><button class="btn demo-locate-btn" type="button" data-demo-pin-map>${en ? "🗺️ Pin it on a map" : "🗺️ ปักหมุดบนแผนที่"}</button></div></div>
         <div class="field wide"><label class="label" for="demoDeliveryInstructions">${en ? "Delivery note (optional)" : "โน็ตสำหรับจัดส่ง (ถ้ามี)"}</label><textarea class="input" id="demoDeliveryInstructions" rows="2" maxlength="300" placeholder="${en ? "Condo or village name, house number, entrance, or landmark" : "ชื่อคอนโด หมู่บ้าน บ้านเลขที่ ทางเข้า หรือจุดสังเกต"}">${esc(demoProfile.deliveryInstructions || "")}</textarea></div>
       </div>
       <div class="demo-step2-refund" id="demoRefundSection">${demoRefundSectionHtml()}</div>
@@ -4671,8 +4681,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     demoDelivery.status = "loading";
     demoDelivery.quote = null;
     demoDelivery.error = "";
-    if(payResume.active) renderPayResume();
-    else renderDemoOrderPage();
+    demoDelivery.slow = false;
+    clearTimeout(demoDelivery.slowTimer);
+    // Lalamove is asked again on the server when it stumbles. If it still
+    // takes long, the renter can ask again or contact AJ meanwhile.
+    demoDelivery.slowTimer = setTimeout(() => {
+      if(requestId !== demoDelivery.requestId || demoDelivery.status !== "loading") return;
+      demoDelivery.slow = true;
+      renderDeliveryQuoteViews();
+    }, 10000);
+    renderDeliveryQuoteViews();
     try{
       const response = await bookingFetch(new URL("/api/delivery/quote", CONFIG.apiBase), {
         method:"POST",
@@ -4687,9 +4705,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           lang: state.lang,
           // Lets the Bot tell AJ at once which rental could not be priced.
           rentalCode: state.calc.demoOrderOpen ? String(state.calc.rentalCode || "") : "",
+          // Before a Rental ID exists, who to call if the fee cannot be found.
+          stage: payResume.active ? "pay_resume" : "booking",
+          phone: String(demoProfile.phone || "").trim(),
+          customerName: String(demoProfile.fullName || "").trim(),
           attempt
         })
-      }, 18000);
+      }, 30000);
       const result = await response.json().catch(() => ({}));
       if(requestId !== demoDelivery.requestId) return;
       if(quoteKey !== demoDeliveryQuoteKey()){
@@ -4710,7 +4732,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           maybeSendPayLaterEmail();
         }
       }else{
-        demoDelivery.status = result?.error === "delivery_location_unresolved" ? "needs_pin" : "unavailable";
+        demoDelivery.status = result?.error === "delivery_location_unresolved" ? "needs_pin"
+          : result?.error === "delivery_out_of_area" ? "out_of_area" : "unavailable";
         demoDelivery.error = String(result?.reason || result?.error || "");
       }
     }catch(error){
@@ -4730,16 +4753,102 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(requestId !== demoDelivery.requestId) return;
       return fetchDemoDeliveryQuote(1);
     }
+    clearTimeout(demoDelivery.slowTimer);
+    demoDelivery.slow = false;
     if(deliveryQuoteFallback()){
       trackAnalytics("client_error", {errorCode:`delivery_quote_${demoDelivery.status}`});
     }
+    renderDeliveryQuoteViews();
+  }
+  // Every place that shows the delivery fee: step 2 under the map, the order
+  // page and the private payment page.
+  function renderDeliveryQuoteViews(){
     if(payResume.active) renderPayResume();
     else renderDemoOrderPage();
+    renderDemoDeliveryQuoteBox();
+  }
+  // The fee is worked out as soon as step 2 knows where to deliver, so the
+  // renter sees it before deciding, not after confirming.
+  let demoDeliveryQuoteTimer = 0;
+  function scheduleDemoDeliveryQuote(){
+    clearTimeout(demoDeliveryQuoteTimer);
+    demoDeliveryQuoteTimer = setTimeout(() => {
+      if(!UNIFIED_FLOW_DEMO || payResume.active || !byId("demoMaps")) return;
+      if(!String(demoProfile.maps || "").trim()) return;
+      // Only a new place, device or dates is quoted on its own; after a
+      // failure the renter asks again with the button.
+      if(demoDelivery.key === demoDeliveryQuoteKey() && demoDelivery.status !== "idle") return;
+      void fetchDemoDeliveryQuote();
+    }, 600);
+  }
+  // What to do when the fee is not known: ask again, fix the pin, or talk to AJ.
+  function deliveryQuoteActionsHtml({retry = true, pin = false} = {}){
+    const en = state.lang === "en";
+    return `<div class="demo-pin-actions delivery-quote-actions">
+      ${pin ? `<button class="btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><button class="btn" type="button" data-demo-pin-map>${en ? "🗺️ Pin it on a map" : "🗺️ ปักหมุดบนแผนที่"}</button>` : ""}
+      ${retry ? `<button class="btn primary" type="button" data-delivery-quote-retry>${en ? "Check delivery fee again" : "เช็คค่าส่งอีกครั้ง"}</button>` : ""}
+      <a class="btn" href="${esc(CONFIG.lineUrl)}" target="_blank" rel="noopener">${en ? "Contact AJ on LINE" : "ติดต่อร้านทาง LINE"}</a>
+      <a class="btn" href="https://wa.me/message/LEJ5QD3B2D2TN1" target="_blank" rel="noopener">${en ? "Contact AJ on WhatsApp" : "ติดต่อร้านทาง WhatsApp"}</a>
+    </div>`;
+  }
+  function deliveryQuoteStatusText({settled = false} = {}){
+    const en = state.lang === "en";
+    if(demoDelivery.status === "loading" && !settled) return demoDelivery.slow
+      ? (en ? "Still checking the delivery fee with Lalamove. This is taking longer than usual — you can check again or contact AJ." : "ยังเช็คค่าส่งกับ Lalamove อยู่ ใช้เวลานานกว่าปกติ กดเช็คอีกครั้ง หรือติดต่อร้านได้")
+      : (en ? "Checking the round-trip delivery fee with Lalamove…" : "กำลังเช็คค่าส่งไป-กลับกับ Lalamove…");
+    if(demoDelivery.status === "needs_pin") return en
+      ? "This map link only names a place, so the delivery fee cannot be worked out. Pin the exact delivery spot or use your current location."
+      : "ลิงก์แผนที่นี้มีแค่ชื่อสถานที่ ระบบจึงคำนวณค่าส่งไม่ได้ กรุณาปักหมุดจุดส่งให้ตรง หรือใช้ตำแหน่งปัจจุบัน";
+    if(demoDelivery.status === "out_of_area") return en
+      ? "Lalamove does not deliver to this location. Please check the pin, or contact AJ to arrange delivery."
+      : "Lalamove ไม่ให้บริการส่งถึงตำแหน่งนี้ กรุณาตรวจหมุด หรือติดต่อร้านเพื่อจัดการการส่ง";
+    return en
+      ? "The delivery fee could not be checked with Lalamove just now. Please check again, or contact AJ."
+      : "เช็คค่าส่งกับ Lalamove ไม่สำเร็จชั่วคราว กรุณากดเช็คอีกครั้ง หรือติดต่อร้าน";
+  }
+  function demoDeliveryQuoteBoxHtml(){
+    const en = state.lang === "en";
+    const current = demoDelivery.key === demoDeliveryQuoteKey();
+    if(!UNIFIED_FLOW_DEMO || !String(demoProfile.maps || "").trim() || !current || demoDelivery.status === "idle"){
+      return `<div class="delivery-quote-box" id="demoDeliveryQuoteBox" hidden></div>`;
+    }
+    const quote = demoDelivery.status === "ready" ? demoDelivery.quote : null;
+    if(quote){
+      return `<div class="delivery-quote-box is-ready" id="demoDeliveryQuoteBox" role="status">
+        <p><b>${en ? "🚚 Round-trip delivery (Lalamove)" : "🚚 ค่าจัดส่งไป-กลับ (Lalamove)"}</b> ${money(quote.subtotal)} · ${esc(quote.serviceType === "CAR" ? (en ? "Car" : "รถยนต์") : (en ? "Motorcycle" : "มอเตอร์ไซค์"))}</p>
+        <p>${en ? "AJ delivery promotion" : "ส่วนลดค่าจัดส่งจากร้าน"} -${money(quote.discount)} · <b>${en ? "You pay" : "ค่าจัดส่งที่ต้องชำระ"} ${money(quote.total)}</b></p>
+      </div>`;
+    }
+    const loading = demoDelivery.status === "loading";
+    return `<div class="delivery-quote-box ${loading ? "is-loading" : "is-problem"}" id="demoDeliveryQuoteBox" role="status">
+      <p>${loading ? `<span class="delivery-quote-spinner" aria-hidden="true"></span>` : "⚠️ "}${esc(deliveryQuoteStatusText())}</p>
+      ${loading && !demoDelivery.slow ? "" : deliveryQuoteActionsHtml({pin: demoDelivery.status === "needs_pin" || demoDelivery.status === "out_of_area"})}
+    </div>`;
+  }
+  function renderDemoDeliveryQuoteBox(){
+    const host = byId("demoDeliveryQuoteBox");
+    if(host) host.outerHTML = demoDeliveryQuoteBoxHtml();
+  }
+  // Going on without a delivery fee is not allowed: say why and offer the ways out.
+  let deliveryQuoteRetryAction = null;
+  function showDeliveryQuoteProblem(retryAction){
+    const en = state.lang === "en";
+    deliveryQuoteRetryAction = retryAction || null;
+    showModal(en ? "Delivery fee needed first" : "ต้องได้ค่าส่งก่อนไปต่อ", `
+      <p>${esc(deliveryQuoteStatusText({settled:true}))}</p>
+      <p class="hint">${esc(en ? "No rental or payment has been made yet." : "ยังไม่มีการส่งรายการเช่าหรือชำระเงิน")}</p>
+      <div class="queue-retry-actions delivery-quote-actions">
+        ${demoDelivery.status === "needs_pin" || demoDelivery.status === "out_of_area" ? `<button class="btn" type="button" data-progress-problem-close>${en ? "Check the map pin" : "ตรวจหมุดแผนที่"}</button>` : ""}
+        <button class="btn primary" type="button" data-delivery-quote-retry-continue>${en ? "Check delivery fee again" : "เช็คค่าส่งอีกครั้ง"}</button>
+        <a class="btn" href="${esc(CONFIG.lineUrl)}" target="_blank" rel="noopener">${en ? "Contact AJ on LINE" : "ติดต่อร้านทาง LINE"}</a>
+        <a class="btn" href="https://wa.me/message/LEJ5QD3B2D2TN1" target="_blank" rel="noopener">${en ? "Contact AJ on WhatsApp" : "ติดต่อร้านทาง WhatsApp"}</a>
+      </div>`);
   }
   // Keep a visible retry/help state; it is not permission to pay.
   function deliveryQuoteFallback(){
-    return demoDelivery.status === "unavailable" || demoDelivery.status === "needs_pin"
-      || (demoDelivery.status === "ready" && !demoDelivery.quote);
+    return demoDelivery.status === "unavailable" || demoDelivery.status === "needs_pin" || demoDelivery.status === "out_of_area"
+      || (demoDelivery.status === "ready" && !demoDelivery.quote)
+      || (demoDelivery.status === "loading" && !!demoDelivery.slow);
   }
   // Retained for identifying legacy drafts; current checkout cannot pay them.
   function deliveryFeePending(){
@@ -4747,19 +4856,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   function deliveryFallbackHtml(){
     if(!deliveryQuoteFallback()) return "";
-    const en = state.lang === "en";
-    const why = demoDelivery.status === "needs_pin"
-      ? (en ? "Your map link has no exact pin, so the delivery fee could not be worked out." : "ลิงก์แผนที่ยังไม่มีหมุดที่แน่นอน ระบบจึงคิดค่าส่งไม่ได้")
-      : (en ? "The delivery fee could not be calculated right now." : "ระบบคำนวณค่าส่งไม่สำเร็จในตอนนี้");
-    const next = en
-      ? "Please retry the delivery quote or contact AJ on LINE before paying."
-      : "กรุณาคำนวณค่าส่งอีกครั้ง หรือติดต่อร้านทาง LINE ก่อนชำระเงิน";
     return `<div class="demo-delivery-fallback" role="status">
-      <p><b>${esc(why)}</b><br>${esc(next)}</p>
-      <div class="demo-pin-actions">
-        ${demoDelivery.status === "needs_pin" ? `<button class="btn" type="button" data-demo-locate>${en ? "📍 Use my current location" : "📍 ใช้ตำแหน่งปัจจุบัน"}</button><button class="btn" type="button" data-demo-pin-map>${en ? "🗺️ Pin it on a map" : "🗺️ ปักหมุดบนแผนที่"}</button>` : ""}
-        <button class="btn" type="button" data-delivery-quote-retry>${en ? "Calculate delivery again" : "คำนวณค่าส่งอีกครั้ง"}</button>
-      </div>
+      <p><b>${esc(deliveryQuoteStatusText())}</b></p>
+      ${deliveryQuoteActionsHtml({pin: demoDelivery.status === "needs_pin" || demoDelivery.status === "out_of_area"})}
     </div>`;
   }
   // Stamp the booking with the quote shown, so the contract made at payment
@@ -4782,6 +4881,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return {
       loading: en ? "Calculating…" : "กำลังคำนวณ…",
       needs_pin: en ? "Map pin needed" : "ต้องปักหมุดแผนที่",
+      out_of_area: en ? "Lalamove does not serve this location" : "Lalamove ไม่ให้บริการพื้นที่นี้",
       unavailable: en ? "AJ will confirm · pay on delivery" : "ร้านแจ้งยอด · ชำระตอนรับเครื่อง"
     }[demoDelivery.status] || (en ? "Waiting for the live delivery price" : "กำลังรอราคาค่าส่งจริง");
   }
@@ -4895,6 +4995,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // (its "needs a pin" panel) the pin is enough.
     if(byId("demoMaps")) demoPlaces()?.usePin(at);
     else renderDemoMapsFound();
+    scheduleDemoDeliveryQuote();
     if(state.calc.demoOrderOpen) renderDemoOrderPage();
     toast(en ? "Location added. Check that it is the delivery address." : "ใส่ตำแหน่งแล้ว กรุณาตรวจว่าเป็นที่อยู่จัดส่ง");
   }
@@ -4945,6 +5046,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function renderDemoMapsFound(){
     const host = byId("demoMapsFound");
     if(host) host.outerHTML = demoMapsFoundHtml();
+    renderDemoDeliveryQuoteBox();
+    scheduleDemoDeliveryQuote();
   }
   // Typing makes the earlier place void. A pasted link stands as the booking's
   // link at once (and is looked up for the green line); typed text needs a
@@ -5004,6 +5107,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       search.lookup({force:true, quiet:true});
     }
     search.refresh();
+    scheduleDemoDeliveryQuote();
   }
   function demoMapsSearchUrl(){
     const query = demoAddressText();
@@ -6644,11 +6748,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ...(summary.reviewFacebookDisc ? [row(en ? "Facebook review discount" : "ส่วนลดรีวิว Facebook", `-${money(summary.reviewFacebookDisc)}`, "is-discount")] : []),
       ...(summary.bgDisc ? [row(en ? "Board game discount" : "ส่วนลดบอร์ดเกม", `-${money(summary.bgDisc)}`, "is-discount")] : [])
     ];
-    const quoteHelp = demoDelivery.status === "unavailable"
-      ? `<div class="demo-pin-help"><p>${esc(en
-          ? "The delivery price could not be loaded. Please retry or contact AJ before paying."
-          : "ยังดึงราคาค่าส่งไม่ได้ กรุณาลองอีกครั้งหรือติดต่อร้านก่อนชำระเงิน")}</p><div class="demo-pin-actions"><button class="btn" type="button" data-delivery-quote-retry>${en ? "Calculate again" : "คำนวณค่าส่งอีกครั้ง"}</button><button class="btn" type="button" data-demo-edit="2">${en ? "Check delivery details" : "ตรวจสอบข้อมูลจัดส่ง"}</button></div></div>`
-      : "";
+    const quoteHelp = "";
     const deliveryRows = quote
       ? [
           row(en ? "Round-trip delivery" : "ค่าจัดส่งไป-กลับ", money(quote.subtotal)),
@@ -9607,6 +9707,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         showDemoProgressProblem(demoStep2Problems()[0]?.message || stepReadiness(2).text);
         return;
       }
+      // The renter decides with the delivery fee in front of them: no fee, no step 3.
+      if(state.calc.step === 2 && UNIFIED_FLOW_DEMO && !payResume.active){
+        showDemoBusy(en ? "Checking the delivery fee with Lalamove…" : "กำลังเช็คค่าส่งกับ Lalamove…");
+        try{ await ensureDemoDeliveryQuote(); }
+        catch{
+          hideDemoBusy();
+          showDeliveryQuoteProblem(() => advanceDemoStep(next));
+          return;
+        }
+        showDemoBusy(en ? "Checking availability…" : "กำลังเช็คคิวว่าง…", {queueRecovery:true});
+      }
       if(!(await checkDemoQueueAutomatically())) return;
       if(state.calc.step === 2 && !(await saveReturningProfileEdits())) return;
       goCalcStep(next, {scrollTabs:true});
@@ -9730,10 +9841,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         return;
       }
       if(error?.code === "delivery_quote_required" || error?.code === "delivery_location_unresolved"){
-        const needsPin = error.code === "delivery_location_unresolved";
-        showDemoProgressProblem(needsPin
-          ? (state.lang === "en" ? "The delivery location does not have an exact map pin. Please choose a pin and try again. No payment was started." : "สถานที่จัดส่งยังไม่มีหมุดแผนที่ที่แน่นอน กรุณาปักหมุดแล้วลองอีกครั้ง ยังไม่มีการชำระเงิน")
-          : (state.lang === "en" ? "The round-trip delivery price could not be confirmed. Please check the map pin and try again; no rental or payment was submitted." : "ยังยืนยันราคาค่าส่งไป-กลับไม่ได้ กรุณาตรวจหมุดแผนที่แล้วลองอีกครั้ง ยังไม่มีการส่งรายการเช่าหรือชำระเงิน"), 2);
+        showDeliveryQuoteProblem(() => confirmDemoOrder());
         return;
       }
       showDemoProgressProblem(error?.code === "rental_details_changed"
@@ -15214,6 +15322,14 @@ We apologize for the inconvenience and hope everyone stays safe.`
       }
       if(targetId === "demoEditCancel" || targetId === "demoEditClose"){ closeDemoEditModal(false); return; }
       if(event.target.closest("[data-delivery-quote-retry]")){ await fetchDemoDeliveryQuote(); return; }
+      if(event.target.closest("[data-delivery-quote-retry-continue]")){
+        closeModal();
+        const action = deliveryQuoteRetryAction;
+        deliveryQuoteRetryAction = null;
+        if(action) await action();
+        else await fetchDemoDeliveryQuote();
+        return;
+      }
       if(targetId === "demoBeamPay"){ await launchDemoBeamPayment(); return; }
       if(targetId === "payResumePay"){ await launchPayResume(); return; }
       if(targetId === "demoNotifyLine"){ await notifyDemoLine(); return; }

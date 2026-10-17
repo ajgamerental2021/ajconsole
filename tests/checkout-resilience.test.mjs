@@ -60,3 +60,23 @@ test('Pay now quotes again when the Bot no longer knows the quote, and stops if 
 test('the pay-later email uses the newest booking context', () => {
   assert.match(fn('maybeSendPayLaterEmail'), /body:JSON\.stringify\(\{contextToken:state\.calc\.demoContextToken \|\| contextToken\}\)/);
 });
+
+test('the delivery fee shows in step 2 and step 3 cannot open without it (TH/EN)', () => {
+  // Under the delivery place, quoted as soon as the place is known.
+  assert.match(source, /\$\{demoMapsFoundHtml\(\)\}\$\{demoDeliveryQuoteBoxHtml\(\)\}/);
+  assert.match(fn('renderDemoMapsFound'), /scheduleDemoDeliveryQuote\(\);/);
+  // Only a new place, device or dates is quoted on its own (no retry loop).
+  assert.match(fn('scheduleDemoDeliveryQuote'), /demoDelivery\.key === demoDeliveryQuoteKey\(\) && demoDelivery\.status !== "idle"/);
+  // Taking long: after 10 s the renter can check again or contact AJ.
+  assert.match(fn('fetchDemoDeliveryQuote'), /demoDelivery\.slow = true;[\s\S]*?\}, 10000\);/);
+  assert.match(source, /"Still checking the delivery fee with Lalamove\. This is taking longer than usual — you can check again or contact AJ\." : "ยังเช็คค่าส่งกับ Lalamove อยู่ ใช้เวลานานกว่าปกติ กดเช็คอีกครั้ง หรือติดต่อร้านได้"/);
+  assert.match(source, /"Lalamove does not deliver to this location\. Please check the pin, or contact AJ to arrange delivery\."\s*:\s*"Lalamove ไม่ให้บริการส่งถึงตำแหน่งนี้ กรุณาตรวจหมุด หรือติดต่อร้านเพื่อจัดการการส่ง"/);
+  // Step 2 → 3 is gated on a confirmed quote, with the same dialog as confirm.
+  const advance = fn('advanceDemoStep');
+  assert.match(advance, /try\{ await ensureDemoDeliveryQuote\(\); \}\s*catch\{[\s\S]*?showDeliveryQuoteProblem\(\(\) => advanceDemoStep\(next\)\);/);
+  const dialog = fn('showDeliveryQuoteProblem');
+  assert.match(dialog, /data-delivery-quote-retry-continue/);
+  assert.match(dialog, /CONFIG\.lineUrl/);
+  assert.match(dialog, /wa\.me\/message\/LEJ5QD3B2D2TN1/);
+  assert.match(fn('fetchDemoDeliveryQuote'), /stage: payResume\.active \? "pay_resume" : "booking",/);
+});

@@ -14,7 +14,7 @@ test('a successful quote response without a price remains unavailable for retry'
   const demoDelivery = {status:'idle', quote:null, key:'', error:''};
   const state = {calc:{demoOrderOpen:true, rentalCode:'AJ-20261009-R0063', extras:[]}, lang:'th'};
   const ctx = vm.createContext({demoDelivery, state, demoProfile:{maps:'pin'},
-    demoDeliveryQuoteKey:()=> 'same', payResume:{active:false}, renderDemoOrderPage(){},
+    demoDeliveryQuoteKey:()=> 'same', payResume:{active:false}, renderDemoOrderPage(){}, renderDeliveryQuoteViews(){}, clearTimeout(){},
     bookingFetch:async()=>({ok:true, json:async()=>({ok:true, quote:null})}),
     URL, CONFIG:{apiBase:'https://example.test'}, demoAddressText:()=>'',
     deliveryNeedsCar:()=>false, calcSummary:()=>({days:3}),
@@ -34,14 +34,14 @@ test('a quote for an old delivery pin cannot replace or save the new pin quote',
   const demoProfile = {maps:'pin-a'};
   const state = {calc:{demoOrderOpen:true, rentalCode:'AJ-20261009-R0063', extras:[]}, lang:'en'};
   const ctx = vm.createContext({demoDelivery, demoProfile, state,
-    demoDeliveryQuoteKey:()=>demoProfile.maps, payResume:{active:false}, renderDemoOrderPage(){},
+    demoDeliveryQuoteKey:()=>demoProfile.maps, payResume:{active:false}, renderDemoOrderPage(){}, renderDeliveryQuoteViews(){},
     bookingFetch:async()=>{calls++; return calls === 1 ? new Promise(resolve=>{finishFirst=resolve;})
       : {ok:true, json:async()=>({ok:true, quote:{subtotal:150,total:120}})};},
     URL, CONFIG:{apiBase:'https://example.test'}, demoAddressText:()=>'',
     deliveryNeedsCar:()=>false, calcSummary:()=>({days:3}),
     recordDemoDeliveryQuote:quote=>saved.push(quote),
     trackAnalytics(){}, queueConsolePendingUpsert:async()=>{}, maybeSendPayLaterEmail(){},
-    setTimeout, console:{warn(){}},
+    setTimeout, clearTimeout, console:{warn(){}},
   });
   vm.runInContext(fn('fetchDemoDeliveryQuote', true) + fn('deliveryQuoteFallback'), ctx);
   const pending = ctx.fetchDemoDeliveryQuote();

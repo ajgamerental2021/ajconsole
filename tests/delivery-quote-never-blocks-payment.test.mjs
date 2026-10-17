@@ -20,8 +20,15 @@ test('the fallback is both failure kinds, and explained right above the button i
   assert.match(fallback, /"unavailable"/);
   assert.match(fallback, /"needs_pin"/);
   assert.match(html, /<div class="demo-payment-launch">\$\{deliveryFallbackHtml\(\)\}<button/);
-  assert.match(html, /กรุณาคำนวณค่าส่งอีกครั้ง หรือติดต่อร้านทาง LINE ก่อนชำระเงิน/);
-  assert.match(html, /Please retry the delivery quote or contact AJ on LINE before paying\./);
+  assert.match(fallback, /"out_of_area"/);
+  // Above the button: why, then check again or contact AJ on LINE / WhatsApp.
+  assert.match(between('function deliveryFallbackHtml(){', '\n  }'), /deliveryQuoteStatusText\(\)[\s\S]*deliveryQuoteActionsHtml\(/);
+  const actions = between('function deliveryQuoteActionsHtml(', '\n  }');
+  assert.match(actions, /"Check delivery fee again" : "เช็คค่าส่งอีกครั้ง"/);
+  assert.match(actions, /"Contact AJ on LINE" : "ติดต่อร้านทาง LINE"/);
+  assert.match(actions, /"Contact AJ on WhatsApp" : "ติดต่อร้านทาง WhatsApp"/);
+  assert.match(html, /เช็คค่าส่งกับ Lalamove ไม่สำเร็จชั่วคราว กรุณากดเช็คอีกครั้ง หรือติดต่อร้าน/);
+  assert.match(html, /The delivery fee could not be checked with Lalamove just now\. Please check again, or contact AJ\./);
 });
 
 test('one quiet retry before giving up on the live price', () => {

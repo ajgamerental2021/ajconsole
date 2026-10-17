@@ -1,3 +1,28 @@
+## 2026-10-17 — Delivery fee from Lalamove shown in step 2; still required before payment (TH/EN)
+
+- Owner decision: keep blocking without a delivery fee, but the fee must work reliably and appear from the start so the renter decides with it. If checking takes long, offer "check again" and "contact the shop", in Thai and English.
+- **Bot `cb488e7`:**
+  - Each trip quotation is retried on timeout, a dropped connection, 429 or 5xx.
+  - If the first request has not answered within 6 s, a second is sent alongside it, and a third if needed; the first price back is used, with a 26 s limit. Refusals are not retried.
+  - Coordinates are sent with 6 decimals.
+  - The same round trip within 4 min is answered from a cache, and identical requests in flight share one call.
+  - A Lalamove out-of-service-area refusal returns `delivery_out_of_area`.
+  - The shop alert now also fires for step-2 failures, with name and phone, and says the renter cannot pay until the fee is found.
+  - The per-address quote limit went from 30 to 120 per 15 min.
+- **Website:**
+  - Step 2 shows the round-trip fee (Lalamove), the AJ promotion and "you pay" right under the delivery place, quoted automatically once the place is known. Only a new place, device or dates triggers an automatic quote; retries are by button, so there is no loop.
+  - After 10 s of checking: "taking longer than usual" with **Check delivery fee again / Contact AJ on LINE / Contact AJ on WhatsApp**.
+  - On failure, the same buttons appear, plus pin/location buttons when the pin or service area is the problem.
+  - Step 2→3 is now gated on a confirmed quote. Without one, a dialog "Delivery fee needed first / ต้องได้ค่าส่งก่อนไปต่อ" offers the same choices; "check again" retries and then continues the same step. Step 3 confirm and the order page use the same dialog and buttons. The old message that blamed the map pin is gone.
+- **E2E against the real Bot with fake Lalamove,** each ending at Beam paid:
+  - normal (TH): fee shown in step 2;
+  - first 3 Lalamove calls failing (EN): fee shown with no visible error;
+  - Lalamove taking 13 s (TH): the "still checking" buttons at 10 s, then the fee at about 11 s;
+  - Lalamove down (EN): problem box and dialog; after recovery, "Check delivery fee again" continued to step 3.
+  - Out of service area (TH): a clear message with pin and contact buttons, blocked as intended.
+- **Tests:** Bot 667/668 (new `test/lalamove-quote-resilience.test.js`). The one failure, `current bilingual return handover clause…`, is pre-existing. Website 360/360.
+- **Not verified:** a call to production Lalamove. Production is not reachable from the dev container, so the real API keys and pickup point on Render were not exercised.
+
 ## 2026-10-16 — Booking to payment hardened end to end (TH/EN): photos, slow Google, deploys, payment groups
 
 - Owner request: shorter wait than 2.5 min, smaller but legible photos, and find anything that can stop a renter between the steps and a normal payment, in Thai and English.

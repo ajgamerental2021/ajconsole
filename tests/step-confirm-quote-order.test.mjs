@@ -45,6 +45,8 @@ function checkout({ lang, noContract, failFirstContext = false, failQuote = fals
     submitDemoAgreement: async () => { calls.push('agreement'); },
     demoIdentityStatus: () => 'submitted', saveLocal() {}, render() {}, scrollToDemoOrderTop() {},
     maybeSendPayLaterEmail() {}, showDemoProgressProblem: (message, step) => messages.push({ message, step }),
+    showDeliveryQuoteProblem: (retry) => messages.push({ deliveryQuote: true, retry }),
+    confirmDemoOrder: async () => {},
     showDemoAgreementProblem: () => { throw new Error('unexpected agreement error'); },
     showQueueRetryDialog: () => { throw new Error('unexpected queue error'); },
     trackAnalytics() {},
@@ -78,8 +80,9 @@ for(const lang of ['th', 'en']) {
     await flow.run();
     assert.deepEqual(flow.calls, ['quote']);
     assert.equal(flow.state.calc.demoOrderOpen, undefined);
-    assert.equal(flow.messages[0].step, 2);
-    assert.match(flow.messages[0].message, lang === 'en' ? /delivery price could not be confirmed/ : /ยืนยันราคาค่าส่งไป-กลับไม่ได้/);
+    // The delivery-fee dialog: check again (retrying the same confirm) or contact AJ.
+    assert.equal(flow.messages[0].deliveryQuote, true);
+    assert.equal(typeof flow.messages[0].retry, 'function');
   });
 }
 
