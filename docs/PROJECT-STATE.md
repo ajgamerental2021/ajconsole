@@ -1,3 +1,16 @@
+## 2026-10-17 — Delivery App web: iPhone no longer zooms when a text box is tapped
+
+- Owner request: on iPhone, tapping a text box (for example "เรียกก่อนเวลางาน" in the Lalamove dispatch form, or "Customer Name" in Edit Booking) zoomed the screen in and left it zoomed. Staff had to pinch out every time.
+- Cause: iPhone Safari zooms into any text box whose type is smaller than 16px.
+- **DA `4fa0936`:** `npm run build:web` (`frontend/scripts/prepare-web-push.mjs`) now sets the viewport to `width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no`.
+- Only the Render web app changes. The APK is unchanged, with no new build and no min-version change.
+- **Checked:**
+  - build:web passed;
+  - the built `index.html` has exactly one viewport tag, the new one;
+  - the app loads normally at 390 px in Chromium;
+  - backend and frontend tsc passed; flex-ledger 24/24.
+- **Not checked on a real iPhone,** because the container has no WebKit. It takes effect after Render's next deploy of the static site.
+
 ## 2026-10-17 — Emailed "continue payment" link asks Lalamove again before paying (TH/EN)
 
 - Owner request: the "ทำรายการชำระเงินต่อ / Continue to payment" link in the pay-later email should behave like the booking page before payment.
