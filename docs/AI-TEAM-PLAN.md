@@ -166,7 +166,7 @@ Nothing is posted before step 4. Planning a week twice adds nothing.
 ## 9. Progress
 
 **P0 (done, `aj-office` commit `258a97d`, pushed to `main`):**
-- `roles.js`: 27 positions as data (TH/EN title and duty, team, tools, model tier, approval rule). The driver is a visualization, not an agent. No position has a tool that merges, deploys or sends on its own.
+- `roles.js`: 23 positions as data (27 before four were merged on 18/10/2026: assistant manager → shop manager, housekeeper → accountant, social media → customer support, data analyst → HR & data) (TH/EN title and duty, team, tools, model tier, approval rule). The driver is a visualization, not an agent. No position has a tool that merges, deploys or sends on its own.
 - `personas.js`: a person from a seed. Made-up Thai and English nickname, SVG face, temperament, diligence 55–98%, two habits, one of four shifts that cover 24 hours, and a lunch time.
 - `schedule.js`: presence now (not started / off duty / lunch / break / working). Breaks follow diligence.
 - `store.js`: the JSON store and the task state machine (received → working → submitted → awaiting approval → approved → done; rejected → working). It gates on the position being open and filled and on earlier tasks being finished. Only the owner approves; a rejection needs a reason. Hire and fire keep history. Costs are kept per person per month and year, and everything is audit-logged.

@@ -1,3 +1,21 @@
+## 2026-10-18 — AJ Office: four positions merged, cheaper running (owner approved)
+
+- **Merged:**
+  - assistant manager → shop manager
+  - housekeeper → accountant
+  - social media → customer support & social
+  - data analyst → HR & data
+  - That leaves 23 positions. Earlier hires into a merged position leave it, with the reason on file, and the dashboard still names them.
+- **Cheaper running, used by P1:**
+  - Models are now three tiers: small (Haiku), medium (Sonnet) and large (Opus). Shop manager, head accountant and customer support use Sonnet by default.
+  - Each position has a `cadence`:
+    - `code-first`: IT and HR. Code checks; the AI is woken only for a problem or the write-up.
+    - `on-demand`: the programmers.
+    - `event`: customer support (ready answers for repeat questions).
+- **Estimate:** about $90–110/month for the full team (it was ~$225). P1 (IT, Accountant, Admin) about $15–20/month.
+- **API credit:** the owner does not need to top up the Claude Console until P1 is built. Claude will say when it is ready.
+- aj-office `00ab931`: tests 45/45.
+
 ## 2026-10-18 — "รายละเอียดการเช่าเปลี่ยนหลังยืนยัน" no longer blocks payment: a popup that fixes it (TH/EN)
 
 - **Owner report:** a customer on the payment page (opened from LINE) tapped ชำระเงิน and got only a toast: "รายละเอียดการเช่าเปลี่ยนหลังยืนยัน … ระบบไม่ได้สร้างรหัสการเช่าใหม่". They could not pay or go on.
