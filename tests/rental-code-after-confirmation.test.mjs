@@ -14,7 +14,7 @@ function fn(name, async = false) {
 test('the payment step keeps the confirmed Rental ID in both languages', () => {
   for (const lang of ['th', 'en']) {
     const state = {lang, calc: {demoOrderOpen:true, demoOrderCode:'AJ-20261006-R0060', rentalCode:'AJ-20261006-R0060', rentalCodeSig:'same', demoAgreementFor:'AJ-20261006-R0060', demoIdentityFor:'AJ-20261006-R0060'}};
-    const ctx = vm.createContext({state, rentalSignature:()=> 'same', saveLocal(){}});
+    const ctx = vm.createContext({state, rentalSignature:()=> 'same', saveLocal(){}, confirmedRentalChanges:()=>null});
     vm.runInContext(fn('reconcileConfirmedIdentitySignature') + fn('confirmedRentalCodeForPayment'), ctx);
     assert.equal(ctx.confirmedRentalCodeForPayment({}), 'AJ-20261006-R0060');
     state.calc.rentalCode = 'AJ-20261006-R0070';
@@ -27,8 +27,9 @@ test('the payment step keeps the confirmed Rental ID in both languages', () => {
   const checkout = source.slice(source.indexOf('  async function launchDemoBeamPayment(){'), source.indexOf('  // The pay-later email:'));
   assert.match(checkout, /const code = confirmedRentalCodeForPayment\(summary\)/);
   assert.doesNotMatch(checkout, /await ensureRentalCode\(summary\)/);
-  assert.match(checkout, /This rental changed after confirmation/);
-  assert.match(checkout, /รายละเอียดการเช่าเปลี่ยนหลังยืนยัน/);
+  // A mismatch opens the popup that can fix it, not a passing message.
+  assert.match(checkout, /showRentalChangedPopup\(\(\) => launchDemoBeamPayment\(\)\)/);
+  assert.doesNotMatch(checkout, /This rental changed after confirmation/);
 });
 
 test('an older preview request cannot replace an identity or agreement Rental ID', async () => {
@@ -55,7 +56,7 @@ test('switching identity choice on the confirmed order keeps its Rental ID, but 
     const ctx = vm.createContext({state, demoProfile:{identitySkipped:true}, demoDelivery:{},
       calcSummary:()=>({}), consoleHasGameCatalog:()=>false,
       syncDemoNoContractAcceptance(){}, saveLocal(){}, render(){},
-      pricingPolicy:{}, byId:()=>null});
+      pricingPolicy:{}, byId:()=>null, confirmedRentalChanges:()=>null});
     Object.assign(state.calc, {bundleId:'', extras:[], boardgames:[], games:[], ret:false, reviewGoogle:false, reviewFacebook:false});
     vm.runInContext(fn('rentalSignature') + fn('reconcileConfirmedIdentitySignature')
       + fn('setDemoNoContract') + fn('openDemoVerifyForDeposit')
@@ -75,7 +76,7 @@ test('a saved checkout from the older site recovers only the identity-choice mis
     rentalCode:code, demoOrderCode:code, demoOrderOpen:true, rentalCodeSig:''}};
   let saves = 0;
   const ctx = vm.createContext({state, calcSummary:()=>({}), consoleHasGameCatalog:()=>false,
-    saveLocal(){saves++;}});
+    saveLocal(){saves++;}, confirmedRentalChanges:()=>null});
   vm.runInContext('let rentalCodeRequest=null;' + fn('rentalSignature')
     + fn('reconcileConfirmedIdentitySignature') + fn('ensureRentalCode', true)
     + fn('allocateRentalCodeForDraft', true) + fn('confirmedRentalCodeForPayment'), ctx);

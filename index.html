@@ -1125,6 +1125,9 @@ body.unified-flow-demo .demo-verify-btn:hover{background:#166534;border-color:#1
 #simpleModal:has(.queue-retry-actions) .modal-head{position:static;padding:14px 18px}
 #simpleModal:has(.queue-retry-actions) .calendar-body{padding:18px}
 #simpleModal:has(.queue-retry-actions) .queue-retry-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:18px}
+.rental-changed-list,.rental-changed-steps{margin:6px 0 10px;padding-left:20px;display:grid;gap:6px;line-height:1.5}
+.rental-changed-actions .btn{min-height:44px}
+.rental-changed-actions .btn.primary{order:-1;flex-basis:100%}
 
 body.unified-flow-demo .demo-skip-id-btn{background:#fff;border:1.5px solid #c90012;color:#c90012}
 body.unified-flow-demo .demo-skip-id-btn:hover{background:#fff5f5}
@@ -2752,7 +2755,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     retEnabled: false,
     boardGameEnabled: false,
     filter: {type:"all", brand:"all", sort:"brand"},
-    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,retVerified:false,identityEvidenceChecked:false,retVerificationMethod:"",retVerifiedLineUserId:"",retVerificationToken:"",vip:null,masterAgreement:null,masterAgreementAccepted:false,masterAgreementAcceptedAt:"",reviewGoogle:false,reviewFacebook:false,noContract:false,rentalTermsAccepted:false,rentalTermsAcceptedAt:"",rentalTermsVersion:"",rentalTermsLanguage:"",payment:"cash",maps:"",games:[],later:true,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",beamPaymentExpiresAt:"",contractSignature:"",demoCustomerName:"",demoCustomerPhone:"",demoContractCompleted:false,demoContractSignature:"",demoOrderOpen:false,demoOrderCode:"",demoIdentityFor:"",demoIdentitySkipped:false,demoIdentityStatus:"",demoContextToken:"",demoAgreementFor:"",guideDone:{},guideConsoleId:""},
+    calc: {step:1,type:"",consoleId:"",start:"",end:"",datesTouched:false,bundleId:"",extras:[],boardgames:[],bundleOpen:false,bgOpen:false,ret:false,retVerified:false,identityEvidenceChecked:false,retVerificationMethod:"",retVerifiedLineUserId:"",retVerificationToken:"",vip:null,masterAgreement:null,masterAgreementAccepted:false,masterAgreementAcceptedAt:"",reviewGoogle:false,reviewFacebook:false,noContract:false,rentalTermsAccepted:false,rentalTermsAcceptedAt:"",rentalTermsVersion:"",rentalTermsLanguage:"",payment:"cash",maps:"",games:[],later:true,rentalCode:"",rentalCodeSig:"",beamPaymentLink:"",beamPaymentKey:"",beamPaymentExpiresAt:"",contractSignature:"",demoCustomerName:"",demoCustomerPhone:"",demoContractCompleted:false,demoContractSignature:"",demoOrderOpen:false,demoOrderCode:"",demoIdentityFor:"",demoIdentitySkipped:false,demoIdentityStatus:"",demoContextToken:"",demoAgreementFor:"",confirmedRental:null,guideDone:{},guideConsoleId:""},
     availability: {rows:[],holds:[],loading:false,retrying:false,error:"",lastSync:0,stale:false,gate:{mode:"idle",pass:true}},
     queueClosures: {allClosed:false,types:{console:false,vr:false,handheld:false,racing:false},devices:{},rules:{all:{closed:false,startAt:"",endAt:""},types:{},devices:{}},loading:false,error:"",updatedAt:""},
     calendar: {open:false,mode:"start",base:new Date(),draftStart:"",draftEnd:"",fromOrder:false},
@@ -3645,6 +3648,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!keepRecentRentalIdentity){
       state.calc.rentalCode = "";
       state.calc.rentalCodeSig = "";
+      state.calc.confirmedRental = null;
       state.calc.demoOrderCode = "";
       state.calc.demoIdentityFor = "";
       state.calc.demoAgreementFor = "";
@@ -8530,6 +8534,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     state.calc.datesTouched = false;
     state.calc.rentalCode = "";
     state.calc.rentalCodeSig = "";
+    state.calc.confirmedRental = null;
     state.calc.demoOrderCode = "";
     state.calc.demoIdentityFor = "";
     state.calc.contractSignature = "";
@@ -8588,6 +8593,108 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       || !before.every((value, index) => index === 8 || value === after[index])) return;
     state.calc.rentalCodeSig = current;
     saveLocal();
+  }
+  // What the renter confirmed at step 3, kept beside its Rental ID so a later
+  // mismatch can say exactly what moved, and put it back with one tap.
+  const CONFIRMED_RENTAL_FIELDS = ["consoleId","start","end","bundleId","extras","boardgames","games","later","ret","reviewGoogle","reviewFacebook"];
+  function confirmedRentalSnapshot(){
+    return JSON.parse(JSON.stringify(Object.fromEntries(CONFIRMED_RENTAL_FIELDS.map(key => [key, state.calc[key]]))));
+  }
+  const gameKey = g => String(g?.id || g?.name || g?.title || g || "");
+  function snapshotValueKey(key, value){
+    if(key === "games") return (Array.isArray(value) ? value : []).map(gameKey).join(",");
+    if(Array.isArray(value)) return value.map(String).join(",");
+    if(typeof value === "boolean" || value == null) return value ? "1" : "";
+    return String(value);
+  }
+  // The fields that differ from what was confirmed, oldest value first.
+  function confirmedRentalChanges(){
+    const saved = state.calc.confirmedRental;
+    if(!saved || typeof saved !== "object") return null;
+    return CONFIRMED_RENTAL_FIELDS.filter(key => snapshotValueKey(key, saved[key]) !== snapshotValueKey(key, state.calc[key]));
+  }
+  function confirmedRentalChangeRows(changes){
+    const en = state.lang === "en";
+    const saved = state.calc.confirmedRental || {};
+    const yes = en ? "Yes" : "ใช่", no = en ? "No" : "ไม่";
+    const consoleLabel = id => { const c = consoleById(id); return c ? (en ? c.nameEn || c.name : c.name) : String(id || "-"); };
+    const bundleLabel = id => { const b = state.bundles.find(x => String(x.id) === String(id)); return id ? (b?.name || b?.title || String(id)) : (en ? "None" : "ไม่มี"); };
+    const gamesLabel = list => (Array.isArray(list) && list.length) ? list.map(g => en ? (g?.nameEn || g?.name || g?.title || g?.id || g) : (g?.nameTh || g?.name || g?.title || g?.id || g)).join(", ") : (en ? "None" : "ไม่มี");
+    const countLabel = list => (Array.isArray(list) && list.length) ? (en ? `${list.length} selected` : `เลือก ${list.length} รายการ`) : (en ? "None" : "ไม่มี");
+    const rows = {
+      consoleId: [en ? "Console" : "เครื่อง", consoleLabel],
+      start: [en ? "Start date" : "วันเริ่มเช่า", displayDate],
+      end: [en ? "Return date" : "วันคืน", displayDate],
+      bundleId: [en ? "Bundle" : "ชุดบันเดิล", bundleLabel],
+      extras: [en ? "Accessories" : "อุปกรณ์เสริม", countLabel],
+      boardgames: [en ? "Board games" : "บอร์ดเกม", countLabel],
+      games: [en ? "Games" : "เกมที่เลือก", gamesLabel],
+      later: [en ? "Choose games later" : "เลือกเกมภายหลัง", v => v ? yes : no],
+      ret: [en ? "Returning-customer discount" : "ส่วนลดลูกค้าเก่า", v => v ? yes : no],
+      reviewGoogle: [en ? "Google review discount" : "ส่วนลดรีวิว Google", v => v ? yes : no],
+      reviewFacebook: [en ? "Facebook review discount" : "ส่วนลดรีวิว Facebook", v => v ? yes : no]
+    };
+    return changes.map(key => {
+      const [label, show] = rows[key];
+      return `<li><b>${esc(label)}</b>: ${esc(en ? "confirmed" : "ที่ยืนยันไว้")} <b>${esc(show(saved[key]))}</b> → ${esc(en ? "now" : "ตอนนี้")} <b>${esc(show(state.calc[key]))}</b></li>`;
+    }).join("");
+  }
+  // Discounts that need a verified returning customer only come back with the verification.
+  const VERIFIED_ONLY_FIELDS = ["ret","reviewGoogle","reviewFacebook"];
+  function restoreConfirmedRental(){
+    const saved = state.calc.confirmedRental;
+    if(!saved) return false;
+    for(const key of CONFIRMED_RENTAL_FIELDS){
+      if(VERIFIED_ONLY_FIELDS.includes(key) && !state.calc.retVerified) continue;
+      state.calc[key] = JSON.parse(JSON.stringify(saved[key] ?? (Array.isArray(state.calc[key]) ? [] : state.calc[key])));
+    }
+    state.calc.beamPaymentLink = "";
+    state.calc.beamPaymentKey = "";
+    state.calc.beamPaymentExpiresAt = "";
+    const left = confirmedRentalChanges() || [];
+    if(!left.length) state.calc.rentalCodeSig = rentalSignature();
+    saveLocal();
+    render();
+    return !left.length;
+  }
+  // The rental no longer matches the one its Rental ID was issued for. A popup,
+  // not a passing message: it says what moved, puts it back with one tap, and
+  // otherwise shows the way out, so the renter is never left unable to pay.
+  let rentalChangedRetry = null;
+  function showRentalChangedPopup(retry){
+    const en = state.lang === "en";
+    rentalChangedRetry = typeof retry === "function" ? retry : null;
+    const code = String(state.calc.rentalCode || state.calc.demoOrderCode || "").trim();
+    const changes = confirmedRentalChanges();
+    const needsVerification = (changes || []).some(key => VERIFIED_ONLY_FIELDS.includes(key) && state.calc.confirmedRental?.[key] && !state.calc.retVerified);
+    const lineMessage = encodeURIComponent(en
+      ? `Hello AJ, I need to change rental ${code} before paying.`
+      : `สวัสดีครับ ต้องการแก้ไขรายการเช่า ${code} ก่อนชำระเงิน`);
+    const body = `
+      <p>${esc(en
+        ? `Rental ${code} was confirmed with different details from what this page shows now, so it cannot be paid as it is. Your identity check and agreement are kept under this Rental ID.`
+        : `รายการเช่า ${code} ยืนยันไว้ด้วยรายละเอียดที่ไม่ตรงกับหน้านี้ตอนนี้ จึงยังชำระเงินไม่ได้ ข้อมูลยืนยันตัวตนและสัญญายังเก็บไว้กับรหัสการเช่านี้`)}</p>
+      ${changes && changes.length ? `<p><b>${esc(en ? "What changed" : "สิ่งที่เปลี่ยนไป")}</b></p><ul class="rental-changed-list">${confirmedRentalChangeRows(changes)}</ul>` : ""}
+      <p><b>${esc(en ? "How to fix it" : "วิธีแก้ไข")}</b></p>
+      <ol class="rental-changed-steps">
+        ${state.calc.confirmedRental ? `<li>${esc(en ? "Tap “Use the confirmed details” to put the rental back as you confirmed it, then pay straight away." : "กด “ใช้รายละเอียดที่ยืนยันไว้” เพื่อกลับไปใช้รายการเดิม แล้วชำระเงินต่อได้ทันที")}</li>` : ""}
+        ${needsVerification ? `<li>${esc(en ? "The returning-customer discount needs you to verify again on this device: tap “Verify returning customer”." : "ส่วนลดลูกค้าเก่าต้องยืนยันอีกครั้งบนเครื่องนี้ กด “ยืนยันลูกค้าเก่า”")}</li>` : ""}
+        <li>${esc(en ? `If you really want different details, message AJ on LINE with your Rental ID ${code}; the shop will change it for you.` : `หากต้องการเปลี่ยนรายละเอียดจริง ทักร้านทาง LINE พร้อมรหัสการเช่า ${code} ร้านจะแก้ไขให้`)}</li>
+      </ol>
+      <div class="queue-retry-actions rental-changed-actions">
+        <a class="btn" href="${esc(`${CONFIG.lineOaMessageUrl}?${lineMessage}`)}" target="_blank" rel="noopener">${esc(en ? "Message AJ on LINE" : "ทักร้านทาง LINE")}</a>
+        ${needsVerification ? `<button class="btn" type="button" data-rental-changed-verify>${esc(en ? "Verify returning customer" : "ยืนยันลูกค้าเก่า")}</button>` : ""}
+        ${state.calc.confirmedRental ? `<button class="btn primary" type="button" data-rental-changed-restore>${esc(en ? "Use the confirmed details" : "ใช้รายละเอียดที่ยืนยันไว้")}</button>` : ""}
+      </div>`;
+    showModal(en ? "Your rental details changed" : "รายละเอียดการเช่าไม่ตรงกับที่ยืนยันไว้", body, {relocalize:() => showRentalChangedPopup(rentalChangedRetry)});
+  }
+  async function useConfirmedRentalAndRetry(){
+    const matched = restoreConfirmedRental();
+    if(!matched){ showRentalChangedPopup(rentalChangedRetry); return; }
+    closeModal();
+    const retry = rentalChangedRetry;
+    rentalChangedRetry = null;
+    if(retry) await retry();
   }
   function demoAgreementSignature(){
     return [rentalSignature(), state.calc.maps, state.calc.demoCustomerName, state.calc.demoCustomerPhone].map(value => String(value || "").trim()).join("|");
@@ -9892,6 +9999,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       }
       state.calc.demoOrderCode = code;
       state.calc.demoOrderOpen = true;
+      state.calc.confirmedRental = confirmedRentalSnapshot();
       state.calc.demoIdentitySkipped = demoProfile.identitySkipped;
       state.calc.demoIdentityStatus = demoIdentityStatus();
       saveLocal();
@@ -9915,9 +10023,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         showDeliveryQuoteProblem(() => confirmDemoOrder());
         return;
       }
-      showDemoProgressProblem(error?.code === "rental_details_changed"
-        ? (state.lang === "en" ? "This rental changed after identity verification. Restore the original details or contact AJ before paying. No new Rental ID was created." : "รายละเอียดการเช่าเปลี่ยนหลังยืนยันตัวตน กรุณาใช้รายละเอียดเดิมหรือติดต่อร้านก่อนชำระ ระบบไม่ได้สร้างรหัสการเช่าใหม่")
-        : (error?.code === "booking_hold_conflict" ? error.message : (state.lang === "en" ? "The rental could not be prepared right now. Please try again. If this continues, contact AJ." : "เตรียมข้อมูลการเช่าไม่สำเร็จ กรุณาลองอีกครั้ง หากยังติดขัดให้ติดต่อร้าน")));
+      if(error?.code === "rental_details_changed"){
+        showRentalChangedPopup(() => confirmDemoOrder());
+        return;
+      }
+      showDemoProgressProblem((error?.code === "booking_hold_conflict" ? error.message : (state.lang === "en" ? "The rental could not be prepared right now. Please try again. If this continues, contact AJ." : "เตรียมข้อมูลการเช่าไม่สำเร็จ กรุณาลองอีกครั้ง หากยังติดขัดให้ติดต่อร้าน")));
     }finally{
       hideDemoBusy();
     }
@@ -10150,6 +10260,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   function confirmedRentalCodeForPayment(summary){
     reconcileConfirmedIdentitySignature(summary);
+    // Nothing the renter chose has moved (the signature was only built
+    // differently, say after a reload): the confirmed Rental ID still stands.
+    const changes = confirmedRentalChanges();
+    if(changes && !changes.length && state.calc.demoOrderOpen && state.calc.rentalCode
+      && state.calc.rentalCode === state.calc.demoOrderCode && state.calc.rentalCodeSig !== rentalSignature(summary)){
+      state.calc.rentalCodeSig = rentalSignature(summary);
+      saveLocal();
+    }
     const code = String(state.calc.rentalCode || "").trim();
     if(!state.calc.demoOrderOpen || !code || (state.calc.demoOrderCode && state.calc.demoOrderCode !== code)
       || state.calc.rentalCodeSig !== rentalSignature(summary)
@@ -10255,10 +10373,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         showDemoProgressProblem(tr("contactLineRequired"), 2);
         return;
       }
+      if(error?.code === "rental_details_changed"){
+        showRentalChangedPopup(() => launchDemoBeamPayment());
+        return;
+      }
       toast(error?.code === "console_pending_submission_failed"
         ? (state.lang === "en" ? "We could not save your rental for the shop. No payment was started. Please try again." : "บันทึกรายการให้ร้านไม่สำเร็จ ยังไม่ได้เริ่มชำระเงิน กรุณาลองอีกครั้ง")
-        : error?.code === "rental_details_changed"
-        ? (state.lang === "en" ? "This rental changed after confirmation. Please review it before paying; no new Rental ID was created." : "รายละเอียดการเช่าเปลี่ยนหลังยืนยัน กรุณาตรวจรายการก่อนชำระเงิน ระบบไม่ได้สร้างรหัสการเช่าใหม่")
         : (state.lang === "en" ? "Unable to open the payment page. Please try again." : "เปิดหน้าชำระเงินไม่สำเร็จ กรุณาลองใหม่"));
     }
   }
@@ -10787,9 +10907,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       showModal(en ? "Send confirmation via LINE" : "วิธีแจ้งยืนยันผ่าน LINE", `<div class="line-booking-guide"><div class="line-guide-content"><ol><li>${en ? "Tap the button below to open LINE." : "กดปุ่มด้านล่างเพื่อเปิด LINE"}</li><li>${en ? "If Safari asks to open this page in LINE, tap Open." : "หาก Safari ถาม Open this page in LINE ให้กด Open"}</li><li>${en ? "Keep the confirmation screen open until AJ's confirmed-rental Flex card appears in your chat. You only need to tap once." : "รอที่หน้ากำลังยืนยันจนการ์ดยืนยันการเช่าปรากฏในแชท AJ กดเพียงครั้งเดียว ไม่ต้องย้อนกลับมากดซ้ำ"}</li></ol></div><div class="line-guide-actions"><a class="btn primary" href="${esc(url)}">${en ? "Open LINE and confirm" : "เปิด LINE และยืนยัน"}</a></div></div>`);
     }catch(error){
       console.error("Demo LINE confirmation failed", error);
-      toast(error?.code === "rental_details_changed"
-        ? (state.lang === "en" ? "This rental changed after confirmation. Please review it; no new Rental ID was created." : "รายละเอียดการเช่าเปลี่ยนหลังยืนยัน กรุณาตรวจรายการ ระบบไม่ได้สร้างรหัสการเช่าใหม่")
-        : (state.lang === "en" ? "Unable to open LINE confirmation." : "เปิดการยืนยันผ่าน LINE ไม่สำเร็จ"));
+      if(error?.code === "rental_details_changed"){
+        showRentalChangedPopup(() => notifyDemoLine());
+        return;
+      }
+      toast(state.lang === "en" ? "Unable to open LINE confirmation." : "เปิดการยืนยันผ่าน LINE ไม่สำเร็จ");
     }
   }
   async function chooseDemoWhatsApp(){
@@ -15350,6 +15472,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(event.target.closest("[data-wise-copy-tag]")){ await writeBookingClipboard(CONFIG.wiseTag); return; }
       if(event.target.closest("[data-queue-retry-continue]")){ await retryQueueAndConfirm(); return; }
       if(event.target.closest("[data-progress-retry-confirm]")){ closeModal(); await confirmDemoOrder(); return; }
+      if(event.target.closest("[data-rental-changed-restore]")){ await useConfirmedRentalAndRetry(); return; }
+      if(event.target.closest("[data-rental-changed-verify]")){ closeModal(); openReturningEligibility(); return; }
       if(event.target.closest("[data-progress-problem-close], [data-booking-problem-dismiss]")){ closeModal(); return; }
       if(event.target.closest("[data-queue-back-to-dates]")){ closeModal(); goCalcStep(1, {scrollTabs:true}); return; }
       if(targetId === "demoSignatureClear"){ clearDemoSignature(); return; }
@@ -15832,6 +15956,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       state.calc.datesTouched = false;
       state.calc.rentalCode = "";
       state.calc.rentalCodeSig = "";
+      state.calc.confirmedRental = null;
       state.calc.demoOrderCode = "";
       state.calc.demoIdentityFor = "";
       state.calc.contractSignature = "";

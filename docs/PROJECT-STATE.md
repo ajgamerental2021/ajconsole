@@ -1,3 +1,26 @@
+## 2026-10-18 — "รายละเอียดการเช่าเปลี่ยนหลังยืนยัน" no longer blocks payment: a popup that fixes it (TH/EN)
+
+- **Owner report:** a customer on the payment page (opened from LINE) tapped ชำระเงิน and got only a toast: "รายละเอียดการเช่าเปลี่ยนหลังยืนยัน … ระบบไม่ได้สร้างรหัสการเช่าใหม่". They could not pay or go on.
+- **Why it happens:** `confirmedRentalCodeForPayment` refuses when `rentalSignature()` no longer equals the signature saved when step 3 issued the Rental ID. Ways to get there:
+  1. The renter changed something after confirming (dates, console, games, extras).
+  2. The page changed something by itself. On page load, a returning-customer verification that no longer matches this device's LINE account turns the returning-customer discount off (`ret = false`). This is a likely match for a customer arriving from LINE.
+  3. The signature was built differently from how it was saved, with nothing actually changed.
+  - The old code only showed a toast, and gave no way back.
+- **Fix (website):**
+  - Step 3 now keeps a snapshot of what was confirmed (`state.calc.confirmedRental`).
+  - If nothing the renter chose has changed, payment goes ahead on the same Rental ID (case 3).
+  - Otherwise a **popup**, not a toast, opens (`showRentalChangedPopup`) on pay, on step-3 confirm and on LINE confirmation. It lists exactly what changed ("confirmed X → now Y") and how to fix it, with these buttons:
+    - **"ใช้รายละเอียดที่ยืนยันไว้ / Use the confirmed details":** puts the rental back as confirmed, then retries the payment at once.
+    - **"ยืนยันลูกค้าเก่า / Verify returning customer":** shown when the returning-customer discount was lost. That discount is never put back without verification.
+    - **"ทักร้านทาง LINE / Message AJ on LINE":** with the Rental ID pre-filled, for a real change.
+    - Close.
+  - No new Rental ID is ever created; identity and the agreement stay filed under the confirmed one.
+- **Checks:**
+  - New `tests/rental-changed-popup.test.mjs` (5).
+  - Existing rental-code and confirm-order tests updated for the popup.
+  - Website suite 368/368 before the popup tests were added; the final run is in the commit.
+  - Popup rendered at 390 px in TH and EN.
+
 ## 2026-10-18 — AJ Office: remembered sign-in, shop floor open from today
 
 - **Owner:** Render settings are done. Asked Claude to choose the start dates, and to stop the dashboard asking for the key every time.

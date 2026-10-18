@@ -44,7 +44,7 @@ function checkout({ lang, noContract, failFirstContext = false, failQuote = fals
     },
     queueConsolePendingUpsert: async () => {}, uploadDemoIdentity: async () => { calls.push('identity'); },
     submitDemoAgreement: async () => { calls.push('agreement'); },
-    demoIdentityStatus: () => 'submitted', saveLocal() {}, render() {}, scrollToDemoOrderTop() {},
+    demoIdentityStatus: () => 'submitted', saveLocal() {}, render() {}, scrollToDemoOrderTop() {}, confirmedRentalSnapshot: () => ({}),
     maybeSendPayLaterEmail() {}, showDemoProgressProblem: (message, step) => messages.push({ message, step }),
     showDeliveryQuoteProblem: (retry) => messages.push({ deliveryQuote: true, retry }),
     confirmDemoOrder: async () => {},
