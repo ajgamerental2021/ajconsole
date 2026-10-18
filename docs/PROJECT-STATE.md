@@ -4,6 +4,7 @@
 - The office wall uses the shop's AJ logo asset. The outdoor road shows one animated motorbike for each currently moving Lalamove job, including evening work beyond the ±7-day booking queue. Bikes show the real driver name and trip state and open the real trip map; the road movement is a visual animation, not live GPS positions.
 - The `driver` roster card is a visual role, not a hired Lalamove shift. No fixed 2–3 employee slots were created; simultaneous active jobs determine the number of bikes shown.
 - Local checks: AJ Office 67/67 tests plus desktop/mobile Thai/English browser preview with two simultaneous 22:30 trips; Delivery App office integration 13/13, flex ledger 24/24, Lalamove dispatch 376/376, backend and frontend TypeScript checks passed. Delivery App production `/health` returned 200 after push. The presumed AJ Office domain `aj-office.onrender.com` returned proxy-level 403 from this cloud workspace, so its post-deploy page could not be verified here.
+- **Production configuration blocker:** unauthenticated request to Delivery App `/api/integrations/aj-office/active-trips` returned `503 {"error":"office_key_not_set"}` on 18/10/2026 13:02 UTC. The owner must set the same `AJ_OFFICE_API_KEY` secret on both Render services; never send the key in chat. After setting it, recheck the integration and the live 3D scene. This workspace has no Render credentials or CLI to set it directly.
 
 ## 2026-10-18 — AJ Office 3D scene, idle routines and configurable statistics (TH/EN)
 
