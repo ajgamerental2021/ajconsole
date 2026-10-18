@@ -1,3 +1,21 @@
+## 2026-10-18 — Start-day payment reminder at 10:00 (TH/EN)
+
+- **Owner request:** AJ-20261016-R0018 was booked on the 16th for the 18th and still unpaid on the 18th. On the start day, a renter who has not paid the reservation should get the same payment card again at 10:00, saying they can still pay and start today.
+- **Bot:**
+  - `pendingPaymentFlexMessage(..., { startDay: true })`: the same card, buttons and rows, with only the title and notice changed.
+    - Title: **"วันนี้เป็นวันเริ่มเช่าของคุณ" / "Your rental starts today"**.
+    - Notice: "ร้านยังไม่ได้รับค่าจอง หากยังสนใจเช่าอยู่ ชำระค่าจองได้เลย และยังเริ่มเช่าได้ภายในวันนี้" / "We have not received your reservation yet. If you still want this rental, pay now and it can still start today."
+  - `runStartDayReminders` runs every 5 minutes. It sends between 10:00 and 17:00 Bangkok (a server that was asleep catches up), to Console Pending rows that:
+    - start today;
+    - have status Pending;
+    - have a LINE account;
+    - are unpaid, after checking both records and Beam just before sending.
+  - It sends once per rental per day, using the `startDayReminderSentAt` marker on Console Pending. New module: `src/services/start-day-reminder.js`.
+- **Checked:**
+  - unit tests 3/3; Bot suite 682/683 (only the pre-existing terms failure);
+  - real Bot with the fake world: the card was pushed to LINE once, the marker was saved, and a restart did not resend.
+- **R0018:** if the Bot deploys before 17:00 on 18/10 and the row is still unpaid and Pending, it receives the new card on the first run after the deploy. Production cannot be reached from here.
+
 ## 2026-10-17 — Customer tracking page: "ติดตามคนขับ / Follow driver" after the map is moved
 
 - **Owner report:** on the customer's ติดตามการจัดส่ง page (DA `/c/track/<token>`), once the map was moved there was no way back to following the driver.
