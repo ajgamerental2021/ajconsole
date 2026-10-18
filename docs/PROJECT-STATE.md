@@ -1,3 +1,35 @@
+## 2026-10-18 — AJ Office 3D office + trips on the real map (P2)
+
+- **AJ Office `4e73c92`, `1723db7`:**
+  - `/office3d.html` is a low-poly isometric office in three.js, served from `node_modules` (no CDN). It has team zones, desks, a lunch corner, a lounge, a restroom, a smoking corner, the exit and the road.
+  - **What people do** comes from the real presence and open work: desk, lunch, lounge, restroom, smoking corner, out for snacks, a beer before home, waiting at the door in the last 15 minutes. Three or more open jobs is "stressed" (faster typing, 💦); none is "relaxed".
+  - อลีฟ wears the red Man United shirt with a white collar; จาจี้ has headphones.
+  - Tapping a name or a person opens a card: activity, mood, task, shift, salary this month.
+  - **Time picker:** "now" or another time today (`/api/office?at=`, display only).
+  - Refreshes every minute; low-power mode on phones; button from the dashboard header.
+  - **Trips:** each running driver trip rides the road outside. Tapping it, or its still button in the bottom bar, opens the real map (Leaflet + OpenStreetMap): shop, customer and driver pins, route, status, ETA, distance, driver and plate. Refreshes every 15 seconds.
+  - `public/office3d/logic.js` is pure and tested. Suite 64/64. Checked in Chromium at 1280 px and 390 px.
+- **DA `7b3f423` (main):** `GET /api/integrations/aj-office/trips/:jobId` (staffMapState, read-only). office-integration 12/12, flex-ledger 24/24.
+
+### For Codex: what is left (owner asked Claude to stop at a good point and hand over)
+
+1. **When the owner adds `ANTHROPIC_API_KEY`:**
+   - Press "Run now: Accountant" on the dashboard and check that `byAi` and the cost appear.
+   - `agents/claude.js` uses `client.beta.messages.create` with `betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default'` for Sonnet and Opus. If the API rejects that, drop the fallback, not the call.
+2. **Content team (P3):**
+   - Content creator: drafts posts with Claude Sonnet from `content-week` tasks, captions TH/EN plus picture briefs.
+   - Graphics: OpenAI Images only. It needs the owner's `OPENAI_API_KEY`; add `agents/openai.js` with the same budget and costing pattern as `claude.js`.
+   - Merge step goes to the owner's approval.
+   - Facebook and LINE Broadcast posting need a Facebook Page token and the LINE broadcast API, both from the owner. Post only after approval.
+3. **Customer support:** needs the Bot to forward inbound LINE/WhatsApp messages. Draft replies only; ready-made answers for repeat questions; the owner approves.
+4. **3D polish:** the operations zone is crowded when every position is filled (9 desks); a second row or a bigger zone would help. Real walking paths around desks, and a glTF character look if wanted.
+5. **Programmers + QA (P4, on demand):** open PRs against these repos with a GitHub token the owner provides; QA runs the suites; never merge.
+6. Keep the rules in `aj-office/AGENTS.md`:
+   - nothing reaches customers without approval;
+   - no key, no budget, no AI;
+   - AJ Office stores no phone numbers or bank accounts;
+   - TH/EN everywhere.
+
 ## 2026-10-18 — AJ Office P1: IT, Accountant and Admin at work (AI joins when the key is added)
 
 - **Owner:** budget set on Render (`OFFICE_MONTHLY_BUDGET_THB`). The API key comes later, after topping up.

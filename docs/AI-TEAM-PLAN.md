@@ -191,5 +191,7 @@ Nothing is posted before step 4. Planning a week twice adds nothing.
 
 **P1 (done, aj-office `13bbe93`, Bot `b84c19c`):** IT, Accountant and Admin at work. Their free part runs now; the AI joins once `ANTHROPIC_API_KEY` is set, inside `OFFICE_MONTHLY_BUDGET_THB`. See PROJECT-STATE.
 
+**P2 3D office (done, aj-office `1723db7`, DA `7b3f423`):** the team live in 3D, a time picker, and trips on the real map. The list of what is left for Codex is in PROJECT-STATE ("For Codex: what is left").
+
 **Next:** P2 3D office, with อลีฟ in the Man United shirt.
 
