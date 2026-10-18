@@ -1,3 +1,10 @@
+## 2026-10-18 — AJ Office live 3D delivery trips and shop logo
+
+- Deployed code to `main`: Delivery App `a343909`, AJ Office `bdc24c0` (including previous 3D scene commit `45807a8`). Render is configured to auto-deploy both services from `main`.
+- The office wall uses the shop's AJ logo asset. The outdoor road shows one animated motorbike for each currently moving Lalamove job, including evening work beyond the ±7-day booking queue. Bikes show the real driver name and trip state and open the real trip map; the road movement is a visual animation, not live GPS positions.
+- The `driver` roster card is a visual role, not a hired Lalamove shift. No fixed 2–3 employee slots were created; simultaneous active jobs determine the number of bikes shown.
+- Local checks: AJ Office 67/67 tests plus desktop/mobile Thai/English browser preview with two simultaneous 22:30 trips; Delivery App office integration 13/13, flex ledger 24/24, Lalamove dispatch 376/376, backend and frontend TypeScript checks passed. Delivery App production `/health` returned 200 after push. The presumed AJ Office domain `aj-office.onrender.com` returned proxy-level 403 from this cloud workspace, so its post-deploy page could not be verified here.
+
 ## 2026-10-18 — AJ Office 3D scene, idle routines and configurable statistics (TH/EN)
 
 - AJ Office branch `codex/office3d-activities-stats` (`45807a8`) was based on `origin/main` at `1723db7`, including the new motorbike trip map interaction from another chat.
