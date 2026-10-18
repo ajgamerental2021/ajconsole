@@ -1,3 +1,27 @@
+## 2026-10-18 — AJ Office P1: IT, Accountant and Admin at work (AI joins when the key is added)
+
+- **Owner:** budget set on Render (`OFFICE_MONTHLY_BUDGET_THB`). The API key comes later, after topping up.
+- **AJ Office `13bbe93`:**
+  - `src/agents/`:
+    - `claude.js` is the only Claude caller. Tiers are Haiku / Sonnet / Opus 5.5; Sonnet and Opus use the server-side refusal fallback.
+    - Each call is costed from its usage (`pricing.js`) and booked as the position's salary.
+    - `budget.js`: no budget, or the budget reached, means no AI.
+  - **IT** (code first): checks the Bot, the Delivery App and the website every 15 minutes, for free. Two failures in a row make an incident; the AI (Haiku) writes the note when it is on. Recovery is noted.
+  - **Accountant:** a 09:30 brief built from exact figures (refunds waiting, returns missing a refund account, the month's money, the next 3 days). The AI (Sonnet) writes it when on; otherwise it is written straight from the figures.
+  - **Admin:** every 2 hours from 10:00 to 20:00, drafts follow-ups for due unpaid requests (from a template, or by the AI) into the approval box. Approving sends the (editable) text plus the payment card through the Bot. A request the owner sent back is not drafted again.
+  - IT and Admin open from 18/10/2026.
+  - Dashboard: an AI section (key on/off, budget, service states, the latest brief, IT alerts, run-now buttons), TH/EN.
+  - Tests 57/57.
+- **Bot `b84c19c` (branch and main):**
+  - `GET /api/office/pending-requests` returns summaries only: no phone number, no LINE ID.
+  - `followUpDue` is true when the request was made before today, starts after today, is on LINE, and was not followed up in the last 24 hours. The start day itself stays with the 10:00 reminder.
+  - `POST /api/office/follow-up` re-checks (open, unpaid, not settled elsewhere), pushes the text and the payment card, and marks `officeFollowUpAt`.
+  - Both use `AJ_OFFICE_API_KEY`. Tests 4/4; suite 683/684 (the old terms failure only).
+  - Checked against the real Bot with the fake world: 401 without the key, no private data in the list, the push of text and card, and no second draft the same day.
+- **Owner still to do:**
+  - Add `AJ_OFFICE_API_KEY` on the **Bot**'s Render service: the same value as on AJ Office and the DA.
+  - Later: `ANTHROPIC_API_KEY` on AJ Office, after a $10–25 top-up.
+
 ## 2026-10-18 — AJ Office: four positions merged, cheaper running (owner approved)
 
 - **Merged:**

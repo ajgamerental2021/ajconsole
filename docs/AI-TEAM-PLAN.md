@@ -189,5 +189,7 @@ Nothing is posted before step 4. Planning a week twice adds nothing.
   - the same `AJ_OFFICE_API_KEY` on both services;
   - `DELIVERY_APP_URL` (the DA backend address) on AJ Office.
 
-**Next:** P1, the agent runner (Claude API) for IT, Accountant and Admin, once the owner has set the key and the budget. P2 3D office, with อลีฟ in the Man United shirt.
+**P1 (done, aj-office `13bbe93`, Bot `b84c19c`):** IT, Accountant and Admin at work. Their free part runs now; the AI joins once `ANTHROPIC_API_KEY` is set, inside `OFFICE_MONTHLY_BUDGET_THB`. See PROJECT-STATE.
+
+**Next:** P2 3D office, with อลีฟ in the Man United shirt.
 
