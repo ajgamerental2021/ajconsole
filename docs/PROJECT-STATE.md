@@ -1,3 +1,11 @@
+## 2026-10-18 — AJ Office 3D scene, idle routines and configurable statistics (TH/EN)
+
+- AJ Office branch `codex/office3d-activities-stats` (`45807a8`) was based on `origin/main` at `1723db7`, including the new motorbike trip map interaction from another chat.
+- The 3D office now has more detailed desks, wall windows, plants, a pool table and a gaming area. People move through the central aisle with smoother turns and short animations for typing, waiting, coffee, gaming and pool.
+- During a quiet working shift, staff with normal breaks rotate among their desk, pool, gaming, coffee and lounge; an open task keeps them at work. Staff with `breaks: none` keep their straight-through schedule.
+- The owner can choose small, medium or large scene layouts and select which live statistics to show. Preferences stay in browser storage. Large retains a full-scene view with a compact stats overlay; smaller desktop and phone layouts show scene and stats together.
+- Thai and English were checked in Chromium at desktop (1360 px) and mobile (390 px) sizes using a local test owner session and the 10:30 time view. `npm test`: 66/66 passed. No external service was changed.
+
 ## 2026-10-18 — AJ Office 3D office + trips on the real map (P2)
 
 - **AJ Office `4e73c92`, `1723db7`:**
