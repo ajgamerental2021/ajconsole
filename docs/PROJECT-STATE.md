@@ -1,3 +1,18 @@
+## 2026-10-18 — AJ Office: remembered sign-in, shop floor open from today
+
+- **Owner:** Render settings are done. Asked Claude to choose the start dates, and to stop the dashboard asking for the key every time.
+- **Start dates (Claude's choice, in code as `SHOP_FLOOR_START`):**
+  - **Open from 18/10/2026:** head accountant (จาจี้), accountant, order taker, device prep (อลีฟ), pickup, driver. Their work is real now: the owner presses the buttons, and the order sheet needs no AI.
+  - **Not dated yet:** the AI positions. Each gets a date when its agent is switched on (P1: IT, Accountant agent, Admin), so nobody shows as "at work" doing nothing.
+  - The owner can still change any date in the dashboard; their choice wins.
+- **Sign-in:** `POST /auth/login` sets an HttpOnly cookie for a year from the last visit, so there is no key to type again on that device.
+  - Remembered devices are hashed in the store and tied to the owner key: changing `OFFICE_OWNER_TOKEN` on Render signs everyone out.
+  - Cookie-signed changes need the `X-AJ-Office: 1` header. Ten wrong keys in 15 minutes are refused.
+  - A key the old page stored is used once, then deleted.
+  - The form works with password managers.
+- **iPhone:** boxes no longer zoom in when tapped.
+- **Checks:** AJ Office `be5e327`, tests 42/42. Browser check at 390 px: sign in, reload, new tab, sign out, wrong key, migration from the old stored key. Production itself cannot be reached from here.
+
 ## 2026-10-18 — AJ Office shop floor: new positions, deliveries/returns, refunds, shop money; DA auto return pickup on confirmation
 
 - **New positions:**
