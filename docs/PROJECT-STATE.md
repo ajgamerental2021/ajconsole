@@ -1,3 +1,14 @@
+## 2026-10-18 — Rain on maps (Google Weather), and the AI team plan
+
+- **Rain, DA `25d8716`:**
+  - `services/weather.ts` reads Google Weather current conditions with the DA's existing `GOOGLE_MAPS_API_KEY`, cached per ~1 km cell for 10 min. Without a key, or when Google fails, no rain is shown and nothing errors.
+  - `weather` is added to the `/c/track`, `/c/trip` and `/c/staff-map` state, and to `/api/dispatch/prepare` and `/api/dispatch/quote`.
+  - **Customer pages and the staff map:** animated rain over the map (light / moderate / heavy, with lightning for storms), a label saying where it is raining (TH/EN), and "ฝนตก คนขับอาจถึงช้ากว่าปกติ / It is raining, so the driver may be slower than usual" under the ETA.
+  - **Dispatch card:** a `RainBanner` with falling drops, showing rain at the pickup and drop-off and warning that drivers may be slow to find and fares may rise.
+  - **Tests:** test:weather 25/25, lalamove-dispatch 376/376, flex-ledger 24/24. Checked in a 390 px browser with a heavy-rain state in TH and EN.
+  - **Not done:** no real call to Google Weather yet (the container cannot reach Google). If the server key is restricted to certain APIs, Weather API must be added to its allowed list.
+- **AI team:** plan written in `docs/AI-TEAM-PLAN.md`. It covers the agreed principles, the positions plus recommended additions, the architecture, where to build, the phases, and the decisions the owner still has to make. No code yet. Codex: read that file before working on it.
+
 ## 2026-10-18 — Start-day payment reminder at 10:00 (TH/EN)
 
 - **Owner request:** AJ-20261016-R0018 was booked on the 16th for the 18th and still unpaid on the 18th. On the start day, a renter who has not paid the reservation should get the same payment card again at 10:00, saying they can still pay and start today.
