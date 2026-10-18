@@ -1,3 +1,17 @@
+## 2026-10-18 — AJ Office P0 (AI team): all positions, content week, approvals, dashboard
+
+- **Owner decisions:**
+  - Create the `aj-office` repo.
+  - Build every position now, each with its own start date.
+  - Host on Render.
+  - Take all the recommended positions.
+  - Claude key and budget: later.
+- **New content positions:** Content creator, Graphics (ChatGPT / Codex only, 10 pictures a week), Facebook posting, LINE Broadcast posting. Weekly run: Mon = After Work 3 Days, Wed/Fri = regular devices; plan → pictures → merge → owner approves → post on both channels.
+- **Code:** new repo `aj-office`, commit `258a97d`. Positions as data, generated personas with SVG faces, presence by shift, lunch and breaks, the task state machine with the owner-only approval gate, hire/fire, costs, audit log, TH/EN dashboard. Tests 24/24; dashboard checked at 1280 px and 390 px in TH and EN.
+- **Blocked:** the GitHub integration cannot create repos (403). The owner must create `ajgamerental2021/aj-office` (private, empty) and connect the Claude GitHub App. Until then the commit exists only in the Claude cloud session.
+- **Rain question answered:** the rain overlay sits on top of the map container, so it works on Google Maps. The test screenshots showed OpenStreetMap only because the test machine has no Google browser key.
+- Plan and progress: `docs/AI-TEAM-PLAN.md` §3, §8, §9. Codex: read that file first.
+
 ## 2026-10-18 — Rain on maps (Google Weather), and the AI team plan
 
 - **Rain, DA `25d8716`:**

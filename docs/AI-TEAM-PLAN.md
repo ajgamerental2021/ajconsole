@@ -2,7 +2,9 @@
 
 Shared by Claude Code and Codex. Read this before working on the AI team, and log each step at the top of `docs/PROJECT-STATE.md`.
 
-Status: **plan, waiting for the owner's decisions (§8).** No code has been written yet.
+Status: **P0 built and tested locally (2026-10-18); waiting for the owner to create the `aj-office` GitHub repo so it can be pushed (§8).**
+
+Code: repo `aj-office` (Node ESM + Express, like the Bot). Until the repo exists, the code is a local commit in the Claude cloud session only.
 
 ---
 
@@ -65,6 +67,26 @@ On top of that:
 | **HR (manages the AI team)** | Performance reviews, cost per person, recommends who to hire or fire, monthly salary report |
 | **Data analyst** | Demand and price forecasts, device ROI, data for the dashboard |
 
+The owner accepted every recommended position.
+
+### Content positions (added by the owner, 2026-10-18)
+
+| Position | Work |
+|---|---|
+| **Content creator** | Thinks up posts, ideas, campaigns, promotions and captions for Facebook and LINE Broadcast. Sends briefs to Graphics, waits for the pictures, merges them with the captions, then hands the finished post on to the posting staff |
+| **Graphics** | Makes the content pictures with **ChatGPT or Codex (OpenAI images) only**: **10 pictures a week**, for Monday's post (**After Work 3 Days** promotion) and Wednesday's and Friday's posts (**regular-device** promotions) |
+| **Facebook posting** | Waits for the finished post from the content creator and posts it on Facebook on the day |
+| **LINE Broadcast posting** | Waits for the finished post from the content creator and sends it as a LINE Broadcast on the day |
+
+**The weekly content run** (`aj-office/src/workflows/content-week.js`). For each of Mon / Wed / Fri, with pictures split 4 / 3 / 3:
+1. Content creator: plan, due Thursday of the week before.
+2. Graphics: pictures.
+3. Content creator: merge.
+4. **Owner approves.**
+5. Facebook and LINE Broadcast post at 12:00 on the day.
+
+Nothing is posted before step 4. Planning a week twice adds nothing.
+
 ## 4. Architecture
 
 ```
@@ -117,10 +139,26 @@ On top of that:
 - LLM cost grows with the number of staff and how often they check. Use a monthly budget cap and a cheap model for routine work.
 - The 3D office is the most work of all and does not make the system any smarter. It belongs after the real agents work (P2).
 
-## 8. Waiting for the owner's decisions
+## 8. Owner's decisions (2026-10-18)
 
-1. Create a new GitHub repo for AJ Office (proposed name `aj-office`), and add it to the Claude/Codex session.
-2. A Claude API key in the AJ Office server's environment (the owner sets it on Render; never pasted in chat), and a monthly budget cap.
-3. Which 3 roles start in P1 (proposed: IT, Accountant, Admin).
-4. Host on Render like the other systems?
-5. The additional positions in §3: which ones to include.
+1. **Repo `aj-office`: yes.** The Claude GitHub integration cannot create repos (403), so **the owner creates `ajgamerental2021/aj-office` (private, empty)** and installs or connects the Claude GitHub App on it. Claude then attaches it and pushes P0. For Codex, the owner connects the repo in Codex too.
+2. **Claude API key and monthly budget:** the owner will decide later. The owner sets them on Render; they are never pasted in chat. Graphics also needs an **OpenAI key** (owner, on Render).
+3. **Positions: all of them, built now.** Each has its own start date. A position with no start date, or a future one, shows as "not started" and its work waits. The first to open are IT, Accountant and Admin, on dates the owner picks in the dashboard.
+4. **Render: yes.** `render.yaml` uses a starter instance with a 1 GB disk so the team, the tasks and the audit log survive deploys. Render disks need a paid instance.
+5. **Recommended extra positions:** all included.
+
+## 9. Progress
+
+**P0 (done locally, commit `258a97d` in `aj-office`):**
+- `roles.js`: 23 positions as data (TH/EN title and duty, team, tools, model tier, approval rule). The driver is a visualization, not an agent. No position has a tool that merges, deploys or sends on its own.
+- `personas.js`: a person from a seed. Made-up Thai and English nickname, SVG face, temperament, diligence 55–98%, two habits, one of four shifts that cover 24 hours, and a lunch time.
+- `schedule.js`: presence now (not started / off duty / lunch / break / working). Breaks follow diligence.
+- `store.js`: the JSON store and the task state machine (received → working → submitted → awaiting approval → approved → done; rejected → working). It gates on the position being open and filled and on earlier tasks being finished. Only the owner approves; a rejection needs a reason. Hire and fire keep history. Costs are kept per person per month and year, and everything is audit-logged.
+- `app.js`: API with the owner key `OFFICE_OWNER_TOKEN` and the agent key `OFFICE_AGENT_TOKEN`. The agent key can only read and move tasks.
+- `public/index.html`: TH/EN dashboard (overview, approval box, weekly content, team cards with start-date editor and hire/fire, all tasks, former staff, change log). Checked at 1280 px and 390 px.
+- Tests: 24/24.
+
+**Next (P0 remainder → P1):**
+- Signed read-only APIs from the DA (income and expenses per month and year, jobs, trips) for the money section of the dashboard.
+- Then P1: the agent runner (Claude API) for IT, Accountant and Admin, once the owner has set the key and the budget.
+
