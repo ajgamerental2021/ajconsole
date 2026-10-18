@@ -18,7 +18,7 @@
 - **Checks:**
   - New `tests/rental-changed-popup.test.mjs` (5).
   - Existing rental-code and confirm-order tests updated for the popup.
-  - Website suite 368/368 before the popup tests were added; the final run is in the commit.
+  - Website suite 368/368, including the new tests.
   - Popup rendered at 390 px in TH and EN.
 
 ## 2026-10-18 — AJ Office: remembered sign-in, shop floor open from today
