@@ -2,9 +2,9 @@
 
 Shared by Claude Code and Codex. Read this before working on the AI team, and log each step at the top of `docs/PROJECT-STATE.md`.
 
-Status: **P0 built and tested locally (2026-10-18); waiting for the owner to create the `aj-office` GitHub repo so it can be pushed (§8).**
+Status: **P0 built, tested and pushed (2026-10-18).** Next: the DA read-only money API, then P1 once the owner sets the Claude key and budget.
 
-Code: repo `aj-office` (Node ESM + Express, like the Bot). Until the repo exists, the code is a local commit in the Claude cloud session only.
+Code: `ajgamerental2021/aj-office` (Node ESM + Express, like the Bot), on `main` and `claude/blissful-brahmagupta-pawyxg`.
 
 ---
 
@@ -149,7 +149,7 @@ Nothing is posted before step 4. Planning a week twice adds nothing.
 
 ## 9. Progress
 
-**P0 (done locally, commit `258a97d` in `aj-office`):**
+**P0 (done, `aj-office` commit `258a97d`, pushed to `main`):**
 - `roles.js`: 23 positions as data (TH/EN title and duty, team, tools, model tier, approval rule). The driver is a visualization, not an agent. No position has a tool that merges, deploys or sends on its own.
 - `personas.js`: a person from a seed. Made-up Thai and English nickname, SVG face, temperament, diligence 55–98%, two habits, one of four shifts that cover 24 hours, and a lunch time.
 - `schedule.js`: presence now (not started / off duty / lunch / break / working). Breaks follow diligence.
