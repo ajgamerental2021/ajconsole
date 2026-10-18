@@ -78,6 +78,22 @@ The owner accepted every recommended position.
 | **Facebook posting** | Waits for the finished post from the content creator and posts it on Facebook on the day |
 | **LINE Broadcast posting** | Waits for the finished post from the content creator and sends it as a LINE Broadcast on the day |
 
+### Shop-floor positions (added by the owner, 2026-10-18)
+
+| Position | Person | Work |
+|---|---|---|
+| **Head accountant** | **จาจี้ / Jaji** (owner's pick): 100% diligent, 10:00–19:00, cheerful, music, goes out for snacks on breaks, opens a beer just before clocking off. **Cannot be let go** (no fire button; the API refuses) | Runs the accounts and checks the accountant's work |
+| **Order taker** | generated | Once a rental is paid and accounts have confirmed it (the booking is in the Delivery App queue), writes the order (device, games, date, time) and hands it to device prep |
+| **Device prep / return inspection** | **อลีฟ / Aleef** (owner's pick): 100%, 10:00–19:00, works straight through (no breaks, no lunch away), a beer before going home, Man United fan, wears the red shirt every day (`look.outfit = 'man-utd'`: drawn on the avatar now, and **the 3D office in P2 must dress him in it**) | Gets the console ready and installs the games. The owner presses **"ready · call Lalamove"**, with both ends' place, name and phone editable. Checks returned consoles: the owner checks and presses, and the work passes to accounts |
+| **Pickup** | generated | Runs return pickups on the customer's time and place. Called **automatically once the customer confirms the place and time**. The owner can call by hand, edit the place, time, name or phone, or cancel. When the console reaches the shop (the Lalamove trip completes, or the owner presses "back at the shop"), it goes to return inspection |
+
+**Refund step (accountant):**
+- shows the customer's refund bank, account name, account number and amount, live from the Delivery App;
+- the owner transfers by hand, attaches the slip and presses **"refunded"**;
+- the Delivery App files the slip in the booking's photos, then closes the return exactly as จบงาน does, with the pickup's Lalamove fare as the run cost.
+
+A second press, or a return already closed in the app, files nothing twice.
+
 **The weekly content run** (`aj-office/src/workflows/content-week.js`). For each of Mon / Wed / Fri, with pictures split 4 / 3 / 3:
 1. Content creator: plan, due Thursday of the week before.
 2. Graphics: pictures.
@@ -150,7 +166,7 @@ Nothing is posted before step 4. Planning a week twice adds nothing.
 ## 9. Progress
 
 **P0 (done, `aj-office` commit `258a97d`, pushed to `main`):**
-- `roles.js`: 23 positions as data (TH/EN title and duty, team, tools, model tier, approval rule). The driver is a visualization, not an agent. No position has a tool that merges, deploys or sends on its own.
+- `roles.js`: 27 positions as data (TH/EN title and duty, team, tools, model tier, approval rule). The driver is a visualization, not an agent. No position has a tool that merges, deploys or sends on its own.
 - `personas.js`: a person from a seed. Made-up Thai and English nickname, SVG face, temperament, diligence 55–98%, two habits, one of four shifts that cover 24 hours, and a lunch time.
 - `schedule.js`: presence now (not started / off duty / lunch / break / working). Breaks follow diligence.
 - `store.js`: the JSON store and the task state machine (received → working → submitted → awaiting approval → approved → done; rejected → working). It gates on the position being open and filled and on earlier tasks being finished. Only the owner approves; a rejection needs a reason. Hire and fire keep history. Costs are kept per person per month and year, and everything is audit-logged.
@@ -158,7 +174,20 @@ Nothing is posted before step 4. Planning a week twice adds nothing.
 - `public/index.html`: TH/EN dashboard (overview, approval box, weekly content, team cards with start-date editor and hire/fire, all tasks, former staff, change log). Checked at 1280 px and 390 px.
 - Tests: 24/24.
 
-**Next (P0 remainder → P1):**
-- Signed read-only APIs from the DA (income and expenses per month and year, jobs, trips) for the money section of the dashboard.
-- Then P1: the agent runner (Claude API) for IT, Accountant and Admin, once the owner has set the key and the budget.
+**Shop floor (done, DA `e0e1bff`, aj-office `a23d679`):**
+- **DA:** `/api/integrations/aj-office/*`, keyed by `AJ_OFFICE_API_KEY` and on the version-gate allow list.
+  - Reads: money by month from the Finance summary; deliveries and returns with device, games, refund account, trip, automatic plan and customer confirmation.
+  - Actions reuse the queue's code: `dispatchActions` (split out of `routes/dispatch.ts`), schedule edits through `bookingRepo`, and refund (slip, then `finishTask`).
+  - A customer confirming the return place and time arms the automatic pickup (`armReturnPickupOnConfirm`). Staff switching it off sticks (`disarmedAt`). The global switch is `returnOnConfirm`, on by default.
+- **AJ Office:**
+  - `workflows/operations.js` turns each DA job into steps: delivery = order → prep → drive; return = pickup → inspect → refund.
+  - Steps already done in the DA are synced. The order sheet is written automatically once the order taker's position is open. Owner presses finish steps whatever the start dates.
+  - No phone numbers or bank accounts are stored in AJ Office.
+  - Dashboard sections: shop money, deliveries, returns, the Lalamove dialog and the pickup editor, all TH/EN.
+- **Tests:** DA test:office-integration 12/12, flex-ledger 24/24, lalamove-dispatch 376/376. AJ Office 38/38, plus a browser run against a fake Delivery App in TH and EN at 1280 px and 390 px.
+- **To go live, the owner sets on Render:**
+  - the same `AJ_OFFICE_API_KEY` on both services;
+  - `DELIVERY_APP_URL` (the DA backend address) on AJ Office.
+
+**Next:** P1, the agent runner (Claude API) for IT, Accountant and Admin, once the owner has set the key and the budget. P2 3D office, with อลีฟ in the Man United shirt.
 

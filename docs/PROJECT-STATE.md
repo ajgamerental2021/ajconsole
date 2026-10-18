@@ -1,3 +1,21 @@
+## 2026-10-18 — AJ Office shop floor: new positions, deliveries/returns, refunds, shop money; DA auto return pickup on confirmation
+
+- **New positions:**
+  - Head accountant **จาจี้**: 100%, 10:00–19:00, cheerful, music, snack runs, a beer before clocking off. Cannot be let go.
+  - Order taker.
+  - Device prep / return inspection **อลีฟ**: 100%, 10:00–19:00, works straight through, beer before going home, Man United shirt on the avatar (and for the 3D office later).
+  - Pickup.
+- **DA `e0e1bff` (main):**
+  - `/api/integrations/aj-office/*` with `AJ_OFFICE_API_KEY`: money, work queue, driver calls, automatic plan, schedule edits, refund (slip, then close).
+  - A customer confirming the return place and time now **switches the automatic pickup on**. A pickup staff switched off stays off. There is a global switch.
+  - Tests: office-integration 12/12, flex-ledger 24/24, lalamove-dispatch 376/376, frontend tsc passes.
+- **AJ Office `a23d679` (main and `claude/blissful-brahmagupta-pawyxg`):**
+  - Delivery: order sheet → owner presses ready → Lalamove call with editable places, names and phones → driver.
+  - Return: automatic or manual pickup with edit and cancel → back at the shop → inspection → refund account shown → slip → closed in the DA.
+  - Shop money by month. Tests 38/38; checked in a browser against a fake DA, TH and EN, desktop and phone.
+- **Not live yet:** the owner must set the same `AJ_OFFICE_API_KEY` on both Render services and `DELIVERY_APP_URL` on AJ Office. Not exercised against the real DA or Lalamove from here.
+- Details: `docs/AI-TEAM-PLAN.md` §3 and §9.
+
 ## 2026-10-18 — AJ Office P0 (AI team): all positions, content week, approvals, dashboard
 
 - **Owner decisions:**
