@@ -1,3 +1,9 @@
+## 2026-10-19 — AJ Office 3D mini shop floor (TH/EN)
+
+- The owner asked to complete prep and call Lalamove directly from the 3D queue, without returning to Dashboard. The 3D queue ribbon and today cards now open a working dialog with all jobs in the current ±7-day Office range, ordered today → upcoming → newest past.
+- The dialog uses the same owner-only AJ Office routes as Dashboard: self-pickup prep, delivery/return dispatch with Lalamove quote, route, contacts, vehicle and payment method, return pickup schedule and auto-plan, global automatic return toggle, arrival, inspection, and deposit refund with slip. It refreshes the queue and 3D activity after writes. No action runs without an owner press and the Delivery App remains the booking source.
+- AJ Office `npm test` 68/68 and syntax checks passed. Desktop Thai and mobile English browser tests used a local fake Delivery App for prepare, requote, confirm, auto-plan, pickup schedule, arrival, inspection, refund slip and global auto toggle; production jobs were not used for the write-path test.
+
 ## 2026-10-19 — AJ Office today queue visibility and Delivery App read resilience (TH/EN)
 
 - Owner reported two delivery jobs visible in Delivery App on 19/10 but none linked in AJ Office. AJ Office `ff134a0` now defaults its Delivery App URL to the known production backend when the optional `DELIVERY_APP_URL` setting is absent, exposes a non-secret `deliveryAppConfigured` flag in `/healthz`, and puts a today queue card at the top of the dashboard and a queue ribbon/list in 3D. Both link to the relevant delivery/return cards; connection and key errors are explicit in Thai and English.
