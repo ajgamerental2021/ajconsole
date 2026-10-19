@@ -3,6 +3,7 @@
 - The website's public Rental Terms information popup now has a Copy link button. It copies `?terms=1&lang=th` or `?terms=1&lang=en` according to the language selected at the moment of copying; opening the link shows the same popup immediately with the server-owned current terms in that language.
 - A direct terms link suppresses the site announcement and LINE friend promotion for that visit, so neither covers the requested terms. Existing booking and contract acceptance flows remain unchanged.
 - Inline JavaScript syntax passed. AJ Console 368/368 tests passed; browser checks at desktop and 375 px phone widths in both languages confirmed the popup, copied URL, clipboard value, and language switching.
+- AJ Console `5f09f28` was pushed to `main`. The production site served the new code; a phone-width browser opened the live Thai and English links, confirmed the correct embedded terms language, and copied the exact public URL in both cases.
 
 ## 2026-10-19 — AJ Office future operations assignment fix (TH/EN)
 
