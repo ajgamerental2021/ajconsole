@@ -180,6 +180,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .option-block{border:1px solid var(--border);border-radius:14px;padding:13px;background:#fff}
 .option-block h3{margin-bottom:10px}
 .bundle-list{display:flex;flex-direction:column;gap:8px}
+.bundle-option-name{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bundle-option-thumb{width:46px;height:46px;max-width:46px;max-height:46px;object-fit:contain;flex:0 0 46px;border-radius:7px;background:#fff;vertical-align:middle}
+#gamePickBox .selected-game-name{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#gamePickBox .selected-game-thumb{width:44px;height:44px;max-width:44px;max-height:44px;object-fit:contain;flex:0 0 44px;border-radius:6px;background:#fff}
 .boardgame-tools{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}
 .picked-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
 .bg-help{font-size:13px;color:var(--text2);font-weight:700;margin:-4px 0 12px}
@@ -1882,7 +1886,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 
   const CONFIG = {
     version: "index2-clean-1",
-    gamePickerVersion: "20261007-1",
+    gamePickerVersion: "20261019-1",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",
@@ -7096,7 +7100,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       parts.push(bundleExpanded
         ? `<div class="option-block" id="ps5BundleBlock"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px"><h3 style="margin:0">${tr("bundle")}</h3><button class="btn" type="button" id="ps5BundleCollapse">${state.lang==="en"?"Collapse":"ย่อ"}</button></div><div class="bundle-list"><label class="option-row"><input type="radio" name="bundle" value="" ${!state.calc.bundleId?"checked":""}><div><b>${tr("noBundle")}</b><div class="hint">${money(c.rate)}/${tr("day")} | ${money(c.weekly)}/${tr("wk")} | ${tr("deposit")} ${money(c.deposit)}</div></div></label>${state.bundles.map(b => {
           const ready = isReady(b);
-          return `<label class="option-row ${ready?"":"unavailable"}"><input type="radio" name="bundle" value="${esc(b.id)}" ${state.calc.bundleId===b.id?"checked":""} ${ready?"":"disabled"}><div><b>${esc(state.lang==="en"?b.en:b.th)}</b><div class="hint">${money(b.rate)}/${tr("day")} | ${money(b.weekly)}/${tr("wk")} | ${tr("deposit")} ${money(b.deposit)}</div>${ready?"":`<div class="hint" style="color:#d00;font-weight:900">${state.lang==="en" ? "Not available yet, available on" : "ยังไม่พร้อมให้บริการ พร้อมให้บริการวันที่"} ${displayDate(b.readyDate)}</div>`}</div></label>`;
+          const bundleDevice = selectedBundleHoldDevice({consoleId:state.calc.consoleId,bundleId:b.id});
+          const image = bundleDevice?.id ? getConsoleImage(bundleDevice) : "";
+          return `<label class="option-row ${ready?"":"unavailable"}"><input type="radio" name="bundle" value="${esc(b.id)}" ${state.calc.bundleId===b.id?"checked":""} ${ready?"":"disabled"}><div><b class="bundle-option-name">${esc(state.lang==="en"?b.en:b.th)}${image ? `<img class="bundle-option-thumb" src="${esc(image)}" alt="" loading="lazy">` : ""}</b><div class="hint">${money(b.rate)}/${tr("day")} | ${money(b.weekly)}/${tr("wk")} | ${tr("deposit")} ${money(b.deposit)}</div>${ready?"":`<div class="hint" style="color:#d00;font-weight:900">${state.lang==="en" ? "Not available yet, available on" : "ยังไม่พร้อมให้บริการ พร้อมให้บริการวันที่"} ${displayDate(b.readyDate)}</div>`}</div></label>`;
         }).join("")}</div></div>`
         : `<div class="option-block" id="ps5BundleBlock"><button class="compact-toggle" type="button" id="ps5BundleToggle"><div><b>${tr("bundle")}</b><span>${tr("ps5BundleCollapsed")}</span></div><strong>+</strong></button></div>`);
     }
@@ -7373,10 +7379,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
     const list = state.calc.games || [];
     if(!list.length) state.calc.later = true;
+    let catalogGames = [];
+    try{ catalogGames = JSON.parse(localStorage.getItem("ajgame_games") || "[]"); }catch{}
+    const gameImage = game => game.imgUrl || (Array.isArray(catalogGames) ? catalogGames.find(item => String(item.id) === String(game.id))?.imgUrl : "") || "";
     byId("gamePickBox").innerHTML = `
       <button class="btn primary" id="openGamePicker" type="button">${tr("pickGames")}</button>
       <label class="option-row" style="margin-top:12px"><input type="checkbox" id="laterOpt" ${state.calc.later?"checked":""}><div><b>${tr("sendLater")}</b></div></label>
-      ${list.length ? `<div class="faq-list" style="margin-top:12px">${list.map((g,i) => `<div class="faq-item"><div class="faq-q">${i+1}. ${esc(g.name || g.title || g.id)}</div><div class="faq-a">${esc(g.platformName || g.platformId || "")}</div></div>`).join("")}</div>` : ""}
+      ${list.length ? `<div class="faq-list" style="margin-top:12px">${list.map((g,i) => `<div class="faq-item"><div class="faq-q selected-game-name"><span>${i+1}. ${esc(g.name || g.title || g.id)}</span>${gameImage(g) ? `<img class="selected-game-thumb" src="${esc(gameImage(g))}" alt="" loading="lazy">` : ""}</div><div class="faq-a">${esc(g.platformName || g.platformId || "")}</div></div>`).join("")}</div>` : ""}
       ${list.length ? `<button class="btn danger" id="clearGames" type="button" style="margin-top:12px">${tr("clearGames")}</button>` : ""}`;
   }
   function selectedDays(){ return diffDays(state.calc.start, state.calc.end); }
@@ -15725,7 +15734,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
         id:String(game.id || ""),
         name:String(game.name || ""),
         platformId:String(game.platformId || handoff.platformId || ""),
-        platformName:String(game.platformName || "")
+        platformName:String(game.platformName || ""),
+        imgUrl:String(game.imgUrl || "")
       })).filter(game => game.id && game.name);
       if(!games.length) return false;
       if(!consoleById(state.calc.consoleId) && handoff.platformId){

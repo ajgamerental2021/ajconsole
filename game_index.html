@@ -7650,7 +7650,7 @@ document.addEventListener('touchstart', function(e) {
       if(!g) return null;
       const pid = gameMatchesPlatform(g, bridgePlatformId) ? bridgePlatformId : primaryPlatformId(g);
       const p = platformObjectById(pid);
-      return { id:g.id, name:gameSelectionName(g), platformId:pid, platformName:p ? p.name : '' };
+      return { id:g.id, name:gameSelectionName(g), platformId:pid, platformName:p ? p.name : '', imgUrl:g.imgUrl && !g.imgUrl.startsWith('data:') ? g.imgUrl : '' };
     }).filter(Boolean);
   }
   function confirmSelection(){

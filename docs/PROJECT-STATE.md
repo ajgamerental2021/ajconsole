@@ -1,3 +1,9 @@
+## 2026-10-19 — Thai shop alerts and compact rental/game photos
+
+- Discord, Telegram and shop notification emails now use Thai headings and labels for identity uploads, payments, contracts, refund details, fraud checks, rental changes and alerts from Delivery App. Removed repeated English after Thai `/` labels; customer emails still follow the customer's chosen language.
+- The booking page shows the relevant rental-device photo beside each PS5 Bundle name, using the same images as the rental catalogue. Selected game rows show the game catalogue cover beside each name. Both thumbnails fit their existing cards at phone and desktop widths.
+- AJ Console inline scripts passed syntax checks, 369/369 tests passed, and Chromium confirmed 46 px Bundle and 44 px game thumbnails without horizontal overflow at phone/desktop widths in Thai and English. Bot 684/684 tests passed. Delivery App backend TypeScript, My Rental Link 168/168, extension stale and rental change checks passed.
+
 ## 2026-10-19 — First-time renters no longer enter returning-customer verification (TH/EN)
 
 - The booking page was accepting the LINE eligibility response’s profile even when `eligible: false`. That created a returning-profile edit baseline without a verification token. Continuing from step 2 then showed an expired returning-customer verification error to a first-time renter who had never selected that option.
