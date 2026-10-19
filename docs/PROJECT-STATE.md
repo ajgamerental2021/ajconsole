@@ -1,3 +1,9 @@
+## 2026-10-19 — First-time renters no longer enter returning-customer verification (TH/EN)
+
+- The booking page was accepting the LINE eligibility response’s profile even when `eligible: false`. That created a returning-profile edit baseline without a verification token. Continuing from step 2 then showed an expired returning-customer verification error to a first-time renter who had never selected that option.
+- The page now loads returning details only when eligibility is confirmed and a token exists. First-time renters skip returning-profile saving, including when a previous draft left stale data. Customer and refund details from a previous rental appear only for verified returning renters. The API also omits the profile when eligibility is false.
+- AJ Console inline JavaScript syntax passed, 369/369 tests passed, and the page rendered without script errors in Chromium at phone and desktop widths in Thai and English. Bot server syntax passed and its 684 tests passed after correcting an outdated rental-terms version assertion in the test suite.
+
 ## 2026-10-19 — Shareable Rental Terms popup link (TH/EN)
 
 - The website's public Rental Terms information popup now has a Copy link button. It copies `?terms=1&lang=th` or `?terms=1&lang=en` according to the language selected at the moment of copying; opening the link shows the same popup immediately with the server-owned current terms in that language.

@@ -532,7 +532,7 @@ test('the demo pay button is large, green, and carries a lock icon', () => {
 });
 
 test('a LINE-verified returning renter sees their saved details as one summary with Edit', () => {
-  assert.match(html, /function demoContactCollapsed\(\)\{\n    return UNIFIED_FLOW_DEMO && demoContactFromLine && !demoContactEditing && demoContactComplete\(\);/);
+  assert.match(html, /function demoContactCollapsed\(\)\{\n    return UNIFIED_FLOW_DEMO && state\.calc\.ret && state\.calc\.retVerified && demoContactFromLine && !demoContactEditing && demoContactComplete\(\);/);
   assert.match(html, /ข้อมูลจากการเช่าครั้งก่อน/);
   assert.match(html, /Your details from your last rental/);
   assert.match(html, /if\(targetId === "demoContactEdit"\)\{ demoContactEditing = true; render\(\);/);

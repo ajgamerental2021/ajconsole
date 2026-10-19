@@ -35,3 +35,46 @@ test('a failed save offers a same-page fix, retry or renewed verification in bot
   assert.match(page, /data-returning-save-edit/);
   assert.match(page, /data-returning-save-verify/);
 });
+
+test('first-time LINE customers do not load a returning profile or need returning verification in either language', async () => {
+  const eligibilityStart = page.indexOf('function detectLineReturningEligibility(existingLiff=null, existingProfile=null){');
+  const eligibilityEnd = page.indexOf('\n  function historyKey(value){', eligibilityStart);
+  const saveStart = page.indexOf('async function saveReturningProfileEdits(){');
+  const saveEnd = page.indexOf('\n  const DEMO_CONTACT_IDS', saveStart);
+  assert.ok(eligibilityStart > 0 && eligibilityEnd > eligibilityStart && saveStart > 0 && saveEnd > saveStart);
+  const lineProfile = {userId:`U${'a'.repeat(32)}`, displayName:'First time'};
+  for (const lang of ['th', 'en']) {
+    let loadedReturningProfile = 0;
+    let saveError = 0;
+    let profileSaveRequest = 0;
+    const state = {lang, calc:{ret:false, retVerified:false, retVerificationMethod:''}};
+    const check = Function('deps', `with(deps){ ${page.slice(eligibilityStart, eligibilityEnd)}; return detectLineReturningEligibility; }`)({
+      returningLineCheckPromise:null,
+      UNIFIED_FLOW_DEMO:true,
+      demoReturningRenewalBaseline:'',
+      state,
+      CONFIG:{returningEligibilityApi:'/eligibility'},
+      localStorage:{setItem(){}},
+      lineUniqueId:() => '',
+      fetch:async () => ({ok:true,json:async () => ({eligible:false, profile:{fullName:'First time'}})}),
+      applyDemoReturningProfile:() => { loadedReturningProfile++; },
+      saveLocal:() => {}, render:() => {},
+    });
+    assert.equal(await check({isLoggedIn:() => true, getAccessToken:() => 'line-token', getProfile:async () => lineProfile}), false);
+    assert.equal(loadedReturningProfile, 0, lang);
+    assert.equal(state.calc.ret, false, lang);
+
+    const deps = {
+      state, demoReturningBaseline:'stale returning profile', demoReturningRenewalBaseline:'stale renewal',
+      demoReturningSaving:false,
+      showReturningSaveProblem:() => { saveError++; },
+      fetch:async () => { profileSaveRequest++; throw new Error('unexpected returning save'); },
+    };
+    const save = Function('deps', `with(deps){ ${page.slice(saveStart, saveEnd)}; return saveReturningProfileEdits; }`)(deps);
+    assert.equal(await save(), true, lang);
+    assert.equal(deps.demoReturningBaseline, '', lang);
+    assert.equal(deps.demoReturningRenewalBaseline, '', lang);
+    assert.equal(saveError, 0, lang);
+    assert.equal(profileSaveRequest, 0, lang);
+  }
+});

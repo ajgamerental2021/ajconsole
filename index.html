@@ -5718,6 +5718,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     };
   }
   async function saveReturningProfileEdits(){
+    if(!state.calc.ret || !state.calc.retVerified){
+      demoReturningBaseline = "";
+      demoReturningRenewalBaseline = "";
+      return true;
+    }
     if(!demoReturningBaseline || demoReturningSaving) return !demoReturningSaving;
     const profile = demoReturningEditableProfile();
     if(JSON.stringify(profile) === demoReturningBaseline) return true;
@@ -5779,7 +5784,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return keys.every(key => String(demoProfile[key] || "").trim());
   }
   function demoContactCollapsed(){
-    return UNIFIED_FLOW_DEMO && demoContactFromLine && !demoContactEditing && demoContactComplete();
+    return UNIFIED_FLOW_DEMO && state.calc.ret && state.calc.retVerified && demoContactFromLine && !demoContactEditing && demoContactComplete();
   }
   function demoContactSummaryHtml(){
     const en = state.lang === "en";
@@ -5896,7 +5901,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   function demoRefundSectionHtml(){
     const en = state.lang === "en";
-    if(demoRefundFromProfile && !demoRefundEditing && demoRefundReady()){
+    if(state.calc.ret && state.calc.retVerified && demoRefundFromProfile && !demoRefundEditing && demoRefundReady()){
       const bank = demoAgreement.banks.find(item => item.id === demoProfile.refundBankId);
       const title = demoUsesWise() ? "Wise" : (en ? bank?.en : bank?.th) || demoReturningBankName || demoProfile.refundBankId;
       const number = demoUsesWise() ? (demoAgreement.wise.wiseAccountNumber || demoAgreement.wise.wiseEmail) : demoAgreement.account;
@@ -12950,6 +12955,10 @@ We apologize for the inconvenience and hope everyone stays safe.`
     demoReturningBankName = String(draft.refund.returningBankName || "").slice(0,120);
     demoReturningBaseline = String(draft.returningBaseline || "").slice(0,4000);
     demoContactFromLine = !!draft.contactFromLine;
+    if(!state.calc.ret || !state.calc.retVerified){
+      demoReturningBaseline = "";
+      demoContactFromLine = false;
+    }
     state.calc.step = 2;
     state.calc.datesTouched = !!state.calc.start && !!state.calc.end;
     saveLocal();
@@ -13142,13 +13151,13 @@ We apologize for the inconvenience and hope everyone stays safe.`
         });
         const result = await response.json().catch(() => ({}));
         if(!response.ok) throw new Error(result.error || `LINE eligibility ${response.status}`);
-        if(UNIFIED_FLOW_DEMO && accessToken && result.profile && !demoReturningRenewalBaseline){
+        const eligible = !!result.eligible;
+        if(eligible && UNIFIED_FLOW_DEMO && accessToken && result.verificationToken && result.profile && !demoReturningRenewalBaseline){
           applyDemoReturningProfile(result.profile, {
             lineUserId:fallbackLineUserId,
             lineDisplayName:String(result.profile.lineDisplayName || profile?.displayName || "")
           });
         }
-        const eligible = !!result.eligible;
         if(eligible){
           rememberReturningCustomer();
           if(byId("lineFriendGate")?.classList.contains("open")) closeLineFriendGate();
@@ -13171,6 +13180,10 @@ We apologize for the inconvenience and hope everyone stays safe.`
             markGuideDone("contractLink");
           }
         }else if(state.calc.retVerificationMethod === "line"){
+          demoReturningBaseline = "";
+          demoReturningRenewalBaseline = "";
+          demoContactFromLine = false;
+          demoRefundFromProfile = false;
           state.calc.retVerified = false;
           state.calc.identityEvidenceChecked = false;
           state.calc.retVerificationMethod = "";
