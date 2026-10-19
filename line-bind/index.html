@@ -25,18 +25,9 @@
     retry.textContent = lang === 'en' ? 'Open LINE linking page again' : 'เปิดหน้าผูก LINE อีกครั้ง';
     document.getElementById('title').textContent = lang === 'en' ? 'Opening LINE linking' : 'กำลังเปิดหน้าผูก LINE';
     document.getElementById('message').textContent = lang === 'en' ? 'Please wait a moment…' : 'กรุณารอสักครู่…';
-    // Check that the destination answers before navigating. Otherwise the
-    // browser can leave this loading card on screen for an unlimited time.
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 10000);
-    fetch(target, {mode:'no-cors', cache:'no-store', signal:controller.signal})
-      .then(() => location.replace(target))
-      .catch(() => {
-        document.getElementById('message').textContent = lang === 'en'
-          ? 'The linking page did not respond. Tap below to try again.'
-          : 'หน้าผูก LINE ไม่ตอบกลับ กดด้านล่างเพื่อลองใหม่';
-      })
-      .finally(() => clearTimeout(timer));
+    // Open the binding page once. The former preflight fetched the same token
+    // page twice and could time out before the customer ever saw its button.
+    location.replace(target);
   } else {
     document.getElementById('fallback').hidden = true;
     document.getElementById('title').textContent = lang === 'en' ? 'Invalid LINE link' : 'ลิงก์ผูก LINE ไม่ถูกต้อง';

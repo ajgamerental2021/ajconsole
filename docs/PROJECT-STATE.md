@@ -1,3 +1,9 @@
+## 2026-10-19 — LINE binding landing page opens without duplicate token read
+
+- `/line-bind/` now redirects directly to Delivery App's binding page. Its former `no-cors` preflight loaded the same token page twice and could time out before the customer saw the link button. The backend now renders the page immediately and validates the token on POST; the actual write remains guarded there.
+- Inline JavaScript syntax check passed. Delivery App binding now checks for a LINE account already attached to another phone, persists the verified account on the target Booking through `bookingRepo`, and opens the exact rental from the confirmation card.
+- Current Booking #590 shows 098-294-4909 while the LINE confirmation card shows 061-524-3008. The owner has been asked which phone belongs to this booking before the live record is changed.
+
 ## 2026-10-19 — Thai shop alerts and compact rental/game photos
 
 - Discord, Telegram and shop notification emails now use Thai headings and labels for identity uploads, payments, contracts, refund details, fraud checks, rental changes and alerts from Delivery App. Removed repeated English after Thai `/` labels; customer emails still follow the customer's chosen language.
