@@ -1,3 +1,9 @@
+## 2026-10-19 — Shareable Rental Terms popup link (TH/EN)
+
+- The website's public Rental Terms information popup now has a Copy link button. It copies `?terms=1&lang=th` or `?terms=1&lang=en` according to the language selected at the moment of copying; opening the link shows the same popup immediately with the server-owned current terms in that language.
+- A direct terms link suppresses the site announcement and LINE friend promotion for that visit, so neither covers the requested terms. Existing booking and contract acceptance flows remain unchanged.
+- Inline JavaScript syntax passed. AJ Console 368/368 tests passed; browser checks at desktop and 375 px phone widths in both languages confirmed the popup, copied URL, clipboard value, and language switching.
+
 ## 2026-10-19 — AJ Office future operations assignment fix (TH/EN)
 
 - The owner found อลีฟ shown as working on return inspection #585 scheduled for 25/10 while delivery prep #587 and #582 were due on 19/10. AJ Office now keeps upcoming Delivery App tasks in the queue without starting them before their Bangkok calendar day. A sync also puts previously auto-started future tasks back in the received state; completed source facts and explicit owner completion are preserved.

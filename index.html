@@ -961,6 +961,8 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .site-menu-list .site-menu-book .site-menu-ico{color:#fff}
 .site-menu-list .site-info-link.site-menu-book:hover,.site-menu-list .site-info-link.site-menu-book:focus-visible{background:#a80010;color:#fff}
 .info-modal-card{width:min(920px,100%);height:min(90vh,860px);display:flex;flex-direction:column;overflow:hidden}
+#infoModal:not([data-page="terms"]) #infoTermsCopyRow{display:none}
+#infoTermsCopyRow{display:flex;justify-content:flex-end;padding:8px 18px;border-bottom:1px solid var(--border)}
 #infoModal[data-page="contact"] .info-modal-card{width:min(460px,calc(100% - 24px));height:auto;max-height:calc(100dvh - 24px)}
 #infoModal[data-page="contact"] .info-modal-body{padding:16px 22px 20px}
 #infoModal[data-page="contact"] .info-contact-list{margin:0}
@@ -1706,6 +1708,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
 <div class="modal-overlay" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
   <div class="modal-card info-modal-card">
     <div class="modal-head"><div class="modal-title-copy"><h3 id="infoModalTitle"></h3><p id="infoModalSubtitle"></p></div><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="infoModalLang" type="button"></button><button class="xbtn" id="infoModalClose" type="button" aria-label="Close">&times;</button></div></div>
+    <div id="infoTermsCopyRow"><button class="copy-section-url" id="infoTermsCopyUrl" type="button"></button></div>
     <div class="info-modal-body" id="infoModalBody"></div>
   </div>
 </div>
@@ -2299,7 +2302,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       gamePickSaveFailed:"บันทึกไม่สำเร็จ แตะเกมนั้นอีกครั้ง",
       gamePickConsoleFull:"เครื่องนี้มีครบ 10 เกมในลิงก์แล้ว",
       copyFaqUrl:"คัดลอก URL คำถามที่พบบ่อย",
-      copyStepsUrl:"คัดลอก URL ขั้นตอนการเช่า", copyQuoteUrl:"คัดลอก URL หน้าคำนวณค่าเช่า",
+      copyStepsUrl:"คัดลอก URL ขั้นตอนการเช่า", copyQuoteUrl:"คัดลอก URL หน้าคำนวณค่าเช่า", copyTermsUrl:"คัดลอกลิงก์เงื่อนไขการเช่า",
       urlCopied:"คัดลอก URL แล้ว",
       railPrev:"เลื่อนไปทางซ้าย",
       railNext:"เลื่อนไปทางขวา",
@@ -2464,7 +2467,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       gamePickSaveFailed:"Not saved — tap that game again",
       gamePickConsoleFull:"This console already has 10 games in the link",
       copyFaqUrl:"Copy FAQ URL",
-      copyStepsUrl:"Copy rental-steps URL", copyQuoteUrl:"Copy rental-calculator URL",
+      copyStepsUrl:"Copy rental-steps URL", copyQuoteUrl:"Copy rental-calculator URL", copyTermsUrl:"Copy Rental Terms link",
       urlCopied:"URL copied",
       railPrev:"Scroll left",
       railNext:"Scroll right",
@@ -11665,6 +11668,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("infoModalTitle").textContent = copy[titleKey] || "AJ";
     byId("infoModalSubtitle").textContent = copy[subtitleKey] || "";
     byId("infoModalLang").textContent = state.lang === "en" ? "TH" : "EN";
+    byId("infoTermsCopyUrl").innerHTML = `${icon("link")}<span>${esc(tr("copyTermsUrl"))}</span>`;
     byId("infoModalClose").setAttribute("aria-label", state.lang === "en" ? "Close" : "ปิด");
     if(activeInfoPage === "about") byId("infoModalBody").innerHTML = aboutInfoHtml();
     if(activeInfoPage === "contact") byId("infoModalBody").innerHTML = contactListHtml();
@@ -12693,7 +12697,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     // its own pop-up, nor inside LINE or an embedded page.
     // Only on the page before booking: once the customer has started a booking
     // it would only get in the way.
-    const skip = () => url.searchParams.has("lineConnect") || url.searchParams.has("lineReturn") || url.searchParams.has("embed")
+    const skip = () => url.searchParams.has("lineConnect") || url.searchParams.has("lineReturn") || url.searchParams.has("embed") || url.searchParams.get("terms") === "1"
       || !!pendingLineConnectHandoff()?.launchedAt || lineFriendGateShown || lineFriendPromoSeenToday() || !state.beforeRentActive;
     if(skip()) return;
     if(!(await lineFriendPopupsAllowed())) return;
@@ -14971,6 +14975,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("calendarLangBtn").addEventListener("click", toggleCalendarLang);
     byId("simpleModalClose").addEventListener("click", closeModal);
     byId("infoModalClose").addEventListener("click", closeInfoModal);
+    byId("infoTermsCopyUrl").addEventListener("click", () => copySectionUrl("terms"));
     byId("identityUpgradeClose").addEventListener("click", closeIdentityUpgradeModal);
     byId("infoModalLang").addEventListener("click", () => { state.lang = state.lang === "en" ? "th" : "en"; render(); });
     byId("infoModal").addEventListener("click", event => { if(event.target === byId("infoModal")) closeInfoModal(); });
@@ -15969,6 +15974,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(["th","en"].includes(requestedLanguage)) state.lang = requestedLanguage;
     if(lineProofReturned && state.lang === "en") demoProfile.preferredContactChannel = "line";
     const directBookingEntry = new URLSearchParams(location.search).get("booking") === "1";
+    const directTermsEntry = new URLSearchParams(location.search).get("terms") === "1";
     // A shared booking link starts at step 1, except when this device is
     // part-way through the demo: then the customer returns to where they were.
     if(directBookingEntry && !(UNIFIED_FLOW_DEMO && (demoProfileRestored || lineSelectionRestored))) state.calc.step = 1;
@@ -15977,6 +15983,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       siteAnnouncementDismissed = true;
       if(lineProofReturned){ localStorage.removeItem(LINE_CONNECT_HANDOFF_KEY); saveDemoProfile({now:true}); }
     }
+    if(directTermsEntry) siteAnnouncementDismissed = true;
     restoreAvailabilityCache();
     state.availability.holds = mergeBookingHolds(state.availability.holds);
     // A normal visit always starts with the Before rent page. Deep links that
@@ -16054,6 +16061,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(new URLSearchParams(location.search).get("steps") === "1" || location.hash === "#steps"){
       setTimeout(openStepsPopup, 120);
     }
+    if(directTermsEntry) setTimeout(() => openInfoModal("terms"), 120);
     // https://ajgamerental.com/?quote=1 opens the booking page with the rental
     // calculator already up (the pop-up's own "copy URL" gives this address).
     if(new URLSearchParams(location.search).get("quote") === "1" || location.hash === "#quote"){
