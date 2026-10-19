@@ -1,3 +1,11 @@
+## 2026-10-19 — AJ Office today queue visibility and Delivery App read resilience (TH/EN)
+
+- Owner reported two delivery jobs visible in Delivery App on 19/10 but none linked in AJ Office. AJ Office `ff134a0` now defaults its Delivery App URL to the known production backend when the optional `DELIVERY_APP_URL` setting is absent, exposes a non-secret `deliveryAppConfigured` flag in `/healthz`, and puts a today queue card at the top of the dashboard and a queue ribbon/list in 3D. Both link to the relevant delivery/return cards; connection and key errors are explicit in Thai and English.
+- Delivery App `d79325b` now keeps the core booking queue visible when optional full booking details, Lalamove jobs or auto-dispatch settings fail to load. Driver jobs also reconnect by booking ID when the Sheet row changes. No new writes or data fields.
+- After the owner saw `0 งาน` despite two Delivery App jobs, AJ Office `a50f845` replaced locale-dependent `en-CA` date formatting in Dashboard and 3D with Bangkok `formatToParts` and explicit `YYYY-MM-DD`. Safari can render `en-CA` as `MM/DD/YYYY`, which never equals Delivery App's ISO job dates. A mobile browser test forced that Safari-style output and still showed both jobs on both pages.
+- Root cause confirmed from the production `/healthz` host-only diagnostic in `f1a3ad0`: the AJ Office Render setting pointed to `delivery-app-web.onrender.com`, while the live queue of 2 jobs (29 jobs in the ±7 day range) is at `delivery-app-backend-68pm.onrender.com`. AJ Office `315c08a` resolves that stale web host to the live backend; local URLs and other explicit hosts still work. No key or customer details are exposed by the diagnostic.
+- Local checks: AJ Office 67/67 tests; desktop/mobile Thai/English browser preview with two queue jobs and a running bike; Delivery App office integration 14/14, flex ledger 24/24, backend/frontend TypeScript checks. Production AJ Office `/healthz` reports `deliveryAppConfigured: true`. An authenticated production queue count awaits the owner's refresh/screenshot; no production key is available in the cloud workspace.
+
 ## 2026-10-18 — AJ Office live 3D delivery trips and shop logo
 
 - Deployed code to `main`: Delivery App `a343909`, AJ Office `bdc24c0` (including previous 3D scene commit `45807a8`). Render is configured to auto-deploy both services from `main`.
