@@ -3,6 +3,7 @@
 - The owner found อลีฟ shown as working on return inspection #585 scheduled for 25/10 while delivery prep #587 and #582 were due on 19/10. AJ Office now keeps upcoming Delivery App tasks in the queue without starting them before their Bangkok calendar day. A sync also puts previously auto-started future tasks back in the received state; completed source facts and explicit owner completion are preserved.
 - The 3D staff card and its activity/stats ignore future operations tasks. It lists the current day's due work in scheduled-time order, showing both delivery prep jobs, and Dashboard labels future tasks “รอถึงวันนัดหมาย / Waiting for the scheduled day.”
 - AJ Office `npm test` 71/71 passed. Browser checks covered the 3D staff card and Dashboard at desktop/mobile widths in Thai/English with two current delivery jobs and a future return; the card showed only the two current jobs. This was a local mock because the cloud workspace has no production owner key.
+- AJ Office `9ef8468` was pushed to `main`. Production `/healthz` returned 200 with the correct Delivery App backend, and `/office3d/logic.js` served the new work selector after Render deployed. The live authenticated staff card could not be inspected without the owner's session.
 
 ## 2026-10-19 — AJ Office 3D mini shop floor (TH/EN)
 
