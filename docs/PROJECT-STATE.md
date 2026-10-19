@@ -1,3 +1,9 @@
+## 2026-10-19 — AJ Office future operations assignment fix (TH/EN)
+
+- The owner found อลีฟ shown as working on return inspection #585 scheduled for 25/10 while delivery prep #587 and #582 were due on 19/10. AJ Office now keeps upcoming Delivery App tasks in the queue without starting them before their Bangkok calendar day. A sync also puts previously auto-started future tasks back in the received state; completed source facts and explicit owner completion are preserved.
+- The 3D staff card and its activity/stats ignore future operations tasks. It lists the current day's due work in scheduled-time order, showing both delivery prep jobs, and Dashboard labels future tasks “รอถึงวันนัดหมาย / Waiting for the scheduled day.”
+- AJ Office `npm test` 71/71 passed. Browser checks covered the 3D staff card and Dashboard at desktop/mobile widths in Thai/English with two current delivery jobs and a future return; the card showed only the two current jobs. This was a local mock because the cloud workspace has no production owner key.
+
 ## 2026-10-19 — AJ Office 3D mini shop floor (TH/EN)
 
 - The owner asked to complete prep and call Lalamove directly from the 3D queue, without returning to Dashboard. The 3D queue ribbon and today cards now open a working dialog with all jobs in the current ±7-day Office range, ordered today → upcoming → newest past.
