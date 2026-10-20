@@ -4297,3 +4297,8 @@ paused job shows slightly old numbers rather than an empty section.
 
 - Increased layered text highlights and shadows for the hero heading, section headings, and card titles in `index-depth-demo.html` only. The preview badge is Thai only. Production `index.html` remains untouched.
 - Chromium checked the preview at 390 px and 1280 px; heading shadows applied and neither viewport overflowed horizontally.
+
+## 2026-10-20 — Depth preview styling released to production
+
+- The owner approved the current depth preview. Ported its button/card shadows, hover treatment, and stronger hero/section/card heading text shadows into live `index.html`. The preview badge and read-only script were not included.
+- Inline JavaScript syntax passed. Chromium checked Thai and English at 375 px and 1280 px: styles applied, no page errors or horizontal overflow.
