@@ -4313,3 +4313,8 @@ paused job shows slightly old numbers rather than an empty section.
 
 - The booking site's returning-customer profile save uses a JSON POST to the Bot. The Bot omitted `/api/customers/returning-profile` from its booking-site CORS middleware, so the browser's OPTIONS preflight returned 200 without `Access-Control-Allow-Origin` and blocked the save before its handler ran. This appeared as a generic interrupted-connection popup while the renter's entries remained in the page.
 - Added only that route to the existing booking-site origin allowlist. A local OPTIONS request now returns 204 with AJ's origin and allowed method/header; a tokenless POST returns 401 with the same CORS header, proving the real handler is reached. Bot suite 688/688 passed. No customer profile was written during verification.
+
+## 2026-10-20 — Shop-domain customer trip link
+
+- Added `/trip/?t=<signed-token>&lang=th|en` as a small bilingual entry page on ajgamerental.com. It validates the signed-token shape and forwards the browser to the existing Delivery App trip page; it does not log or submit the token.
+- Delivery App now returns that shop-domain URL for the staff panel's Open customer page and Copy link buttons. The underlying signed trip token and customer trip features remain the same. Chromium checked Thai/English forwarding and invalid-token handling; Delivery App backend/frontend TypeScript and Lalamove dispatch 379/379 passed.
