@@ -4292,3 +4292,8 @@ paused job shows slightly old numbers rather than an empty section.
 - Delivery App's Booking confirmation and saved-details LINE cards now place a Thai or English 30–60 minute timing notice below Location; the one-tap confirmation result page shows it too. This is a timing estimate for delivery and return pickup, including traffic, weather and the delivery queue.
 - The bot's versioned Rental Terms add the full Thai and English delivery/return timing clause immediately before GPS monitoring. New contract and rental-order PDFs read the new terms version; older signed versions retain their original wording.
 - `index-depth-demo.html` is a fresh copy of the live `index.html` with restrained shadows, lift on hover, and stronger heading emphasis added. Preview page write requests are blocked so browsing it cannot submit a booking. The live index and the older, diverged `index-demo.html` were left unchanged. Desktop and mobile screenshots were checked in Chromium.
+
+## 2026-10-20 — Stronger heading depth in preview only
+
+- Increased layered text highlights and shadows for the hero heading, section headings, and card titles in `index-depth-demo.html` only. The preview badge is Thai only. Production `index.html` remains untouched.
+- Chromium checked the preview at 390 px and 1280 px; heading shadows applied and neither viewport overflowed horizontally.
