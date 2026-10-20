@@ -1,3 +1,9 @@
+## 2026-10-20 — More readable delivery timing and corrected LINE totals (TH/EN)
+
+- Delivery App increased type size and line spacing for the delivery/return estimate on the booking confirmation and saved-change LINE cards, placing the notice in a padded block below Location.
+- The Bot now labels the final payment amount “ยอดรวม” / “Total” on the rental start-day and other booking payment cards, since delivery charges are already listed above it. Amount calculations did not change.
+- Delivery App backend TypeScript, confirm-totals 43/43 and reminder-language 6/6 passed; Bot booking-language 44/44 and start-day-reminder 3/3 passed.
+
 ## 2026-10-19 — LINE binding landing page opens without duplicate token read
 
 - `/line-bind/` now redirects directly to Delivery App's binding page. Its former `no-cors` preflight loaded the same token page twice and could time out before the customer saw the link button. The backend now renders the page immediately and validates the token on POST; the actual write remains guarded there.
