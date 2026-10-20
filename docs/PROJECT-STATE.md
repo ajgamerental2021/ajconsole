@@ -4302,3 +4302,9 @@ paused job shows slightly old numbers rather than an empty section.
 
 - The owner approved the current depth preview. Ported its button/card shadows, hover treatment, and stronger hero/section/card heading text shadows into live `index.html`. The preview badge and read-only script were not included.
 - Inline JavaScript syntax passed. Chromium checked Thai and English at 375 px and 1280 px: styles applied, no page errors or horizontal overflow.
+
+## 2026-10-20 — Overseas contact fallback for Lalamove dispatch
+
+- An overseas customer number such as `+61450638379` is valid, but the Lalamove order flow first substitutes AJ's Thai shop number at that end. The reported `phone_required` error could arise when Lalamove rejects that substituted contact; the screenshot alone does not expose the provider's response detail.
+- On an explicit Lalamove `phone_required` 4xx refusal, the Bot now makes one safe second attempt with the customer's valid international number. Local missing sender/recipient numbers have distinct error codes, and the staff card explains the fallback and a refusal of both numbers. The route still deduplicates each successful order request.
+- Bot Lalamove dispatch tests passed 19/19 and full Bot suite 688/688 after the final local-error distinction; Delivery App backend/frontend TypeScript, web build, flex-ledger 24/24 and Lalamove dispatch 379/379 passed. No live order was submitted during testing.
