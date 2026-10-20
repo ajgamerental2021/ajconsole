@@ -4352,3 +4352,9 @@ paused job shows slightly old numbers rather than an empty section.
 - The English Step 2 Connect LINE and Use WhatsApp buttons now share the same full width and height. The phone hint reads “No Thai phone number? Enter your WhatsApp or international number.”
 - After the English phone input changes and loses focus, completed non-Thai digit-only numbers gain a leading `+`; Thai local numbers and numbers already starting with `+` stay as entered. The Thai form is unchanged.
 - Inline JavaScript syntax passed; booking-site tests passed 369/369. Chromium checked English mobile and desktop layout, English phone normalization during and after input, and the unchanged Thai phone behavior.
+
+## 2026-10-20 — AJ LINE Broadcast to all OA followers
+
+- Added an all-followers target to the existing AJ LINE Broadcast Admin page. It calls the LINE Messaging API broadcast endpoint once with the same validated Flex Bubble or Carousel, without requiring customer LINE User IDs or loading AJ's linked-customer list. A stable LINE retry key makes a restarted send safe to retry.
+- For this target the UI disables recipient labels and maximum count, shows the quota, and requires explicit confirmation naming all OA followers. The campaign records API acceptance without inventing a delivered-recipient count. Existing linked-customer/VIP/language/label sends remain available.
+- Bot tests passed 699/699, including all-followers send and retry cases. Chromium checked Thai mobile and English desktop target selection, disabled controls and layout. No real customer broadcast was sent during verification.
