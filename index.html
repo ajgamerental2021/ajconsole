@@ -3297,6 +3297,41 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // Four specific ฿2,000 models hold ฿5,000 without identity; other
   // ฿2,000 models hold ฿10,000. Bundles and ฿4,000 models hold ฿15,000.
   let pricingPolicy = null;
+  const DEFAULT_RENTAL_PROMOTIONS = {version:1,campaigns:[
+    {id:"after-work-3-days",titleTh:"After Work 3 คืน",titleEn:"After Work 3 Nights",enabled:true,startDate:"",endDate:"",startWeekdays:[1,2],days:3,deviceKeys:[],mode:"fixed",fixedPrice:0,percent:0,pricesByDevice:{},pricesByDailyRate:{300:777,350:888,400:999,500:1299}},
+    {id:"pc-handheld-week-2026",titleTh:"โปรเครื่องเกมพกพา 3 วัน",titleEn:"PC Handheld Limited Week",enabled:true,startDate:"2026-10-21",endDate:"2026-10-25",startWeekdays:[],days:3,deviceKeys:["steamdeckoled","rogxboxallyx","lenovolegiongo2"],mode:"fixed",fixedPrice:0,percent:0,pricesByDevice:{steamdeckoled:899,rogxboxallyx:999,lenovolegiongo2:1199},pricesByDailyRate:{}}
+  ]};
+  let rentalPromotions = clone(DEFAULT_RENTAL_PROMOTIONS);
+  const promotionKey = value => String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+  function promotionFor(startValue,endValue,baseFee,dailyRate,consoleItem){
+    const startDate = parseDate(startValue);
+    const start = startDate ? fmtIso(startDate) : "";
+    const days = diffDays(startValue,endValue);
+    if(!start || !Number.isFinite(days) || baseFee <= 0) return {eligible:false,discount:0,price:0};
+    const weekday = parseDate(start).getDay();
+    const keys = [promotionKey(consoleItem?.name),promotionKey(consoleItem?.nameEn),promotionKey(consoleItem?.id)];
+    const offers = (rentalPromotions.campaigns || []).flatMap(campaign => {
+      if(!campaign.enabled || Number(campaign.days) !== days
+        || (campaign.startDate && (start < campaign.startDate || start > campaign.endDate))
+        || (campaign.startWeekdays?.length && !campaign.startWeekdays.includes(weekday))
+        || (campaign.deviceKeys?.length && !keys.some(key => campaign.deviceKeys.includes(key)))) return [];
+      const price = campaign.mode === "percent" ? Math.round(baseFee*(100-Number(campaign.percent))/100)
+        : keys.map(key => Number(campaign.pricesByDevice?.[key])).find(value => value > 0)
+          || Number(campaign.pricesByDailyRate?.[promotionKey(dailyRate)]) || Number(campaign.fixedPrice);
+      const discount = Math.max(0,baseFee-price);
+      return (price > 0 || campaign.mode === "percent") && discount > 0 ? [{eligible:true,id:campaign.id,titleTh:campaign.titleTh,titleEn:campaign.titleEn,price,discount}] : [];
+    });
+    return offers.sort((a,b) => b.discount-a.discount || a.id.localeCompare(b.id))[0] || {eligible:false,discount:0,price:0};
+  }
+  async function loadRentalPromotions(){
+    const response = await fetch(`${CONFIG.apiBase}/api/rental-promotions`,{cache:"no-store"});
+    if(!response.ok) throw new Error("promotion_load_failed");
+    const result = await response.json();
+    if(result.policy?.version !== 1 || !Array.isArray(result.policy.campaigns)) throw new Error("promotion_policy_invalid");
+    rentalPromotions = result.policy;
+    render();
+    if(state.adminToken && !promotionEditingId) renderAdmin();
+  }
   const pricingKey = value => String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
   function pricedDevice(consoleItem){
     const keys = [consoleItem?.name, consoleItem?.nameEn, consoleItem?.id].map(pricingKey);
@@ -3468,19 +3503,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return {daily, weekly, deposit, bundleName, regular, vip, vipRateApplied:Boolean(vipRates), vipDepositApplied:deposit !== regular.deposit};
   }
   function afterWorkPromotion(startValue, endValue, regularRental, dailyRate){
-    const start = parseDate(startValue);
-    const end = parseDate(endValue);
-    const days = start && end ? diffDays(start, end) : NaN;
-    const eligibleStart = start && (start.getDay() === 1 || start.getDay() === 2);
-    const promoPrice = Number(AFTER_WORK_PROMO_PRICES[Number(dailyRate)]) || 0;
-    const eligibleRate = promoPrice > 0;
-    const discount = eligibleRate && eligibleStart && days === 3
-      ? Math.max(0, (Number(regularRental) || 0) - promoPrice)
-      : 0;
-    return {eligible:discount > 0, discount, price:promoPrice};
+    return promotionFor(startValue,endValue,regularRental,dailyRate,consoleById(state.calc.consoleId));
   }
-  function afterWorkPromotionLabel(price){
-    const label = tr("afterWorkPromoDiscount");
+  function afterWorkPromotionLabel(price,name){
+    const label = name || tr("afterWorkPromoDiscount");
     return price > 0 ? `${label} (${state.lang === "en" ? "promo price" : "ราคาโปร"} ${money(price)})` : label;
   }
   function reviewDiscountAmount(afterWorkDiscount){
@@ -6883,7 +6909,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ...(summary.bgSubtotal ? [row(en ? "Board game rental" : "ค่าเช่าบอร์ดเกม", money(summary.bgSubtotal))] : [])
     ];
     const discounts = [
-      ...(summary.afterWorkDisc ? [row(afterWorkPromotionLabel(summary.afterWorkPrice), `-${money(summary.afterWorkDisc)}`, "is-discount")] : []),
+      ...(summary.afterWorkDisc ? [row(afterWorkPromotionLabel(summary.afterWorkPrice,summary.promotionName), `-${money(summary.afterWorkDisc)}`, "is-discount")] : []),
       ...(summary.promoDisc ? [row(en ? "Console discount" : "ส่วนลดเครื่องเกม", `-${money(summary.promoDisc)}`, "is-discount")] : []),
       ...(summary.vipRentalDisc ? [row(en ? "VIP rental rate discount" : "ส่วนลดราคาเช่า VIP", `-${money(summary.vipRentalDisc)}`, "is-discount")] : []),
       ...(summary.retDisc ? [row(en ? "Returning customer 10%" : "ส่วนลดลูกค้าเก่า 10%", `-${money(summary.retDisc)}`, "is-discount")] : []),
@@ -7912,7 +7938,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ...(summary.bgItems?.length ? [{label:tr("boardGameList"), value:numberedSummaryList(summary.bgItems.map(bgName)), html:true}] : []),
       ...(hasGameCatalog && state.calc.games?.length ? [{label:state.lang==="en"?"Games":"เกม", value:numberedSummaryList(state.calc.games.map(g => g.name || g.title || g.id)), html:true}] : []),
       ...(hasGameCatalog && state.calc.later ? [{label:state.lang==="en"?"Game list":"รายชื่อเกม", value:tr("sendLater")}] : []),
-      ...(summary.afterWorkDisc ? [{label:afterWorkPromotionLabel(summary.afterWorkPrice), value:`-${money(summary.afterWorkDisc)}`, cls:"discount"}] : []),
+      ...(summary.afterWorkDisc ? [{label:afterWorkPromotionLabel(summary.afterWorkPrice,summary.promotionName), value:`-${money(summary.afterWorkDisc)}`, cls:"discount"}] : []),
       ...(summary.promoDisc ? [{label:tr("consoleDiscount"), value:`-${money(summary.promoDisc)}`, cls:"discount"}] : []),
       ...(summary.vipRentalDisc ? [{label:state.lang==="en" ? "VIP rental rate discount" : "ส่วนลดราคาเช่า VIP", value:`-${money(summary.vipRentalDisc)}`, cls:"discount"}] : []),
       ...(summary.reviewGoogleDisc ? [{label:tr("reviewGoogleDiscount"), value:`-${money(summary.reviewGoogleDisc)}`, cls:"discount"}] : []),
@@ -7966,6 +7992,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const afterWorkPromo = afterWorkPromotion(state.calc.start, state.calc.end, rental, daily);
     const afterWorkDisc = afterWorkPromo.discount;
     const afterWorkPrice = afterWorkPromo.eligible ? afterWorkPromo.price : 0;
+    const promotionId = afterWorkPromo.eligible ? afterWorkPromo.id : "";
+    const promotionName = afterWorkPromo.eligible ? (state.lang === "en" ? afterWorkPromo.titleEn : afterWorkPromo.titleTh) : "";
+    const promotionNameTh = afterWorkPromo.eligible ? afterWorkPromo.titleTh : "";
+    const promotionNameEn = afterWorkPromo.eligible ? afterWorkPromo.titleEn : "";
     const extras = extrasForConsole(c).filter(x => state.calc.extras.includes(x.id));
     const addons = extras.reduce((sum,x) => sum + accessoryRentalCost(x, days), 0);
     const bgItems = state.calc.boardgames.map(bgById).filter(Boolean);
@@ -8007,7 +8037,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       upfront = total;
       onDelivery = 0;
     }
-    return {days,rental,regularRental,vipRentalDisc,vip:terms.vip,vipDepositApplied:terms.vipDepositApplied,vipDeposit:terms.vipDepositApplied ? deposit : 0,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,reviewGoogleDisc,reviewFacebookDisc,promoDisc,afterWorkDisc,afterWorkPrice,discounts:retDisc+reviewGoogleDisc+reviewFacebookDisc+promoDisc+afterWorkDisc+bgDisc+vipRentalDisc,deposit:depositTotal,delivery,totalBeforeDelivery,subtotalBeforePaymentFee,paymentFee,total,upfront,onDelivery,bundleName,extras,bgItems};
+    return {days,rental,regularRental,vipRentalDisc,vip:terms.vip,vipDepositApplied:terms.vipDepositApplied,vipDeposit:terms.vipDepositApplied ? deposit : 0,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,reviewGoogleDisc,reviewFacebookDisc,promoDisc,afterWorkDisc,afterWorkPrice,promotionId,promotionName,promotionNameTh,promotionNameEn,discounts:retDisc+reviewGoogleDisc+reviewFacebookDisc+promoDisc+afterWorkDisc+bgDisc+vipRentalDisc,deposit:depositTotal,delivery,totalBeforeDelivery,subtotalBeforePaymentFee,paymentFee,total,upfront,onDelivery,bundleName,extras,bgItems};
   }
   const MONTHLY_RATE = {500:8500, 400:6500, 350:5000, 300:4000};
   function monthlyRate(daily){ return MONTHLY_RATE[Number(daily) || 0] || 0; }
@@ -9006,7 +9036,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(s.bundleName) costs.push({label:`Bundle ${s.bundleName}`, value: en ? "included" : "รวมในค่าเช่า"});
     if(s.addons) costs.push({label: en ? "Accessories" : "อุปกรณ์เสริม", value: money(s.addons)});
     if(s.bgSubtotal) costs.push({label: en ? "Board game rental" : "ค่าเช่าบอร์ดเกม", value: money(s.bgSubtotal)});
-    if(s.afterWorkDisc) costs.push({label: afterWorkPromotionLabel(s.afterWorkPrice), value:`-${money(s.afterWorkDisc)}`, discount:true});
+    if(s.afterWorkDisc) costs.push({label: afterWorkPromotionLabel(s.afterWorkPrice,s.promotionName), value:`-${money(s.afterWorkDisc)}`, discount:true});
     if(s.promoDisc) costs.push({label: en ? "Console discount" : "ส่วนลดเครื่องเกม", value:`-${money(s.promoDisc)}`, discount:true});
     if(s.reviewGoogleDisc) costs.push({label: en ? "Google Maps review discount" : "ส่วนลดรีวิว Google Maps", value:`-${money(s.reviewGoogleDisc)}`, discount:true});
     if(s.reviewFacebookDisc) costs.push({label: en ? "Facebook review discount" : "ส่วนลดรีวิว Facebook", value:`-${money(s.reviewFacebookDisc)}`, discount:true});
@@ -9066,6 +9096,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       startDate: displayDate(state.calc.start),
       endDate: displayDate(state.calc.end),
       days: s.days,
+      promotionId: s.promotionId || "",
+      promotionPrice: s.afterWorkPrice || 0,
+      promotionDiscount: s.afterWorkDisc || 0,
       deliveryFee: s.delivery,
       maps: UNIFIED_FLOW_DEMO ? demoProfile.maps : (state.calc.maps || ""),
       games: hasGameCatalog ? (state.calc.games || []).map(g => g.name || g.title || g.id) : [],
@@ -9503,7 +9536,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       s.bundleName ? `  - Bundle ${s.bundleName}: รวมในค่าเช่า` : "",
       s.addons ? `  - อุปกรณ์เสริม: ${money(s.addons)}` : "",
       s.bgSubtotal ? `  - ค่าเช่าบอร์ดเกม: ${money(s.bgSubtotal)}` : "",
-      s.afterWorkDisc ? `  - โปรโมชั่น After Work 3 Nights (ราคาโปร ${money(s.afterWorkPrice)}): -${money(s.afterWorkDisc)}` : "",
+      s.afterWorkDisc ? `  - โปรโมชั่น ${s.promotionNameTh} (ราคาโปร ${money(s.afterWorkPrice)}): -${money(s.afterWorkDisc)}` : "",
       s.promoDisc ? `  - ส่วนลดเครื่องเกม: -${money(s.promoDisc)}` : "",
       s.reviewGoogleDisc ? `  - ส่วนลดรีวิว Google Maps: -${money(s.reviewGoogleDisc)}` : "",
       s.reviewFacebookDisc ? `  - ส่วนลดรีวิว Facebook: -${money(s.reviewFacebookDisc)}` : "",
@@ -9518,7 +9551,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       s.bundleName ? `  - Bundle ${s.bundleName}: included in rental` : "",
       s.addons ? `  - Accessories: ${money(s.addons)}` : "",
       s.bgSubtotal ? `  - Board game rental: ${money(s.bgSubtotal)}` : "",
-      s.afterWorkDisc ? `  - After Work 3 Nights promotion (promo price ${money(s.afterWorkPrice)}): -${money(s.afterWorkDisc)}` : "",
+      s.afterWorkDisc ? `  - ${s.promotionNameEn} promotion (promo price ${money(s.afterWorkPrice)}): -${money(s.afterWorkDisc)}` : "",
       s.promoDisc ? `  - Console discount: -${money(s.promoDisc)}` : "",
       s.reviewGoogleDisc ? `  - Google Maps review discount: -${money(s.reviewGoogleDisc)}` : "",
       s.reviewFacebookDisc ? `  - Facebook review discount: -${money(s.reviewFacebookDisc)}` : "",
@@ -14719,8 +14752,73 @@ We apologize for the inconvenience and hope everyone stays safe.`
       else if(status) status.textContent = en ? "Could not save. Please try again." : "บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง";
     }
   }
+  let promotionEditingId = "";
+  function rentalPromotionAdminHtml(){
+    const en = state.lang === "en";
+    const campaigns = rentalPromotions.campaigns || [];
+    const editing = promotionEditingId === "new"
+      ? {id:"",titleTh:"",titleEn:"",enabled:true,startDate:"",endDate:"",startWeekdays:[],days:3,deviceKeys:[],mode:"fixed",fixedPrice:0,percent:0,pricesByDevice:{},pricesByDailyRate:{}}
+      : campaigns.find(c => c.id === promotionEditingId);
+    const list = campaigns.map(c => `<div class="admin-item-head"><div class="admin-main"><b>${esc(state.lang === "en" ? c.titleEn : c.titleTh)}</b><small>${c.startDate ? `${esc(c.startDate)} – ${esc(c.endDate)}` : (en ? "Every week" : "ทุกสัปดาห์")} · ${c.days} ${en ? "days" : "วัน"}</small></div><span class="bg-pill ${c.enabled ? "green" : "red"}">${c.enabled ? (en ? "Active" : "ใช้งานอยู่") : (en ? "Inactive" : "ปิดใช้งาน")}</span><button class="btn" type="button" data-edit-rental-promo="${esc(c.id)}">${tr("edit")}</button><button class="btn danger" type="button" data-delete-rental-promo="${esc(c.id)}">${tr("delete")}</button></div>`).join("");
+    const form = !editing ? "" : `<div class="admin-edit open" data-rental-promo-form>
+      <h4>${promotionEditingId === "new" ? (en ? "New promotion" : "โปรโมชั่นใหม่") : (en ? "Edit promotion" : "แก้ไขโปรโมชั่น")}</h4>
+      <div class="grid2"><label class="field">${en ? "Thai name" : "ชื่อภาษาไทย"}<input class="input" name="titleTh" value="${esc(editing.titleTh)}"></label><label class="field">${en ? "English name" : "ชื่อภาษาอังกฤษ"}<input class="input" name="titleEn" value="${esc(editing.titleEn)}"></label>
+      <label class="field">${en ? "First eligible start date" : "วันเริ่มเช่าวันแรกที่ร่วมโปร"}<input class="input" type="date" name="startDate" value="${esc(editing.startDate)}"></label><label class="field">${en ? "Last eligible start date" : "วันเริ่มเช่าวันสุดท้ายที่ร่วมโปร"}<input class="input" type="date" name="endDate" value="${esc(editing.endDate)}"></label>
+      <label class="field">${en ? "Rental length (days)" : "ระยะเวลาเช่า (วัน)"}<input class="input" type="number" min="1" max="365" name="days" value="${editing.days}"></label><label class="field">${en ? "Price mode" : "รูปแบบราคา"}<select class="input" name="mode"><option value="fixed" ${editing.mode === "fixed" ? "selected" : ""}>${en ? "Fixed price" : "ราคาที่กำหนด"}</option><option value="percent" ${editing.mode === "percent" ? "selected" : ""}>${en ? "Percent discount" : "ลดเป็นเปอร์เซ็นต์"}</option></select></label>
+      <label class="field">${en ? "Fixed rental price" : "ค่าเช่าโปร (บาท)"}<input class="input" type="number" min="0" name="fixedPrice" value="${editing.fixedPrice}"></label><label class="field">${en ? "Discount percent" : "ส่วนลด (%)"}<input class="input" type="number" min="0" max="100" name="percent" value="${editing.percent}"></label>
+      <label class="field">${en ? "Device selection" : "เลือกเครื่อง"}<select class="input" name="scope"><option value="all" ${!editing.deviceKeys.length ? "selected" : ""}>${en ? "All devices" : "ทุกเครื่อง"}</option><option value="type">${en ? "By device type" : "ตามประเภทเครื่อง"}</option><option value="devices" ${editing.deviceKeys.length ? "selected" : ""}>${en ? "Individual devices" : "เลือกทีละเครื่อง"}</option></select></label><label class="field">${en ? "Device type" : "ประเภทเครื่อง"}<select class="input" name="deviceType">${["console","handheld","vr","racing"].map(type => `<option value="${type}">${esc(type)}</option>`).join("")}</select></label></div>
+      <label class="option-row"><input type="checkbox" name="enabled" ${editing.enabled ? "checked" : ""}><b>${en ? "Enabled" : "เปิดใช้งาน"}</b></label>
+      <div class="hint">${en ? "Leave both dates empty for a recurring offer. Choose weekdays below only if needed." : "เว้นวันที่ทั้งสองช่องว่างไว้สำหรับโปรที่ใช้ซ้ำทุกสัปดาห์ เลือกวันในสัปดาห์ด้านล่างได้"}</div>
+      <div class="guide-actions">${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map((day,i) => `<label><input type="checkbox" data-promo-weekday="${i}" ${editing.startWeekdays.includes(i) ? "checked" : ""}> ${day}</label>`).join("")}</div>
+      <details><summary>${en ? "Individual devices and fixed prices" : "เครื่องแต่ละรุ่นและราคาโปรรายเครื่อง"}</summary><div class="grid2">${state.consoles.map(c => {const key=promotionKey(c.nameEn || c.name);return `<div class="field"><label class="option-row"><input type="checkbox" data-promo-device="${esc(key)}" ${editing.deviceKeys.includes(key) ? "checked" : ""}>${esc(en ? (c.nameEn || c.name) : (c.name || c.nameEn))}</label><input class="input" type="number" min="0" data-promo-device-price="${esc(key)}" value="${Number(editing.pricesByDevice?.[key]) || 0}" placeholder="${en ? "Optional fixed price" : "ราคาโปรรายเครื่อง (ถ้ามี)"}"></div>`;}).join("")}</div></details>
+      <details><summary>${en ? "Fixed prices by daily rate" : "ราคาโปรตามเรทรายวัน"}</summary><div class="grid2">${[...new Set(state.consoles.map(c => Number(c.rate)))].sort((a,b)=>a-b).map(rate => `<label class="field">${money(rate)} / ${en ? "day" : "วัน"}<input class="input" type="number" min="0" data-promo-rate="${rate}" value="${Number(editing.pricesByDailyRate?.[rate]) || 0}"></label>`).join("")}</div></details>
+      <div class="guide-actions"><button class="btn primary" type="button" id="saveRentalPromotion">${en ? "Save and sync promotion" : "บันทึกและซิงก์โปรโมชั่น"}</button><button class="btn" type="button" id="cancelRentalPromotion">${en ? "Cancel" : "ยกเลิก"}</button></div><p class="hint" id="rentalPromotionStatus"></p>
+    </div>`;
+    return `<div class="card"><h3>${en ? "Rental promotions" : "โปรโมชั่นค่าเช่า"}</h3><p class="hint">${en ? "Current offers, shared with the booking page, Delivery App and LINE cards." : "โปรที่ใช้ร่วมกันระหว่างหน้าเว็บ Delivery App และการ์ด LINE"}</p><div class="admin-list">${list}</div><button class="btn" type="button" id="addRentalPromotion">${en ? "Add promotion" : "เพิ่มโปรโมชั่น"}</button>${form}</div>`;
+  }
+  async function publishRentalPromotions(next){
+    const response = await fetch(`${CONFIG.apiBase}/api/admin/rental-promotions`,{method:"PUT",headers:{"Content-Type":"application/json",Authorization:`Bearer ${state.adminToken}`},body:JSON.stringify(next)});
+    const result = await response.json();
+    if(!response.ok || !result.ok) throw new Error(result.error || "promotion_sync_failed");
+    rentalPromotions = result.policy;
+    promotionEditingId = "";
+    render(); renderAdmin();
+  }
+  async function saveRentalPromotion(){
+    const form = byId("adminOverlay")?.querySelector("[data-rental-promo-form]");
+    const status = byId("rentalPromotionStatus");
+    if(!form) return;
+    const value = name => form.querySelector(`[name="${name}"]`)?.value?.trim() || "";
+    const mode = value("mode");
+    const scope = value("scope");
+    const deviceKeys = scope === "all" ? [] : scope === "type"
+      ? state.consoles.filter(c => c.type === value("deviceType")).map(c => promotionKey(c.nameEn || c.name))
+      : [...form.querySelectorAll("[data-promo-device]:checked")].map(input => input.dataset.promoDevice);
+    const pricesByDevice = Object.fromEntries([...form.querySelectorAll("[data-promo-device-price]")].map(input => [input.dataset.promoDevice,Number(input.value)]).filter(([,price]) => price > 0));
+    const pricesByDailyRate = Object.fromEntries([...form.querySelectorAll("[data-promo-rate]")].map(input => [input.dataset.promoRate,Number(input.value)]).filter(([,price]) => price > 0));
+    const existing = rentalPromotions.campaigns.find(c => c.id === promotionEditingId);
+    const campaign = {id:existing?.id || `promo-${Date.now()}`,titleTh:value("titleTh"),titleEn:value("titleEn"),enabled:form.querySelector('[name="enabled"]').checked,startDate:value("startDate"),endDate:value("endDate"),startWeekdays:[...form.querySelectorAll("[data-promo-weekday]:checked")].map(input => Number(input.dataset.promoWeekday)),days:Number(value("days")),deviceKeys,mode,fixedPrice:Number(value("fixedPrice")),percent:Number(value("percent")),pricesByDevice,pricesByDailyRate};
+    const en = state.lang === "en";
+    if(!campaign.titleTh || !campaign.titleEn || !Number.isInteger(campaign.days) || campaign.days < 1 || (!!campaign.startDate !== !!campaign.endDate) || (campaign.startDate && campaign.startDate > campaign.endDate)
+      || (scope !== "all" && !deviceKeys.length) || (mode === "percent" && !(campaign.percent > 0 && campaign.percent <= 100))
+      || (mode === "fixed" && !campaign.fixedPrice && !Object.keys(pricesByDevice).length && !Object.keys(pricesByDailyRate).length)){
+      status.textContent = en ? "Check names, dates, devices and price." : "ตรวจชื่อ วันที่ เครื่องที่ร่วมโปร และราคา"; return;
+    }
+    const next = {version:1,campaigns:existing ? rentalPromotions.campaigns.map(c => c.id === existing.id ? campaign : c) : [...rentalPromotions.campaigns,campaign]};
+    status.textContent = en ? "Syncing…" : "กำลังซิงก์…";
+    try{ await publishRentalPromotions(next); toast(en ? "Promotion saved" : "บันทึกโปรโมชั่นแล้ว"); }
+    catch(error){ status.textContent = (en ? "Could not save: " : "บันทึกไม่สำเร็จ: ")+error.message; }
+  }
+  async function deleteRentalPromotion(id){
+    const campaign = rentalPromotions.campaigns.find(c => c.id === id);
+    if(!campaign) return;
+    const en = state.lang === "en";
+    if(!confirm(en ? `Delete ${campaign.titleEn}? This will remove its price from future quotes.` : `ลบ ${campaign.titleTh} ใช่ไหม? ราคานี้จะหายจากการเสนอราคาใหม่`)) return;
+    try{ await publishRentalPromotions({version:1,campaigns:rentalPromotions.campaigns.filter(c => c.id !== id)}); toast(en ? "Promotion deleted" : "ลบโปรโมชั่นแล้ว"); }
+    catch(error){ toast((en ? "Could not delete: " : "ลบไม่สำเร็จ: ")+error.message); }
+  }
   function adminSettingsHtml(){
-    return `${adminGameUpdateHoursHtml()}<div class="card"><h3>Feature Settings</h3>
+    return `${rentalPromotionAdminHtml()}${adminGameUpdateHoursHtml()}<div class="card"><h3>Feature Settings</h3>
       <label class="option-row"><input type="checkbox" id="setRet" ${state.retEnabled?"checked":""}><div><b>Returning customer discount 10%</b></div></label>
       <label class="option-row"><input type="checkbox" id="setBoardGame" ${state.boardGameEnabled?"checked":""}><div><b>Show board-game bundle</b><div class="hint">Hidden from customers when disabled</div></div></label>
       <h3 style="margin-top:18px">Promotions</h3>
@@ -15662,6 +15760,13 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "addFaq"){ state.faq.push({qTh:"",aTh:"",qEn:"",aEn:""}); saveAndRenderAdmin("FAQ added"); }
       if(targetId === "saveFaq") saveFaqFromAdmin();
       if(targetId === "savePricingPolicy") void savePricingPolicyFromAdmin();
+      if(targetId === "addRentalPromotion"){ promotionEditingId = "new"; renderAdmin(); return; }
+      if(targetId === "cancelRentalPromotion"){ promotionEditingId = ""; renderAdmin(); return; }
+      if(targetId === "saveRentalPromotion"){ void saveRentalPromotion(); return; }
+      const editRentalPromo = event.target.closest("[data-edit-rental-promo]");
+      if(editRentalPromo){ promotionEditingId = editRentalPromo.dataset.editRentalPromo; renderAdmin(); return; }
+      const deleteRentalPromo = event.target.closest("[data-delete-rental-promo]");
+      if(deleteRentalPromo){ void deleteRentalPromotion(deleteRentalPromo.dataset.deleteRentalPromo); return; }
       if(targetId === "addReview"){ state.social.reviews.push({id:`rv_${Date.now()}`, name:"", source:"google", stars:5, text:"", active:true}); saveAndRenderAdmin("Review added"); }
       if(targetId === "addHighlight"){ state.social.highlights.unshift({id:`hl_${Date.now()}`, titleTh:"", titleEn:"", image:"", url:"", active:true}); saveAndRenderAdmin("Highlight added"); }
       if(targetId === "saveReviews") saveReviewsFromAdmin();
@@ -16172,6 +16277,13 @@ We apologize for the inconvenience and hope everyone stays safe.`
       .then(() => keepManualReturning ? false : detectLineReturningEligibility().catch(() => false));
     gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {});
     loadPricingPolicy().catch(error => console.warn("Pricing policy unavailable",error));
+    loadRentalPromotions().catch(error => console.warn("Rental promotions unavailable",error));
+    document.addEventListener("visibilitychange", () => {
+      if(!document.hidden) loadRentalPromotions().catch(error => console.warn("Rental promotions unavailable",error));
+    });
+    window.setInterval(() => {
+      if(!document.hidden) loadRentalPromotions().catch(error => console.warn("Rental promotions unavailable",error));
+    }, 60000);
     syncBoardGameCatalog().catch(() => {});
     window.addEventListener("pageshow", event => {
       resetShareUi();
