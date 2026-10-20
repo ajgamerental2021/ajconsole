@@ -668,6 +668,19 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .faq-q{font-weight:900;margin-bottom:5px}
 .faq-a{font-size:13px;color:var(--text2);white-space:pre-line}
 .faq-action{margin-top:10px}
+.faq-deposit-intro,.faq-deposit-note{font-size:14px;line-height:1.6;color:var(--text2)}
+.faq-deposit-intro{margin:4px 0 14px}
+.faq-deposit-note{margin:14px 0 0}
+.faq-deposit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px}
+.faq-deposit-tier{--tier-bg:#edf8f0;--tier-border:#9ed4ad;--tier-ink:#145c30;background:var(--tier-bg);border:1px solid var(--tier-border);border-radius:13px;padding:14px;min-width:0}
+.faq-deposit-tier:nth-child(3n+2){--tier-bg:#eef5ff;--tier-border:#a8c5f2;--tier-ink:#194c92}
+.faq-deposit-tier:nth-child(3n){--tier-bg:#f5f0ff;--tier-border:#c9b5eb;--tier-ink:#653c91}
+.faq-deposit-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 10px;color:var(--tier-ink);font-weight:800;line-height:1.35}
+.faq-deposit-head strong{font-size:20px;white-space:nowrap}
+.faq-deposit-subgroup{margin-top:12px;padding-top:10px;border-top:1px solid var(--tier-border)}
+.faq-deposit-subgroup b{display:block;color:var(--tier-ink);font-size:13px;margin-bottom:7px}
+.faq-deposit-devices{margin:0;padding-left:19px;color:var(--text);font-size:14px;line-height:1.6}
+.faq-deposit-devices li+li{margin-top:3px}
 .bg-detail-modal{display:grid;grid-template-columns:minmax(280px,1fr) minmax(320px,1.1fr);gap:22px;align-items:start}
 .bg-detail-image{border-radius:18px;overflow:hidden;background:#f4f4f4;min-height:420px;display:grid;place-items:center}
 .bg-detail-image img{width:100%;height:100%;object-fit:cover;display:block}
@@ -3315,6 +3328,38 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     });
     const parts = [...groups.values()].map(group => `${group.names.join(", ")}: ${money(group.normal)} → ${money(group.noIdentity)}`);
     return lang === "en" ? `Without identity verification, deposits by device: ${parts.join("; ")}. Bundle PS5: ${money(policy.bundleNoIdentityDeposit)}.` : `หากไม่ยืนยันตัวตน ค่าประกันตามรุ่น: ${parts.join("; ")}; Bundle PS5: ${money(policy.bundleNoIdentityDeposit)}`;
+  }
+  function pricingFaqMarkup(lang=state.lang){
+    const en = lang === "en";
+    const policy = pricingForAdmin();
+    const tiers = new Map();
+    const add = (amount, normal, name) => {
+      const key = Number(amount);
+      if(!Number.isFinite(key) || key <= 0) return;
+      if(!tiers.has(key)) tiers.set(key, new Map());
+      const groups = tiers.get(key);
+      const standard = normal == null ? "bundle" : Number(normal);
+      if(!groups.has(standard)) groups.set(standard, []);
+      groups.get(standard).push(name);
+    };
+    policy.devices.forEach(device => {
+      const consoleItem = state.consoles.find(c => String(c.id) === String(device.id)
+        || [c.name, c.nameEn].some(name => pricingKey(name) === pricingKey(device.name)));
+      const name = consoleItem ? (en ? (consoleItem.nameEn || consoleItem.name) : (consoleItem.name || consoleItem.nameEn)) : device.name;
+      add(device.noIdentityDeposit, device.securityDeposit, name);
+    });
+    add(policy.bundleNoIdentityDeposit, null, "Bundle PS5");
+    const cards = [...tiers.entries()].sort((a,b) => a[0] - b[0]).map(([amount, groups]) => `
+      <div class="faq-deposit-tier">
+        <div class="faq-deposit-head"><span>${en ? "Deposit without ID" : "ค่าประกันไม่ยืนยันตัวตน"}</span><strong>${money(amount)}</strong></div>
+        ${[...groups.entries()].map(([normal, names]) => `<div class="faq-deposit-subgroup">
+          <b>${normal === "bundle" ? (en ? "Bundle package" : "ชุด Bundle") : `${en ? "Standard deposit" : "ค่าประกันปกติ"} ${money(normal)}`}</b>
+          <ul class="faq-deposit-devices">${names.map(name => `<li>${esc(name)}</li>`).join("")}</ul>
+        </div>`).join("")}
+      </div>`).join("");
+    return `<p class="faq-deposit-intro">${en ? "Yes. Choose a device below to see its deposit without identity verification." : "ได้ เลือกดูเครื่องและค่าประกันเมื่อไม่ยืนยันตัวตนตามกลุ่มด้านล่าง"}</p>
+      <div class="faq-deposit-grid">${cards}</div>
+      <p class="faq-deposit-note">${en ? "You must still read and accept the Rental Terms." : "ผู้เช่ายังคงต้องอ่านและยอมรับเงื่อนไขการเช่า"}</p>`;
   }
   function applyPricingPolicy(policy){
     if(!policy || !Array.isArray(policy.devices)) return;
@@ -7980,9 +8025,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     host.classList.toggle("collapsed", !state.faqExpanded);
     host.innerHTML = state.faq.map(f => {
       const q = state.lang==="en" ? (f.qEn || f.qTh) : (f.qTh || f.qEn);
-      const a = f.kind === "noContractTerms" ? `${state.lang === "en" ? "Yes. " : "ได้ "}${pricingExplanation(state.lang)} ${state.lang === "en" ? "The renter must still accept the Rental Terms." : "ผู้เช่ายังคงต้องยอมรับเงื่อนไขการเช่า"}` : (state.lang==="en" ? (f.aEn || f.aTh) : (f.aTh || f.aEn));
+      const a = state.lang==="en" ? (f.aEn || f.aTh) : (f.aTh || f.aEn);
       const action = f.kind === NO_CONTRACT_FAQ.kind ? `<button class="btn soft faq-action" type="button" data-faq-rental-terms>${esc(tr("rentalTermsRead"))}</button>` : "";
-      return `<div class="faq-item"><div class="faq-q">${esc(q)}</div><div class="faq-a">${esc(a)}</div>${action}</div>`;
+      return `<div class="faq-item"><div class="faq-q">${esc(q)}</div>${f.kind === NO_CONTRACT_FAQ.kind ? pricingFaqMarkup(state.lang) : `<div class="faq-a">${esc(a)}</div>`}${action}</div>`;
     }).join("");
     const btn = byId("faqExpandBtn");
     if(btn){
@@ -13372,9 +13417,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const copyButton = `<button class="copy-section-url" id="faqCopyUrl" type="button">${icon("link")}<span>${esc(tr("copyFaqUrl"))}</span></button>`;
     const items = state.faq.map(f => {
       const q = state.lang==="en" ? (f.qEn || f.qTh) : (f.qTh || f.qEn);
-      const a = f.kind === "noContractTerms" ? `${state.lang === "en" ? "Yes. " : "ได้ "}${pricingExplanation(state.lang)} ${state.lang === "en" ? "The renter must still accept the Rental Terms." : "ผู้เช่ายังคงต้องยอมรับเงื่อนไขการเช่า"}` : (state.lang==="en" ? (f.aEn || f.aTh) : (f.aTh || f.aEn));
+      const a = state.lang==="en" ? (f.aEn || f.aTh) : (f.aTh || f.aEn);
       const action = f.kind === NO_CONTRACT_FAQ.kind ? `<button class="btn soft faq-action" type="button" data-faq-rental-terms>${esc(tr("rentalTermsRead"))}</button>` : "";
-      return `<div class="faq-item"><div class="faq-q">${esc(q)}</div><div class="faq-a">${esc(a)}</div>${action}</div>`;
+      return `<div class="faq-item"><div class="faq-q">${esc(q)}</div>${f.kind === NO_CONTRACT_FAQ.kind ? pricingFaqMarkup(state.lang) : `<div class="faq-a">${esc(a)}</div>`}${action}</div>`;
     }).join("");
     return `<div style="margin-bottom:10px">${copyButton}</div>${items}`;
   }

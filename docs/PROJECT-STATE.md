@@ -1,3 +1,8 @@
+## 2026-10-20 — FAQ deposit tiers are readable by device (TH/EN)
+
+- Replaced the dense no-identity-verification FAQ paragraph on the live booking page with color-separated deposit tiers. Each tier lists every current device, its standard deposit, and the deposit without identity verification; PS5 Bundle is shown in its tier. The FAQ page and popup use the same dynamically priced view in Thai and English.
+- Inline script syntax and 369/369 site tests passed. Chromium checked Thai and English at 375 px and 1280 px, with all 20 default device/bundle entries present and no horizontal overflow. Pricing calculations and admin settings were not changed.
+
 ## 2026-10-20 — More readable delivery timing and corrected LINE totals (TH/EN)
 
 - Delivery App increased type size and line spacing for the delivery/return estimate on the booking confirmation and saved-change LINE cards, placing the notice in a padded block below Location.
