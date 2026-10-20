@@ -4286,3 +4286,9 @@ paused job shows slightly old numbers rather than an empty section.
 
 - Reduced the queue-wait reload option from 25 to 10 seconds. This is an early escape hatch, not a delay before success; the fresh availability requirement remains. The 45-second agreement deadline and 60-second photo-upload deadline are now 30 seconds each, after which the renter can retry without reselecting photos. Slow mobile uploads may need a retry; the site does not auto-reload during identity submission.
 - The Bot's unpaid prepayment LINE Flex is divided into bilingual rental, delivery/games, cost, and payment sections with more vertical spacing and a highlighted pending-payment notice. The amounts, destinations, and payment actions are unchanged.
+
+## 2026-10-20 — Estimated delivery timing and a depth preview of the current index
+
+- Delivery App's Booking confirmation and saved-details LINE cards now place a Thai or English 30–60 minute timing notice below Location; the one-tap confirmation result page shows it too. This is a timing estimate for delivery and return pickup, including traffic, weather and the delivery queue.
+- The bot's versioned Rental Terms add the full Thai and English delivery/return timing clause immediately before GPS monitoring. New contract and rental-order PDFs read the new terms version; older signed versions retain their original wording.
+- `index-depth-demo.html` is a fresh copy of the live `index.html` with only restrained shadows, lift on hover, and stronger heading emphasis added. The live index and the older, diverged `index-demo.html` were left unchanged. Desktop and mobile screenshots were checked in Chromium.
