@@ -4346,3 +4346,9 @@ paused job shows slightly old numbers rather than an empty section.
 - Targeting uses linked booking, Console Pending, and VIP LINE IDs with AJ-managed labels; deduplicated recipients can be capped at 1–1,000 per campaign. Campaigns support draft, immediate send, Thailand-time schedule, scheduled cancellation, progress counts, and LINE quota display. Private Site Content keys persist campaigns and fixed send audiences; deterministic LINE retry keys support resuming after a restart.
 - LINE followers without an AJ link and LINE Official Account Manager's native audience labels are outside this module. No real customer broadcast was performed while testing.
 - Verification: Bot suite 697/697 and booking-site suite 369/369 passed; focused broadcast tests cover targeting, scheduling, retry keys, and transient LINE failure. Chromium checked a two-card Carousel at 390 px and 1280 px without overflow or page errors. The public Site Content route returned 404 for the private label key.
+
+## 2026-10-20 — English booking contact form
+
+- The English Step 2 Connect LINE and Use WhatsApp buttons now share the same full width and height. The phone hint reads “No Thai phone number? Enter your WhatsApp or international number.”
+- After the English phone input changes and loses focus, completed non-Thai digit-only numbers gain a leading `+`; Thai local numbers and numbers already starting with `+` stay as entered. The Thai form is unchanged.
+- Inline JavaScript syntax passed; booking-site tests passed 369/369. Chromium checked English mobile and desktop layout, English phone normalization during and after input, and the unchanged Thai phone behavior.
