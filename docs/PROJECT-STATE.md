@@ -4339,3 +4339,10 @@ paused job shows slightly old numbers rather than an empty section.
 
 - The Bot's identity-image submission alert now includes customer phone, requested device, rental start and return dates, rental days, and delivery location. The same Thai message is sent to Discord, Telegram, and email. Both the booking-context upload and signed follow-up/upgrade upload pass their booking data into the shared formatter.
 - Focused tests cover booking-page and signed-contract field names. No customer notification or identity record was sent or modified during verification.
+
+## 2026-10-20 — AJ LINE Broadcast workspace
+
+- Added a dedicated `/broadcast/` admin page on the Bot and a link in the booking site's Admin header. The Bot retains its existing LINE channel and Admin authentication. The page builds Flex Bubble/Carousel messages, accepts full Flex JSON, validates with LINE, previews in the browser, and can send an exact test to a configured Admin LINE account.
+- Targeting uses linked booking, Console Pending, and VIP LINE IDs with AJ-managed labels; deduplicated recipients can be capped at 1–1,000 per campaign. Campaigns support draft, immediate send, Thailand-time schedule, scheduled cancellation, progress counts, and LINE quota display. Private Site Content keys persist campaigns and fixed send audiences; deterministic LINE retry keys support resuming after a restart.
+- LINE followers without an AJ link and LINE Official Account Manager's native audience labels are outside this module. No real customer broadcast was performed while testing.
+- Verification: Bot suite 697/697 and booking-site suite 369/369 passed; focused broadcast tests cover targeting, scheduling, retry keys, and transient LINE failure. Chromium checked a two-card Carousel at 390 px and 1280 px without overflow or page errors. The public Site Content route returned 404 for the private label key.
