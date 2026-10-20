@@ -4308,3 +4308,8 @@ paused job shows slightly old numbers rather than an empty section.
 - An overseas customer number such as `+61450638379` is valid, but the Lalamove order flow first substitutes AJ's Thai shop number at that end. The reported `phone_required` error could arise when Lalamove rejects that substituted contact; the screenshot alone does not expose the provider's response detail.
 - On an explicit Lalamove `phone_required` 4xx refusal, the Bot now makes one safe second attempt with the customer's valid international number. Local missing sender/recipient numbers have distinct error codes, and the staff card explains the fallback and a refusal of both numbers. The route still deduplicates each successful order request.
 - Bot Lalamove dispatch tests passed 19/19 and full Bot suite 688/688 after the final local-error distinction; Delivery App backend/frontend TypeScript, web build, flex-ledger 24/24 and Lalamove dispatch 379/379 passed. No live order was submitted during testing.
+
+## 2026-10-20 — Returning profile save CORS fix
+
+- The booking site's returning-customer profile save uses a JSON POST to the Bot. The Bot omitted `/api/customers/returning-profile` from its booking-site CORS middleware, so the browser's OPTIONS preflight returned 200 without `Access-Control-Allow-Origin` and blocked the save before its handler ran. This appeared as a generic interrupted-connection popup while the renter's entries remained in the page.
+- Added only that route to the existing booking-site origin allowlist. A local OPTIONS request now returns 204 with AJ's origin and allowed method/header; a tokenless POST returns 401 with the same CORS header, proving the real handler is reached. Bot suite 688/688 passed. No customer profile was written during verification.
