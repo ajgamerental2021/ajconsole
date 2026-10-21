@@ -352,7 +352,7 @@
         <div class="hero-card">
           <nav class="platform-switch" id="platformSwitch" aria-label="เลือกเครื่อง">
             <a class="platform-tab active" data-platform="ps5" href="/ajgameid/" aria-current="page">PS5</a>
-            <a class="platform-tab" data-platform="switch" href="/ajgameid/switch/">Nintendo Switch</a>
+            <a class="platform-tab" data-platform="switch" href="/ajgameid/switch/">Nintendo Switch 2</a>
           </nav>
           <div class="hero-top">
             <div class="hero-copy">
@@ -1014,7 +1014,7 @@
 
     function displayPlatform(platform) {
       const label = String(platform || tr('platformFallback'));
-      return ID_PLATFORM === 'switch' ? label.replace(/Nintendo Switch(?! 2)/g, 'Nintendo Switch 2') : label;
+      return label.replace(/Nintendo Switch(?! 2)/g, 'Nintendo Switch 2');
     }
 
     function setText(id, key, vars) {

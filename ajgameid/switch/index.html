@@ -1017,7 +1017,7 @@
 
     function displayPlatform(platform) {
       const label = String(platform || tr('platformFallback'));
-      return ID_PLATFORM === 'switch' ? label.replace(/Nintendo Switch 2(?! 2)/g, 'Nintendo Switch 2') : label;
+      return label.replace(/Nintendo Switch(?! 2)/g, 'Nintendo Switch 2');
     }
 
     function setText(id, key, vars) {

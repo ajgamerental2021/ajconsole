@@ -72,8 +72,8 @@ export function buildSwitchPage(ps5Html = read('ajgameid/index.html'), sourceDat
   // --- The PS5 / Switch switcher: Switch is the current page
   replace('<a class="platform-tab active" data-platform="ps5" href="/ajgameid/" aria-current="page">PS5</a>',
     '<a class="platform-tab" data-platform="ps5" href="/ajgameid/">PS5</a>');
-  replace('<a class="platform-tab" data-platform="switch" href="/ajgameid/switch/">Nintendo Switch</a>',
-    '<a class="platform-tab active" data-platform="switch" href="/ajgameid/switch/" aria-current="page">Nintendo Switch</a>');
+  replace('<a class="platform-tab" data-platform="switch" href="/ajgameid/switch/">Nintendo Switch 2</a>',
+    '<a class="platform-tab active" data-platform="switch" href="/ajgameid/switch/" aria-current="page">Nintendo Switch 2</a>');
 
   // --- Titles and wording
   replace('<h1 id="siteTitleText">รายการไอดีเกม PS5</h1>', '<h1 id="siteTitleText">รายการไอดีเกม Nintendo Switch</h1>');
@@ -112,6 +112,10 @@ export function buildSwitchPage(ps5Html = read('ajgameid/index.html'), sourceDat
   // The public list is for Switch 2. Legacy Gist entries may still say Switch;
   // their platform labels are upgraded on display without overwriting the data.
   html = html.replace(/Nintendo Switch(?! 2)/g, 'Nintendo Switch 2');
+  // The broad text replacement also sees the literal inside the platform
+  // normalizer's regular expression. Restore that match so old Gist labels
+  // still become Switch 2 on the rendered game cards.
+  html = html.replaceAll('/Nintendo Switch 2(?! 2)/g', '/Nintendo Switch(?! 2)/g');
 
   // Anything that still says PS5 to a customer is a place this script missed.
   // Allowed: the switcher's PS5 tab, code comments, storage keys, the PS5

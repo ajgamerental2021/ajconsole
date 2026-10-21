@@ -44,8 +44,12 @@ test('the Switch page speaks Switch and resolves paths one folder deeper', () =>
 test('both pages link to each other, the current one marked', () => {
   assert.match(ps5, /class="platform-tab active" data-platform="ps5" href="\/ajgameid\/" aria-current="page"/);
   assert.match(ps5, /class="platform-tab" data-platform="switch" href="\/ajgameid\/switch\/"/);
+  assert.match(ps5, /data-platform="switch" href="\/ajgameid\/switch\/">Nintendo Switch 2<\/a>/);
   assert.match(sw, /class="platform-tab" data-platform="ps5" href="\/ajgameid\/"/);
   assert.match(sw, /class="platform-tab active" data-platform="switch" href="\/ajgameid\/switch\/" aria-current="page"/);
+  assert.match(sw, /aria-current="page">Nintendo Switch 2<\/a>/);
+  assert.ok(ps5.includes("return label.replace(/Nintendo Switch(?! 2)/g, 'Nintendo Switch 2')"));
+  assert.ok(sw.includes("return label.replace(/Nintendo Switch(?! 2)/g, 'Nintendo Switch 2')"));
 });
 
 test('the Switch starter data is one sample ID with a cover that exists', () => {
