@@ -273,6 +273,75 @@ function renderCampaignPreview(item, card, previous = {}) {
   if (details.open) fillPreview();
   card.append(details);
 }
+const insightCache = new Map();
+const insightNumber = (value) => value == null ? '—' : Number(value).toLocaleString(state.lang === 'en' ? 'en-US' : 'th-TH');
+function renderCampaignInsights(panel, result) {
+  panel.replaceChildren();
+  const heading = document.createElement('h3'); heading.textContent = say('Insight ของรายการนี้', 'Campaign insights'); panel.append(heading);
+  const source = document.createElement('p'); source.className = 'muted';
+  source.textContent = say('ข้อมูลจาก LINE และการกดลิงก์ที่ AJ บันทึกได้เป็นยอดรวม ไม่มีรายชื่อผู้ที่ดูหรือเลื่อนการ์ด',
+    'LINE and AJ link-click totals are aggregate. Viewer names and individual swipes are unavailable.');
+  panel.append(source);
+  if (result.line.available) {
+    const stats = document.createElement('div'); stats.className = 'insight-metrics';
+    for (const [label, value] of [
+      [say('LINE ส่งถึง', 'LINE delivered'), result.line.delivered],
+      [say('คนที่เปิดข้อความ', 'Unique viewers'), result.line.uniqueImpression],
+      [say('คนที่เปิดลิงก์', 'Unique link openers'), result.line.uniqueClick],
+    ]) {
+      const metric = document.createElement('div'); metric.className = 'insight-metric';
+      const number = document.createElement('strong'); number.textContent = insightNumber(value);
+      const caption = document.createElement('span'); caption.textContent = label;
+      metric.append(number, caption); stats.append(metric);
+    }
+    panel.append(stats);
+    const cardHeading = document.createElement('h4'); cardHeading.textContent = say('การแสดงแต่ละการ์ด', 'Card impressions'); panel.append(cardHeading);
+    for (const row of result.line.cards || []) {
+      const item = document.createElement('p'); item.className = 'insight-row';
+      item.textContent = `${say('การ์ด', 'Card')} ${row.number}${row.title ? ` · ${row.title}` : ''}: ${insightNumber(row.impressions)} ${say('ครั้ง', 'views')}`;
+      panel.append(item);
+    }
+  } else {
+    const note = document.createElement('p'); note.className = 'muted';
+    note.textContent = ({
+      request_id_not_recorded: say('รายการที่ส่งก่อนเปิดใช้ Insight ไม่มี Request ID จึงดึงสถิติย้อนหลังจาก LINE ไม่ได้', 'This send predates request ID tracking, so LINE insights cannot be recovered.'),
+      linked_push_has_no_line_insight: say('LINE ไม่ให้สถิติการเปิดการ์ดสำหรับการส่งแบบ Push รายคน', 'LINE does not provide card impressions for individual push sends.'),
+      line_insight_pending: say('LINE ยังไม่พร้อมให้สถิติ ลองกดรีเฟรชภายหลัง', 'LINE insights are not ready yet. Refresh later.'),
+    })[result.line.reason] || say('ยังไม่มีสถิติจาก LINE', 'LINE insights are unavailable.');
+    panel.append(note);
+  }
+  const actionHeading = document.createElement('h4'); actionHeading.textContent = say('การกดรูปและปุ่ม', 'Image and button clicks'); panel.append(actionHeading);
+  if (!result.actions.length) {
+    const empty = document.createElement('p'); empty.className = 'muted'; empty.textContent = say('ข้อความนี้ไม่มีลิงก์ที่ติดตามได้', 'This message has no trackable links.'); panel.append(empty);
+  }
+  for (const action of result.actions) {
+    const lineRow = result.line.available ? (result.line.links || []).find((row) => row.matches?.length === 1
+      && row.matches[0].bubbleIndex === action.bubbleIndex && row.matches[0].actionIndex === action.actionIndex) : null;
+    const item = document.createElement('p'); item.className = 'insight-row';
+    const name = action.kind === 'image' ? say('รูป', 'Image') : action.label || say('ปุ่ม', 'Button');
+    const lineCount = lineRow ? `${say('LINE', 'LINE')} ${insightNumber(lineRow.clicks)}` : '';
+    const ajCount = result.recordedAvailable ? `${say('AJ บันทึก', 'AJ recorded')} ${insightNumber(action.recordedClicks)}` : '';
+    item.textContent = `${say('การ์ด', 'Card')} ${action.bubbleIndex + 1} · ${name}: ${[lineCount, ajCount].filter(Boolean).join(' · ') || '—'}`;
+    panel.append(item);
+  }
+  const refresh = document.createElement('button'); refresh.type = 'button'; refresh.className = 'ghost';
+  refresh.textContent = say('รีเฟรช Insight', 'Refresh insights');
+  refresh.onclick = () => void showCampaignInsights(panel.closest('.campaign'), true);
+  panel.append(refresh);
+}
+async function showCampaignInsights(card, force = false) {
+  const panel = card.querySelector('.campaign-insights');
+  const id = card.dataset.campaignId;
+  panel.hidden = false;
+  const cached = insightCache.get(id);
+  if (!force && cached && Date.now() - cached.at < 60_000) { renderCampaignInsights(panel, cached.result); return; }
+  panel.textContent = say('กำลังโหลด Insight…', 'Loading insights…');
+  try {
+    const result = await api(`/${id}/insights`);
+    if (!panel.isConnected || panel.hidden) return;
+    insightCache.set(id, { at: Date.now(), result }); renderCampaignInsights(panel, result);
+  } catch (error) { if (panel.isConnected) panel.textContent = String(error.message || error); }
+}
 function messageFromEditor() { const message = JSON.parse($('flexJson').value); message.altText = $('altText').value.trim(); return message; }
 async function preview() {
   try { const message = await prepareMessageImages(messageFromEditor()); await api('/validate', { method: 'POST', body: { message } }); $('flexJson').value = JSON.stringify(message, null, 2); renderPreview(message); $('previewError').textContent = ''; status(say('ตรวจ Flex ผ่าน', 'Flex validation passed')); return message; }
@@ -340,7 +409,8 @@ async function loadCampaigns() {
   const area = $('campaignList');
   const previewStates = new Map([...area.querySelectorAll('.campaign[data-campaign-id]')]
     .map((card) => [card.dataset.campaignId, { open: card.querySelector('.campaign-preview-details')?.open === true,
-      scrollLeft: card.querySelector('.campaign-preview')?.scrollLeft || 0 }]));
+      scrollLeft: card.querySelector('.campaign-preview')?.scrollLeft || 0,
+      insightOpen: card.querySelector('.campaign-insights')?.hidden === false }]));
   area.replaceChildren();
   if (!state.campaigns.length) area.textContent = say('ยังไม่มีแคมเปญ', 'No campaigns yet');
   for (const item of state.campaigns) {
@@ -359,10 +429,19 @@ async function loadCampaigns() {
       if (item.status === 'scheduled') button(say('ยกเลิกเวลา', 'Cancel schedule'), async () => { if (!confirm(say('ยกเลิกการส่งตามเวลานี้?', 'Cancel this scheduled send?'))) return; await api(`/${item.id}/cancel`, { method: 'POST' }); await loadCampaigns(); });
       button(say('ลบ', 'Delete'), async () => { if (!confirm(say('ลบแคมเปญนี้?', 'Delete this campaign?'))) return; await api(`/${item.id}`, { method: 'DELETE' }); await loadCampaigns(); });
     } else button(say('ดูข้อความ', 'View'), () => editCampaign(item));
+    if (['sending', 'completed', 'partial', 'failed'].includes(item.status)) {
+      button(say('ดู Insight', 'View insights'), () => {
+        const panel = card.querySelector('.campaign-insights');
+        if (!panel.hidden) panel.hidden = true;
+        else void showCampaignInsights(card);
+      });
+    }
     renderCampaignPreview(item, card, previewStates.get(item.id));
-    card.append(actions); area.append(card);
+    const insights = document.createElement('section'); insights.className = 'campaign-insights'; insights.hidden = true;
+    card.append(actions, insights); area.append(card);
     const carousel = card.querySelector('.campaign-preview');
     if (carousel) carousel.scrollLeft = previewStates.get(item.id)?.scrollLeft || 0;
+    if (previewStates.get(item.id)?.insightOpen) void showCampaignInsights(card);
   }
   void api('/quota').then(({ quota, usage }) => {
     $('lineQuota').textContent = quota?.type === 'limited'

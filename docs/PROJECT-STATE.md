@@ -4398,3 +4398,10 @@ paused job shows slightly old numbers rather than an empty section.
 - Each campaign's chat-list text and card preview now sit inside a bilingual expandable section, closed by default so the Broadcast list stays compact. Card images are loaded only after opening the section.
 - Open/closed state and horizontal card position survive the list's automatic refresh. A mocked mobile browser check covered the default collapsed state, opening four cards and chat text, English labels, closing, and refresh retention. No LINE message was sent.
 
+## 2026-10-21 — Broadcast campaign insights
+
+- New sends record LINE's request ID for all-follower broadcasts. Completed campaign cards have a bilingual Insight panel with LINE delivery totals, unique message viewers, unique link openers, per-card display counts, and per-URL click totals. LINE supplies aggregate figures only: it does not identify viewers or report an individual's carousel swipes. Individual push campaigns have no LINE message-event insight.
+- HTTPS image and button links in new sends route through a campaign-specific Bot redirect before opening their original destination. This lets AJ count each card action separately in its analytics sheet. Older cards without an image action use the first HTTPS footer button as their image destination during sending; their stored draft and visual layout stay the same. AJ click counts are anonymous and best effort.
+- Campaigns sent before request IDs and tracked links were added cannot gain historical LINE impression or click data. The panel states this instead of displaying invented zeros. The Broadcast UI copies in both repos are synchronized and static asset versions are bumped.
+- Unit tests cover tracked action mapping, recorded request IDs, and separation from website visitor totals. No real LINE messages were sent while implementing or verifying these insights.
+
