@@ -4387,3 +4387,9 @@ paused job shows slightly old numbers rather than an empty section.
 - The browser Preview stretches cards to the same height and aligns their buttons while using each image's source ratio. The Admin page copies on the AJ website and Bot were updated together and their cache versions bumped.
 - Bot tests passed 704/704. A mocked mobile browser check confirmed full-width images, equal card heights, aligned button baselines and portrait artwork. No LINE message was sent during testing.
 
+## 2026-10-21 — Preview saved Broadcasts in the campaign list
+
+- Each campaign in “Broadcast campaigns” now displays its LINE chat-list Alt text and a compact, horizontally scrollable preview of every saved Flex Bubble or Carousel card. The list uses the same Flex renderer as the editor, so previously saved and scheduled campaigns show their actual stored message.
+- The scroll area is keyboard focusable and has a bilingual card count hint. The Bot and AJ website copies of the Broadcast UI were kept in sync, and both asset cache versions were bumped.
+- A mocked mobile browser check confirmed four saved cards, horizontal scrolling, chat-list text and English labels. No customer message was sent.
+

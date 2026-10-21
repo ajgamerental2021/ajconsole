@@ -206,37 +206,58 @@ function flexNode(part) {
   else { node.className = 'muted'; node.textContent = part.type || 'Unsupported element'; }
   return node;
 }
+function previewBubble(bubble) {
+  if (bubble.type !== 'bubble') throw new Error('Carousel ต้องมี Bubble');
+  const shell = document.createElement('div'); shell.className = 'line-bubble';
+  for (const section of ['header', 'hero', 'body', 'footer']) {
+    if (!bubble[section]) continue;
+    if (section === 'hero') {
+      const hero = flexNode(bubble.hero); hero.className = 'flex-hero'; shell.append(hero);
+      if (bubble.hero.type === 'image' && bubble.hero.url) {
+        const previewImage = hero.querySelector('img'); if (previewImage) previewImage.style.objectFit = 'cover';
+        void naturalImageRatio(bubble.hero.url).then((ratio) => {
+          if (!hero.isConnected || !ratio) return;
+          const [w, h] = ratio.split(':').map(Number);
+          const img = hero.querySelector('img'); if (img && w && h) img.style.aspectRatio = `${w}/${h}`;
+        });
+      }
+      if (bubble.hero.type === 'image' && bubble.hero.url && !bubble.hero.backgroundColor) {
+        void artworkColor(bubble.hero.url).then((color) => {
+          if (!hero.isConnected) return;
+          hero.style.backgroundColor = color;
+          const img = hero.querySelector('img'); if (img) img.style.backgroundColor = color;
+        });
+      }
+    }
+    else { const wrap = document.createElement('div'); wrap.className = `line-section line-${section}`; wrap.append(flexNode(bubble[section])); shell.append(wrap); }
+  }
+  return shell;
+}
+function messageBubbles(message) {
+  if (message?.type !== 'flex' || !message.contents) throw new Error('Flex JSON ไม่ถูกต้อง');
+  return message.contents.type === 'carousel' ? message.contents.contents : [message.contents];
+}
 function renderPreview(message) {
   const area = $('preview'); area.replaceChildren();
   $('chatListPreview').innerHTML = `<strong>${say('ตัวอย่างในรายการแชท', 'Chat list preview')}</strong>${esc(message.altText || '')}`;
-  if (message.type !== 'flex' || !message.contents) throw new Error('Flex JSON ไม่ถูกต้อง');
-  const bubbles = message.contents.type === 'carousel' ? message.contents.contents : [message.contents];
-  for (const bubble of bubbles) {
-    if (bubble.type !== 'bubble') throw new Error('Carousel ต้องมี Bubble');
-    const shell = document.createElement('div'); shell.className = 'line-bubble';
-    for (const section of ['header', 'hero', 'body', 'footer']) {
-      if (!bubble[section]) continue;
-      if (section === 'hero') {
-        const hero = flexNode(bubble.hero); hero.className = 'flex-hero'; shell.append(hero);
-        if (bubble.hero.type === 'image' && bubble.hero.url) {
-          const previewImage = hero.querySelector('img'); if (previewImage) previewImage.style.objectFit = 'cover';
-          void naturalImageRatio(bubble.hero.url).then((ratio) => {
-            if (!hero.isConnected || !ratio) return;
-            const [w, h] = ratio.split(':').map(Number);
-            const img = hero.querySelector('img'); if (img && w && h) img.style.aspectRatio = `${w}/${h}`;
-          });
-        }
-        if (bubble.hero.type === 'image' && bubble.hero.url && !bubble.hero.backgroundColor) {
-          void artworkColor(bubble.hero.url).then((color) => {
-            if (!hero.isConnected) return;
-            hero.style.backgroundColor = color;
-            const img = hero.querySelector('img'); if (img) img.style.backgroundColor = color;
-          });
-        }
-      }
-      else { const wrap = document.createElement('div'); wrap.className = `line-section line-${section}`; wrap.append(flexNode(bubble[section])); shell.append(wrap); }
-    }
-    area.append(shell);
+  messageBubbles(message).forEach((bubble) => area.append(previewBubble(bubble)));
+}
+function renderCampaignPreview(item, card) {
+  const message = item.message;
+  const bubbles = messageBubbles(message);
+  const chatList = document.createElement('div'); chatList.className = 'chat-list-preview campaign-chat-list';
+  const label = document.createElement('strong'); label.textContent = say('ข้อความในรายการแชท', 'Chat list message');
+  const altText = document.createElement('span'); altText.textContent = message.altText || '';
+  chatList.append(label, altText);
+  const carousel = document.createElement('div'); carousel.className = 'chat-preview campaign-preview';
+  carousel.tabIndex = 0;
+  carousel.setAttribute('aria-label', say(`ตัวอย่างการ์ด ${bubbles.length} ใบ เลื่อนเพื่อดูทั้งหมด`, `Preview of ${bubbles.length} cards; scroll to view all`));
+  bubbles.forEach((bubble) => carousel.append(previewBubble(bubble)));
+  card.append(chatList, carousel);
+  if (bubbles.length > 1) {
+    const hint = document.createElement('small'); hint.className = 'muted campaign-scroll-hint';
+    hint.textContent = say(`เลื่อนดูการ์ดทั้งหมด ${bubbles.length} ใบ →`, `Scroll to view all ${bubbles.length} cards →`);
+    card.append(hint);
   }
 }
 function messageFromEditor() { const message = JSON.parse($('flexJson').value); message.altText = $('altText').value.trim(); return message; }
@@ -321,6 +342,7 @@ async function loadCampaigns() {
       if (item.status === 'scheduled') button(say('ยกเลิกเวลา', 'Cancel schedule'), async () => { if (!confirm(say('ยกเลิกการส่งตามเวลานี้?', 'Cancel this scheduled send?'))) return; await api(`/${item.id}/cancel`, { method: 'POST' }); await loadCampaigns(); });
       button(say('ลบ', 'Delete'), async () => { if (!confirm(say('ลบแคมเปญนี้?', 'Delete this campaign?'))) return; await api(`/${item.id}`, { method: 'DELETE' }); await loadCampaigns(); });
     } else button(say('ดูข้อความ', 'View'), () => editCampaign(item));
+    renderCampaignPreview(item, card);
     card.append(actions); area.append(card);
   }
   void api('/quota').then(({ quota, usage }) => {
