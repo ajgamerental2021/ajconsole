@@ -4405,3 +4405,9 @@ paused job shows slightly old numbers rather than an empty section.
 - Campaigns sent before request IDs and tracked links were added cannot gain historical LINE impression or click data. The panel states this instead of displaying invented zeros. The Broadcast UI copies in both repos are synchronized and static asset versions are bumped.
 - Unit tests cover tracked action mapping, recorded request IDs, and separation from website visitor totals. No real LINE messages were sent while implementing or verifying these insights.
 
+## 2026-10-21 — Delivery App Booking/Pending latency and paid Booking repair
+
+- Fixed a verified LINE slip forwarding bug where a second `rental` property overwrote device, dates, location and total before Delivery App could create a Booking. Beam and slip forwards now alert on an unmatched Booking result even when the webhook returned HTTP 200.
+- Delivery App retries recent verified ledger payments that still lack a Booking through its existing locked Console Pending confirmation; old, unverified, already booked, ambiguous and stale requests remain protected by the existing checks. The job runs after startup and every five minutes, with a bounded batch and diagnostics. Booking Log no longer fetches twice on initial focus; Console Pending badge skips LINE-name backfill, modal backfill no longer holds its response, and Pending reads no longer layer another retry over the Sheets client. ID Pending loads both platforms in one request and caches brief reads.
+- These changes do not identify or rewrite any particular historical customer payment from this workspace. No live payment or customer confirmation was generated during verification.
+
