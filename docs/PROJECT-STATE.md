@@ -4375,3 +4375,9 @@ paused job shows slightly old numbers rather than an empty section.
 - AJ LINE Broadcast now samples colors around each artwork image and assigns the resulting matte to its LINE Flex image and browser preview. Full images remain visible with `fit`; older saved campaigns receive a matte when they are sent. The Admin-only color endpoint limits remote image downloads, and unavailable colors use a muted fallback.
 - Bot tests 703/703 and a mocked mobile browser check passed. No LINE broadcast was sent during verification.
 
+## 2026-10-21 — Broadcast remember login and AJ domain
+
+- Added a bilingual 30-day “Remember me” option to the Broadcast login. It uses the Bot's existing signed remembered Admin session, stores the token only when selected, and clears it on sign-out or an expired/invalid response. The username may be remembered; the password is never stored by this page.
+- Published the Broadcast editor's static HTML, CSS and JavaScript at `https://ajgamerental.com/broadcast/` and updated the booking Admin link. The AJ domain page calls the Bot's existing Admin API on Render. Keep the copies in `ajconsole/broadcast/` and `aj-line-oa-bot/public/broadcast/` synchronized when editing the Broadcast UI.
+- Chromium verified remembered and session-only login storage, reload, sign-out, English label, and API routing from the AJ domain page with mocked responses. The Bot's existing CORS preflight for Admin APIs was checked locally. No real LINE message was sent.
+
