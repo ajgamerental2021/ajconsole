@@ -107,6 +107,7 @@
     <p class="err" id="daysErr" hidden></p>
     <label class="promo noid" id="noIdRow"><input type="checkbox" id="noId"> <span><b data-t="noIdAsk"></b><br><small id="noIdHint"></small></span></label>
     <label class="promo" id="promoRow" hidden><input type="checkbox" id="promo"> <span><b data-t="promoAsk"></b><br><small id="promoHint"></small></span></label>
+    <div id="campaignPromos"></div>
 
     <label for="maps" data-t="mapsLabel"></label>
     <input id="maps" type="text" autocomplete="off" enterkeyhint="go">
@@ -135,7 +136,8 @@
   // rules: whole months at the monthly price (฿300/350/400/500 a day), then
   // whole weeks at the weekly price, then days; a three-day minimum. The
   // delivery fee is the live Lalamove round trip, after AJ's discount, from
-  // the Bot. A rough quote: no queue check, promotions or discounts.
+  // the Bot. Promotions come from the same policy as the booking page; this
+  // quote does not check the device queue or returning/review discounts.
   // The page lives on the booking site (ajgamerental.com/quote/); the delivery
   // fee, the queue closures, the saved quotes and the statistics are the Bot's.
   var API = 'https://aj-line-oa-bot.onrender.com';
@@ -144,6 +146,8 @@
   // After Work 3 Nights: a 3-day rental starting on a Monday or Tuesday, at a
   // set price by daily rate (the booking site's AFTER_WORK_PROMO_PRICES).
   var AFTER_WORK = { 300: 777, 350: 888, 400: 999, 500: 1299 };
+  var promotionPolicy = { version: 1, campaigns: [{ id: 'after-work-3-days', enabled: true, days: 3, pricesByDailyRate: AFTER_WORK }] };
+  var selectedCampaignId = '';
   var T = {
     th: {
       title: 'คำนวณค่าเช่า/ค่าส่ง', subtitle: 'ค่าเช่า · ค่าประกัน · ค่าจัดส่ง (ไม่เช็คคิว)', lang: 'English',
@@ -162,7 +166,7 @@
       minDays: 'เช่าขั้นต่ำ 3 วัน', needDevice: 'เลือกเครื่องก่อน', needMaps: 'ใส่ลิงก์ Google Maps หรือพิมพ์ชื่อสถานที่ก่อน',
       needPin: 'หาสถานที่นี้ไม่เจอ ลองพิมพ์ให้ละเอียดขึ้น เช่น ชื่อคอนโด + เขต หรือกด 📍 ใช้ตำแหน่งปัจจุบัน',
       quoteFail: 'คำนวณค่าส่งไม่สำเร็จ ลองใหม่อีกครั้ง', tooMany: 'คำนวณค่าส่งถี่เกินไป กรุณารอสักครู่แล้วลองใหม่', catalogueFail: 'โหลดรายการเครื่องไม่สำเร็จ รีเฟรชหน้าอีกครั้ง',
-      note: 'ราคาคร่าวๆ ราคาปกติ ยังไม่รวมส่วนลดลูกค้าเก่าและส่วนลดรีวิว และยังไม่ได้เช็คคิวว่าง ค่าส่งเป็นราคาตอนนี้ อาจเปลี่ยนตามเวลาที่จองจริง',
+      note: 'ราคาโดยประมาณ รวมโปรโมชั่นที่เลือกแล้ว แต่ยังไม่รวมส่วนลดลูกค้าเก่าและส่วนลดรีวิว และยังไม่ได้เช็คคิวว่าง ค่าส่งเป็นราคาตอนนี้ อาจเปลี่ยนตามเวลาที่จองจริง',
       // The discounts are claimed where they can be checked, on the booking
       // page; here they are only named, so the price shown is never lower
       // than the one a new customer will get.
@@ -172,6 +176,7 @@
       copy: 'คัดลอกสรุปราคา', copied: '✓ คัดลอกแล้ว', copyHead: 'AJ เช่าเครื่องเกม · ราคาโดยประมาณ',
       promoAsk: 'เริ่มเช่าวันจันทร์หรืออังคาร (โปร After Work 3 Nights)', promoHint: 'เช่า 3 วัน เริ่มวันจันทร์หรืออังคาร ราคาโปร {price}',
       promoLine: 'โปรโมชั่น After Work 3 Nights (ราคาโปร {price})',
+      campaignHint: 'เช่า {days} วัน · ราคาโปร {price}', campaignDates: ' · เริ่มเช่า {start}–{end}', campaignLine: 'โปรโมชั่น {name} (ราคาโปร {price})',
       bundle: 'Bundle (เช่าพร้อม PS5)', noBundle: 'ไม่เลือก Bundle (PS5 อย่างเดียว)', bundleHint: 'Bundle ใช้ราคาและค่าประกันของชุดแทนราคาเครื่อง',
       extras: 'อุปกรณ์เสริม', perRental: 'ต่อการเช่า', accessory: 'อุปกรณ์เสริม', noAccessory: 'ไม่เพิ่มอุปกรณ์เสริม', included: 'รวม 2 จอยในราคาเช่าปกติแล้ว',
       locate: '📍 ใช้ตำแหน่งปัจจุบัน', locating: 'กำลังหาตำแหน่ง…', pinMap: '🗺️ ปักหมุดบนแผนที่'
@@ -193,13 +198,14 @@
       minDays: 'The minimum rental is 3 days.', needDevice: 'Choose the equipment first.', needMaps: 'Paste a Google Maps link or type a place first.',
       needPin: 'We could not find that place. Type it in more detail, such as the building name and district, or use 📍 your current location.',
       quoteFail: 'The delivery fee could not be calculated. Please try again.', tooMany: 'Too many delivery checks. Please wait a moment and try again.', catalogueFail: 'The equipment list could not be loaded. Please refresh.',
-      note: 'A rough quote at regular prices: returning-customer and review discounts are not included, and the queue is not checked. The delivery fee is today\'s price and may change by the time of booking.',
+      note: 'An estimate including the selected promotion. Returning-customer and review discounts are not included, and the queue is not checked. The delivery fee is today\'s price and may change by the time of booking.',
       perks: '🎁 Returning customers save 10% · reviews save more — claim them when you book',
       readyOn: 'Available from', queueClosed: 'Queue closed during this period',
       sectionRental: 'Rental and deposit', sectionDelivery: 'Delivery', bookAt: 'Check the queue and book:', quoteCode: 'Quote code',
       copy: 'Copy the quote', copied: '✓ Copied', copyHead: 'AJ Game Rental · estimated price',
       promoAsk: 'Starts on a Monday or Tuesday (After Work 3 Nights)', promoHint: '3 days starting Monday or Tuesday, promo price {price}',
       promoLine: 'After Work 3 Nights promotion (promo price {price})',
+      campaignHint: '{days}-day rental · promo price {price}', campaignDates: ' · rental start {start}–{end}', campaignLine: '{name} promotion (promo price {price})',
       bundle: 'Bundle (with PS5)', noBundle: 'No bundle (PS5 only)', bundleHint: 'A bundle uses the set\'s own price and deposit instead of the console\'s.',
       extras: 'Accessories', perRental: 'per rental', accessory: 'Accessory', noAccessory: 'No accessory', included: '2 controllers included',
       locate: '📍 Use my current location', locating: 'Finding your location…', pinMap: '🗺️ Pin it on a map'
@@ -216,6 +222,7 @@
     var data = event.data || {};
     if (data.type === 'AJ_SET_LANG' && (data.lang === 'th' || data.lang === 'en') && data.lang !== lang) { lang = data.lang; applyLanguage(); }
     if (data.type === 'AJ_SET_DEVICE') chooseDevice(data.consoleId);
+    if (data.type === 'AJ_PROMOTIONS_REFRESH') loadPromotionPolicy();
   });
   var consoles = [];
   var pricingPolicy = null;
@@ -255,6 +262,34 @@
     return '';
   }
   var labelOf = function (x) { return lang === 'en' ? (x.en || x.th) : (x.th || x.en); };
+  var promoKey = function (value) { return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ''); };
+  var htmlText = function (value) { return String(value || '').replace(/[&<>"']/g, function (char) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]; }); };
+  function campaignOffer(campaign, c, n) {
+    if (!campaign || !campaign.enabled || !c || Number(campaign.days) !== n) return null;
+    var afterWork = campaign.id === 'after-work-3-days';
+    // After Work's own checkbox explicitly means a Monday/Tuesday start.
+    // Other offers are shown only while their booking-start window is open.
+    if (!afterWork) {
+      var today = todayIso();
+      if (campaign.startDate && today < campaign.startDate) return null;
+      if (campaign.endDate && today > campaign.endDate) return null;
+      if (Array.isArray(campaign.startWeekdays) && campaign.startWeekdays.length
+        && campaign.startWeekdays.indexOf(new Date(today + 'T12:00:00+07:00').getDay()) < 0) return null;
+    }
+    var keys = [promoKey(c.name), promoKey(c.nameEn), promoKey(c.id)];
+    if (Array.isArray(campaign.deviceKeys) && campaign.deviceKeys.length
+      && !keys.some(function (key) { return campaign.deviceKeys.indexOf(key) >= 0; })) return null;
+    var terms = termsOf(c), rent = rentalCost(n, terms.rate, terms.weekly);
+    var byDevice = keys.map(function (key) { return Number(campaign.pricesByDevice && campaign.pricesByDevice[key]) || 0; }).find(function (price) { return price > 0; });
+    var price = campaign.mode === 'percent'
+      ? Math.round(rent * (100 - Number(campaign.percent || 0)) / 100)
+      : byDevice || Number(campaign.pricesByDailyRate && campaign.pricesByDailyRate[terms.rate]) || Number(campaign.fixedPrice) || 0;
+    if (price <= 0 || price >= rent) return null;
+    return { id: campaign.id, title: lang === 'en' ? campaign.titleEn || campaign.titleTh || campaign.id : campaign.titleTh || campaign.titleEn || campaign.id, price: price, startDate: campaign.startDate || '', endDate: campaign.endDate || '' };
+  }
+  function availableCampaigns(c, n) {
+    return (promotionPolicy.campaigns || []).map(function (campaign) { return campaignOffer(campaign, c, n); }).filter(Boolean);
+  }
   function extrasFor(c) {
     if (!c) return [];
     var id = String(c.id), items = [];
@@ -390,10 +425,12 @@
     var out = [[t('rental') + ' ' + terms.name + ' · ' + n + ' ' + t('dayUnit') + (tier ? ' (' + tier + ')' : ''), money(rent), '', 'rent']];
     var total = rent + deposit;
     // The promotion is on the console's own rental, as on the booking site.
-    var promo = promoPrice(c, n);
-    if (promo && $('promo').checked && rent > promo) {
-      out.push([t('promoLine').replace('{price}', money(promo)), '-' + money(rent - promo), 'discount', 'promo']);
-      total -= rent - promo;
+    var chosen = availableCampaigns(c, n).find(function (offer) { return offer.id === selectedCampaignId; });
+    if (chosen) {
+      var label = chosen.id === 'after-work-3-days' ? t('promoLine').replace('{price}', money(chosen.price))
+        : t('campaignLine').replace('{name}', chosen.title).replace('{price}', money(chosen.price));
+      out.push([label, '-' + money(rent - chosen.price), 'discount', 'promo']);
+      total -= rent - chosen.price;
     }
     extrasFor(c).filter(function (x) { return picked.indexOf(x.id) >= 0; }).forEach(function (x) {
       var cost = extraCost(x, n);
@@ -423,7 +460,6 @@
       || ['ps4', 'playstation4', 'nintendoswitch1', 'switch1', 'psportal', 'playstationportal', 'xboxseriess'].indexOf(model) >= 0;
     return amount === 2000 && special ? 5000 : (amount >= 4000 ? 15000 : 10000);
   }
-  function promoPrice(c, n) { return c && n === 3 ? (AFTER_WORK[Number(termsOf(c).rate)] || 0) : 0; }
   function renderAddOns() {
     var c = selected();
     var isPs5 = c && String(c.id) === PS5_ID;
@@ -453,14 +489,22 @@
   }
   function render() {
     var c = selected(), n = days();
-    var promo = promoPrice(c, n);
+    var offers = availableCampaigns(c, n);
+    if (!offers.some(function (offer) { return offer.id === selectedCampaignId; })) selectedCampaignId = '';
+    var afterWork = offers.find(function (offer) { return offer.id === 'after-work-3-days'; });
     $('noIdRow').hidden = !c;
     if (c) {
       var tc = termsOf(c), normal = Number(tc.deposit) || 0;
       $('noIdHint').textContent = t('noIdHint').replace('{deposit}', money(noIdDepositFor(normal, !!tc.bundle, selected()))).replace('{normal}', money(normal));
     }
-    $('promoRow').hidden = !promo;
-    if (promo) $('promoHint').textContent = t('promoHint').replace('{price}', money(promo));
+    $('promoRow').hidden = !afterWork;
+    $('promo').checked = selectedCampaignId === 'after-work-3-days';
+    if (afterWork) $('promoHint').textContent = t('promoHint').replace('{price}', money(afterWork.price));
+    $('campaignPromos').innerHTML = offers.filter(function (offer) { return offer.id !== 'after-work-3-days'; }).map(function (offer) {
+      var hint = t('campaignHint').replace('{days}', String(n)).replace('{price}', money(offer.price));
+      if (offer.startDate && offer.endDate) hint += t('campaignDates').replace('{start}', displayDate(offer.startDate)).replace('{end}', displayDate(offer.endDate));
+      return '<label class="promo"><input type="checkbox" data-quote-promo="' + htmlText(offer.id) + '"' + (selectedCampaignId === offer.id ? ' checked' : '') + '><span><b>' + htmlText(offer.title) + '</b><br><small>' + htmlText(hint) + '</small></span></label>';
+    }).join('');
     var tm = c ? termsOf(c) : null;
     $('rates').textContent = tm ? money(tm.rate) + '/' + t('perDay') + ' · ' + money(tm.weekly) + '/' + t('perWeek') + (MONTHLY[Number(tm.rate)] ? ' · ' + money(MONTHLY[Number(tm.rate)]) + '/' + t('perMonth') : '') : '';
     var bad = n > 0 && n < 3;
@@ -589,7 +633,7 @@
       event: event, visitorId: visitorId, sessionId: sessionId, language: lang, channel: SOURCE, source: SOURCE || 'direct',
       platform: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop', path: '/quote',
       deviceId: c ? String(c.id) : '', deviceName: c ? (c.name || c.nameEn) : '', value: String(days() || ''), amount: L ? L.total : 0,
-      content: [b ? 'bundle=' + b.id : '', picked.length ? 'extras=' + picked.join(',') : '', $('noId').checked ? 'noid=1' : '', $('promo').checked && promoPrice(c, days()) ? 'promo=1' : '', quote ? 'delivery=' + Math.round(Number(quote.total) || 0) : ''].filter(Boolean).join(';'),
+      content: [b ? 'bundle=' + b.id : '', picked.length ? 'extras=' + picked.join(',') : '', $('noId').checked ? 'noid=1' : '', selectedCampaignId ? 'promo=' + selectedCampaignId : '', quote ? 'delivery=' + Math.round(Number(quote.total) || 0) : ''].filter(Boolean).join(';'),
       reason: quote ? (quote.serviceType === 'CAR' ? 'car' : 'motorcycle') : ''
     }, extra || {});
     try { fetch(API + '/api/analytics/event', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), keepalive: true }); } catch (e) {}
@@ -714,7 +758,13 @@
   $('days').addEventListener('input', function () { renderChips(); render(); scheduleAutoQuote(800); });
   $('dayChips').addEventListener('click', function (e) { var n = e.target.getAttribute('data-days'); if (n) { $('days').value = n; renderChips(); render(); scheduleAutoQuote(300); } });
   $('quote').addEventListener('click', function () { clearTimeout(autoTimer); getQuote(); });
-  $('promo').addEventListener('change', render);
+  $('promo').addEventListener('change', function () { selectedCampaignId = $('promo').checked ? 'after-work-3-days' : ''; render(); });
+  $('campaignPromos').addEventListener('change', function (event) {
+    var id = event.target.getAttribute('data-quote-promo');
+    if (!id) return;
+    selectedCampaignId = event.target.checked ? id : '';
+    render();
+  });
   $('noId').addEventListener('change', render);
   $('copy').addEventListener('click', copyText);
   // In the booking page's pop-up the booking carries on right there: the
@@ -803,6 +853,17 @@
       if (catalogueData) { useCatalogue(); saveCache(); }
     })
     .catch(function () {});
+  function loadPromotionPolicy() {
+    timedJson(API + '/api/rental-promotions', 15000)
+      .then(function (result) {
+        if (!result || !result.policy || result.policy.version !== 1 || !Array.isArray(result.policy.campaigns)) return;
+        promotionPolicy = result.policy;
+        render();
+      })
+      .catch(function () {});
+  }
+  loadPromotionPolicy();
+  window.addEventListener('focus', loadPromotionPolicy);
   // The shop's queue closures, from the same place the booking page reads them.
   fetch(API + '/api/queue-closures?_ts=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })

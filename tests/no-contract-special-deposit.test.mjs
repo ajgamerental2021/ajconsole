@@ -11,7 +11,7 @@ const bookingRule = bookingPage.slice(
 );
 const quoteRule = quotePage.slice(
   quotePage.indexOf('function noIdDepositFor('),
-  quotePage.indexOf('  function promoPrice(', quotePage.indexOf('function noIdDepositFor(')),
+  quotePage.indexOf('  function renderAddOns(', quotePage.indexOf('function noIdDepositFor(')),
 );
 const bookingDeposit = runInNewContext(`
   const pricingPolicy = null;

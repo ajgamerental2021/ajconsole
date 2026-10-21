@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 
 const page = readFileSync(new URL('../quote/index.html', import.meta.url), 'utf8');
 
@@ -17,11 +18,42 @@ test('rental, deposit and the live delivery fee, by the booking site\'s rules, i
   assert.doesNotMatch(page, /api\/availability|booking-holds/, 'no queue check');
 });
 
-test('After Work 3 Nights: 3 days from Monday or Tuesday, priced by daily rate', () => {
+test('the calculator reads active rental promotions while keeping After Work as the first checkbox', () => {
   assert.match(page, /var AFTER_WORK = \{ 300: 777, 350: 888, 400: 999, 500: 1299 \};/);
-  // On the rate the rental is priced on: a bundle's ฿600 has no promo price.
-  assert.match(page, /return c && n === 3 \? \(AFTER_WORK\[Number\(termsOf\(c\)\.rate\)\] \|\| 0\) : 0;/);
+  assert.match(page, /id="promoRow" hidden/);
+  assert.match(page, /id="campaignPromos"/);
+  assert.match(page, /timedJson\(API \+ '\/api\/rental-promotions', 15000\)/);
+  assert.match(page, /promotionPolicy = result\.policy;/);
   assert.match(page, /\[hidden\] \{ display: none !important; \}/);
+});
+
+test('the handheld deal is eligible only for its three models and 21–25 October 2026', () => {
+  const start = page.indexOf('function campaignOffer(');
+  const end = page.indexOf('\n  function availableCampaigns(', start);
+  assert.ok(start >= 0 && end > start);
+  let today = '2026-10-21';
+  const sandbox = {
+    lang: 'en', todayIso: () => today,
+    promoKey: (value) => String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ''),
+    termsOf: (device) => ({ rate: device.rate, weekly: device.weekly }),
+    rentalCost: (days, rate) => days * rate,
+  };
+  const offerFor = vm.runInNewContext(`${page.slice(start, end)}\ncampaignOffer`, sandbox);
+  const deal = {
+    id: 'pc-handheld-week-2026', enabled: true, days: 3, mode: 'fixed',
+    startDate: '2026-10-21', endDate: '2026-10-25', startWeekdays: [],
+    deviceKeys: ['steamdeckoled', 'rogxboxallyx', 'lenovolegiongo2'],
+    pricesByDevice: { steamdeckoled: 899, rogxboxallyx: 999, lenovolegiongo2: 1199 },
+  };
+  for (const [name, price] of [['Steam Deck OLED', 899], ['ROG Xbox Ally X', 999], ['Lenovo Legion GO2', 1199]]) {
+    assert.equal(offerFor(deal, { nameEn: name, rate: 500 }, 3)?.price, price);
+  }
+  assert.equal(offerFor(deal, { nameEn: 'PS5', rate: 500 }, 3), null);
+  assert.equal(offerFor(deal, { nameEn: 'Steam Deck OLED', rate: 500 }, 7), null);
+  today = '2026-10-25'; assert.equal(offerFor(deal, { nameEn: 'Steam Deck OLED', rate: 500 }, 3)?.price, 899);
+  today = '2026-10-26'; assert.equal(offerFor(deal, { nameEn: 'Steam Deck OLED', rate: 500 }, 3), null);
+  today = '2026-10-20'; assert.equal(offerFor(deal, { nameEn: 'Steam Deck OLED', rate: 500 }, 3), null);
+  today = '2026-10-21'; assert.equal(offerFor({ ...deal, enabled: false }, { nameEn: 'Steam Deck OLED', rate: 500 }, 3), null);
 });
 
 test('accessories by device, PS5 bundles, and the current-location button', () => {
