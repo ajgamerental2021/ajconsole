@@ -1,3 +1,9 @@
+## 2026-10-21 — VIP Admin accepts international phone numbers
+
+- The VIP phone field on the live booking site's Admin page now accepts an optional country prefix and up to 15 phone digits instead of cutting input off at 10. Both Thai and English show guidance and a useful save error. Thai numbers starting with 0 still require 10 digits.
+- The Bot VIP API normalizes international formatting (including `+` and `00` prefixes), validates 7–15 digits, and matches international numbers to the same LINE contact or VIP entitlement when the formatting differs. The private Google Sheet continues to store phone numbers as text.
+- No existing VIP customer records were changed as part of this code update.
+
 ## 2026-10-21 — New balance slips after a paid reservation
 
 - The previous Bot settlement guard treated any existing Booking with an earlier paid reservation as if a later slip were already recorded. For `AJ-20261021-R0020`, this made a verified THB 2,804 bank slip receive a short English “already recorded” text even though the delivery card still requested that balance. This was a logic error in the guard added earlier today.

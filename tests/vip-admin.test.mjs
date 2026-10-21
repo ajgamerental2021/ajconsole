@@ -17,6 +17,13 @@ test('Admin can load, add, edit, delete, and save VIP members server-side', () =
   assert.match(html, /function readVipCustomersFromAdmin/);
 });
 
+test('VIP phone entry allows international numbers and validates length before saving', () => {
+  assert.match(html, /data-vip-field="phone" type="tel" inputmode="tel" maxlength="32"/);
+  assert.match(html, /เบอร์ไทยหรือเบอร์ต่างประเทศ 7–15 หลัก/);
+  assert.match(html, /Every member needs a name and a valid Thai or international phone number/);
+  assert.doesNotMatch(html, /data-vip-field="phone"[^>]*maxlength="10"/);
+});
+
 test('VIP rules support all or selected deposit devices and per-device rental rates', () => {
   assert.match(html, /data-vip-field="depositAllDevices"/);
   assert.match(html, /data-vip-deposit-device/);

@@ -14334,7 +14334,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       return `<div class="card" data-vip-row="${index}" style="margin:0 0 14px">
         <div class="grid2">
           <div class="field"><label class="label">${en?"Customer name":"ชื่อลูกค้า"}</label><input class="input" data-vip-field="name" value="${esc(customer.name||"")}"></div>
-          <div class="field"><label class="label">${en?"Phone":"เบอร์โทร"}</label><input class="input" data-vip-field="phone" type="tel" inputmode="numeric" maxlength="10" value="${esc(customer.phone||"")}"></div>
+          <div class="field"><label class="label">${en?"Phone":"เบอร์โทร"}</label><input class="input" data-vip-field="phone" type="tel" inputmode="tel" maxlength="32" autocomplete="tel" value="${esc(customer.phone||"")}"><p class="hint">${en?"Thai or international number, 7–15 digits. You can start with + and use spaces or hyphens.":"เบอร์ไทยหรือเบอร์ต่างประเทศ 7–15 หลัก ใส่ + นำหน้า เว้นวรรค หรือขีดคั่นได้"}</p></div>
           <div class="field"><label class="label">LINE Unique ID (${en?"optional":"ไม่บังคับ"})</label><input class="input" data-vip-field="lineUserId" value="${esc(customer.lineUserId||"")}" data-vip-line-source="${esc(customer.lineMatch?.source||"")}" data-vip-line-by="${esc(customer.lineMatch?.matchedBy||"")}">${vipLineMatchHintHtml(customer.lineMatch)}</div>
           <label class="option-row"><input type="checkbox" data-vip-field="active" ${customer.active!==false?"checked":""}><div><b>${en?"Active":"เปิดใช้สิทธิ์"}</b></div></label>
         </div>
@@ -14410,12 +14410,19 @@ We apologize for the inconvenience and hope everyone stays safe.`
       };
     });
   }
+  function vipPhoneValid(value){
+    const raw = String(value || "").trim();
+    if(!/^\+?[0-9 ()-]+$/.test(raw)) return false;
+    const digits = raw.replace(/\D/g, "").replace(/^00(?=\d{7,15}$)/, "");
+    const normalized = digits.startsWith("66") && digits.length === 11 ? `0${digits.slice(2)}` : digits;
+    return /^\d{7,15}$/.test(normalized) && (!normalized.startsWith("0") || /^0\d{9}$/.test(normalized));
+  }
   async function saveVipCustomersFromAdmin(){
     const customers = readVipCustomersFromAdmin();
     const status = byId("vipAdminStatus");
     const en = state.lang === "en";
-    if(customers.some(customer => !customer.name.trim() || !/^0\d{9}$/.test(customer.phone.replace(/\D/g,"")))){
-      if(status) status.textContent = en?"Every member needs a name and a 10-digit Thai phone number.":"สมาชิกทุกคนต้องมีชื่อและเบอร์โทรไทย 10 หลัก";
+    if(customers.some(customer => !customer.name.trim() || !vipPhoneValid(customer.phone))){
+      if(status) status.textContent = en?"Every member needs a name and a valid Thai or international phone number (7–15 digits).":"สมาชิกทุกคนต้องมีชื่อและเบอร์โทรไทยหรือต่างประเทศที่ถูกต้อง (7–15 หลัก)";
       return;
     }
     if(status) status.textContent = en?"Saving…":"กำลังบันทึก…";
