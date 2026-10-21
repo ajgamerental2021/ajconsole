@@ -32,13 +32,13 @@ test('a list with no Gist file yet keeps its own data instead of loading the oth
 });
 
 test('the Switch page speaks Switch and resolves paths one folder deeper', () => {
-  assert.match(sw, /<title>รายการไอดีเกม Nintendo Switch<\/title>/);
+  assert.match(sw, /<title>รายการไอดีเกม Nintendo Switch 2<\/title>/);
   assert.match(sw, /og:url" content="https:\/\/ajgamerental\.com\/ajgameid\/switch\/"/);
   assert.match(sw, /src="\.\.\/\.\.\/assets\/admin-passkey\.js(\?v=[\w-]+)?"/);
   assert.match(sw, /\['\.\.\/assets\/help\/rent-step-1\.png'/);
   assert.doesNotMatch(sw, /aj-video\.mp4/);
   assert.match(sw, /Nintendo Account ของทางร้าน/);
-  assert.match(sw, /Nintendo Switch Game ID List/);
+  assert.match(sw, /Nintendo Switch 2 Game ID List/);
 });
 
 test('both pages link to each other, the current one marked', () => {
@@ -51,7 +51,8 @@ test('both pages link to each other, the current one marked', () => {
 test('the Switch starter data is one sample ID with a cover that exists', () => {
   const data = JSON.parse(read('ajgameid/switch/source_data.json'));
   assert.equal(data.ids.length, 1);
-  assert.equal(data.ids[0].platform, 'Nintendo Switch');
+  assert.equal(data.ids[0].platform, 'Nintendo Switch 2');
+  assert.equal(data.config.showExtraOffers, false);
   assert.ok(read(`ajgameid/switch/${data.ids[0].images[0]}`).includes('<svg'));
 });
 
@@ -62,6 +63,20 @@ test('the copied ID-rental message greets for either gender and ends with the no
   assert.match(ps5, /lineMessageRefundNote: '⚠️ หลังชำระเงินแล้ว ทางร้านขอสงวนสิทธิ์ไม่คืนเงินครับ แต่สามารถเปลี่ยนไอดีเกมอื่นแทนได้ รบกวนตรวจสอบรายละเอียดก่อนเช่านะครับ 🙏'/);
   assert.match(ps5, /lineMessageRefundNote: '⚠️ Once paid, the rental is non-refundable, but you can switch to another game ID instead\./);
   assert.match(ps5, /tr\('lineMessageFooter'\),\n\s+'',\n\s+tr\('lineMessageRefundNote'\)\n\s+\]\.join\('\\n'\)/);
-  assert.match(sw, /lineMessageRentIntro: '🎮 สวัสดีครับ\/ค่ะ สนใจเช่าไอดีเกม Nintendo Switch'/);
+  assert.match(sw, /lineMessageRentIntro: '🎮 สวัสดีครับ\/ค่ะ สนใจเช่าไอดีเกม Nintendo Switch 2'/);
   assert.match(sw, /tr\('lineMessageRefundNote'\)/);
+});
+
+test('Switch 2 shows one store price by default and Admin can restore extra offers and help', () => {
+  assert.match(sw, /function visibleOfferEntries\(item\)/);
+  assert.match(sw, /ID_PLATFORM !== 'switch' \|\| switchExtrasEnabled\(\)/);
+  assert.match(sw, /entries\.find\(\(\{ offer \}\) => \/ร้าน\|store\/i/);
+  assert.match(sw, /const offersHtml = visibleOfferEntries\(item\)/);
+  assert.match(sw, /id="switchExtraOffersCheckbox"/);
+  assert.match(sw, /CONFIG\.showExtraOffers = Boolean\(e\.target\.checked\)/);
+  assert.match(sw, /localStorage\.setItem\(SWITCH_EXTRAS_KEY/);
+  assert.match(sw, /if \(!switchExtrasEnabled\(\)\) \{/);
+  assert.match(sw, /title: 'How does Store ID work\?'/);
+  assert.match(sw, /title: 'ไอดีร้านคืออะไร \?'/);
+  assert.match(ps5, /function visibleOfferEntries\(item\)/);
 });

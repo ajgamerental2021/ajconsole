@@ -109,6 +109,10 @@ export function buildSwitchPage(ps5Html = read('ajgameid/index.html'), sourceDat
   replaceBetween('            <div class="guide-step">\n              <div class="video-frame">', '          </div>\n        `\n      };\n    }\n\n    function getInfoContent', SWITCH_LAST_STEP);
   replaceBetween('      const videoCaption = lang === \'en\'', '      return {\n        title: lang === \'en\' ? \'How to request an ID rental\'', SWITCH_LAST_STEP_TEXT);
 
+  // The public list is for Switch 2. Legacy Gist entries may still say Switch;
+  // their platform labels are upgraded on display without overwriting the data.
+  html = html.replace(/Nintendo Switch(?! 2)/g, 'Nintendo Switch 2');
+
   // Anything that still says PS5 to a customer is a place this script missed.
   // Allowed: the switcher's PS5 tab, code comments, storage keys, the PS5
   // list's Gist token key, and base64 images.
@@ -119,6 +123,25 @@ export function buildSwitchPage(ps5Html = read('ajgameid/index.html'), sourceDat
 }
 
 const SWITCH_ID_TYPES = `    function getIdTypesContent(lang) {
+      if (!switchExtrasEnabled()) {
+        return lang === 'en' ? {
+          title: 'How does Store ID work?',
+          body: \`<div class="info-lead"><div class="info-alert">Store ID lets you play through the shop's Nintendo Account. Game saves stay on the shop's user.</div></div>
+            <div class="info-section"><h4>Store ID — play through the shop account</h4>
+              <p>The shop adds its Nintendo Account as a user on your Nintendo Switch 2 so you can play the listed game during the rental period.</p>
+              <p><strong>What you get</strong></p><ul><li>Play the listed game throughout the rental period.</li><li>Play story mode and other modes normally.</li><li>Download game updates.</li></ul>
+              <p><strong>Limitations</strong></p><ul><li>Saves stay on the shop's user.</li><li>After the rental ends, you cannot continue playing or use the same save.</li><li>Keep the console connected to the internet while playing so the game license can be checked.</li></ul>
+            </div>\`
+        } : {
+          title: 'ไอดีร้านคืออะไร ?',
+          body: \`<div class="info-lead"><div class="info-alert">ไอดีร้านให้เล่นผ่าน Nintendo Account ของร้าน เซฟเกมจะอยู่ในผู้ใช้ของร้าน</div></div>
+            <div class="info-section"><h4>ไอดีร้าน — เล่นผ่านบัญชีของร้าน</h4>
+              <p>ร้านเพิ่ม Nintendo Account เป็นผู้ใช้ในเครื่อง Nintendo Switch 2 ของลูกค้า เพื่อให้เล่นเกมที่ระบุได้ตลอดระยะเวลาเช่า</p>
+              <p><strong>ได้รับสิทธิ์</strong></p><ul><li>เล่นเกมที่ระบุไว้ตลอดระยะเวลาเช่า</li><li>เล่นเนื้อเรื่องและโหมดต่าง ๆ ได้ตามปกติ</li><li>ดาวน์โหลดอัปเดตเกมได้</li></ul>
+              <p><strong>ข้อจำกัด</strong></p><ul><li>เซฟเกมอยู่ในผู้ใช้ของร้าน</li><li>เมื่อหมดระยะเวลาเช่า จะไม่สามารถเล่นหรือใช้เซฟเดิมต่อได้</li><li>ต้องเชื่อมต่ออินเทอร์เน็ตระหว่างเล่นเพื่อตรวจสิทธิ์เกม</li></ul>
+            </div>\`
+        };
+      }
       if (lang === 'en') {
         return {
           title: 'Store ID vs Customer ID',

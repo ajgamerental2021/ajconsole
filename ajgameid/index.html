@@ -480,6 +480,10 @@
         </div>
         <div class="divider"></div>
         <div class="admin-head"><strong id="packageTitle">แพ็กเกจของไอดีนี้</strong><button class="ghost-btn" id="addOfferBtn" type="button">+ เพิ่มแพ็กเกจ</button></div>
+        <label class="switch-row" id="switchExtraSettings" style="display:none; margin:12px 0;">
+          <input id="switchExtraOffersCheckbox" type="checkbox" />
+          <span id="switchExtraOffersText">แสดงแพ็กเกจเพิ่มเติมและข้อมูลไอดีลูกค้า</span>
+        </label>
         <div id="offersEditor"></div>
         <div class="divider"></div>
         <div class="admin-head"><div class="muted" id="adminSaveHint">กดบันทึกแล้วหน้าเว็บหลักจะอัปเดตทันที</div><button class="primary-btn" id="saveItemBtn" type="button">บันทึกการเปลี่ยนแปลง</button></div>
@@ -529,6 +533,11 @@
     const CONFIG = SOURCE_DATA.config;
     const INITIAL_IDS = structuredClone(SOURCE_DATA.ids);
     const STORAGE_KEY = CONFIG.storageKey || 'aj_ps5_game_id_rental_v2';
+    const SWITCH_EXTRAS_KEY = STORAGE_KEY + '_show_extra_offers';
+    if (ID_PLATFORM === 'switch') {
+      const savedSwitchExtras = localStorage.getItem(SWITCH_EXTRAS_KEY);
+      CONFIG.showExtraOffers = savedSwitchExtras === null ? CONFIG.showExtraOffers === true : savedSwitchExtras === 'true';
+    }
     const SYNC_SETTINGS_KEY = STORAGE_KEY + '_gist_sync';
     const BOOKING_STORAGE_KEY = STORAGE_KEY + '_booking_requests';
     const BOOKING_TTL_MS = 48 * 60 * 60 * 1000;
@@ -596,6 +605,8 @@
         copyModalOk: 'ตกลง',
         preparing: 'กำลังเตรียมข้อความ...',
         idTypesHelp: 'ไอดีร้านกับไอดีลูกค้า ต่างกันยังไง ?',
+        idStoreHelp: 'ไอดีร้านคืออะไร ?',
+        switchExtraOffersSetting: 'แสดงแพ็กเกจเพิ่มเติมและข้อมูลไอดีลูกค้า',
         rentGuideHelp: 'วิธีการแจ้งเช่าไอดี',
         infoModalFallbackTitle: 'ข้อมูลเพิ่มเติม',
         copyLineToast: 'คัดลอกลิงก์ LINE แล้ว',
@@ -781,6 +792,8 @@
         copyModalOk: 'OK',
         preparing: 'Preparing...',
         idTypesHelp: 'Store ID vs Customer ID',
+        idStoreHelp: 'How does Store ID work?',
+        switchExtraOffersSetting: 'Show extra packages and Customer ID details',
         rentGuideHelp: 'How to request an ID rental',
         infoModalFallbackTitle: 'More information',
         copyLineToast: 'LINE link copied',
@@ -981,11 +994,27 @@
     };
 
     function tr(key, vars = {}) {
-      let out = (I18N[currentLang] && I18N[currentLang][key]) || (I18N.th && I18N.th[key]) || key;
+      const actualKey = key === 'idTypesHelp' && ID_PLATFORM === 'switch' && !switchExtrasEnabled() ? 'idStoreHelp' : key;
+      let out = (I18N[currentLang] && I18N[currentLang][actualKey]) || (I18N.th && I18N.th[actualKey]) || actualKey;
       Object.entries(vars).forEach(([k, v]) => {
         out = out.replaceAll(`{{${k}}}`, String(v));
       });
       return out;
+    }
+
+    function switchExtrasEnabled() {
+      return ID_PLATFORM === 'switch' && CONFIG.showExtraOffers === true;
+    }
+
+    function visibleOfferEntries(item) {
+      const entries = (item.offers || []).map((offer, offerIndex) => ({ offer, offerIndex }));
+      if (ID_PLATFORM !== 'switch' || switchExtrasEnabled()) return entries;
+      return [entries.find(({ offer }) => /ร้าน|store/i.test(String(offer.typeLabel || '')))].filter(Boolean);
+    }
+
+    function displayPlatform(platform) {
+      const label = String(platform || tr('platformFallback'));
+      return ID_PLATFORM === 'switch' ? label.replace(/Nintendo Switch(?! 2)/g, 'Nintendo Switch 2') : label;
     }
 
     function setText(id, key, vars) {
@@ -1442,6 +1471,9 @@
         const parsed = JSON.parse(content);
         if (parsed.config && typeof parsed.config === 'object') {
           Object.assign(CONFIG, parsed.config);
+          if (ID_PLATFORM === 'switch' && typeof parsed.config.showExtraOffers === 'boolean') {
+            localStorage.setItem(SWITCH_EXTRAS_KEY, String(parsed.config.showExtraOffers));
+          }
           const currentSettings = loadSyncSettings();
           if (CONFIG.bookingBackendUrl && !currentSettings.bookingBackendUrl) {
             localStorage.setItem(SYNC_SETTINGS_KEY, JSON.stringify({ ...currentSettings, bookingBackendUrl: CONFIG.bookingBackendUrl }));
@@ -2116,13 +2148,13 @@
           return haystack.includes(keyword);
         });
       }
-      if (activeFilter === 'available') items = items.filter(item => !item?.notReady && (item.offers || []).some(isOfferAvailable));
+      if (activeFilter === 'available') items = items.filter(item => !item?.notReady && visibleOfferEntries(item).some(({ offer }) => isOfferAvailable(offer)));
       return items;
     }
 
     function getStats(items) {
       const activeItems = state.filter(item => !item?.notReady);
-      const allOffers = activeItems.flatMap(item => item.offers || []);
+      const allOffers = activeItems.flatMap(item => visibleOfferEntries(item).map(({ offer }) => offer));
       return {
         ids: state.length,
         availableOffers: allOffers.filter(isOfferAvailable).length,
@@ -2239,7 +2271,7 @@
               </div>
             </div>` : '';
 
-      const offersHtml = (item.offers || []).map((offer, offerIndex) => {
+      const offersHtml = visibleOfferEntries(item).map(({ offer, offerIndex }) => {
         const offerState = getOfferState(offer);
         const btnLabel = isBlocked ? tr('reserve') : (offerState.available ? tr('rentNow') : tr('reserve'));
         return `
@@ -2277,7 +2309,7 @@
           <div class="card-body">
             <div>
               <h3 class="card-title">${escapeHtml(item.title)}</h3>
-              <div class="card-sub">${escapeHtml(item.platform || tr('platformFallback'))}</div>
+              <div class="card-sub">${escapeHtml(displayPlatform(item.platform))}</div>
             </div>
             ${noteHtml}
             <div class="offer-list">${offersHtml}</div>
@@ -2478,7 +2510,7 @@
           <div class="admin-item-row ${item.idNo === adminSelectedId ? 'active' : ''}">
             <button class="admin-item" data-admin-id="${item.idNo}" type="button">
               <div style="font-weight:800;">${tr('idLabel')} #${item.idNo} • ${escapeHtml(item.title || '-')}</div>
-              <div class="muted" style="margin-top:4px;">${escapeHtml(item.platform || tr('platformFallback'))} • ${tr('listCount', { count: item.offers?.length || 0 })}</div>
+              <div class="muted" style="margin-top:4px;">${escapeHtml(displayPlatform(item.platform))} • ${tr('listCount', { count: item.offers?.length || 0 })}</div>
             </button>
             <button class="booking-list-btn ${bookingCount ? 'has-bookings' : ''}" data-booking-id="${item.idNo}" type="button">${tr('bookingList')}${bookingCount ? ` (${bookingCount})` : ''}</button>
           </div>
@@ -2509,6 +2541,10 @@
       });
 
       if (!adminDraft) return;
+      const switchSettings = document.getElementById('switchExtraSettings');
+      if (switchSettings) switchSettings.style.display = ID_PLATFORM === 'switch' ? '' : 'none';
+      const switchExtraCheckbox = document.getElementById('switchExtraOffersCheckbox');
+      if (switchExtraCheckbox) switchExtraCheckbox.checked = switchExtrasEnabled();
       el.fIdNo.readOnly = false;
       el.fIdNo.value = adminDraft.idNo ?? '';
       el.fPlatform.value = adminDraft.platform ?? '';
@@ -2842,6 +2878,7 @@
       setText('labelUpload', 'labelUpload');
       setText('labelPreview', 'labelPreview');
       setText('packageTitle', 'packageTitle');
+      setText('switchExtraOffersText', 'switchExtraOffersSetting');
       setText('addOfferBtn', 'addPackage');
       setText('adminSaveHint', 'saveHint');
       setText('saveItemBtn', 'saveChanges');
@@ -2912,6 +2949,15 @@
         if (!adminDraft) createNewDraft();
         adminDraft.offers.push({ days: 10, typeLabel: 'ไอดีร้าน', capacity: 1, bookedCount: 0, price: 200, statusText: 'ว่าง', available: true, availableDate: null });
         renderOffersEditor();
+      });
+      document.getElementById('switchExtraOffersCheckbox').addEventListener('change', e => {
+        if (ID_PLATFORM !== 'switch' || !adminToken) return;
+        CONFIG.showExtraOffers = Boolean(e.target.checked);
+        localStorage.setItem(SWITCH_EXTRAS_KEY, String(CONFIG.showExtraOffers));
+        setText('idTypesHelpBtn', 'idTypesHelp');
+        renderResults();
+        if (el.infoModal?.classList.contains('open')) renderInfoModal();
+        maybeAutoPush().catch(err => console.warn('auto push failed', err));
       });
       document.getElementById('exportBtn').addEventListener('click', exportJson);
       document.getElementById('resetDataBtn').addEventListener('click', resetToInitial);
