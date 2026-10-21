@@ -4390,6 +4390,6 @@ paused job shows slightly old numbers rather than an empty section.
 ## 2026-10-21 — Preview saved Broadcasts in the campaign list
 
 - Each campaign in “Broadcast campaigns” now displays its LINE chat-list Alt text and a compact, horizontally scrollable preview of every saved Flex Bubble or Carousel card. The list uses the same Flex renderer as the editor, so previously saved and scheduled campaigns show their actual stored message.
-- The scroll area is keyboard focusable and has a bilingual card count hint. The Bot and AJ website copies of the Broadcast UI were kept in sync, and both asset cache versions were bumped.
-- A mocked mobile browser check confirmed four saved cards, horizontal scrolling, chat-list text and English labels. No customer message was sent.
+- The scroll area is keyboard focusable, has a bilingual card count hint, and keeps its position when the campaign list refreshes. The Bot and AJ website copies of the Broadcast UI were kept in sync, and the asset cache versions were bumped.
+- A mocked mobile browser check confirmed four saved cards, horizontal scrolling, chat-list text, English labels and retained scroll position after refresh. No customer message was sent.
 

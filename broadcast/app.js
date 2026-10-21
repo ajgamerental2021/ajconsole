@@ -324,10 +324,13 @@ async function loadCampaigns() {
   const result = await api(''); state.campaigns = result.campaigns; state.testConfigured = Boolean(result.testRecipient);
   $('adminTestId').value = result.testRecipient || '';
   $('testButton').disabled = !state.testConfigured;
-  const area = $('campaignList'); area.replaceChildren();
+  const area = $('campaignList');
+  const scrollPositions = new Map([...area.querySelectorAll('.campaign[data-campaign-id]')]
+    .map((card) => [card.dataset.campaignId, card.querySelector('.campaign-preview')?.scrollLeft || 0]));
+  area.replaceChildren();
   if (!state.campaigns.length) area.textContent = say('ยังไม่มีแคมเปญ', 'No campaigns yet');
   for (const item of state.campaigns) {
-    const card = document.createElement('article'); card.className = 'card campaign';
+    const card = document.createElement('article'); card.className = 'card campaign'; card.dataset.campaignId = item.id;
     const reach = allFollowers(item.target?.segment)
       ? item.status === 'completed'
         ? say('ผู้รับ: ผู้ติดตาม OA ทั้งหมด · LINE รับคำขอแล้ว ไม่ทราบจำนวนที่ส่งถึง', 'Audience: all OA followers · LINE accepted the request; delivery count is unavailable')
@@ -344,6 +347,7 @@ async function loadCampaigns() {
     } else button(say('ดูข้อความ', 'View'), () => editCampaign(item));
     renderCampaignPreview(item, card);
     card.append(actions); area.append(card);
+    card.querySelector('.campaign-preview').scrollLeft = scrollPositions.get(item.id) || 0;
   }
   void api('/quota').then(({ quota, usage }) => {
     $('lineQuota').textContent = quota?.type === 'limited'
