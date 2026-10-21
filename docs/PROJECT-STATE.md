@@ -4393,3 +4393,8 @@ paused job shows slightly old numbers rather than an empty section.
 - The scroll area is keyboard focusable, has a bilingual card count hint, and keeps its position when the campaign list refreshes. The Bot and AJ website copies of the Broadcast UI were kept in sync, and the asset cache versions were bumped.
 - A mocked mobile browser check confirmed four saved cards, horizontal scrolling, chat-list text, English labels and retained scroll position after refresh. No customer message was sent.
 
+## 2026-10-21 — Collapse campaign previews by default
+
+- Each campaign's chat-list text and card preview now sit inside a bilingual expandable section, closed by default so the Broadcast list stays compact. Card images are loaded only after opening the section.
+- Open/closed state and horizontal card position survive the list's automatic refresh. A mocked mobile browser check covered the default collapsed state, opening four cards and chat text, English labels, closing, and refresh retention. No LINE message was sent.
+

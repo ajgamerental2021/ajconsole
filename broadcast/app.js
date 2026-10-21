@@ -242,23 +242,36 @@ function renderPreview(message) {
   $('chatListPreview').innerHTML = `<strong>${say('ตัวอย่างในรายการแชท', 'Chat list preview')}</strong>${esc(message.altText || '')}`;
   messageBubbles(message).forEach((bubble) => area.append(previewBubble(bubble)));
 }
-function renderCampaignPreview(item, card) {
+function renderCampaignPreview(item, card, previous = {}) {
   const message = item.message;
   const bubbles = messageBubbles(message);
-  const chatList = document.createElement('div'); chatList.className = 'chat-list-preview campaign-chat-list';
-  const label = document.createElement('strong'); label.textContent = say('ข้อความในรายการแชท', 'Chat list message');
-  const altText = document.createElement('span'); altText.textContent = message.altText || '';
-  chatList.append(label, altText);
-  const carousel = document.createElement('div'); carousel.className = 'chat-preview campaign-preview';
-  carousel.tabIndex = 0;
-  carousel.setAttribute('aria-label', say(`ตัวอย่างการ์ด ${bubbles.length} ใบ เลื่อนเพื่อดูทั้งหมด`, `Preview of ${bubbles.length} cards; scroll to view all`));
-  bubbles.forEach((bubble) => carousel.append(previewBubble(bubble)));
-  card.append(chatList, carousel);
-  if (bubbles.length > 1) {
-    const hint = document.createElement('small'); hint.className = 'muted campaign-scroll-hint';
-    hint.textContent = say(`เลื่อนดูการ์ดทั้งหมด ${bubbles.length} ใบ →`, `Scroll to view all ${bubbles.length} cards →`);
-    card.append(hint);
-  }
+  const details = document.createElement('details'); details.className = 'campaign-preview-details';
+  const summary = document.createElement('summary'); details.append(summary);
+  const updateSummary = () => { summary.textContent = details.open
+    ? say(`ซ่อนตัวอย่างข้อความและการ์ด (${bubbles.length} ใบ)`, `Hide chat text and ${bubbles.length} cards`)
+    : say(`ดูตัวอย่างข้อความและการ์ด (${bubbles.length} ใบ)`, `Preview chat text and ${bubbles.length} cards`); };
+  const fillPreview = () => {
+    if (details.querySelector('.campaign-preview')) return;
+    const chatList = document.createElement('div'); chatList.className = 'chat-list-preview campaign-chat-list';
+    const label = document.createElement('strong'); label.textContent = say('ข้อความในรายการแชท', 'Chat list message');
+    const altText = document.createElement('span'); altText.textContent = message.altText || '';
+    chatList.append(label, altText);
+    const carousel = document.createElement('div'); carousel.className = 'chat-preview campaign-preview';
+    carousel.tabIndex = 0;
+    carousel.setAttribute('aria-label', say(`ตัวอย่างการ์ด ${bubbles.length} ใบ เลื่อนเพื่อดูทั้งหมด`, `Preview of ${bubbles.length} cards; scroll to view all`));
+    bubbles.forEach((bubble) => carousel.append(previewBubble(bubble)));
+    details.append(chatList, carousel);
+    if (bubbles.length > 1) {
+      const hint = document.createElement('small'); hint.className = 'muted campaign-scroll-hint';
+      hint.textContent = say(`เลื่อนดูการ์ดทั้งหมด ${bubbles.length} ใบ →`, `Scroll to view all ${bubbles.length} cards →`);
+      details.append(hint);
+    }
+  };
+  details.ontoggle = () => { updateSummary(); if (details.open) fillPreview(); };
+  details.open = previous.open === true;
+  updateSummary();
+  if (details.open) fillPreview();
+  card.append(details);
 }
 function messageFromEditor() { const message = JSON.parse($('flexJson').value); message.altText = $('altText').value.trim(); return message; }
 async function preview() {
@@ -325,8 +338,9 @@ async function loadCampaigns() {
   $('adminTestId').value = result.testRecipient || '';
   $('testButton').disabled = !state.testConfigured;
   const area = $('campaignList');
-  const scrollPositions = new Map([...area.querySelectorAll('.campaign[data-campaign-id]')]
-    .map((card) => [card.dataset.campaignId, card.querySelector('.campaign-preview')?.scrollLeft || 0]));
+  const previewStates = new Map([...area.querySelectorAll('.campaign[data-campaign-id]')]
+    .map((card) => [card.dataset.campaignId, { open: card.querySelector('.campaign-preview-details')?.open === true,
+      scrollLeft: card.querySelector('.campaign-preview')?.scrollLeft || 0 }]));
   area.replaceChildren();
   if (!state.campaigns.length) area.textContent = say('ยังไม่มีแคมเปญ', 'No campaigns yet');
   for (const item of state.campaigns) {
@@ -345,9 +359,10 @@ async function loadCampaigns() {
       if (item.status === 'scheduled') button(say('ยกเลิกเวลา', 'Cancel schedule'), async () => { if (!confirm(say('ยกเลิกการส่งตามเวลานี้?', 'Cancel this scheduled send?'))) return; await api(`/${item.id}/cancel`, { method: 'POST' }); await loadCampaigns(); });
       button(say('ลบ', 'Delete'), async () => { if (!confirm(say('ลบแคมเปญนี้?', 'Delete this campaign?'))) return; await api(`/${item.id}`, { method: 'DELETE' }); await loadCampaigns(); });
     } else button(say('ดูข้อความ', 'View'), () => editCampaign(item));
-    renderCampaignPreview(item, card);
+    renderCampaignPreview(item, card, previewStates.get(item.id));
     card.append(actions); area.append(card);
-    card.querySelector('.campaign-preview').scrollLeft = scrollPositions.get(item.id) || 0;
+    const carousel = card.querySelector('.campaign-preview');
+    if (carousel) carousel.scrollLeft = previewStates.get(item.id)?.scrollLeft || 0;
   }
   void api('/quota').then(({ quota, usage }) => {
     $('lineQuota').textContent = quota?.type === 'limited'
