@@ -1,3 +1,11 @@
+## 2026-10-21 — Prevent duplicate unpaid cards after a manually confirmed Booking; expand customer tracking maps
+
+- Codex changed Delivery App and Bot together. Delivery now exposes a signed read-only `/api/integrations/aj-rental/rental-settlement-status` endpoint and allows it through the version gate. It reads Booking through `bookingRepo` and the confirmed payment ledger; it makes no payment or customer-message changes.
+- Before an unpaid reminder, pending email, or new checkout, the Bot checks that operational Booking/ledger state and every stored Beam link. A confirmed Booking blocks an unpaid card even if the Bot's earlier Console Pending row still says unpaid. If the status source fails, sending is blocked for review.
+- Slip replies now use the rental's saved Thai/English language. A uniquely matched recent Console Pending rental can supply it when the history record has no timestamp. Unmatched or pending slips are rechecked automatically; a confirmed Booking stops the retry without forwarding the slip or sending another card. Beam QR slips are never booked a second time based only on the screenshot.
+- The customer tracking map can expand to the viewport and close with its bilingual button or Escape. This affects `/c/track/` only. No card was sent to `AJ-20261021-R0020` during this work, and its historical Bot payment record was not rewritten. The Beam dashboard evidence supplied by the owner says Paid THB 1,000 for charge `ch_3KzQLvDbJ4fjIeJhVPIoDEqLlY4` and link `lzhdcnjcIn`; the Bot had stored a different newer link, so the old payment cannot be recovered from its saved URL alone.
+- Bot tests passed 716/716. Delivery backend build, settlement checks, flex-ledger and Lalamove dispatch tests (384/384) passed; the generated map script passed a JavaScript syntax check. Deploy Delivery backend before Bot because the Bot requires the new read-only route.
+
 ## 2026-10-20 — FAQ deposit tiers are readable by device (TH/EN)
 
 - Replaced the dense no-identity-verification FAQ paragraph on the live booking page with color-separated deposit tiers. Each tier lists every current device, its standard deposit, and the deposit without identity verification; PS5 Bundle is shown in its tier. The FAQ page and popup use the same dynamically priced view in Thai and English.
@@ -4418,4 +4426,3 @@ paused job shows slightly old numbers rather than an empty section.
 - The Bot now keeps a bounded history of booking-site Beam Link IDs on the rental and Console Pending record. Repeated browser submissions preserve the trusted stored payment choice while retaining earlier link IDs; client-supplied link history is removed from fresh booking contexts. The payment return page checks the latest link and earlier ones until Beam reports a paid link for that rental. A delayed `payment_link.paid` webhook can recognize a link from the stored history even when a newer booking context is cached.
 - This protects future cases where a customer pays a previously issued checkout after changing payment method. Historical links that were never stored cannot be discovered retrospectively from the newest checkout URL. The already manually confirmed `AJ-20261021-R0020` was not replayed or sent to the customer.
 - Bot syntax checks and 713/713 tests passed. No production customer payment or message was created during verification.
-
