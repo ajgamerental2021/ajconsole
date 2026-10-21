@@ -4370,3 +4370,8 @@ paused job shows slightly old numbers rather than an empty section.
 - Card headings and descriptions accept line breaks. Every card has an independent Thai/English button label default and optional custom text; English editor labels render in English after switching languages. Bot tests 701/701 and mocked mobile browser checks passed. The browser test sent no real LINE messages.
 - Delivery App: the dispatch picker shows each provider's last reported wallet balance and update time under its name whenever opened. Unconfigured providers or missing wallet data show an explicit unavailable status. Lalamove reports balances through webhooks; this is the latest reported value, not a live API balance. Backend/frontend TypeScript and flex-ledger 25/25 passed.
 
+## 2026-10-21 — Broadcast image backgrounds match artwork
+
+- AJ LINE Broadcast now samples colors around each artwork image and assigns the resulting matte to its LINE Flex image and browser preview. Full images remain visible with `fit`; older saved campaigns receive a matte when they are sent. The Admin-only color endpoint limits remote image downloads, and unavailable colors use a muted fallback.
+- Bot tests 703/703 and a mocked mobile browser check passed. No LINE broadcast was sent during verification.
+
