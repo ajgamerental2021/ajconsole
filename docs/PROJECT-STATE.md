@@ -1,3 +1,12 @@
+## 2026-10-21 — Preserve VIP Admin drafts and set personal no-identity deposits
+
+- The VIP form now retains unsaved text, checkboxes, rates, and deposit fields when Admin refreshes or another tab is opened. A delayed VIP fetch does not overwrite a draft. Saving clears the draft flag only after the server accepts the update.
+- Admin can set a separate no-identity deposit for each VIP member in the ฿5,000, ฿10,000, and ฿15,000 tiers. Blank means the normal tier. The existing all-device/selected-device choice applies to these rules too. The Bot stores the private per-member map in a new JSON column in `VIP Customers` and includes only the matched member's entitlement in signed lookups.
+- The booking site computes the ordinary no-identity tier from the selected device, then applies the member's chosen amount only after returning-customer verification. It sends both the VIP standard deposit and the VIP no-identity deposit so later identity verification can lower the deposit correctly. The Bot validates a submitted no-identity VIP amount against its private member record and the device's pricing tier.
+- Delivery App keeps the two deposits separate on Console Pending and Booking Log, with a new Booking field/migration. Its shared charge calculation supplies the same amount to Thai/English confirmation cards, email and other Booking views. A device change drops the old override for staff review.
+- Browser checks at 390 px confirmed a typed VIP name and ฿8,000 field survived a delayed Admin refresh and tab change, then saved together; the PS5 Pro quote was ฿15,000 normally and ฿8,000 for the configured member. No production VIP member or customer message was created during testing.
+- Website suite passed 372/372, Bot suite passed 723/723, and Delivery TypeScript/build plus VIP charges 48/48, no-contract deposits 44/44, confirmation totals 45/45, payment pending 35/35, and flex ledger 26/26 passed. The unrelated Console Pending reservation script stops at its Wise-link fixture with `Invalid URL`; no VIP assertion in that script failed.
+
 ## 2026-10-21 — VIP Admin accepts international phone numbers
 
 - The VIP phone field on the live booking site's Admin page now accepts an optional country prefix and up to 15 phone digits instead of cutting input off at 10. Both Thai and English show guidance and a useful save error. Thai numbers starting with 0 still require 10 digits.

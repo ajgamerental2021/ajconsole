@@ -4,8 +4,9 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
-test('without identity verification every PS5 bundle holds ฿15,000', () => {
-  assert.match(html, /const finalDeposit = state\.calc\.noContract \? \(bundleName \? Math.max\(deposit, pricingPolicy\?\.bundleNoIdentityDeposit \|\| 15000\) : noContractDeposit\(deposit, c\)\) : deposit;/);
+test('without identity verification a PS5 bundle starts at ฿15,000 unless this VIP has a personal rule', () => {
+  assert.match(html, /regularNoIdentityDeposit = bundleName \? Math\.max\(terms\.regular\.deposit, pricingPolicy\?\.bundleNoIdentityDeposit \|\| 15000\)/);
+  assert.match(html, /finalDeposit = state\.calc\.noContract \? \(vipNoIdentityDeposit \|\| regularNoIdentityDeposit\) : deposit/);
 });
 
 test('the no-identity badge shows the bundle deposit too', () => {

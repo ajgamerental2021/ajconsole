@@ -24,6 +24,15 @@ test('VIP phone entry allows international numbers and validates length before s
   assert.doesNotMatch(html, /data-vip-field="phone"[^>]*maxlength="10"/);
 });
 
+test('VIP drafts survive admin redraws and no-identity deposits stay per member', () => {
+  assert.match(html, /if\(vipDraftDirty && byId\("adminVip"\)\?\.querySelector\("\[data-vip-row\]"\)\) state\.vipCustomers\.items = readVipCustomersFromAdmin\(\)/);
+  assert.match(html, /if\(!vipDraftDirty\) state\.vipCustomers\.items =/);
+  assert.match(html, /data-vip-noid-base="15000"/);
+  assert.match(html, /data-vip-noid-base="10000"/);
+  assert.match(html, /depositByBase, noIdentityDepositByBase, deviceRates/);
+  assert.match(html, /vipNoIdentityDeposit = state\.calc\.noContract/);
+});
+
 test('VIP rules support all or selected deposit devices and per-device rental rates', () => {
   assert.match(html, /data-vip-field="depositAllDevices"/);
   assert.match(html, /data-vip-deposit-device/);

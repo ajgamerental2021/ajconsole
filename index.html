@@ -3458,6 +3458,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function normalizeVipEntitlement(value){
     if(!value || typeof value !== "object" || Array.isArray(value)) return null;
     const depositByBase = value.depositByBase && typeof value.depositByBase === "object" ? value.depositByBase : {};
+    const noIdentityDepositByBase = value.noIdentityDepositByBase && typeof value.noIdentityDepositByBase === "object" ? value.noIdentityDepositByBase : {};
     const deviceRates = value.deviceRates && typeof value.deviceRates === "object" ? value.deviceRates : {};
     return {
       id:String(value.id || "").slice(0,60),
@@ -3465,6 +3466,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       depositAllDevices:value.depositAllDevices !== false,
       depositDeviceIds:Array.isArray(value.depositDeviceIds) ? value.depositDeviceIds.map(String).slice(0,100) : [],
       depositByBase,
+      noIdentityDepositByBase,
       deviceRates
     };
   }
@@ -8026,7 +8028,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const retDisc = state.calc.ret && state.retEnabled && !terms.vipRateApplied ? Math.round(returningDiscountBase * 0.1) : 0;
     // Without identity verification a PS5 bundle uses the configured bundle tier; a device on
     // its own steps up by its normal deposit (noContractDeposit).
-    const finalDeposit = state.calc.noContract ? (bundleName ? Math.max(deposit, pricingPolicy?.bundleNoIdentityDeposit || 15000) : noContractDeposit(deposit, c)) : deposit;
+    const regularNoIdentityDeposit = bundleName ? Math.max(terms.regular.deposit, pricingPolicy?.bundleNoIdentityDeposit || 15000) : noContractDeposit(terms.regular.deposit, c);
+    const vip = activeVip();
+    const vipCoversDevice = vip && (vip.depositAllDevices || vip.depositDeviceIds.includes(String(c.id)));
+    const configuredNoIdentityDeposit = Number(vipCoversDevice && vip.noIdentityDepositByBase?.[regularNoIdentityDeposit]);
+    const vipNoIdentityDeposit = state.calc.noContract && configuredNoIdentityDeposit > 0 && configuredNoIdentityDeposit <= regularNoIdentityDeposit ? configuredNoIdentityDeposit : 0;
+    const finalDeposit = state.calc.noContract ? (vipNoIdentityDeposit || regularNoIdentityDeposit) : deposit;
     const consoleDiscounts = retDisc + reviewGoogleDisc + reviewFacebookDisc + promoDisc + afterWorkDisc;
     const subtotalAfterDiscount = Math.max(0, rental + addons - consoleDiscounts) + Math.max(0, bgSubtotal - bgDisc);
     const depositTotal = finalDeposit + bgDepositTotal;
@@ -8045,7 +8052,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       upfront = total;
       onDelivery = 0;
     }
-    return {days,rental,regularRental,vipRentalDisc,vip:terms.vip,vipDepositApplied:terms.vipDepositApplied,vipDeposit:terms.vipDepositApplied ? deposit : 0,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,reviewGoogleDisc,reviewFacebookDisc,promoDisc,afterWorkDisc,afterWorkPrice,promotionId,promotionName,promotionNameTh,promotionNameEn,discounts:retDisc+reviewGoogleDisc+reviewFacebookDisc+promoDisc+afterWorkDisc+bgDisc+vipRentalDisc,deposit:depositTotal,delivery,totalBeforeDelivery,subtotalBeforePaymentFee,paymentFee,total,upfront,onDelivery,bundleName,extras,bgItems};
+    return {days,rental,regularRental,vipRentalDisc,vip:terms.vip,vipDepositApplied:terms.vipDepositApplied,vipDeposit:terms.vipDepositApplied ? deposit : 0,vipNoIdentityDeposit,standardVipDeposit:deposit,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,reviewGoogleDisc,reviewFacebookDisc,promoDisc,afterWorkDisc,afterWorkPrice,promotionId,promotionName,promotionNameTh,promotionNameEn,discounts:retDisc+reviewGoogleDisc+reviewFacebookDisc+promoDisc+afterWorkDisc+bgDisc+vipRentalDisc,deposit:depositTotal,delivery,totalBeforeDelivery,subtotalBeforePaymentFee,paymentFee,total,upfront,onDelivery,bundleName,extras,bgItems};
   }
   const MONTHLY_RATE = {500:8500, 400:6500, 350:5000, 300:4000};
   function monthlyRate(daily){ return MONTHLY_RATE[Number(daily) || 0] || 0; }
@@ -9122,7 +9129,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       onDelivery: money(s.onDelivery),
       paymentOption: state.calc.payment,
       paymentOptionLabel: en ? paymentOptionMessageLabelEn() : paymentOptionMessageLabelTh(),
-      vip: s.vip ? {id:s.vip.id, name:s.vip.name, rentalDiscount:s.vipRentalDisc, depositDiscount:s.vipDepositApplied, deposit:s.vipDeposit} : null,
+      vip: s.vip ? {id:s.vip.id, name:s.vip.name, rentalDiscount:s.vipRentalDisc, depositDiscount:s.vipDepositApplied, deposit:s.vipDeposit, noIdentityDeposit:s.vipNoIdentityDeposit, standardDeposit:s.standardVipDeposit} : null,
       returningCustomer: !!state.calc.ret,
       returningVerified: !!state.calc.retVerified,
       reviewGoogle: !!state.calc.reviewGoogle,
@@ -14032,9 +14039,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(state.adminTab === "settings" && !gameUpdateHoursDraft) void loadGameUpdateHoursForAdmin();
   }
   function closeAdmin(){ byId("adminOverlay").classList.remove("open"); }
+  let vipDraftDirty = false;
   function renderAdmin(){
     // Keep unpublished edits to the terms across re-renders of the panel.
     $$("[data-terms-field]").forEach(input => { adminTerms[input.dataset.termsField] = input.value; });
+    if(vipDraftDirty && byId("adminVip")?.querySelector("[data-vip-row]")) state.vipCustomers.items = readVipCustomersFromAdmin();
     byId("adminBody").innerHTML = `
       <div class="admin-tabs">
         ${["queue","announcement","rentals","vip","pickup","about","privacy","terms","pricing","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
@@ -14305,6 +14314,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       const match = (await response.json().catch(() => ({}))).matches?.[index];
       if(!match?.lineUserId || lineInput.value.trim() || !row.isConnected) return;
       lineInput.value = match.lineUserId;
+      vipDraftDirty = true;
       lineInput.dataset.vipLineSource = match.source || "";
       lineInput.dataset.vipLineBy = match.matchedBy || "";
       $('[data-vip-line-hint]', row)?.remove();
@@ -14344,6 +14354,13 @@ We apologize for the inconvenience and hope everyone stays safe.`
           <div class="field"><label class="label">${en?"Normal ฿2,000 → VIP":"ปกติ 2,000 → VIP"}</label><input class="input" data-vip-deposit-base="2000" type="number" min="0" step="1" value="${esc(customer.depositByBase?.[2000]??"")}"></div>
           <div class="field"><label class="label">${en?"Normal ฿4,000 → VIP":"ปกติ 4,000 → VIP"}</label><input class="input" data-vip-deposit-base="4000" type="number" min="0" step="1" value="${esc(customer.depositByBase?.[4000]??"")}"></div>
         </div>
+        <h4>${en?"VIP deposit without identity verification":"ค่าประกัน VIP เมื่อไม่ยืนยันตัวตน"}</h4>
+        <p class="hint">${en?"Optional for this member only. Leave blank to use the regular no-identity deposit. The device selection above also applies here.":"กำหนดเฉพาะสมาชิกคนนี้ เว้นว่างไว้จะใช้ค่าประกันไม่ยืนยันตัวตนปกติ โดยใช้การเลือกเครื่องด้านบนด้วย"}</p>
+        <div class="grid2" style="margin-top:8px">
+          <div class="field"><label class="label">${en?"Without identity ฿5,000 → VIP":"ไม่ยืนยันตัวตน 5,000 → VIP"}</label><input class="input" data-vip-noid-base="5000" type="number" min="1" max="5000" step="1" value="${esc(customer.noIdentityDepositByBase?.[5000]??"")}"></div>
+          <div class="field"><label class="label">${en?"Without identity ฿10,000 → VIP":"ไม่ยืนยันตัวตน 10,000 → VIP"}</label><input class="input" data-vip-noid-base="10000" type="number" min="1" max="10000" step="1" value="${esc(customer.noIdentityDepositByBase?.[10000]??"")}"></div>
+          <div class="field"><label class="label">${en?"Without identity ฿15,000 → VIP":"ไม่ยืนยันตัวตน 15,000 → VIP"}</label><input class="input" data-vip-noid-base="15000" type="number" min="1" max="15000" step="1" value="${esc(customer.noIdentityDepositByBase?.[15000]??"")}"></div>
+        </div>
         <details><summary>${en?"Choose deposit devices":"เลือกเครื่องสำหรับค่าประกัน"}</summary><div class="grid2" style="margin-top:8px">${depositDevices}</div></details>
         <details><summary>${en?"Set special rental rates":"กำหนดค่าเช่าพิเศษ"}</summary>
           <div class="card" style="padding:12px;margin:8px 0">
@@ -14376,7 +14393,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(!response.ok) throw new Error(`HTTP ${response.status}`);
       const result = await response.json();
       const lineMatches = result.lineMatches && typeof result.lineMatches === "object" ? result.lineMatches : {};
-      state.vipCustomers.items = (Array.isArray(result.customers) ? result.customers : [])
+      if(!vipDraftDirty) state.vipCustomers.items = (Array.isArray(result.customers) ? result.customers : [])
         .map(customer => lineMatches[customer.id] ? {...customer, lineMatch:lineMatches[customer.id]} : customer);
       state.vipCustomers.error = "";
     }catch(error){
@@ -14392,6 +14409,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
       const current = state.vipCustomers.items[Number(row.dataset.vipRow)] || {};
       const depositByBase = {};
       $$('[data-vip-deposit-base]',row).forEach(input => { if(input.value !== "") depositByBase[input.dataset.vipDepositBase] = Math.max(0,Number(input.value)||0); });
+      const noIdentityDepositByBase = {};
+      $$('[data-vip-noid-base]',row).forEach(input => { if(input.value !== "") noIdentityDepositByBase[input.dataset.vipNoidBase] = Number(input.value); });
       const deviceRates = {};
       if($('[data-vip-rate-all]',row)?.checked){
         deviceRates["*"] = {daily:Math.max(0,Number($('[data-vip-rate-all-daily]',row)?.value)||0),weekly:Math.max(0,Number($('[data-vip-rate-all-weekly]',row)?.value)||0)};
@@ -14406,7 +14425,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         ...(lineMatch ? {lineMatch} : {}),
         id:current.id||"", name:$('[data-vip-field="name"]',row)?.value||"", phone:$('[data-vip-field="phone"]',row)?.value||"", lineUserId:lineInput?.value||"",
         active:Boolean($('[data-vip-field="active"]',row)?.checked), depositAllDevices:Boolean($('[data-vip-field="depositAllDevices"]',row)?.checked),
-        depositDeviceIds:$$('[data-vip-deposit-device]:checked',row).map(input=>input.dataset.vipDepositDevice), depositByBase, deviceRates
+        depositDeviceIds:$$('[data-vip-deposit-device]:checked',row).map(input=>input.dataset.vipDepositDevice), depositByBase, noIdentityDepositByBase, deviceRates
       };
     });
   }
@@ -14425,6 +14444,10 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(status) status.textContent = en?"Every member needs a name and a valid Thai or international phone number (7–15 digits).":"สมาชิกทุกคนต้องมีชื่อและเบอร์โทรไทยหรือต่างประเทศที่ถูกต้อง (7–15 หลัก)";
       return;
     }
+    if(customers.some(customer => Object.entries(customer.noIdentityDepositByBase).some(([base,amount]) => !Number.isInteger(amount) || amount < 1 || amount > Number(base)))){
+      if(status) status.textContent = en?"Set each VIP no-identity deposit between 1 and its regular amount.":"ค่าประกัน VIP แบบไม่ยืนยันตัวตนต้องอยู่ระหว่าง 1 บาทถึงยอดปกติของกลุ่มนั้น";
+      return;
+    }
     if(status) status.textContent = en?"Saving…":"กำลังบันทึก…";
     try{
       const response = await fetch(`${CONFIG.apiBase}/api/admin/vip-customers`, {method:"PUT",headers:{"Content-Type":"application/json",Authorization:`Bearer ${state.adminToken}`},body:JSON.stringify({customers})});
@@ -14432,6 +14455,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(response.status === 401) throw new Error("unauthorized");
       if(!response.ok) throw new Error(result.error||`HTTP ${response.status}`);
       state.vipCustomers.items = Array.isArray(result.customers)?result.customers:[];
+      vipDraftDirty = false;
       renderAdmin();
       toast(en?"VIP members saved":"บันทึกสมาชิก VIP แล้ว");
     }catch(error){
@@ -15292,6 +15316,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       }
     });
     document.addEventListener("change", async event => {
+      if(event.target.closest?.("[data-vip-row]")) vipDraftDirty = true;
       if(event.target.matches('[data-vip-field="name"],[data-vip-field="phone"]')){
         void lookupVipLineForRow(event.target.closest('[data-vip-row]'));
         return;
@@ -15422,6 +15447,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(event.target.id === "laterOpt"){ state.calc.later = event.target.checked; if(state.calc.later){ trackAnalytics("games_deferred"); markGuideDone("games"); setGuideStage("next2"); } saveLocal(); render(); }
     });
     document.addEventListener("input", event => {
+      if(event.target.closest?.("[data-vip-row]")) vipDraftDirty = true;
       if(event.target.id === "mapsInput"){ state.calc.maps = event.target.value.trim(); if(state.calc.maps.length > 8){ markGuideDone("maps"); setGuideStage("ret"); } saveLocal(); renderGuide(); }
       if(UNIFIED_FLOW_DEMO && event.target.id === "demoRefundAccount"){
         const digits = event.target.value.replace(/\D/g, "").slice(0, 13);
@@ -15817,14 +15843,18 @@ We apologize for the inconvenience and hope everyone stays safe.`
       }
       if(targetId === "addVipCustomer"){
         state.vipCustomers.items = [...readVipCustomersFromAdmin(), {id:"",name:"",phone:"",lineUserId:"",active:true,depositAllDevices:true,depositDeviceIds:[],depositByBase:{2000:1000,4000:2000},deviceRates:{}}];
+        vipDraftDirty = false;
         renderAdmin();
+        vipDraftDirty = true;
         return;
       }
       const vipRemove = event.target.closest("[data-vip-remove]");
       if(vipRemove){
         const index = Number(vipRemove.dataset.vipRemove);
         state.vipCustomers.items = readVipCustomersFromAdmin().filter((_,position)=>position!==index);
+        vipDraftDirty = false;
         renderAdmin();
+        vipDraftDirty = true;
         return;
       }
       const pickupRemove = event.target.closest("[data-pickup-remove]");
