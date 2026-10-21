@@ -6,7 +6,7 @@ const rememberedUsernameKey = 'ajBroadcastRememberedUsername';
 const state = { token: sessionStorage.getItem(tokenKey) || localStorage.getItem(rememberedTokenKey) || '', campaigns: [], audience: null, editing: '', lang: localStorage.getItem('ajBroadcastLang') || 'th', testConfigured: false };
 function clearSession() { state.token = ''; sessionStorage.removeItem(tokenKey); localStorage.removeItem(rememberedTokenKey); }
 const sample = (title = 'AJ Game Rental', body = state.lang === 'en' ? 'Rent a game console for 3 days' : 'โปรเช่าเครื่องเกม 3 วัน', image = '', action = 'https://ajgamerental.com', aspectRatio = '1:1', buttonLabel = state.lang === 'en' ? 'View details' : 'ดูรายละเอียด') => ({
-  type: 'bubble', hero: image ? { type: 'image', url: image, size: 'full', aspectRatio, aspectMode: 'fit' } : undefined,
+  type: 'bubble', hero: image ? { type: 'image', url: image, size: 'full', aspectRatio, aspectMode: 'cover' } : undefined,
   body: { type: 'box', layout: 'vertical', spacing: 'md', contents: [
     { type: 'text', text: title, weight: 'bold', size: 'xl', wrap: true },
     { type: 'text', text: body, size: 'md', wrap: true, color: '#536273' },
@@ -157,6 +157,8 @@ function naturalImageRatio(url) {
 }
 async function prepareMessageImages(message) {
   const images = [];
+  const bubbles = message.contents?.type === 'carousel' ? message.contents.contents : [message.contents];
+  const heroes = new Set((bubbles || []).map((bubble) => bubble?.hero).filter(Boolean));
   const walk = (part) => {
     if (!part || typeof part !== 'object') return;
     if (part.type === 'image' && /^https:\/\//i.test(part.url || '')) images.push(part);
@@ -164,9 +166,9 @@ async function prepareMessageImages(message) {
   };
   walk(message.contents);
   await Promise.all(images.map(async (part) => {
-    part.aspectMode = 'fit';
+    if (heroes.has(part)) part.aspectMode = 'cover';
     const [ratio, color] = await Promise.all([naturalImageRatio(part.url), artworkColor(part.url)]);
-    part.aspectRatio = ratio || part.aspectRatio || '1:1';
+    if (heroes.has(part)) part.aspectRatio = ratio || part.aspectRatio || '1:1';
     part.backgroundColor = color;
   }));
   return message;
@@ -193,6 +195,7 @@ function flexNode(part) {
     img.style.backgroundColor = part.backgroundColor || '#e5ebf1';
     if (/^https:\/\//i.test(part.url || '')) img.src = part.url;
     if (part.aspectRatio) { const [w, h] = part.aspectRatio.split(':').map(Number); if (w && h) img.style.aspectRatio = `${w}/${h}`; }
+    img.style.objectFit = part.aspectMode === 'fit' ? 'contain' : 'cover';
     node.append(img);
   } else if (part.type === 'button') {
     node.className = `flex-button ${part.style === 'primary' ? 'primary' : ''}`;
@@ -215,6 +218,14 @@ function renderPreview(message) {
       if (!bubble[section]) continue;
       if (section === 'hero') {
         const hero = flexNode(bubble.hero); hero.className = 'flex-hero'; shell.append(hero);
+        if (bubble.hero.type === 'image' && bubble.hero.url) {
+          const previewImage = hero.querySelector('img'); if (previewImage) previewImage.style.objectFit = 'cover';
+          void naturalImageRatio(bubble.hero.url).then((ratio) => {
+            if (!hero.isConnected || !ratio) return;
+            const [w, h] = ratio.split(':').map(Number);
+            const img = hero.querySelector('img'); if (img && w && h) img.style.aspectRatio = `${w}/${h}`;
+          });
+        }
         if (bubble.hero.type === 'image' && bubble.hero.url && !bubble.hero.backgroundColor) {
           void artworkColor(bubble.hero.url).then((color) => {
             if (!hero.isConnected) return;
@@ -223,7 +234,7 @@ function renderPreview(message) {
           });
         }
       }
-      else { const wrap = document.createElement('div'); wrap.className = 'line-section'; wrap.append(flexNode(bubble[section])); shell.append(wrap); }
+      else { const wrap = document.createElement('div'); wrap.className = `line-section line-${section}`; wrap.append(flexNode(bubble[section])); shell.append(wrap); }
     }
     area.append(shell);
   }

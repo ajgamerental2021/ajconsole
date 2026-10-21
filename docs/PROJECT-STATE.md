@@ -4381,3 +4381,9 @@ paused job shows slightly old numbers rather than an empty section.
 - Published the Broadcast editor's static HTML, CSS and JavaScript at `https://ajgamerental.com/broadcast/` and updated the booking Admin link. The AJ domain page calls the Bot's existing Admin API on Render. Keep the copies in `ajconsole/broadcast/` and `aj-line-oa-bot/public/broadcast/` synchronized when editing the Broadcast UI.
 - Chromium verified remembered and session-only login storage, reload, sign-out, English label, and API routing from the AJ domain page with mocked responses. The Bot's existing CORS preflight for Admin APIs was checked locally. No real LINE message was sent.
 
+## 2026-10-21 — Restore full-width Broadcast card artwork
+
+- The Broadcast editor and send path now display hero images edge to edge as in the earlier LINE carousel. Existing saved campaigns also use cover mode, and the Bot reads the image's source ratio before sending so portrait art keeps its proportions.
+- The browser Preview stretches cards to the same height and aligns their buttons while using each image's source ratio. The Admin page copies on the AJ website and Bot were updated together and their cache versions bumped.
+- Bot tests passed 704/704. A mocked mobile browser check confirmed full-width images, equal card heights, aligned button baselines and portrait artwork. No LINE message was sent during testing.
+

@@ -4,9 +4,12 @@
 .chat-list-preview{background:#fff;border:1px solid #dce4ea;border-radius:10px;padding:10px 12px;margin-bottom:9px;font-size:13px;color:#3d4c5b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-list-preview strong{display:block;color:#1b2a36;font-size:12px;margin-bottom:2px}
 .chat-preview{min-width:0}
-.line-bubble{height:fit-content}
-.flex-hero{height:auto;max-width:100%;object-fit:contain;border-radius:0}
-.flex-image{object-fit:contain}
+.chat-preview{align-items:stretch}
+.line-bubble{display:flex;flex-direction:column;align-self:stretch;height:auto}
+.line-body{flex:1}
+.line-footer{margin-top:auto}
+.flex-hero{height:auto;max-width:100%;border-radius:0}
+.flex-hero .flex-image{display:block;width:100%;object-fit:cover}
 .template-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
 .template-card-head h3{margin:0}
 .template-delete{padding:5px 9px;font-size:13px;color:#ae2232;background:#fff0f1;border:1px solid #f2c7cd}
