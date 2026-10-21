@@ -1,3 +1,9 @@
+## 2026-10-21 — Nintendo Switch 2 game IDs use one store offer by default
+
+- Codex updated `ajconsole` commit `2e85b01`: the generated Switch list now says Nintendo Switch 2 in Thai and English titles, tabs, game cards and rental messages. Existing Gist platform labels saying Nintendo Switch are displayed as Nintendo Switch 2 without rewriting the Gist.
+- The public Switch 2 list displays only the first store ID offer per game. Extra duration/price offers and customer ID offers remain saved but hidden. The help popup describes only store ID while this mode is off. An authenticated Admin switch restores all saved offers and the full store/customer ID explanation; its setting is kept locally and included in Gist sync when the existing GitHub token is configured. PS5 keeps its existing behavior.
+- The generated-page test, all 373 website tests and inline JavaScript syntax checks passed. Browser checks at 375 px and 1280 px verified Thai/English single-offer display, no horizontal overflow, Admin restoration and persistence after reload. No live Gist record or customer booking was changed. GitHub Pages deploys after pushing this commit to `main`.
+
 ## 2026-10-21 — Public payment-request links in the customer's language
 
 - Delivery App now copies and sends payment summary links on `https://ajgamerental.com/payment-request/`, using this static bridge to open the signed, current Booking summary on its backend. New copy previews choose Thai or English from the customer's name; copying always fetches a fresh validated link and does not send a LINE card.
