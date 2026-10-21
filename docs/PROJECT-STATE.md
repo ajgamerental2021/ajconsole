@@ -1,3 +1,9 @@
+## 2026-10-21 — Public payment-request links in the customer's language
+
+- Delivery App now copies and sends payment summary links on `https://ajgamerental.com/payment-request/`, using this static bridge to open the signed, current Booking summary on its backend. New copy previews choose Thai or English from the customer's name; copying always fetches a fresh validated link and does not send a LINE card.
+- The customer summary starts in that language and offers Thai / English links at the top. Switching preserves the signed rental and payment terms. The existing Booking and payment ledger checks still run before display and again before Beam checkout.
+- Backend build, signed payment-page checks, and payment-card checks passed. The bridge script passed syntax validation. No real customer card or payment link was generated during verification.
+
 ## 2026-10-21 — Preserve VIP Admin drafts and set personal no-identity deposits
 
 - The VIP form now retains unsaved text, checkboxes, rates, and deposit fields when Admin refreshes or another tab is opened. A delayed VIP fetch does not overwrite a draft. Saving clears the draft flag only after the server accepts the update.
