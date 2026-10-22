@@ -961,7 +961,6 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
   .before-rent-action.is-primary .before-rent-icon{color:#fff}
   .ico{display:block;width:1em;height:1em;flex:0 0 auto}
   .before-rent-terms{margin:14px 0 0;color:#667085;font-size:12.5px;font-weight:700;line-height:1.6}
-  .before-rent-privacy{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:#f7f8fa;color:#667085;font-size:11.5px;font-weight:600;line-height:1.55}
 .site-footer{border-top:1px solid var(--border);background:#fff;color:#8a8f98}
 .site-footer-inner{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding-top:16px;padding-bottom:16px}
 .site-footer-main{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
@@ -1217,6 +1216,11 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   .before-rent-review-link{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border:1px solid #d0d5dd;border-radius:999px;background:#fff;color:#344054;font-size:12.5px;font-weight:800;text-decoration:none}
   .before-rent-review-link:hover{border-color:#c90012;color:#c90012}
   .before-rent-review-link .ico{width:16px;height:16px}
+  @media(max-width:767px){
+    #beforeRentReviewLinks{display:grid;grid-template-columns:1fr 1fr}
+    #beforeRentReviewLinks .before-rent-review-link{justify-content:center;min-width:0;padding:6px 10px;font-size:12px;line-height:1.3;text-align:center}
+    #beforeRentReviewLinks .before-rent-review-link .ico{flex:0 0 16px}
+  }
   .before-rent-highlights{display:flex;gap:12px;padding:2px 2px 10px;overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
   .before-rent-highlights::-webkit-scrollbar{height:6px}
   .before-rent-highlights::-webkit-scrollbar-thumb{background:#d7dbe0;border-radius:999px}
@@ -1520,7 +1524,6 @@ body{background:#f7f8fa}
             <button class="btn primary" id="beforeRentFinalCta" type="button" data-i18n="beforeRentFinalCta">เลือกเครื่องและเช็คคิว</button>
           </div>
         </div>
-        <p class="before-rent-privacy" data-i18n="analyticsPrivacy">เว็บไซต์เก็บสถิติการใช้งานแบบไม่ระบุตัวบุคคล เช่น จำนวนผู้เข้าชมและการใช้งานปุ่มต่าง ๆ เพื่อปรับปรุงเว็บไซต์และบริการ โดยระบบสถิติไม่จัดเก็บชื่อ เบอร์โทร LINE ID เอกสารยืนยันตัวตน ที่อยู่จัดส่ง หรือข้อความการจอง</p>
       </div>
     </div>
   </section>
@@ -2169,6 +2172,13 @@ You may ask to access, correct, object to, restrict or delete your data, or with
     qEn:"Can I change the rental dates or add accessories?",
     aEn:"You may change the start date or rental duration once, within 15 days of the original date, subject to availability. Notify us by 12:00 noon on the day before the original start date. Add accessories through “My Rentals” in LINE or contact an admin."
   };
+  const TRAVEL_FAQ = {
+    kind:"travel",
+    qTh:"นำเครื่องที่เช่าไปต่างจังหวัดหรือต่างประเทศได้ไหม",
+    aTh:"ได้ครับ ระหว่างเช่านำเครื่องไปใช้ที่ไหนก็ได้ แต่การรับเครื่องและส่งคืนต้องอยู่ในพื้นที่กรุงเทพฯ–ปริมณฑล หรือชลบุรี/พัทยาเท่านั้น",
+    qEn:"Can I take the rented console to another province or abroad?",
+    aEn:"Yes. You can use it anywhere during the rental, but delivery and return must take place in Bangkok and nearby provinces, or Chonburi/Pattaya."
+  };
   const DELIVERY_FAQS = {
     time:{qTh:"เวลาส่ง-รับคืนเครื่อง",aTh:"ปกติจัดส่งเวลา 10.00–18.00 น. ตามคิว โดยร้านต้องเตรียมเครื่องและติดตั้งเกมก่อน หากแจ้งเช่าก่อน 18.00 น. ยังสามารถจัดส่งภายในวันนั้นได้ ส่วนหลัง 18.00 น. จะจัดส่งวันถัดไป เว้นแต่ร้านยืนยันว่ายังส่งได้ เวลารับคืนในวันสิ้นสุดการเช่าจะเป็นเวลาเดียวกับเวลาที่ลูกค้ารับเครื่องในวันเริ่มเช่า เว้นแต่ตกลงกับร้านเป็นอย่างอื่น",qEn:"Delivery and return pickup times",aEn:"Delivery is normally scheduled between 10:00 and 18:00, subject to the day’s queue and device preparation. Requests made before 18:00 can usually be delivered the same day. Requests made after 18:00 will be delivered the next day unless AJ confirms same-day delivery is still available. Return pickup on the final rental day is scheduled for the same time the equipment was received on the start date, unless AJ agrees otherwise."},
     preparation:{qTh:"ระยะเวลาในการเตรียมเครื่องก่อนจัดส่ง",aTh:"เตรียมเครื่องและติดตั้งเกมประมาณ 2–3 ชั่วโมง หรือ 30 นาที–1 ชั่วโมงสำหรับเครื่องที่ไม่ต้องติดตั้งเกม",qEn:"How long does device preparation take?",aEn:"Device preparation and game installation take about 2–3 hours, or 30 minutes–1 hour for devices that do not require game installation."},
@@ -2365,7 +2375,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       returning:"ลูกค้าเก่า (เท่านั้น) รับส่วนลด 10% ค่าเช่า", returningOnly:"ลูกค้าเก่าเท่านั้น", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 โอนจองคิว ฿200 และชำระยอดที่เหลือปลายทาง", bank:"🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%",
       wiseAvailabilityNote:"ไม่สามารถชำระผ่าน Wise ในวันเสาร์-อาทิตย์หรือวันหยุดธนาคารไทยได้ เนื่องจากเงินจะเข้าในวันทำการถัดไป", wiseUnavailableWeekend:"วันนี้ไม่สามารถเลือก Wise ได้ (วันเสาร์-อาทิตย์)", wiseUnavailableHoliday:"วันนี้ไม่สามารถเลือก Wise ได้ (วันหยุดธนาคารไทย)", returningVerifyTitle:"ยืนยันสิทธิ์ส่วนลดลูกค้าเก่า", returningVerifyHelp:"กรอกเบอร์โทรที่เคยใช้เช่า และเลขบัตรประชาชน 4 ตัวท้าย", returningVerifyPhone:"เบอร์โทรศัพท์", returningVerifyFirstName:"ชื่อจริง (ไม่ต้องใส่นามสกุล)", returningVerifyLast4:"เลขบัตรประชาชน 4 ตัวท้าย", returningVerifyNoIdentity:"ไม่เคยยืนยันตัวตน", returningVerifyHistoryHelp:"สำหรับลูกค้าเก่าที่ไม่เคยยืนยันตัวตน กรุณาใช้ชื่อจริงร่วมกับรหัสการเช่าครั้งก่อนหรือเบอร์โทรศัพท์เพื่อยืนยัน ไม่ต้องใส่นามสกุล", returningVerifyRentalSuffix:"Rental ID 5 ตัวท้าย", returningVerifyUsePhone:"ใช้เบอร์โทรแทน", returningVerifyHistoryPhone:"เบอร์โทรศัพท์ที่เคยส่งให้ทางร้าน", returningVerifyFindRentalId:"วิธีการหา Rental ID", returningVerifySubmit:"ตรวจสอบสิทธิ์", returningVerifyCancel:"ยกเลิก", returningVerifyChecking:"กำลังตรวจสอบ...", returningVerifySuccess:"ยืนยันสิทธิ์ลูกค้าเก่าเรียบร้อย", returningVerifyNotFound:"ไม่พบประวัติ Confirmed ที่ชื่อจริงและข้อมูลยืนยันตรงกัน กรุณาตรวจสอบข้อมูลหรือติดต่อ AJ", returningVerifyError:"ตรวจสอบสิทธิ์ไม่ได้ในขณะนี้ กรุณาลองใหม่ภายหลัง", returningVerifyInvalid:"กรุณากรอกเบอร์โทร 10 หลัก และเลขบัตร 4 ตัวท้าย", returningVerifyHistoryInvalid:"กรุณากรอกชื่อจริง และ Rental ID 5 ตัวท้ายหรือเบอร์โทรศัพท์ที่ถูกต้อง", returningLineVerifiedTitle:"ตรวจพบประวัติลูกค้าเก่า ใช้ส่วนลดค่าเช่า 10% แล้ว", returningLineVerifiedDetail:"ยืนยันสิทธิ์ผ่านบัญชี LINE และเลือกส่วนลดให้อัตโนมัติแล้ว",
       returningVerifyPrivacy:"ใช้ข้อมูลนี้เพื่อตรวจสิทธิ์ส่วนลดเท่านั้น หน้าเว็บจะไม่แสดงเลขบัตรหรือประวัติการเช่าของลูกค้ารายอื่น",
-      analyticsPrivacy:"เว็บไซต์เก็บสถิติการใช้งานแบบไม่ระบุตัวบุคคล เช่น จำนวนผู้เข้าชมและการใช้งานปุ่มต่าง ๆ เพื่อปรับปรุงเว็บไซต์และบริการ โดยระบบสถิติไม่จัดเก็บชื่อ เบอร์โทร LINE ID เอกสารยืนยันตัวตน ที่อยู่จัดส่ง หรือข้อความการจอง",
       siteCopyright:"AJ Game Rental © 2026. สงวนลิขสิทธิ์",
       reviewGoogle:"รับส่วนลดเพิ่มจากการรีวิวบน Google Maps มูลค่า 100 บาท", reviewFacebook:"รับส่วนลดเพิ่มจากการรีวิวบน Facebook มูลค่า 100 บาท", reviewGoogleAfterWork:"รับส่วนลดเพิ่มจากการรีวิวบน Google Maps มูลค่า 50 บาท", reviewFacebookAfterWork:"รับส่วนลดเพิ่มจากการรีวิวบน Facebook มูลค่า 50 บาท", reviewGoogleHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Google Maps ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewFacebookHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Facebook ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewGoogleBtn:"รีวิว Google Maps", reviewFacebookBtn:"รีวิว Facebook", reviewGoogleDiscount:"ส่วนลดรีวิว Google Maps", reviewFacebookDiscount:"ส่วนลดรีวิว Facebook",
       boardGameCollapsed:"ต้องการเพิ่มบอร์ดเกม? กดเพื่อขยายและเลือกเข้าชุดเช่า", ps5BundleCollapsed:"ต้องการ Bundle? กดเพื่อจับคู่ PS5 กับอุปกรณ์อื่น",
@@ -2530,7 +2539,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       returning:"Returning customers only: 10% off rental fee", returningOnly:"Returning customers only", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"💵 Balance on delivery", bank:"🏦 Thai Bank Transfer", wise:"🌍 Wise", credit:"💳 Credit Card: pay full amount + 3.50% fee", ewallet:"👛 E-Wallet: pay full amount + 2.95%",
       wiseAvailabilityNote:"Wise payments are unavailable on weekends and Thai bank holidays because funds arrive on the next business day.", wiseUnavailableWeekend:"Wise is unavailable today (weekend).", wiseUnavailableHoliday:"Wise is unavailable today (Thai bank holiday).", returningVerifyTitle:"Verify returning-customer discount", returningVerifyHelp:"Enter your first name (surname not required) and the last 4 characters of your Passport.", returningVerifyName:"First name (surname not required)", returningVerifyFirstName:"First name (surname not required)", returningVerifyLast4:"Last 4 Passport characters", returningVerifyNoIdentity:"I have never verified my identity", returningVerifyHistoryHelp:"For returning customers who have never verified their identity. Please use your first name with your previous Rental ID or phone number to verify eligibility. Surname is not required.", returningVerifyRentalSuffix:"Last 5 characters of Rental ID", returningVerifyUsePhone:"Use phone number instead", returningVerifyHistoryPhone:"Phone number previously provided to AJ", returningVerifyFindRentalId:"How to find your Rental ID", returningVerifySubmit:"Check eligibility", returningVerifyCancel:"Cancel", returningVerifyChecking:"Checking...", returningVerifySuccess:"Returning-customer eligibility confirmed.", returningVerifyNotFound:"No Confirmed rental matched both the first name and verification detail. Check the details or contact AJ.", returningVerifyError:"Eligibility cannot be checked right now. Please try again later.", returningVerifyInvalid:"Enter your first name (surname not required) and the last 4 Passport characters.", returningVerifyHistoryInvalid:"Enter your first name and the last 5 characters of your Rental ID or a valid phone number.", returningLineVerifiedTitle:"Returning customer found: 10% rental discount applied", returningLineVerifiedDetail:"Verified through your LINE account and selected automatically.",
       returningVerifyPrivacy:"This information is used only to verify discount eligibility. The page will not reveal another customer's passport details or rental history.",
-      analyticsPrivacy:"This website collects anonymous usage statistics, such as visitor counts and button interactions, to improve the website and its services. Analytics does not store names, phone numbers, LINE IDs, identity documents, delivery addresses, or booking messages.",
       siteCopyright:"AJ Game Rental © 2026. All rights reserved.",
       reviewGoogle:"Extra ฿100 discount for a Google Maps review", reviewFacebook:"Extra ฿100 discount for a Facebook review", reviewGoogleAfterWork:"Extra ฿50 discount for a Google Maps review", reviewFacebookAfterWork:"Extra ฿50 discount for a Facebook review", reviewGoogleHelp:"To receive this discount, tap Review Google Maps below, then send a screenshot to the AJ chat you are using.", reviewFacebookHelp:"To receive this discount, tap Review Facebook below, then send a screenshot to the AJ chat you are using.", reviewGoogleBtn:"Review Google Maps", reviewFacebookBtn:"Review Facebook", reviewGoogleDiscount:"Google Maps review discount", reviewFacebookDiscount:"Facebook review discount",
       boardGameCollapsed:"Want board games? Expand to add them to this rental.", ps5BundleCollapsed:"Want a bundle? Expand to pair PS5 with another device.",
@@ -3926,6 +3934,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       );
       normalized.splice(cancelIndex >= 0 ? cancelIndex + 1 : normalized.length, 0, {...RENTAL_CHANGE_FAQ});
     }
+    if(!normalized.some(faq => faq.kind === TRAVEL_FAQ.kind || matches(faq, /^(นำเครื่องที่เช่าไปต่างจังหวัด|สามารถนำเครื่องที่เช่าไปต่างจังหวัด)/, /^Can I take the rented console to another province/i))){
+      const changeIndex = normalized.findIndex(x => x.qTh === RENTAL_CHANGE_FAQ.qTh || x.qEn === RENTAL_CHANGE_FAQ.qEn);
+      normalized.splice(changeIndex >= 0 ? changeIndex + 1 : normalized.length, 0, {...TRAVEL_FAQ});
+    }
     return normalized;
   }
 
@@ -4055,7 +4067,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       // the artwork names a console we can at least land on that console.
       const target = promoConsole(item, listed, normalizedNames);
       const cueText = target ? tr("beforeRentPromoCueDevice").replace("{name}", cName(target)) : tr("beforeRentPromoCue");
-      const cue = `<span class="before-rent-promo-cue" aria-hidden="true">${esc(cueText)}</span>`;
+      // Artwork cards are tapped on the picture itself; only a card without
+      // artwork keeps the text cue, since it has nothing else to tap.
+      const cue = item.image ? "" : `<span class="before-rent-promo-cue" aria-hidden="true">${esc(cueText)}</span>`;
       // Artwork already carries its own headline text, so the caption overlay is
       // only rendered when there is no image to avoid double-stacked copy.
       const copy = item.image ? "" : `<span class="before-rent-promo-copy"><strong>${esc(title || "AJ")}</strong>${sub ? `<span>${esc(sub)}</span>` : ""}</span>`;
@@ -14040,10 +14054,25 @@ We apologize for the inconvenience and hope everyone stays safe.`
   }
   function closeAdmin(){ byId("adminOverlay").classList.remove("open"); }
   let vipDraftDirty = false;
+  /**
+   * FAQ text typed but not yet saved. The panel is redrawn whenever promotions
+   * refresh (every minute) or a tab changes, and each redraw rebuilt the FAQ
+   * inputs from the saved list, so a question being typed vanished mid-edit.
+   */
+  let faqDraftDirty = false;
+  function readFaqDraftIntoState(){
+    if(!faqDraftDirty || !byId("adminFaq")?.querySelector("[data-faq]")) return;
+    $$("[data-faq]").forEach(el => {
+      const [idx,key] = el.dataset.faq.split(":");
+      const item = state.faq[Number(idx)];
+      if(item && !el.readOnly) item[key] = el.value;
+    });
+  }
   function renderAdmin(){
     // Keep unpublished edits to the terms across re-renders of the panel.
     $$("[data-terms-field]").forEach(input => { adminTerms[input.dataset.termsField] = input.value; });
     if(vipDraftDirty && byId("adminVip")?.querySelector("[data-vip-row]")) state.vipCustomers.items = readVipCustomersFromAdmin();
+    readFaqDraftIntoState();
     byId("adminBody").innerHTML = `
       <div class="admin-tabs">
         ${["queue","announcement","rentals","vip","pickup","about","privacy","terms","pricing","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
@@ -14645,9 +14674,10 @@ We apologize for the inconvenience and hope everyone stays safe.`
   function saveFaqFromAdmin(){
     $$("[data-faq]").forEach(el => {
       const [idx,key] = el.dataset.faq.split(":");
-      if(state.faq[Number(idx)]) state.faq[Number(idx)][key] = el.value.trim();
+      if(state.faq[Number(idx)] && !el.readOnly) state.faq[Number(idx)][key] = el.value.trim();
     });
     state.faq = normalizeFaq(state.faq);
+    faqDraftDirty = false;
     saveAndRenderAdmin("FAQ saved");
   }
   function adminReviewsHtml(){
@@ -14935,7 +14965,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(data.consoles) state.consoles = data.consoles.map(normalizeConsole);
     if(data.images) state.images = data.images;
     if(data.homeData) state.home = normalizeHome(data.homeData);
-    if(data.faqData) state.faq = normalizeFaq(data.faqData);
+    // A sync must not wipe questions the admin is typing; saving publishes them.
+    if(data.faqData && !faqDraftDirty) state.faq = normalizeFaq(data.faqData);
     if(data.socialProof) state.social = normalizeSocial(data.socialProof);
     if(Object.prototype.hasOwnProperty.call(data,"retEnabled")) state.retEnabled = !!data.retEnabled;
     if(data.featureSettings && Object.prototype.hasOwnProperty.call(data.featureSettings,"returningDiscountEnabled")) state.retEnabled = !!data.featureSettings.returningDiscountEnabled;
@@ -15137,7 +15168,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       const delHighlight = event.target.closest("[data-delete-highlight]");
       if(delHighlight){ state.social.highlights.splice(Number(delHighlight.dataset.deleteHighlight),1); saveAndRenderAdmin("Highlight deleted"); return; }
       const delFaq = event.target.closest("[data-delete-faq]");
-      if(delFaq){ state.faq.splice(Number(delFaq.dataset.deleteFaq),1); saveAndRenderAdmin("FAQ deleted"); return; }
+      if(delFaq){ readFaqDraftIntoState(); state.faq.splice(Number(delFaq.dataset.deleteFaq),1); saveAndRenderAdmin("FAQ deleted"); return; }
       const delBundle = event.target.closest("[data-delete-bundle]");
       if(delBundle){ state.bundles.splice(Number(delBundle.dataset.deleteBundle),1); saveAndRenderAdmin("Bundle deleted"); return; }
       const delAcc = event.target.closest("[data-delete-acc]");
@@ -15448,6 +15479,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     });
     document.addEventListener("input", event => {
       if(event.target.closest?.("[data-vip-row]")) vipDraftDirty = true;
+      if(event.target.matches?.("[data-faq]")) faqDraftDirty = true;
       if(event.target.id === "mapsInput"){ state.calc.maps = event.target.value.trim(); if(state.calc.maps.length > 8){ markGuideDone("maps"); setGuideStage("ret"); } saveLocal(); renderGuide(); }
       if(UNIFIED_FLOW_DEMO && event.target.id === "demoRefundAccount"){
         const digits = event.target.value.replace(/\D/g, "").slice(0, 13);
@@ -15809,7 +15841,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "faqExpandBtn"){ state.faqExpanded = !state.faqExpanded; renderFAQ(); }
       if(targetId === "addConsole") addConsoleFromAdmin();
       if(targetId === "saveHome") saveHomeFromAdmin();
-      if(targetId === "addFaq"){ state.faq.push({qTh:"",aTh:"",qEn:"",aEn:""}); saveAndRenderAdmin("FAQ added"); }
+      if(targetId === "addFaq"){ readFaqDraftIntoState(); state.faq.push({qTh:"",aTh:"",qEn:"",aEn:""}); saveAndRenderAdmin("FAQ added"); }
       if(targetId === "saveFaq") saveFaqFromAdmin();
       if(targetId === "savePricingPolicy") void savePricingPolicyFromAdmin();
       if(targetId === "addRentalPromotion"){ promotionEditingId = "new"; renderAdmin(); return; }
