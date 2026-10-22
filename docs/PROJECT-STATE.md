@@ -1,3 +1,8 @@
+## 2026-10-22 — Rental booking heading copy (TH/EN)
+
+- Updated the live calculator section's three heading lines to “ทำรายการเช่า / จองคิวเช่าเครื่องเกม / เลือกเครื่อง เช็คคิวว่าง และจองออนไลน์”, with matching English copy. The fallback HTML and both I18N entries agree.
+- All 373 site tests and inline JavaScript syntax checks passed. Chromium confirmed both languages at 375 px and 1280 px with no heading overflow.
+
 ## 2026-10-22 — Audit after the Codex commits; Delivery App slowness; Phase 5 readiness
 
 **Audit.** All four repos pulled to the latest `main` (Bot 36 new commits, Delivery App 36, AJ Office 9, website 30+ including docs). Suites: website 373/373, AJ Office 71/71, Delivery backend + frontend TypeScript pass, and every Delivery `test:*` script passes except `test:header-guard`, which needs real Google credentials by design. Bot was 724/726 on `main`; both failures are fixed in `0c73ca2` (Bot `main` and `claude/blissful-brahmagupta-pawyxg`), now 726/726:
