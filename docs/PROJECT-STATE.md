@@ -1,3 +1,15 @@
+## 2026-10-22 — Customer trip page laid out for computers and phones; one card picture
+
+Delivery App `c27fbca` changes the customer trip page (`/c/trip/:token`) in both TH and EN.
+
+- **Computers (≥900 px):** the live map fills the left and stays in place while the page scrolls. Status, save, driver, payment, padlock, destination and tracking sit in a 400 px column beside it. Before the map exists, the page is a single centred column.
+- **Phones:** one column, ordered status → map → save → driver (bigger call button) → payment → padlock → destination → tracking.
+- **"Save trip image" makes one picture, laid out as a card.** The full/summary choice is gone. The card is 760 px wide (a 1520 px file): a square map beside the status and driver, then the padlock (photo, code and unlock steps) and the payment (total next to the account). It has no tracking link or buttons. The static map is now requested at 480×480.
+- **Duplicate saves fixed:** a phone uses the share sheet only and shares only the file; a computer downloads only. Each press saves once.
+- **Older bug fixed:** the preview's blob URL was revoked as soon as it was created, because opening the new sheet closed the old one. That broke the preview, and the computer download produced a bad file.
+
+Tests: Lalamove dispatch 389/389, weather and flex-ledger pass. Browser check at 1440 px and 390 px (TH/EN) with mock trip data: no overflow, and one download even with a double press.
+
 ## 2026-10-22 — Newly ready games lead the picker; centred booking heading on phones
 
 **Game picker, all consoles.** When a game marked "not ready" reaches its ready date, it now moves to the front of the ready games. It sits right behind the games still waiting, however long ago it was added.
