@@ -6063,6 +6063,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function renderDemoRefundSection(){
     const section = byId("demoRefundSection");
     if(!section) return;
+    section.hidden = payResume.active;
+    if(payResume.active){ section.innerHTML = ""; return; }
     section.innerHTML = demoRefundSectionHtml();
     const wiseChoice = section.querySelector("[data-refund-wise-choice]");
     if(wiseChoice) wiseChoice.hidden = !demoWiseEligible();
@@ -6546,9 +6548,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // Connected, the customer must also open "add friend": LINE only delivers
     // the rental details to someone who has added the shop.
     if(!payResume.active && bookingLineConnection() && !lineFriendExempt()) need("lineFriendBtn", lineFriendClicked(), tr("lineFriendRequired"));
-    need("demoCustomerName", demoLegalNameValid(demoProfile.fullName), tr("legalNameScriptError"));
+    // On the payment-link page the name already on the rental always stands,
+    // even when the renter switched the page to the other language.
+    const savedName = payResume.active ? String(payResume.rental?.customerName || "").trim() : "";
+    need("demoCustomerName", demoLegalNameValid(demoProfile.fullName) || (!!savedName && String(demoProfile.fullName || "").trim() === savedName), tr("legalNameScriptError"));
     need("demoCustomerPhone", demoPhoneValid(demoProfile.phone), tr("phoneScriptError"));
-    problems.push(...demoRefundProblems());
+    // The refund account belongs to the agreement already on file; the
+    // payment-link page neither loads nor saves it, so it cannot be "missing".
+    if(!payResume.active) problems.push(...demoRefundProblems());
     need("demoEmail", demoEmailValid(demoProfile.email), demoEmailMessage());
     need("demoMaps", validDemoMapsLink(demoProfile.maps), String(demoProfile.mapsText || "").trim()
       ? (en ? "Choose the delivery place from the list, or paste a valid Google Maps or Apple Maps link." : "เลือกสถานที่ส่งจากรายการ หรือวางลิงก์ Google Maps หรือ Apple Maps ที่ถูกต้อง")
@@ -7003,8 +7010,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       return;
     }
     const en = state.lang === "en";
-    const summary = calcSummary();
     const item = consoleById(state.calc.consoleId);
+    // A device no longer in the catalogue (or not loaded yet) has nothing to
+    // show; drawing it anyway threw inside Pay and blocked the payment.
+    if(!item){ patchHTML(host, ""); return; }
+    const summary = calcSummary();
     const identityState = demoIdentityCoveredByAgreement()
       ? (en ? "Verified — existing agreement on file" : "ยืนยันแล้ว — ใช้สัญญาเดิมที่มีอยู่")
       : state.calc.noContract
@@ -10756,6 +10766,76 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const canEdit = editable && !payResume.rental?.paid && payResume.editorReady && !payResume.saving;
     return `<div class="demo-section-head"><h3>${esc(title)}</h3>${canEdit ? `<button class="btn demo-edit-btn" type="button" data-pay-resume-edit="${esc(kind)}">${esc(tr("payResumeEditDetails"))}</button>` : ""}</div>`;
   }
+  // Why the payment-link page could not pay or save, in words the renter can
+  // act on: the cause, that no money moved, the Rental ID, and one tap to retry
+  // or to send AJ the Rental ID and the cause on LINE. The cause is also sent
+  // to the shop's analytics so a failure is visible before anyone complains.
+  function payResumeProblemText(code, kind){
+    const en = state.lang === "en";
+    const t = (thai, english) => en ? english : thai;
+    switch(code){
+      case "payment_state_unavailable":
+      case "settlement_unavailable":
+        return t("ระบบตรวจสถานะการชำระเงินของรายการนี้ไม่สำเร็จชั่วคราว กรุณาลองอีกครั้งในอีกสักครู่", "We could not confirm this rental's payment status just now. Please try again in a moment.");
+      case "booking_exists":
+      case "already_booked":
+        return t("ร้านบันทึกการจองรายการนี้ไว้แล้ว จึงชำระผ่านลิงก์นี้ไม่ได้ กรุณาทักร้านทาง LINE เพื่อรับช่องทางชำระเงิน", "AJ has already recorded this booking, so it cannot be paid through this link. Please message AJ on LINE for how to pay.");
+      case "cancelled":
+        return t("รายการนี้ถูกยกเลิกแล้ว หากต้องการจองใหม่ กรุณาทักร้านทาง LINE", "This rental has been cancelled. To book again, please message AJ on LINE.");
+      case "link_invalid":
+      case "rental_not_found":
+        return t("ไม่พบรายการนี้ในระบบ ลิงก์อาจหมดอายุแล้ว กรุณาทักร้านเพื่อขอลิงก์ใหม่", "This rental could not be found; the link may have expired. Please ask AJ for a new link.");
+      case "console_pending_not_found":
+        return t("ระบบหารายการนี้ในคิวของร้านไม่พบ จึงบันทึกการแก้ไขไม่ได้ ยังชำระยอดเดิมได้ตามปกติ หรือทักร้านให้แก้ไขให้", "This rental is not in AJ's queue, so the change could not be saved. You can still pay the saved amount, or ask AJ to make the change.");
+      case "rental_update_invalid":
+      case "rental_update_too_large":
+        return t("ข้อมูลที่แก้ไขส่งไม่ครบหรือไม่ถูกต้อง ข้อมูลเดิมยังอยู่ กรุณาลองแก้ไขอีกครั้ง หรือทักร้านให้แก้ไขให้", "The change could not be read, so nothing was changed. Please try again, or ask AJ to make the change.");
+      case "rental_update_failed":
+        return kind === "save"
+          ? t("บันทึกการแก้ไขให้ร้านไม่สำเร็จชั่วคราว ข้อมูลเดิมยังอยู่ ชำระยอดเดิมได้ หรือลองอีกครั้ง", "The change could not be saved for AJ just now. Nothing was changed; you can pay the saved amount or try again.")
+          : t("บันทึกค่าส่งล่าสุดของรายการนี้ไม่สำเร็จชั่วคราว กรุณาลองอีกครั้ง", "The latest delivery fee could not be saved just now. Please try again.");
+      case "payment_unavailable":
+      case "payment_link_failed":
+        return t("ระบบชำระเงินไม่ตอบสนองชั่วคราว กรุณาลองอีกครั้ง", "The payment system is not responding right now. Please try again.");
+      case "amount_unknown":
+      case "method_invalid":
+        return t("ช่องทางชำระเงินนี้ยังใช้กับรายการนี้ไม่ได้ กรุณาเลือกช่องทางอื่น หรือทักร้าน", "This payment method is not available for this rental. Please choose another, or message AJ.");
+      case "booking_hold_unavailable":
+      case "booking_hold_invalid":
+      case "booking_availability_refresh_failed":
+      case "queue_check_failed":
+        return t("เช็คคิวไม่สำเร็จ กรุณาลองอีกครั้ง", "The queue could not be checked. Please try again.");
+      case "network":
+        return t("การเชื่อมต่ออินเทอร์เน็ตไม่เสถียร กรุณาลองอีกครั้ง", "The connection dropped. Please try again.");
+      default:
+        return kind === "save"
+          ? t("บันทึกการแก้ไขไม่สำเร็จ ข้อมูลเดิมยังอยู่ ชำระยอดเดิมได้ หรือลองอีกครั้ง", "The change could not be saved. Nothing was changed; you can pay the saved amount or try again.")
+          : t("เปิดหน้าชำระเงินไม่สำเร็จ กรุณาลองอีกครั้ง", "The payment page could not be opened. Please try again.");
+    }
+  }
+  function payResumeProblemCode(error){
+    const code = String(error?.code || error?.message || "").trim();
+    if(error?.name === "AbortError" || (error instanceof TypeError && /fetch|load failed|network/i.test(String(error.message || "")))) return "network";
+    if(error instanceof TypeError || error instanceof ReferenceError) return "page_error";
+    return /^[a-z_]{3,60}$/.test(code) ? code : "unknown";
+  }
+  function showPayResumeProblem(error, kind="pay"){
+    const en = state.lang === "en";
+    const code = payResumeProblemCode(error);
+    const rentalCode = String(payResume.rental?.rentalCode || payResume.code || "").trim();
+    trackAnalytics("client_error", {errorCode:`pay_resume_${kind}_failed`, value:`${code}:${rentalCode}`.slice(0, 80)});
+    const lineMessage = encodeURIComponent(en
+      ? `Hello AJ, I could not ${kind === "save" ? "save a change to" : "pay for"} rental ${rentalCode} (problem: ${code}).`
+      : `สวัสดีครับ ${kind === "save" ? "แก้ไขรายการ" : "ชำระเงินรายการ"} ${rentalCode} ไม่สำเร็จ (รหัสปัญหา: ${code})`);
+    const retry = kind === "pay" && !["booking_exists", "already_booked", "cancelled", "link_invalid", "rental_not_found"].includes(code);
+    showModal(kind === "save" ? (en ? "Changes not saved" : "บันทึกการแก้ไขไม่สำเร็จ") : (en ? "Payment not started" : "ยังชำระเงินไม่สำเร็จ"), `
+      <p>${esc(payResumeProblemText(code, kind))}</p>
+      <p class="hint">${esc(kind === "save" ? (en ? "Your rental was not changed." : "รายการเช่าของคุณยังไม่ถูกเปลี่ยน") : (en ? "No money has been taken." : "ยังไม่มีการตัดเงิน"))} ${esc(en ? `Rental ID: ${rentalCode}` : `รหัสการเช่า: ${rentalCode}`)} · ${esc(en ? `Problem code: ${code}` : `รหัสปัญหา: ${code}`)}</p>
+      <div class="queue-retry-actions">
+        ${retry ? `<button class="btn primary" type="button" data-payment-retry="resume">${esc(en ? "Try again" : "ลองอีกครั้ง")}</button>` : ""}
+        <a class="btn" href="${esc(`${CONFIG.lineOaMessageUrl}?${lineMessage}`)}" target="_blank" rel="noopener">${esc(en ? "Message AJ on LINE" : "ทักร้านทาง LINE")}</a>
+      </div>`);
+  }
   async function savePayResumeChanges(source="rental"){
     const en = state.lang === "en";
     const current = payResume.rental;
@@ -10806,9 +10886,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(error?.code === "already_paid") openPayResume(payResume.code, payResume.token);
       else{
         hydratePayResumeEditor(current);
-        if(error?.message === "queue_check_failed") toast(en ? "The queue could not be checked. Please try again." : "เช็คคิวไม่สำเร็จ กรุณาลองอีกครั้ง", 4500);
-        else if(error?.message === "games_required") toast(en ? "Choose games or select ‘send the game list later’." : "เลือกรายชื่อเกม หรือเลือกแจ้งรายชื่อเกมภายหลัง", 4500);
-        else toast(tr("payResumeSaveFailed"), 4500);
+        if(error?.message === "games_required") toast(en ? "Choose games or select ‘send the game list later’." : "เลือกรายชื่อเกม หรือเลือกแจ้งรายชื่อเกมภายหลัง", 4500);
+        else if(error?.code === "booking_hold_conflict") showPayResumeQueuePopup(error.message);
+        else showPayResumeProblem(error, "save");
       }
       return false;
     }finally{
@@ -10881,7 +10961,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const selectedAmounts = r.plan?.methods?.[payResume.method];
     const canPay = !r.paid && Object.keys(r.plan?.methods || {}).length > 0;
     const editNotice = !r.paid && !payResume.editorReady
-      ? `<div class="demo-delivery-fallback" role="status"><p><b>${esc(en ? "Editing is temporarily unavailable because the saved pricing details could not be loaded. You can still pay the saved amount or contact AJ." : "ยังแก้ไขรายการไม่ได้ชั่วคราว เพราะโหลดข้อมูลราคาที่บันทึกไว้ไม่ครบ ยังชำระยอดเดิมได้ หรือติดต่อร้าน AJ")}</b></p></div>`
+      ? `<div class="demo-delivery-fallback" role="status"><p><b>${esc(en ? "Your details are complete — nothing is missing. You can pay the amount below as usual. Changing the rental on this page is unavailable for now; to change anything, message AJ on LINE @ajgame." : "ข้อมูลของคุณครบถ้วนแล้ว ไม่มีอะไรต้องกรอกเพิ่ม กดชำระเงินยอดด้านล่างได้ตามปกติ — ตอนนี้แก้ไขรายการผ่านหน้านี้ไม่ได้ชั่วคราว หากต้องการเปลี่ยนแปลง กรุณาทักร้านทาง LINE @ajgame")}</b></p></div>`
       : payResume.saving ? `<p class="hint" role="status">${esc(en ? "Saving your changes…" : "กำลังบันทึกการแก้ไข…")}</p>` : "";
     return `${editNotice}${!r.paid && payResume.editorReady ? `<p class="demo-edit-help">${esc(tr("payResumeEditHelp"))}</p>` : ""}<div class="demo-order-grid">
       <div>
@@ -10997,7 +11077,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         showPayResumeQueuePopup(error.message);
         return;
       }
-      if(error?.code === "already_paid"){ openPayResume(payResume.code, payResume.token); return; }
+      if(error?.code === "already_paid" || error?.code === "payment_confirmed"){ openPayResume(payResume.code, payResume.token); return; }
       // The delivery price is older than 30 minutes and Lalamove's has moved:
       // the Bot saved the new one on the rental. Show the new amounts, then
       // old and new, before anything is charged.
@@ -11018,15 +11098,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         showDeliveryQuoteProblem(() => launchPayResume());
         return;
       }
-      if(error?.message === "queue_check_failed"){
-        toast(en ? "The queue could not be checked. Please try again." : "เช็คคิวไม่สำเร็จ กรุณาลองอีกครั้ง", 4500);
-        return;
-      }
       if(error?.code === "wise_unavailable"){
         toast(en ? "Wise is unavailable today. Please choose another payment method." : "วันนี้ยังชำระผ่าน Wise ไม่ได้ กรุณาเลือกช่องทางอื่น", 4500);
         return;
       }
-      toast(en ? "Unable to open the payment page. Please try again." : "เปิดหน้าชำระเงินไม่สำเร็จ กรุณาลองใหม่");
+      showPayResumeProblem(error, "pay");
     }
   }
   async function notifyDemoLine(){

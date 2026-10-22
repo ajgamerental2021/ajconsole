@@ -1,3 +1,39 @@
+## 2026-10-22 — Returning customer could not pay from the payment link (COP): root cause and fix
+
+**What the customer hit (reproduced in a browser on the live code).** The LINE "unpaid rental" card opens the payment-link page (`?pay=…&t=…`). The customer changed the delivery address with **แก้ไขข้อมูล** under ข้อมูลลูกค้า. The edit window also contains the refund-account block (bank, account number, account name). That page never loads the refund account (it belongs to the agreement on file), and the Bot does not accept refund changes through this link anyway. So **ยืนยันการแก้ไข** stayed locked with "⚠️ ยังกรอกไม่ครบ: เลือกธนาคารสำหรับคืนค่าประกัน (อีก 2 รายการ)". The fields sat at the bottom of the window, so the customer saw "not complete" after filling in everything they could see. This matches "มันบอกแก้ไขข้อมูลไม่เสร็จ… ผมใส่หมดแล้ว". Any renter who edits customer details on that page was stuck the same way.
+
+**Other problems on the same page, found while checking:**
+- The page showed "ยังแก้ไขรายการไม่ได้ชั่วคราว เพราะโหลดข้อมูลราคาที่บันทึกไว้ไม่ครบ" when a VIP rental's entitlement could not be re-read. Customers read this as "my data is incomplete".
+- Every Pay failure showed one generic toast, "เปิดหน้าชำระเงินไม่สำเร็จ กรุณาลองใหม่", whatever the cause: payment status unreadable, a Booking already in the DA, cancelled, Beam error and so on. Every save failure showed "บันทึกการแก้ไขไม่สำเร็จ".
+- A saved Thai name blocked saving on an English page.
+- Drawing the hidden order page threw when the rental's device was not in the catalogue, and that aborted Pay.
+
+**Website (index.html).**
+- On the payment-link page, refund validation is skipped and the refund block is hidden. The saved name always passes in either language.
+- The locked-editing notice now says the details are complete and the customer can pay as usual. To change anything, message the shop on LINE. TH/EN.
+- Pay and save failures open a popup with:
+  - the specific cause (TH/EN);
+  - "no money has been taken" and the Rental ID;
+  - a problem code, a retry button, and a LINE button with a pre-filled message carrying the Rental ID and problem code.
+  
+  Each failure is also sent to analytics as `client_error` `pay_resume_pay_failed` / `pay_resume_save_failed`, with `code:rentalId`.
+- The order page skips drawing when the device is missing.
+- Tests: new `tests/pay-resume-returning.test.mjs`; 383/383 pass.
+
+**Bot (server.js, new `services/pay-resume-alert.js`).**
+- A refusal at Pay sends the shop a TH/EN notice with the Rental ID, name, phone, method and reason, at most once per rental and reason every 30 minutes. Reasons: `payment_state_unavailable`, `booking_exists`, `cancelled`, `amount_unknown`, `rental_update_failed`, `payment_link_failed`, `payment_unavailable`.
+- A Beam link error now returns `payment_link_failed` (502) instead of an unhandled 500.
+- The payment page retries the VIP lookup once, and logs the case where the entitlement is not found.
+- Tests: new `test/pay-resume-alert.test.js`; 730/730 pass.
+
+**Checks.**
+- Browser with a stubbed Bot, TH and EN. Live code: the edit is stuck exactly as the customer described. New code: an address edit saves, the delivery fee is re-quoted, and the new map and quote are sent to `/payment-page/update`. Error popups were checked.
+- Real Bot with the fake world: payment-link pay reaches Beam in TH and EN.
+
+**Owner:**
+- After deploy, the customer can open the same LINE link again, edit the address, and pay.
+- Production logs were not reachable from here. To check why COP's Pay itself failed, search the Bot's Render logs for COP's Rental ID around 20:19–20:23: `Payment-page`, `Pay-later Beam status unavailable`, `Pay-later payment status source unavailable`, `rental-settlement-status`.
+
 ## 2026-10-22 — Customer trip page laid out for computers and phones; one card picture
 
 Delivery App `c27fbca` changes the customer trip page (`/c/trip/:token`) in both TH and EN.
