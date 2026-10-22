@@ -1,3 +1,50 @@
+## 2026-10-22 — Audit after the Codex commits; Delivery App slowness; Phase 5 readiness
+
+**Audit.** All four repos pulled to the latest `main` (Bot 36 new commits, Delivery App 36, AJ Office 9, website 30+ including docs). Suites: website 373/373, AJ Office 71/71, Delivery backend + frontend TypeScript pass, and every Delivery `test:*` script passes except `test:header-guard`, which needs real Google credentials by design. Bot was 724/726 on `main`; both failures are fixed in `0c73ca2` (Bot `main` and `claude/blissful-brahmagupta-pawyxg`), now 726/726:
+- `normalizeBroadcast` validated a scheduled send against `Date.now()` instead of the broadcast service's injected clock, so the scheduled-send test broke once its fixed date (21/10) passed. It now uses the service clock.
+- The verify-later page test waited a fixed 35 ms and lost the race in a busy full-suite run; it now polls for the outcome.
+- Delivery had two stale tests failing on `main`: `test:console-pending-reservation` still expected the LINE chat gate that was removed on purpose on 13/10 (`ce43265`), and `test:bind-rental-code` reached real Google Sheets through a phone lookup added later. Both now match current behaviour (73/73, 20/20). This also clears the "unrelated Invalid URL" note in the VIP entry below.
+
+**Delivery App slowness — measured, causes, fixes.** Production is unreachable from the container, so a harness (`npm run perf:sheets` in `delivery-app/backend`) runs the real routes against a fake Sheets client with real-world latency (350 ms per trip plus transfer time) and 20 pending rows. Opening Console Pending as the app does it (list, then a quote for every row):
+
+| | before | after |
+|---|---|---|
+| first open | 10.2 s, CPU 2.3 s | 3.9 s, CPU 0.47 s |
+| reopened at once | 5.7 s, CPU 2.3 s | 0.16 s, CPU 0.18 s |
+| reopened after cache expiry | 9.4 s, CPU 1.8 s | 3.0 s, CPU 0.26 s |
+
+Causes found and fixed:
+1. **Each row's quote rebuilt the whole Pending list.** The modal prices every row on open, and `POST /api/console-pending/quote` called `listConsolePending()` to find one row: 20 rows meant 20 full listings. The list and the quotes now share one build, `listConsolePendingShared()`. It is kept for 10 seconds or less, and dropped as soon as any write touches the tabs it was built from. Confirm, cancel and the payment webhooks still build a fresh list.
+2. **The Console Pending prewarm fetched the wrong ranges.** It fetched `Booking Log!A:BA` and `Inventory`, but the booking reader asks for `A:EZ`, so every open downloaded about 0.5 MB that nobody read. It also blocked the other reads. It now fetches only LOG, AJ Contract and Rental Payments; the ledger ranges come from `ledgerReadRanges()`. Bookings and Inventory start in parallel.
+3. **Finance row inserts cleared every cached read.** Inserting or colouring a Finance row (a separate spreadsheet) after every booking edit cleared the read cache of the main sheet too. Structural invalidation is now scoped to the written `spreadsheetId`, with a test.
+4. **Dual mode compared with Postgres on every read.** Every Booking list read started a full `SELECT * FROM bookings` and diff, plus up to 50 sequential conflict upserts, dozens of times a minute. This is now at most once per 5 minutes (`DUAL_READ_COMPARE_MS`). `POST /api/admin/db/verify` remains the full check.
+5. **Smaller fixes.** `queueHoldOf` threw on every blank JSON cell for every row. The resubmission extras lookup scanned the whole log per item.
+6. **The modal waited on a blank spinner.** It now shows the previous list at once, with "กำลังอัปเดตรายการล่าสุด…". Confirm and cancel stay disabled until the fresh list arrives.
+
+Still Sheets-bound: every first read after the 20–30 s cache is one or more round trips of 0.5–3 s each, plus a fresh read before each write. Only Postgres removes that.
+
+**Render plan (owner to check).** `delivery-app/render.yaml` declares the backend as `plan: free`. On free, the instance has about 0.1 CPU and 512 MB of memory, and sleeps after 15 minutes idle, so the first open takes about a minute. The harness CPU figures would be about 10× on it. If the dashboard really shows Free, moving the backend to Starter (about $7/month, always on) is the quickest improvement. The Bot's `render.yaml` already says `starter`.
+
+**Phase 5 (Postgres) readiness — recommendation: yes, start now, but as a short project, not a flag flip.**
+- Ready: every Booking field, including the new Queue Hold, Promotion Snapshot, Financial Correction and VIP No Identity Deposit fields, has a migration (011–014), a `pgBookingRepo` mapping, and full-column comparison in `verifySheetsVsPg`.
+- Not ready:
+  - (a) `bookingRepo` has no `pg` mode yet; it is deliberately unreachable.
+  - (b) Parity is unknown since 09/10, when there were 51 differences and 72 open conflicts.
+  - (c) `shadow()` Postgres writes are fire-and-forget, with no retry or count, so a failed write is permanent drift.
+  - (d) Customers are still written outside the repo: `customerIdentityService` writes W and AA–AD directly, and `lineIdentityService` calls `CustomerService.ensureFromBooking`.
+  - (e) Owner decision 6.2 is still open: staff editing Booking Log directly in Sheets has to stop after the switch.
+  - (f) The Sheets mirror (6.1) is built but `SHEET_MIRROR_ENABLED` is off.
+- Phase 5 moves bookings, customers and inventory. Console Pending also reads LOG, AJ Contract and Rental Payments, which stay on Sheets, so that screen will improve less than the Booking list and queue.
+- Suggested order:
+  1. Deploy these fixes and check the Render plan.
+  2. Add a retry queue for shadow writes, with a count in `/api/admin/db/status`, and route the Customers writes through `customerRepo`.
+  3. Implement `DATA_SOURCE_BOOKINGS=pg` (Postgres answers, Sheets mirrored) with tests.
+  4. Re-import, then `db/verify` must show 0; close the conflicts.
+  5. Watch for 2 days at 0.
+  6. Switch outside business hours, with the flag ready to roll back.
+
+Delivery App commit `2bd4e0a` (main); details in its CHANGELOG and SHARED-WORKSPACE §4 (22/10).
+
 ## 2026-10-21 — Nintendo Switch 2 game IDs use one store offer by default
 
 - Follow-up `ecd167c`: Codex fixed the PS5-page switcher tab to say Nintendo Switch 2 and corrected the generated Switch page's legacy-platform normalizer. The builder's broad text replacement had changed its regular expression, so old Gist entries still showed “Nintendo Switch” under each game. Both pages now display that legacy label as Nintendo Switch 2 without changing the stored data. All 373 tests passed; browser checks confirmed the tab and old-label conversion on both pages.
