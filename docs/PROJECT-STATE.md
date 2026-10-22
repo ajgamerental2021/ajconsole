@@ -1,3 +1,15 @@
+## 2026-10-22 — Newly ready games lead the picker; centred booking heading on phones
+
+**Game picker, all consoles.** When a game marked "not ready" reaches its ready date, it now moves to the front of the ready games. It sits right behind the games still waiting, however long ago it was added.
+- Ready games in ID order are ranked by when they joined the ready group: the ready date for a game that was waiting, or `insertedAt` for a newly added game. The newest is first, and anything else falls back to its admin ID.
+- Editing a new game (autoFront cleared), or unticking "not ready" on a game whose date has passed, hands the position back to the admin's ID.
+- Nintendo Switch Sports Resort (ready 22/10) now comes before Fire Emblem Fortune's Weave.
+- `gamePickerVersion` is bumped to `20261022-1` so phones load the new picker.
+
+**Booking page heading on phones (≤640 px), TH/EN.** The "ทำรายการเช่า / จองคิวเช่าเครื่องเกม / เลือกเครื่อง…" block is full-width and centred, with a larger title and a balanced subtitle. The LINE profile card beside it ("ประวัติการเช่า") is hidden on phones only. PC and tablet are unchanged.
+
+Website tests 378/378, including 2 new ordering behaviour tests. Browser check at 360/390 px (TH/EN) and 1280 px: centred, no overflow, no errors.
+
 ## 2026-10-22 (later) — Website fixes, DA dependency patch, Phase 5 sync and `pg` mode
 
 **Website (`ac66f2c`, main + claude branch).**

@@ -833,15 +833,14 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
   .home-card{border-radius:12px;padding:10px}
   .home-card h3{font-size:15px}
   .home-card p{font-size:11px;line-height:1.35}
-  .calc-head-wrap{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:stretch;gap:8px}
-  .calc-head-wrap .section-head{display:flex;flex-direction:column;justify-content:center;text-align:left}
-  .calc-head-wrap .tag{font-size:10px;margin-bottom:2px}
-  .calc-head-wrap h2{font-size:20px;line-height:1.15}
-  .calc-head-wrap .section-head p{font-size:12px;line-height:1.35;margin-top:4px}
-  .calc-head-wrap .line-card{height:100%;padding:10px;box-shadow:none}
-  .calc-head-wrap .line-name{font-size:13px}
-  .calc-head-wrap .line-actions{gap:5px;margin-top:7px}
-  .calc-head-wrap .line-actions .btn{min-width:0;padding:8px 6px;font-size:11px}
+  /* Phones: the heading takes the full width, centred; the LINE card that
+     sits beside it on larger screens is left out. */
+  .calc-head-wrap{display:block;margin-bottom:18px}
+  .calc-head-wrap .calc-line-host{display:none}
+  .calc-head-wrap .section-head{display:block;text-align:center}
+  .calc-head-wrap .tag{font-size:11px;letter-spacing:2px;margin-bottom:4px}
+  .calc-head-wrap h2{font-size:clamp(27px,8.4vw,34px);line-height:1.15;text-wrap:balance}
+  .calc-head-wrap .section-head p{font-size:14px;line-height:1.4;margin-top:6px;text-wrap:balance}
   .grid2,.cal-months{grid-template-columns:1fr}
   .step-text-grid,.step-images.split{grid-template-columns:1fr}
   #stepsModal .calendar-body{padding-bottom:12px}
@@ -1921,7 +1920,7 @@ body{background:#f7f8fa}
 
   const CONFIG = {
     version: "index2-clean-1",
-    gamePickerVersion: "20261019-1",
+    gamePickerVersion: "20261022-1",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",

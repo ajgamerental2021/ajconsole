@@ -4301,6 +4301,20 @@ function isGameUnavailable(g) {
   if (hasLiveRentalWindow()) return !gameReadyDuringRental(g);
   return today < ready;
 }
+/**
+ * When a ready game joined the ready group: the day a not-ready game reached
+ * its ready date, or the moment an admin added a new ready game. 0 for games
+ * placed by their ID alone. Editing a new game clears autoFront, and
+ * unticking "not ready" on a game that has reached its date drops the date,
+ * so in both cases the admin's ID takes over again.
+ */
+function readyGroupSince(g) {
+  if (g && g.unavailable) {
+    const ready = normalizePickerDate(g.available_date);
+    if (ready) return Date.parse(`${ready}T00:00:00+07:00`) || 0;
+  }
+  return g && g.insertedAt && g.autoFront !== false ? Number(g.insertedAt) || 0 : 0;
+}
 function compareGamesForDisplay(a, b, mode) {
   const aUnavailable = isGameUnavailable(a);
   const bUnavailable = isGameUnavailable(b);
@@ -4310,15 +4324,12 @@ function compareGamesForDisplay(a, b, mode) {
     if (dateOrder) return dateOrder;
   }
   if (mode === 'manual' && !aUnavailable && !bUnavailable) {
-    // Admin-created games lead the ready group automatically. Editing one
-    // clears autoFront so its manually selected ID becomes authoritative.
-    const aAutoFront = !!a.insertedAt && a.autoFront !== false;
-    const bAutoFront = !!b.insertedAt && b.autoFront !== false;
-    if (aAutoFront !== bAutoFront) return aAutoFront ? -1 : 1;
-    if (aAutoFront && bAutoFront) {
-      const insertedOrder = (Number(b.insertedAt) || 0) - (Number(a.insertedAt) || 0);
-      if (insertedOrder) return insertedOrder;
-    }
+    // The newest arrivals lead the ready group, right behind the games still
+    // waiting: a game added just now, and a game that was waiting for its
+    // date and has just reached it — however long ago it was added.
+    const aSince = readyGroupSince(a);
+    const bSince = readyGroupSince(b);
+    if (aSince !== bSince) return bSince - aSince;
   }
   if (mode === 'alpha') {
     const nameOrder = String(a.name || '').localeCompare(String(b.name || ''));
