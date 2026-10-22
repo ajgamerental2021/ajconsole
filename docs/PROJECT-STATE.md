@@ -1,3 +1,41 @@
+## 2026-10-22 (later) — Website fixes, DA dependency patch, Phase 5 sync and `pg` mode
+
+**Website (`ac66f2c`, main + claude branch).**
+- Admin FAQ drafts no longer vanish. The panel redraws every 60 s when rental promotions refresh, and on tab changes, rebuilding the FAQ inputs from the saved list. Drafts are now carried across redraws, add/delete and remote syncs (`faqDraftDirty`, the same pattern as the VIP drafts).
+- New built-in FAQ, TH/EN: taking the console to another province or abroad. Answer: anywhere during the rental, but delivery and return must be in Bangkok and nearby provinces, or Chonburi/Pattaya. It is inserted by `normalizeFaq` after the date-change question, so it appears even with the stored Gist FAQ.
+- Promotion artwork cards no longer show "ดูโปรนี้ / View offer"; the picture is still the link.
+- On phones, the Google Maps and Facebook review buttons sit side by side.
+- The analytics privacy note on the before-renting page is removed (TH/EN).
+- 376/376 tests pass, including the new `admin-faq-draft`. Browser check at 390 px (TH/EN): no overflow, no errors.
+
+**DA Render build log red line (`f3225d7`).** It is the `npm audit` summary printed during `npm install`, not a failed build.
+- Fixed: `proxy-addr` (critical) and `body-parser` via `npm audit fix`, and `qs` forced to 6.16.1 through `overrides`.
+- Left: `node-forge` under `googleapis@118` (no patched version; needs a googleapis major upgrade; the vulnerable `.p12` path is unused because we use JSON keys), and `uuid` (advisory covers v3/v5/v6; we use v4).
+
+**DA Phase 5 (`4377704`).** Design: Sheets stays the record in both `dual` and `pg`.
+- **Booking sync** (`services/bookingPgSync.ts`): `config/googleSheets.ts` now announces every values write. The sync takes the Booking Log rows touched, reads them fresh, and copies them whole to Postgres.
+  - Rows are matched on Booking ID, not row number. A reused id is stored as `id~n`, and a Rental ID that moved is released from its old row.
+  - Failed copies retry at 5 s, 15 s, 1 min, then 5 min.
+  - A full pass every 5 minutes repairs differences, including hand edits, and prunes bookings gone from the sheet. It does not prune when the sheet read returns less than 80% of the stored rows.
+  - Repairs are logged in `sync_conflicts` as resolved. Stats appear in `GET /api/admin/db/status` (`bookingSync`), and `POST /api/admin/db/sync-bookings` runs a pass on demand.
+  - This also catches writes that shadow mode never saw, such as bundle-partner rows written inside BookingService.
+- **`DATA_SOURCE_BOOKINGS=pg`** (`PgReadBookingRepo`):
+  - Postgres answers the booking list and single bookings, through a cache keyed on the sync's version.
+  - Writes still go to Sheets first, then wait for Postgres.
+  - Before writing by row number, it checks that the sheet row still holds that booking. If the booking moved, it writes there; if it cannot be found, or the phone differs, it refuses.
+  - Queue tasks stay on Sheets, because Postgres has never carried `finance_sales`. Reading tasks from Postgres would drop the Finance purchase/sale jobs.
+- **Migration 016**: Postgres lacked 12 booking fields the app reads: paid amount, reservation due/method, the no-contract choice and its 3 terms fields, games, VIP rental discount, VIP deposit, delivery discount and bundle parent. They are now added, mapped and verified, and a test fails if the sheet mapping gains a field the Postgres mapping lacks.
+- **Migration 015**: customer language (W) and identity document (AA–AD) are written through `customerRepo`. `lineIdentityService` uses `customerRepo.ensureFromBooking`. The customer import now stores real sheet rows; before, it stored list position + 2, which was wrong below any row without an ID.
+- Tests: `test:booking-pg-sync` 14/14 against a real Postgres 16, and every backend suite passes except header-guard, which needs live Sheets. The perf harness in `pg` mode copies all 650 bookings and no longer downloads the 500 KB Booking Log. Console Pending still waits on the request log, contracts and payments, which stay on Sheets.
+- **After deploy, production is in `dual` mode, so the sync starts by itself.** The first full pass, about 1 minute after boot, will rewrite most rows to fill the new 016 columns.
+- **Owner/Codex next:**
+  1. `POST /api/admin/db/import {"only":"customers"}`
+  2. `POST /api/admin/db/verify`, which must show 0
+  3. Close the old conflicts with `conflicts/resolve`, giving a reason.
+  4. Watch for 2 days at 0, with `bookingSync.failures` not rising.
+  5. Set `DATA_SOURCE_BOOKINGS=pg` outside business hours. Rollback is setting it back to `dual`.
+  6. Later: carry `finance_sales` and customers, then move the queue tasks.
+
 ## 2026-10-22 — Rental booking heading copy (TH/EN)
 
 - Updated the live calculator section's three heading lines to “ทำรายการเช่า / จองคิวเช่าเครื่องเกม / เลือกเครื่อง เช็คคิวว่าง และจองออนไลน์”, with matching English copy. The fallback HTML and both I18N entries agree.
