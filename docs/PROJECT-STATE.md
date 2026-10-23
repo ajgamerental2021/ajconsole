@@ -1,3 +1,7 @@
+## 2026-10-23 — Padlock photo added after the trip link was sent now appears
+
+Delivery App: the customer trip page (`/c/trip/…`) kept its padlock and payment details for 5 minutes (`tripExtrasCache`). Saving a padlock did not clear that copy. The copy is now keyed on a Padlock Registry version, which goes up on every `savePadlock` (model, colour, photo added or removed), so the new photo shows on the next 15-second refresh. LINE cards already sent cannot change. Tests: dispatch 394/394.
+
 ## 2026-10-23 — Duplicate "ได้คนขับรับคืนแล้ว" card during a deploy
 
 Delivery App `679b30a`.
