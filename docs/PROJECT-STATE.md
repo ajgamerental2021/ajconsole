@@ -1,3 +1,16 @@
+## 2026-10-23 — Duplicate "ได้คนขับรับคืนแล้ว" card during a deploy
+
+Delivery App `679b30a`.
+
+**What happened.** AJ-20261019-R0022 got two identical return-driver cards at 09:41. That was two minutes after the DA push `15634c7`, while Render was running the old and the new server side by side. The dispatch poller started at boot, and its job lock is per process, so both servers followed the trip and both sent the card.
+
+**The fix:**
+- The server being replaced stops following trips on SIGTERM, then exits as before (code 143).
+- The new server starts following trips 90 s after boot (`DISPATCH_START_DELAY_MS`).
+- After a deploy, trip cards can be up to about 2 minutes late. No trip is left unfollowed, because the old server keeps polling until its SIGTERM.
+
+Tests: dispatch 392/392.
+
 ## 2026-10-23 — Delivery balance took the ฿200 off twice; repeat "device has arrived" card dropped once paid
 
 Delivery App `15634c7`.
