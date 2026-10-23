@@ -1,3 +1,13 @@
+## 2026-10-23 — Age rule (20+) on the step guide and every identity page, TH/EN
+
+The rule reads "ผู้เช่าต้องมีอายุ 20 ปีบริบูรณ์ขึ้นไป" in Thai and "Renters must be at least 20 years old." in English.
+
+- **Website step guide, "หลังส่งข้อมูล".** The rule is highlighted right after "ผู้เช่าครั้งแรกต้องยืนยันตัวตนก่อนนัดส่งเครื่อง". The exception was reworded so it applies to verification only: TH "ยกเว้นการยืนยันตัวตนได้หากเลือกไม่ยืนยันตัวตน…", EN "Verification can be skipped only by choosing no identity verification…".
+- **Website identity views.** A yellow notice (`ageRequirementHtml()`) appears on booking step 3 under "ยืนยันตัวตน" and at the top of the Verify-now pop-up.
+- **Bot pages.** The same notice appears on `/verify` (photos after payment), `/verify-identity` (verify to lower the deposit) and the LINE LIFF contract (under "เอกสารยืนยันตัวตน").
+- **Tests.** New: website `age-requirement` and Bot `age-requirement-pages`. Website 385/385, Bot 731/731.
+- **Owner to decide: the FAQ conflicts with this rule.** `AGE_FAQ` still says a renter under 20 can have a parent verify for them, or skip verification. Change it if under-20s should no longer be able to rent.
+
 ## 2026-10-22 — Returning customer could not pay from the payment link (COP): root cause and fix
 
 **What the customer hit (reproduced in a browser on the live code).** The LINE "unpaid rental" card opens the payment-link page (`?pay=…&t=…`). The customer changed the delivery address with **แก้ไขข้อมูล** under ข้อมูลลูกค้า. The edit window also contains the refund-account block (bank, account number, account name). That page never loads the refund account (it belongs to the agreement on file), and the Bot does not accept refund changes through this link anyway. So **ยืนยันการแก้ไข** stayed locked with "⚠️ ยังกรอกไม่ครบ: เลือกธนาคารสำหรับคืนค่าประกัน (อีก 2 รายการ)". The fields sat at the bottom of the window, so the customer saw "not complete" after filling in everything they could see. This matches "มันบอกแก้ไขข้อมูลไม่เสร็จ… ผมใส่หมดแล้ว". Any renter who edits customer details on that page was stuck the same way.
