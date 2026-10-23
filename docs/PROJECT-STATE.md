@@ -1,3 +1,24 @@
+## 2026-10-23 — Delivery balance took the ฿200 off twice; repeat "device has arrived" card dropped once paid
+
+Delivery App `15634c7`.
+
+**The balance-due figure was wrong** (AJ-20261022-R0049): total 3,294, ฿200 paid, and the card asked for 2,894 instead of 3,094.
+
+How it happened:
+1. The Console Pending quote counted `upfrontPaid` as paid. That field is the pay-now amount the renter chose on the web, written when the request is filed, before any money arrives.
+2. The shop confirmed before the ฿200 arrived, so the Booking got a balance of 3,094 with no paid figure.
+3. The real ฿200 then came off again in `applyPaymentToBooking`.
+
+What changed:
+- The quote now counts only money that actually arrived.
+- `applyPaymentToBooking` no longer deducts a payment that the balance already left out.
+- The TH and EN cards read the same figure, so both are fixed.
+- Bookings that are already wrong were not changed, and no card was re-sent.
+
+**"📦 เครื่องถึงที่อยู่ของคุณแล้ว / Your device has arrived".** This card was sent on Lalamove COMPLETED, which always comes after the handover and the transfer, so it repeated "📍 คนส่งของถึงบริเวณจุดส่งแล้ว". It is now skipped when the near-the-door card was already sent and nothing is left to pay. It is still sent as a reminder while a balance is open, and as before when no near-the-door card went out, because the customer still needs the padlock code.
+
+Tests: dispatch 391/391, console-pending-reservation 75/75, delivery balance 13/13, flex-ledger 26/26. Backend and frontend `tsc` are clean. Backend only, no APK.
+
 ## 2026-10-23 — Age rule (20+) on the step guide and every identity page, TH/EN
 
 The rule reads "ผู้เช่าต้องมีอายุ 20 ปีบริบูรณ์ขึ้นไป" in Thai and "Renters must be at least 20 years old." in English.
