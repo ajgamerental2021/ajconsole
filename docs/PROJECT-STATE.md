@@ -1,3 +1,7 @@
+## 2026-10-23 — Delivery queue: finished jobs in columns
+
+Delivery App: the "จบงานแล้ว" section of the delivery queue listed finished jobs one per line in a narrow column. It now lays them out in rows using the same `listColumns` as the active list: 4 per row on a wide PC, 2 on a tablet, 1 on a phone. Browser check at 1300/820/390 px with mocked data showed no errors. Frontend only: the web app updates on deploy, and the Android app gets it in the next APK.
+
 ## 2026-10-23 — Padlock photo added after the trip link was sent now appears
 
 Delivery App: the customer trip page (`/c/trip/…`) kept its padlock and payment details for 5 minutes (`tripExtrasCache`). Saving a padlock did not clear that copy. The copy is now keyed on a Padlock Registry version, which goes up on every `savePadlock` (model, colour, photo added or removed), so the new photo shows on the next 15-second refresh. LINE cards already sent cannot change. Tests: dispatch 394/394.
