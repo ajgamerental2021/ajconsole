@@ -1,3 +1,7 @@
+## 2026-10-23 — Android build 20261023 prepared, APK not built yet
+
+Delivery App `550c7db`: `android.versionCode` and `APP_VERSION_CODE` are now 20261023, and the CHANGELOG has a `build 20261023` entry listing the app changes since build 20261015. The APK was not built. This cloud environment cannot reach `api.expo.dev` because the network policy blocks it, and no `EXPO_TOKEN` is set. `MIN_ANDROID_VERSION_CODE` stays at 20261014 and `LATEST_APK_URL` still points at build 20261015. Raising the minimum before the file exists would lock the shop phones out of the app. Next step: build with `cd frontend && npx eas build -p android --profile preview`, either from the owner's machine or after the owner allows `api.expo.dev` and `expo.dev` and adds an `EXPO_TOKEN` secret. Then put the APK link in the CHANGELOG and `LATEST_APK_URL`, and raise `MIN_ANDROID_VERSION_CODE` to 20261023 in `render.yaml`.
+
 ## 2026-10-23 — Delivery queue: finished jobs in columns
 
 Delivery App: the "จบงานแล้ว" section of the delivery queue listed finished jobs one per line in a narrow column. It now lays them out in rows using the same `listColumns` as the active list: 4 per row on a wide PC, 2 on a tablet, 1 on a phone. Browser check at 1300/820/390 px with mocked data showed no errors. Frontend only: the web app updates on deploy, and the Android app gets it in the next APK.
