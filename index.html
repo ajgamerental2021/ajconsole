@@ -3155,6 +3155,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     c.detailsTh = detailsTh.length ? detailsTh : defaultDetails(c, "th");
     c.detailsEn = detailsEn.length ? detailsEn : defaultDetails(c, "en");
     c.readyDate = String(c.readyDate || c.unavailableUntil || "").trim();
+    // The device registry can say outright that a device comes with no games.
+    if(c.hasGames === false){ c.gamePlatform = ""; c.showGameButton = false; }
     return c;
   }
   function normalizeBundle(input, index=0){
@@ -3318,6 +3320,73 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // Four specific ฿2,000 models hold ฿5,000 without identity; other
   // ฿2,000 models hold ฿10,000. Bundles and ฿4,000 models hold ฿15,000.
   let pricingPolicy = null;
+  // The device registry: the shared "Game Devices" sheet, served by the Bot at
+  // /api/catalog. A device added there appears here with its photo, ready date,
+  // kit and game setting, without a separate entry in the Gist. A device the
+  // Gist already has keeps the Gist's card; the registry only fills what the
+  // card leaves empty (ready date, photo) and can switch its game list off.
+  let deviceRegistry = [];
+  const REGISTRY_TYPE_TO_SITE = {console:"console", vr:"vr", glasses:"vr", handheld:"handheld", racing:"racing"};
+  function registryConsoleFor(device){
+    return {
+      id:`reg_${device.id}`,
+      fromRegistry:true,
+      registryRow:device.rowNumber,
+      name:device.name,
+      nameEn:device.nameEn || device.name,
+      rate:Number(device.dailyRate) || 0,
+      weekly:Number(device.weeklyRate) || 0,
+      deposit:Number(device.securityDeposit) || 0,
+      type:REGISTRY_TYPE_TO_SITE[device.type] || "console",
+      brand:device.brand || "",
+      icon:device.type === "glasses" ? "🕶️" : device.type === "vr" ? "🥽" : device.type === "racing" ? "🏁" : device.type === "handheld" ? "💻" : "🎮",
+      hasGames:device.hasGames,
+      gamePlatform:device.hasGames === false ? "" : (device.gamePlatform || ""),
+      showGameButton:device.hasGames !== false,
+      readyDate:device.readyDate || "",
+      detailsTh:splitRegistryDetails(device.included?.th),
+      detailsEn:splitRegistryDetails(device.included?.en || device.included?.th),
+    };
+  }
+  function splitRegistryDetails(text){
+    return String(text || "").split(/\n|,\s*/).map(line => line.trim()).filter(Boolean).slice(0, 4);
+  }
+  function registryMatches(c, device){
+    const keys = [device.id, device.name, device.nameEn].map(pricingKey).filter(Boolean);
+    return [c.name, c.nameEn].map(pricingKey).some(key => key && keys.includes(key));
+  }
+  function applyDeviceRegistry(){
+    if(!deviceRegistry.length) return;
+    state.consoles = state.consoles.filter(c => !c.fromRegistry);
+    for(const id of Object.keys(state.images)) if(id.startsWith("reg_")) delete state.images[id];
+    deviceRegistry.filter(device => device && device.active !== false && device.name).forEach(device => {
+      const existing = state.consoles.find(c => registryMatches(c, device));
+      if(existing){
+        if(!existing.readyDate && device.readyDate) existing.readyDate = device.readyDate;
+        if(!getConsoleImage(existing) && device.imageUrl) state.images[String(existing.id)] = device.imageUrl;
+        if(device.hasGames === false){ existing.hasGames = false; existing.gamePlatform = ""; existing.showGameButton = false; }
+        existing.registryRow = device.rowNumber;
+        return;
+      }
+      // Only rows filled in through the registry form (they carry a type) are
+      // added as new cards. Older sheet rows have no registry fields, and a
+      // device the shop took off the website must not come back by itself.
+      if(!device.type) return;
+      const c = normalizeConsole(registryConsoleFor(device));
+      state.consoles.push(c);
+      if(device.imageUrl) state.images[String(c.id)] = device.imageUrl;
+    });
+    if(pricingPolicy) state.consoles.forEach(c => { const priced = pricedDevice(c); if(priced){ c.rate = priced.dailyRate; c.weekly = priced.weeklyRate; c.deposit = priced.securityDeposit; } });
+  }
+  async function loadDeviceRegistry(){
+    const response = await fetch(`${CONFIG.apiBase}/api/catalog`, {cache:"no-store"});
+    if(!response.ok) throw new Error("registry_load_failed");
+    const result = await response.json();
+    deviceRegistry = Array.isArray(result?.devices) ? result.devices : [];
+    applyDeviceRegistry();
+    render();
+    if(state.adminToken) renderAdmin();
+  }
   // What the owner has typed on the price tab and not saved yet. The panel is
   // rebuilt whenever promotions refresh (every minute) or the policy loads, and
   // each rebuild used to put the saved numbers back over the typing.
@@ -14753,17 +14822,86 @@ We apologize for the inconvenience and hope everyone stays safe.`
     finally { if(byId("savePricingPolicy")) byId("savePricingPolicy").disabled = false; }
   }
   function adminConsolesHtml(){
-    return `<div class="card"><h3>${tr("add")} Console</h3><div class="grid2">
-      <div class="field"><label class="label">Name TH</label><input class="input" id="newName"></div>
-      <div class="field"><label class="label">Name EN</label><input class="input" id="newNameEn"></div>
-      <div class="field"><label class="label">Rate</label><select id="newRate" class="input"><option>300</option><option>350</option><option>400</option><option>500</option></select></div>
-      <div class="field"><label class="label">Type</label><select id="newType" class="input">${typeOptions()}</select></div>
-      <div class="field"><label class="label">Brand</label><select id="newBrand" class="input">${brandOptions()}</select></div>
-      <div class="field"><label class="label">Platform ID</label><input class="input" id="newPlatform" placeholder="ps4 / ps5 / switch1"></div>
-      <div class="field"><label class="label">Image URL</label><input class="input" id="newImage"></div>
-      <label class="option-row"><input type="checkbox" id="newShowGame" checked><div><b>Show game picker</b></div></label>
-      </div><button class="btn primary" id="addConsole" type="button">${tr("add")}</button></div>
+    const en = state.lang === "en";
+    return `<div class="card"><h3>${en ? "Add a device (every system)" : "เพิ่มเครื่อง (ทุกระบบ)"}</h3>
+      <p class="hint">${en
+        ? "Saved to the device registry (Game Devices sheet): the website, the Bot, the price list and the Delivery App quotation all read it. Prices and deposits can be fine-tuned later in Prices & deposits."
+        : "บันทึกลงทะเบียนเครื่อง (ชีต Game Devices) ซึ่งเว็บ, Bot, ราคาและค่าประกัน และใบเสนอราคาใน Delivery App อ่านจากที่เดียวกัน ปรับราคา/ค่าประกันภายหลังได้ในแท็บราคาและค่าประกัน"}</p>
+      ${adminRegistryFormHtml("new", null)}
+      <button class="btn primary" data-registry-save="new" type="button">${en ? "Add device" : "เพิ่มเครื่อง"}</button>
+      <span class="hint" data-registry-status="new"></span></div>
       <div class="admin-list">${state.consoles.map(adminConsoleRow).join("")}</div>`;
+  }
+  /** One form for adding a registry device or editing one ("new" or its sheet row). */
+  function adminRegistryFormHtml(key, device){
+    const en = state.lang === "en";
+    const d = device || {};
+    const company = d.company || {};
+    const v = value => esc(value === null || value === undefined ? "" : String(value));
+    const field = (name, label, value, type = "text", extra = "") => `<div class="field"><label class="label">${label}</label><input class="input" type="${type}" data-reg-field="${name}" value="${v(value)}" ${extra}></div>`;
+    const area = (name, label, value, hint = "") => `<div class="field"><label class="label">${label}</label><textarea class="input" data-reg-field="${name}" placeholder="${esc(hint)}">${esc(value || "")}</textarea></div>`;
+    const select = (name, label, options, value) => `<div class="field"><label class="label">${label}</label><select class="input" data-reg-field="${name}">${options.map(([k, l]) => `<option value="${k}" ${String(value || "") === k ? "selected" : ""}>${l}</option>`).join("")}</select></div>`;
+    return `<div class="grid2" data-reg-form="${esc(key)}">
+      ${field("name", en ? "Name (Thai list)" : "ชื่อเครื่อง", d.name)}
+      ${field("nameEn", en ? "Name (English)" : "ชื่ออังกฤษ", d.nameEn || d.name)}
+      ${field("dailyRate", en ? "Daily rate (฿)" : "ค่าเช่ารายวัน (฿)", d.dailyRate, "number", 'min="1"')}
+      ${field("weeklyRate", en ? "Weekly rate (฿)" : "ค่าเช่ารายสัปดาห์ (฿)", d.weeklyRate, "number", 'min="1"')}
+      ${field("securityDeposit", en ? "Deposit (฿)" : "ค่าประกัน (฿)", d.securityDeposit, "number", 'min="1"')}
+      ${field("quantity", en ? "Units" : "จำนวนเครื่อง", d.quantity ?? 1, "number", 'min="0"')}
+      ${select("type", en ? "Type" : "ประเภท", [["console","Console"],["vr","VR"],["glasses",en ? "Smart glasses / AR" : "แว่น / AR"],["handheld","PC Handheld"],["racing","Racing"]], d.type || "console")}
+      ${select("brand", "Brand", Object.keys(BRAND_META).map(k => [k, brandLabel(k)]), d.brand || "other")}
+      <label class="option-row"><input type="checkbox" data-reg-field="hasGames" ${d.hasGames === false ? "" : "checked"}><div><b>${en ? "Comes with games (game picker)" : "มีเกมให้เลือก (ปุ่มเลือกเกม)"}</b></div></label>
+      ${field("gamePlatform", en ? "Game platform ID" : "Platform ID ของเกม", d.gamePlatform, "text", 'placeholder="ps5 / switch2 / meta"')}
+      ${field("imageUrl", en ? "Photo URL (https)" : "ลิงก์รูป (https)", d.imageUrl)}
+      ${field("readyDate", en ? "Available from" : "พร้อมให้บริการวันที่", d.readyDate, "date")}
+      ${area("includedTh", en ? "What's included (Thai)" : "อุปกรณ์ที่ได้รับ (ไทย)", d.included?.th)}
+      ${area("includedEn", en ? "What's included (English)" : "อุปกรณ์ที่ได้รับ (อังกฤษ)", d.included?.en)}
+      <details style="grid-column:1/-1"><summary><b>${en ? "Company quotation (Delivery App)" : "ใบเสนอราคาบริษัท (Delivery App)"}</b></summary><div class="grid2">
+        ${field("companyDayRate", en ? "Day rate, 3+ days" : "รายวัน (3 วันขึ้นไป)", company.dayRate, "number")}
+        ${field("companyWeekRate", en ? "Week rate" : "รายสัปดาห์", company.weekRate, "number")}
+        ${field("companyDeposit", en ? "Deposit, 3+ days" : "ค่าประกัน (3 วันขึ้นไป)", company.deposit, "number")}
+        ${field("companyDayRate1", en ? "Day rate, 1–2 days" : "รายวัน (1–2 วัน)", company.dayRate1, "number")}
+        ${field("companyDeposit1", en ? "Deposit, 1–2 days" : "ค่าประกัน (1–2 วัน)", company.deposit1, "number")}
+        ${select("quoteFamily", en ? "Deposit kit type" : "ชุดอุปกรณ์ในใบค่าประกัน", [["",en ? "From type" : "ตามประเภท"],["console","Console"],["switch","Nintendo Switch"],["metaquest","Meta Quest"],["vr","VR"],["ar","Viture / AR"],["smartglasses",en ? "Smart glasses" : "แว่นอัจฉริยะ"],["racing","Racing"],["remoteplay","PS Portal"]], company.family)}
+        ${area("companyKitTh", en ? "Deposit kit lines (Thai, one per line)" : "รายการอุปกรณ์ในใบค่าประกัน (ไทย บรรทัดละรายการ)", (company.kitTh || []).join("\n"))}
+        ${area("companyKitEn", en ? "Deposit kit lines (English, one per line)" : "รายการอุปกรณ์ในใบค่าประกัน (อังกฤษ)", (company.kitEn || []).join("\n"))}
+      </div></details>
+    </div>`;
+  }
+  function readRegistryForm(key){
+    const form = document.querySelector(`[data-reg-form="${CSS.escape(String(key))}"]`);
+    const payload = {};
+    form?.querySelectorAll("[data-reg-field]").forEach(input => {
+      const name = input.dataset.regField;
+      payload[name] = input.type === "checkbox" ? input.checked : input.value.trim();
+    });
+    for(const name of ["companyKitTh", "companyKitEn"]) if(typeof payload[name] === "string") payload[name] = payload[name].split(/\n/).map(line => line.trim()).filter(Boolean);
+    return payload;
+  }
+  async function saveRegistryDevice(key){
+    const en = state.lang === "en";
+    const status = document.querySelector(`[data-registry-status="${CSS.escape(String(key))}"]`);
+    const payload = readRegistryForm(key);
+    if(!payload.name || !payload.includedTh || !payload.includedEn || !(Number(payload.dailyRate) > 0) || !(Number(payload.weeklyRate) > 0) || !(Number(payload.securityDeposit) > 0)){
+      if(status) status.textContent = en ? "Fill in the name, rates, deposit and what's included in both languages." : "กรอกชื่อ ค่าเช่า ค่าประกัน และอุปกรณ์ที่ได้รับทั้งไทยและอังกฤษให้ครบ";
+      return;
+    }
+    if(status) status.textContent = en ? "Saving…" : "กำลังบันทึก…";
+    try{
+      const isNew = key === "new";
+      const response = await fetch(`${CONFIG.apiBase}/api/admin/devices${isNew ? "" : `/${encodeURIComponent(key)}`}`, {
+        method:isNew ? "POST" : "PUT",
+        headers:{"Content-Type":"application/json",Authorization:`Bearer ${state.adminToken}`},
+        body:JSON.stringify(payload),
+      });
+      const result = await response.json().catch(() => ({}));
+      if(!response.ok || result.ok === false) throw new Error(result.error || `HTTP ${response.status}`);
+      clearAdminFieldDrafts("adminConsoles");
+      await loadDeviceRegistry();
+      toast(en ? "Saved to the device registry" : "บันทึกลงทะเบียนเครื่องแล้ว");
+    }catch(error){
+      if(status) status.textContent = (en ? "Not saved: " : "บันทึกไม่สำเร็จ: ") + error.message;
+    }
   }
   function adminConsoleRow(c){
     const img = getConsoleImage(c);
@@ -14787,8 +14925,18 @@ We apologize for the inconvenience and hope everyone stays safe.`
         <label class="option-row" style="margin-top:12px"><input type="checkbox" data-c-field="showGameButton" ${c.showGameButton?"checked":""}><div><b>Show game picker</b></div></label>
         <p class="hint">${state.lang === "en" ? "Edit rates and deposits in Prices & deposits." : "แก้ค่าเช่าและค่าประกันในแท็บ ราคาและค่าประกัน"}</p>
         <button class="btn primary" data-save-console="${esc(String(c.id))}" type="button">${tr("save")}</button>
+        ${adminRegistryEditHtml(c)}
       </div>
     </div>`;
+  }
+  function adminRegistryEditHtml(c){
+    const device = deviceRegistry.find(item => Number(item.rowNumber) === Number(c.registryRow));
+    if(!device) return "";
+    const en = state.lang === "en";
+    return `<details style="margin-top:12px"><summary><b>${en ? "Edit in the device registry (every system)" : "แก้ในทะเบียนเครื่อง (ทุกระบบ)"}</b>${c.fromRegistry ? ` · <span class="hint">${en ? "this card comes from the registry" : "การ์ดนี้มาจากทะเบียน"}</span>` : ""}</summary>
+      ${adminRegistryFormHtml(String(device.rowNumber), device)}
+      <button class="btn primary" data-registry-save="${esc(String(device.rowNumber))}" type="button">${en ? "Save to registry" : "บันทึกลงทะเบียน"}</button>
+      <span class="hint" data-registry-status="${esc(String(device.rowNumber))}"></span></details>`;
   }
   function typeOptions(selected="console"){ return [["console","Console"],["vr","VR & AR"],["handheld","PC Handheld"],["racing","Racing"]].map(([v,l]) => `<option value="${v}" ${selected===v?"selected":""}>${l}</option>`).join(""); }
   function brandOptions(selected="other"){ return Object.keys(BRAND_META).map(k => `<option value="${k}" ${selected===k?"selected":""}>${brandLabel(k)}</option>`).join(""); }
@@ -15171,8 +15319,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
     return {
       version: CONFIG.version,
       savedAt: new Date().toISOString(),
-      consoles: state.consoles,
-      images: state.images,
+      // Registry devices live in the Game Devices sheet, not the Gist.
+      consoles: state.consoles.filter(c => !c.fromRegistry),
+      images: Object.fromEntries(Object.entries(state.images).filter(([id]) => !id.startsWith("reg_"))),
       homeData: state.home,
       faqData: state.faq,
       socialProof: state.social,
@@ -15203,6 +15352,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(Array.isArray(data.rentalBundles)) state.bundles = data.rentalBundles.map(normalizeBundle);
     if(Array.isArray(data.rentalAccessories)) state.accessories = data.rentalAccessories.map(x => Object.assign({}, x, {consoleIds:Array.isArray(x.consoleIds)?x.consoleIds.map(String):[]}));
     ensureCoreAccessories();
+    applyDeviceRegistry();
     if(pricingPolicy) state.consoles.forEach(c => { const priced=pricedDevice(c); if(priced){c.rate=priced.dailyRate;c.weekly=priced.weeklyRate;c.deposit=priced.securityDeposit;} });
     saveLocal();
     if(options.render !== false) render();
@@ -16067,6 +16217,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(targetId === "mapsHelp") showMapsHelp();
       if(targetId === "faqExpandBtn"){ state.faqExpanded = !state.faqExpanded; renderFAQ(); }
       if(targetId === "addConsole") addConsoleFromAdmin();
+      const registrySave = event.target.closest?.("[data-registry-save]");
+      if(registrySave){ void saveRegistryDevice(registrySave.dataset.registrySave); return; }
       if(targetId === "saveHome") saveHomeFromAdmin();
       if(targetId === "addFaq"){ readFaqDraftIntoState(); state.faq.push({qTh:"",aTh:"",qEn:"",aEn:""}); saveAndRenderAdmin("FAQ added"); }
       if(targetId === "saveFaq") saveFaqFromAdmin();
@@ -16592,6 +16744,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       .then(() => keepManualReturning ? false : detectLineReturningEligibility().catch(() => false));
     gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {});
     loadPricingPolicy().catch(error => console.warn("Pricing policy unavailable",error));
+    loadDeviceRegistry().catch(error => console.warn("Device registry unavailable",error));
     loadRentalPromotions().catch(error => console.warn("Rental promotions unavailable",error));
     document.addEventListener("visibilitychange", () => {
       if(!document.hidden) loadRentalPromotions().catch(error => console.warn("Rental promotions unavailable",error));

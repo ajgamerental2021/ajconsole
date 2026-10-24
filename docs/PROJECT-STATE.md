@@ -1,3 +1,39 @@
+## 2026-10-24 — Device registry, morning brief, card preview, durable send-once, customer language
+
+All three repos were changed today. Owner setup steps are at the end.
+
+- **1.3 Card preview** (Delivery App `ada6001`):
+  - Dashboard button "💬 ดูการ์ด LINE ตัวอย่าง" opens `/c/staff/cards` through a 30-minute purpose JWT.
+  - The page shows every customer card, Thai and English side by side, built from the same `cardSuite.ts` as the LINE test push. The morning brief card is included.
+  - Buttons push the set to `LINE_TEST_USER_ID`.
+- **1.4 Morning brief** (Delivery App `57f670c`):
+  - Sent daily at 08:30 Bangkok to `AJ_SHOP_LINE_USER_IDS`. Contents: today's deliveries and returns with amounts to collect, tomorrow's count, identity holds, unlinked payments from the last 14 days, and Postgres sync failures.
+  - Once per day via durable markers (`Sent Markers` tab).
+  - `DAILY_BRIEF_TIME` changes the time; `DAILY_BRIEF=off` turns it off. `POST /api/line/daily-brief/send-now` sends it immediately.
+- **2.2 Durable send-once:**
+  - Bot `52438a8`: receipt, contract and identity cards are remembered in site content (`line-delivered-cards`, hashed, 14 days). The Beam payment record now uses the same `durable-keys.js` helper.
+  - Delivery App `389b50f`: the multi-extension shop alert claims its 6-hour slot durably.
+  - Other Delivery App guards were already durable.
+- **2.3 Customer language:**
+  - Delivery App `7269811`: new signed `/api/integrations/aj-rental/customer-language` (on the gate allow list).
+  - Bot `567fd8f`: slip replies use the rental's saved language, then the chat text, then what the Delivery App knows, then Thai.
+- **2.5 Admin drafts** (website `51c11b2`): unsaved typing is kept on every admin tab.
+- **2.1 Device registry:**
+  - The `Game Devices` sheet gains columns L–Z: Name EN, Type, Brand, Has Games, Game Platform, Image URL, Ready Date, company quote rates for 3+ days and 1–2 days, kit TH/EN, Quote Family.
+  - Bot: `device-registry.js`; `/api/catalog` and the admin device routes carry the new columns.
+  - Website: registry rows that have a Type set are added as cards. A Gist card for the same device wins, and the registry only fills an empty ready date or photo, or turns off its games. Registry cards are never pushed into the Gist.
+  - Website admin: the "เพิ่มเครื่อง (ทุกระบบ)" form writes the registry, and each registry-linked card has an "แก้ในทะเบียน" editor.
+  - Delivery App: the quotation merges registry company rates and kits; the game picker honours Has Games.
+  - Old rows with blank registry cells behave exactly as before.
+- **Tests:**
+  - Website 394.
+  - Bot 743 + registry 4.
+  - Delivery App: device-registry 20, card-preview 12, daily-brief 30, customer-language 7, plus the related suites. Both tsc runs pass.
+- **Owner setup:**
+  - Set `LINE_TEST_USER_ID` on the Delivery App (Render) for the preview send button.
+  - Confirm `AJ_SHOP_LINE_USER_IDS` lists the shop's LINE accounts for the morning brief.
+  - Fill the new registry columns for Ray-Ban (Type `glasses`, Has Games FALSE, company rates 1000/6000/4000 and 2000/8000, kit lines) through the admin form, or leave them blank: the coded defaults already cover Ray-Ban.
+
 ## 2026-10-24 — Admin: typed values kept on every tab
 
 - The website admin is rebuilt by background refreshes: promotions every minute, the Gist, the price policy. Each rebuild put stored values back over unsaved typing on every tab, not only the price tab.

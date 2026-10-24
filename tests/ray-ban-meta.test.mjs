@@ -131,3 +131,47 @@ test('typing on any other admin tab survives a rebuild until that tab is saved',
   ctx.restore();
   assert.equal(fields[0].value, '', 'passwords are never kept');
 });
+
+test('device registry: new registry devices join the list, old rows and the Gist stay in charge', () => {
+  const start = source.indexOf('  let deviceRegistry = [];');
+  const block = source.slice(start, source.indexOf('  async function loadDeviceRegistry(){', start));
+  const ctx = vm.createContext({
+    state: {consoles: [{id: 1, name: 'PS5', nameEn: 'PS5', readyDate: '', showGameButton: true, gamePlatform: 'ps5'}], images: {}},
+    pricingPolicy: null,
+    pricingKey: value => String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ''),
+    getConsoleImage: c => ctx.state.images[String(c.id)] || '',
+    normalizeConsole: c => Object.assign({}, c),
+    pricedDevice: () => null,
+  });
+  vm.runInContext(`${block};this.apply = applyDeviceRegistry; this.set = list => { deviceRegistry = list; };`, ctx);
+  ctx.set([
+    {id: 'glasses', name: 'Glasses', type: 'glasses', hasGames: false, dailyRate: 350, weeklyRate: 1800, securityDeposit: 4000, imageUrl: 'https://x/g.webp', readyDate: '2026-10-28', included: {th: 'แว่น, เคส', en: 'Glasses, case'}, rowNumber: 19},
+    {id: 'ps5', name: 'PS5', type: '', hasGames: null, imageUrl: 'https://x/ps5.webp', readyDate: '2026-11-01', rowNumber: 2},
+    {id: 'old', name: 'Old Row', type: '', rowNumber: 5},
+    {id: 'off', name: 'Switched Off', type: 'console', active: false, rowNumber: 6},
+  ]);
+  ctx.apply();
+  const names = ctx.state.consoles.map(c => c.name);
+  assert.deepEqual(JSON.parse(JSON.stringify(names)), ['PS5', 'Glasses'], 'only typed, active registry rows are added; no duplicates');
+  const glasses = ctx.state.consoles.find(c => c.name === 'Glasses');
+  assert.equal(glasses.fromRegistry, true);
+  assert.equal(glasses.type, 'vr', 'glasses sit under VR & AR');
+  assert.equal(glasses.showGameButton, false);
+  assert.equal(glasses.deposit, 4000);
+  assert.equal(ctx.state.images['reg_glasses'], 'https://x/g.webp');
+  const ps5 = ctx.state.consoles.find(c => c.name === 'PS5');
+  assert.equal(ps5.readyDate, '2026-11-01', 'the registry fills a ready date the card left empty');
+  assert.equal(ctx.state.images['1'], 'https://x/ps5.webp', 'and a missing photo');
+  ctx.apply();
+  assert.equal(ctx.state.consoles.length, 2, 're-applying does not stack copies');
+  assert.match(source, /consoles: state\.consoles\.filter\(c => !c\.fromRegistry\)/, 'registry devices are never pushed into the Gist');
+  assert.match(source, /images: Object\.fromEntries\(Object\.entries\(state\.images\)\.filter\(\(\[id\]\) => !id\.startsWith\("reg_"\)\)\)/);
+  assert.match(source, /if\(c\.hasGames === false\)\{ c\.gamePlatform = ""; c\.showGameButton = false; \}/, 'no-games is honoured for every card');
+});
+
+test('the admin add-device form writes the registry through the Bot, in both languages', () => {
+  assert.match(source, /fetch\(`\$\{CONFIG\.apiBase\}\/api\/admin\/devices\$\{isNew \? "" : `\/\$\{encodeURIComponent\(key\)\}`\}`/);
+  assert.match(source, /เพิ่มเครื่อง \(ทุกระบบ\)/);
+  assert.match(source, /Add a device \(every system\)/);
+  assert.match(source, /กรอกชื่อ ค่าเช่า ค่าประกัน และอุปกรณ์ที่ได้รับทั้งไทยและอังกฤษให้ครบ/);
+});
