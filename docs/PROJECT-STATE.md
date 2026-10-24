@@ -1,3 +1,7 @@
+## 2026-10-24 — Trips bar names each console
+
+The bar, the map popup and the live notification now name each trip's console (e.g. PS5-5, MQ3-2). `GET /api/dispatch/active` reads the bookings once per call to fill `deviceName`. trip-live 22/22; browser check OK.
+
 ## 2026-10-24 — Queue: trips-on-the-road bar, live trip notifications, two panels hidden
 
 - **Delivery App, panels hidden:** Daily Cash Summary and the "run tomorrow?" banner are hidden by default. Profile → "🗂️ แผงในหน้าคิว" turns them back on for that device (`queuePanelPrefs`).
