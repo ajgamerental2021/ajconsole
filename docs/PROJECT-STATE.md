@@ -1,3 +1,19 @@
+## 2026-10-24 — Android build 20261024 prepared; Phase 5 status
+
+- **Delivery App `062bc28`:**
+  - Build 20261023 was never built, so it is folded into **20261024**: versionCode, `APP_VERSION_CODE` and a CHANGELOG entry covering everything since 20261015, including Ray-Ban in the quotation and Inventory and Codex's Wise extension.
+  - Still not built: this environment cannot reach `api.expo.dev` and has no `EXPO_TOKEN`.
+  - `MIN_ANDROID_VERSION_CODE` stays at 20261014 and `LATEST_APK_URL` stays on 20261015 until the APK link exists.
+- **Phase 5** (from `docs/POSTGRES_MIGRATION.md` and SHARED-WORKSPACE; live state not readable from here):
+  - Done: 5.0 code. 5.0b mostly done on 22 Oct (verify fell from 52 to 2 differences; migration 017 shipped for the shared Rental IDs).
+  - Remaining:
+    - confirm `db/verify` = 0 and that `bookingSync.failures` does not rise for 2 days;
+    - 5.1 switch `DATA_SOURCE_BOOKINGS=pg` out of hours (half a day);
+    - 5.2 watch for 1 week;
+    - 5.3 customers, then inventory, one at a time;
+    - Phase 6 mirror (1 day).
+  - Estimate: bookings read from Postgres in about 3–5 days if verify is already 0. Full use, including customers/inventory and the mirror, in about 2–3 weeks. 5.0b/5.1 have no owner assigned yet.
+
 ## 2026-10-24 — Step 2 WhatsApp wording; payment instructions as cards with copy / Pay buttons
 
 - **Website, Step 2 "Use WhatsApp" (English only):**
