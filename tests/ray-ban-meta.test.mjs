@@ -65,3 +65,10 @@ test('typing on the price tab survives the panel being rebuilt', () => {
   assert.match(render, /if\(pricingDraftDirty\) restorePricingDraft\(pricingDraft\);/);
   assert.match(source, /document\.addEventListener\("input", event => \{ if\(event\.target\?\.closest\?\.\("#adminPricing"\)\) pricingDraftDirty = true; \}\);/);
 });
+
+test('the Step 2 WhatsApp message says the booking is finished on the website', () => {
+  const start = source.indexOf('  async function chooseDemoWhatsApp(');
+  const body = source.slice(start, source.indexOf('\n  }', start));
+  assert.match(body, /I'm finishing my booking \$\{code\} on your website\. Once it's confirmed, please send my booking updates to this WhatsApp\./);
+  assert.doesNotMatch(body, /I am booking rental/);
+});

@@ -1,3 +1,18 @@
+## 2026-10-24 — Step 2 WhatsApp wording; payment instructions as cards with copy / Pay buttons
+
+- **Website, Step 2 "Use WhatsApp" (English only):**
+  - The prefilled message read as if the shop would take the booking over in chat.
+  - It now reads: "Hello AJ Game Rental, I'm finishing my booking AJ-… on your website. Once it's confirmed, please send my booking updates to this WhatsApp."
+  - The welcome reply in the screenshot is not in our code. It is presumably the WhatsApp Business app's own greeting.
+- **Delivery App `extensionPaymentFlex`:** the extension bank-transfer text is replaced by a Flex card, in Thai and English.
+  - Bank transfer: amount, rental ID, Krungthai account and a clipboard "Copy account number" button that copies digits only.
+  - Card / e-wallet: amount, method and a "Pay now" button to the request's Beam link. No card is sent without a link.
+  - `bankAccountBlock` gives every Delivery App bank card the copy button.
+- **Bot:** the payment-option card's bank block gains the copy button. Other Bot bank cards already had one.
+- **Checked:**
+  - Remaining plain-text account blocks were reviewed. They are copy texts for WhatsApp/Messenger, staff or driver notes, or an unused LINE text push, so none is sent to a LINE customer.
+  - Tests: Delivery App extension-payment-card 44 plus the related card suites; Bot 740; website 391.
+
 ## 2026-10-24 — Price tab keeps typing and adds missing models; duplicate ฿200 card; Thai slip card; Ray-Ban everywhere
 
 - **Price tab (website):**

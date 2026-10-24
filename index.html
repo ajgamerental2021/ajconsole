@@ -11189,7 +11189,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!UNIFIED_FLOW_DEMO || state.lang !== "en") return;
     try{
       const code = await ensureRentalCode(calcSummary());
-      const message = `Hello AJ Game Rental, I am booking rental ${code}. Please send me booking updates here on WhatsApp.`;
+      // Step 2 only chooses where updates go; the booking itself is finished
+      // on the website. The message must not read as a request for the shop to
+      // take the booking over in chat.
+      const message = `Hello AJ Game Rental, I'm finishing my booking ${code} on your website. Once it's confirmed, please send my booking updates to this WhatsApp.`;
       demoProfile.preferredContactChannel = "whatsapp";
       saveDemoProfile({now:true});
       render();
