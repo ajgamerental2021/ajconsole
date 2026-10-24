@@ -1,3 +1,23 @@
+## 2026-10-24 — Queue: trips-on-the-road bar, live trip notifications, two panels hidden
+
+- **Delivery App, panels hidden:** Daily Cash Summary and the "run tomorrow?" banner are hidden by default. Profile → "🗂️ แผงในหน้าคิว" turns them back on for that device (`queuePanelPrefs`).
+- **Trips-on-the-road bar:**
+  - Appears while any Lalamove or Grab trip is running, from any day, showing the count.
+  - Folded by default, and folds itself again a minute after being opened.
+  - Each row shows the stage wording for delivery and return in Thai and English, a Grab-style progress track, "ถึงใน X นาที (HH:MM) · เหลือ Y กม.", and the driver.
+  - The map button opens that trip's live staff map in a popup.
+  - Data comes from `GET /api/dispatch/active` (backend `dispatch/tripLive.ts`).
+- **Live notifications:** one updating notification per trip.
+  - Browser (Windows/macOS/Android Chrome): same tag, silent.
+  - Android app: an ongoing notification on a quiet "Trips on the road" channel.
+  - iPhone app: a passive notification.
+  - Each is replaced on every refresh and removed when the trip ends. It updates while the app or tab is open. Profile switch, on by default.
+- **Not done: iOS Live Activities / Dynamic Island.** They need an ActivityKit widget extension (Swift), an iOS EAS build, and APNs live-activity push from the backend. The app ships as an Android APK plus web today. True Android "Live Updates" with lock-screen progress, and updates while the app is closed, need a native module (e.g. Notifee) and server pushes. Both are left for a decision.
+- **Checked:**
+  - trip-live 21/21.
+  - The web build was run in Chromium with stubbed data: panels hidden, the bar folds and opens with 2 trips, the map popup works, notifications tagged trip-J1/J2 appear, the Profile switch restores Daily Cash Summary, no errors.
+  - The native notification path is type-checked only, not run on a device.
+
 ## 2026-10-24 — Device registry, morning brief, card preview, durable send-once, customer language
 
 All three repos were changed today. Owner setup steps are at the end.
