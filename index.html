@@ -3311,6 +3311,29 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // Four specific ฿2,000 models hold ฿5,000 without identity; other
   // ฿2,000 models hold ฿10,000. Bundles and ฿4,000 models hold ฿15,000.
   let pricingPolicy = null;
+  // What the owner has typed on the price tab and not saved yet. The panel is
+  // rebuilt whenever promotions refresh (every minute) or the policy loads, and
+  // each rebuild used to put the saved numbers back over the typing.
+  let pricingDraftDirty = false;
+  let pricingDraft = null;
+  const PRICING_DRAFT_FIELDS = "#adminPricing [data-price], #adminPricing [data-tier-normal], #adminPricing [data-tier-noid], #pricingBundle";
+  function pricingDraftKey(input){
+    if(input.id === "pricingBundle") return "bundle";
+    if(input.dataset.price) return `price:${input.dataset.price}`;
+    if(input.dataset.tierNormal !== undefined) return `normal:${input.dataset.tierNormal}`;
+    if(input.dataset.tierNoid !== undefined) return `noid:${input.dataset.tierNoid}`;
+    return "";
+  }
+  function readPricingDraft(){
+    const draft = {};
+    $$(PRICING_DRAFT_FIELDS).forEach(input => { const key = pricingDraftKey(input); if(key) draft[key] = input.value; });
+    return draft;
+  }
+  function restorePricingDraft(draft){
+    if(!draft) return;
+    $$(PRICING_DRAFT_FIELDS).forEach(input => { const key = pricingDraftKey(input); if(key && Object.prototype.hasOwnProperty.call(draft, key)) input.value = draft[key]; });
+  }
+  document.addEventListener("input", event => { if(event.target?.closest?.("#adminPricing")) pricingDraftDirty = true; });
   const DEFAULT_RENTAL_PROMOTIONS = {version:1,campaigns:[
     {id:"after-work-3-days",titleTh:"After Work 3 คืน",titleEn:"After Work 3 Nights",enabled:true,startDate:"",endDate:"",startWeekdays:[1,2],days:3,deviceKeys:[],mode:"fixed",fixedPrice:0,percent:0,pricesByDevice:{},pricesByDailyRate:{300:777,350:888,400:999,500:1299}},
     {id:"pc-handheld-week-2026",titleTh:"โปรเครื่องเกมพกพา 3 วัน",titleEn:"PC Handheld Limited Week",enabled:true,startDate:"2026-10-21",endDate:"2026-10-25",startWeekdays:[],days:3,deviceKeys:["steamdeckoled","rogxboxallyx","lenovolegiongo2"],mode:"fixed",fixedPrice:0,percent:0,pricesByDevice:{steamdeckoled:899,rogxboxallyx:999,lenovolegiongo2:1199},pricesByDailyRate:{}}
@@ -3365,7 +3388,30 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(devices.some(device => pricingKey(device.name) === pricingKey(c.nameEn || c.name))) return;
       devices.push({id:`web_${c.id}`,name:c.nameEn || c.name,dailyRate:Number(c.rate),weeklyRate:Number(c.weekly),securityDeposit:Number(c.deposit),noIdentityDeposit:["1","2","4","5"].includes(String(c.id)) ? 5000 : Number(c.deposit) >= 4000 ? 15000 : 10000});
     });
+    // Models in the Delivery App Inventory that neither list has, added after a
+    // save named them; last, so the rows above keep their places.
+    pricingInventoryModels.forEach(model => {
+      if(devices.some(device => pricingKey(device.name) === pricingKey(model.name))) return;
+      devices.push({...model});
+    });
     return {...source,devices};
+  }
+  let pricingInventoryModels = [];
+  /** Add the Inventory models a refused save named; returns how many were new. */
+  function addMissingPricingModels(result){
+    const prices = Array.isArray(result?.delivery?.data?.modelPrices) ? result.delivery.data.modelPrices : [];
+    const listed = pricingForAdmin().devices;
+    let added = 0;
+    prices.forEach(model => {
+      const name = String(model?.name || "").trim();
+      if(!name || listed.some(device => pricingKey(device.name) === pricingKey(name))) return;
+      const deposit = Number(model.securityDeposit) > 0 ? Number(model.securityDeposit) : 2000;
+      const id = `inv_${pricingKey(name)}`.slice(0, 80) || `inv_${Date.now()}`;
+      pricingInventoryModels.push({id, name, dailyRate:Number(model.dailyRate) || 0, weeklyRate:Number(model.weeklyRate) || 0, securityDeposit:deposit, noIdentityDeposit:deposit >= 4000 ? 15000 : 10000});
+      listed.push({name});
+      added += 1;
+    });
+    return added;
   }
   function pricingExplanation(lang=state.lang){
     const policy = pricingPolicy || pricingDefaults();
@@ -14157,6 +14203,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     // Keep unpublished edits to the terms across re-renders of the panel.
     $$("[data-terms-field]").forEach(input => { adminTerms[input.dataset.termsField] = input.value; });
     if(vipDraftDirty && byId("adminVip")?.querySelector("[data-vip-row]")) state.vipCustomers.items = readVipCustomersFromAdmin();
+    if(pricingDraftDirty && byId("adminPricing")) pricingDraft = readPricingDraft();
     readFaqDraftIntoState();
     byId("adminBody").innerHTML = `
       <div class="admin-tabs">
@@ -14178,6 +14225,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       <div class="admin-panel ${state.adminTab==="settings"?"active":""}" id="adminSettings">${adminSettingsHtml()}</div>
       <div class="admin-panel ${state.adminTab==="sync"?"active":""}" id="adminSync">${adminSyncHtml()}</div>
       <div class="admin-panel ${state.adminTab==="addons"?"active":""}" id="adminAddons">${adminAddonsHtml()}</div>`;
+    if(pricingDraftDirty) restorePricingDraft(pricingDraft);
     const rememberGameHours = () => {
       gameUpdateHoursDraft = {
         enabled:!!byId("gameUpdateHoursEnabled")?.checked,
@@ -14620,7 +14668,23 @@ We apologize for the inconvenience and hope everyone stays safe.`
     try {
       const response = await fetch(`${CONFIG.apiBase}/api/admin/pricing-policy`,{method:"PUT",headers:{"Content-Type":"application/json",Authorization:`Bearer ${state.adminToken}`},body:JSON.stringify(policy)});
       const result = await response.json();
-      if(!response.ok || !result.ok) throw new Error(pricingSyncFailureText(result));
+      if(!response.ok || !result.ok){
+        const added = addMissingPricingModels(result);
+        if(added){
+          // Keep what was typed, show the new rows, and let the owner check
+          // their prices before saving again.
+          pricingDraftDirty = true;
+          renderAdmin();
+          byId("pricingSaveStatus").textContent = state.lang === "en"
+            ? `${added} model(s) from the Delivery App Inventory were added below with their current Inventory prices. Check them, then save again.`
+            : `เพิ่มรุ่นจากคลัง Delivery App ${added} รุ่นไว้ด้านล่างแล้ว พร้อมราคาที่ใช้อยู่ในคลัง ตรวจราคาแล้วกดบันทึกอีกครั้ง`;
+          return;
+        }
+        throw new Error(pricingSyncFailureText(result));
+      }
+      pricingDraftDirty = false;
+      pricingDraft = null;
+      pricingInventoryModels = [];
       applyPricingPolicy(result.policy);
       adminTerms.loaded = false;
       saveLocal();
@@ -15252,6 +15316,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         const normal = Number($(`[data-tier-normal="${indexes}"]`)?.value);
         const noIdentity = Number($(`[data-tier-noid="${indexes}"]`)?.value);
         indexes.split(",").forEach(index => { const n=$(`[data-price="${index}:securityDeposit"]`), id=$(`[data-price="${index}:noIdentityDeposit"]`); if(n) n.value=normal; if(id) id.value=noIdentity; });
+        pricingDraftDirty = true;
         return;
       }
       const editC = event.target.closest("[data-edit-console]");

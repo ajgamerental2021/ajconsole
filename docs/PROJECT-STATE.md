@@ -1,3 +1,25 @@
+## 2026-10-24 — Price tab keeps typing and adds missing models; duplicate ฿200 card; Thai slip card; Ray-Ban everywhere
+
+- **Price tab (website):**
+  - The admin panel is rebuilt every 60 s by the promotions refresh, which wiped what the owner typed. Unsaved price-tab values are now kept across rebuilds (`pricingDraftDirty`), until a save succeeds.
+  - The owner's save was refused because Inventory had XREAL One, Viture Luma Ultra, Viture Luma Pro and MSI Claw 8 AI+, which no price row covers.
+  - The Delivery App now answers with those models and their current Inventory prices (`modelPrices`). The admin adds them as rows at the end of the list and asks the owner to check them and save again.
+- **Duplicate "ตรวจสอบยอดชำระสำเร็จ" ฿200 card (AJ-20261021-R0011, 24 Oct 07:02):**
+  - The Beam payment guards were memory-only. After the day's deploys, a late Beam webhook or the customer reopening the payment page re-ran the paid charge and pushed the receipt card again. "ช่องทางชำระ -" fits this: the link's context was lost too.
+  - Bot `63e1770` keeps handled charge and payment-link ids in site content (`beam-processed-payments`, 60 days, 600 entries) and skips repeats.
+  - Which of the two triggers it was could not be read from here (no Render logs).
+- **Thai slip card for an English customer (AJ-20261021-R0020):**
+  - The slip came with no text and the booking lookup had no language, so the card fell back to Thai. The extension card itself was English.
+  - The Delivery App now returns the extension request's `language`, and the Bot's extension receipt uses it.
+- **Ray-Ban Meta Gen 3:**
+  - Delivery App `gameSelectionService` and Bot `gamePlatformForDevice` matched "meta", which would have given the glasses a Meta Quest game picker. Both now match "quest" only.
+  - Inventory display order includes Ray-Ban. The after-work promo at ฿350/day prices it at ฿888.
+- **Quotation:** coloured note rows are set to left alignment, so the template's spread alignment no longer stretches the few spaces in a Thai line.
+- **Tests:**
+  - Website 390.
+  - Bot 740.
+  - Delivery App: ray-ban 6, quotation 52/36/29, payment-pending 36, dispatch 394, flex-ledger 26, both tsc.
+
 ## 2026-10-24 — "10 games" only where games come; price-sync failure names its cause
 
 - **Delivery App, quotation:**
