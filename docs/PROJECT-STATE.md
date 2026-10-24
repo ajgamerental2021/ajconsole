@@ -1,3 +1,11 @@
+## 2026-10-24 — Ray-Ban Meta Gen 3 live deposit corrected to ฿4,000
+
+- Checked the already-pushed website (`6ea488c`), Bot (`148cf46`) and Delivery App quotation (`5f563c3`) changes: their Ray-Ban Meta Gen 3 defaults already specify a ฿4,000 deposit. AJ Office has no independent equipment price table.
+- Corrected the live website Gist entry `custom_1792836707440` from ฿2,000 to ฿4,000, preserving the ฿350 daily rate, ฿1,800 weekly rate and 28 October ready date. Verified the Gist readback.
+- Added Ray-Ban Meta Gen 3 to the live `Game Devices` sheet at ฿350/day, ฿1,800/week and ฿4,000 deposit, with the same Thai and English kit description as the committed Bot catalog. Verified sheet row 19 and the public Bot APIs: catalog deposit ฿4,000, pricing-policy deposit ฿4,000 and no-identity deposit ฿15,000.
+- The Delivery App quotation table already uses ฿4,000 for 3+ days (and its separate 1–2 day company-quotation tier uses ฿8,000). The live Delivery Inventory does not yet contain a physical Ray-Ban unit, so no asset code or stock status was invented; the owner must add the real unit before its 28 October availability date. The Delivery App's shared pricing-policy endpoint currently has no saved policy, so a future owner price-tab save still needs to cover every Inventory model.
+- Existing bookings and quotations were not retroactively repriced. No application code changed in this correction.
+
 ## 2026-10-24 — Price tab keeps typing and adds missing models; duplicate ฿200 card; Thai slip card; Ray-Ban everywhere
 
 - **Price tab (website):**
