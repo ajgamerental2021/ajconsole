@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Wise payment example — AJ Game Rental</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f3f5f8;color:#101828;font:15px/1.5 system-ui,-apple-system,sans-serif}
+    main{max-width:570px;margin:22px auto;padding:0 12px}.note{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:#fff4d9;color:#7a5200;font-weight:700}
+    .card{padding:20px;border:1px solid #d0d5dd;border-radius:17px;background:#fff;box-shadow:0 14px 34px rgba(16,24,40,.1)}h1{margin:0 0 12px;font-size:23px}.hint{color:#475467;margin:9px 0 14px}
+    .row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #eef0f2}.row span{color:#667085}.row b{text-align:right}
+    .qr{display:block;width:min(100%,220px);height:auto;margin:18px auto;border-radius:14px}.link{padding:12px 14px;border:1px solid #cfe5d7;border-radius:12px;background:#f4fbf6;overflow-wrap:anywhere}.link strong{display:block;color:#153d2c}.link span{color:#0b7041;font-weight:800;text-decoration:underline}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin:11px 0 16px}.button{padding:9px 13px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#243144;font-weight:800}.primary{border-color:#0a8745;background:#0a8745;color:#fff}
+    @media(max-width:400px){.card{padding:16px}.row{font-size:14px}}
+  </style>
+</head>
+<body>
+  <main>
+    <p class="note">Visual example only. The Rental ID and amount below are samples; no payment is initiated here.</p>
+    <section class="card">
+      <h1>Pay by Wise</h1>
+      <p class="hint">Your rental is reserved. Pay the full amount through Wise using the tag or link below. Include the Rental ID as your reference.</p>
+      <div class="row"><span>Amount</span><b>฿6,220</b></div>
+      <div class="row"><span>Reference</span><b>AJ-EXAMPLE-001</b></div>
+      <img class="qr" src="../assets/wise-pay-qr.png" width="700" height="700" alt="Wise payment QR code for @somchaih6">
+      <div class="link"><strong>Wise payment link</strong><span>https://wise.com/pay/me/somchaih6</span></div>
+      <div class="actions"><span class="button">Copy Wise link</span></div>
+      <div class="row"><span>Wise Tag</span><b>@somchaih6</b></div>
+      <div class="actions"><span class="button">Copy Wise Tag</span><span class="button primary">Pay with Wise</span></div>
+      <p class="hint">After paying, use the same channel you contacted AJ on below. The message includes your Rental ID and amount; attach your receipt and tap Send in WhatsApp or LINE.</p>
+      <div class="actions"><span class="button primary">Notify on WhatsApp</span><span class="button">Notify on LINE</span></div>
+    </section>
+  </main>
+</body>
+</html>

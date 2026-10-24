@@ -38,15 +38,18 @@ test('Wise shows where to send the money instead of opening a zero-baht Beam lin
   assert.doesNotMatch(pay.slice(wise, beam), /pendingWrite|ensureBeamPaymentLink/);
   assert.match(pay.slice(wise, beam), /showModal\(state\.lang === "en" \? "Pay by Wise" : "ชำระผ่าน Wise", wiseTransferHtml\(summary, code\)\)/);
 
-  const render = new Function('state', 'CONFIG', 'money', 'esc', `${functionSource('wiseTransferHtml')}; return wiseTransferHtml;`);
+  const render = new Function('state', 'CONFIG', 'money', 'esc', 'tr', `${functionSource('wiseTransferHtml')}; return wiseTransferHtml;`);
   const config = { whatsappPhone: '66816244715', lineOaMessageUrl: 'https://line.me/R/oaMessage/%40ajgame/', wiseTag: '@somchaih6', wisePayUrl: 'https://wise.com/pay/me/somchaih6' };
   const esc = (value) => String(value).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const money = (value) => `฿${Number(value).toLocaleString()}`;
   for (const lang of ['en', 'th']) {
-    const out = render({ lang }, config, money, esc)({ upfront: 6220 }, 'AJ-20261012-R0999');
-    for (const part of ['฿6,220', 'AJ-20261012-R0999', '@somchaih6', 'wise.com/pay/me/somchaih6', 'data-wise-copy-tag', 'api.whatsapp.com/send/?phone=66816244715', 'line.me/R/oaMessage/%40ajgame/']) {
+    const tr = (key) => ({wiseQrAlt:'Wise payment QR code', wisePaymentLinkLabel:'Wise payment link', wiseCopyPaymentLink:'Copy Wise link'})[key];
+    const out = render({ lang }, config, money, esc, tr)({ upfront: 6220 }, 'AJ-20261012-R0999');
+    for (const part of ['฿6,220', 'AJ-20261012-R0999', '@somchaih6', 'wise.com/pay/me/somchaih6', 'assets/wise-pay-qr.png', 'data-wise-copy-link', 'data-wise-copy-tag', 'api.whatsapp.com/send/?phone=66816244715', 'line.me/R/oaMessage/%40ajgame/']) {
       assert.ok(out.includes(part), `${lang}: ${part}`);
     }
     assert.ok(out.includes(lang === 'en' ? 'attach your receipt' : 'แนบสลิป'), lang);
   }
+  assert.ok(readFileSync(new URL('../assets/wise-pay-qr.png', import.meta.url)).length > 1000);
+  assert.match(html, /if\(event\.target\.closest\("\[data-wise-copy-link\]"\)\)\{ await writeBookingClipboard\(CONFIG\.wisePayUrl\)/);
 });

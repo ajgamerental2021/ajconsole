@@ -1525,6 +1525,11 @@ Delivery App commit `2bd4e0a` (main); details in its CHANGELOG and SHARED-WORKSP
 
 # Project state
 
+## 2026-10-24 — Wise checkout QR and visible payment link
+
+- English Wise checkout keeps its existing manual-transfer modal, amount, Rental ID reference, Wise Tag, Copy Tag, Pay with Wise, WhatsApp and LINE receipt actions. Added the owner-supplied QR above a visible `https://wise.com/pay/me/somchaih6` link and a Copy Wise link button; Thai fallback copy is present even though Wise remains an English-only payment choice.
+- The supplied QR was decoded locally and verified to point to that exact Wise link. `docs/wise-payment-example.html` is a visual example with a fake Rental ID and amount, not a live checkout. No customer payment or message was sent during QA.
+
 ## 2026-10-15 — Return driver overdue ETA updates
 
 - Delivery App backend `94a3a49` detects a return trip still `PICKED_UP` after the ETA already shown on the collection card has passed. With fresh driver GPS, it recalculates the route to AJ and automatically pushes a bilingual LINE Flex headed “อัพเดทระยะทางคนขับ” / “Driver distance update”, showing current status, minutes, Bangkok arrival time, route distance, the traffic/weather caveat and AJ's promise to notify upon receipt. It records the next announced ETA and a five-minute cooldown; another missed ETA can produce another update. Completed trips, stale GPS and failed LINE sends are handled without silently marking a card sent.
