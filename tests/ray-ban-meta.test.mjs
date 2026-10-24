@@ -24,3 +24,17 @@ test('the glasses get no game list and list their kit in both languages', () => 
   assert.match(ctx.d(glasses, 'th').join(' '), /Charging Case/);
   assert.match(ctx.d(glasses, 'en').join(' '), /Microfibre cleaning cloth/);
 });
+
+test('a refused price save names the cause in Thai and English', () => {
+  const run = (lang, result) => {
+    const ctx = vm.createContext({state: {lang}});
+    vm.runInContext(fn('pricingSyncFailureText') + ';this.t = pricingSyncFailureText;', ctx);
+    return ctx.t(result);
+  };
+  const missing = {ok: false, error: 'delivery_pricing_sync_failed', delivery: {ok: false, status: 400, data: {error: 'pricing_policy_missing_models', models: ['Rayban Meta']}}};
+  assert.match(run('th', missing), /มีรุ่นที่ไม่อยู่ในราคานี้: Rayban Meta/);
+  assert.match(run('en', missing), /do not cover: Rayban Meta/);
+  assert.match(run('th', {error: 'delivery_pricing_sync_failed', delivery: {ok: false, error: 'Delivery app responded 500'}}), /Delivery App ไม่รับราคา \(Delivery app responded 500\)/);
+  assert.match(run('en', {error: 'delivery_pricing_sync_failed', delivery: {ok: false, skipped: true}}), /not connected/);
+  assert.equal(run('en', {error: 'pricing_policy_amount'}), 'pricing_policy_amount');
+});

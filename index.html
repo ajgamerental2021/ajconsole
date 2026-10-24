@@ -14591,6 +14591,22 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const rows = policy.devices.map((device,index) => `<div class="admin-item"><b>${esc(device.name)}</b><div class="grid2"><label class="field">${en?"Daily rate":"ค่าเช่ารายวัน"}<input class="input" type="number" min="0" data-price="${index}:dailyRate" value="${device.dailyRate}"></label><label class="field">${en?"Weekly rate":"ค่าเช่ารายสัปดาห์"}<input class="input" type="number" min="0" data-price="${index}:weeklyRate" value="${device.weeklyRate}"></label><label class="field">${en?"Normal deposit":"ค่าประกันปกติ"}<input class="input" type="number" min="1" data-price="${index}:securityDeposit" value="${device.securityDeposit}"></label><label class="field">${en?"Without identity":"ไม่ยืนยันตัวตน"}<input class="input" type="number" min="1" data-price="${index}:noIdentityDeposit" value="${device.noIdentityDeposit}"></label></div></div>`).join("");
     return `<div class="card"><h3>${en?"Deposit tiers":"กลุ่มค่าประกัน"}</h3><p>${en?"Apply a tier, then save all prices below.":"ปรับยอดกลุ่ม แล้วกดใช้กับกลุ่มนี้ ก่อนบันทึกราคาทั้งหมด"}</p>${tierRows}<label class="field">${en?"Bundle deposit without identity":"ค่าประกัน Bundle ไม่ยืนยันตัวตน"}<input class="input" type="number" min="1" id="pricingBundle" value="${policy.bundleNoIdentityDeposit}"></label></div><div class="card"><h3>${en?"Device prices":"ราคาแต่ละเครื่อง"}</h3>${rows}<button class="btn primary" id="savePricingPolicy" type="button">${en?"Save and sync all systems":"บันทึกและซิงก์ทุกระบบ"}</button><div id="pricingSaveStatus" role="status"></div></div>`;
   }
+  // The Bot only saves prices the Delivery App has taken. When it has not, say
+  // why in words the owner can act on, not the bare error code.
+  function pricingSyncFailureText(result){
+    const en = state.lang === "en";
+    const delivery = result?.delivery || {};
+    const models = Array.isArray(delivery.data?.models) ? delivery.data.models.filter(Boolean) : [];
+    if(models.length) return en
+      ? `the Delivery App Inventory has models these prices do not cover: ${models.join(", ")}. Add them here, or rename the Inventory units to match a model above.`
+      : `ในคลังของ Delivery App มีรุ่นที่ไม่อยู่ในราคานี้: ${models.join(", ")} — เพิ่มรุ่นนี้ในหน้านี้ หรือแก้ชื่อรุ่นในคลังให้ตรงกับรุ่นด้านบน`;
+    if(delivery.skipped) return en ? "the Bot is not connected to the Delivery App." : "Bot ยังไม่ได้เชื่อมกับ Delivery App";
+    const detail = delivery.data?.error || delivery.error || "";
+    if(result?.error === "delivery_pricing_sync_failed") return en
+      ? `the Delivery App did not accept the prices${detail ? ` (${detail})` : ""}. Nothing was changed; try again.`
+      : `Delivery App ไม่รับราคา${detail ? ` (${detail})` : ""} ยังไม่มีอะไรถูกเปลี่ยน ลองใหม่อีกครั้ง`;
+    return result?.error || "sync_failed";
+  }
   async function savePricingPolicyFromAdmin(){
     const status = byId("pricingSaveStatus");
     const button = byId("savePricingPolicy");
@@ -14604,7 +14620,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     try {
       const response = await fetch(`${CONFIG.apiBase}/api/admin/pricing-policy`,{method:"PUT",headers:{"Content-Type":"application/json",Authorization:`Bearer ${state.adminToken}`},body:JSON.stringify(policy)});
       const result = await response.json();
-      if(!response.ok || !result.ok) throw new Error(result.error || "sync_failed");
+      if(!response.ok || !result.ok) throw new Error(pricingSyncFailureText(result));
       applyPricingPolicy(result.policy);
       adminTerms.loaded = false;
       saveLocal();

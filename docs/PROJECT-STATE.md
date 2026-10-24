@@ -1,3 +1,15 @@
+## 2026-10-24 — "10 games" only where games come; price-sync failure names its cause
+
+- **Delivery App, quotation:**
+  - The rental line drops "พร้อม 10 เกม" / "with 10 games" for Ray-Ban Meta Gen 3, Viture, PS Portal and Logitech G29.
+  - The Bangkok note is now `เฉพาะในกรุงเทพฯ` with no space. The justified cell stretched that space wide.
+- **Price sync:**
+  - The owner's "บันทึกและซิงก์ทุกระบบ" failed with `delivery_pricing_sync_failed`. The Delivery App refuses a policy that does not cover every Inventory model, and the reason was hidden.
+  - The Delivery App now answers 400 `pricing_policy_missing_models` with the model names.
+  - The website admin shows those names, or the Delivery App's error, in Thai or English.
+  - The actual missing model could not be checked from here, because Render and Sheets are blocked in this environment. Likely cause: the Ray-Ban unit in Inventory is named differently from `Ray-Ban Meta Gen 3`.
+- **Ray-Ban deposit group:** Ray-Ban moves to the ฿4,000 group as soon as a save succeeds. Until then the stored policy still holds ฿2,000.
+
 ## 2026-10-24 — Ray-Ban Meta Gen 3 added; delivery-included line names Bangkok
 
 - **Delivery App `5f563c3`, quotation:**
