@@ -3341,6 +3341,52 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     $$(PRICING_DRAFT_FIELDS).forEach(input => { const key = pricingDraftKey(input); if(key && Object.prototype.hasOwnProperty.call(draft, key)) input.value = draft[key]; });
   }
   document.addEventListener("input", event => { if(event.target?.closest?.("#adminPricing")) pricingDraftDirty = true; });
+
+  // Every other admin tab gets the same protection. The panel is rebuilt by
+  // background refreshes (promotions every minute, the Gist, the price policy),
+  // and each rebuild put the stored values back over whatever was being typed.
+  // Typed values are kept per field until that tab's own Save/Add/Delete is
+  // pressed. Tabs with their own draft handling are left to it.
+  const ADMIN_OWN_DRAFT_PANELS = new Set(["adminTerms", "adminVip", "adminPricing", "adminFaq"]);
+  let adminFieldDrafts = {};
+  function adminDraftKey(el){
+    const panel = el.closest?.(".admin-panel");
+    if(!panel || ADMIN_OWN_DRAFT_PANELS.has(panel.id)) return "";
+    if(!/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || ["file", "password", "button", "submit"].includes(el.type)) return "";
+    const data = Object.entries(el.dataset || {}).map(([k, v]) => `${k}=${v}`).sort().join("&");
+    if(!el.id && !data && !el.name) return "";
+    return `${panel.id}|${el.id || ""}|${el.name || ""}|${data}`;
+  }
+  document.addEventListener("input", event => {
+    const key = adminDraftKey(event.target);
+    if(key) adminFieldDrafts[key] = event.target.type === "checkbox" || event.target.type === "radio" ? event.target.checked : event.target.value;
+  });
+  document.addEventListener("change", event => {
+    const key = adminDraftKey(event.target);
+    if(key) adminFieldDrafts[key] = event.target.type === "checkbox" || event.target.type === "radio" ? event.target.checked : event.target.value;
+  });
+  // Saving, adding or deleting in a tab hands its fields back to the stored data.
+  document.addEventListener("click", event => {
+    const button = event.target?.closest?.("#adminBody button");
+    if(!button) return;
+    const isCommit = /^(save|add|delete|remove|reset|publish|load)/i.test(button.id || "")
+      || Object.keys(button.dataset || {}).some(k => /^(save|add|delete|remove|reset|publish)/i.test(k));
+    if(!isCommit) return;
+    const panel = button.closest(".admin-panel");
+    if(panel) clearAdminFieldDrafts(panel.id);
+  }, true);
+  function clearAdminFieldDrafts(panelId){
+    for(const key of Object.keys(adminFieldDrafts)) if(key.startsWith(`${panelId}|`)) delete adminFieldDrafts[key];
+  }
+  function restoreAdminFieldDrafts(){
+    if(!Object.keys(adminFieldDrafts).length) return;
+    $$("#adminBody input, #adminBody textarea, #adminBody select").forEach(el => {
+      const key = adminDraftKey(el);
+      if(!key || !Object.prototype.hasOwnProperty.call(adminFieldDrafts, key)) return;
+      if(el.type === "checkbox" || el.type === "radio") el.checked = Boolean(adminFieldDrafts[key]);
+      else el.value = adminFieldDrafts[key];
+    });
+  }
   const DEFAULT_RENTAL_PROMOTIONS = {version:1,campaigns:[
     {id:"after-work-3-days",titleTh:"After Work 3 คืน",titleEn:"After Work 3 Nights",enabled:true,startDate:"",endDate:"",startWeekdays:[1,2],days:3,deviceKeys:[],mode:"fixed",fixedPrice:0,percent:0,pricesByDevice:{},pricesByDailyRate:{300:777,350:888,400:999,500:1299}},
     {id:"pc-handheld-week-2026",titleTh:"โปรเครื่องเกมพกพา 3 วัน",titleEn:"PC Handheld Limited Week",enabled:true,startDate:"2026-10-21",endDate:"2026-10-25",startWeekdays:[],days:3,deviceKeys:["steamdeckoled","rogxboxallyx","lenovolegiongo2"],mode:"fixed",fixedPrice:0,percent:0,pricesByDevice:{steamdeckoled:899,rogxboxallyx:999,lenovolegiongo2:1199},pricesByDailyRate:{}}
@@ -14239,6 +14285,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       <div class="admin-panel ${state.adminTab==="sync"?"active":""}" id="adminSync">${adminSyncHtml()}</div>
       <div class="admin-panel ${state.adminTab==="addons"?"active":""}" id="adminAddons">${adminAddonsHtml()}</div>`;
     if(pricingDraftDirty) restorePricingDraft(pricingDraft);
+    restoreAdminFieldDrafts();
     const rememberGameHours = () => {
       gameUpdateHoursDraft = {
         enabled:!!byId("gameUpdateHoursEnabled")?.checked,

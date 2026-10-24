@@ -1,3 +1,11 @@
+## 2026-10-24 — Admin: typed values kept on every tab
+
+- The website admin is rebuilt by background refreshes: promotions every minute, the Gist, the price policy. Each rebuild put stored values back over unsaved typing on every tab, not only the price tab.
+- Fields are now kept per tab (`adminFieldDrafts`, keyed by panel and field id/name/data attributes) and restored after each rebuild.
+- A tab's drafts are released when its own Save/Add/Delete/Reset/Publish button is pressed. Other tabs keep theirs.
+- Terms, VIP, price and FAQ tabs keep their existing draft handling. Password fields are never kept.
+- Tests 392/392. The page loads in Chromium with no errors.
+
 ## 2026-10-24 — Android build 20261024 prepared; Phase 5 status
 
 - **Delivery App `062bc28`:**

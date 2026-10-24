@@ -72,3 +72,62 @@ test('the Step 2 WhatsApp message says the booking is finished on the website', 
   assert.match(body, /I'm finishing my booking \$\{code\} on your website\. Once it's confirmed, please send my booking updates to this WhatsApp\./);
   assert.doesNotMatch(body, /I am booking rental/);
 });
+
+test('typing on any other admin tab survives a rebuild until that tab is saved', () => {
+  const start = source.indexOf('  const ADMIN_OWN_DRAFT_PANELS');
+  const block = source.slice(start, source.indexOf('  function restoreAdminFieldDrafts(){', start));
+  const restoreStart = source.indexOf('  function restoreAdminFieldDrafts(){');
+  const restore = source.slice(restoreStart, source.indexOf('\n  }', restoreStart) + 4);
+  const listeners = {};
+  let fields = [];
+  const panel = (id) => ({ id, closest: (sel) => (sel === '.admin-panel' ? { id } : null) });
+  const field = (panelId, props) => ({ tagName: 'INPUT', type: 'text', dataset: {}, id: '', name: '', value: '', ...props, closest: (sel) => (sel === '.admin-panel' ? { id: panelId } : sel === '#adminBody button' ? null : null) });
+  const ctx = vm.createContext({
+    document: { addEventListener: (type, fn) => { (listeners[type] ||= []).push(fn); } },
+    $$: () => fields,
+  });
+  vm.runInContext(`${block}${restore};this.restore = restoreAdminFieldDrafts; this.clear = clearAdminFieldDrafts;`, ctx);
+  const fire = (type, target) => listeners[type].forEach((fn) => fn({ target }));
+
+  const announcement = field('adminAnnouncement', { id: 'announcementTh', value: 'typed text' });
+  fire('input', announcement);
+  const rebuilt = field('adminAnnouncement', { id: 'announcementTh', value: 'stored text' });
+  fields = [rebuilt];
+  ctx.restore();
+  assert.equal(rebuilt.value, 'typed text', 'the rebuild keeps what was typed');
+
+  const bundleRate = field('adminAddons', { dataset: { bundle: '0:rate' }, type: 'number', value: '650' });
+  fire('input', bundleRate);
+  const toggle = field('adminSettings', { id: 'showPromo', type: 'checkbox', checked: true });
+  toggle.checked = false;
+  fire('change', toggle);
+  const rebuiltRate = field('adminAddons', { dataset: { bundle: '0:rate' }, type: 'number', value: '600' });
+  const rebuiltToggle = field('adminSettings', { id: 'showPromo', type: 'checkbox', checked: true });
+  fields = [rebuiltRate, rebuiltToggle];
+  ctx.restore();
+  assert.equal(rebuiltRate.value, '650', 'fields keyed by data attributes too');
+  assert.equal(rebuiltToggle.checked, false, 'and checkboxes');
+
+  const terms = field('adminTerms', { id: 'termsTh', value: 'mine' });
+  fire('input', terms);
+  const rebuiltTerms = field('adminTerms', { id: 'termsTh', value: 'stored' });
+  fields = [rebuiltTerms];
+  ctx.restore();
+  assert.equal(rebuiltTerms.value, 'stored', 'tabs with their own draft handling are left to it');
+
+  const save = { id: 'saveAnnouncement', dataset: {}, closest: (sel) => (sel === '#adminBody button' ? save : sel === '.admin-panel' ? { id: 'adminAnnouncement' } : null) };
+  fire('click', save);
+  const afterSave = field('adminAnnouncement', { id: 'announcementTh', value: 'saved text' });
+  fields = [afterSave];
+  ctx.restore();
+  assert.equal(afterSave.value, 'saved text', 'after Save the stored value shows again');
+  fields = [field('adminAddons', { dataset: { bundle: '0:rate' }, type: 'number', value: '600' })];
+  ctx.restore();
+  assert.equal(fields[0].value, '650', 'saving one tab leaves another tab\'s draft alone');
+
+  const password = field('adminSettings', { id: 'gistToken', type: 'password', value: 'x' });
+  fire('input', password);
+  fields = [field('adminSettings', { id: 'gistToken', type: 'password', value: '' })];
+  ctx.restore();
+  assert.equal(fields[0].value, '', 'passwords are never kept');
+});
