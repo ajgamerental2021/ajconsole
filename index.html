@@ -2131,7 +2131,8 @@ You may ask to access, correct, object to, restrict or delete your data, or with
     {id:16,name:"Viture Luma Ultra",nameEn:"Viture Luma Ultra",rate:400,weekly:2500,deposit:2000,type:"vr",brand:"viture",icon:"🥽",showGameButton:false,gamePlatform:""},
     {id:17,name:"Viture Beast",nameEn:"Viture Beast",rate:400,weekly:2500,deposit:2000,type:"vr",brand:"viture",icon:"🥽",showGameButton:false,gamePlatform:""},
     {id:18,name:"PS5 Pro",nameEn:"PS5 Pro",rate:500,weekly:3000,deposit:4000,type:"console",brand:"playstation",icon:"🎮",showGameButton:true,gamePlatform:"ps5"},
-    {id:19,name:"Lenovo Legion GO2",nameEn:"Lenovo Legion GO2",rate:500,weekly:3000,deposit:4000,type:"handheld",brand:"lenovo",icon:"💻",showGameButton:true,gamePlatform:"rog"}
+    {id:19,name:"Lenovo Legion GO2",nameEn:"Lenovo Legion GO2",rate:500,weekly:3000,deposit:4000,type:"handheld",brand:"lenovo",icon:"💻",showGameButton:true,gamePlatform:"rog"},
+    {id:20,name:"Ray-Ban Meta Gen 3",nameEn:"Ray-Ban Meta Gen 3",rate:350,weekly:1800,deposit:4000,type:"vr",brand:"meta",icon:"🕶️",showGameButton:false,gamePlatform:"",readyDate:"2026-10-28"}
   ];
 
   // Trust numbers and the picked reviews are shop data, not code, so they live
@@ -3119,7 +3120,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     "viture-beast":"Viture Beast", "viture-pro-2":"Viture Pro 2", "lenovo-legion-go2":"Lenovo Legion GO2",
     "rog-xbox-ally-x":"ROG Xbox Ally X", "steam-deck":"Steam Deck OLED",
     "xbox-series-x":"Xbox Series X", "xbox-series-s":"Xbox Series S", "ps-portal":"PS Portal",
-    "logitech-g29":"Logitech G29"
+    "logitech-g29":"Logitech G29", "ray-ban-meta-gen-3":"Ray-Ban Meta Gen 3"
   };
 
   function normalizeConsole(input, index=0){
@@ -3210,6 +3211,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(/switch\s*2|nintendo switch 2/.test(s)) return "switch2";
     if(/rog|ally|legion/.test(s)) return "rog";
     if(/xbox/.test(s)) return "xbox";
+    if(/ray-?\s?ban/.test(s)) return "";
     if(/quest|meta/.test(s)) return "meta";
     if(/steam deck/.test(s)) return "p_1774941944007";
     return "";
@@ -3217,6 +3219,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function defaultDetails(c, lang){
     const s = `${c.name||""} ${c.nameEn||""}`.toLowerCase();
     if(/logitech|g29/.test(s)) return lang==="th" ? ["มีพวงมาลัย เกียร์ และคันเร่งพร้อมเล่น"] : ["Steering wheel, shifter, and pedals included"];
+    if(/ray-?\s?ban/.test(s)) return lang==="th" ? ["เคสแว่นพร้อมระบบชาร์จ (Charging Case)", "ผ้าไมโครไฟเบอร์เช็ดแว่น และสายชาร์จ Type-C"] : ["Charging case", "Microfibre cleaning cloth and USB Type-C charging cable"];
     if(/viture|xreal/.test(s)) return lang==="th" ? ["มีสายเชื่อมต่อพร้อมใช้งาน", "เพิ่ม Mobile Dock ได้ตามตัวเลือก"] : ["Connection cables included", "Mobile Dock can be added"];
     if(/rog|legion|steam deck/.test(s)) return lang==="th" ? ["มี Docking และสายครบ พร้อมเล่น", "เลือกเกมได้ตามรายการ"] : ["Docking station and cables included", "Games can be selected from catalog"];
     return lang==="th" ? ["2 จอย", "สายครบ พร้อมเล่น", "เลือกเกมได้สูงสุด 10 เกม"] : ["2 controllers", "All cables included", "Choose up to 10 games"];
@@ -3247,7 +3250,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return ({console:0, handheld:1, vr:2, racing:3})[String(item?.type || "").toLowerCase()] ?? 4;
   }
   function consoleRank(c){
-    const order = ["PS5","PS5 Pro","PS4","PS Portal","PS VR2","PS FlexStrike Wireless Fight Stick","Nintendo Switch 2","Nintendo Switch 1","Logitech G29","Meta Quest 3","Meta Quest 3s","Viture Beast","Viture Luma Ultra","Viture Luma Pro","XREAL One","ROG Xbox Ally X","Xbox Series X","Xbox Series S","Lenovo Legion GO2","Steam Deck OLED"];
+    const order = ["PS5","PS5 Pro","PS4","PS Portal","PS VR2","PS FlexStrike Wireless Fight Stick","Nintendo Switch 2","Nintendo Switch 1","Logitech G29","Meta Quest 3","Meta Quest 3s","Ray-Ban Meta Gen 3","Viture Beast","Viture Luma Ultra","Viture Luma Pro","XREAL One","ROG Xbox Ally X","Xbox Series X","Xbox Series S","Lenovo Legion GO2","Steam Deck OLED"];
     const name = String(c?.nameEn || c?.name || "").trim().toLowerCase();
     const found = order.findIndex(item => item.toLowerCase() === name);
     return found >= 0 ? found : 999;

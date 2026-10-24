@@ -1,3 +1,27 @@
+## 2026-10-24 — Ray-Ban Meta Gen 3 added; delivery-included line names Bangkok
+
+- **Delivery App `5f563c3`, quotation:**
+  - Ray-Ban Meta Gen 3 is in the device picker, priced like the Meta Quest 3.
+  - Deposit ฿4,000 for 3+ days and ฿8,000 for 1–2 days.
+  - The deposit kit lists glasses, charging case, microfibre cloth and Type-C cable, in Thai and English.
+  - With "delivery included" ticked, the green line reads `** รวมค่าจัดส่งทั้งไปและกลับเฉพาะใน กรุงเทพฯ แล้ว **` (EN: "Delivery both ways within Bangkok is included"). The customer message changes the same way.
+- **Bot `148cf46`:**
+  - Catalog device `ray-ban-meta-gen-3` at ฿350/day, ฿1,800/week, ฿4,000 deposit.
+  - The saved pricing policy now gains any device that is in the Game Devices sheet or the code catalog but missing from the policy. Previously a new device showed a deposit guessed from its daily rate.
+- **Website:**
+  - Photo published at `assets/consoles/ray-ban-meta-gen-3.webp`.
+  - Default console entry id 20 with Ready Date 2026-10-28, ordered after Meta Quest 3s.
+  - No game picker: `guessPlatform` no longer maps the word "Meta" in its name to Meta Quest games.
+  - Kit details in Thai and English.
+  - Browser check: card at ฿350 / ฿1,800 / deposit ฿4,000 greyed with "พร้อมวันที่ 28/10/2026"; select option "⛔ Ray-Ban Meta Gen 3 (฿350/วัน) - พร้อมวันที่ 28/10/2026". Tests 387/387.
+- **Owner still needs to:**
+  - The live console list is the Gist, which this environment cannot reach. In Admin → Consoles → Add:
+    - Name `Ray-Ban Meta Gen 3`, Rate 350, Type VR & AR, Brand Meta;
+    - untick Show game picker;
+    - Image URL `https://ajgamerental.com/assets/consoles/ray-ban-meta-gen-3.webp`;
+    - then Edit → Ready Date 2026-10-28 → Save → Push.
+  - Add the physical unit to Delivery App Inventory before 28 Oct so the queue can book it.
+
 ## 2026-10-23 — Android build 20261023 prepared, APK not built yet
 
 Delivery App `550c7db`: `android.versionCode` and `APP_VERSION_CODE` are now 20261023, and the CHANGELOG has a `build 20261023` entry listing the app changes since build 20261015. The APK was not built. This cloud environment cannot reach `api.expo.dev` because the network policy blocks it, and no `EXPO_TOKEN` is set. `MIN_ANDROID_VERSION_CODE` stays at 20261014 and `LATEST_APK_URL` still points at build 20261015. Raising the minimum before the file exists would lock the shop phones out of the app. Next step: build with `cd frontend && npx eas build -p android --profile preview`, either from the owner's machine or after the owner allows `api.expo.dev` and `expo.dev` and adds an `EXPO_TOKEN` secret. Then put the APK link in the CHANGELOG and `LATEST_APK_URL`, and raise `MIN_ANDROID_VERSION_CODE` to 20261023 in `render.yaml`.
