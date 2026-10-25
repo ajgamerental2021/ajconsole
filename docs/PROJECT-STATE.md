@@ -4872,3 +4872,9 @@ paused job shows slightly old numbers rather than an empty section.
 - Delivery App now uses the actual “กำลังจัดส่งเครื่องให้คุณ” / “Your rental is on the way” status card when the driver collects a delivery. It keeps the bag code and adds any outstanding payment details to that card instead of replacing it with the generic payment card; the paid-in-full case shows no balance prompt.
 - The ordered delivery-photo LINE card and signed gallery show the rental ID and the Inventory model name instead of the unit code. The gallery has a Thai/English switch that retains the signed photo batch and lets Close return to the original chat page.
 - Backend/frontend typechecks, delivery proof checks, 399/399 Lalamove dispatch checks and 28/28 flex-ledger checks passed. No existing customer card was resent during verification.
+
+## 2026-10-25 — English My Rental foreign deposit refund details
+
+- Delivery App commit `ef1308b` adds separate BSB code, currency and country fields only to the English My Rental refund form when “I have a Thai bank account” is unchecked. The country list fills currency when unambiguous; currency suggests a country only when safe or a primary issuing country is known, and the customer can correct it before saving. Old `Wise (AUD) - BSB code: ...` text is split into the new fields when the form opens.
+- The LINE profile-update receipt uses distinct bank/provider, account number, account name, BSB, currency and country labels and includes the saved refund details. Customer profile writes now use `customerRepo` and mirror to PG in dual mode; migration 018 adds PG columns corresponding to Customers AE–AK. Re-import Customers before any PG customer-source switch to populate pre-existing AE–AH values.
+- Backend typecheck, 184 My Rental link checks and 28 flex-ledger checks passed. Local Postgres integration test could not run without `DATABASE_URL`. No live customer LINE card or production Sheets save was sent for verification.
