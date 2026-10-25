@@ -4860,3 +4860,9 @@ paused job shows slightly old numbers rather than an empty section.
 
 - Delivery keeps the active trip panel mounted during queue refreshes, so an open panel stays open without flashing. The shop LINE confirmation card lists selected games on separate numbered lines, opens the pinned location with a map button, distinguishes its actions by color, and looks up the signed contract's full name for the copy action when rental code and phone match.
 - The LINE Bot uses the bank delay returned by SlipOK for a pending slip, suppresses repeat replies for the same image or QR during the active check, and alerts staff for manual review when the bank does not release a result. Staff postback replies now name the completed action. The retry schedule is process-local; staff escalation covers delayed results across a restart.
+
+## 2026-10-25 — Detached Messenger greeting on first contact
+
+- In `aj-detached-omnichannel-bot` commit `a024ac7`, greeting mode now answers the first signed Messenger webhook event directly, including a message started from a Page post. Dialogflow still handles existing intent replies; the webhook and Dialogflow greeting bridge share the Messenger message ID to prevent a duplicate greeting. Page Inbox staff echoes are processed even when Dialogflow handles normal replies, so the bot does not send a late greeting into a staff conversation.
+- The bilingual greeting content remains managed at the Detached Bot `/admin` page. Its production `/health` reports `messengerGreetingSource: signed_webhook` after deployment. Typecheck, card validation and 423/423 tests passed, including first-message and duplicate-path cases.
+- A real first-message delivery from a fresh Messenger account has not been observed in this session. That final check depends on Meta sending the Page's signed message event to the Detached Bot and accepting its Send API reply; the screenshot alone cannot establish why the earlier message was missed.
