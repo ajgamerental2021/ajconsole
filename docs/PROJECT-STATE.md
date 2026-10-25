@@ -4891,3 +4891,8 @@ paused job shows slightly old numbers rather than an empty section.
 - After authenticated staff confirm a return photo is the paid transfer slip and upload it, Delivery sends the customer a Thai or English Flex with the saved transfer-refund amount, inventory device name, large slip image, full-size signed viewer and review buttons. A retry action uses the uploaded file; a durable marker and LINE retry key prevent duplicate cards. An optional later sticker needs a supported LINE package/sticker ID configured by the owner.
 - No new Booking Log/Customers/Inventory fields or direct writes. Backend/frontend TypeScript, web build, fare/refund-card tests, daily brief, delivery proof and flex-ledger checks passed. Local LINE validation and a live customer send were unavailable without production credentials; verify once with a real authenticated return-slip upload.
 
+## 2026-10-25 — Updated remaining delivery location prompt
+
+- `docs/RETURN-LOCATION-PRICING-PROMPT.md` now contains only the unimplemented return-location and separate delivery-leg pricing plan, in Thai. It includes old-Booking migration rules, per-leg fare differences, ledger placement, rollback, and TH/EN acceptance checks.
+- The delivery equipment-card date and return-photo review tasks were removed from this prompt because their implementation is in Delivery App. This pricing/location plan remains review-only and is not authorized for production.
+
