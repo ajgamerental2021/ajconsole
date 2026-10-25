@@ -1,3 +1,9 @@
+## 2026-10-25 — Suppress older unpaid card after start-day card
+
+- Bot pay-later email queue and AJ Office follow-up now skip the ordinary unpaid Flex after the same rental received its start-day Flex that Bangkok day, including when the sheet marker has not finished writing. Thai and English cards use the same gate.
+- Dialogflow LINE greeting fulfillment now requires an actual customer message; follow/join and empty events cannot trigger its greeting. LINE OA Manager auto-greeting is a separate setting and cannot be observed from this code.
+- Bot tests passed 749/749. No customer message was sent during verification.
+
 ## 2026-10-24 — Trips bar names each console
 
 The bar, the map popup and the live notification now name each trip's console (e.g. PS5-5, MQ3-2). `GET /api/dispatch/active` reads the bookings once per call to fill `deviceName`. trip-live 22/22; browser check OK.
