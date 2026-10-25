@@ -4866,3 +4866,9 @@ paused job shows slightly old numbers rather than an empty section.
 - In `aj-detached-omnichannel-bot` commit `a024ac7`, greeting mode now answers the first signed Messenger webhook event directly, including a message started from a Page post. Dialogflow still handles existing intent replies; the webhook and Dialogflow greeting bridge share the Messenger message ID to prevent a duplicate greeting. Page Inbox staff echoes are processed even when Dialogflow handles normal replies, so the bot does not send a late greeting into a staff conversation.
 - The bilingual greeting content remains managed at the Detached Bot `/admin` page. Its production `/health` reports `messengerGreetingSource: signed_webhook` after deployment. Typecheck, card validation and 423/423 tests passed, including first-message and duplicate-path cases.
 - A real first-message delivery from a fresh Messenger account has not been observed in this session. That final check depends on Meta sending the Page's signed message event to the Detached Bot and accepting its Send API reply; the screenshot alone cannot establish why the earlier message was missed.
+
+## 2026-10-25 — Delivery pickup status and equipment proof card
+
+- Delivery App now uses the actual “กำลังจัดส่งเครื่องให้คุณ” / “Your rental is on the way” status card when the driver collects a delivery. It keeps the bag code and adds any outstanding payment details to that card instead of replacing it with the generic payment card; the paid-in-full case shows no balance prompt.
+- The ordered delivery-photo LINE card and signed gallery show the rental ID and the Inventory model name instead of the unit code. The gallery has a Thai/English switch that retains the signed photo batch and lets Close return to the original chat page.
+- Backend/frontend typechecks, delivery proof checks, 399/399 Lalamove dispatch checks and 28/28 flex-ledger checks passed. No existing customer card was resent during verification.
