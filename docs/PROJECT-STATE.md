@@ -1,3 +1,9 @@
+## 2026-10-25 — Shop LINE morning/evening and paid booking cards
+
+- Delivery App sends Thai-only morning brief before 10:00 and evening brief after the website Admin rental cutoff. The existing shop LINE recipient and `U7bb4132b2b1127cef8f4e4c5db2e6d5f` receive the cards. Identity holds/unlinked-payment sections were removed. Finished Booking task rental/delivery amounts and recorded return refunds are labeled by source; these are not reconciled cash receipts.
+- A newly created Booking from signed verified payment sends a Thai staff card to both LINE accounts, with booking facts, photo/phone/map/name buttons, and postbacks for identity approval, game reminder, and booking confirmation. The Bot verifies LINE signature; Delivery checks the staff roster and current Booking and uses durable action markers so a second account cannot execute the same action. Delivery must deploy before Bot.
+- Delivery TypeScript, daily-brief 27/27, shop card test, flex-ledger 28/28 passed; Bot tests 749/749 passed. No live customer or staff message was sent while testing.
+
 ## 2026-10-25 — Suppress older unpaid card after start-day card
 
 - Bot pay-later email queue and AJ Office follow-up now skip the ordinary unpaid Flex after the same rental received its start-day Flex that Bangkok day, including when the sheet marker has not finished writing. Thai and English cards use the same gate.
