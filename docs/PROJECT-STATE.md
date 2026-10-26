@@ -4896,3 +4896,10 @@ paused job shows slightly old numbers rather than an empty section.
 - `docs/RETURN-LOCATION-PRICING-PROMPT.md` now contains only the unimplemented return-location and separate delivery-leg pricing plan, in Thai. It includes old-Booking migration rules, per-leg fare differences, ledger placement, rollback, and TH/EN acceptance checks.
 - The delivery equipment-card date and return-photo review tasks were removed from this prompt because their implementation is in Delivery App. This pricing/location plan remains review-only and is not authorized for production.
 
+## 2026-10-26 — Save unpaid order changes before checkout
+
+- Removing an accessory or changing games after step 3 previously left the confirmed snapshot and Bot/Console Pending records at the old selection. Pay then rejected the mismatch. The order page now rechecks availability, keeps the Rental ID, saves the revised selection and amount to both records through the Bot update endpoint, and only then starts the selected payment method. It retries once with a fresh booking context if the Bot restarted. Thai and English use the same path.
+- The Bot update checks the context against the stored renter, keeps server-owned identity and payment fields, invalidates the old unpaid Beam link and regenerates the rental order PDF when a signed agreement exists.
+- The Delivery staff card uses the verified payment payload for full name, LINE name, accessory names and prices while sheet formulas are still blank. The Google search opens the full name, and the two identity buttons have distinct styles.
+- Verified locally: website tests 396/396, Bot tests 755/755, Delivery TypeScript, shop card, flex-ledger 28/28 and automatic booking/payment tests. No live customer payment or LINE push was made during verification.
+

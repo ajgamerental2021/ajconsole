@@ -118,3 +118,65 @@ test('every place that hit the old message now opens the popup', () => {
   assert.match(source, /state\.calc\.confirmedRental = confirmedRentalSnapshot\(\);/);
   assert.match(source, /\[data-rental-changed-restore\]/);
 });
+
+test('an unpaid accessory edit is persisted before payment without replacing the Rental ID', async () => {
+  const {ctx, calc, code} = setup('en');
+  calc.demoContextToken = 'private-context';
+  calc.extras = ['controller'];
+  let posted;
+  Object.assign(ctx, {
+    showDemoBusy(){},
+    fetchAvailability: async () => ({fresh:true}),
+    hasRecentAvailabilitySnapshot: () => true,
+    evaluateAvailability: () => ({pass:true}),
+    ensureBookingHold: async () => {},
+    queueConsolePendingUpsert: async () => {},
+    calcRentalContext: () => ({}),
+    calcSummary: () => ({}),
+    bookingStructured: () => ({rentalCode:code, extras:['Controller'], total:'฿3,500'}),
+    rentalSheetPayload: () => ({row:{'รหัสการเช่า':code}}),
+    bookingMessage: () => 'updated',
+    bookingFetch: async (_url, init) => { posted = JSON.parse(init.body); return {ok:true, json:async () => ({rental:{rentalCode:code}})}; },
+    renderDemoOrderPage(){},
+  });
+  ctx.state.availability = {error:''};
+  vm.runInContext('let consolePendingWrites = Promise.resolve();' + fn('saveChangedOrderBeforePayment', true), ctx);
+  await ctx.saveChangedOrderBeforePayment();
+  assert.equal(posted.contextToken, 'private-context');
+  assert.equal(posted.rentalCode, code);
+  assert.deepEqual(posted.data.extras, ['Controller']);
+  assert.equal(ctx.confirmedRentalCodeForPayment({}), code);
+});
+
+test('an expired booking context is renewed once before saving the changed order', async () => {
+  const {ctx, calc, code} = setup('th');
+  calc.demoContextToken = 'old-context';
+  calc.extras = ['controller'];
+  let attempts = 0;
+  Object.assign(ctx, {
+    consolePendingRental:null,
+    showDemoBusy(){}, fetchAvailability:async () => ({fresh:true}),
+    hasRecentAvailabilitySnapshot:() => true, evaluateAvailability:() => ({pass:true}),
+    ensureBookingHold:async () => {}, queueConsolePendingUpsert:async () => {},
+    calcRentalContext:() => ({}), calcSummary:() => ({}),
+    bookingStructured:() => ({rentalCode:code, extras:[]}),
+    rentalSheetPayload:() => ({row:{'รหัสการเช่า':code}}), bookingMessage:() => 'updated',
+    bookingFetch:async (_url, init) => {
+      attempts++;
+      const sent = JSON.parse(init.body);
+      if(attempts === 1){
+        assert.equal(sent.contextToken, 'old-context');
+        return {status:404, ok:false, json:async () => ({error:'link_invalid'})};
+      }
+      assert.equal(sent.contextToken, 'new-context');
+      return {status:200, ok:true, json:async () => ({rental:{rentalCode:code}})};
+    },
+    prepareContractHandoff:async () => ({contextToken:'new-context'}),
+    renderDemoOrderPage(){},
+  });
+  ctx.state.availability = {error:''};
+  vm.runInContext('let consolePendingWrites = Promise.resolve();' + fn('saveChangedOrderBeforePayment', true), ctx);
+  await ctx.saveChangedOrderBeforePayment();
+  assert.equal(attempts, 2);
+  assert.equal(calc.demoContextToken, 'new-context');
+});

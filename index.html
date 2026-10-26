@@ -10607,6 +10607,55 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
     return code;
   }
+  async function saveChangedOrderBeforePayment(){
+    const changes = confirmedRentalChanges();
+    if(!changes?.length) return;
+    const code = String(state.calc.demoOrderCode || "").trim();
+    if(!code || code !== state.calc.rentalCode || !state.calc.demoContextToken){
+      throw Object.assign(new Error("rental_details_changed"), {code:"rental_details_changed"});
+    }
+    if(changes.some(key => VERIFIED_ONLY_FIELDS.includes(key) && state.calc.confirmedRental?.[key] && !state.calc.retVerified)){
+      throw Object.assign(new Error("rental_details_changed"), {code:"rental_details_changed"});
+    }
+    showDemoBusy(state.lang === "en" ? "Saving your updated rental and checking the new amount…" : "กำลังบันทึกรายการเช่าที่แก้ไขและตรวจยอดใหม่…");
+    const checked = await fetchAvailability(true);
+    if(!checked?.fresh || state.availability.error || !hasRecentAvailabilitySnapshot()) throw new Error("queue_check_failed");
+    const gate = evaluateAvailability();
+    if(!gate.pass) throw Object.assign(new Error(gate.message || "queue_check_failed"), {code:"booking_hold_conflict"});
+    await ensureBookingHold(code, calcRentalContext());
+    // The first Console Pending write runs in the background when step 3 ends.
+    // Let it finish so this update cannot race with an older snapshot.
+    await queueConsolePendingUpsert();
+    const summary = calcSummary();
+    const data = bookingStructured(code);
+    if(!data) throw new Error("rental_update_invalid");
+    const payload = rentalSheetPayload(summary, code, "confirmed-order-edit", bookingMessage(code), data);
+    const submitUpdate = async () => {
+      const response = await bookingFetch(`${CONFIG.apiBase}/api/rentals/payment-page/update`, {
+        method:"POST", cache:"no-store", headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({contextToken:state.calc.demoContextToken, rentalCode:code, data, row:payload.row})
+      }, 45000);
+      return {response, result:await response.json().catch(() => ({}))};
+    };
+    let {response, result} = await submitUpdate();
+    if(response.status === 404 && result.error === "link_invalid"){
+      // The Bot can restart while an order page stays open. Renew the same
+      // renter's context once, then retry the update under the original ID.
+      const handoff = await prepareContractHandoff(code, "web");
+      state.calc.demoContextToken = handoff.contextToken || "";
+      if(!state.calc.demoContextToken) throw new Error("link_invalid");
+      if(consolePendingRental?.code === code) consolePendingRental.handoff = handoff;
+      ({response, result} = await submitUpdate());
+    }
+    if(!response.ok || !result.rental) throw Object.assign(new Error(result.error || "rental_update_failed"), {code:result.error || ""});
+    state.calc.confirmedRental = confirmedRentalSnapshot();
+    state.calc.rentalCodeSig = rentalSignature(summary);
+    state.calc.beamPaymentLink = "";
+    state.calc.beamPaymentKey = "";
+    state.calc.beamPaymentExpiresAt = "";
+    saveLocal();
+    renderDemoOrderPage();
+  }
   async function launchDemoBeamPayment(){
     showDemoBusy(state.calc.payment === "wise"
       ? (state.lang === "en" ? "Confirming your queue for Wise…" : "กำลังยืนยันคิวสำหรับ Wise…")
@@ -10627,6 +10676,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         showDemoProgressProblem(tr("contactLineRequired"), 2);
         return;
       }
+      await saveChangedOrderBeforePayment();
       const summary = calcSummary();
       const code = confirmedRentalCodeForPayment(summary);
       let handoff;
@@ -10707,7 +10757,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         showRentalChangedPopup(() => launchDemoBeamPayment());
         return;
       }
-      toast(error?.code === "console_pending_submission_failed"
+      toast(["rental_update_failed", "link_invalid", "console_pending_not_found", "rental_not_found"].includes(error?.code)
+        ? (state.lang === "en" ? "Your changes could not be saved yet. No payment was started. Please try Pay now again." : "ยังบันทึกการแก้ไขไม่สำเร็จ ระบบยังไม่เริ่มชำระเงิน กรุณากดชำระอีกครั้ง")
+        : error?.code === "console_pending_submission_failed"
         ? (state.lang === "en" ? "We could not save your rental for the shop. No payment was started. Please try again." : "บันทึกรายการให้ร้านไม่สำเร็จ ยังไม่ได้เริ่มชำระเงิน กรุณาลองอีกครั้ง")
         : (state.lang === "en" ? "Unable to open the payment page. Please try again." : "เปิดหน้าชำระเงินไม่สำเร็จ กรุณาลองใหม่"));
     }
