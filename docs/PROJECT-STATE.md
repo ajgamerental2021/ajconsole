@@ -2935,6 +2935,7 @@ Known: R0054 has no contract. Its signature was filed under R0049 (the old Renta
 
 - The Delivery App My Rentals page shows the signed-contract action for fully paid eligible rentals in Thai and English, including history. The ownership-checked document route asks the Bot to complete an agreement already signed by the renter when the payment was recorded through a slip or manual reconciliation. The existing Contract ID is written back through `bookingRepo`, so Sheets and Postgres stay aligned.
 - Payment reconciliation also starts the repair after recording the full amount. Unpaid rentals and rentals deliberately made without an agreement do not create a signed contract. Existing Rental Terms remain separately available.
+- Follow-up: `AJ-20261023-R0003` was fully paid, but its pending signature was missing because the original asynchronous Drive backup failed while the booking page had already advanced. The Bot now waits for a durable backup before accepting the agreement, falls back to direct Drive storage, and reads stored signature bytes correctly. For an older paid rental whose signature really was lost, My Rentals opens a bilingual re-sign page with a 24-hour customer-owned link; signing creates the PDF without another payment. The page shows this as "View or confirm rental contract" rather than a dead PDF link.
 
 ## 2026-09-26 — Identity expiry rule, confirmation email reliability, Admin → Rentals
 
