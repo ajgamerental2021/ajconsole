@@ -153,6 +153,8 @@ test('an expired booking context is renewed once before saving the changed order
   calc.demoContextToken = 'old-context';
   calc.extras = ['controller'];
   let attempts = 0;
+  let handoffs = 0;
+  let refreshedQuote = false;
   Object.assign(ctx, {
     consolePendingRental:null,
     showDemoBusy(){}, fetchAvailability:async () => ({fresh:true}),
@@ -171,12 +173,19 @@ test('an expired booking context is renewed once before saving the changed order
       assert.equal(sent.contextToken, 'new-context');
       return {status:200, ok:true, json:async () => ({rental:{rentalCode:code}})};
     },
-    prepareContractHandoff:async () => ({contextToken:'new-context'}),
+    prepareContractHandoff:async () => {
+      handoffs++;
+      if(handoffs === 1) throw Object.assign(new Error('delivery_quote_required'), {code:'delivery_quote_required'});
+      return {contextToken:'new-context'};
+    },
+    ensureDemoDeliveryQuote:async force => { refreshedQuote = force === true; },
     renderDemoOrderPage(){},
   });
   ctx.state.availability = {error:''};
   vm.runInContext('let consolePendingWrites = Promise.resolve();' + fn('saveChangedOrderBeforePayment', true), ctx);
   await ctx.saveChangedOrderBeforePayment();
   assert.equal(attempts, 2);
+  assert.equal(handoffs, 2);
+  assert.equal(refreshedQuote, true);
   assert.equal(calc.demoContextToken, 'new-context');
 });

@@ -10641,7 +10641,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(response.status === 404 && result.error === "link_invalid"){
       // The Bot can restart while an order page stays open. Renew the same
       // renter's context once, then retry the update under the original ID.
-      const handoff = await prepareContractHandoff(code, "web");
+      let handoff;
+      try{ handoff = await prepareContractHandoff(code, "web"); }
+      catch(error){
+        if(error?.code !== "delivery_quote_required") throw error;
+        await ensureDemoDeliveryQuote(true);
+        handoff = await prepareContractHandoff(code, "web");
+      }
       state.calc.demoContextToken = handoff.contextToken || "";
       if(!state.calc.demoContextToken) throw new Error("link_invalid");
       if(consolePendingRental?.code === code) consolePendingRental.handoff = handoff;
@@ -10755,6 +10761,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       }
       if(error?.code === "rental_details_changed"){
         showRentalChangedPopup(() => launchDemoBeamPayment());
+        return;
+      }
+      if(error?.code === "delivery_quote_changed"){
+        showDeliveryQuoteChanged(error, () => launchDemoBeamPayment());
+        return;
+      }
+      if(error?.code === "delivery_quote_required"){
+        showDeliveryQuoteProblem(() => launchDemoBeamPayment());
         return;
       }
       toast(["rental_update_failed", "link_invalid", "console_pending_not_found", "rental_not_found"].includes(error?.code)
