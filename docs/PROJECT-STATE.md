@@ -2931,6 +2931,11 @@ Known: R0054 has no contract. Its signature was filed under R0049 (the old Renta
 - Menu has line icons (not emoji); more space above the Rental Terms; identity-sent state survives a reload.
 - Verification: local end-to-end runs with mock Beam and mock Apps Script (Thai verify-later with payment change, English with photos on step 3, dates edited after signing) all produced the contract PDF attached to the email.
 
+## 2026-10-26 — Recover signed contracts after non-Beam payments
+
+- The Delivery App My Rentals page shows the signed-contract action for fully paid eligible rentals in Thai and English, including history. The ownership-checked document route asks the Bot to complete an agreement already signed by the renter when the payment was recorded through a slip or manual reconciliation. The existing Contract ID is written back through `bookingRepo`, so Sheets and Postgres stay aligned.
+- Payment reconciliation also starts the repair after recording the full amount. Unpaid rentals and rentals deliberately made without an agreement do not create a signed contract. Existing Rental Terms remain separately available.
+
 ## 2026-09-26 — Identity expiry rule, confirmation email reliability, Admin → Rentals
 
 - ID card or passport must expire after the return date (expired, before start, during the rental or on the return date all block). The website shows a red warning and disables continuing and paying. The LINE contract form shows a warning pop-up. The Bot checks it on new signings only (`idExpiresTooEarly`), so the shop can still edit and rebuild older contracts. Also fixed: renters without a Thai address had skipped the expiry and email checks.
