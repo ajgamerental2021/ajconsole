@@ -1,3 +1,9 @@
+## 2026-10-27 — Delivery App reads bookings from Postgres from 20:00 (Phase 5)
+
+- After 20:00 tonight the Delivery App answers booking reads from Postgres (`DATA_SOURCE_BOOKINGS=pg`). Writes still land in the Google Sheet first, so the Booking Log stays complete. Bookings, Customers and Inventory in Postgres matched the sheets with 0 differences before the switch.
+- Bot, booking site, `game_index.html` and `ajgameid` call the Delivery App API or only read the sheet, so nothing in them has to change. No repo writes Booking Log rows straight into the sheet, and none may start. See "Delivery App data: Postgres reads bookings" in `AGENTS.md`.
+- Same day: duplicate customers sharing one LINE account were merged in the Customers tab, keeping refund accounts and ID documents. The shop's test LINE was unbound from สุวิชา and Team Parallel.
+
 ## 2026-10-25 — Shop LINE morning/evening and paid booking cards
 
 - Delivery App sends Thai-only morning brief before 10:00 and evening brief after the website Admin rental cutoff. The existing shop LINE recipient and `U7bb4132b2b1127cef8f4e4c5db2e6d5f` receive the cards. Identity holds/unlinked-payment sections were removed. Finished Booking task rental/delivery amounts and recorded return refunds are labeled by source; these are not reconciled cash receipts.
