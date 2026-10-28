@@ -1,3 +1,10 @@
+## 2026-10-28 — Foreign renters' Wise refund accounts now reach the Delivery App
+
+- Cause: the Bot writes AJ Contract "Phone" only for Thai numbers; a renter without one has "Phone" blank, "No Thai Phone Number" TRUE and their number (e.g. +61…) in "WhatsApp Display Name". The Delivery App matched contracts on "Phone" only, so these customers' refund accounts (usually Wise) were missing from the queue, the refund card and "My rental". Not Wise-specific: any renter without a Thai number.
+- Fix (Delivery App `541ac2b`, no Bot change): `contractPhones.ts` matches "Phone" plus a numeric "WhatsApp Display Name"/"No Thai Phone Number"; used by `getRefundAccountMap` (queue, refund card, return dispatch card), `contractProfileFill` (My rental fills blank Wise fields when the customer opens the page) and `contractLineUserIdsByPhone`.
+- Android refund-slip wait screen now closes after 10 s (was 45 s); the picker still opens when the job arrives.
+- Tests: foreign-contract-refund 4, contract-profile 14, my-rental-link 189, identity-lookup 18, flex-ledger 28, both tsc.
+
 ## 2026-10-28 — Refund-slip link: why it got slower after Postgres, and the fix
 
 - Cause: delivery-queue tasks still read Google Sheets. `batchReadSheets` waited for a fresh batchGet of four large ranges (Booking Log ×2, AJ Contract, Customers) whenever the cache was over 30 s old. In dual mode the frequent Sheets-backed `getAllBookings` kept the Booking Log read warm; in pg mode the list comes from Postgres, so the refund-slip link (opened right after a return is closed, which also empties the Booking Log cache) nearly always waited.
