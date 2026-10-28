@@ -1,3 +1,11 @@
+## 2026-10-28 — Refund-slip upload failed with 520 on the first try
+
+- Symptom: after choosing the refund slip and confirming, the first try said "อัปโหลดแล้ว 0/1 รูป … status code 520"; pressing send again worked. The photo upload itself failed, before any card.
+- Cause: 520 is Render's proxy (Cloudflare), not our code. The proxy reuses connections to the server; Node closes an idle keep-alive connection after 5 s by default (measured: closed at ~6 s), and a request the proxy sends down a connection as Node closes it fails without reaching the app. Typical after the app sits idle (choosing a photo). Not a deploy (last push 09:32 UTC, error 10:33 UTC). The app only auto-retried GET requests, so the POST upload surfaced the error.
+- Fix (Delivery App `0bd04e4`): server keeps idle connections 120 s (`keepAliveTimeout`, `headersTimeout` 125 s); the app repeats the proof upload and the refund card up to 3 times on 502/503/504/520–524 or no response, marking repeats `retry: true`; on a repeat the server finds the photo by its unique `-order-<batch>-NNN-of-NNN-` name and returns it instead of uploading a duplicate (the card was already once per photo; LINE also drops a repeated `retryKey`). A manual re-press is marked the same way. Clearer message if all tries fail.
+- Server part helps every device on deploy; the web app gets the auto-retry at once, Android with the next APK.
+- Tests: proof-upload-retry 7, delivery-proof-card, refund-slip, my-rental-link 189, flex-ledger 28, both tsc. Not reproduced against live Render (container cannot reach it).
+
 ## 2026-10-28 — Inventory and Customers can read from Postgres (built, switched off)
 
 - Inventory (`DATA_SOURCE_INVENTORY=pg`, Delivery App `2592470`): device list and availability read the `inventory` table; adds/edits/deletes still go to the Inventory sheet first and wait for the tables sync to copy it. Rows become units and the availability summary through the same code as the sheet path. The sync now copies the Status / Days formula columns on every pass (not recorded as conflicts), reads Inventory past the cache, and in pg mode copies Inventory again after every Booking Log write.
