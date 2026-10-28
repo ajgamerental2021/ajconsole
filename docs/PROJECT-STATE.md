@@ -1,3 +1,10 @@
+## 2026-10-28 — Wise refunds for English-named customers; web app reloads onto new builds
+
+- Return refund popup: for English-named customers a second button "จบงาน ไม่ส่งการ์ด" closes the job and saves the refund without the refund card to the two admins (server refuses it for Thai names). The card can still be sent later from the finished job.
+- Refund card to admins: English name + Wise (no Thai bank account) shows "admin อีกท่านจะส่ง QR code มาให้สแกนจ่าย รบกวนรอสักครู่ครับ" and has no copy-number button. Thai names, or English names with a Thai account, are unchanged.
+- iPhone home-screen web app kept running the old bundle until swiped away (iOS keeps the page in memory). It now compares its bundle with the deployed index.html when it comes back: after ≥1 minute in the background it reloads, otherwise it shows an update banner; static site sends `Cache-Control: no-cache`.
+- Delivery App `9f2af28`. Tests: return-refund-review, return-done-skip-card 4, flex-ledger 28, both tsc; browser check of the popup (EN/TH) and of the update banner/auto-reload against a simulated deploy. Android APK needs a new build for the popup button.
+
 ## 2026-10-28 — Game-ID rentals added from the Delivery App (Finance → 🎮 เช่าไอดี)
 
 - Finance stays in the Google Sheet รายรับรายจ่ายAJ_2026; only bookings moved to Postgres. The Delivery App's Finance screen now has a เช่าไอดี tab to add, edit and clear game-ID rental income per month (game, amount; date/customer/note optional).
