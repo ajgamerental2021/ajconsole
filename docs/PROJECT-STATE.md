@@ -1,3 +1,10 @@
+## 2026-10-28 — Game-ID rentals added from the Delivery App (Finance → 🎮 เช่าไอดี)
+
+- Finance stays in the Google Sheet รายรับรายจ่ายAJ_2026; only bookings moved to Postgres. The Delivery App's Finance screen now has a เช่าไอดี tab to add, edit and clear game-ID rental income per month (game, amount; date/customer/note optional).
+- Placement: game-ID rows go into the block above the month's totals, filled from the bottom up, always one blank row away from the device rentals. When the blocks would meet, rows are inserted directly below the last device rental (also when a device rental is added), so every `=SUM(…4:…)` grows with them; totals formulas are refitted after inserts, and Summarize's `INDIRECT("'Month'!H4:H90")` ranges are widened.
+- Found: Sep 2026 has game-ID rows down to row 115 but most Summarize item formulas stop at row 90. The first game-ID add (or `POST /api/finance/layout/repair`) widens them. New games are added to Summarize (cells from column G only, so the monthly table in A:F does not move) and to Ref. above the ยอดยกมา rows.
+- Delivery App `833705e`. Tests: finance-game-rentals 25 (in-memory sheet that moves formulas like Sheets on insert), finance-rental-rows 3, flex-ledger 28, both tsc. Not run against the live sheet from the container (Sheets unreachable). `testSheetWriteRace` has 1 failing check that fails the same without this change.
+
 ## 2026-10-27 — Delivery App reads bookings from Postgres from 20:00 (Phase 5)
 
 - After 20:00 tonight the Delivery App answers booking reads from Postgres (`DATA_SOURCE_BOOKINGS=pg`). Writes still land in the Google Sheet first, so the Booking Log stays complete. Bookings, Customers and Inventory in Postgres matched the sheets with 0 differences before the switch.
