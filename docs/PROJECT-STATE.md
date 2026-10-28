@@ -1,3 +1,12 @@
+## 2026-10-28 — Wise refund details, queue from Postgres, Sheets audit, deposit-refunded email
+
+- Wise refunds: the queue and the admin refund card show the whole Wise payout (recipient, IBAN/account, bank, SWIFT, country, currency, email) from the booking's own entry in "Line / WhatsApp LOGs" by rental code; the customer's correction in Customers still wins (filled out when it is the same account). Delivery App `77a1e1c`.
+- Postgres: the delivery queue (today/tomorrow/range/tax invoice) is built from Postgres bookings and Postgres customer locations in pg mode; one task builder for both sources, identical output to the old code on a fixture; `test:booking-pg-sync` 17/17 on Postgres 16. Rollback `DATA_SOURCE_TASKS=sheets`. Delivery App `68615d5`.
+- Audit of what still reads Google Sheets (56 files) recorded in `docs/POSTGRES_MIGRATION.md` 5.3: Customers/Inventory are mirrored in PG but still read from Sheets (needs PG columns for LINE display/source etc. + migration/mirror/verify, then switch one table at a time); Finance, Rental Payments/Extensions, Delivery Confirmations, tokens, code reservations have no PG tables yet; AJ Contract, Line / WhatsApp LOGs and Game Devices are written by the Bot and can move once the Bot writes through the Delivery App API.
+- Deposit refunded email: after the refund slip card (or for a renter without LINE) the Delivery App asks the Bot (`POST /api/integrations/delivery-app/deposit-refunded`, signed) to email the renter with the amount and a button to the signed refund-proof page, Thai or English by name, once per slip. Bot `c22537b`, Delivery App `f5044a4`.
+- Copy-account buttons drop dashes/spaces (admin refund card, queue, My rental); the refund-slip wait screen shows on the web app (iPhone, Mac, PC) too.
+- Tests: Bot 760/760; Delivery App deposit-refunded-email 3, foreign-contract-refund 8, booking-pg-sync 17, my-rental-link 189, lalamove-dispatch 402, flex-ledger 28, both tsc; web wait screen checked in a browser. Not run against live Sheets/LINE/email from the container.
+
 ## 2026-10-28 — Foreign renters' Wise refund accounts now reach the Delivery App
 
 - Cause: the Bot writes AJ Contract "Phone" only for Thai numbers; a renter without one has "Phone" blank, "No Thai Phone Number" TRUE and their number (e.g. +61…) in "WhatsApp Display Name". The Delivery App matched contracts on "Phone" only, so these customers' refund accounts (usually Wise) were missing from the queue, the refund card and "My rental". Not Wise-specific: any renter without a Thai number.
