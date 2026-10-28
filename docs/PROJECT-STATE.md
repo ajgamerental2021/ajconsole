@@ -1,3 +1,10 @@
+## 2026-10-28 — Refund-slip link: why it got slower after Postgres, and the fix
+
+- Cause: delivery-queue tasks still read Google Sheets. `batchReadSheets` waited for a fresh batchGet of four large ranges (Booking Log ×2, AJ Contract, Customers) whenever the cache was over 30 s old. In dual mode the frequent Sheets-backed `getAllBookings` kept the Booking Log read warm; in pg mode the list comes from Postgres, so the refund-slip link (opened right after a return is closed, which also empties the Booking Log cache) nearly always waited.
+- Fix (server, all clients): serve copies up to 5 min old at once and refresh in the background; concurrent reads of a tab share one request; tabs emptied by a write are read back ~1.5 s later. `/api/bookings/range` logs phase timings when over 1.5 s and sends `Server-Timing`.
+- Android: wait screen "กำลังเปิดรายการส่งรูปคืนค่าประกัน · รอสักครู่…" from the link until the photo picker opens; the one day is fetched before switching to the week view. Needs a new APK.
+- Delivery App `8bd28aa`. Tests: sheet-batch-cache 6, flex-ledger 28, card-preview 12, daily-brief 29; web link flow checked in a browser. Live timings not measured from the container (Render unreachable); watch the new `[bookings/range]` log lines.
+
 ## 2026-10-28 — Wise refunds for English-named customers; web app reloads onto new builds
 
 - Return refund popup: for English-named customers a second button "จบงาน ไม่ส่งการ์ด" closes the job and saves the refund without the refund card to the two admins (server refuses it for Thai names). The card can still be sent later from the finished job.
