@@ -1304,6 +1304,8 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   .before-rent-final-cta p{margin:0;color:#475467;font-size:13px;font-weight:700}
   .before-rent-final-cta .btn{min-width:240px}
   #adminBtn[hidden]{display:none!important}
+  .admin-remember{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:14px;color:var(--muted,#555);cursor:pointer}
+  .admin-remember input{width:18px;height:18px;margin:0;flex:0 0 auto}
   .before-rent-hidden{display:none!important}
   @media(max-width:767px){
     .before-rent-section{width:100%;max-width:100%;padding:20px 0 34px}
@@ -1872,7 +1874,7 @@ body{background:#f7f8fa}
 
 <div class="admin-overlay" id="adminOverlay">
   <div class="admin-modal">
-    <div class="modal-head"><h3>Admin - Index2 Clean 1</h3><div class="modal-head-actions"><a class="btn" href="https://ajgamerental.com/broadcast/" target="_blank" rel="noopener" data-i18n="adminBroadcast">AJ LINE Broadcast</a><button class="btn" id="adminPasskeyRegister" type="button" data-i18n="adminPasskeyRegister">เพิ่ม Passkey</button><button class="xbtn" id="adminClose" type="button">&times;</button></div></div>
+    <div class="modal-head"><h3>Admin - Index2 Clean 1</h3><div class="modal-head-actions"><a class="btn" href="https://ajgamerental.com/broadcast/" target="_blank" rel="noopener" data-i18n="adminBroadcast">AJ LINE Broadcast</a><button class="btn" id="adminPasskeyRegister" type="button" data-i18n="adminPasskeyRegister">เพิ่ม Passkey</button><button class="btn" id="adminSignOut" type="button" data-i18n="adminSignOut">ออกจากระบบ</button><button class="xbtn" id="adminClose" type="button">&times;</button></div></div>
     <div class="admin-body" id="adminBody"></div>
   </div>
 </div>
@@ -1883,6 +1885,7 @@ body{background:#f7f8fa}
     <div class="calendar-body">
       <div class="field"><label class="label" data-i18n="adminUser">ผู้ใช้</label><input class="input" id="adminUserInput" autocomplete="username"></div>
       <div class="field" style="margin-top:12px"><label class="label" data-i18n="adminPassword">รหัสผ่าน</label><input class="input" id="adminPassInput" type="password" autocomplete="current-password"></div>
+      <label class="admin-remember"><input type="checkbox" id="adminRememberInput" checked> <span data-i18n="adminRemember">จดจำการเข้าสู่ระบบบนเครื่องนี้ 30 วัน</span></label>
       <p class="hint" id="adminLoginError"></p>
       <button class="btn primary" id="adminLoginSubmit" type="button" style="width:100%;margin-top:12px" data-i18n="adminSubmit">เข้าสู่ระบบ</button>
       <button class="btn" id="adminPasskeyLogin" type="button" style="width:100%;margin-top:8px" data-i18n="adminPasskeyLogin">เข้าสู่ระบบด้วย Passkey</button>
@@ -2398,7 +2401,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       copy:"📋 Copy ข้อความจองเช่า", line:"จองผ่าน Line", whatsapp:"จองผ่าน WhatsApp", messenger:"จองผ่าน Messenger", copied:"คัดลอกแล้ว", minDays:"ขั้นต่ำ 3 วัน", busy:"เครื่องอาจไม่ว่างในช่วงนี้", available:"ช่วงนี้ผ่านการเช็คคิวแล้ว", checking:"กำลังเช็คคิว...", checkingAgain:"กำลังเช็คคิวอีกครั้ง...", queueCheckingCell:"เช็กคิว", queueError:"ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่", retryQueue:"ลองเช็คคิวอีกครั้ง", queueRetryCell:"ลองเช็คใหม่", queueClosed:"ปิดคิวในช่วงเวลานี้", bookingHold:"มี 1 คิวกำลังทำรายการ กรุณาเช็คคิวใหม่ใน {minutes} นาที", bookingHoldCell:"กำลังจอง · เช็คใหม่ใน {minutes} นาที", bookingHoldLost:"มีลูกค้ารายอื่นกำลังจองเครื่องนี้ กรุณาเช็คคิวใหม่ใน {minutes} นาที", stepNeedConsole:"เลือกเครื่องเกมก่อนเพื่อเริ่มเช็คคิว", stepNeedStart:"เลือกวันที่เริ่มเช่า", stepNeedEnd:"เลือกวันคืนเครื่อง", stepNeedMinDays:"เลือกช่วงเช่าอย่างน้อย 3 วัน", stepQueueChecking:"กำลังตรวจสอบคิว กรุณารอสักครู่", stepQueueUnavailable:"ช่วงวันที่เลือกยังไม่พร้อมให้จอง", stepReadyDates:"เครื่องและช่วงวันที่พร้อม ไปขั้นตอนถัดไปได้", stepNeedGames:"เลือกรายชื่อเกม หรือเลือกแจ้งรายชื่อเกมภายหลัง", stepReadyGames:"ข้อมูลเกมพร้อมแล้ว ไปขั้นตอนถัดไปได้", stepReadyReview:"ตรวจสอบช่องทางชำระเงิน สัญญา และแผนที่ แล้วดูสรุปได้",
       shareConfirmTitle:"ยืนยันส่งข้อความจอง", shareConfirmMessage:"คุณกำลังจะส่งข้อความจองเช่าผ่าน {channel}", shareConfirmNote:"เพื่อป้องกันการส่งซ้ำ ระบบจะกันการกดซ้ำชั่วคราวหลังยืนยันส่ง", shareConfirmContractNote:"ลูกค้าใหม่ควรยืนยันตัวตนก่อนส่งข้อความจอง เพื่อให้ข้อมูลไม่หลุดและลดการส่งซ้ำ", shareConfirmMessengerNote:"Messenger ไม่สามารถใส่ข้อความให้อัตโนมัติ กรุณาคัดลอกข้อความ แล้วเปิดแชท AJ เพื่อวางและกดส่ง", shareConfirmSend:"ยืนยันส่งข้อความจอง", shareContractFirst:"ยืนยันตัวตนก่อน", shareCancel:"ยกเลิก", shareCooldown:"กำลังเตรียมหรือเพิ่งเปิดข้อความจอง กรุณารอสักครู่ก่อนกดซ้ำ", sharePreparing:"กำลังเตรียมข้อความจองสำหรับ {channel} กรุณาอย่ากดซ้ำ", shareReady:"ข้อความพร้อมแล้ว กรุณาคัดลอกและเปิด Messenger", shareOpened:"เปิด {channel} แล้ว กรุณากดส่งข้อความในแชท และรอสักครู่ก่อนกดซ้ำ", messengerHandoffTitle:"ส่งข้อความผ่าน Messenger", messengerHandoffHelp:"1. กดคัดลอกข้อความ  2. เปิด Messenger  3. วางข้อความในแชทและกดส่ง", messengerCopy:"คัดลอกข้อความ", messengerOpen:"เปิด Messenger", messengerCopied:"คัดลอกข้อความแล้ว กรุณาเปิด Messenger และวางในแชท",
       bookingFallbackTitle:"ส่งรายการจองอัตโนมัติไม่สำเร็จ", bookingFallbackHelp:"ระบบเตรียมข้อความจองไว้ให้แล้ว กรุณากดคัดลอก แล้วนำไปวางและส่งในแชทที่ติดต่อกับร้าน AJ", bookingFallbackCopy:"คัดลอกข้อความจอง", bookingFallbackOpen:"เปิด {channel}", bookingFallbackCopied:"คัดลอกแล้ว กรุณาวางข้อความและกดส่งในแชท",
-      faqTitle:"คำถามที่พบบ่อย", faqExpand:"ดูคำถามทั้งหมด", faqCollapse:"ย่อคำถาม", adminLogin:"เข้าสู่ระบบ Admin", adminUser:"ผู้ใช้", adminPassword:"รหัสผ่าน", adminSubmit:"เข้าสู่ระบบ", adminPasskeyLogin:"เข้าสู่ระบบด้วย Passkey", adminPasskeyRegister:"เพิ่ม Passkey", adminBroadcast:"AJ LINE Broadcast", adminPasskeyLabel:"ชื่อ Passkey เช่น MacBook หรือ iPhone", adminPasskeySaved:"เพิ่ม Passkey เรียบร้อยแล้ว", adminPasskeyFailed:"ไม่สามารถใช้ Passkey ได้ กรุณาลองใหม่หรือใช้รหัสผ่าน", wrongPassword:"ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", rentalCode:"รหัสการเช่า", temporaryRentalCode:"รหัสรายการชั่วคราว", save:"บันทึก", add:"เพิ่ม", edit:"แก้ไข", delete:"ลบ", sync:"Sync", pull:"Pull", push:"Push"
+      faqTitle:"คำถามที่พบบ่อย", faqExpand:"ดูคำถามทั้งหมด", faqCollapse:"ย่อคำถาม", adminLogin:"เข้าสู่ระบบ Admin", adminUser:"ผู้ใช้", adminPassword:"รหัสผ่าน", adminSubmit:"เข้าสู่ระบบ", adminPasskeyLogin:"เข้าสู่ระบบด้วย Passkey", adminRemember:"จดจำการเข้าสู่ระบบบนเครื่องนี้ 30 วัน", adminSignOut:"ออกจากระบบ", adminSignedOut:"ออกจากระบบเครื่องนี้แล้ว", adminPasskeyRegister:"เพิ่ม Passkey", adminBroadcast:"AJ LINE Broadcast", adminPasskeyLabel:"ชื่อ Passkey เช่น MacBook หรือ iPhone", adminPasskeySaved:"เพิ่ม Passkey เรียบร้อยแล้ว", adminPasskeyFailed:"ไม่สามารถใช้ Passkey ได้ กรุณาลองใหม่หรือใช้รหัสผ่าน", wrongPassword:"ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", rentalCode:"รหัสการเช่า", temporaryRentalCode:"รหัสรายการชั่วคราว", save:"บันทึก", add:"เพิ่ม", edit:"แก้ไข", delete:"ลบ", sync:"Sync", pull:"Pull", push:"Push"
     },
     en:{
       individualRateBefore:"This is an individual rental rate. For company documents such as a receipt, tax invoice, or lessor documents, request a company rate via LINE ",
@@ -2563,7 +2566,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       copy:"📋 Copy booking message", line:"Book via LINE", whatsapp:"Book via WhatsApp", messenger:"Book via Messenger", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", checkingAgain:"Checking the queue again...", queueCheckingCell:"Checking", queueError:"Unable to check the queue. Please try again.", retryQueue:"Retry queue check", queueRetryCell:"Retry check", queueClosed:"Queue closed during this period", bookingHold:"1 customer is completing this booking. Check again in {minutes} minutes.", bookingHoldCell:"In progress · retry in {minutes} min", bookingHoldLost:"Another customer is booking this console. Check again in {minutes} minutes.", stepNeedConsole:"Choose a console to start the queue check.", stepNeedStart:"Choose the rental start date.", stepNeedEnd:"Choose the return date.", stepNeedMinDays:"Choose a rental period of at least 3 days.", stepQueueChecking:"Checking the queue. Please wait a moment.", stepQueueUnavailable:"The selected dates are not ready to book.", stepReadyDates:"Console and dates are ready. You can continue.", stepNeedGames:"Choose games or select Send game list later.", stepReadyGames:"Game selection is ready. You can continue.", stepReadyReview:"Review payment, contract and map options, then continue to the summary.",
       shareConfirmTitle:"Confirm booking message", shareConfirmMessage:"You are about to send this booking message via {channel}.", shareConfirmNote:"To prevent duplicate messages, the buttons will be briefly locked after confirmation.", shareConfirmContractNote:"First-time customers should verify their identity before sending the booking message, so the details do not get missed or duplicated.", shareConfirmMessengerNote:"Messenger cannot prefill this message. Please copy it, open AJ's chat, paste it, and tap Send.", shareConfirmSend:"Confirm and send", shareContractFirst:"Verify identity first", shareCancel:"Cancel", shareCooldown:"Your booking message is being prepared or was just opened. Please wait before trying again.", sharePreparing:"Preparing your booking message for {channel}. Please do not tap again.", shareReady:"Your message is ready. Copy it and open Messenger.", shareOpened:"{channel} opened. Please send the message in the chat and wait before trying again.", messengerHandoffTitle:"Send via Messenger", messengerHandoffHelp:"1. Copy the message  2. Open Messenger  3. Paste it into the chat and tap Send", messengerCopy:"Copy message", messengerOpen:"Open Messenger", messengerCopied:"Message copied. Open Messenger and paste it into the chat.",
       bookingFallbackTitle:"Automatic booking delivery failed", bookingFallbackHelp:"Your booking message is ready. Copy it, then paste and send it in the chat you use to contact AJ.", bookingFallbackCopy:"Copy booking message", bookingFallbackOpen:"Open {channel}", bookingFallbackCopied:"Copied. Paste the message into the chat and tap Send.",
-      faqTitle:"Frequently Asked Questions", faqExpand:"Show all questions", faqCollapse:"Collapse questions", adminLogin:"Admin Login", adminUser:"User", adminPassword:"Password", adminSubmit:"Login", adminPasskeyLogin:"Sign in with Passkey", adminPasskeyRegister:"Add Passkey", adminBroadcast:"AJ LINE Broadcast", adminPasskeyLabel:"Passkey name (for example, MacBook or iPhone)", adminPasskeySaved:"Passkey added", adminPasskeyFailed:"Passkey could not be used. Try again or use your password.", wrongPassword:"Wrong username or password", rentalCode:"Rental code", temporaryRentalCode:"Temporary order ID", save:"Save", add:"Add", edit:"Edit", delete:"Delete", sync:"Sync", pull:"Pull", push:"Push"
+      faqTitle:"Frequently Asked Questions", faqExpand:"Show all questions", faqCollapse:"Collapse questions", adminLogin:"Admin Login", adminUser:"User", adminPassword:"Password", adminSubmit:"Login", adminPasskeyLogin:"Sign in with Passkey", adminRemember:"Keep me signed in on this device for 30 days", adminSignOut:"Sign out", adminSignedOut:"Signed out on this device", adminPasskeyRegister:"Add Passkey", adminBroadcast:"AJ LINE Broadcast", adminPasskeyLabel:"Passkey name (for example, MacBook or iPhone)", adminPasskeySaved:"Passkey added", adminPasskeyFailed:"Passkey could not be used. Try again or use your password.", wrongPassword:"Wrong username or password", rentalCode:"Rental code", temporaryRentalCode:"Temporary order ID", save:"Save", add:"Add", edit:"Edit", delete:"Delete", sync:"Sync", pull:"Pull", push:"Push"
     }
   };
 
@@ -2761,7 +2764,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       renderAdmin();
       toast(en ? `Same-day cutoff saved: ${value}` : `บันทึกเวลาตัดรอบแล้ว: ${value} น.`);
     }catch(error){
-      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
+      if(error.message === "unauthorized"){ forgetAdminSession(); closeAdmin(); openAdminLogin(); }
       else if(status) status.textContent = error.message;
     }
   }
@@ -2987,6 +2990,32 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   const GUIDE_ORDER = ["console","start","end","ps5bundle","accessory","next1","games","next2","bg","maps","ret","contractChoice","contractLink","payment","next3","share"];
   const GUIDE_KEY = "aj_index2_guide_stage";
+  // A remembered admin sign-in on this browser: the Bot's signed 30-day token
+  // ("remember." prefix), kept only when "จดจำการเข้าสู่ระบบ" was ticked. Changing
+  // ADMIN_PASSWORD on the Bot ends every remembered sign-in at once.
+  const ADMIN_SESSION_KEY = "aj_admin_session_v1";
+  function rememberedAdminToken(){
+    try{
+      const saved = JSON.parse(localStorage.getItem(ADMIN_SESSION_KEY) || "null");
+      if(saved && /^remember\./.test(String(saved.token || "")) && Number(saved.expiresAt) > Date.now()) return String(saved.token);
+      localStorage.removeItem(ADMIN_SESSION_KEY);
+    }catch{}
+    return "";
+  }
+  function keepAdminSession(result, remember){
+    state.adminToken = String(result?.token || "");
+    try{
+      if(remember && result?.remembered && /^remember\./.test(state.adminToken)){
+        localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({token:state.adminToken, expiresAt:Number(result.expiresAt) || 0}));
+      }else{
+        localStorage.removeItem(ADMIN_SESSION_KEY);
+      }
+    }catch{}
+  }
+  function forgetAdminSession(){
+    state.adminToken = "";
+    try{ localStorage.removeItem(ADMIN_SESSION_KEY); }catch{}
+  }
   const AUTO_GUIDE_ENABLED = false;
   const RENTAL_SHEET_COLUMNS = [
     "รหัสการเช่า",
@@ -12210,7 +12239,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(activeInfoPage === "about") renderInfoModal();
       toast(en ? "About page saved" : "บันทึกหน้าเกี่ยวกับเราแล้ว");
     }catch(error){
-      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
+      if(error.message === "unauthorized"){ forgetAdminSession(); closeAdmin(); openAdminLogin(); }
       else if(status) status.textContent = error.message;
     }
   }
@@ -12313,7 +12342,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(activeInfoPage === "privacy") renderInfoModal();
       toast(en ? "Privacy Policy saved" : "บันทึกนโยบายความเป็นส่วนตัวแล้ว");
     }catch(error){
-      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
+      if(error.message === "unauthorized"){ forgetAdminSession(); closeAdmin(); openAdminLogin(); }
       else if(status) status.textContent = error.message;
     }
   }
@@ -12403,7 +12432,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       adminTerms.status = en ? `Published version ${result.version}.` : `เผยแพร่เวอร์ชัน ${result.version} แล้ว`;
       toast(adminTerms.status);
     }catch(error){
-      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); return; }
+      if(error.message === "unauthorized"){ forgetAdminSession(); closeAdmin(); openAdminLogin(); return; }
       adminTerms.status = error.message;
     }finally{
       adminTerms.loading = false;
@@ -12562,7 +12591,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
   }
   async function adminRentalRequest(path, options = {}){
     const response = await fetch(`${CONFIG.apiBase}${path}`, {cache:"no-store", ...options, headers:{"Content-Type":"application/json", Authorization:`Bearer ${state.adminToken}`}});
-    if(response.status === 401){ state.adminToken = ""; closeAdmin(); openAdminLogin(); throw new Error("unauthorized"); }
+    if(response.status === 401){ forgetAdminSession(); closeAdmin(); openAdminLogin(); throw new Error("unauthorized"); }
     const result = await response.json().catch(() => ({}));
     if(!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
     return result;
@@ -12643,7 +12672,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       renderAdmin();
       toast(content.enabled ? (en ? "Announcement saved and shown" : "บันทึกและเปิดแสดงประกาศแล้ว") : (en ? "Announcement saved and hidden" : "บันทึกแล้ว ปิดการแสดงประกาศ"));
     }catch(error){
-      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
+      if(error.message === "unauthorized"){ forgetAdminSession(); closeAdmin(); openAdminLogin(); }
       else if(status) status.textContent = error.message;
     }
   }
@@ -13228,7 +13257,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         ? (en ? "Saved: the pop-up is on. Each phone or computer sees it once a day, so this one may already have had today's; use Preview to see it." : "บันทึกแล้ว: เปิดป๊อปอัพ ลูกค้าแต่ละเครื่องเห็นวันละครั้ง เครื่องนี้อาจเห็นของวันนี้ไปแล้ว กด ดูตัวอย่าง เพื่อดูหน้าตา")
         : (en ? "Saved: the pop-up is off." : "บันทึกแล้ว: ปิดป๊อปอัพ");
     }catch(error){
-      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
+      if(error.message === "unauthorized"){ forgetAdminSession(); closeAdmin(); openAdminLogin(); }
       else if(status) status.textContent = error.message;
     }
   }
@@ -14326,11 +14355,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
       const response = await fetch(`${CONFIG.apiBase}/api/admin/login`, {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({username:user,password:pass})
+        body:JSON.stringify({username:user,password:pass,remember:byId("adminRememberInput").checked})
       });
       if(!response.ok) throw new Error("invalid");
       const result = await response.json();
-      state.adminToken = String(result.token || "");
+      keepAdminSession(result, byId("adminRememberInput").checked);
       if(!state.adminToken) throw new Error("invalid");
       closeAdminLogin();
       openAdmin(true);
@@ -14347,7 +14376,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("adminLoginError").textContent = state.lang === "en" ? "Waiting for Passkey…" : "กำลังรอ Passkey…";
     try{
       const result = await window.AJAdminPasskey.login(CONFIG.apiBase);
-      state.adminToken = String(result.token || "");
+      keepAdminSession(result, byId("adminRememberInput").checked);
       if(!state.adminToken) throw new Error("invalid");
       closeAdminLogin();
       openAdmin(true);
@@ -14373,7 +14402,10 @@ We apologize for the inconvenience and hope everyone stays safe.`
     }
   }
   function openAdmin(force=false){
-    if(!force){ openAdminLogin(); return; }
+    // Signed in already (this visit, or remembered on this device): no password.
+    // A token the Bot no longer accepts comes back 401 and every admin call
+    // then forgets it and opens the sign-in instead.
+    if(!force && !state.adminToken){ openAdminLogin(); return; }
     byId("adminOverlay").classList.add("open");
     renderAdmin();
     fetchQueueClosuresForAdmin();
@@ -14385,6 +14417,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(state.adminTab === "settings" && !gameUpdateHoursDraft) void loadGameUpdateHoursForAdmin();
   }
   function closeAdmin(){ byId("adminOverlay").classList.remove("open"); }
+  function signOutAdmin(){
+    forgetAdminSession();
+    closeAdmin();
+    toast(tr("adminSignedOut"));
+  }
   let vipDraftDirty = false;
   /**
    * FAQ text typed but not yet saved. The panel is redrawn whenever promotions
@@ -14523,7 +14560,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       state.queueClosures.error = "";
     }catch(error){
       state.queueClosures.error = error.message;
-      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); return; }
+      if(error.message === "unauthorized"){ forgetAdminSession(); closeAdmin(); openAdminLogin(); return; }
     }finally{
       state.queueClosures.loading = false;
       if(byId("adminOverlay").classList.contains("open")) renderAdmin();
@@ -14555,7 +14592,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       render(); renderAdmin();
       toast(state.lang === "en" ? "Queue schedule saved" : "บันทึกเวลาปิดคิวแล้ว");
     }catch(error){
-      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
+      if(error.message === "unauthorized"){ forgetAdminSession(); closeAdmin(); openAdminLogin(); }
       else if(status) status.textContent = error.message;
     }finally{ if(button) button.disabled = false; }
   }
@@ -14602,7 +14639,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       state.pickupLocations.error = "";
     }catch(error){
       state.pickupLocations.error = error.message;
-      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); return; }
+      if(error.message === "unauthorized"){ forgetAdminSession(); closeAdmin(); openAdminLogin(); return; }
     }finally{
       state.pickupLocations.loading = false;
       if(byId("adminOverlay").classList.contains("open")) renderAdmin();
@@ -14641,7 +14678,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       renderAdmin();
       toast(en ? "Pickup points saved" : "บันทึกจุดรับของแล้ว");
     }catch(error){
-      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
+      if(error.message === "unauthorized"){ forgetAdminSession(); closeAdmin(); openAdminLogin(); }
       else if(status) status.textContent = error.message;
     }
   }
@@ -14762,7 +14799,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       state.vipCustomers.error = "";
     }catch(error){
       state.vipCustomers.error = error.message;
-      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); return; }
+      if(error.message === "unauthorized"){ forgetAdminSession(); closeAdmin(); openAdminLogin(); return; }
     }finally{
       state.vipCustomers.loading = false;
       if(byId("adminOverlay").classList.contains("open")) renderAdmin();
@@ -15264,7 +15301,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       renderAdmin();
       toast(en ? "Game selection hours saved" : "บันทึกเวลาเลือกเกมแล้ว");
     }catch(error){
-      if(error.message === "unauthorized"){ state.adminToken = ""; closeAdmin(); openAdminLogin(); }
+      if(error.message === "unauthorized"){ forgetAdminSession(); closeAdmin(); openAdminLogin(); }
       else if(status) status.textContent = en ? "Could not save. Please try again." : "บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง";
     }
   }
@@ -15670,6 +15707,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("adminLoginSubmit").addEventListener("click", submitAdminLogin);
     byId("adminPasskeyLogin").addEventListener("click", submitAdminPasskey);
     byId("adminPasskeyRegister").addEventListener("click", registerAdminPasskey);
+    byId("adminSignOut").addEventListener("click", signOutAdmin);
     byId("adminPassInput").addEventListener("keydown", e => { if(e.key === "Enter") submitAdminLogin(); });
     byId("adminUserInput").addEventListener("keydown", e => { if(e.key === "Enter") byId("adminPassInput").focus(); });
     byId("calendarClose").addEventListener("click", closeCalendar);
@@ -16725,7 +16763,13 @@ We apologize for the inconvenience and hope everyone stays safe.`
       cleanEntryUrl.searchParams.delete("booking");
       history.replaceState(null, "", cleanEntryUrl.href);
     }
-    if(new URLSearchParams(location.search).get("admin") === "1") byId("adminBtn").hidden = false;
+    // ?admin=1 shows the Admin button; ?admin=open (or /admin/, #admin) opens
+    // the Admin window straight away. A device with a remembered sign-in shows
+    // the button anyway.
+    state.adminToken = state.adminToken || rememberedAdminToken();
+    const adminParam = new URLSearchParams(location.search).get("admin");
+    const adminRequested = adminParam === "open" || location.hash === "#admin";
+    if(adminParam === "1" || adminRequested || state.adminToken) byId("adminBtn").hidden = false;
     const viewCode = new URLSearchParams(location.search).get("viewMsg");
     if(viewCode){ renderBookingViewer(viewCode.trim()); return; }
     const restoredGameList = consumeGamePickerHandoff();
@@ -16787,6 +16831,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(new URLSearchParams(location.search).get("faq") === "1" || location.hash === "#faq"){
       setTimeout(openFAQPopup, 120);
     }
+    if(adminRequested) setTimeout(() => openAdmin(false), 150);
     if(new URLSearchParams(location.search).get("steps") === "1" || location.hash === "#steps"){
       setTimeout(openStepsPopup, 120);
     }
