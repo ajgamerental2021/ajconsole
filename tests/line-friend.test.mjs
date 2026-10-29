@@ -41,7 +41,7 @@ test('the site invitation shows at most once a day, can be switched off in Admin
   assert.match(page, /lineFriendPromoSetting = \{enabled: result\?\.content\?\.enabled !== false\};/, 'on until the shop switches it off');
   assert.match(page, /\|\| !state\.beforeRentActive;/, 'only on the page before booking');
   assert.match(page, /lineFriendGateShown \|\| lineFriendPromoSeenToday\(\)/);
-  assert.doesNotMatch(page.slice(page.indexOf('async function maybeShowLineFriendPromo'), page.indexOf('function lineFriendPromoSeenToday')), /state\.adminToken/, 'a signed-in admin still sees it once Admin is closed');
+  assert.match(page.slice(page.indexOf('async function maybeShowLineFriendPromo'), page.indexOf('function lineFriendPromoSeenToday')), /\|\| !!state\.adminToken \/\* the shop's own signed-in device/, 'never on a device signed in to Admin (owner, 29/10/2026)');
   assert.match(page, /waited < 600/, 'waits for the announcement to be closed');
   assert.match(page, /id="adminAnnouncement">\$\{adminAnnouncementHtml\(\)\}\$\{adminLineFriendPromoHtml\(\)\}/);
 });

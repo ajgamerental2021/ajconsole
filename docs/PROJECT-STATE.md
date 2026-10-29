@@ -1,3 +1,7 @@
+## 2026-10-29 — No LINE add-friend pop-up on a device signed in to Admin
+
+- Owner's choice: a browser holding an admin sign-in (this visit or remembered) never gets the LINE add-friend pop-up; replaces the earlier rule that a signed-in admin still saw it once Admin was closed. tests/line-friend.test.mjs updated. Website 405/405; checked in a browser: signed-in device no pop-up, normal visitor still gets it.
+
 ## 2026-10-29 — Website Admin: remembered sign-in and a direct link
 
 - The Bot already issued a signed 30-day admin token for `remember: true` (and for every Passkey sign-in); the site never asked for it and kept the token only in memory, so every open asked for the password. Now: sign-in has "จดจำการเข้าสู่ระบบบนเครื่องนี้ 30 วัน / Keep me signed in on this device for 30 days" (ticked by default); the token is kept in that browser's localStorage (`aj_admin_session_v1`, only `remember.` tokens, with its expiry). A signed-in visit opens Admin without a password and shows the Admin button even without `?admin=1`. New "ออกจากระบบ / Sign out" in the Admin header forgets the device. Any admin call answered 401 forgets the stored token and opens the sign-in. Changing `ADMIN_PASSWORD` on the Bot ends every remembered sign-in (the token is signed with it); sign-out only clears that browser.
