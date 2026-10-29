@@ -208,6 +208,6 @@ test('the quote page sorts Ray-Ban ahead of Meta Quest too', () => {
 
 test('the browse-games button reads the new wording in Thai and English', () => {
   assert.match(source, /beforeRentGames:"ดูเกมที่มีให้เลือก",\n\s*beforeRentGamesSub:"เช็กรายชื่อเกมของ PS5, Switch, Xbox และเครื่องอื่นๆ"/);
-  assert.match(source, /beforeRentGames:"See available games",\n\s*beforeRentGamesSub:"Check the game lists for PS5, Switch, Xbox and other consoles"/);
+  assert.match(source, /beforeRentGames:"See available games",\n\s*beforeRentGamesSub:"Games for PS5, Switch, Xbox & more"/);
   assert.ok(!source.includes('ดูรายชื่อเกมก่อน'));
 });

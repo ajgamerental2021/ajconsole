@@ -1,3 +1,8 @@
+## 2026-10-29 — Inventory now reads from Postgres; shorter English games button
+
+- Owner asked to switch Inventory on: `DATA_SOURCE_INVENTORY: "pg"` in the Delivery App's render.yaml (`863da98`). Device lists and availability come from the `inventory` table; adding/editing/removing a device still writes the Inventory sheet first and waits for the copy; Status/Days follow every Booking Log write and the 5-minute pass. Rollback: `"sheets"`. After deploy, check the Inventory/Stock screens against the sheet and look for the log line `[repo] inventory: Postgres answers reads`. Production not checked from the container (Render unreachable). Customers stays on Sheets until the owner says so.
+- Website: the English subtitle of the browse-games button wrapped to two lines; now "Games for PS5, Switch, Xbox & more" — one line from 360 px wide up (checked at 1200/1024/390/360; wraps only at 320). Website tests 400/400.
+
 ## 2026-10-29 — Ray-Ban brand ahead of Meta Quest; browse-games button wording
 
 - Ray-Ban Meta Gen 3 showed under "Other": the device registry card carries a brand the site did not know. New brand `rayban` (label Ray-Ban) ordered between Logitech and Meta Quest; `normalizeBrand`/`guessBrand` recognise Ray-Ban before "Meta", and a card whose name says Ray-Ban is filed under Ray-Ban whatever brand it arrived with. Effect: own heading above Meta Quest in the brand-grouped lists, above Meta Quest 3/3s in the calculator device dropdown, left of them in the device rail. Quote page (`/quote/`) sorts the same; `consoleRank` lists Ray-Ban before Meta Quest 3.
