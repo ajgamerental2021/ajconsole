@@ -109,7 +109,7 @@ test('the page: a code per quote at the end of the LINE message, saved as LINE o
 });
 
 test('the booking page\'s order: brand, then its own order, then the higher rate', () => {
-  assert.match(page, /var BRAND_ORDER = \{ playstation: 1, nintendo: 2, xbox: 3, logitech: 4, meta: 5, viture: 6, xreal: 7, rog: 8, lenovo: 9, steamdeck: 10, other: 99 \};/);
+  assert.match(page, /var BRAND_ORDER = \{ playstation: 1, nintendo: 2, xbox: 3, logitech: 4, rayban: 5, meta: 6, viture: 7, xreal: 8, rog: 9, lenovo: 10, steamdeck: 11, other: 99 \};/);
   assert.match(page, /var RANK = \['PS5', 'PS5 Pro', 'PS4', 'PS Portal', 'PS VR2', 'PS FlexStrike Wireless Fight Stick', 'Nintendo Switch 2'/);
   assert.match(page, /rankOf\(a\) - rankOf\(b\) \|\| b\.rate - a\.rate/);
   // Kept identical to the booking page's own list.

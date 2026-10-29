@@ -1,3 +1,9 @@
+## 2026-10-29 — Ray-Ban brand ahead of Meta Quest; browse-games button wording
+
+- Ray-Ban Meta Gen 3 showed under "Other": the device registry card carries a brand the site did not know. New brand `rayban` (label Ray-Ban) ordered between Logitech and Meta Quest; `normalizeBrand`/`guessBrand` recognise Ray-Ban before "Meta", and a card whose name says Ray-Ban is filed under Ray-Ban whatever brand it arrived with. Effect: own heading above Meta Quest in the brand-grouped lists, above Meta Quest 3/3s in the calculator device dropdown, left of them in the device rail. Quote page (`/quote/`) sorts the same; `consoleRank` lists Ray-Ban before Meta Quest 3.
+- Home button "ดูรายชื่อเกมก่อน" → "ดูเกมที่มีให้เลือก / เช็กรายชื่อเกมของ PS5, Switch, Xbox และเครื่องอื่นๆ"; EN "See available games / Check the game lists for PS5, Switch, Xbox and other consoles". Bot analytics label updated to match.
+- Tests: website 400/400 (ray-ban-meta + quick-quote-page updated, 4 new checks); checked in a browser with live Gist data and a registry card with brand "other": groups PlayStation, Nintendo Switch, Xbox, Logitech, Ray-Ban, Meta Quest…; calculator and rail order as asked; TH/EN button text.
+
 ## 2026-10-28 — Refund-slip upload failed with 520 on the first try
 
 - Symptom: after choosing the refund slip and confirming, the first try said "อัปโหลดแล้ว 0/1 รูป … status code 520"; pressing send again worked. The photo upload itself failed, before any card.

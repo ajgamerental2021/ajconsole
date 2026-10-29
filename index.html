@@ -1463,7 +1463,7 @@ body{background:#f7f8fa}
           </button>
           <button class="before-rent-action" id="beforeRentGames" type="button">
             <span class="before-rent-icon" data-icon="grid"></span>
-            <span class="before-rent-copy"><strong data-i18n="beforeRentGames">ดูรายชื่อเกมก่อน</strong><span data-i18n="beforeRentGamesSub">ยังไม่จอง แค่ดูว่าเครื่องไหนมีเกมอะไรบ้าง</span></span>
+            <span class="before-rent-copy"><strong data-i18n="beforeRentGames">ดูเกมที่มีให้เลือก</strong><span data-i18n="beforeRentGamesSub">เช็กรายชื่อเกมของ PS5, Switch, Xbox และเครื่องอื่นๆ</span></span>
           </button>
           <button class="before-rent-action" id="beforeRentSteps" type="button">
             <span class="before-rent-icon" data-icon="book"></span>
@@ -2137,7 +2137,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
     {id:17,name:"Viture Beast",nameEn:"Viture Beast",rate:400,weekly:2500,deposit:2000,type:"vr",brand:"viture",icon:"🥽",showGameButton:false,gamePlatform:""},
     {id:18,name:"PS5 Pro",nameEn:"PS5 Pro",rate:500,weekly:3000,deposit:4000,type:"console",brand:"playstation",icon:"🎮",showGameButton:true,gamePlatform:"ps5"},
     {id:19,name:"Lenovo Legion GO2",nameEn:"Lenovo Legion GO2",rate:500,weekly:3000,deposit:4000,type:"handheld",brand:"lenovo",icon:"💻",showGameButton:true,gamePlatform:"rog"},
-    {id:20,name:"Ray-Ban Meta Gen 3",nameEn:"Ray-Ban Meta Gen 3",rate:350,weekly:1800,deposit:4000,type:"vr",brand:"meta",icon:"🕶️",showGameButton:false,gamePlatform:"",readyDate:"2026-10-28"}
+    {id:20,name:"Ray-Ban Meta Gen 3",nameEn:"Ray-Ban Meta Gen 3",rate:350,weekly:1800,deposit:4000,type:"vr",brand:"rayban",icon:"🕶️",showGameButton:false,gamePlatform:"",readyDate:"2026-10-28"}
   ];
 
   // Trust numbers and the picked reviews are shop data, not code, so they live
@@ -2224,12 +2224,13 @@ You may ask to access, correct, object to, restrict or delete your data, or with
     nintendo:{labelTh:"Nintendo Switch",labelEn:"Nintendo Switch",icon:"🎮",order:2},
     xbox:{labelTh:"Xbox",labelEn:"Xbox",icon:"🎮",order:3},
     logitech:{labelTh:"Logitech",labelEn:"Logitech",icon:"🏁",order:4},
-    meta:{labelTh:"Meta Quest",labelEn:"Meta Quest",icon:"🥽",order:5},
-    viture:{labelTh:"Viture",labelEn:"Viture",icon:"🥽",order:6},
-    xreal:{labelTh:"XREAL",labelEn:"XREAL",icon:"🥽",order:7},
-    rog:{labelTh:"ROG",labelEn:"ROG",icon:"💻",order:8},
-    lenovo:{labelTh:"Lenovo",labelEn:"Lenovo",icon:"💻",order:9},
-    steamdeck:{labelTh:"Steam Deck",labelEn:"Steam Deck",icon:"💻",order:10},
+    rayban:{labelTh:"Ray-Ban",labelEn:"Ray-Ban",icon:"🕶️",order:5},
+    meta:{labelTh:"Meta Quest",labelEn:"Meta Quest",icon:"🥽",order:6},
+    viture:{labelTh:"Viture",labelEn:"Viture",icon:"🥽",order:7},
+    xreal:{labelTh:"XREAL",labelEn:"XREAL",icon:"🥽",order:8},
+    rog:{labelTh:"ROG",labelEn:"ROG",icon:"💻",order:9},
+    lenovo:{labelTh:"Lenovo",labelEn:"Lenovo",icon:"💻",order:10},
+    steamdeck:{labelTh:"Steam Deck",labelEn:"Steam Deck",icon:"💻",order:11},
     other:{labelTh:"Other",labelEn:"Other",icon:"🕹️",order:99}
   };
 
@@ -2281,8 +2282,8 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       beforeRentRentSub:"เลือกเครื่อง → เช็กวันว่าง → ดูราคา → จองคิว",
       beforeRentStartHere:"จองคิวเลย",
       menuBookRental:"จองคิวเช่า",
-      beforeRentGames:"ดูรายชื่อเกมก่อน",
-      beforeRentGamesSub:"ดูเกมของแต่ละเครื่องก่อนตัดสินใจ",
+      beforeRentGames:"ดูเกมที่มีให้เลือก",
+      beforeRentGamesSub:"เช็กรายชื่อเกมของ PS5, Switch, Xbox และเครื่องอื่นๆ",
       beforeRentSteps:"วิธีเช่า",
       beforeRentStepsSub:"ดูตั้งแต่จองจนถึงคืนเครื่อง",
       beforeRentFaq:"คำถามที่พบบ่อย",
@@ -2446,8 +2447,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       beforeRentRentSub:"Choose a console → Check dates → See prices → Book",
       beforeRentStartHere:"BOOK NOW",
       menuBookRental:"Book a rental",
-      beforeRentGames:"Just browsing games",
-      beforeRentGamesSub:"Browse games by console",
+      beforeRentGames:"See available games",
+      beforeRentGamesSub:"Check the game lists for PS5, Switch, Xbox and other consoles",
       beforeRentSteps:"How to rent",
       beforeRentStepsSub:"See everything from booking to returning the console",
       beforeRentFaq:"FAQ",
@@ -3141,6 +3142,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     c.deposit = Number(c.deposit) || pack.deposit;
     c.type = String(c.type || "console");
     c.brand = normalizeBrand(c.brand || guessBrand(c));
+    // Ray-Ban glasses arrive from the device registry with brand "meta", "other"
+    // or blank; the name decides, so they sit under Ray-Ban, ahead of Meta Quest.
+    if(guessBrand(c) === "rayban") c.brand = "rayban";
     c.icon = String(c.icon || "🎮").trim() || "🎮";
     c.gamePlatform = normalizePlatform(c.gamePlatform || guessPlatform(c), c);
     // "ROG Xbox Ally X" contains "Xbox" but is a ROG handheld. A stale/auto value
@@ -3186,6 +3190,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(v.includes("lenovo") || v.includes("legion")) return "lenovo";
     if(v.includes("xbox")) return "xbox";
     if(v.includes("logitech")) return "logitech";
+    // Before Meta: "Ray-Ban Meta" glasses are Ray-Ban, not Meta Quest.
+    if(v.includes("rayban") || v.includes("ray-ban")) return "rayban";
     if(v.includes("meta") || v.includes("quest")) return "meta";
     if(v.includes("viture")) return "viture";
     if(v.includes("xreal")) return "xreal";
@@ -3200,6 +3206,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(/legion|lenovo/.test(s)) return "lenovo";
     if(/xbox/.test(s)) return "xbox";
     if(/logitech|g29/.test(s)) return "logitech";
+    if(/ray-?ban/.test(s)) return "rayban";
     if(/quest|meta/.test(s)) return "meta";
     if(/viture/.test(s)) return "viture";
     if(/xreal/.test(s)) return "xreal";
@@ -3259,7 +3266,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return ({console:0, handheld:1, vr:2, racing:3})[String(item?.type || "").toLowerCase()] ?? 4;
   }
   function consoleRank(c){
-    const order = ["PS5","PS5 Pro","PS4","PS Portal","PS VR2","PS FlexStrike Wireless Fight Stick","Nintendo Switch 2","Nintendo Switch 1","Logitech G29","Meta Quest 3","Meta Quest 3s","Ray-Ban Meta Gen 3","Viture Beast","Viture Luma Ultra","Viture Luma Pro","XREAL One","ROG Xbox Ally X","Xbox Series X","Xbox Series S","Lenovo Legion GO2","Steam Deck OLED"];
+    const order = ["PS5","PS5 Pro","PS4","PS Portal","PS VR2","PS FlexStrike Wireless Fight Stick","Nintendo Switch 2","Nintendo Switch 1","Logitech G29","Ray-Ban Meta Gen 3","Meta Quest 3","Meta Quest 3s","Viture Beast","Viture Luma Ultra","Viture Luma Pro","XREAL One","ROG Xbox Ally X","Xbox Series X","Xbox Series S","Lenovo Legion GO2","Steam Deck OLED"];
     const name = String(c?.nameEn || c?.name || "").trim().toLowerCase();
     const found = order.findIndex(item => item.toLowerCase() === name);
     return found >= 0 ? found : 999;

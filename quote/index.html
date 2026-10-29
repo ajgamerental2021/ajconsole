@@ -344,10 +344,12 @@
   // own order within a brand, then the higher rate. A device not ready yet
   // (its Ready Date in Admin) or with its queue shut (Admin → ปิดคิว) is shown
   // greyed with the reason, and comes back by itself when it opens.
-  var BRAND_ORDER = { playstation: 1, nintendo: 2, xbox: 3, logitech: 4, meta: 5, viture: 6, xreal: 7, rog: 8, lenovo: 9, steamdeck: 10, other: 99 };
-  var RANK = ['PS5', 'PS5 Pro', 'PS4', 'PS Portal', 'PS VR2', 'PS FlexStrike Wireless Fight Stick', 'Nintendo Switch 2', 'Nintendo Switch 1', 'Logitech G29', 'Meta Quest 3', 'Meta Quest 3s', 'Ray-Ban Meta Gen 3', 'Viture Beast', 'Viture Luma Ultra', 'Viture Luma Pro', 'XREAL One', 'ROG Xbox Ally X', 'Xbox Series X', 'Xbox Series S', 'Lenovo Legion GO2', 'Steam Deck OLED']
+  var BRAND_ORDER = { playstation: 1, nintendo: 2, xbox: 3, logitech: 4, rayban: 5, meta: 6, viture: 7, xreal: 8, rog: 9, lenovo: 10, steamdeck: 11, other: 99 };
+  var RANK = ['PS5', 'PS5 Pro', 'PS4', 'PS Portal', 'PS VR2', 'PS FlexStrike Wireless Fight Stick', 'Nintendo Switch 2', 'Nintendo Switch 1', 'Logitech G29', 'Ray-Ban Meta Gen 3', 'Meta Quest 3', 'Meta Quest 3s', 'Viture Beast', 'Viture Luma Ultra', 'Viture Luma Pro', 'XREAL One', 'ROG Xbox Ally X', 'Xbox Series X', 'Xbox Series S', 'Lenovo Legion GO2', 'Steam Deck OLED']
     .map(function (n) { return n.toLowerCase(); });
   function brandOf(c) {
+    // Ray-Ban glasses go by their name whatever brand the registry gave them.
+    if (/ray-?ban/i.test(String(c.name || '') + ' ' + String(c.nameEn || ''))) return 'rayban';
     var v = String(c.brand || '').toLowerCase().replace(/\s+/g, '');
     var s = v || (String(c.name || '') + ' ' + String(c.nameEn || '')).toLowerCase();
     if (/playstation|^ps$|(^|\s)ps/.test(s)) return 'playstation';

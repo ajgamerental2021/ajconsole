@@ -11,7 +11,7 @@ function fn(name) {
 }
 
 test('Ray-Ban Meta Gen 3 is listed at ฿350 / ฿1,800 / ฿4,000 and opens on 28 Oct 2026', () => {
-  assert.match(source, /\{id:20,name:"Ray-Ban Meta Gen 3",nameEn:"Ray-Ban Meta Gen 3",rate:350,weekly:1800,deposit:4000,type:"vr",brand:"meta",icon:"🕶️",showGameButton:false,gamePlatform:"",readyDate:"2026-10-28"\}/);
+  assert.match(source, /\{id:20,name:"Ray-Ban Meta Gen 3",nameEn:"Ray-Ban Meta Gen 3",rate:350,weekly:1800,deposit:4000,type:"vr",brand:"rayban",icon:"🕶️",showGameButton:false,gamePlatform:"",readyDate:"2026-10-28"\}/);
   assert.ok(existsSync(new URL('../assets/consoles/ray-ban-meta-gen-3.webp', import.meta.url)), 'its photo is published');
 });
 
@@ -174,4 +174,40 @@ test('the admin add-device form writes the registry through the Bot, in both lan
   assert.match(source, /เพิ่มเครื่อง \(ทุกระบบ\)/);
   assert.match(source, /Add a device \(every system\)/);
   assert.match(source, /กรอกชื่อ ค่าเช่า ค่าประกัน และอุปกรณ์ที่ได้รับทั้งไทยและอังกฤษให้ครบ/);
+});
+
+test('Ray-Ban is its own brand, listed ahead of Meta Quest everywhere', () => {
+  const start = source.indexOf('  const BRAND_META = {');
+  const brandMeta = source.slice(start, source.indexOf('\n  };', start) + 5);
+  const ctx = vm.createContext({});
+  vm.runInContext(`${brandMeta}${fn('normalizeBrand')}${fn('guessBrand')}${fn('brandOrder')}${fn('consoleRank')}
+    this.norm = normalizeBrand; this.guess = guessBrand; this.order = brandOrder; this.rank = consoleRank; this.meta = BRAND_META;`, ctx);
+  assert.equal(ctx.meta.rayban.labelTh, 'Ray-Ban');
+  assert.equal(ctx.meta.rayban.labelEn, 'Ray-Ban');
+  for (const value of ['rayban', 'Ray-Ban', 'ray ban'.replace(' ', '-')]) assert.equal(ctx.norm(value), 'rayban', value);
+  assert.equal(ctx.norm('meta'), 'meta');
+  assert.equal(ctx.guess({name: 'Ray-Ban Meta Gen 3'}), 'rayban', 'not Meta Quest, though the name says Meta');
+  assert.equal(ctx.guess({name: 'Meta Quest 3'}), 'meta');
+  assert.ok(ctx.order('rayban') < ctx.order('meta'), 'brand groups, the device rail and the calculator list sort by brand first');
+  assert.ok(ctx.rank({name: 'Ray-Ban Meta Gen 3'}) < ctx.rank({name: 'Meta Quest 3'}));
+  assert.ok(ctx.rank({name: 'Ray-Ban Meta Gen 3'}) < ctx.rank({name: 'Meta Quest 3s'}));
+});
+
+test('a registry Ray-Ban card filed under "Other" or "meta" lands under Ray-Ban', () => {
+  const body = fn('normalizeConsole');
+  assert.match(body, /if\(guessBrand\(c\) === "rayban"\) c\.brand = "rayban";/);
+});
+
+test('the quote page sorts Ray-Ban ahead of Meta Quest too', () => {
+  const quote = readFileSync(new URL('../quote/index.html', import.meta.url), 'utf8');
+  const order = Function(`${quote.match(/var BRAND_ORDER = [^;]+;/)[0]} return BRAND_ORDER;`)();
+  assert.ok(order.rayban < order.meta);
+  assert.match(quote, /if \(\/ray-\?ban\/i\.test\(/);
+  assert.ok(quote.indexOf("'Ray-Ban Meta Gen 3', 'Meta Quest 3'") > 0);
+});
+
+test('the browse-games button reads the new wording in Thai and English', () => {
+  assert.match(source, /beforeRentGames:"ดูเกมที่มีให้เลือก",\n\s*beforeRentGamesSub:"เช็กรายชื่อเกมของ PS5, Switch, Xbox และเครื่องอื่นๆ"/);
+  assert.match(source, /beforeRentGames:"See available games",\n\s*beforeRentGamesSub:"Check the game lists for PS5, Switch, Xbox and other consoles"/);
+  assert.ok(!source.includes('ดูรายชื่อเกมก่อน'));
 });
