@@ -1,3 +1,9 @@
+## 2026-10-31 — Admin booking edit sends the updated card on save
+
+- Bot admin tools (contract form page → สำหรับแอดมิน/⚙️ → รายการจอง → แก้ไข): new box "ส่งการ์ดยอดใหม่ให้ลูกค้าทาง LINE หลังบันทึก" (ticked by default). `PUT /api/admin/bookings/:code` with `sendLine: true` pushes the booking card built from the figures just saved (not a Sheet re-read, which can return the old row); the result line says sent / not linked to LINE / failed (TH + EN). "ส่งเข้า LINE" still works on its own.
+- Use for the Xbox Series S booking (31/10–03/11): delete the 10% line, deposit 2,000, save with the box ticked → card ฿3,010 total, ฿200 now, ฿2,810 on delivery. Not done from here (Render blocked by the environment's network policy).
+- Tests: Bot 766/766 (new test/admin-booking-send-after-save.test.js); editor checked in a browser with a faked Bot: box ticked, save sends sendLine and the edited costs, result "ส่งการ์ดยอดใหม่เข้า LINE ลูกค้าแล้ว".
+
 ## 2026-10-31 — Same customer's website booking: wrong 10% discount and ฿5,000 deposit
 
 - The renter from the codeless-agreement case then booked Xbox Series S on the website (31/10–03/11): card showed "ส่วนลดลูกค้าเก่า 10%" and deposit ฿5,000. Owner: first rental (no discount), agreement made so deposit ฿2,000.
