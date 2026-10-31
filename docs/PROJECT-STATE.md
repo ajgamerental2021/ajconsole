@@ -5045,3 +5045,7 @@ paused job shows slightly old numbers rather than an empty section.
 
 - On the booking rail and full device browser, the device name now gets its own single line, with the availability badge aligned beneath it at the right edge. Future availability uses short Thai/English labels (“ว่าง DD/MM/YYYY” / “Available DD/MM/YYYY”) so the badge stays on one line at 375px and desktop widths. Exceptionally long model names are clipped with an ellipsis instead of wrapping; the full name remains in the card's accessible text and desktop tooltip.
 
+## 2026-10-31 — Availability badge placement
+
+- Moved the availability badge to the top-right corner of the device image in both the compact booking rail and full device browser. Device names no longer share a row with the badge, keeping the cards shorter. Confirmed available dates remain explicit; when no date can be confirmed within the search horizon, the compact badge says “เช็คคิว” / “Check dates” instead of implying availability from an absent badge.
+
