@@ -5049,3 +5049,8 @@ paused job shows slightly old numbers rather than an empty section.
 
 - Moved the availability badge to the top-right corner of the device image in both the compact booking rail and full device browser. Device names no longer share a row with the badge, keeping the cards shorter. Confirmed available dates remain explicit; when no date can be confirmed within the search horizon, the compact badge says “เช็คคิว” / “Check dates” instead of implying availability from an absent badge.
 
+## 2026-10-31 — Verified slip receipt when Booking cannot confirm allocation
+
+- AJ LINE OA Bot now replies with the bilingual green payment-verification Flex card when SlipOK verifies a booked customer's bank slip but Delivery App settlement lookup or Booking allocation cannot confirm the balance update. The card shows the verified transfer amount and rental code, marks its allocation as pending, and does not claim the remaining balance is zero. Staff still receive the reconciliation alert.
+- The normal successful balance path continues to show the fully paid receipt only after the operational Booking reports the balance cleared. Bot syntax check, all 767 tests, and the real local server `/liff/` response passed. The specific historical screenshot's Booking write failure was not identifiable from the image alone.
+
