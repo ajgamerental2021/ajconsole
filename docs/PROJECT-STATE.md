@@ -1,3 +1,11 @@
+## 2026-10-31 — "New rental agreement" alert with no Rental ID and no payment
+
+- What happened: a customer added the LINE OA; the Bot's follow reply was a card "กรอกข้อมูลสัญญาเช่า… [เริ่มกรอกข้อมูล]" opening the old LIFF agreement form (`/liff/`) with no Rental ID. That form lets the customer pick a device and dates, enter address/refund details and sign; `/api/contracts` only checked payment when a Rental ID was present, so it signed, created contract AJ-20261031-61N5EL and announced it to Discord/Telegram/email without "🌐 ช่องทาง: เว็บไซต์" and with "รหัสการเช่า: -". The form's last step tells the customer to book in the LINE chat ("bounced out, told to chat on LINE").
+- The "เชื่อมบัญชี LINE เรียบร้อยแล้ว" card is genuine: the Delivery App binds a LINE account to a customer when they prove their own phone + ID (e.g. via คิวเช่าของฉัน) against the agreement they had just signed. It is the customer's own account; it only looks odd because there is no rental behind it.
+- Fix (Bot `b733d4c`): follow reply is now a welcome (TH + EN) with "จองบนเว็บไซต์" / "Book online (English)" buttons, no form link; `/api/contracts` returns 409 `rental_code_required` without a Rental ID and 404 `rental_not_found` for an unknown one (unpaid website rentals refused as before); the form opened without a Rental ID shows "ยังไม่มีรายการเช่า / No rental yet" with website and chat buttons and a "สำหรับแอดมิน" link to the admin tools. Errors shown in TH/EN. If a LINE OA Manager rich menu or greeting links to the bare form, it now lands on that screen too.
+- Existing record: contract AJ-20261031-61N5EL has no rental; the shop should help the customer book (website or admin) — a new agreement is made from the rental's own link.
+- Tests: Bot 763/763 (new test/contract-requires-rental.test.js); form checked in a browser without a code (TH/EN screen, admin link) and with a code (form as before).
+
 ## 2026-10-29 — No LINE add-friend pop-up on a device signed in to Admin
 
 - Owner's choice: a browser holding an admin sign-in (this visit or remembered) never gets the LINE add-friend pop-up; replaces the earlier rule that a signed-in admin still saw it once Admin was closed. tests/line-friend.test.mjs updated. Website 405/405; checked in a browser: signed-in device no pop-up, normal visitor still gets it.
