@@ -1,3 +1,9 @@
+## 2026-10-31 — Same customer's website booking: wrong 10% discount and ฿5,000 deposit
+
+- The renter from the codeless-agreement case then booked Xbox Series S on the website (31/10–03/11): card showed "ส่วนลดลูกค้าเก่า 10%" and deposit ฿5,000. Owner: first rental (no discount), agreement made so deposit ฿2,000.
+- Discount cause: the LINE returning check counts any agreement on the LINE account as rental history; the 10:09 codeless agreement made them "returning". Fix (Bot, after `b733d4c`): `agreementShowsRental` — an agreement without a Rental ID dated 31/10/2026 or later is not rental history (still proves identity); older codeless agreements still count. Bot 764/764. If the customer still gets 10% after deploy, a Delivery App customer record linked to their LINE (made this morning) also counts as history and needs looking at.
+- This booking was not corrected from here: Render is blocked by this environment's network policy. Owner steps: contract form page → "สำหรับแอดมิน" (or ⚙️) → sign in → รายการจอง → the booking → แก้ไข → in the cost lines delete "ส่วนลดลูกค้าเก่า 10%" and set the Xbox Series S deposit to 2,000 → บันทึก (enter a reason) → ส่งเข้า LINE. Expected: rent ฿900 + deposit ฿2,000 + delivery ฿110 = ฿3,010; pay now ฿200, on delivery ฿2,810.
+
 ## 2026-10-31 — "New rental agreement" alert with no Rental ID and no payment
 
 - What happened: a customer added the LINE OA; the Bot's follow reply was a card "กรอกข้อมูลสัญญาเช่า… [เริ่มกรอกข้อมูล]" opening the old LIFF agreement form (`/liff/`) with no Rental ID. That form lets the customer pick a device and dates, enter address/refund details and sign; `/api/contracts` only checked payment when a Rental ID was present, so it signed, created contract AJ-20261031-61N5EL and announced it to Discord/Telegram/email without "🌐 ช่องทาง: เว็บไซต์" and with "รหัสการเช่า: -". The form's last step tells the customer to book in the LINE chat ("bounced out, told to chat on LINE").
