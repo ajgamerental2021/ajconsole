@@ -5035,3 +5035,9 @@ paused job shows slightly old numbers rather than an empty section.
 - Delivery App `26bee51`: Booking Log now offers a manual signed-agreement link after checking the contract number, phone, rental code, dates, duplicate use, and payment totals. It previews the deposit and balance before saving; mismatched or previously corrected money is blocked for review.
 - Phase 5 audit: Booking, Inventory, and Customers read from Postgres; payment reconciliation and some LINE lookups still read Sheets. Those tables need migration, mirroring, reconciliation, and production tests before a switch. Production latency has not been measured, so the remaining Sheet reads are a candidate cause, not a confirmed one.
 
+## 2026-10-31 — Available today device filters
+
+- The booking site's compact device rail and full device browser now show a bilingual status badge beside every model name. A green “ว่างวันนี้” / “Available today” filter shows only models with at least one physical unit bookable from today for the three-day minimum. Red “ยังไม่ว่าง · ว่างเร็วสุด DD/MM/YYYY” / “Unavailable until DD/MM/YYYY” badges show the earliest start date found within the next year; unknown or stale availability stays neutral instead of claiming a device is free.
+- Both views use the existing availability rows, booking ranges, queue closures, catalog ready dates and active holds. The final booking flow continues to recheck availability. The browse view refreshes stale snapshots when visible, while active hold changes update both views.
+- Local inline-script syntax, `git diff --check`, five booking regression tests, and browser checks of both filters and Thai/English badges passed. Live production booking/payment was not exercised.
+

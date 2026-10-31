@@ -463,6 +463,15 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .all-consoles-filter-row .tab{padding:7px 11px;cursor:pointer}
 .all-consoles-filter-row .tab.active{border-color:var(--accent);background:var(--accent);color:#fff}
 .all-consoles-filter-row .select{flex:1;min-width:220px}
+.all-consoles-today-filter{align-self:flex-start;margin:0 0 2px;padding:8px 12px;border:1px solid #16834a;border-radius:9px;background:#edf9f1;color:#116b3b;font-size:13px;font-weight:900;cursor:pointer}
+.all-consoles-today-filter[aria-pressed="true"]{background:#138047;color:#fff}
+.all-consoles-today-filter:focus-visible,.before-rent-today-filter:focus-visible{outline:3px solid #86efac;outline-offset:2px}
+.console-name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:5px;min-width:0}
+.console-name-row .con-name{min-width:0}
+.availability-badge{display:inline-block;flex:none;max-width:100px;padding:3px 5px;border-radius:7px;font-size:10px;font-weight:900;line-height:1.2;text-align:center;overflow-wrap:anywhere}
+.availability-badge.is-today{background:#e9f9ef;color:#087139;border:1px solid #8bd4a7}
+.availability-badge.is-later{background:#fff1f2;color:#b42318;border:1px solid #fecaca}
+.availability-badge.is-unknown{background:#f2f4f7;color:#475467;border:1px solid #d0d5dd}
 .all-consoles-list .console-section{padding:0;margin-top:20px}
 .all-consoles-list .console-section:first-child{margin-top:0}
 .all-consoles-list .console-group-meta{white-space:nowrap}
@@ -1253,6 +1262,9 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   .before-rent-typechip{padding:6px 12px;border:1px solid #d0d5dd;border-radius:999px;background:#fff;color:#344054;font-size:12.5px;font-weight:800;cursor:pointer}
   .before-rent-typechip:hover{border-color:#c90012;color:#c90012}
   .before-rent-typechip.active{border-color:#c90012;background:#fff1f2;color:#c90012}
+  .before-rent-today-filter{border-color:#16834a;background:#edf9f1;color:#116b3b}
+  .before-rent-today-filter:hover{border-color:#0d6b3a;background:#dcf5e5;color:#0d6b3a}
+  .before-rent-today-filter[aria-pressed="true"]{border-color:#138047;background:#138047;color:#fff}
   .before-rent-note{display:grid;gap:5px;margin:10px 0 0;color:#667085;font-size:11.5px;font-weight:600;line-height:1.55}
   .before-rent-note-row{display:flex;align-items:flex-start;gap:7px}
   .before-rent-note-row .ico{width:14px;height:14px;margin-top:1px;color:#98a2b3}
@@ -1287,6 +1299,8 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   .before-rent-device-media>.ico{width:38px;height:38px;margin:auto;color:#98a2b3;position:absolute;inset:0}
   .before-rent-device-flag{position:absolute;inset:auto 0 0;padding:3px 6px;background:rgba(201,0,18,.9);color:#fff;font-size:10px;font-weight:800;text-align:center}
   .before-rent-device-name{font-size:14px;font-weight:900;line-height:1.25}
+  .before-rent-device-name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:4px;min-width:0}
+  .before-rent-device-name-row .before-rent-device-name{min-width:0}
   .before-rent-device-price{font-size:12px;color:#101828;font-weight:800}
   .before-rent-device-price b{font-size:17px;color:#c90012}
   .before-rent-device-week{margin-top:-3px;color:#344054;font-size:12.5px;font-weight:800}
@@ -1773,6 +1787,7 @@ body{background:#f7f8fa}
         <div class="all-consoles-filter-row all-consoles-collapsible"><button class="all-consoles-filter-summary" id="allConsolesTypeToggle" type="button" data-all-console-filter-toggle="type" aria-controls="allConsolesTypeTabs"><strong id="allConsolesTypeLabel"></strong><span class="all-consoles-filter-current" id="allConsolesTypeCurrent"></span></button><div class="tabs all-consoles-filter-options" id="allConsolesTypeTabs"></div></div>
         <div class="all-consoles-filter-row all-consoles-collapsible"><button class="all-consoles-filter-summary" id="allConsolesBrandToggle" type="button" data-all-console-filter-toggle="brand" aria-controls="allConsolesBrandTabs"><strong id="allConsolesBrandLabel"></strong><span class="all-consoles-filter-current" id="allConsolesBrandCurrent"></span></button><div class="tabs all-consoles-filter-options" id="allConsolesBrandTabs"></div></div>
         <div class="all-consoles-filter-row all-consoles-sort-row"><strong id="allConsolesSortLabel"></strong><select class="select" id="allConsolesSort"></select></div>
+        <button class="all-consoles-today-filter" id="allConsolesTodayFilter" type="button" aria-pressed="false"></button>
       </div>
       <div class="all-consoles-list" id="allConsolesList"></div>
     </div>
@@ -2323,6 +2338,12 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       bookingExtrasHide:"ซ่อนโปรโมชั่นและเครื่องอื่น ๆ",
       beforeRentDeviceMin:"ขั้นต่ำ 3 วัน · เริ่มต้น {total}",
       beforeRentDeviceSoon:"ยังไม่พร้อมให้เช่า",
+      availableTodayFilter:"ว่างวันนี้",
+      availableTodayBadge:"ว่างวันนี้",
+      availableLaterBadge:"ยังไม่ว่าง · ว่างเร็วสุด {date}",
+      unavailableTodayBadge:"ยังไม่ว่าง",
+      availabilityUnknownBadge:"กำลังเช็คคิว",
+      availableTodayEmpty:"ยังไม่พบเครื่องที่ยืนยันได้ว่าว่างวันนี้",
       beforeRentSeeAll:"ดูเครื่องเกมทั้งหมด",
       allConsolesTitle:"เครื่องเกมที่มีให้เช่าทั้งหมด",
       allConsolesSubtitle:"{n} เครื่อง · เลือกเครื่องเพื่อเช็คคิวและเริ่มจอง",
@@ -2488,6 +2509,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       bookingExtrasHide:"Hide promotions & other consoles",
       beforeRentDeviceMin:"3-day minimum · from {total}",
       beforeRentDeviceSoon:"Not available yet",
+      availableTodayFilter:"Available today",
+      availableTodayBadge:"Available today",
+      availableLaterBadge:"Unavailable until {date}",
+      unavailableTodayBadge:"Unavailable",
+      availabilityUnknownBadge:"Checking dates",
+      availableTodayEmpty:"No consoles confirmed available today",
       beforeRentSeeAll:"View all game consoles",
       allConsolesTitle:"All game consoles available for rent",
       allConsolesSubtitle:"{n} consoles · Choose one to check availability and book",
@@ -2827,6 +2854,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     bookingExtrasOpen: false,
     beforeRentDeviceType: "all",
     allConsolesFilter: {type:"all", brand:"all", sort:"brand"},
+    beforeRentTodayOnly: false,
+    allConsolesTodayOnly: false,
     allConsolesFilterExpanded: {type:false, brand:false},
     social: clone(DEFAULT_SOCIAL),
     gamePickerBrowseOnly: false,
@@ -4293,6 +4322,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // same family within it — always sits together while scrolling the rail.
     const ordered = listed
       .filter(item => typeFilter === "all" || String(item.type || "").toLowerCase() === typeFilter)
+      .filter(item => !state.beforeRentTodayOnly || consoleTodayAvailability(item).kind === "today")
       .sort((a,b) => {
         const readyGap = Number(isConsoleSelectable(b)) - Number(isConsoleSelectable(a));
         if(readyGap) return readyGap;
@@ -4307,13 +4337,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const cards = ordered.map(item => {
       const image = getConsoleImage(item);
       const ready = isConsoleSelectable(item);
+      const availability = consoleTodayAvailability(item);
       const flag = ready ? "" : `<span class="before-rent-device-flag">${isQueueClosed(item) ? esc(tr("queueClosed")) : `${esc(tr("readyOn"))} ${esc(displayDate(item.readyDate))}`}</span>`;
       const media = image ? `<img src="${esc(image)}" alt="" loading="lazy">` : icon(deviceIconName(item));
       const minLine = tr("beforeRentDeviceMin").replace("{total}", money(Number(item.rate || 0) * MIN_RENTAL_DAYS));
       const gamesButton = gameUrl(item) ? `<button class="before-rent-device-games" type="button" data-before-device-games="${esc(item.id)}">${esc(tr("beforeRentDeviceGames"))}</button>` : "";
       return `<div class="before-rent-device-wrap" data-key="${esc(item.id)}"><button class="before-rent-device" type="button" data-before-device="${esc(item.id)}" ${ready?"":"disabled"}>
         <span class="before-rent-device-media">${media}${flag}</span>
-        <span class="before-rent-device-name">${esc(cName(item))}</span>
+        <span class="before-rent-device-name-row"><span class="before-rent-device-name">${esc(cName(item))}</span>${availabilityBadge(availability)}</span>
         <span class="before-rent-device-price"><b>${esc(money(item.rate))}</b>/${esc(tr("day"))}</span>
         <span class="before-rent-device-week">${esc(money(item.weekly))}/${esc(tr("wk"))}</span>
         <span class="before-rent-device-min">${esc(minLine)}</span>
@@ -4322,7 +4353,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       </button>${gamesButton}</div>`;
     }).join("");
     const seeAll = `<button class="before-rent-seeall" type="button" data-before-seeall>${icon("table")}<span>${esc(tr("beforeRentSeeAll"))}</span></button>`;
-    patchHTML(deviceHost, cards ? cards + seeAll : `<p class="before-rent-empty">${esc(tr("beforeRentEmpty"))}</p>` + seeAll);
+    patchHTML(deviceHost, cards ? cards + seeAll : `<p class="before-rent-empty">${esc(tr(state.beforeRentTodayOnly ? "availableTodayEmpty" : "beforeRentEmpty"))}</p>` + seeAll);
     bindBeforeRentDiscoveryClicks(promoHost, deviceHost);
     byId("beforeRentDevicesCount").textContent = tr("beforeRentDevicesCount").replace("{n}", String(ordered.length));
     renderBeforeRentTypeFilter();
@@ -4332,8 +4363,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     $$("[data-icon]").forEach(host => { if(!host.firstElementChild) host.innerHTML = icon(host.dataset.icon); });
     // Back to the start only when the customer changed the type filter; a
     // re-render from new data leaves the rail where they scrolled it.
-    if(deviceHost.dataset.renderedType !== typeFilter){
-      deviceHost.dataset.renderedType = typeFilter;
+    const filterKey = `${typeFilter}:${state.beforeRentTodayOnly}`;
+    if(deviceHost.dataset.renderedType !== filterKey){
+      deviceHost.dataset.renderedType = filterKey;
       deviceHost.scrollLeft = 0;
     }
     bindScrollRail(byId("beforeRentDevicesRail"), deviceHost);
@@ -4496,8 +4528,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const available = new Set(state.consoles.filter(item => item.active !== false).map(item => String(item.type || "").toLowerCase()));
     const types = [["all",tr("beforeRentTypeAll")],["console",tr("type_console")],["vr",tr("type_vr")],["handheld",tr("type_handheld")],["racing",tr("type_racing")]]
       .filter(([id]) => id === "all" || available.has(id));
-    host.innerHTML = types.map(([id,label]) => `<button class="before-rent-typechip ${(state.beforeRentDeviceType||"all")===id?"active":""}" type="button" data-before-type="${esc(id)}" aria-pressed="${(state.beforeRentDeviceType||"all")===id}">${esc(label)}</button>`).join("") + `<button class="before-rent-typechip before-rent-quote-chip" type="button" data-before-quote>${icon("calculator")}<span>${esc(tr("quoteBtn"))}</span></button>`;
+    host.innerHTML = types.map(([id,label]) => `<button class="before-rent-typechip ${(state.beforeRentDeviceType||"all")===id?"active":""}" type="button" data-before-type="${esc(id)}" aria-pressed="${(state.beforeRentDeviceType||"all")===id}">${esc(label)}</button>`).join("") + `<button class="before-rent-typechip before-rent-today-filter" type="button" data-before-today aria-pressed="${state.beforeRentTodayOnly}">${esc(tr("availableTodayFilter"))}</button><button class="before-rent-typechip before-rent-quote-chip" type="button" data-before-quote>${icon("calculator")}<span>${esc(tr("quoteBtn"))}</span></button>`;
     host.querySelector("[data-before-quote]")?.addEventListener("click", () => openQuotePopup("before_rent_filters"));
+    host.querySelector("[data-before-today]")?.addEventListener("click", () => {
+      state.beforeRentTodayOnly = !state.beforeRentTodayOnly;
+      if(state.beforeRentTodayOnly && !hasRecentAvailabilitySnapshot()) fetchAvailability().catch(() => {});
+      renderBeforeRentDiscovery();
+    });
     host.querySelectorAll("[data-before-type]").forEach(chip => chip.addEventListener("click", () => {
       state.beforeRentDeviceType = chip.dataset.beforeType;
       renderBeforeRentDiscovery();
@@ -4507,7 +4544,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const filter = state.allConsolesFilter;
     const list = state.consoles.filter(item => item.active !== false
       && (filter.type === "all" || item.type === filter.type)
-      && (filter.brand === "all" || item.brand === filter.brand));
+      && (filter.brand === "all" || item.brand === filter.brand)
+      && (!state.allConsolesTodayOnly || consoleTodayAvailability(item).kind === "today"));
     if(filter.sort === "price-desc") list.sort((a,b) => b.rate-a.rate || cName(a).localeCompare(cName(b), state.lang));
     else if(filter.sort === "price-asc") list.sort((a,b) => a.rate-b.rate || cName(a).localeCompare(cName(b), state.lang));
     else if(filter.sort === "name") list.sort((a,b) => cName(a).localeCompare(cName(b), state.lang));
@@ -4526,13 +4564,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const brands = ["all", ...Array.from(new Set(typeDevices.map(item => item.brand))).sort((a,b) => brandOrder(a)-brandOrder(b))];
     if(!brands.includes(filter.brand)) filter.brand = "all";
     byId("allConsolesTitle").textContent = tr("allConsolesTitle");
-    byId("allConsolesSubtitle").textContent = tr("allConsolesSubtitle").replace("{n}", String(active.length));
+    const subtitleCount = state.allConsolesTodayOnly ? active.filter(item => consoleTodayAvailability(item).kind === "today").length : active.length;
+    byId("allConsolesSubtitle").textContent = tr("allConsolesSubtitle").replace("{n}", String(subtitleCount));
     byId("allConsolesQuote").textContent = tr("quoteBtn");
     byId("allConsolesCopyUrl").innerHTML = `${icon("link")}<span>${esc(tr("allConsolesCopyUrl"))}</span>`;
     byId("allConsolesLangBtn").textContent = state.lang === "en" ? "ไทย" : "EN";
     byId("allConsolesTypeLabel").textContent = tr("filterType");
     byId("allConsolesBrandLabel").textContent = tr("filterBrand");
     byId("allConsolesSortLabel").textContent = tr("filterSort");
+    byId("allConsolesTodayFilter").textContent = tr("availableTodayFilter");
+    byId("allConsolesTodayFilter").setAttribute("aria-pressed", String(state.allConsolesTodayOnly));
     const selectedType = types.find(([id]) => id === filter.type)?.[1] || tr("all");
     const selectedBrand = filter.brand === "all" ? tr("all") : brandLabel(filter.brand);
     [["type",selectedType],["brand",selectedBrand]].forEach(([key,value]) => {
@@ -4546,7 +4587,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("allConsolesSort").innerHTML = [["brand",tr("sort_brand")],["price-desc",tr("sort_price_desc")],["price-asc",tr("sort_price_asc")],["name",tr("sort_name")]].map(([id,label]) => `<option value="${id}" ${filter.sort===id?"selected":""}>${esc(label)}</option>`).join("");
     const list = allConsolesFiltered();
     const host = byId("allConsolesList");
-    if(!list.length){ patchHTML(host, `<p class="all-consoles-empty">${esc(tr("beforeRentEmpty"))}</p>`); return; }
+    if(!list.length){ patchHTML(host, `<p class="all-consoles-empty">${esc(tr(state.allConsolesTodayOnly ? "availableTodayEmpty" : "beforeRentEmpty"))}</p>`); return; }
     if(filter.sort !== "brand"){
       patchHTML(host, renderConsoleGrid(list, {bookingButton:true}));
       return;
@@ -4741,7 +4782,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       return `<article class="con-card ${ready?"":"unavailable"}" data-key="${esc(String(c.id))}">
         <div class="con-img">${img?`<img src="${esc(img)}" alt="${esc(cName(c))}" loading="lazy">`:`<span class="emoji">${esc(c.icon)}</span>`}${ready?"":`<div class="ready-ribbon">${isQueueClosed(c) ? tr("queueClosed") : `${tr("readyOn")} ${displayDate(c.readyDate)}`}</div>`}</div>
         <div class="con-body">
-          <div class="con-name">${esc(cName(c))}</div>
+          ${options.bookingButton ? `<div class="console-name-row"><div class="con-name">${esc(cName(c))}</div>${availabilityBadge(consoleTodayAvailability(c))}</div>` : `<div class="con-name">${esc(cName(c))}</div>`}
           <div class="price-row"><div class="price-cell"><small>${tr("daily")}</small><b>${money(c.rate)}</b></div><div class="price-cell"><small>${tr("weekly")}</small><b>${money(c.weekly)}</b></div></div>
           <div class="dep">${tr("deposit")} ${money(c.deposit)}</div>
           <div class="details">${details.map(x=>`<div>${esc(x)}</div>`).join("")}</div>
@@ -8418,12 +8459,18 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return [...holds.filter(hold => !ownIds.has(hold.id) && !hold.mine), ...own];
   }
   async function refreshBookingHolds(signal){
+    const previousHolds = JSON.stringify((state.availability.holds || []).map(hold => [hold.id,hold.deviceName,hold.startDate,hold.endDate,hold.expiresAt]));
     const response = await fetch(`${CONFIG.apiBase}/api/booking-holds?holderId=${encodeURIComponent(bookingHoldHolderId())}&_ts=${Date.now()}`, {cache:"no-store", signal});
     if(!response.ok) throw new Error(`HTTP ${response.status}`);
     const payload = await response.json();
     state.availability.holds = mergeBookingHolds(payload.holds);
     state.availability.gate = evaluateAvailability();
     renderAvailabilityHint();
+    const nextHolds = JSON.stringify((state.availability.holds || []).map(hold => [hold.id,hold.deviceName,hold.startDate,hold.endDate,hold.expiresAt]));
+    if(previousHolds !== nextHolds){
+      if(state.beforeRentActive) renderBeforeRentDiscovery();
+      if(byId("allConsolesModal")?.classList.contains("open")) renderAllConsolesModal();
+    }
     if(state.calendar.open) renderCalendar();
     return payload;
   }
@@ -8478,6 +8525,38 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!row || /end|เลิก|ปิด/i.test(String(row.status || ""))) return false;
     if(row.availableDate && start < row.availableDate) return false;
     return !(row.bookingRanges || []).some(range => range.startDate && range.returnDate && start < range.returnDate && end > range.startDate);
+  }
+  function consoleTodayAvailability(c){
+    if(!hasRecentAvailabilitySnapshot()) return {kind:"unknown"};
+    const aliases = availabilityAliases(c);
+    const matches = state.availability.rows.filter(row => aliases.has(norm(row.deviceName)));
+    if(!matches.length) return {kind:"unknown"};
+    const today = parseDate(todayIso());
+    const earliestStart = parseDate(earliestRentalStartIso());
+    const catalogReady = parseDate(c.readyDate || c.unavailableUntil);
+    // Reuse the booking calendar's day boundary, queue closures and active
+    // holds. Check a bookable minimum rental, not just one free calendar day.
+    for(let offset=0;offset<=365;offset++){
+      const day = addDays(today, offset);
+      const end = addDays(day, MIN_RENTAL_DAYS);
+      if(day < earliestStart || isQueueClosed(c, day, end)) continue;
+      if(catalogReady && day < catalogReady) continue;
+      const free = matches.filter(row => {
+        const rented = /rent|เช่า/i.test(row.status);
+        if(rented && (offset === 0 || (!row.availableDate && !row.bookingRanges.length))) return false;
+        return rowAvailableForRange(row, day, end);
+      }).length;
+      if(free <= activeBookingHolds(c, day, end).length) continue;
+      return offset === 0 ? {kind:"today"} : {kind:"later",date:displayDate(day)};
+    }
+    return {kind:"unavailable"};
+  }
+  function availabilityBadge(status){
+    const label = status.kind === "today" ? tr("availableTodayBadge")
+      : status.kind === "later" ? tr("availableLaterBadge").replace("{date}", status.date)
+      : tr(status.kind === "unknown" ? "availabilityUnknownBadge" : "unavailableTodayBadge");
+    const cls = status.kind === "today" ? "is-today" : status.kind === "unknown" ? "is-unknown" : "is-later";
+    return `<span class="availability-badge ${cls}">${esc(label)}</span>`;
   }
   function evaluateAvailability(ctx = calcRentalContext()){
     const c = consoleById(ctx.consoleId);
@@ -15670,6 +15749,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("allConsolesClose").addEventListener("click", closeAllConsoles);
     byId("allConsolesModal").addEventListener("click", event => { if(event.target === byId("allConsolesModal")) closeAllConsoles(); });
     byId("allConsolesSort").addEventListener("change", event => { state.allConsolesFilter.sort = event.target.value; renderAllConsolesModal(); });
+    byId("allConsolesTodayFilter").addEventListener("click", () => {
+      state.allConsolesTodayOnly = !state.allConsolesTodayOnly;
+      if(state.allConsolesTodayOnly && !hasRecentAvailabilitySnapshot()) fetchAvailability().catch(() => {});
+      renderAllConsolesModal();
+    });
     byId("beforeRentStart").addEventListener("click", () => { trackAnalytics("before_rent_action_clicked", {value:"rent"}); setBeforeRent(false, {startGuide:true}); });
     byId("beforeRentFinalCta").addEventListener("click", () => { trackAnalytics("before_rent_action_clicked", {value:"rent_bottom"}); setBeforeRent(false, {startGuide:true}); });
     byId("beforeRentGames").addEventListener("click", () => { trackAnalytics("before_rent_action_clicked", {value:"games"}); openGamePicker({browseOnly:true}); });
@@ -16865,12 +16949,23 @@ We apologize for the inconvenience and hope everyone stays safe.`
     loadPricingPolicy().catch(error => console.warn("Pricing policy unavailable",error));
     loadDeviceRegistry().catch(error => console.warn("Device registry unavailable",error));
     loadRentalPromotions().catch(error => console.warn("Rental promotions unavailable",error));
+    const refreshBrowseAvailability = () => {
+      if(document.hidden || (state.beforeRentActive !== true && !byId("allConsolesModal")?.classList.contains("open"))) return;
+      if(hasRecentAvailabilitySnapshot()) return;
+      if(state.beforeRentActive) renderBeforeRentDiscovery();
+      if(byId("allConsolesModal")?.classList.contains("open")) renderAllConsolesModal();
+      fetchAvailability().catch(() => {});
+    };
     document.addEventListener("visibilitychange", () => {
-      if(!document.hidden) loadRentalPromotions().catch(error => console.warn("Rental promotions unavailable",error));
+      if(!document.hidden){
+        loadRentalPromotions().catch(error => console.warn("Rental promotions unavailable",error));
+        refreshBrowseAvailability();
+      }
     });
     window.setInterval(() => {
       if(!document.hidden) loadRentalPromotions().catch(error => console.warn("Rental promotions unavailable",error));
     }, 60000);
+    window.setInterval(refreshBrowseAvailability, 60000);
     syncBoardGameCatalog().catch(() => {});
     window.addEventListener("pageshow", event => {
       resetShareUi();
