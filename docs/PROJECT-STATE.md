@@ -5029,3 +5029,9 @@ paused job shows slightly old numbers rather than an empty section.
 - The Delivery staff card uses the verified payment payload for full name, LINE name, accessory names and prices while sheet formulas are still blank. The Google search opens the full name, and the two identity buttons have distinct styles.
 - Verified locally: website tests 396/396, Bot tests 755/755, Delivery TypeScript, shop card, flex-ledger 28/28 and automatic booking/payment tests. No live customer payment or LINE push was made during verification.
 
+## 2026-10-31 — Verified slip receipt and Booking Log agreement repair
+
+- Bot `e3a32df`: when a provider verifies a slip for an existing Booking but its amount cannot be allocated to the current balance, LINE receives the Thai/English verified-payment Flex card and staff receive a reconciliation alert. The booking balance is not marked paid automatically.
+- Delivery App `26bee51`: Booking Log now offers a manual signed-agreement link after checking the contract number, phone, rental code, dates, duplicate use, and payment totals. It previews the deposit and balance before saving; mismatched or previously corrected money is blocked for review.
+- Phase 5 audit: Booking, Inventory, and Customers read from Postgres; payment reconciliation and some LINE lookups still read Sheets. Those tables need migration, mirroring, reconciliation, and production tests before a switch. Production latency has not been measured, so the remaining Sheet reads are a candidate cause, not a confirmed one.
+
