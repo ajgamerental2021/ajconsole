@@ -5041,3 +5041,7 @@ paused job shows slightly old numbers rather than an empty section.
 - Both views use the existing availability rows, booking ranges, queue closures, catalog ready dates and active holds. The final booking flow continues to recheck availability. The browse view refreshes stale snapshots when visible, while active hold changes update both views.
 - Local inline-script syntax, `git diff --check`, five booking regression tests, and browser checks of both filters and Thai/English badges passed. Live production booking/payment was not exercised.
 
+## 2026-10-31 — Compact availability badges
+
+- On the booking rail and full device browser, the device name now gets its own single line, with the availability badge aligned beneath it at the right edge. Future availability uses short Thai/English labels (“ว่าง DD/MM/YYYY” / “Available DD/MM/YYYY”) so the badge stays on one line at 375px and desktop widths. Exceptionally long model names are clipped with an ellipsis instead of wrapping; the full name remains in the card's accessible text and desktop tooltip.
+

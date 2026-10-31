@@ -466,9 +466,9 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .all-consoles-today-filter{align-self:flex-start;margin:0 0 2px;padding:8px 12px;border:1px solid #16834a;border-radius:9px;background:#edf9f1;color:#116b3b;font-size:13px;font-weight:900;cursor:pointer}
 .all-consoles-today-filter[aria-pressed="true"]{background:#138047;color:#fff}
 .all-consoles-today-filter:focus-visible,.before-rent-today-filter:focus-visible{outline:3px solid #86efac;outline-offset:2px}
-.console-name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:5px;min-width:0}
-.console-name-row .con-name{min-width:0}
-.availability-badge{display:inline-block;flex:none;max-width:100px;padding:3px 5px;border-radius:7px;font-size:10px;font-weight:900;line-height:1.2;text-align:center;overflow-wrap:anywhere}
+.console-name-row{display:flex;flex-direction:column;align-items:stretch;gap:4px;min-width:0}
+.console-name-row .con-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.availability-badge{display:inline-block;align-self:flex-end;max-width:100%;padding:3px 5px;border-radius:7px;font-size:10px;font-weight:900;line-height:1.2;text-align:center;white-space:nowrap}
 .availability-badge.is-today{background:#e9f9ef;color:#087139;border:1px solid #8bd4a7}
 .availability-badge.is-later{background:#fff1f2;color:#b42318;border:1px solid #fecaca}
 .availability-badge.is-unknown{background:#f2f4f7;color:#475467;border:1px solid #d0d5dd}
@@ -1298,8 +1298,8 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   .before-rent-device-media img{width:100%;height:100%;object-fit:contain}
   .before-rent-device-media>.ico{width:38px;height:38px;margin:auto;color:#98a2b3;position:absolute;inset:0}
   .before-rent-device-flag{position:absolute;inset:auto 0 0;padding:3px 6px;background:rgba(201,0,18,.9);color:#fff;font-size:10px;font-weight:800;text-align:center}
-  .before-rent-device-name{font-size:14px;font-weight:900;line-height:1.25}
-  .before-rent-device-name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:4px;min-width:0}
+  .before-rent-device-name{font-size:13px;font-weight:900;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .before-rent-device-name-row{display:flex;flex-direction:column;align-items:stretch;gap:4px;min-width:0}
   .before-rent-device-name-row .before-rent-device-name{min-width:0}
   .before-rent-device-price{font-size:12px;color:#101828;font-weight:800}
   .before-rent-device-price b{font-size:17px;color:#c90012}
@@ -2340,7 +2340,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       beforeRentDeviceSoon:"ยังไม่พร้อมให้เช่า",
       availableTodayFilter:"ว่างวันนี้",
       availableTodayBadge:"ว่างวันนี้",
-      availableLaterBadge:"ยังไม่ว่าง · ว่างเร็วสุด {date}",
+      availableLaterBadge:"ว่าง {date}",
       unavailableTodayBadge:"ยังไม่ว่าง",
       availabilityUnknownBadge:"กำลังเช็คคิว",
       availableTodayEmpty:"ยังไม่พบเครื่องที่ยืนยันได้ว่าว่างวันนี้",
@@ -2511,7 +2511,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       beforeRentDeviceSoon:"Not available yet",
       availableTodayFilter:"Available today",
       availableTodayBadge:"Available today",
-      availableLaterBadge:"Unavailable until {date}",
+      availableLaterBadge:"Available {date}",
       unavailableTodayBadge:"Unavailable",
       availabilityUnknownBadge:"Checking dates",
       availableTodayEmpty:"No consoles confirmed available today",
@@ -4344,7 +4344,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const gamesButton = gameUrl(item) ? `<button class="before-rent-device-games" type="button" data-before-device-games="${esc(item.id)}">${esc(tr("beforeRentDeviceGames"))}</button>` : "";
       return `<div class="before-rent-device-wrap" data-key="${esc(item.id)}"><button class="before-rent-device" type="button" data-before-device="${esc(item.id)}" ${ready?"":"disabled"}>
         <span class="before-rent-device-media">${media}${flag}</span>
-        <span class="before-rent-device-name-row"><span class="before-rent-device-name">${esc(cName(item))}</span>${availabilityBadge(availability)}</span>
+        <span class="before-rent-device-name-row"><span class="before-rent-device-name" title="${esc(cName(item))}">${esc(cName(item))}</span>${availabilityBadge(availability)}</span>
         <span class="before-rent-device-price"><b>${esc(money(item.rate))}</b>/${esc(tr("day"))}</span>
         <span class="before-rent-device-week">${esc(money(item.weekly))}/${esc(tr("wk"))}</span>
         <span class="before-rent-device-min">${esc(minLine)}</span>
@@ -4782,7 +4782,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       return `<article class="con-card ${ready?"":"unavailable"}" data-key="${esc(String(c.id))}">
         <div class="con-img">${img?`<img src="${esc(img)}" alt="${esc(cName(c))}" loading="lazy">`:`<span class="emoji">${esc(c.icon)}</span>`}${ready?"":`<div class="ready-ribbon">${isQueueClosed(c) ? tr("queueClosed") : `${tr("readyOn")} ${displayDate(c.readyDate)}`}</div>`}</div>
         <div class="con-body">
-          ${options.bookingButton ? `<div class="console-name-row"><div class="con-name">${esc(cName(c))}</div>${availabilityBadge(consoleTodayAvailability(c))}</div>` : `<div class="con-name">${esc(cName(c))}</div>`}
+          ${options.bookingButton ? `<div class="console-name-row"><div class="con-name" title="${esc(cName(c))}">${esc(cName(c))}</div>${availabilityBadge(consoleTodayAvailability(c))}</div>` : `<div class="con-name">${esc(cName(c))}</div>`}
           <div class="price-row"><div class="price-cell"><small>${tr("daily")}</small><b>${money(c.rate)}</b></div><div class="price-cell"><small>${tr("weekly")}</small><b>${money(c.weekly)}</b></div></div>
           <div class="dep">${tr("deposit")} ${money(c.deposit)}</div>
           <div class="details">${details.map(x=>`<div>${esc(x)}</div>`).join("")}</div>
