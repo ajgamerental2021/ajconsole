@@ -1,3 +1,10 @@
+## 2026-10-31 — Console Pending: link an agreement, set the deposit (AJ-20261031-R0011)
+
+- AJ-20261031-R0011 (Xbox Series S 31/10–03/11) read ฿5,920 in Console Pending: 10% returning discount + ฿5,000 no-identity deposit, for a first-time renter who signed agreement AJ-20261031-61N5EL apart from the request (the codeless-agreement case). Confirm would have sent that card.
+- Delivery App: request cards without an agreement get "เลขที่สัญญา (ถ้าทำสัญญาไว้แล้ว)" (checked against AJ Contract; unknown blocks Confirm, other phone warns; linked → identity-verified deposit, booking Contract ID, no second agreement request; a loose agreement with the same phone is offered with one tap and disappears after Confirm) and "ค่าประกัน" (blank = as quoted, a figure replaces it and locks the reviewed price via financialCorrectionJson). The 10% tick was already there.
+- For R0011: tap the suggested AJ-20261031-61N5EL (or type it), untick "ลูกค้าเก่าลด 10%", Confirm → rent 900 + deposit 2,000 + delivery 110 = ฿3,010. Web app after deploy; Android in the next APK.
+- Tests: console-pending-agreement-deposit 7 (incl. reproducing the ฿5,920 as filed), reservation 75, overrides 30, identity, flex-ledger 28, both tsc; Console Pending checked in a browser (web build, faked backend): suggestion shown, quote ฿3,010, confirm dialog lists the agreement and "ส่วนลด: ไม่มี", confirm sends agreementId and balance 3010.
+
 ## 2026-10-31 — Admin booking edit sends the updated card on save
 
 - Bot admin tools (contract form page → สำหรับแอดมิน/⚙️ → รายการจอง → แก้ไข): new box "ส่งการ์ดยอดใหม่ให้ลูกค้าทาง LINE หลังบันทึก" (ticked by default). `PUT /api/admin/bookings/:code` with `sendLine: true` pushes the booking card built from the figures just saved (not a Sheet re-read, which can return the old row); the result line says sent / not linked to LINE / failed (TH + EN). "ส่งเข้า LINE" still works on its own.
