@@ -1,3 +1,8 @@
+## 2026-11-02 — Booking Log add/edit guarded against double-booking a unit
+
+- Owner asked for the Console Pending guard on Booking Log too. Delivery App (see commit after `f76bb35`): POST `/api/bookings` and PUT `/api/bookings/:row` (only when unit or dates change; maintenance, ended/cancelled skipped; own row ignored) → 409 `unit_taken` with `suggestedDeviceCode` (app: "ใช้ PS5-2" or back to edit) or `device_unavailable` (app: save knowingly). `switchUnit` / `allowUnavailable` never written to the row. AI assistant `create_booking` uses the same rule.
+- Tests: booking-unit-clash 6 plus the Console Pending / payment suites, both tsc. Not driven in a browser this round (form pickers); dialog code path is covered by tsc, the server by route tests.
+
 ## 2026-11-02 — Two PS5 rentals on the same day both booked on PS5-1
 
 - ภาวินี had PS5-1 for 2/11; ธีรพล's request for 2/11 was booked on PS5-1 as well. Cause: Console Pending matched "PS5" to the unit Inventory marked Available when read (today's status, not the rental dates); Confirm kept it when dates were unchanged and only warned about the clash. Same for Thai and English requests.
