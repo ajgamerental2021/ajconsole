@@ -1,3 +1,10 @@
+## 2026-11-01 — LINE Reply usage counter and alerts (free 25,000/month from 1 Feb 2027)
+
+- Context: LINE Reply API becomes free for 25,000 messages/month from 1 Feb 2027 (then Unlimited ฿5,000/month; AGP move via Agency Partner — announcement still to confirm). Bot uses Reply for ~10 spots (welcome, quick quote, slip/button answers); Dialogflow replies on the same channel; Delivery App uses Push only.
+- Bot `439be65` (main + branch): `src/services/reply-usage.js` reads LINE's own daily count (`GET /v2/bot/message/delivery/reply?date=`), channel-wide (includes Dialogflow), ready the next day; caches finished days. `GET /api/admin/line/reply-usage` (admin): month so far, forecast, busiest day, last month in full. Admin panel card "LINE Reply เดือนนี้". Daily after 10:00 BKK: alerts at 80/90/100% and "on course to pass" (after 7 days counted) → owner LINE, Discord, Telegram, email; once per month each (site-content `reply-usage-alerts`).
+- Current figure not read from here: no LINE token in this environment and api.line.me is blocked by its network policy. After deploy: contract form page → ⚙️ admin → "LINE Reply เดือนนี้" (on 1 Nov this month is empty; October shows in full, if LINE still serves those days).
+- Tests: Bot 781/781 (new test/reply-usage.test.js); admin card checked in a browser with faked data.
+
 ## 2026-11-01 — Console Pending: restore by Rental ID, bank-transfer confirm, corrected card before booking
 
 - Why R0019 vanished: AJ-20261031-R0019 (Kieron, PS5 20–23/11, English) transferred straight into the bank account. Unpaid requests leave Console Pending 12 h after they are made (Wise 7 days) and come back only when a payment arrives through the payment page; a direct transfer tells the system nothing.
