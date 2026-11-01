@@ -1,3 +1,10 @@
+## 2026-11-02 — Two PS5 rentals on the same day both booked on PS5-1
+
+- ภาวินี had PS5-1 for 2/11; ธีรพล's request for 2/11 was booked on PS5-1 as well. Cause: Console Pending matched "PS5" to the unit Inventory marked Available when read (today's status, not the rental dates); Confirm kept it when dates were unchanged and only warned about the clash. Same for Thai and English requests.
+- Delivery App `f76bb35`: `unitForNewBooking` / `freeUnitFor` (bookingExtrasService); every booking from Console Pending (Confirm, bank/Wise confirm, payment auto-booking) takes a unit free for its span — matched unit if free, else same model; none free → 409 device_unavailable (staff can still book; auto-booking from a payment books with a "⚠️ คิวชน" note). Quote and the list's Device Code use the dates too.
+- Needs a hand fix: ธีรพล's 2/11 booking is still on PS5-1 — owner to change Device Code to a free PS5 in Booking Log (Render not reachable from here).
+- Tests: console-pending-unit-by-dates 5 (old code books PS5-1, new PS5-2), overrides 30, reservation 75, agreement-deposit 8, send-card 8, restore-bank 8, identity, auto-booking-payment, flex-ledger 28, queue-resume 10, both tsc.
+
 ## 2026-11-01 — LINE Reply usage counter and alerts (free 25,000/month from 1 Feb 2027)
 
 - Context: LINE Reply API becomes free for 25,000 messages/month from 1 Feb 2027 (then Unlimited ฿5,000/month; AGP move via Agency Partner — announcement still to confirm). Bot uses Reply for ~10 spots (welcome, quick quote, slip/button answers); Dialogflow replies on the same channel; Delivery App uses Push only.
