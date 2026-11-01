@@ -1,3 +1,12 @@
+## 2026-11-01 — Console Pending: restore by Rental ID, bank-transfer confirm, corrected card before booking
+
+- Why R0019 vanished: AJ-20261031-R0019 (Kieron, PS5 20–23/11, English) transferred straight into the bank account. Unpaid requests leave Console Pending 12 h after they are made (Wise 7 days) and come back only when a payment arrives through the payment page; a direct transfer tells the system nothing.
+- Delivery App (`e30c03c`): box at the top of Console Pending "ดึงรายการกลับ" (type the Rental ID → listed 7 days; marker `console-pending-restored:<code>:<ms>` in Sent Markers, not the request row; cancelled asks first; booked refused). Every unpaid item gets "🏦 ลูกค้าโอนเข้าบัญชีธนาคาร" (Thai and English): full amount / reservation, amount + slip reference/time + verified tick → Bot `bank-transfer/confirm` marks the rental paid and sends the normal signed payment-confirmed, so DA books it and sends the confirmation card even if the request is off the list; reused reference refused. Also "📨 ส่งการ์ดยอดให้ลูกค้า (ยังไม่สร้าง Booking)" → Bot `pending-card` (re-prices, refuses total mismatch / paid, writes the request row first, then LINE card); same dates only.
+- Codex had already pushed Booking Log "ผูกเลขที่สัญญา" (`26bee51`, `2e45c54`); kept theirs, dropped my duplicate, and its save now also calls Bot `link-agreement` (contract row Rental Code + master agreement on the record) and clears confirmationContractRequested.
+- Bot (`457660d`, main + branch): `pending-card`, `link-agreement`, `bank-transfer/:action`, `saveBookingRevision`, `services/bank-transfer-confirm.js`.
+- For R0019 after deploy: Console Pending → type AJ-20261031-R0019 → ดึงกลับ → 🏦 → amount seen in the bank + slip ref/time → tick → ยืนยัน. (Not done from here: Render is blocked by this environment's network policy.)
+- Tests: Bot 773/773; DA console-pending-restore-bank 8 (incl. R0019 off the list, back after restore, off again after 7 days), send-card 8, agreement-deposit 8, reservation 75, overrides 30, identity, booking-agreement-link, auto-booking-payment, flex-ledger 28, queue-resume 10, both tsc; restore + bank panel driven in a browser on a fresh web build with a faked API.
+
 ## 2026-10-31 — Console Pending: link an agreement, set the deposit (AJ-20261031-R0011)
 
 - AJ-20261031-R0011 (Xbox Series S 31/10–03/11) read ฿5,920 in Console Pending: 10% returning discount + ฿5,000 no-identity deposit, for a first-time renter who signed agreement AJ-20261031-61N5EL apart from the request (the codeless-agreement case). Confirm would have sent that card.
