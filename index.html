@@ -5835,12 +5835,32 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     });
     let response;
     try{
-      response = await bookingFetch(`${CONFIG.apiBase}/api/identity-upgrade/${encodeURIComponent(token)}`, {method:"POST", cache:"no-store", headers:{"Content-Type":"application/json"}, body}, 120000);
-    }catch{ throw Object.assign(new Error("network"), {code:"network"}); }
+      response = await bookingFetch(`${CONFIG.apiBase}/api/identity-upgrade/${encodeURIComponent(token)}`, {method:"POST", cache:"no-store", headers:{"Content-Type":"application/json"}, body}, 150000);
+    }catch{
+      // The answer can be lost after the details arrived (a weak signal, or the
+      // Bot still filing the photos): ask before telling the renter it failed.
+      if(await identityUpgradeLanded(token)) return {ok:true, already:true};
+      throw Object.assign(new Error("network"), {code:"network"});
+    }
     const result = await response.json().catch(() => ({}));
     if(response.ok && result.ok) return result;
     if(result.error === "already_upgraded") return {ok:true, already:true};
+    if((response.status >= 500 || result.error === "upgrade_in_progress") && await identityUpgradeLanded(token)) return {ok:true, already:true};
     throw Object.assign(new Error(result.error || `identity_upgrade_${response.status}`), {code:result.error || (response.status === 413 ? "too_large" : `http_${response.status}`), fields:Array.isArray(result.fields) ? result.fields : []});
+  }
+  /** The upgrade went through after all: the Bot's record says it is done (checked for up to 90 seconds). */
+  async function identityUpgradeLanded(token){
+    const until = Date.now() + 90000;
+    while(Date.now() < until){
+      try{
+        const response = await bookingFetch(`${CONFIG.apiBase}/api/identity-upgrade/${encodeURIComponent(token)}?lang=${state.lang === "en" ? "en" : "th"}`, {cache:"no-store"}, 15000);
+        const latest = await response.json().catch(() => ({}));
+        if(response.ok && latest.ok && latest.state === "done") return true;
+        if(response.status === 404 || response.status === 410) return false;
+      }catch{}
+      await new Promise(resolve => setTimeout(resolve, 4000));
+    }
+    return false;
   }
   // A refusal in words the renter can act on, and the field it is about.
   function verifyNowProblemFor(error){
@@ -5862,6 +5882,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(code === "too_many_attempts") return {id:"", message:en ? "Too many tries. Please wait 30 minutes or contact AJ on LINE @ajgame." : "ลองหลายครั้งเกินไป กรุณารอ 30 นาที หรือติดต่อร้านทาง LINE @ajgame"};
     if(code === "booking_not_found") return {id:"", message:en ? "AJ is still saving this rental. Please tap Send again in a minute." : "ระบบกำลังบันทึกรายการเช่านี้ กรุณากดส่งอีกครั้งในอีก 1 นาที"};
     if(code === "identity_upgrade_unavailable") return {id:"", message:tr("identityUpgradeUnavailable")};
+    if(code === "identity_storage_unavailable") return {id:"", message:en ? "AJ's photo storage is briefly unavailable. Everything you entered is still here; tap Send again." : "ระบบเก็บรูปขัดข้องชั่วคราว ข้อมูลที่กรอกยังอยู่ครบ กดส่งอีกครั้งได้"};
+    if(code === "booking_save_failed" || code === "server_error") return {id:"", message:en ? `AJ could not save this just now (${code}). Everything you entered is still here; tap Send again.` : `ระบบบันทึกไม่สำเร็จชั่วคราว (${code}) ข้อมูลที่กรอกยังอยู่ครบ กดส่งอีกครั้งได้`};
+    if(code === "identity_images_invalid") return {id:"verifyNowIdDocument", message:tr("identityPhotoDecode")};
     if(code === "line_connection_required") return {id:"", message:tr("contactLineRequired")};
     return {id:"", message:en ? "Could not send — the connection or AJ's system did not answer. Everything you entered is still here; tap Send again." : "ส่งไม่สำเร็จ — สัญญาณอินเทอร์เน็ตหรือระบบไม่ตอบ ข้อมูลที่กรอกยังอยู่ครบ กดส่งอีกครั้งได้"};
   }
