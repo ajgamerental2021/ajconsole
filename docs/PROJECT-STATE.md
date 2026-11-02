@@ -1,3 +1,31 @@
+## 2026-11-02 — Game ID pages: no double rent/reserve; Phase 5 status; Render cost review
+
+- ajgameid (PS5 and Switch), website `27419c4`:
+  - "เช่าเลย / จองล่วงหน้า" could be pressed again mid-request: other offers' buttons stayed live, and a redraw (returning from LINE reloads the list) re-enabled the pressed one.
+  - Now a page-wide lock (`shareInFlight`) turns every rent/reserve button off from the tap until the popup or an error shows, and redraws keep it. The label reads "กำลังดำเนินการ… รอสักครู่ / Processing… please wait"; the error alerts are TH/EN.
+  - Browser run with a slow backend: 1 POST despite repeated taps and a forced redraw; buttons come back after the popup. New test `ajgameid-share-lock`.
+- Phase 5 (DA, per docs/POSTGRES_MIGRATION.md + render.yaml):
+  - Done:
+    - 5.0 (code); 5.1 bookings `pg` on 27/10;
+    - 5.2b tasks from PG on 28/10;
+    - 5.3 inventory `pg` and customers `pg` on 29/10.
+  - Open:
+    - 5.0b box not ticked, although its steps were done on 22/10;
+    - 5.2 the one-week watch ends 3/11 and needs an owner sign-off;
+    - 5.3 the rest — Finance, Rental Payments, Extensions, Delivery Confirmations, Game Selection Tokens and Rental Code Reservations are not in PG; the Bot-written tabs move only once the Bot writes through DA.
+  - Phase 6:
+    - 6.1 mirror built but `SHEET_MIRROR_ENABLED` is off;
+    - 6.2 waiting on the owner's decision about editing the sheet directly;
+    - 6.3 backup built but needs `POSTGRES_BACKUP_DRIVE_FOLDER_ID` on Render (not verifiable from here).
+  - Phase 7 not started. Nothing Phase-5 was logged after 29/10.
+- Render bill review ($71.39 for Oct; servers $52.66 / 15 instances, Postgres $16.56 / 4). Services by repo:
+  - aj-safetrade (BTC paper trading, unrelated to AJ): web, api, worker, watchdog, soak at 0.5c-512mb plus a paid Postgres and a 1 GB disk. Its own status says the 72-hour soak is finished, and the original workspace holds 20 resources.
+  - aj-office (paused): starter plus a 1 GB disk; it only reads DA.
+  - aj-detached-omnichannel-bot: starter plus basic-256mb Postgres. It feeds the Messenger daily welcome card through the Bot's `GREETING_BRIDGE_URL` (2 s timeout, fails safe).
+  - aj-cm: free.
+  - AJ core: aj-line-oa-bot, delivery-app-backend, DA Postgres, delivery-app-web, ajgamerental.
+  - Recommendation: drop safetrade-soak now; suspend or delete the rest of SafeTrade if not needed (≈$40/month); suspend AJ Office (≈$7/month). Keep the detached bot unless the Messenger welcome card can go (then clear `GREETING_BRIDGE_URL`/`TOKEN` in the Bot as well). The Render dashboard and metrics are not reachable from here.
+
 ## 2026-11-02 — Verified after booking: balance before delivery now follows the new deposit
 
 - R0023 after the shop verified for the customer: the email showed deposit ฿2,000 and balance ฿3,162. But DA (Booking Log, My rental TH/EN, queue, morning summary) still showed "ยอดโอนก่อนส่ง ฿11,162" and a "ขาด 8,000" mismatch.
