@@ -1,3 +1,14 @@
+## 2026-11-02 — Verified after booking: balance before delivery now follows the new deposit
+
+- R0023 after the shop verified for the customer: the email showed deposit ฿2,000 and balance ฿3,162. But DA (Booking Log, My rental TH/EN, queue, morning summary) still showed "ยอดโอนก่อนส่ง ฿11,162" and a "ขาด 8,000" mismatch.
+- Cause: on `contract-signed`, DA only cleared `noContract`. The deposit fell, but the stored `transferBeforeDelivery` and the payment-ledger total were never recalculated. The Bot side was already right.
+- Fix (DA `a3392a2`):
+  - `contractBalanceSettlement` (bookingAgreementLink.ts) recalculates the balance; `processContractSigned` now writes `transferBeforeDelivery`/`cashReceive` in the same update that clears `noContract`, then calls `reviseLedgerTotal`.
+  - It applies only when the stored balance still equals the no-identity balance (within ฿1). Hand-corrected, overpaid or non-matching rows are left alone and the shop gets an alert (`notifyStaff`) naming the Rental ID and customer.
+- Repair for R0023 (verified before the fix): Booking Log → ⋯ เพิ่มเติม → 📋 ผูกเลขที่สัญญา → AJ-20261102-II2Q79 → ตรวจสอบ → "ยืนยันแก้ค่าประกันและยอดคงเหลือ · Fix the balance". The route test with R0023's figures gives 11,162 → 3,162 and a ledger total of 3,362; a second press changes nothing.
+- Tests: contract-balance 8 and agreement-repair-route (both new, the latter through the real Express route), plus booking-agreement-link, contract-signed, agreement-sync 23, console-pending-agreement-deposit 8, my-rental-link 191, flex-ledger 28, both tsc.
+- Deploy: DA backend (the modal label also needs DA web / a new app build).
+
 ## 2026-11-02 — Verify for the customer from Booking Log; verify button kept until delivery; named shop replies
 
 - Why R0023 (ธีรพล, PS5-2, 2–5/11) had no verify button: the DA My rental page hid "ยืนยันตัวตนเพื่อลดค่าประกัน" from the start date onwards (`!rental.started`), even though the Bot still accepts verification. Now `verifyOpen` keeps it until the delivery task is done (`doneDelivery`). DA `18b927d`.
