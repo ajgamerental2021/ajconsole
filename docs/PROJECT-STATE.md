@@ -1,3 +1,14 @@
+## 2026-11-02 — Verify page points to My rental when the place is locked; games from midnight with a delivery-time popup
+
+- Verify page (Bot `0d1af51`, main + branch): it is the only page without a change-place control once paid / on the rental day. It now says why, and "To change it, use My rental" with a "📋 Open My rental" button, only when the customer has a My rental page (payment recorded: `myRentalLink` from the GET). Otherwise it says to message the shop on LINE @ajgame. TH/EN.
+- Game hours (DA `ca1b7d0`, Bot, website `f4a5351`): choosing and re-choosing is open from midnight to the closing time (default 20:00). The evening after the closing time is still closed.
+- Delivery-time popup: before sending, the picker asks DA (`POST /api/game-selection/delivery-preview/:token`; Bot path via signed `/api/integrations/aj-rental/game-selection/delivery-preview`). If today's delivery time would change, a TH/EN popup appears: the shop installs from 10:00, it takes about 2–3 hours, old → new time, and the time can't be edited afterwards. It has Confirm and Cancel; Cancel sends nothing.
+- Rule (`deliveryTimeAfterGames`, rental day only, before the console leaves):
+  - before 10:00: a 10:00–12:00 delivery moves +3h; 12:30 → 13:00; 13:00 or later stays; No games → at least 11:00;
+  - during open hours: ~3h from confirming (1h with No games), rounded up to the half hour, never earlier than booked.
+- After confirming: DA writes `deliveryTime` via bookingRepo and sets the marker `delivery-fixed-by-games:<bookingId>:<start>`. From then on the edit page and the same-day card offer the place only. The No games page also shows the change before confirming.
+- Tests: DA games-before-delivery 16, shop-hours, game-selection-card 45, reminders, delivery-card/timing, flex-ledger 28, both tsc. Bot 787/787. Website 408 pass, 1 pre-existing failure (rails listener). Browser run of the picker popup, TH and EN: Cancel → 0 submits, Confirm → 1. Needs a deploy of DA backend, Bot and website; no APK change.
+
 ## 2026-11-02 — "ยืนยันตัวตนเพื่อลดค่าประกัน" failing with "ส่งข้อมูลไม่สำเร็จ" (booking 625)
 
 - Cause (reproduced in a browser on the old page): the renter changed the Google Maps pin on the verify page; booking 625 was already delivered/paid, so the Bot refused with `paid_location_change_requires_shop` (no field). The page did not know the code and kept the changed pin, so every press failed the same way with the generic message. Other dead ends found: client timeout 60 s while the server can spend up to ~90 s filing watermarked copies; `upgrade_in_progress`, storage/save errors and uncaught exceptions all showed the same generic text; booking data missing a contract field (e.g. phone) showed "check the red fields" with nothing red.
