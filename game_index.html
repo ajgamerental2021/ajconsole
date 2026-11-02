@@ -848,16 +848,6 @@
   /* Footer buttons: one line each, labels kept short in TRANSLATIONS. */
   .pick-footer-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
   .pick-footer-actions .btn { white-space: nowrap; }
-  body.game-updates-closed #pick-overlay .pick-card,
-  body.game-updates-closed #pick-overlay .game-list-row {
-    opacity:.46 !important; cursor:not-allowed !important; pointer-events:none;
-  }
-  body.game-updates-closed #pick-overlay .pick-selected-remove:disabled,
-  body.game-updates-closed #pick-overlay .btn-pick-clear:disabled,
-  body.game-updates-closed #pick-overlay #btn-generate-copy:disabled,
-  body.game-updates-closed #pick-overlay #btn-copy-final:disabled {
-    opacity:.42; cursor:not-allowed; pointer-events:none;
-  }
   .btn-pick-clear { background: transparent; border: 1px solid var(--border); color: var(--text2); }
   .btn-pick-clear:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-light); }
 
@@ -2869,7 +2859,6 @@
         <button class="btn btn-primary" onclick="pickPrimaryAction()" id="btn-generate-copy" style="display:none">
           <span id="pick-primary-label">📋 แจ้งร้าน</span>
         </button>
-        <div id="pick-shop-hours" role="status" style="display:none;width:100%;color:#a52b20;font-weight:700;margin-top:8px"></div>
       </div>
     </div>
   </div>
@@ -5510,7 +5499,6 @@ function notifyPickChange(change) {
 }
 
 function togglePick(gameId) {
-  if (pickSendsList() && gameUpdatesClosedNow()) return;
   const selected = !pickedGames.includes(gameId);
   if (!selected) {
     pickedGames = pickedGames.filter(id => id !== gameId);
@@ -5562,61 +5550,9 @@ function pickSendsList() {
   return isTokenGamePicker() || document.body.classList.contains('aj-contract-card-picker');
 }
 
-const DEFAULT_GAME_UPDATE_HOURS = { enabled:true, startTime:'09:00', endTime:'20:00' };
-let gameUpdateHours = { ...DEFAULT_GAME_UPDATE_HOURS };
-let gameUpdateHoursLoadedAt = 0;
-let gameUpdateHoursRequest = null;
-const gameHourMinutes = value => Number(value.slice(0, 2)) * 60 + Number(value.slice(3));
-function normalizeGameUpdateHours(value) {
-  if (!value || typeof value !== 'object') return { ...DEFAULT_GAME_UPDATE_HOURS };
-  const valid = time => typeof time === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(time);
-  const startTime = valid(value.startTime) ? value.startTime : DEFAULT_GAME_UPDATE_HOURS.startTime;
-  const endTime = valid(value.endTime) ? value.endTime : DEFAULT_GAME_UPDATE_HOURS.endTime;
-  return { enabled:value.enabled !== false,
-    startTime:startTime === endTime ? DEFAULT_GAME_UPDATE_HOURS.startTime : startTime,
-    endTime:startTime === endTime ? DEFAULT_GAME_UPDATE_HOURS.endTime : endTime };
-}
-async function loadGameUpdateHours(force = false) {
-  if (!pickSendsList()) return gameUpdateHours; // Booking checkout never waits for shop hours.
-  if (!force && gameUpdateHoursLoadedAt && Date.now() - gameUpdateHoursLoadedAt < 15000) return gameUpdateHours;
-  if (gameUpdateHoursRequest) return gameUpdateHoursRequest;
-  gameUpdateHoursRequest = (async () => {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 4000);
-    try {
-      const response = await fetch('https://aj-line-oa-bot.onrender.com/api/game-update-hours',
-        { cache:'no-store', signal:controller.signal });
-      if (!response.ok) throw new Error('hours_unavailable');
-      const data = await response.json();
-      gameUpdateHours = normalizeGameUpdateHours(data.settings);
-      gameUpdateHoursLoadedAt = Date.now();
-      renderPickActions();
-    } catch (error) { console.warn('Game update hours unavailable', error); }
-    finally { clearTimeout(timeout); }
-    return gameUpdateHours;
-  })();
-  try { return await gameUpdateHoursRequest; }
-  finally { gameUpdateHoursRequest = null; }
-}
-function gameUpdatesClosedNow(now = new Date()) {
-  if (!gameUpdateHours.enabled) return false;
-  const parts = new Intl.DateTimeFormat('en-GB', { timeZone:'Asia/Bangkok', hour:'2-digit', minute:'2-digit', hourCycle:'h23' }).formatToParts(now);
-  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
-  const current = Number(values.hour) * 60 + Number(values.minute);
-  // Open from midnight (02/11/2026): only the evening after the end time is
-  // closed, and a window running past midnight closes nothing. A list sent
-  // before the shop opens is installed from 10:00 — the renter is told what
-  // that does to today's delivery before it goes (confirmDeliveryChange).
-  const start = gameHourMinutes(gameUpdateHours.startTime);
-  const end = gameHourMinutes(gameUpdateHours.endTime);
-  return start < end ? current >= end : false;
-}
-function gameShopHoursMessage() {
-  const { endTime } = gameUpdateHours;
-  return currentLang === 'en'
-    ? `Game selections and changes after booking are available until ${endTime}, and again from midnight.`
-    : `การเลือกเกมหรือแก้ไขรายการเกมหลังจองทำได้ถึง ${endTime} น. และเปิดอีกครั้งตั้งแต่เที่ยงคืน`;
-}
+// Games can be chosen or changed after booking at any hour (02/11/2026). A list
+// sent before the shop opens is installed from 10:00; the renter is told what
+// that does to today's delivery before it goes (confirmDeliveryChange).
 
 /**
  * What sending the list now does to today's delivery, from the server that
@@ -5676,8 +5612,6 @@ function confirmDeliveryChange(change) {
   });
 }
 async function pickPrimaryAction() {
-  if (pickSendsList()) await loadGameUpdateHours(true);
-  if (pickSendsList() && gameUpdatesClosedNow()) { showToast(gameShopHoursMessage()); return; }
   if (pickSendsList()) sendContractCardGameList();
   else generateCopyText();
 }
@@ -5699,16 +5633,7 @@ function renderPickActions() {
   const btn = document.getElementById('btn-generate-copy');
   if (!btn) return;
   btn.style.display = pickedGames.length > 0 ? '' : 'none';
-  const closed = pickSendsList() && gameUpdatesClosedNow();
-  document.body.classList.toggle('game-updates-closed', closed);
-  btn.disabled = closed || pickSubmitState === 'sending' || pickSubmitState === 'saved';
-  const clearButton = document.querySelector('#pick-overlay .btn-pick-clear');
-  if (clearButton) clearButton.disabled = closed;
-  const copyButton = document.getElementById('btn-copy-final');
-  if (copyButton) copyButton.disabled = closed;
-  document.querySelectorAll('#pick-chips .pick-selected-remove').forEach(button => { button.disabled = closed; });
-  const notice = document.getElementById('pick-shop-hours');
-  if (notice) { notice.style.display = closed ? '' : 'none'; notice.textContent = closed ? gameShopHoursMessage() : ''; }
+  btn.disabled = pickSubmitState === 'sending' || pickSubmitState === 'saved';
   const label = document.getElementById('pick-primary-label');
   if (label) label.textContent = pickPrimaryLabel();
 }
@@ -5734,7 +5659,6 @@ function renderPickFooter() {
 }
 
 function clearAllPicked() {
-  if (pickSendsList() && gameUpdatesClosedNow()) return;
   pickedGames = [];
   renderPickPlatformTabs();
   renderPickBody();
@@ -5769,17 +5693,6 @@ function getSelectionToken() {
 
 function isTokenGamePicker() { return !!getSelectionToken(); }
 
-window.addEventListener('load', () => {
-  if (!pickSendsList()) return;
-  void loadGameUpdateHours();
-  window.setInterval(() => { void loadGameUpdateHours(); renderPickActions(); }, 30000);
-  // Repaint the disabled controls at the exact Bangkok opening/closing minute.
-  window.setInterval(() => {
-    if (document.getElementById('pick-overlay')?.classList.contains('open')) renderPickActions();
-  }, 1000);
-  window.addEventListener('focus', () => { void loadGameUpdateHours(true); renderPickActions(); });
-});
-
 /** Resolve the token and lock the picker to the booking's platform. */
 async function initSelectionToken() {
   const token = getSelectionToken();
@@ -5797,7 +5710,6 @@ async function initSelectionToken() {
       return;
     }
     selectionContext = data;
-    if (data.shopClosed || gameUpdatesClosedNow()) showToast(gameShopHoursMessage());
     // Judge every game against this booking's rental window, not against
     // today. The embedded picker gets the same range through openPickerFromParent;
     // a token link opened on its own would otherwise never receive it.
@@ -5877,7 +5789,7 @@ function applyPreselection() {
     showToast(currentLang === 'en'
       ? `${missing.length} game${missing.length > 1 ? 's are' : ' is'} no longer in the list: ${missing.join(', ')}`
       : `มี ${missing.length} เกมที่ไม่มีในแคตตาล็อกแล้ว: ${missing.join(', ')}`);
-  } else if (!(pickSendsList() && gameUpdatesClosedNow())) {
+  } else {
     showToast(currentLang === 'en'
       ? 'Your current games are ticked — add or remove, then confirm.'
       : 'ติ๊กเกมที่เลือกไว้ให้แล้ว — เพิ่มหรือเอาออกได้ แล้วกดยืนยัน');
@@ -5944,8 +5856,6 @@ window.ajSelectionReady = (function () {
 
 /** Submit the selection straight to the backend (no copy/paste needed). */
 async function submitSelectionToken() {
-  await loadGameUpdateHours();
-  if (gameUpdatesClosedNow()) { renderPickActions(); return; }
   if (!selectionToken || !pickedGames.length) return;
   const names = pickedGames
     .map(id => gameSelectionName(games.find(x => x.id === id)))
@@ -5968,8 +5878,7 @@ async function submitSelectionToken() {
     });
     const data = await res.json();
     if (!res.ok || !data.ok) {
-      const msg = data.status === 'shop_closed' || data.error === 'shop_closed' ? gameShopHoursMessage()
-        : data.status === 'too_many_games'
+      const msg = data.status === 'too_many_games'
         ? (currentLang === 'en' ? `Please pick at most ${data.maxGames} games.` : `เลือกได้ไม่เกิน ${data.maxGames} เกมครับ`)
         : (currentLang === 'en' ? 'Could not save — please try again.' : 'บันทึกไม่สำเร็จ ลองใหม่อีกครั้งครับ');
       showToast(msg);
@@ -6012,7 +5921,6 @@ function openAjLineWithMessage(text) {
 }
 
 function sendContractCardGameList() {
-  if (pickSendsList() && gameUpdatesClosedNow()) return;
   if (!pickedGames.length) return;
   if (isTokenGamePicker()) { submitSelectionToken(); return; }
   generateCopyText();
@@ -6020,7 +5928,6 @@ function sendContractCardGameList() {
 }
 
 function generateCopyText() {
-  if (pickSendsList() && gameUpdatesClosedNow()) return;
   if (!pickedGames.length) return;
   const lines = ['รายการเกมที่ต้องการครับ/ค่ะ 😊', ''];
   pickedGames.forEach((id, i) => {
@@ -6039,7 +5946,6 @@ function generateCopyText() {
 }
 
 function doCopy() {
-  if (pickSendsList() && gameUpdatesClosedNow()) { showToast(gameShopHoursMessage()); return; }
   const text = document.getElementById('copy-text-area').value;
   if (!text) return;
   const doFallback = () => {
@@ -6555,7 +6461,6 @@ function toggleViewMode(platformId) {
 // Extend generateCopyText to use i18n
 const _origGenerateCopyText = typeof generateCopyText === 'function' ? generateCopyText : null;
 function generateCopyText() {
-  if (pickSendsList() && gameUpdatesClosedNow()) return;
   const T = TRANSLATIONS[currentLang];
   if (!pickedGames.length) return;
   const lines = [T.copy_greeting, ''];
@@ -6577,8 +6482,6 @@ function generateCopyText() {
 // Extend doCopy to use i18n
 const _origDoCopy = typeof doCopy === 'function' ? doCopy : null;
 async function doCopy() {
-  if (pickSendsList()) await loadGameUpdateHours();
-  if (pickSendsList() && gameUpdatesClosedNow()) { showToast(gameShopHoursMessage()); return; }
   const T = TRANSLATIONS[currentLang];
   const text = document.getElementById('copy-text-area').value;
   if (!text) return;

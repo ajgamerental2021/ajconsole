@@ -3,21 +3,23 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
+// Games can be chosen or changed after booking at any hour (02/11/2026): the
+// shop-hours window is gone. What a list sent before the shop opens does to
+// today's delivery is asked about in a popup instead (confirmDeliveryChange).
+
 const picker = readFileSync(new URL('../game_index.html', import.meta.url), 'utf8');
+const admin = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const start = picker.indexOf('function pickSendsList() {');
 const end = picker.indexOf('function renderPickFooter() {', start);
 assert.ok(start > -1 && end > start, 'picker action logic must be present');
 const actions = picker.slice(start, end);
 
-async function actionAt(isoTime, { token = false, contractCard = false, settings } = {}) {
+async function actionAt(isoTime, { token = false, contractCard = false } = {}) {
   const calls = [];
   const instant = new Date(isoTime);
   const context = {
     Date: class extends Date { constructor() { super(instant); } },
     Intl,
-    AbortController,
-    setTimeout,
-    clearTimeout,
     document: {
       body: { classList: { contains: value => value === 'aj-contract-card-picker' && contractCard } },
       getElementById: () => null,
@@ -25,8 +27,8 @@ async function actionAt(isoTime, { token = false, contractCard = false, settings
     currentLang: 'en',
     pickSubmitState: 'idle',
     isTokenGamePicker: () => token,
-    fetch: async () => ({ ok: true, json: async () => ({ settings }) }),
-    showToast: message => calls.push(['closed', message]),
+    fetch: async () => { calls.push(['fetch']); return { ok: true, json: async () => ({}) }; },
+    showToast: message => calls.push(['toast', message]),
     sendContractCardGameList: () => calls.push(['send']),
     generateCopyText: () => calls.push(['booking']),
   };
@@ -34,20 +36,18 @@ async function actionAt(isoTime, { token = false, contractCard = false, settings
   return calls;
 }
 
-test('checkout picker works at night; after-booking links use editable Bangkok hours', async () => {
-  const late = '2026-10-06T16:00:00Z'; // 23:00 in Thailand
-  assert.deepEqual(await actionAt(late), [['booking']]);
-  assert.equal((await actionAt(late, { token: true }))[0][0], 'closed');
-  assert.equal((await actionAt(late, { contractCard: true }))[0][0], 'closed');
-  assert.deepEqual(await actionAt(late, { token: true, settings: {enabled:false,startTime:'09:00',endTime:'22:00'} }), [['send']]);
-  assert.deepEqual(await actionAt(late, { token: true, settings: {enabled:true,startTime:'09:00',endTime:'23:30'} }), [['send']]);
-  assert.deepEqual(await actionAt('2026-10-06T12:59:00Z', { token: true }), [['send']]); // 19:59
-  assert.equal((await actionAt('2026-10-06T13:00:00Z', { token: true }))[0][0], 'closed'); // 20:00
-  // Open from midnight (02/11/2026): before the shop opens is allowed.
-  assert.deepEqual(await actionAt('2026-10-06T17:01:00Z', { token: true }), [['send']]); // 00:01
-  assert.deepEqual(await actionAt('2026-10-07T01:59:00Z', { token: true }), [['send']]); // 08:59
-  assert.deepEqual(await actionAt('2026-10-07T02:00:00Z', { token: true }), [['send']]); // 09:00
-  assert.deepEqual(await actionAt(late, { token: true, settings: {enabled:true,startTime:'10:00',endTime:'00:00'} }), [['send']]); // past midnight: nothing closed
+test('after-booking links send at any hour, night included; checkout unchanged', async () => {
+  for (const iso of [
+    '2026-10-06T13:00:00Z', // 20:00
+    '2026-10-06T16:00:00Z', // 23:00
+    '2026-10-06T17:01:00Z', // 00:01
+    '2026-10-07T01:59:00Z', // 08:59
+    '2026-10-07T05:00:00Z', // 12:00
+  ]) {
+    assert.deepEqual(await actionAt(iso, { token: true }), [['send']], iso);
+    assert.deepEqual(await actionAt(iso, { contractCard: true }), [['send']], iso);
+    assert.deepEqual(await actionAt(iso), [['booking']], iso);
+  }
 });
 
 function functionSource(name) {
@@ -57,88 +57,69 @@ function functionSource(name) {
   return picker.slice(begin, end);
 }
 
-test('after-booking picker cannot add, remove or clear games while closed; checkout still can', () => {
-  const run = sendsList => {
-    const context = vm.createContext({
-      MAX_PICK: 10,
-      pickSendsList: () => sendsList,
-      gameUpdatesClosedNow: () => true,
-      pickCapNotice: () => {},
-      renderPickPlatformTabs: () => {},
-      renderPickBody: () => {},
-      renderPickFooter: () => {},
-      syncPickModalScrollState: () => {},
-      notifyPickChange: () => {},
-      document: { getElementById: () => ({ classList: { remove: () => {} } }) },
-    });
-    vm.runInContext(`let pickedGames = ['A'];\n${functionSource('togglePick')}\n${functionSource('clearAllPicked')}`, context);
-    vm.runInContext('togglePick("A")', context);
-    const afterRemove = vm.runInContext('pickedGames.slice()', context);
-    vm.runInContext('togglePick("B")', context);
-    const afterAdd = vm.runInContext('pickedGames.slice()', context);
-    vm.runInContext('clearAllPicked()', context);
-    const afterClear = vm.runInContext('pickedGames.slice()', context);
-    return { afterRemove: [...afterRemove], afterAdd: [...afterAdd], afterClear: [...afterClear] };
-  };
-  assert.deepEqual(run(true), { afterRemove: ['A'], afterAdd: ['A'], afterClear: ['A'] });
-  assert.deepEqual(run(false), { afterRemove: [], afterAdd: ['B'], afterClear: [] });
+test('after-booking picker can add, remove and clear games', () => {
+  const context = vm.createContext({
+    MAX_PICK: 10,
+    pickSendsList: () => true,
+    pickCapNotice: () => {},
+    renderPickPlatformTabs: () => {},
+    renderPickBody: () => {},
+    renderPickFooter: () => {},
+    syncPickModalScrollState: () => {},
+    notifyPickChange: () => {},
+    document: { getElementById: () => ({ classList: { remove: () => {} } }) },
+  });
+  vm.runInContext(`let pickedGames = ['A'];\n${functionSource('togglePick')}\n${functionSource('clearAllPicked')}`, context);
+  vm.runInContext('togglePick("A")', context);
+  assert.deepEqual([...vm.runInContext('pickedGames', context)], []);
+  vm.runInContext('togglePick("B")', context);
+  assert.deepEqual([...vm.runInContext('pickedGames', context)], ['B']);
+  vm.runInContext('clearAllPicked()', context);
+  assert.deepEqual([...vm.runInContext('pickedGames', context)], []);
 });
 
-test('closed after-booking picker disables send, clear, copy, and selected remove buttons', () => {
-  const makeRun = sendsList => {
-    const buttons = { send: { style: {} }, clear: {}, copy: {}, remove: {} };
-    let closedClass = false;
-    const notice = { style: {}, textContent: '' };
+test('send button is disabled only while sending or once saved', () => {
+  const run = pickSubmitState => {
+    const send = { style: {} };
     const context = vm.createContext({
-      document: {
-        body: { classList: { toggle: (_, value) => { closedClass = value; } } },
-        getElementById: id => ({ 'btn-generate-copy': buttons.send, 'btn-copy-final': buttons.copy,
-          'pick-shop-hours': notice, 'pick-primary-label': { textContent: '' } })[id] || null,
-        querySelector: () => buttons.clear,
-        querySelectorAll: () => [buttons.remove],
-      },
-      isTokenGamePicker: () => false,
-      pickSendsList: () => sendsList,
-      gameUpdatesClosedNow: () => true,
-      gameShopHoursMessage: () => '09:00–20:00',
+      document: { getElementById: id => ({ 'btn-generate-copy': send, 'pick-primary-label': { textContent: '' } })[id] || null },
+      isTokenGamePicker: () => true,
+      pickSendsList: () => true,
       pickPrimaryLabel: () => 'Send',
-      pickSubmitState: 'idle',
+      pickListChangedSinceSave: () => false,
+      pickSubmitState,
     });
     vm.runInContext(`let pickedGames = ['A'];\n${functionSource('renderPickActions')}`, context);
     vm.runInContext('renderPickActions()', context);
-    return { disabled: Object.values(buttons).map(button => button.disabled), closedClass, notice: notice.textContent };
+    return send.disabled;
   };
-  assert.deepEqual(makeRun(true), { disabled: [true, true, true, true], closedClass: true, notice: '09:00–20:00' });
-  assert.deepEqual(makeRun(false), { disabled: [false, false, false, false], closedClass: false, notice: '' });
+  assert.equal(run('idle'), false);
+  assert.equal(run('sending'), true);
+  assert.equal(run('saved'), true);
 });
 
-test('closed picker keeps saved games visible without suggesting edits', () => {
-  const run = closed => {
-    const notices = [];
-    const context = vm.createContext({
-      games: [{ id: 'A', name: 'Game A' }], MAX_PICK: 10,
-      selectionContext: { selectedGames: ['Game A'] },
-      matchSavedGameNames: () => ({ ids: ['A'], missing: [] }),
-      renderPickPlatformTabs: () => {}, renderPickBody: () => {}, renderPickFooter: () => {},
-      showToast: message => notices.push(message),
-      pickSendsList: () => true, gameUpdatesClosedNow: () => closed,
-      currentLang: 'th',
-    });
-    vm.runInContext(`let preselectionApplied = false; let pickedGames = []; let pickBaselineIds = [];\n${functionSource('applyPreselection')}`, context);
-    vm.runInContext('applyPreselection()', context);
-    return { selected: [...vm.runInContext('pickedGames', context)], notices };
-  };
-  assert.deepEqual(run(true), { selected: ['A'], notices: [] });
-  assert.match(run(false).notices[0], /ติ๊กเกมที่เลือกไว้ให้แล้ว/);
+test('saved games are ticked with the edit hint', () => {
+  const notices = [];
+  const context = vm.createContext({
+    games: [{ id: 'A', name: 'Game A' }], MAX_PICK: 10,
+    selectionContext: { selectedGames: ['Game A'] },
+    matchSavedGameNames: () => ({ ids: ['A'], missing: [] }),
+    renderPickPlatformTabs: () => {}, renderPickBody: () => {}, renderPickFooter: () => {},
+    showToast: message => notices.push(message),
+    pickSendsList: () => true,
+    currentLang: 'th',
+  });
+  vm.runInContext(`let preselectionApplied = false; let pickedGames = []; let pickBaselineIds = [];\n${functionSource('applyPreselection')}`, context);
+  vm.runInContext('applyPreselection()', context);
+  assert.deepEqual([...vm.runInContext('pickedGames', context)], ['A']);
+  assert.match(notices[0], /ติ๊กเกมที่เลือกไว้ให้แล้ว/);
 });
 
-test('hours notice omits booking and timezone suffixes in both languages', () => {
-  for (const currentLang of ['th', 'en']) {
-    const context = vm.createContext({ currentLang, gameUpdateHours: { startTime: '09:00', endTime: '20:00' } });
-    vm.runInContext(functionSource('gameShopHoursMessage'), context);
-    const notice = vm.runInContext('gameShopHoursMessage()', context);
-    assert.match(notice, /20:00/);
-    assert.match(notice, currentLang === 'en' ? /midnight/ : /เที่ยงคืน/);
-    assert.doesNotMatch(notice, /ตามเวลาไทย|ระหว่างจองยังเลือกเกมได้ตามปกติ|Thailand time|while booking/);
+test('no shop-hours window is left in the picker or the admin settings', () => {
+  for (const name of ['gameUpdatesClosedNow', 'gameShopHoursMessage', 'loadGameUpdateHours', 'game-updates-closed', 'pick-shop-hours', '/api/game-update-hours']) {
+    assert.ok(!picker.includes(name), `picker still has ${name}`);
+  }
+  for (const name of ['adminGameUpdateHoursHtml', 'saveGameUpdateHoursFromAdmin', '/api/admin/game-update-hours', 'loadGameUpdateHoursForAdmin']) {
+    assert.ok(!admin.includes(name), `admin still has ${name}`);
   }
 });

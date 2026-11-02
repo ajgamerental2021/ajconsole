@@ -58,7 +58,7 @@ test('the sign-in asks to remember (ticked by default) and sends it to the Bot, 
 test('Admin opens straight away when signed in; every refused token is forgotten', () => {
   assert.match(fn('openAdmin'), /if\(!force && !state\.adminToken\)\{ openAdminLogin\(\); return; \}/);
   const resets = source.match(/forgetAdminSession\(\);/g) || [];
-  assert.ok(resets.length >= 14, 'every 401 path and sign-out forget the stored session');
+  assert.ok(resets.length >= 13, 'every 401 path and sign-out forget the stored session'); // 13 since the game-hours setting went (02/11/2026)
   assert.equal((source.match(/[^.]state\.adminToken = "";/g) || []).length, 1, 'only forgetAdminSession clears the token');
 });
 
