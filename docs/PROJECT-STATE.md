@@ -1,3 +1,20 @@
+## 2026-11-02 — Games at any hour; the customer's place name in every driver note
+
+- Game hours removed (owner: no more blocking). The picker (website `e9a4510`), Bot `71bf1c2` (main + branch) and DA `9653264` no longer block by time: there is no `shop_closed` any more, and the admin "game selection hours" card and `PUT /api/admin/game-update-hours` are gone.
+  - Bot `GET /api/game-update-hours` stays, answering `enabled:false`, for older pickers and DA builds.
+  - The delivery-time rule and its confirm popup are unchanged.
+- Dispatch place name. A customer's Google Maps pin showed as coordinates (e.g. 13.745007,100.582015) and drivers didn't know the building.
+  - Bot: `resolveDeliveryLocation` returns `placeName` from the link (`/maps/place/<name>/` or `?q=<name>`), after following short-link redirects. It is '' for a bare pin, a dropped-pin name (DMS) or a Plus Code. The quote returns it on the customer stop.
+  - DA: `customerPlaceName` comes back on the quote and the prepare response. `confirmTrip` takes a `placeName` and puts `ชื่อสถานที่ปลายทาง: …` (`ชื่อสถานที่ต้นทาง: …` on a return) first in the system notes. `AutoDispatchConfig.placeName` carries the name into automatic calls.
+  - Modal: shows "🏢 <name>" under the customer's end with "แก้ไขชื่อสถานที่". With no name, a red TH/EN box with a field appears and stays open while typing. The name also shows in the confirm dialog. If staff move the pin, the link's name is not used.
+- Not checked against a real Google link: google.com and maps.app.goo.gl are blocked here. Tests use the documented URL formats and a faked short-link redirect.
+- Tests:
+  - Bot 790/790 (delivery-location +3, game-selection-any-hour 2);
+  - DA dispatch-place-name 6 (new), auto-dispatch, lalamove-dispatch 402, games-before-delivery 16, game-selection-card 45, my-rental-link 189, flex-ledger 28, both tsc;
+  - website 408 pass, 1 pre-existing failure (rails listener).
+  - Browser runs of the modal: link with a name → note line plus confirm `placeName`; no name → red box, typed key by key, note plus confirm.
+- Needs a deploy of the Bot, DA backend and web, and the website. The phone app needs a new build for the modal (web app right away).
+
 ## 2026-11-02 — Verify page points to My rental when the place is locked; games from midnight with a delivery-time popup
 
 - Verify page (Bot `0d1af51`, main + branch): it is the only page without a change-place control once paid / on the rental day. It now says why, and "To change it, use My rental" with a "📋 Open My rental" button, only when the customer has a My rental page (payment recorded: `myRentalLink` from the GET). Otherwise it says to message the shop on LINE @ajgame. TH/EN.
