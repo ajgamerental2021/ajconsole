@@ -603,7 +603,9 @@
         openLineShop: 'เปิด LINE ร้าน AJ',
         lineUniqueId: 'LINE',
         copyModalOk: 'ตกลง',
-        preparing: 'กำลังเตรียมข้อความ...',
+        preparing: 'กำลังดำเนินการ… รอสักครู่',
+        shareItemMissing: 'ไม่พบข้อมูลรายการนี้ กรุณาโหลดหน้าใหม่',
+        shareFailed: 'ทำรายการไม่สำเร็จ กรุณาลองอีกครั้ง',
         idTypesHelp: 'ไอดีร้านกับไอดีลูกค้า ต่างกันยังไง ?',
         idStoreHelp: 'ไอดีร้านคืออะไร ?',
         switchExtraOffersSetting: 'แสดงแพ็กเกจเพิ่มเติมและข้อมูลไอดีลูกค้า',
@@ -790,7 +792,9 @@
         openLineShop: 'Open AJ LINE',
         lineUniqueId: 'LINE',
         copyModalOk: 'OK',
-        preparing: 'Preparing...',
+        preparing: 'Processing… please wait',
+        shareItemMissing: 'This item could not be found. Please reload the page.',
+        shareFailed: 'Something went wrong. Please try again.',
         idTypesHelp: 'Store ID vs Customer ID',
         idStoreHelp: 'How does Store ID work?',
         switchExtraOffersSetting: 'Show extra packages and Customer ID details',
@@ -2163,23 +2167,40 @@
     }
 
     
+    // One rent/reserve at a time, page-wide (02/11/2026): from the tap until
+    // the popup (or an error) shows, every "เช่าเลย / จองล่วงหน้า" button is
+    // off — not just the one tapped — and stays off when the cards redraw
+    // (coming back from LINE reloads the list). A second tap sends nothing.
+    let shareInFlight = null;
+
+    function setShareButtonsBusy(busy) {
+      document.body.classList.toggle('share-busy', busy);
+      document.querySelectorAll('button[data-share-offer]').forEach((btn) => {
+        btn.disabled = busy;
+        btn.setAttribute('aria-busy', busy && btn.dataset.shareOffer === shareInFlight?.key ? 'true' : 'false');
+        if (busy && btn.dataset.shareOffer === shareInFlight?.key) btn.textContent = tr('preparing');
+      });
+    }
+
     function restoreShareButton(button, label) {
-      if (!button) return;
-      button.disabled = false;
-      button.textContent = label;
+      shareInFlight = null;
+      setShareButtonsBusy(false);
+      document.querySelectorAll('button[data-share-offer]').forEach((btn) => {
+        if (btn.dataset.shareLabel) btn.textContent = btn.dataset.shareLabel;
+      });
+      if (button && !button.dataset.shareLabel) button.textContent = label;
     }
 
     async function handleLineShare(button, itemId, offerIndex) {
-      const originalLabel = button?.textContent || '';
-      if (button) {
-        button.disabled = true;
-        button.textContent = tr('preparing');
-      }
+      if (shareInFlight) return false;
+      const originalLabel = button?.dataset.shareLabel || button?.textContent || '';
+      shareInFlight = { key: `${itemId}:${offerIndex}` };
+      setShareButtonsBusy(true);
       try {
         const item = state.find(x => Number(x.idNo) === Number(itemId));
         const offer = item?.offers?.[Number(offerIndex)];
         if (!item || !offer) {
-          alert('ไม่พบข้อมูลรายการนี้');
+          alert(tr('shareItemMissing'));
           return false;
         }
 
@@ -2251,7 +2272,7 @@
         return false;
       } catch (err) {
         console.error('LINE share failed', err);
-        alert('เกิดข้อผิดพลาดตอนเตรียมข้อความสำหรับ LINE');
+        alert(tr('shareFailed'));
         return false;
       } finally {
         restoreShareButton(button, originalLabel);
@@ -2288,7 +2309,7 @@
                     : `<span class="status-badge ${offerState.badgeClass}">${escapeHtml(offerState.statusLabel)}</span>`
                 }
               </div>
-              <button class="primary-btn" type="button" onclick="return handleLineShare(this, ${item.idNo}, ${offerIndex})">${btnLabel}</button>
+              <button class="primary-btn" type="button" data-share-offer="${item.idNo}:${offerIndex}" data-share-label="${escapeHtml(btnLabel)}"${shareInFlight ? ' disabled' : ''} aria-busy="${shareInFlight?.key === `${item.idNo}:${offerIndex}` ? 'true' : 'false'}" onclick="return handleLineShare(this, ${item.idNo}, ${offerIndex})">${shareInFlight?.key === `${item.idNo}:${offerIndex}` ? escapeHtml(tr('preparing')) : btnLabel}</button>
             </div>
           </div>
         `;
