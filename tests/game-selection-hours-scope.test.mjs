@@ -43,8 +43,11 @@ test('checkout picker works at night; after-booking links use editable Bangkok h
   assert.deepEqual(await actionAt(late, { token: true, settings: {enabled:true,startTime:'09:00',endTime:'23:30'} }), [['send']]);
   assert.deepEqual(await actionAt('2026-10-06T12:59:00Z', { token: true }), [['send']]); // 19:59
   assert.equal((await actionAt('2026-10-06T13:00:00Z', { token: true }))[0][0], 'closed'); // 20:00
-  assert.equal((await actionAt('2026-10-07T01:59:00Z', { token: true }))[0][0], 'closed'); // 08:59
+  // Open from midnight (02/11/2026): before the shop opens is allowed.
+  assert.deepEqual(await actionAt('2026-10-06T17:01:00Z', { token: true }), [['send']]); // 00:01
+  assert.deepEqual(await actionAt('2026-10-07T01:59:00Z', { token: true }), [['send']]); // 08:59
   assert.deepEqual(await actionAt('2026-10-07T02:00:00Z', { token: true }), [['send']]); // 09:00
+  assert.deepEqual(await actionAt(late, { token: true, settings: {enabled:true,startTime:'10:00',endTime:'00:00'} }), [['send']]); // past midnight: nothing closed
 });
 
 function functionSource(name) {
@@ -134,8 +137,8 @@ test('hours notice omits booking and timezone suffixes in both languages', () =>
     const context = vm.createContext({ currentLang, gameUpdateHours: { startTime: '09:00', endTime: '20:00' } });
     vm.runInContext(functionSource('gameShopHoursMessage'), context);
     const notice = vm.runInContext('gameShopHoursMessage()', context);
-    assert.match(notice, /09:00/);
     assert.match(notice, /20:00/);
+    assert.match(notice, currentLang === 'en' ? /midnight/ : /เที่ยงคืน/);
     assert.doesNotMatch(notice, /ตามเวลาไทย|ระหว่างจองยังเลือกเกมได้ตามปกติ|Thailand time|while booking/);
   }
 });

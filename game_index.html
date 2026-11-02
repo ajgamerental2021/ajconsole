@@ -5603,15 +5603,77 @@ function gameUpdatesClosedNow(now = new Date()) {
   const parts = new Intl.DateTimeFormat('en-GB', { timeZone:'Asia/Bangkok', hour:'2-digit', minute:'2-digit', hourCycle:'h23' }).formatToParts(now);
   const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
   const current = Number(values.hour) * 60 + Number(values.minute);
+  // Open from midnight (02/11/2026): only the evening after the end time is
+  // closed, and a window running past midnight closes nothing. A list sent
+  // before the shop opens is installed from 10:00 — the renter is told what
+  // that does to today's delivery before it goes (confirmDeliveryChange).
   const start = gameHourMinutes(gameUpdateHours.startTime);
   const end = gameHourMinutes(gameUpdateHours.endTime);
-  return start < end ? current < start || current >= end : current < start && current >= end;
+  return start < end ? current >= end : false;
 }
 function gameShopHoursMessage() {
-  const { startTime, endTime } = gameUpdateHours;
+  const { endTime } = gameUpdateHours;
   return currentLang === 'en'
-    ? `New game selections and changes after booking are available from ${startTime} to ${endTime}.`
-    : `การเลือกเกมใหม่หรือแก้ไขรายการเกมหลังจองทำได้เวลา ${startTime}–${endTime} น.`;
+    ? `Game selections and changes after booking are available until ${endTime}, and again from midnight.`
+    : `การเลือกเกมหรือแก้ไขรายการเกมหลังจองทำได้ถึง ${endTime} น. และเปิดอีกครั้งตั้งแต่เที่ยงคืน`;
+}
+
+/**
+ * What sending the list now does to today's delivery, from the server that
+ * holds the booking; null when nothing changes or it cannot say (the list is
+ * still sent: the server moves the time either way, and tells the renter).
+ */
+async function deliveryChangeForGames() {
+  try {
+    const res = await fetch(`${GAME_API_BASE}/api/game-selection/delivery-preview/${encodeURIComponent(selectionToken)}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}),
+    });
+    const data = await res.json();
+    return res.ok && data.ok && data.change && data.change.to ? data.change : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+/** Ask before a list that moves today's delivery: confirm sends it, cancel keeps it here. */
+function confirmDeliveryChange(change) {
+  const en = currentLang === 'en';
+  const start = change.beforeOpen
+    ? (en ? 'AJ starts preparing and installing your games when the shop opens at 10:00. It takes about 2–3 hours.'
+      : 'ร้านจะเริ่มเตรียมและติดตั้งเกมเมื่อร้านเปิด 10:00 น. ใช้เวลาประมาณ 2–3 ชั่วโมง')
+    : (en ? 'AJ starts preparing and installing your games now. It takes about 2–3 hours.'
+      : 'ร้านจะเริ่มเตรียมและติดตั้งเกมทันที ใช้เวลาประมาณ 2–3 ชั่วโมง');
+  const move = en
+    ? `Today's delivery will move from ${change.from || '-'} to about ${change.to}, and the delivery time can no longer be changed.`
+    : `เวลาส่งเครื่องวันนี้จะเปลี่ยนจาก ${change.from || '-'} เป็นประมาณ ${change.to} น. และแก้ไขเวลาส่งไม่ได้หลังยืนยัน`;
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.id = 'delivery-change-confirm';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:3000;background:rgba(10,8,6,.6);display:flex;align-items:center;justify-content:center;padding:16px';
+    const box = document.createElement('div');
+    box.style.cssText = 'background:#fff;color:#14181f;border-radius:16px;max-width:420px;width:100%;padding:20px;font-size:15px;line-height:1.55;box-shadow:0 10px 40px rgba(0,0,0,.25)';
+    const title = document.createElement('div');
+    title.style.cssText = 'font-weight:800;font-size:17px;margin-bottom:8px';
+    title.textContent = en ? 'Before you send your games' : 'ก่อนส่งรายการเกม';
+    const p1 = document.createElement('p'); p1.style.margin = '0 0 8px'; p1.textContent = start;
+    const p2 = document.createElement('p'); p2.style.cssText = 'margin:0 0 16px;font-weight:700;color:#b45309'; p2.textContent = move;
+    const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:10px';
+    const cancel = document.createElement('button');
+    cancel.type = 'button'; cancel.id = 'delivery-change-cancel';
+    cancel.style.cssText = 'flex:1;padding:12px;border-radius:10px;border:1px solid #d7dbe3;background:#fff;font-weight:700;font-size:15px';
+    cancel.textContent = en ? 'Cancel' : 'ยกเลิก';
+    const ok = document.createElement('button');
+    ok.type = 'button'; ok.id = 'delivery-change-ok';
+    ok.style.cssText = 'flex:1;padding:12px;border-radius:10px;border:0;background:#1DB446;color:#fff;font-weight:800;font-size:15px';
+    ok.textContent = en ? 'Confirm and send' : 'ยืนยันส่งรายการเกม';
+    const close = (answer) => { overlay.remove(); resolve(answer); };
+    cancel.addEventListener('click', () => close(false));
+    ok.addEventListener('click', () => close(true));
+    row.append(cancel, ok); box.append(title, p1, p2, row); overlay.append(box);
+    document.body.appendChild(overlay);
+  });
 }
 async function pickPrimaryAction() {
   if (pickSendsList()) await loadGameUpdateHours(true);
@@ -5890,6 +5952,14 @@ async function submitSelectionToken() {
     .filter(Boolean);
   pickSubmitState = 'sending';
   renderPickActions();
+  // On the rental day a list moves today's delivery: the renter sees how, and
+  // confirms or cancels, before anything is sent.
+  const change = await deliveryChangeForGames();
+  if (change && !(await confirmDeliveryChange(change))) {
+    pickSubmitState = pickBaselineIds.length && pickListChangedSinceSave() ? 'changed' : 'idle';
+    renderPickActions();
+    return;
+  }
   try {
     const res = await fetch(`${GAME_API_BASE}/api/game-selection/submit/${encodeURIComponent(selectionToken)}`, {
       method: 'POST',
@@ -5907,7 +5977,9 @@ async function submitSelectionToken() {
       renderPickActions();
       return;
     }
-    showToast(currentLang === 'en' ? '✓ Your game selection has been saved' : '✓ บันทึกรายการเกมเรียบร้อยแล้ว');
+    showToast(change
+      ? (currentLang === 'en' ? `✓ Games saved · today's delivery is now about ${change.to}` : `✓ บันทึกรายการเกมแล้ว · ส่งเครื่องวันนี้ประมาณ ${change.to} น.`)
+      : (currentLang === 'en' ? '✓ Your game selection has been saved' : '✓ บันทึกรายการเกมเรียบร้อยแล้ว'));
     // What is saved is now the baseline, so a further edit re-arms the button.
     pickBaselineIds = pickedGames.slice();
     if (selectionContext) selectionContext.selectedGames = names;
