@@ -1,3 +1,26 @@
+## 2026-11-02 — Verify for the customer from Booking Log; verify button kept until delivery; named shop replies
+
+- Why R0023 (ธีรพล, PS5-2, 2–5/11) had no verify button: the DA My rental page hid "ยืนยันตัวตนเพื่อลดค่าประกัน" from the start date onwards (`!rental.started`), even though the Bot still accepts verification. Now `verifyOpen` keeps it until the delivery task is done (`doneDelivery`). DA `18b927d`.
+- Verify for the customer:
+  - Where: Booking Log → ⋯ เพิ่มเติม → "🪪 ยืนยันตัวตนแทนลูกค้า (ลดค่าประกัน) · Verify for customer". Shown for rentals with noContract, no contract and not ended.
+  - What staff enter: Thai ID or passport, the number, and the expiry (a Buddhist year is converted, e.g. 2573 → 2030). Then the ID photo and the selfie the customer sent in chat, plus email, name or address only if the booking lacks them. The typed customer name is the signature (with a preview), and staff must tick the consent box. A confirm dialog follows.
+  - What happens: DA `GET/POST /api/bookings/:row/identity-upgrade` calls the Bot's signed `identity-upgrade/status` and `identity-upgrade`. The Bot runs `submitIdentityUpgrade` — the same function as the customer's form, now shared — with `byShop`:
+    - the signature PNG is rendered from the typed name (sharp/Pango, Sarabun);
+    - the pin is not changed;
+    - the record gets `identityUpgradeBy: 'shop'` and the staff name;
+    - the shop message reads "ร้านยืนยันตัวตนแทนลูกค้าแล้ว".
+  - Deposit: the contract → `contract-signed` → DA clears noContract → the deposit drops. R0023 has a recorded ฿200 payment, so its contract is made straight away.
+  - Bookings the shop created with no Rental ID get a message to use "🪪 ส่งยืนยันตัวตน" instead.
+  - Bot `bcb2ead` (main + branch).
+- Shop LINE buttons (ตรวจผ่าน / แจ้งเลือกเกม / ยืนยันคิวเช่า): DA `shop-booking-action` now returns `booking {rentalCode, customerName, deviceCode}`, and the Bot reply adds e.g. "รหัสการเช่า AJ-20261101-R0023 · ลูกค้า ธีรพล · PS5-2" (Booking #id if DA is older).
+- Verified:
+  - Bot 795/795 (new identity-upgrade-by-shop 4, shop-booking-action-reply +1). A typed signature embedded in a real contract PDF was rendered and checked by eye.
+  - The local Bot server was hit over HTTP: signature, consent, name and body size checks pass.
+  - DA shop-identity 9, my-rental-link 191, contract-signed, console-pending-identity, identity-lookup, flex-ledger 28, both tsc.
+  - Browser run of the modal: fields → photos → typed signature → consent → confirm → payload → result.
+  - Not run against the live booking (Render/Google unreachable from here).
+- Deploy: Bot, DA backend and web. The phone app needs a new build for the Booking Log button.
+
 ## 2026-11-02 — Games at any hour; the customer's place name in every driver note
 
 - Game hours removed (owner: no more blocking). The picker (website `e9a4510`), Bot `71bf1c2` (main + branch) and DA `9653264` no longer block by time: there is no `shop_closed` any more, and the admin "game selection hours" card and `PUT /api/admin/game-update-hours` are gone.
