@@ -1,3 +1,20 @@
+## 2026-11-03 — Receipt card in the Bot's layout; "don't send the padlock" when calling a driver
+
+- DA `53bcae6`.
+- Receipt card:
+  - `beamReceiptCard` is rebuilt to the Bot's `paymentReceiptMessage` layout: green "ตรวจสอบยอดชำระสำเร็จ / PAYMENT VERIFIED" bar, ยอดที่ได้รับ ฿x.00, ไปยัง AJ Game Rental, เมื่อ, รหัสการเช่า, ช่องทางชำระ and the note.
+  - A "ดูรายละเอียดการชำระเงิน" button opens the customer's My rental link (`myRentalLinksFor`); if the link can't be signed, the card goes out without the button.
+  - The remaining-balance row is gone, since the Bot's design has none.
+- Hide padlock:
+  - New field `hidePadlock` on ConfirmInput, DispatchJob and AutoDispatchConfig; it is set from the dispatch panel checkbox "ไม่ส่งรูปและรายละเอียดแม่กุญแจ" (delivery only).
+  - `deliveryMessage.hideLocks` removes the bag-code box, the padlock photo and the text lines.
+  - `buildDeliveryCardParts` returns head/lockBlocks/paymentBlocks. The driver card and pickup card now take those parts by name, instead of `slice(2)`/`slice(3)`.
+  - `tripExtras` returns no locks.
+  - `padlockHiddenFor(row, bookingId)` (latest non-cancelled delivery trip) makes the queue's send, copy and test card follow the same choice.
+  - A provider switch keeps the choice.
+- Tests: delivery-card 81, lalamove-dispatch 410 (an assigned → pickup → arrived trip with no "487" anywhere, including the trip page), promptpay-delivery 35, flex-ledger, auto-dispatch, office, payment-fee; both tsc. Web build walk-through: checkbox → confirm dialog line → `hidePadlock: true` in the request.
+- Deploy: DA backend and web. The phone app needs a new build for the checkbox and the QR chip.
+
 ## 2026-11-03 — QR PromptPay (Beam) for the delivery balance; "payment received" card
 
 - DA `40f574e`.
