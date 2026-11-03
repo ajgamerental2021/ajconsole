@@ -1,3 +1,10 @@
+## 2026-11-03 — AJ Office reset and moved to Render Free
+
+- Owner requested deletion of AJ Office's stored state and a Free compute plan for this service only. `aj-office` commit `dd626d5` sets `plan: free`, removes the persistent-disk declaration, and changes `OFFICE_DATA_FILE` from `/var/data/office.json` to `/tmp/aj-office/office.json`.
+- Render API showed no disk actually attached to service `srv-dba8gv4s728c738g3ftg`; the old `/var/data` path caused `EACCES` on startup. The live service environment now points to `/tmp/aj-office/office.json`. Deploy `dep-dbkkhts830cc73evu4r0` is live on Free at the existing `https://aj-office.onrender.com` URL. `/healthz` and the authenticated office API returned HTTP 200 after deploy.
+- The new store has no former staff or recorded costs. It generates a fresh accountant brief on startup; that is new state, not recovered old data. Free storage resets on restart/sleep and background agent schedules cannot run reliably while the service sleeps.
+- Validation: `render blueprints validate render.yaml` passed, `npm test` passed 71/71, and Render reports compute plan `free`. Other services and repositories were not changed for this migration.
+
 ## 2026-11-02 — Game ID pages: no double rent/reserve; Phase 5 status; Render cost review
 
 - ajgameid (PS5 and Switch), website `27419c4`:
