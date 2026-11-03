@@ -3173,7 +3173,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         rentalId:details.rentalId || "",
         customerType:details.customerType || "",
         amount:details.amount || 0,
-        status:details.status || ""
+        status:details.status || "",
+        rentalDays:Number(details.rentalDays) || 0
       });
       fetch(CONFIG.analyticsApi,{method:"POST",headers:{"Content-Type":"application/json"},body:payload,keepalive:true}).catch(() => {
         if(navigator.sendBeacon) navigator.sendBeacon(CONFIG.analyticsApi, new Blob([payload], {type:"application/json"}));
@@ -8973,6 +8974,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     state.calc.end = state.calendar.draftEnd;
     state.calc.datesTouched = true;
     closeCalendar();
+    // How long customers rent for (the stats page counts each session once, by its last pick).
+    {const picked = consoleById(state.calc.consoleId); trackAnalytics("rental_dates_selected", {value:String(days), rentalDays:days, deviceId:state.calc.consoleId || "", deviceName:picked ? cName(picked) : ""});}
     if(state.beforeRentActive && consoleById(state.calc.consoleId)) state.beforeRentActive = false;
     markGuideDone("start");
     markGuideDone("end");
@@ -10276,7 +10279,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       fallbackMessage = msg;
       await submitRentalToSheet(summary, code, "line", msg, handoff.data);
       setShareStatus("line", "ready");
-      trackAnalytics("booking_handoff_started", {channel:"line", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
+      trackAnalytics("booking_handoff_started", {channel:"line", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", rentalDays:summary.days, deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
       const liffUrl = new URL(`https://liff.line.me/${activeLineLiffId()}`);
       liffUrl.searchParams.set("bookingLine", "1");
       liffUrl.searchParams.set("ctx", handoff.contextToken);
@@ -11566,7 +11569,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       fallbackMessage = msg;
       await submitRentalToSheet(summary, code, "whatsapp", msg, handoff.data);
       setShareStatus("whatsapp", "opened");
-      trackAnalytics("booking_handoff_started", {channel:"whatsapp", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
+      trackAnalytics("booking_handoff_started", {channel:"whatsapp", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", rentalDays:summary.days, deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
       location.href = whatsappShareUrl(msg);
       return true;
     }catch(error){
@@ -11589,7 +11592,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       fallbackMessage = msg;
       await submitRentalToSheet(summary, code, "messenger", msg, handoff.data);
       showMessengerBookingHandoff(msg);
-      trackAnalytics("booking_handoff_started", {channel:"messenger", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
+      trackAnalytics("booking_handoff_started", {channel:"messenger", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", rentalDays:summary.days, deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
       return true;
     }catch(error){
       trackAnalytics("booking_handoff_failed", {channel:"messenger", value:String(error?.message || "error").slice(0,80), errorCode:"messenger_handoff_failed"});
