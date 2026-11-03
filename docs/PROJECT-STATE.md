@@ -1,3 +1,17 @@
+## 2026-11-03 — Monthly rate (30 days) everywhere; open rentals' Rental Fee fixed
+
+- R0069 (PS5 Pro, 30 days) showed ฿13,000 (4 weeks + 2 days) instead of the monthly ฿8,500 in Booking Log and on the confirmation card. "ยอดชำระก่อนส่ง" ฿12,446 was right; it came from the web quote.
+- Rule (owner): 3-day minimum; 7 days = weekly; 30 days = monthly. Longer rentals take months first, then weeks, then days. Monthly price by daily rate: 500 → 8,500 · 400 → 6,500 · 350 → 5,000 · 300 → 4,000. A rate with no monthly price (accessories, VIP) is priced by weeks and days.
+- The website (`index.html`, `quote/`) already had this (`MONTHLY_RATE`); no change there.
+- DA `f91184b`:
+  - New `services/rentalRates` (rentalCost, monthlyRateFor, rentalFeeSheetFormula, isLegacyRentalFeeFormula).
+  - The Booking Log Rental Fee formula now uses SWITCH for the monthly price, MAX(3,days), months/weeks/days, in `missingBookingFormulas`.
+  - `rentalFeeFor` (console pending quote, extras, bundles, VIP), `rentalTariff` and `quotationService` all use rentalCost.
+  - `upgradeRentalFeeFormulas` / `planRentalFeeUpgrade`, 90 s after boot: open rows (return date ≥ today) still holding the old formula get the new one; typed fees and finished rentals are untouched. The shop is alerted with before → after per rental. PG follows through the booking sync.
+  - test:rental-rates 14: the sheet formula evaluated for 0–95 days on 5 rates equals rentalCost. 25 related suites pass.
+- Bot `3f303a6`: `rentalCatalog` gains rentalCost/monthlyRateFor; `calculateRental`, add-on device fees and the LIFF `calculateBaseRentalFee` use it (LIFF `?v=20261103-monthly-rate-1`). Tests 805.
+- After deploy: R0069's fee becomes ฿8,500, so the total is ฿12,646 − 200 = ฿12,446. The shop resends Booking Confirm; the dialog warns that it was already sent, so press "ส่งซ้ำ".
+
 ## 2026-11-03 — R0069: Beam payment lost on a forward timeout → durable retry; confirmation never silent
 
 - What happened (from the code; production logs can't be read here):
