@@ -1,3 +1,21 @@
+## 2026-11-03 — Website stats: rental days picked and booked
+
+- Website `1d06bc1`:
+  - `rental_dates_selected` (value and rentalDays = days, plus the device) fires when a date range is applied.
+  - The three `booking_handoff_started` calls carry `rentalDays: summary.days`.
+  - The payload always has a numeric `rentalDays`.
+- Bot `b20f63a`:
+  - The event is allowlisted; `rentalDays` is normalised to an integer 0–365.
+  - Analytics Events sheet gets a new column AD "Rental Days".
+  - `rentalDaysSummary`:
+    - picked = one per session, by its last pick;
+    - booked = one per Rental ID;
+    - exact days up to 30, then 31+, with averages and the most common.
+  - Site tab: panel "จำนวนวันเช่าที่ลูกค้าเลือก" with 6 figures and two day-ordered bar lists. It also appears on the หน้ารวม board automatically.
+- Counting starts from deploy; older events have no days.
+- Tests: Bot 797 pass; website tests 411 pass, 1 fail. The failure, `no-image-flash` "rails keep one delegated listener", was already failing before this change. Panel screenshot checked; inline scripts pass `node --check`.
+- Deploy: Bot (Render) and the website.
+
 ## 2026-11-03 — Usage guides on My rental; Phase 5.3 Delivery Confirmations in dual
 
 - My rental page (DA `9711955`):
