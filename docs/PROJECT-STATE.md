@@ -1,3 +1,29 @@
+## 2026-11-03 — Device usage-guide LINE cards (TH/EN); Phase 5 health card and risk plan
+
+- Usage guides (DA `d1140c7`; picture on website `4f7800f`):
+  - Card: one LINE template per device — title, optional "before you start" with a tap-to-enlarge picture, numbered steps with video/phone buttons (no bare links), warning, footer buttons. English cards carry a note: "videos narrated in Thai; turn on CC or ask in chat".
+  - Seeds: PS5, Nintendo Switch 1, Nintendo Switch 2, PS VR2, PS4 (Thai text from the owner, English translated). Matching uses the rented device name/code, longest keyword wins. A PS VR2 bundle gets PS5 + PS VR2 as a carousel.
+  - Sending: Booking Log (⋯ เพิ่มเติม → 📘), the delivery card (📘 icon plus a button when expanded), and automatically from `finishTask` on delivery (manual close and courier auto-close). The automatic send happens once per rental (marker `usage-guide:<bookingId>:<start>`) and is skipped if staff already sent it.
+  - Editor, in Profile → 📘 วิธีใช้งานเครื่อง:
+    - auto-send toggle and per-guide toggles;
+    - TH/EN text tabs; steps (add, move, delete); buttons (https/tel);
+    - picture upload (Postgres `usage_guide_images`, migration 021, served at `/c/usage-guide-image/:id`);
+    - new devices; a preview through cardPreview's `previewHtml`; test send to `LINE_TEST_USER_ID`.
+  - Storage: "Usage Guides" tab, A1 JSON.
+- Phase 5:
+  - 5.2 — the week is up, but production can't be read from here. Profile → 🗄️ ฐานข้อมูล (Phase 5) shows modes, sync counters, open conflicts and a verify button (read-only); tick 5.2 when it shows ✅.
+  - Remaining tables:
+    - low risk: Game Selection Tokens, Delivery Confirmations, Rental Code Reservations — do one at a time, as in 5.3;
+    - medium: Rental Extensions;
+    - high: Rental Payments and Finance — wait for 6.2 and the 6.1 mirror.
+  - Bot-written tabs need the Bot to write through DA (the contract path depends on DA being up) — after Phase 6, with dual writes during the switch. Written into docs/POSTGRES_MIGRATION.md.
+- Tests: DA usage-guides 8 (new), card-preview 12, delivery-card 69, lalamove-dispatch 402, flex-ledger 28, both tsc. Browser runs:
+  - cards rendered TH/EN incl. PS4 picture and a PS5+VR2 carousel;
+  - Profile: toggle PS4 → PUT; edit PS5 EN title plus a `tel:` footer button → PUT; add Steam Deck → PUT; preview frame;
+  - queue 📘 and Booking Log send (confirm → POST → result);
+  - the DB health card.
+- Deploy: DA backend (runs migration 021) and web; website (image); the phone app needs a new build for the new buttons and Profile cards.
+
 ## 2026-11-03 — AJ Office reset and moved to Render Free
 
 - Owner requested deletion of AJ Office's stored state and a Free compute plan for this service only. `aj-office` commit `dd626d5` sets `plan: free`, removes the persistent-disk declaration, and changes `OFFICE_DATA_FILE` from `/var/data/office.json` to `/tmp/aj-office/office.json`.
