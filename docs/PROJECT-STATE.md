@@ -1,3 +1,24 @@
+## 2026-11-03 — R0069: Beam payment lost on a forward timeout → durable retry; confirmation never silent
+
+- What happened (from the code; production logs can't be read here):
+  - The Bot got Beam ฿200 for AJ-20261103-R0069 and forwarded it to DA `/aj-rental/payment-confirmed`.
+  - That forward timed out: 40 s × 2, both inside one request.
+  - The Bot marks a Beam payment processed before forwarding, so its only retry was an in-memory timer (30 s, 2, 5, 15 min). A Bot restart drops it, and so does DA being down for longer than about 22 min — today both repos deployed several times.
+  - Result: no Booking, so no confirmation card.
+- Bot `09edea6`:
+  - `services/delivery-forward-queue.js`: failed forwards (timeout, 5xx, thrown) go into site content `beam-delivery-forward-queue`.
+  - The queue is swept 45 s after boot, then every 60 s, with backoff 30 s / 2 / 5 / 15 / 30 min / hourly, up to 24 h.
+  - The shop is told the result: ✅ delivered / ❌ rejected / ❌ gave up. The first alert now says a retry is under way.
+  - The payload is trimmed to fit one cell.
+  - `postSigned` no longer re-sends immediately after a timeout, which avoided two overlapping runs.
+  - Tests: 803 (queue 6, including restart).
+- DA `c8258b8`:
+  - The booking_created confirmation alerts the shop (`sendShopAlert`) when it is blocked by `charges_do_not_add_up` or `push_failed`; before this it was silent.
+  - `bookingConfirmSentInfo`; the preview returns `alreadySent`, and both Booking Log send buttons warn "เคยส่งแล้วเมื่อ…" with a "ส่งซ้ำ" label.
+  - Automatic sends stay once per booking.
+  - Tests: test:booking-confirm-recovery 6, plus existing suites.
+- R0069 itself needs a manual step: DA → คำขอเช่า → confirm with paid 200; or, if the booking exists, Booking Log → ส่ง Booking Confirm (it warns if already sent).
+
 ## 2026-11-03 — Receipt card in the Bot's layout; "don't send the padlock" when calling a driver
 
 - DA `53bcae6`.
