@@ -1,3 +1,10 @@
+## 2026-11-03 — Tracking page: driver shown 2 km from every pickup
+
+- DA `ce7952e`: the 3.8 km special case for the Sinthorn village pickup is removed (`HIDE_NEAR_SINTHORN_M`, `hideNearOriginMeters`). `HIDE_NEAR_ORIGIN_M = 2000` now applies to every pickup, both for the dot on the customer page (TH/EN) and for when the road route starts being fetched.
+- Why: in Booking 631 the driver stayed hidden almost all the way to the customer.
+- Tests: lalamove-dispatch 400, flex-ledger 28, both tsc.
+- Deploy: DA backend only. It takes effect on running trips straight away.
+
 ## 2026-11-03 — Website stats: rental days picked and booked
 
 - Website `1d06bc1`:
