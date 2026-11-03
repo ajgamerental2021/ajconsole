@@ -1,3 +1,13 @@
+## 2026-11-03 — Tracking page: Sinthorn 2.8 km; a driver once shown stays shown
+
+- DA `fab4d0e` (supersedes `ce7952e`'s single 2 km).
+- Why: a driver who had appeared vanished again when the road looped back near the shop.
+- What changed:
+  - New field `driverShownFor` on the job, set in `refreshTrackRoute`. Once that driver has cleared the distance, `deliveryDriverShown` keeps them on the customer page until the trip ends; a new driver starts over.
+  - Distances: `HIDE_NEAR_SINTHORN_M = 2800` for the Sinthorn shop (address or pin within 100 m), `HIDE_NEAR_ORIGIN_M = 2000` elsewhere.
+- Tests: lalamove-dispatch 405, flex-ledger 28, both tsc.
+- Deploy: DA backend only.
+
 ## 2026-11-03 — Tracking page: driver shown 2 km from every pickup
 
 - DA `ce7952e`: the 3.8 km special case for the Sinthorn village pickup is removed (`HIDE_NEAR_SINTHORN_M`, `hideNearOriginMeters`). `HIDE_NEAR_ORIGIN_M = 2000` now applies to every pickup, both for the dot on the customer page (TH/EN) and for when the road route starts being fetched.
