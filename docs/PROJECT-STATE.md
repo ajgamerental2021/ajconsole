@@ -1,3 +1,28 @@
+## 2026-11-03 — QR PromptPay (Beam) for the delivery balance; "payment received" card
+
+- DA `40f574e`.
+- New balance channel `promptpay`. It is not the legacy `qr`, which the delivery-link endpoint still maps to a transfer.
+  - `ensureDeliveryPaymentLink` asks the Bot for a Beam link with method `bank`, which is QR PromptPay only, with no fee and payable = balance.
+  - The link is marked `deliveryAppPayment`, so the Bot skips its booking-site completion flow. It returns to DA `/c/payment-request/result`.
+  - Card and E-Wallet delivery links are unchanged.
+- Where the channel now appears:
+  - the queue card (4 chips, wrapping), the Lalamove/Grab panel, the required picker and auto-dispatch;
+  - the customer's delivery card and copied text (TH/EN, "📱 ชำระด้วย QR PromptPay" button);
+  - the Lalamove arrival/pickup cards (from the recorded choice);
+  - the trip page (TH/EN labels, pay button, note in the picture);
+  - the driver note.
+- `services/beamReceiptService`:
+  - Sends the TH/EN "✅ ชำระเงินสำเร็จ / Payment received" card: amount, rental code, channel, Bangkok time, remaining or fully paid.
+  - Applies to any link DA made, matched by the ledger row's `deliveryPaymentLink` id against the payment's link id. That covers balance links and payment requests.
+  - Called from `/aj-rental/payment-confirmed` (source `beam`) and from `deliveryPaymentPoller`.
+  - Once per link (durable marker `beam-receipt:<linkId>`). There is no duplicate with the Bot's own receipt, which needs a LINE id on the link; DA links carry none.
+- No Bot change needed: the Bot already supports Beam `bank` → `qrPromptPay`, fee 0, forwards `paymentLinkId`, and serves `beam-status` for the poller.
+- Tests:
+  - New test:promptpay-delivery: 32 pass.
+  - Existing suites: delivery-card 69, lalamove-dispatch 405, flex-ledger 28, payment-fee 9, payment-fee-waiver 9, auto-dispatch, office 14; both tsc.
+  - Card renders TH/EN checked; web build walk-through checked (chips, send dialog, driver note).
+- Deploy: DA backend and web. The phone app needs a new build for the QR chip.
+
 ## 2026-11-03 — Tracking page: Sinthorn 2.8 km; a driver once shown stays shown
 
 - DA `fab4d0e` (supersedes `ce7952e`'s single 2 km).
