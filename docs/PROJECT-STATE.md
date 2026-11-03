@@ -1,3 +1,21 @@
+## 2026-11-03 — Usage guides on My rental; Phase 5.3 Delivery Confirmations in dual
+
+- My rental page (DA `9711955`):
+  - Each active rental card has a fold-out "📘 วิธีใช้งานเครื่อง …" / "📘 How to use your …", only for the devices in that rental. It uses the same matcher as the LINE card and only enabled guides.
+  - The page language decides TH/EN; English carries the Thai-narration note.
+  - Picture tap-to-enlarge; video/phone links are buttons; history cards show none.
+  - If the guides fail to load, the page still opens without them. Server page, so a backend deploy is enough.
+- Phase 5.3 — Delivery Confirmations (DA `9711955`):
+  - `DATA_SOURCE_CONFIRMATIONS` sheets/dual/pg (`services/confirmationPgSync`).
+  - Saves go to the tab first, then Postgres, newer-wins on confirmed_at. Full copy at start (+20s) and every 10 min.
+  - In `pg`, a failed copy marks the copy stale, and reads go back to the tab until a full copy succeeds.
+  - Verify covers confirmations; the DB health card has a Confirmations line.
+  - render.yaml sets `dual`. Next: owner runs ตรวจเทียบ → 0 → flip to `pg`. Rollback: `sheets`.
+- Risk reassessed:
+  - Rental Code Reservations is NOT low risk. Uniqueness also depends on the Bot-written LOGs/AJ Contract tabs and the website's gviz/Apps Script fallback, so it goes last, with a PG allocator that checks the sheet sources and a dual write to the tab.
+  - Next table: Game Selection Tokens (shared by gameSelectionService and actionTokenService).
+- Tests: confirmations-pg 7 (local Postgres 16), my-rental-link 201, usage-guides 8, flex-ledger 28, both tsc; screenshots of the TH/EN guide on the page.
+
 ## 2026-11-03 — Device usage-guide LINE cards (TH/EN); Phase 5 health card and risk plan
 
 - Usage guides (DA `d1140c7`; picture on website `4f7800f`):
