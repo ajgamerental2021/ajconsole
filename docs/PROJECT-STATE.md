@@ -1,3 +1,19 @@
+## 2026-11-04 — Website: "เช็คคิวว่างวันที่" (pick a date → free consoles); "คืนเต็ม*" removed
+
+- Home device rail:
+  - "ว่างวันนี้" and a 📅 calendar are now one split chip. A native date input is laid over the icon (showPicker on desktop, tap on iOS).
+  - This keeps the phone filter rows at two lines, measured at 434 px in TH and EN. TH: Racing | ว่างวันนี้ 📅 | คำนวณค่าเช่า/ค่าจัดส่ง.
+  - After a pick the chip reads "ว่าง 07/11"; tapping it clears the date.
+  - The EN filter label is now "Free today" so the row fits; the card badges still say "Available today".
+- All-consoles modal: "📅 เช็คคิวว่างวันที่ / Check a date" sits next to "ว่างวันนี้", with a × to clear.
+- Filter: `consoleAvailabilityOn(c, iso)`.
+  - It uses `consoleBookableFrom`, now shared with `consoleTodayAvailability` and the booking calendar's rules: cutoff, queue closures, active holds, ready date, and a unit free for the 3-day minimum.
+  - Cards show "ว่าง dd/mm/yyyy". Picking today switches on the "available today" filter. Empty states are TH/EN.
+- "คืนเต็ม*" / "refundable*" is removed from the device cards.
+- Analytics: `before_rent_action_clicked` with values `available_date` and `available_date_all`, labelled on the Bot dashboard.
+- Tests: website 411 + 3 new pass; the one failure, no-image-flash, was already failing. Browser check at 434 px with mocked availability: picking 06/11 hides PS5 Pro (booked to 10/11) and PS4 (booked 07–12), and keeps PS5.
+- Deploy: website (and the Bot, for the dashboard label).
+
 ## 2026-11-03 — Monthly rate (30 days) everywhere; open rentals' Rental Fee fixed
 
 - R0069 (PS5 Pro, 30 days) showed ฿13,000 (4 weeks + 2 days) instead of the monthly ฿8,500 in Booking Log and on the confirmation card. "ยอดชำระก่อนส่ง" ฿12,446 was right; it came from the web quote.
