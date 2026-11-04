@@ -175,8 +175,8 @@ test('round-trip delivery price comes from the Bot and is never shown as final w
 });
 
 test('privacy policy explains that AJ stores no card or e-wallet details', () => {
-  assert.match(html, /AJ does not store your card number or e-wallet credentials/);
-  assert.match(html, /AJ ไม่ได้จัดเก็บหมายเลขบัตรหรือข้อมูล E-Wallet/);
+  assert.match(html, /AJ does not store your credit card number or e-wallet credentials/);
+  assert.match(html, /AJ ไม่ได้จัดเก็บหมายเลขบัตรเครดิตหรือข้อมูล E-Wallet/);
 });
 
 test('customer-facing contact email uses the AJ domain', () => {

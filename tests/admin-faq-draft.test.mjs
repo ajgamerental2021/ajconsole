@@ -46,7 +46,7 @@ test('the panel redraw keeps drafts, and a sync does not overwrite them', () => 
 
 test('the travel question is always in the FAQ, in Thai and English, once', () => {
   const ctx = vm.createContext({});
-  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'NO_CONTRACT_FAQ', 'AGE_FAQ'].map(constant).join('\n')
+  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'NO_CONTRACT_FAQ', 'AGE_FAQ'].map(constant).join('\n')
     + source.slice(source.indexOf('  const DEFAULT_FAQ = ['), source.indexOf('\n  ];', source.indexOf('  const DEFAULT_FAQ = [')) + 5)
     + fn('normalizeFaq') + ';this.normalizeFaq = normalizeFaq; this.TRAVEL_FAQ = TRAVEL_FAQ;', ctx);
   const stored = [
@@ -61,4 +61,27 @@ test('the travel question is always in the FAQ, in Thai and English, once', () =
   const changeAt = list.findIndex((f) => f.qEn.startsWith('Can I change the rental dates'));
   assert.equal(list.indexOf(travel[0]), changeAt + 1, 'placed right after the date-change question');
   assert.equal(ctx.normalizeFaq(list).filter((f) => f.kind === 'travel').length, 1, 'normalising again adds no second copy');
+});
+
+test('"ต้องโอนจองไหม" is rewritten and "ชำระส่วนที่เหลืออย่างไร" sits right under it (TH/EN)', () => {
+  const ctx = vm.createContext({});
+  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'NO_CONTRACT_FAQ', 'AGE_FAQ'].map(constant).join('\n')
+    + source.slice(source.indexOf('  const DEFAULT_FAQ = ['), source.indexOf('\n  ];', source.indexOf('  const DEFAULT_FAQ = [')) + 5)
+    + fn('normalizeFaq') + ';this.normalizeFaq = normalizeFaq;', ctx);
+  const stored = [
+    {qTh: 'ต้องโอนจองไหม ?', aTh: 'ค่าจองล็อกคิว: 200 บาท (โอนธนาคาร) หรือ 1,000 บาท (บัตร/E-Wallet ไม่มีค่าธรรมเนียม) ส่วนที่เหลือชำระตอนรับสินค้า หรือชำระเต็มล่วงหน้าได้ รองรับ โอนธนาคาร, บัตร +3.50%, E-Wallet +2.95% และ Wise', qEn: 'Do I need to pay a reservation?', aEn: 'old'},
+    {qTh: 'ขั้นต่ำเช่ากี่วัน?', aTh: '3 วัน', qEn: 'Minimum?', aEn: '3 days'},
+  ];
+  const list = ctx.normalizeFaq(stored);
+  const at = list.findIndex((f) => f.kind === 'reservation');
+  assert.ok(at >= 0);
+  assert.equal(list[at].aTh, 'ค่าจองล็อกคิว: 200 บาท (โอนธนาคาร) หรือ สำหรับต่างชาติ 1,000 บาท (บัตรเครดิต/E-Wallet ไม่มีค่าธรรมเนียม)');
+  assert.match(list[at].aEn, /or for international customers ฿1,000 \(Credit Card\/E-Wallet, no fee\)/);
+  assert.doesNotMatch(list[at].aTh, /ส่วนที่เหลือ|รองรับ/);
+  const balance = list[at + 1];
+  assert.equal(balance.kind, 'balance-payment');
+  assert.equal(balance.qTh, 'ชำระส่วนที่เหลืออย่างไร?');
+  assert.equal(balance.aTh, 'ส่วนที่เหลือชำระตอนรับสินค้า หรือชำระเต็มล่วงหน้าได้\n\nช่องทางที่รองรับ\n• โอนธนาคาร\n• QR PromptPay\n• บัตรเครดิต (+3.50%)\n• E-Wallet (+2.95%)\n• Wise\n\nQR PromptPay / บัตรเครดิต / E-Wallet จะส่ง Payment Link ให้ชำระเมื่อของถึงปลายทาง');
+  assert.match(balance.aEn, /• Credit Card \(\+3\.50%\)/);
+  assert.equal(ctx.normalizeFaq(list).filter((f) => f.kind === 'balance-payment').length, 1, 'normalising again adds no second copy');
 });

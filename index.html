@@ -2072,7 +2072,7 @@ body{background:#f7f8fa}
 ## การเปิดเผยและผู้ให้บริการ
 AJ เปิดเผยเฉพาะข้อมูลเท่าที่จำเป็นแก่ผู้ให้บริการที่เกี่ยวข้อง ได้แก่ ผู้ให้บริการรับชำระเงิน ธนาคาร ผู้ให้บริการขนส่ง ระบบจัดเก็บเอกสารและตารางข้อมูลของ Google และช่องทางแจ้งเตือนทาง LINE, WhatsApp และอีเมล รวมถึงที่ปรึกษาหรือหน่วยงานที่มีอำนาจเมื่อกฎหมายกำหนด
 ## ข้อมูลการชำระเงิน
-การชำระเงินดำเนินการโดยผู้ให้บริการรับชำระเงิน ลูกค้ากรอกข้อมูลบัตรเครดิตหรือ E-Wallet ในหน้าของผู้ให้บริการโดยตรง AJ ไม่ได้จัดเก็บหมายเลขบัตรหรือข้อมูล E-Wallet ไว้ในระบบ และเก็บเฉพาะผลการชำระเงิน เช่น สถานะ ยอดเงิน ช่องทาง เวลา รหัสอ้างอิง และสลิปที่ลูกค้าส่งมา
+การชำระเงินดำเนินการโดยผู้ให้บริการรับชำระเงิน ลูกค้ากรอกข้อมูลบัตรเครดิตหรือ E-Wallet ในหน้าของผู้ให้บริการโดยตรง AJ ไม่ได้จัดเก็บหมายเลขบัตรเครดิตหรือข้อมูล E-Wallet ไว้ในระบบ และเก็บเฉพาะผลการชำระเงิน เช่น สถานะ ยอดเงิน ช่องทาง เวลา รหัสอ้างอิง และสลิปที่ลูกค้าส่งมา
 ## ระยะเวลาการเก็บรักษา
 สำเนาบัตรประชาชน Passport และรูปยืนยันตัวตนเก็บไว้ไม่เกิน 1 ปีนับจากวันคืนอุปกรณ์ เท่ากับอายุข้อตกลงหลัก เพื่อให้ลูกค้าเดิมไม่ต้องยืนยันตัวตนใหม่ในการเช่าครั้งถัดไป ทั้งนี้สิทธิดังกล่าวใช้ได้ตราบใดที่บัตรประชาชนหรือ Passport ยังไม่หมดอายุ หากเอกสารหมดอายุ ต้องทำข้อตกลงหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้งก่อนการเช่าครั้งถัดไป เมื่อพ้นกำหนดข้อมูลจะถูกลบหรือทำลาย เว้นแต่มีข้อพิพาท คดีความ หรือหน้าที่ตามกฎหมายที่ต้องเก็บนานกว่านั้น
 ## สิทธิและความปลอดภัย
@@ -2096,7 +2096,7 @@ AJ เปิดเผยเฉพาะข้อมูลเท่าที่�
 ## Disclosures and service providers
 AJ shares only what is necessary with the providers involved: the payment provider, banks, delivery providers, Google's document and spreadsheet services, and notifications through LINE, WhatsApp and email, as well as advisers or authorities where the law requires it.
 ## Payment information
-Payments are processed by AJ's payment provider, and card or e-wallet details are entered on the provider's own page. AJ does not store your card number or e-wallet credentials; it keeps only the outcome of a payment — status, amount, method, time, reference and any slip you send.
+Payments are processed by AJ's payment provider, and credit card or e-wallet details are entered on the provider's own page. AJ does not store your credit card number or e-wallet credentials; it keeps only the outcome of a payment — status, amount, method, time, reference and any slip you send.
 ## Retention
 Copies of Thai IDs, passports and identity images are kept for no longer than one year from the return date, the same period as the master agreement, so a returning customer does not verify identity again. That applies only while the Thai ID or passport itself is valid: once the document expires, a new Master Agreement and renewed identity verification are required before the next rental. After the retention period the images are deleted or destroyed, unless a dispute, legal proceeding or legal obligation requires longer.
 ## Your rights and security
@@ -2231,6 +2231,22 @@ You may ask to access, correct, object to, restrict or delete your data, or with
     aTh:"ทางร้านจะเป็นฝ่ายเรียกรถจัดส่งให้ทั้งขาส่งไปและขารับคืนเครื่อง ผู้เช่าเพียงรอรับและส่งคืนเครื่องให้กับคนขับเท่านั้น",
     qEn:"How are the console delivery and return arranged?",
     aEn:"AJ arranges the driver for both delivery and return. The renter only needs to receive the console and hand it back to the driver."
+  };
+  // The reservation and how the rest is paid (owner, 04/11/2026). Built in, so
+  // they replace the copy saved in site content and stay current there.
+  const RESERVATION_FAQ = {
+    kind:"reservation",
+    qTh:"ต้องโอนจองไหม?",
+    aTh:"ค่าจองล็อกคิว: 200 บาท (โอนธนาคาร) หรือ สำหรับต่างชาติ 1,000 บาท (บัตรเครดิต/E-Wallet ไม่มีค่าธรรมเนียม)",
+    qEn:"Do I need to pay to reserve?",
+    aEn:"Queue reservation: ฿200 (bank transfer), or for international customers ฿1,000 (Credit Card/E-Wallet, no fee)."
+  };
+  const BALANCE_PAYMENT_FAQ = {
+    kind:"balance-payment",
+    qTh:"ชำระส่วนที่เหลืออย่างไร?",
+    aTh:"ส่วนที่เหลือชำระตอนรับสินค้า หรือชำระเต็มล่วงหน้าได้\n\nช่องทางที่รองรับ\n• โอนธนาคาร\n• QR PromptPay\n• บัตรเครดิต (+3.50%)\n• E-Wallet (+2.95%)\n• Wise\n\nQR PromptPay / บัตรเครดิต / E-Wallet จะส่ง Payment Link ให้ชำระเมื่อของถึงปลายทาง",
+    qEn:"How do I pay the balance?",
+    aEn:"Pay the balance when you receive the console, or pay in full in advance.\n\nPayment methods\n• Bank transfer\n• QR PromptPay\n• Credit Card (+3.50%)\n• E-Wallet (+2.95%)\n• Wise\n\nFor QR PromptPay, Credit Card and E-Wallet, we send a Payment Link to pay when the console arrives."
   };
   const NO_CONTRACT_FAQ = {
     kind:"noContractTerms",
@@ -2613,7 +2629,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       guideTitle:"Next step", guideConsole:"Choose console", guideStart:"Choose start date", guideEnd:"Choose return date", guideAccessory:"Choose accessories if needed, or skip.", guidePs5Bundle:"Choose a PS5 bundle if needed.", guideNextStep:"Go to the next step.", guideBg:"Add a board game bundle if needed.", guideRet:"Have you rented with us before?", guideContractChoice:"Would you like to verify your identity?", guideContractLink:"Open the identity verification link, or verify later.", guidePayment:"Choose payment option.", guideMaps:"Paste your Google Maps link for delivery check.", guideGames:"Pick games from the catalog, or send later.", guideShare:"Check the rental details above, then book through your preferred channel.", guideCopy:"Copy booking message", guideLine:"Book via LINE", guideWa:"Book via WhatsApp", guideMessenger:"Book via Messenger",
       guideDoContract:"Verify identity", guideNoContract:"No identity verification", guideLater:"Later", guideSkip:"Skip", guideGameLater:"Choose later", guideNext:"Next", guideRetYes:"Yes", guideRetNo:"No",
       pickGames:"Choose / Edit games", sendLater:"Send game list later", clearGames:"Clear games", noGameList:"This model has no game catalog in the system.",
-      summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Total before delivery", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", fullPaymentConfirm:"Full payment (to confirm booking)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat", paymentFee:"Payment fee", cardDeposit:"Card / E-Wallet / Thai QR reservation (no fee)", paymentLink:"Payment link", finalActionHelp:"Review the details, then book via the same chat channel to send them to AJ.",
+      summaryTitle:"Rental Summary", summaryEmpty:"Choose a console and dates to see summary.", rental:"Rental", discount:"Discount", promo:"Promotion", total:"Total", grandTotal:"Total before delivery", upfront:"Transfer before delivery", upfrontConfirm:"Transfer before delivery (booking confirmation)", fullPaymentConfirm:"Full payment (to confirm booking)", onDelivery:"Pay on delivery", payOnDelivery:"Pay on delivery", delivery:"Delivery cost via chat", paymentFee:"Payment fee", cardDeposit:"Credit Card / E-Wallet / Thai QR reservation (no fee)", paymentLink:"Payment link", finalActionHelp:"Review the details, then book via the same chat channel to send them to AJ.",
       returningDiscount:"Returning customer 10% discount", consoleDiscount:"Console discount", boardGameDiscount:"Board game discount", boardGameDeposit:"Board game deposit", rentalDays:"Rental days", boardGameRental:"Board game rental", boardGameList:"Board game list",
       equipmentDetails:"Equipment details", selectedGamesHeading:"Selected games", noSelectedGames:"No games selected", payResumeEdit:"Edit", payResumeEditDetails:"Edit details", payResumeEditHelp:"Need to change anything? Use the blue Edit button under the relevant section before paying.", payResumeSaveSuccess:"Changes saved and updated for AJ", payResumeSaveFailed:"Changes could not be saved. Please try again.", payResumeRentalEditTitle:"Edit equipment and games", players:"Players", playTime:"Play time", age:"Recommended age", packageRental:"Package rental", oneDay:"1 day", threeDays:"3 days", sevenDays:"7 days", howToPlay:"Quick how to play", noContractDepositNote:"Deposit (no identity verification)", noContractLabel:"No identity verification", standardTier:"Standard tier", planning:"Planning", recommendedChannel:"Recommended", identityUpgradeUnavailable:"The booking is still being saved. Please try verification again shortly; your photos and signature are still here. No payment or agreement was submitted.", identityUpgradePaymentNext:"Identity verified. Your deposit has been reduced; choose a payment method below. The agreement PDF follows payment.",
       copy:"📋 Copy booking message", line:"Book via LINE", whatsapp:"Book via WhatsApp", messenger:"Book via Messenger", copied:"Copied", minDays:"Minimum 3 days", busy:"The console may be unavailable in this range.", available:"This range passed queue check.", checking:"Checking queue...", checkingAgain:"Checking the queue again...", queueCheckingCell:"Checking", queueError:"Unable to check the queue. Please try again.", retryQueue:"Retry queue check", queueRetryCell:"Retry check", queueClosed:"Queue closed during this period", bookingHold:"1 customer is completing this booking. Check again in {minutes} minutes.", bookingHoldCell:"In progress · retry in {minutes} min", bookingHoldLost:"Another customer is booking this console. Check again in {minutes} minutes.", stepNeedConsole:"Choose a console to start the queue check.", stepNeedStart:"Choose the rental start date.", stepNeedEnd:"Choose the return date.", stepNeedMinDays:"Choose a rental period of at least 3 days.", stepQueueChecking:"Checking the queue. Please wait a moment.", stepQueueUnavailable:"The selected dates are not ready to book.", stepReadyDates:"Console and dates are ready. You can continue.", stepNeedGames:"Choose games or select Send game list later.", stepReadyGames:"Game selection is ready. You can continue.", stepReadyReview:"Review payment, contract and map options, then continue to the summary.",
@@ -4167,8 +4183,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(faq.kind === NO_CONTRACT_FAQ.kind || matches(faq, /^(ไม่ทำสัญญาการเช่าได้ไหม|เช่าโดยไม่ยืนยันตัวตนได้ไหม)/, /^(Can I rent without signing a rental agreement|Can I rent without identity verification)/i)) return {...NO_CONTRACT_FAQ};
       if(matches(faq, /^ต้องทำสัญญาไหม/, /^Is a rental contract required/i)) return {...DEFAULT_FAQ[3]};
       if(matches(faq, /^(อายุไม่ถึง|อายุต่ำกว่า)\s*20\s*ปี/, /(?:under|younger than|at least)\s*20|minimum age/i)) return {...AGE_FAQ};
+      if(faq.kind === RESERVATION_FAQ.kind || matches(faq, /^ต้องโอนจองไหม/, /^Do I (?:need|have) to (?:pay|transfer)[^?]*(?:reserv|book)/i)) return {...RESERVATION_FAQ};
+      if(faq.kind === BALANCE_PAYMENT_FAQ.kind || matches(faq, /^ชำระส่วนที่เหลืออย่างไร/, /^How do I pay the balance/i)) return {...BALANCE_PAYMENT_FAQ};
       return faq;
     });
+    // "How do I pay the balance?" right under "Do I need to pay to reserve?".
+    normalized = normalized.filter(faq => faq.kind !== BALANCE_PAYMENT_FAQ.kind);
+    const reservationIndex = normalized.findIndex(faq => faq.kind === RESERVATION_FAQ.kind);
+    normalized.splice(reservationIndex >= 0 ? reservationIndex + 1 : normalized.length, 0, {...BALANCE_PAYMENT_FAQ});
     if(!normalized.some(faq => matches(faq, /^(อายุไม่ถึง|อายุต่ำกว่า)\s*20\s*ปี/, /(?:under|younger than|at least)\s*20|minimum age/i))){
       normalized.unshift({...AGE_FAQ});
     }
@@ -7346,8 +7368,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const en = state.lang === "en";
     const row = (label, value, cls = "") => `<div class="demo-order-row ${cls}"><span>${label}</span><b>${value}</b></div>`;
     const methodNote = method === "cash"
-      ? (en ? ["Reservation now by card, E-Wallet or Thai QR scan, no fee.", "Balance on delivery: Thai QR scan with no fee, or card +3.50% / E-Wallet +2.95% on that balance."]
-            : ["ค่าจองคิวชำระตอนนี้ด้วยเงินโอน บัตร หรือ E-Wallet ไม่มีค่าธรรมเนียม", "ยอดที่เหลือชำระตอนรับเครื่อง: เงินโอนไม่มีค่าธรรมเนียม หรือบัตร +3.50% / E-Wallet +2.95% ของยอดที่เหลือ"])
+      ? (en ? ["Reservation now by Credit Card, E-Wallet or Thai QR scan, no fee.", "Balance on delivery: Thai QR scan with no fee, or Credit Card +3.50% / E-Wallet +2.95% on that balance."]
+            : ["ค่าจองคิวชำระตอนนี้ด้วยเงินโอน บัตรเครดิต หรือ E-Wallet ไม่มีค่าธรรมเนียม", "ยอดที่เหลือชำระตอนรับเครื่อง: เงินโอนไม่มีค่าธรรมเนียม หรือบัตรเครดิต +3.50% / E-Wallet +2.95% ของยอดที่เหลือ"])
       : method === "credit"
         ? (en ? "Paid in full now by credit card, including the 3.50% fee. Nothing to pay on delivery." : "ชำระเต็มจำนวนตอนนี้ด้วยบัตรเครดิต รวมค่าธรรมเนียม 3.50% แล้ว ไม่มียอดชำระตอนรับเครื่อง")
         : method === "ewallet"
@@ -7905,13 +7927,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return `<span class="summary-list">${list.map(esc).map(x => `<span>${x}</span>`).join("")}</span>`;
   }
   function paymentOptionLabelEn(){
-    return {cash:"💵 Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee); pay the balance on delivery", bank:"🏦 Thai Bank Transfer: pay full amount", wise:"🌍 Wise: pay full amount", credit:tr("credit"), ewallet:tr("ewallet")}[state.calc.payment] || tr("cash");
+    return {cash:"💵 Pay ฿1,000 by Credit Card, E-Wallet or Thai QR scan to reserve (no fee); pay the balance on delivery", bank:"🏦 Thai Bank Transfer: pay full amount", wise:"🌍 Wise: pay full amount", credit:tr("credit"), ewallet:tr("ewallet")}[state.calc.payment] || tr("cash");
   }
   function paymentOptionLabelTh(){
     return {cash:tr("cash"), bank:tr("bank"), credit:tr("credit"), ewallet:tr("ewallet")}[state.calc.payment] || tr("cash");
   }
   function paymentOptionMessageLabelEn(){
-    if(state.calc.payment === "cash") return "Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee) + balance on delivery";
+    if(state.calc.payment === "cash") return "Pay ฿1,000 by Credit Card, E-Wallet or Thai QR scan to reserve (no fee) + balance on delivery";
     if(state.calc.payment === "bank") return "Thai Bank Transfer: pay full amount before delivery (no fee)";
     if(state.calc.payment === "credit") return "Credit Card: pay full amount before delivery (+3.50% fee)";
     if(state.calc.payment === "ewallet") return "E-Wallet: pay full amount before delivery (+2.95%)";
@@ -7968,7 +7990,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // "E-Wallet" is kept whole so a phone never breaks it after "E-", and the
     // Thai amount stays on the same line as the words before it.
     const reservationTitle = en
-      ? `Pay ฿1,000 by card, <span class="nowrap">E-Wallet</span> or Thai QR scan to reserve (no fee)`
+      ? `Pay ฿1,000 by Credit Card, <span class="nowrap">E-Wallet</span> or Thai QR scan to reserve (no fee)`
       : `ชำระปลายทาง <span class="nowrap">(โอนจองคิว ฿200)</span>`;
     const fullPaymentTitle = en ? "Pay the full amount before delivery" : "ชำระเต็มจำนวนก่อนจัดส่ง";
     const recommended = en ? "Recommended" : "แนะนำ";
@@ -8020,13 +8042,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ? "💵 Balance on delivery"
       : `💸 ชำระค่าจอง ${money(CONFIG.reservationAmount)} และที่เหลือปลายทาง`;
     const firstLine = state.lang === "en" ? "Thai QR scan (no fee)" : "เงินโอน (ไม่มีค่าธรรมเนียม)";
-    const secondLine = state.lang === "en" ? "Card (+3.50%) or E-Wallet (+2.95%)" : "บัตร (+3.50%) หรือ E-Wallet (+2.95%)";
+    const secondLine = state.lang === "en" ? "Credit Card (+3.50%) or E-Wallet (+2.95%)" : "บัตรเครดิต (+3.50%) หรือ E-Wallet (+2.95%)";
     return `<span class="payment-option-copy"><span>${title}</span><small>${firstLine}</small><small>${secondLine}</small>${paymentReservationBadgesHtml()}${paymentRefundNoteHtml()}</span>`;
   }
   function paymentRefundNoteHtml(){
     const text = state.lang === "en"
       ? "Deposit refund: Wise (1–3 business days) or Thai bank transfer, if available."
-      : "หากชำระด้วยบัตร/E-Wallet คืนค่าประกันเป็นเงินโอนเท่านั้น";
+      : "หากชำระด้วยบัตรเครดิต/E-Wallet คืนค่าประกันเป็นเงินโอนเท่านั้น";
     const note = `<small class="payment-option-note">${text}</small>`;
     if(state.lang !== "en") return note;
     const links = DEPOSIT_REFUND_HELP_LINKS
@@ -8080,7 +8102,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // go out as " - AJ-…", with nothing before the Rental ID.
   function paymentLinkLabel(){
     const en = state.lang === "en";
-    if(state.calc.payment === "cash") return en ? "Reservation by Card, E-Wallet or Thai QR scan" : "ค่าจองคิว";
+    if(state.calc.payment === "cash") return en ? "Reservation by Credit Card, E-Wallet or Thai QR scan" : "ค่าจองคิว";
     if(state.calc.payment === "credit") return en ? "Full payment by Credit Card" : "ชำระเต็มจำนวนด้วยบัตรเครดิต";
     if(state.calc.payment === "ewallet") return en ? "Full payment by E-Wallet" : "ชำระเต็มจำนวนด้วย E-Wallet";
     if(state.calc.payment === "bank") return en ? "Full payment by Thai QR scan" : "ชำระเต็มจำนวนด้วยการสแกน QR";
@@ -10013,7 +10035,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       "",
       ...(s.onDelivery > 0 ? [
         `🚚 ${payOnDeliveryLabel()}: ${money(s.onDelivery)}`,
-        "** เงินโอน (ไม่มีค่าธรรมเนียม), บัตร (+3.50%) หรือ E-Wallet (+2.95%) **"
+        "** เงินโอน (ไม่มีค่าธรรมเนียม), บัตรเครดิต (+3.50%) หรือ E-Wallet (+2.95%) **"
       ] : [])
     ] : [
       `💳 ช่องทางชำระ: ${paymentOptionTh}`,
@@ -10023,11 +10045,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ...(s.onDelivery > 0 ? [`🚚 ${payOnDeliveryLabel()}: ${money(s.onDelivery)}`] : [])
     ];
     const paymentSummaryLinesEn = isCashPayment ? [
-      "💳 Payment option: Pay ฿1,000 by card, E-Wallet or Thai QR scan to reserve (no fee)",
+      "💳 Payment option: Pay ฿1,000 by Credit Card, E-Wallet or Thai QR scan to reserve (no fee)",
       ...paymentLinkLinesEn,
       ...(s.onDelivery > 0 ? [
         `🚚 Pay on delivery: ${money(s.onDelivery)}`,
-        "** Thai QR Scan (no fee), Card (+3.50%) or E-Wallet (+2.95%) **"
+        "** Thai QR Scan (no fee), Credit Card (+3.50%) or E-Wallet (+2.95%) **"
       ] : [])
     ] : [
       `💳 Payment option: ${paymentOptionEn}`,
