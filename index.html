@@ -474,8 +474,26 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .all-consoles-date-filter{position:relative;display:inline-flex;align-items:center;gap:6px;overflow:hidden}
 .all-consoles-date-filter svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
 .all-consoles-date-filter[aria-pressed="true"]{background:#138047;color:#fff}
-.all-consoles-date-filter input,.before-rent-date-pick input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;margin:0;cursor:pointer;font-size:16px}
-.all-consoles-date-filter:focus-within,.before-rent-date-pick:focus-within{outline:3px solid #86efac;outline-offset:2px}
+.all-consoles-date-filter:focus-visible,.before-rent-date-pick:focus-visible{outline:3px solid #86efac;outline-offset:2px}
+.avail-cal-layer{position:fixed;inset:0;z-index:560;background:rgba(16,24,40,.18)}
+.avail-cal-layer[hidden]{display:none}
+.avail-cal{position:fixed;box-sizing:border-box;background:#fff;border:1px solid #d0d5dd;border-radius:18px;box-shadow:0 18px 48px rgba(16,24,40,.24);padding:12px 12px 10px;color:#172033}
+.avail-cal-head{display:flex;align-items:center;gap:6px}
+.avail-cal-title{flex:1;margin:0;font-size:16px;font-weight:900;text-align:center}
+.avail-cal-move{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border:1px solid #d0d5dd;border-radius:999px;background:#fff;color:#116b3b;font-size:20px;font-weight:900;line-height:1;cursor:pointer}
+.avail-cal-move:disabled{opacity:.3;cursor:default}
+.avail-cal-hint{margin:6px 2px 8px;font-size:12px;line-height:1.45;color:#667085;text-align:center}
+.avail-cal-week,.avail-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.avail-cal-week span{padding:3px 0;font-size:11.5px;font-weight:800;color:#667085;text-align:center}
+.avail-cal-day{height:40px;border:0;border-radius:999px;background:none;color:#172033;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.avail-cal-day:hover:not(:disabled){background:#edf9f1}
+.avail-cal-day.is-today{color:#116b3b;box-shadow:inset 0 0 0 1.5px #16834a}
+.avail-cal-day.is-picked{background:#16834a;color:#fff;box-shadow:none}
+.avail-cal-day:disabled{color:#c4c9d2;cursor:default}
+.avail-cal-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+.avail-cal-foot button{min-height:36px;padding:0 14px;border:1px solid #d0d5dd;border-radius:999px;background:#fff;color:#344054;font-size:14px;font-weight:800;cursor:pointer}
+.avail-cal-foot [data-avail-clear]{margin-right:auto;color:#b42318;border-color:#fecdca}
+.avail-cal-day:focus-visible,.avail-cal-move:focus-visible,.avail-cal-foot button:focus-visible{outline:3px solid #86efac;outline-offset:1px}
 .all-consoles-date-clear{width:32px;height:32px;border:1px solid #d0d5dd;border-radius:999px;background:#fff;color:#344054;font-size:18px;font-weight:800;line-height:1;cursor:pointer}
 .console-name-row{min-width:0}
 .console-name-row .con-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1803,7 +1821,7 @@ body{background:#f7f8fa}
         <div class="all-consoles-filter-row all-consoles-collapsible"><button class="all-consoles-filter-summary" id="allConsolesTypeToggle" type="button" data-all-console-filter-toggle="type" aria-controls="allConsolesTypeTabs"><strong id="allConsolesTypeLabel"></strong><span class="all-consoles-filter-current" id="allConsolesTypeCurrent"></span></button><div class="tabs all-consoles-filter-options" id="allConsolesTypeTabs"></div></div>
         <div class="all-consoles-filter-row all-consoles-collapsible"><button class="all-consoles-filter-summary" id="allConsolesBrandToggle" type="button" data-all-console-filter-toggle="brand" aria-controls="allConsolesBrandTabs"><strong id="allConsolesBrandLabel"></strong><span class="all-consoles-filter-current" id="allConsolesBrandCurrent"></span></button><div class="tabs all-consoles-filter-options" id="allConsolesBrandTabs"></div></div>
         <div class="all-consoles-filter-row all-consoles-sort-row"><strong id="allConsolesSortLabel"></strong><select class="select" id="allConsolesSort"></select></div>
-        <div class="all-consoles-avail-row"><button class="all-consoles-today-filter" id="allConsolesTodayFilter" type="button" aria-pressed="false"></button><span class="all-consoles-date-wrap"><label class="all-consoles-today-filter all-consoles-date-filter" id="allConsolesDateFilter" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.8" y="5.2" width="16.4" height="15" rx="2.2"/><path d="M3.8 9.8h16.4M8.2 3.4v3.6M15.8 3.4v3.6"/></svg><span id="allConsolesDateLabel"></span><input type="date" id="allConsolesDateInput"></label><button class="all-consoles-date-clear" id="allConsolesDateClear" type="button" hidden>×</button></span></div>
+        <div class="all-consoles-avail-row"><button class="all-consoles-today-filter" id="allConsolesTodayFilter" type="button" aria-pressed="false"></button><span class="all-consoles-date-wrap"><button class="all-consoles-today-filter all-consoles-date-filter" id="allConsolesDateFilter" type="button" aria-pressed="false" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.8" y="5.2" width="16.4" height="15" rx="2.2"/><path d="M3.8 9.8h16.4M8.2 3.4v3.6M15.8 3.4v3.6"/></svg><span id="allConsolesDateLabel"></span></button><button class="all-consoles-date-clear" id="allConsolesDateClear" type="button" hidden>×</button></span></div>
       </div>
       <div class="all-consoles-list" id="allConsolesList"></div>
     </div>
@@ -2381,6 +2399,10 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       availableDateChip:"ว่าง {date}",
       availableDateEmpty:"ไม่พบเครื่องที่ว่างให้เช่าได้ตั้งแต่ {date} (เช่าได้ 3 วันขึ้นไป)",
       availableDateClear:"ล้างวันที่",
+      availableDateCalHint:"แตะวันเริ่มเช่า · แสดงเฉพาะเครื่องที่ว่างเช่าได้ 3 วันขึ้นไป",
+      availableDateCalClose:"ปิด",
+      availableDatePrevMonth:"เดือนก่อน",
+      availableDateNextMonth:"เดือนถัดไป",
       beforeRentSeeAll:"ดูเครื่องเกมทั้งหมด",
       allConsolesTitle:"เครื่องเกมที่มีให้เช่าทั้งหมด",
       allConsolesSubtitle:"{n} เครื่อง · เลือกเครื่องเพื่อเช็คคิวและเริ่มจอง",
@@ -2557,6 +2579,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       availableDateChip:"Free {date}",
       availableDateEmpty:"No consoles free to rent from {date} (3 days or more)",
       availableDateClear:"Clear date",
+      availableDateCalHint:"Tap a start date. Only consoles free for 3 days or more from that day are shown.",
+      availableDateCalClose:"Close",
+      availableDatePrevMonth:"Previous month",
+      availableDateNextMonth:"Next month",
       beforeRentSeeAll:"View all game consoles",
       allConsolesTitle:"All game consoles available for rent",
       allConsolesSubtitle:"{n} consoles · Choose one to check availability and book",
@@ -4582,32 +4608,24 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // its two lines on a phone. With a date picked the chip reads "ว่าง 07/11".
   function beforeRentAvailabilityChips(){
     const picked = state.beforeRentDate;
-    const bounds = availabilityDateBounds();
     const label = picked ? tr("availableDateChip").replace("{date}", shortDate(picked)) : tr("availableTodayFilter");
     return `<span class="before-rent-avail-group">`
       + `<button class="before-rent-typechip before-rent-today-filter" type="button" data-before-today aria-pressed="${Boolean(picked) || state.beforeRentTodayOnly}"${picked ? ` aria-label="${esc(`${label} · ${tr("availableDateClear")}`)}"` : ""}>${esc(label)}</button>`
-      + `<label class="before-rent-typechip before-rent-date-pick" title="${esc(tr("availableDatePick"))}">${icon("calendar")}<span class="sr-only">${esc(tr("availableDatePick"))}</span>`
-      + `<input type="date" data-before-date min="${bounds.min}" max="${bounds.max}" value="${esc(picked || "")}" aria-label="${esc(tr("availableDatePick"))}"></label>`
+      + `<button class="before-rent-typechip before-rent-date-pick" type="button" data-before-date aria-haspopup="dialog" aria-expanded="${availabilityCalendarOpen("before")}" title="${esc(tr("availableDatePick"))}" aria-label="${esc(tr("availableDatePick"))}">${icon("calendar")}</button>`
       + `</span>`;
   }
   function renderBeforeRentTypeFilter(){
     const host = byId("beforeRentTypeFilter");
     if(!host) return;
-    // The list refreshes when the queue data arrives (on load, every minute).
-    // While the customer has the calendar open the chips wait, and are drawn
-    // once it closes — replacing them took the open calendar away with them.
-    const openPicker = host.querySelector("[data-before-date]");
-    if(datePickerOpen(openPicker)){
-      if(!openPicker.dataset.redrawPending){
-        openPicker.dataset.redrawPending = "1";
-        openPicker.addEventListener("aj-picker-closed", renderBeforeRentTypeFilter, {once:true});
-      }
-      return;
-    }
     const available = new Set(state.consoles.filter(item => item.active !== false).map(item => String(item.type || "").toLowerCase()));
     const types = [["all",tr("beforeRentTypeAll")],["console",tr("type_console")],["vr",tr("type_vr")],["handheld",tr("type_handheld")],["racing",tr("type_racing")]]
       .filter(([id]) => id === "all" || available.has(id));
+    // A redraw from new data keeps the keyboard on the chip it was on.
+    const focused = host.contains(document.activeElement) ? document.activeElement : null;
+    const focusKey = !focused ? "" : focused.dataset.beforeType ? `[data-before-type="${focused.dataset.beforeType}"]`
+      : ["data-before-date","data-before-today","data-before-quote"].filter(name => focused.hasAttribute(name)).map(name => `[${name}]`)[0] || "";
     host.innerHTML = types.map(([id,label]) => `<button class="before-rent-typechip ${(state.beforeRentDeviceType||"all")===id?"active":""}" type="button" data-before-type="${esc(id)}" aria-pressed="${(state.beforeRentDeviceType||"all")===id}">${esc(label)}</button>`).join("") + beforeRentAvailabilityChips() + `<button class="before-rent-typechip before-rent-quote-chip" type="button" data-before-quote>${icon("calculator")}<span>${esc(tr("quoteBtn"))}</span></button>`;
+    if(focusKey) host.querySelector(focusKey)?.focus({preventScroll:true});
     host.querySelector("[data-before-quote]")?.addEventListener("click", () => openQuotePopup("before_rent_filters"));
     host.querySelector("[data-before-today]")?.addEventListener("click", () => {
       // With a date picked, this chip shows it and a tap clears it.
@@ -4616,10 +4634,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(state.beforeRentTodayOnly && !hasRecentAvailabilitySnapshot()) fetchAvailability().catch(() => {});
       renderBeforeRentDiscovery();
     });
-    const dateInput = host.querySelector("[data-before-date]");
-    dateInput?.addEventListener("click", () => openDateInput(dateInput));
-    // A date chosen: the calendar is done, so the chips are drawn again with it.
-    trackDatePicker(dateInput, value => applyAvailabilityDate("before", value));
+    // The site's own calendar: it lives outside this row, so the minute's
+    // refresh can redraw the chips underneath without closing it.
+    host.querySelector("[data-before-date]")?.addEventListener("click", () => openAvailabilityCalendar("before"));
     host.querySelectorAll("[data-before-type]").forEach(chip => chip.addEventListener("click", () => {
       state.beforeRentDeviceType = chip.dataset.beforeType;
       renderBeforeRentDiscovery();
@@ -4661,16 +4678,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("allConsolesTodayFilter").textContent = tr("availableTodayFilter");
     byId("allConsolesTodayFilter").setAttribute("aria-pressed", String(state.allConsolesTodayOnly));
     const allDate = state.allConsolesDate;
-    const allBounds = availabilityDateBounds();
     byId("allConsolesDateFilter").setAttribute("aria-pressed", String(Boolean(allDate)));
     byId("allConsolesDateLabel").textContent = allDate ? tr("availableDateChip").replace("{date}", displayDate(allDate)) : tr("availableDateFilter");
-    // Left alone while its calendar is open, so a refresh cannot close it.
-    if(!datePickerOpen(byId("allConsolesDateInput"))){
-      byId("allConsolesDateInput").min = allBounds.min;
-      byId("allConsolesDateInput").max = allBounds.max;
-      byId("allConsolesDateInput").value = allDate || "";
-    }
-    byId("allConsolesDateInput").setAttribute("aria-label", tr("availableDatePick"));
+    byId("allConsolesDateFilter").setAttribute("aria-expanded", String(availabilityCalendarOpen("all")));
+    byId("allConsolesDateFilter").title = tr("availableDatePick");
     byId("allConsolesDateClear").hidden = !allDate;
     byId("allConsolesDateClear").setAttribute("aria-label", tr("availableDateClear"));
     const selectedType = types.find(([id]) => id === filter.type)?.[1] || tr("all");
@@ -8716,32 +8727,136 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(scope === "all") renderAllConsolesModal(); else renderBeforeRentDiscovery();
   }
   /**
-   * Open the native date picker of an input laid over a chip — with a mouse
-   * only. A phone (iPhone, Android) opens it from the tap itself, and asking
-   * again there closed the picker a moment after it appeared.
+   * "เช็คคิวว่างวันที่" picks its day on the site's own month calendar, not the
+   * phone's. An iPhone puts today into an empty date input the moment its
+   * picker opens and reports that as a pick: the list redrew for "available
+   * today" and the open picker went with it, a second after it appeared
+   * (04/11/2026, even after the redraw was held back). This calendar sits
+   * outside the lists, so the refresh every minute cannot close it, and it
+   * looks and behaves the same on iPhone, Android and a computer.
    */
-  function openDateInput(input){
-    if(!window.matchMedia?.("(hover: hover) and (pointer: fine)").matches) return;
-    try{ input.showPicker?.(); }catch{}
+  const availCal = {scope:"", month:null};
+  const AVAIL_CAL_WEEK = {th:["อา","จ","อ","พ","พฤ","ศ","ส"], en:["Su","Mo","Tu","We","Th","Fr","Sa"]};
+  function availabilityCalendarOpen(scope){ return Boolean(byId("availCalLayer") && !byId("availCalLayer").hidden && availCal.scope === scope); }
+  function availabilityCalendarAnchor(){
+    return availCal.scope === "all" ? byId("allConsolesDateFilter") : byId("beforeRentTypeFilter")?.querySelector("[data-before-date]");
   }
-  /** A date picker is open on this input: redrawing it now would close the picker. */
-  function datePickerOpen(input){ return Boolean(input && input.dataset.pickerOpen === "1"); }
-  /**
-   * Mark the picker open from its first touch until a date is chosen or it is
-   * closed; `whenClosed` runs then (a redraw that waited for it).
-   */
-  function trackDatePicker(input, onChange){
-    if(!input) return;
-    const open = () => { input.dataset.pickerOpen = "1"; };
-    const close = () => {
-      if(input.dataset.pickerOpen !== "1") return;
-      delete input.dataset.pickerOpen;
-      if(input.dataset.redrawPending){ delete input.dataset.redrawPending; setTimeout(() => input.dispatchEvent(new CustomEvent("aj-picker-closed")), 0); }
-    };
-    input.addEventListener("pointerdown", open);
-    input.addEventListener("focus", open);
-    input.addEventListener("blur", close);
-    input.addEventListener("change", () => { delete input.dataset.pickerOpen; delete input.dataset.redrawPending; input.blur(); onChange(input.value); });
+  function openAvailabilityCalendar(scope){
+    const bounds = availabilityDateBounds();
+    const picked = scope === "all" ? state.allConsolesDate : state.beforeRentDate;
+    const start = parseDate(picked) || parseDate(bounds.min) || parseDate(todayIso());
+    availCal.scope = scope;
+    availCal.month = new Date(start.getFullYear(), start.getMonth(), 1);
+    let layer = byId("availCalLayer");
+    if(!layer){
+      document.body.insertAdjacentHTML("beforeend", `<div class="avail-cal-layer" id="availCalLayer" hidden><div class="avail-cal" id="availCal" role="dialog" aria-modal="true" aria-labelledby="availCalTitle"></div></div>`);
+      layer = byId("availCalLayer");
+      layer.addEventListener("click", event => { if(event.target === layer) closeAvailabilityCalendar(); });
+      byId("availCal").addEventListener("click", onAvailabilityCalendarClick);
+      byId("availCal").addEventListener("keydown", onAvailabilityCalendarKey);
+      document.addEventListener("keydown", event => {
+        if(event.key !== "Escape" || layer.hidden) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        closeAvailabilityCalendar({focusChip:true});
+      }, true);
+      window.addEventListener("resize", placeAvailabilityCalendar);
+      // Capture: the full list scrolls inside its own modal.
+      window.addEventListener("scroll", placeAvailabilityCalendar, {passive:true, capture:true});
+    }
+    layer.hidden = false;
+    renderAvailabilityCalendar();
+    availabilityCalendarAnchor()?.setAttribute("aria-expanded", "true");
+    const box = byId("availCal");
+    (box.querySelector(".is-picked:not(:disabled)") || box.querySelector("[data-avail-day]:not(:disabled)"))?.focus({preventScroll:true});
+    trackAnalytics("before_rent_action_clicked", {value: scope === "all" ? "available_date_all_open" : "available_date_open"});
+  }
+  function closeAvailabilityCalendar({focusChip=false}={}){
+    const layer = byId("availCalLayer");
+    if(!layer || layer.hidden) return;
+    layer.hidden = true;
+    const anchor = availabilityCalendarAnchor();
+    anchor?.setAttribute("aria-expanded", "false");
+    if(focusChip) anchor?.focus({preventScroll:true});
+  }
+  function renderAvailabilityCalendar(){
+    const box = byId("availCal");
+    if(!box) return;
+    const lang = state.lang === "en" ? "en" : "th";
+    const bounds = availabilityDateBounds();
+    const min = parseDate(bounds.min), max = parseDate(bounds.max);
+    const picked = availCal.scope === "all" ? state.allConsolesDate : state.beforeRentDate;
+    const today = todayIso();
+    const month = availCal.month;
+    const locale = lang === "en" ? "en-GB" : "th-TH";
+    const days = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+    const canBack = !min || month > new Date(min.getFullYear(), min.getMonth(), 1);
+    const canForward = !max || month < new Date(max.getFullYear(), max.getMonth(), 1);
+    let cells = "<span></span>".repeat(month.getDay());
+    for(let d = 1; d <= days; d++){
+      const date = new Date(month.getFullYear(), month.getMonth(), d);
+      const iso = fmtIso(date);
+      const off = (min && date < min) || (max && date > max);
+      const cls = ["avail-cal-day", iso === today ? "is-today" : "", iso === picked ? "is-picked" : ""].filter(Boolean).join(" ");
+      const name = date.toLocaleDateString(locale, {weekday:"long", day:"numeric", month:"long", year:"numeric"});
+      cells += `<button class="${cls}" type="button" data-avail-day="${iso}" aria-label="${esc(name)}" aria-pressed="${iso === picked}"${off ? " disabled" : ""}>${d}</button>`;
+    }
+    box.innerHTML = `<div class="avail-cal-head">`
+      + `<button class="avail-cal-move" type="button" data-avail-move="-1" aria-label="${esc(tr("availableDatePrevMonth"))}"${canBack ? "" : " disabled"}>‹</button>`
+      + `<h3 class="avail-cal-title" id="availCalTitle" aria-live="polite">${esc(month.toLocaleDateString(locale, {month:"long", year:"numeric"}))}</h3>`
+      + `<button class="avail-cal-move" type="button" data-avail-move="1" aria-label="${esc(tr("availableDateNextMonth"))}"${canForward ? "" : " disabled"}>›</button></div>`
+      + `<p class="avail-cal-hint">${esc(tr("availableDateCalHint"))}</p>`
+      + `<div class="avail-cal-week" aria-hidden="true">${AVAIL_CAL_WEEK[lang].map(day => `<span>${day}</span>`).join("")}</div>`
+      + `<div class="avail-cal-grid">${cells}</div>`
+      + `<div class="avail-cal-foot">${picked ? `<button type="button" data-avail-clear>${esc(tr("availableDateClear"))}</button>` : ""}<button type="button" data-avail-close>${esc(tr("availableDateCalClose"))}</button></div>`;
+    placeAvailabilityCalendar();
+  }
+  /** Under its chip (above it when there is no room), kept on screen. */
+  function placeAvailabilityCalendar(){
+    const layer = byId("availCalLayer"), box = byId("availCal");
+    if(!layer || layer.hidden || !box) return;
+    const vw = document.documentElement.clientWidth || window.innerWidth, vh = window.innerHeight;
+    const width = Math.min(328, vw - 24);
+    box.style.width = `${width}px`;
+    const height = box.offsetHeight;
+    const rect = availabilityCalendarAnchor()?.getBoundingClientRect();
+    let left = (vw - width) / 2, top = Math.max(12, (vh - height) / 2);
+    if(rect && rect.width && rect.bottom > 0 && rect.top < vh){
+      left = Math.min(Math.max(12, rect.left + rect.width / 2 - width / 2), vw - width - 12);
+      top = rect.bottom + 8;
+      if(top + height > vh - 12) top = rect.top - height - 8 >= 12 ? rect.top - height - 8 : Math.max(12, vh - height - 12);
+    }
+    box.style.left = `${Math.round(left)}px`;
+    box.style.top = `${Math.round(top)}px`;
+  }
+  function onAvailabilityCalendarClick(event){
+    const button = event.target.closest("button");
+    if(!button || button.disabled) return;
+    // Enter or Space (no pointer): the keyboard comes back to the chip.
+    const focusChip = event.detail === 0;
+    const scope = availCal.scope;
+    if(button.dataset.availDay || button.hasAttribute("data-avail-clear")){
+      closeAvailabilityCalendar();
+      applyAvailabilityDate(scope, button.dataset.availDay || "");
+      if(focusChip) requestAnimationFrame(() => availabilityCalendarAnchor()?.focus({preventScroll:true}));
+    }else if(button.dataset.availMove){
+      const step = button.dataset.availMove;
+      availCal.month = new Date(availCal.month.getFullYear(), availCal.month.getMonth() + Number(step), 1);
+      renderAvailabilityCalendar();
+      const box = byId("availCal");
+      (box.querySelector(`[data-avail-move="${step}"]:not(:disabled)`) || box.querySelector("[data-avail-move]:not(:disabled)"))?.focus({preventScroll:true});
+    }else if(button.hasAttribute("data-avail-close")){
+      closeAvailabilityCalendar({focusChip});
+    }
+  }
+  /** Arrow keys walk the days of the month on show. */
+  function onAvailabilityCalendarKey(event){
+    const step = {ArrowLeft:-1, ArrowRight:1, ArrowUp:-7, ArrowDown:7}[event.key];
+    const current = event.target.closest?.("[data-avail-day]");
+    if(!step || !current) return;
+    const days = [...byId("availCal").querySelectorAll("[data-avail-day]")];
+    const next = days[days.indexOf(current) + step];
+    if(next && !next.disabled){ event.preventDefault(); next.focus(); }
   }
   function availabilityBadge(status){
     const label = status.kind === "today" ? tr("availableTodayBadge")
@@ -15855,8 +15970,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("allConsolesClose").addEventListener("click", closeAllConsoles);
     byId("allConsolesModal").addEventListener("click", event => { if(event.target === byId("allConsolesModal")) closeAllConsoles(); });
     byId("allConsolesSort").addEventListener("change", event => { state.allConsolesFilter.sort = event.target.value; renderAllConsolesModal(); });
-    byId("allConsolesDateInput").addEventListener("click", () => openDateInput(byId("allConsolesDateInput")));
-    trackDatePicker(byId("allConsolesDateInput"), value => applyAvailabilityDate("all", value));
+    byId("allConsolesDateFilter").addEventListener("click", () => openAvailabilityCalendar("all"));
     byId("allConsolesDateClear").addEventListener("click", () => { state.allConsolesDate = ""; renderAllConsolesModal(); });
     byId("allConsolesTodayFilter").addEventListener("click", () => {
       state.allConsolesDate = "";

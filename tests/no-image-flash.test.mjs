@@ -25,7 +25,7 @@ test('the rails keep one delegated listener and keep their scroll position on a 
   assert.match(page, /function bindBeforeRentDiscoveryClicks\(promoHost, deviceHost\)/);
   assert.match(page, /if\(deviceHost && !deviceHost\.dataset\.clicksBound\)/);
   assert.doesNotMatch(page, /deviceHost\.querySelectorAll\("\[data-before-device\]"\)\.forEach/);
-  assert.match(page, /if\(deviceHost\.dataset\.renderedType !== typeFilter\)/);
+  assert.match(page, /const filterKey = `\$\{typeFilter\}:\$\{state\.beforeRentTodayOnly\}:\$\{state\.beforeRentDate\}`;\n    if\(deviceHost\.dataset\.renderedType !== filterKey\)/);
   assert.match(page, /if\(reviewsFirst\) reviewHost\.scrollLeft = 0;/);
   assert.match(page, /if\(highlightsFirst\) highlightsHost\.scrollLeft = 0;/);
 });
