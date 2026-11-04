@@ -466,6 +466,17 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .all-consoles-today-filter{align-self:flex-start;margin:0 0 2px;padding:8px 12px;border:1px solid #16834a;border-radius:9px;background:#edf9f1;color:#116b3b;font-size:13px;font-weight:900;cursor:pointer}
 .all-consoles-today-filter[aria-pressed="true"]{background:#138047;color:#fff}
 .all-consoles-today-filter:focus-visible,.before-rent-today-filter:focus-visible{outline:3px solid #86efac;outline-offset:2px}
+/* "เช็คคิวว่างวันที่" beside "ว่างวันนี้": a native date picker laid over the chip. */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.all-consoles-avail-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.all-consoles-avail-row .all-consoles-today-filter{align-self:auto;margin:0}
+.all-consoles-date-wrap{position:relative;display:inline-flex;align-items:center;gap:6px}
+.all-consoles-date-filter{position:relative;display:inline-flex;align-items:center;gap:6px;overflow:hidden}
+.all-consoles-date-filter svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.all-consoles-date-filter[aria-pressed="true"]{background:#138047;color:#fff}
+.all-consoles-date-filter input,.before-rent-date-pick input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;margin:0;cursor:pointer;font-size:16px}
+.all-consoles-date-filter:focus-within,.before-rent-date-pick:focus-within{outline:3px solid #86efac;outline-offset:2px}
+.all-consoles-date-clear{width:32px;height:32px;border:1px solid #d0d5dd;border-radius:999px;background:#fff;color:#344054;font-size:18px;font-weight:800;line-height:1;cursor:pointer}
 .console-name-row{min-width:0}
 .console-name-row .con-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .availability-badge{position:absolute;top:6px;right:6px;z-index:1;display:inline-block;max-width:calc(100% - 12px);padding:3px 5px;border-radius:7px;font-size:10px;font-weight:900;line-height:1.2;text-align:center;white-space:nowrap;box-shadow:0 1px 4px rgba(16,24,40,.12)}
@@ -1265,6 +1276,11 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   .before-rent-today-filter{border-color:#16834a;background:#edf9f1;color:#116b3b}
   .before-rent-today-filter:hover{border-color:#0d6b3a;background:#dcf5e5;color:#0d6b3a}
   .before-rent-today-filter[aria-pressed="true"]{border-color:#138047;background:#138047;color:#fff}
+  .before-rent-avail-group{display:inline-flex;align-items:stretch}
+  .before-rent-avail-group .before-rent-today-filter{border-radius:999px 0 0 999px;display:inline-flex;align-items:center;gap:5px}
+  .before-rent-date-pick{position:relative;display:inline-flex;align-items:center;justify-content:center;margin-left:-1px;padding:6px 9px 6px 7px;border-color:#16834a;border-radius:0 999px 999px 0;background:#edf9f1;color:#116b3b;overflow:hidden}
+  .before-rent-date-pick:hover{background:#dcf5e5}
+  .before-rent-date-pick svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .before-rent-note{display:grid;gap:5px;margin:10px 0 0;color:#667085;font-size:11.5px;font-weight:600;line-height:1.55}
   .before-rent-note-row{display:flex;align-items:flex-start;gap:7px}
   .before-rent-note-row .ico{width:14px;height:14px;margin-top:1px;color:#98a2b3}
@@ -1787,7 +1803,7 @@ body{background:#f7f8fa}
         <div class="all-consoles-filter-row all-consoles-collapsible"><button class="all-consoles-filter-summary" id="allConsolesTypeToggle" type="button" data-all-console-filter-toggle="type" aria-controls="allConsolesTypeTabs"><strong id="allConsolesTypeLabel"></strong><span class="all-consoles-filter-current" id="allConsolesTypeCurrent"></span></button><div class="tabs all-consoles-filter-options" id="allConsolesTypeTabs"></div></div>
         <div class="all-consoles-filter-row all-consoles-collapsible"><button class="all-consoles-filter-summary" id="allConsolesBrandToggle" type="button" data-all-console-filter-toggle="brand" aria-controls="allConsolesBrandTabs"><strong id="allConsolesBrandLabel"></strong><span class="all-consoles-filter-current" id="allConsolesBrandCurrent"></span></button><div class="tabs all-consoles-filter-options" id="allConsolesBrandTabs"></div></div>
         <div class="all-consoles-filter-row all-consoles-sort-row"><strong id="allConsolesSortLabel"></strong><select class="select" id="allConsolesSort"></select></div>
-        <button class="all-consoles-today-filter" id="allConsolesTodayFilter" type="button" aria-pressed="false"></button>
+        <div class="all-consoles-avail-row"><button class="all-consoles-today-filter" id="allConsolesTodayFilter" type="button" aria-pressed="false"></button><span class="all-consoles-date-wrap"><label class="all-consoles-today-filter all-consoles-date-filter" id="allConsolesDateFilter" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.8" y="5.2" width="16.4" height="15" rx="2.2"/><path d="M3.8 9.8h16.4M8.2 3.4v3.6M15.8 3.4v3.6"/></svg><span id="allConsolesDateLabel"></span><input type="date" id="allConsolesDateInput"></label><button class="all-consoles-date-clear" id="allConsolesDateClear" type="button" hidden>×</button></span></div>
       </div>
       <div class="all-consoles-list" id="allConsolesList"></div>
     </div>
@@ -2344,6 +2360,11 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       unavailableTodayBadge:"เช็คคิว",
       availabilityUnknownBadge:"กำลังเช็คคิว",
       availableTodayEmpty:"ยังไม่พบเครื่องที่ยืนยันได้ว่าว่างวันนี้",
+      availableDateFilter:"เช็คคิวว่างวันที่",
+      availableDatePick:"เช็คคิวว่างวันที่ — เลือกวันเริ่มเช่า",
+      availableDateChip:"ว่าง {date}",
+      availableDateEmpty:"ไม่พบเครื่องที่ว่างให้เช่าได้ตั้งแต่ {date} (เช่าได้ 3 วันขึ้นไป)",
+      availableDateClear:"ล้างวันที่",
       beforeRentSeeAll:"ดูเครื่องเกมทั้งหมด",
       allConsolesTitle:"เครื่องเกมที่มีให้เช่าทั้งหมด",
       allConsolesSubtitle:"{n} เครื่อง · เลือกเครื่องเพื่อเช็คคิวและเริ่มจอง",
@@ -2509,12 +2530,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       bookingExtrasHide:"Hide promotions & other consoles",
       beforeRentDeviceMin:"3-day minimum · from {total}",
       beforeRentDeviceSoon:"Not available yet",
-      availableTodayFilter:"Available today",
+      availableTodayFilter:"Free today",
       availableTodayBadge:"Available today",
       availableLaterBadge:"Available {date}",
       unavailableTodayBadge:"Check dates",
       availabilityUnknownBadge:"Checking dates",
       availableTodayEmpty:"No consoles confirmed available today",
+      availableDateFilter:"Check a date",
+      availableDatePick:"Check availability — pick a start date",
+      availableDateChip:"Free {date}",
+      availableDateEmpty:"No consoles free to rent from {date} (3 days or more)",
+      availableDateClear:"Clear date",
       beforeRentSeeAll:"View all game consoles",
       allConsolesTitle:"All game consoles available for rent",
       allConsolesSubtitle:"{n} consoles · Choose one to check availability and book",
@@ -2647,6 +2673,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     contact:'<path d="M6.5 3.7 9 6.2 7.4 8.7a13.1 13.1 0 0 0 7.9 7.9l2.5-1.6 2.5 2.5-1.2 2.7c-.3.7-1 1.1-1.8 1-8-.9-13.6-6.5-14.5-14.5-.1-.8.3-1.5 1-1.8Z"/>',
     shield:'<path d="M12 3.4 19 6v5.4c0 4.5-3 7.9-7 9.2-4-1.3-7-4.7-7-9.2V6Z"/><path d="M9.2 12.1l2 2 3.7-3.8"/>',
     doc:'<path d="M6.8 3.8h7.4l4 4v11a1.4 1.4 0 0 1-1.4 1.4H6.8a1.4 1.4 0 0 1-1.4-1.4V5.2a1.4 1.4 0 0 1 1.4-1.4Z"/><path d="M14 3.8v4.2h4.2M8.6 12.4h6.8M8.6 16h6.8"/>',
+    calendar:'<rect x="3.8" y="5.2" width="16.4" height="15" rx="2.2"/><path d="M3.8 9.8h16.4M8.2 3.4v3.6M15.8 3.4v3.6"/>',
     chevronLeft:'<path d="M14.6 5.6 8.2 12l6.4 6.4" stroke-width="2.4"/>',
     chevronRight:'<path d="M9.4 5.6 15.8 12l-6.4 6.4" stroke-width="2.4"/>'
   };
@@ -2856,6 +2883,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     allConsolesFilter: {type:"all", brand:"all", sort:"brand"},
     beforeRentTodayOnly: false,
     allConsolesTodayOnly: false,
+    // A start date the customer picked ("เช็คคิวว่างวันที่"): only consoles
+    // free to rent from that day for the minimum rental are shown.
+    beforeRentDate: "",
+    allConsolesDate: "",
     allConsolesFilterExpanded: {type:false, brand:false},
     social: clone(DEFAULT_SOCIAL),
     gamePickerBrowseOnly: false,
@@ -4323,7 +4354,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // same family within it — always sits together while scrolling the rail.
     const ordered = listed
       .filter(item => typeFilter === "all" || String(item.type || "").toLowerCase() === typeFilter)
-      .filter(item => !state.beforeRentTodayOnly || consoleTodayAvailability(item).kind === "today")
+      .filter(item => passesAvailabilityFilter(item, state.beforeRentTodayOnly, state.beforeRentDate))
       .sort((a,b) => {
         const readyGap = Number(isConsoleSelectable(b)) - Number(isConsoleSelectable(a));
         if(readyGap) return readyGap;
@@ -4338,7 +4369,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const cards = ordered.map(item => {
       const image = getConsoleImage(item);
       const ready = isConsoleSelectable(item);
-      const availability = consoleTodayAvailability(item);
+      const availability = availabilityFor(item, state.beforeRentDate);
       const flag = ready ? "" : `<span class="before-rent-device-flag">${isQueueClosed(item) ? esc(tr("queueClosed")) : `${esc(tr("readyOn"))} ${esc(displayDate(item.readyDate))}`}</span>`;
       const media = image ? `<img src="${esc(image)}" alt="" loading="lazy">` : icon(deviceIconName(item));
       const minLine = tr("beforeRentDeviceMin").replace("{total}", money(Number(item.rate || 0) * MIN_RENTAL_DAYS));
@@ -4349,12 +4380,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <span class="before-rent-device-price"><b>${esc(money(item.rate))}</b>/${esc(tr("day"))}</span>
         <span class="before-rent-device-week">${esc(money(item.weekly))}/${esc(tr("wk"))}</span>
         <span class="before-rent-device-min">${esc(minLine)}</span>
-        <span class="before-rent-device-dep">${icon("lock")}<span>${esc(tr("deposit"))} ${esc(money(item.deposit))}</span><em>${esc(tr("beforeRentDepositBack"))}*</em></span>
+        <span class="before-rent-device-dep">${icon("lock")}<span>${esc(tr("deposit"))} ${esc(money(item.deposit))}</span></span>
         <span class="before-rent-device-cta">${ready ? esc(tr("beforeRentDeviceCta")) : esc(tr("beforeRentDeviceSoon"))}</span>
       </button>${gamesButton}</div>`;
     }).join("");
     const seeAll = `<button class="before-rent-seeall" type="button" data-before-seeall>${icon("table")}<span>${esc(tr("beforeRentSeeAll"))}</span></button>`;
-    patchHTML(deviceHost, cards ? cards + seeAll : `<p class="before-rent-empty">${esc(tr(state.beforeRentTodayOnly ? "availableTodayEmpty" : "beforeRentEmpty"))}</p>` + seeAll);
+    const emptyText = state.beforeRentDate ? tr("availableDateEmpty").replace("{date}", displayDate(state.beforeRentDate))
+      : tr(state.beforeRentTodayOnly ? "availableTodayEmpty" : "beforeRentEmpty");
+    patchHTML(deviceHost, cards ? cards + seeAll : `<p class="before-rent-empty">${esc(emptyText)}</p>` + seeAll);
     bindBeforeRentDiscoveryClicks(promoHost, deviceHost);
     byId("beforeRentDevicesCount").textContent = tr("beforeRentDevicesCount").replace("{n}", String(ordered.length));
     renderBeforeRentTypeFilter();
@@ -4364,7 +4397,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     $$("[data-icon]").forEach(host => { if(!host.firstElementChild) host.innerHTML = icon(host.dataset.icon); });
     // Back to the start only when the customer changed the type filter; a
     // re-render from new data leaves the rail where they scrolled it.
-    const filterKey = `${typeFilter}:${state.beforeRentTodayOnly}`;
+    const filterKey = `${typeFilter}:${state.beforeRentTodayOnly}:${state.beforeRentDate}`;
     if(deviceHost.dataset.renderedType !== filterKey){
       deviceHost.dataset.renderedType = filterKey;
       deviceHost.scrollLeft = 0;
@@ -4523,19 +4556,36 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       });
     }
   }
+  // "Available today" and a calendar beside it, as one chip: the row keeps
+  // its two lines on a phone. With a date picked the chip reads "ว่าง 07/11".
+  function beforeRentAvailabilityChips(){
+    const picked = state.beforeRentDate;
+    const bounds = availabilityDateBounds();
+    const label = picked ? tr("availableDateChip").replace("{date}", shortDate(picked)) : tr("availableTodayFilter");
+    return `<span class="before-rent-avail-group">`
+      + `<button class="before-rent-typechip before-rent-today-filter" type="button" data-before-today aria-pressed="${Boolean(picked) || state.beforeRentTodayOnly}"${picked ? ` aria-label="${esc(`${label} · ${tr("availableDateClear")}`)}"` : ""}>${esc(label)}</button>`
+      + `<label class="before-rent-typechip before-rent-date-pick" title="${esc(tr("availableDatePick"))}">${icon("calendar")}<span class="sr-only">${esc(tr("availableDatePick"))}</span>`
+      + `<input type="date" data-before-date min="${bounds.min}" max="${bounds.max}" value="${esc(picked || "")}" aria-label="${esc(tr("availableDatePick"))}"></label>`
+      + `</span>`;
+  }
   function renderBeforeRentTypeFilter(){
     const host = byId("beforeRentTypeFilter");
     if(!host) return;
     const available = new Set(state.consoles.filter(item => item.active !== false).map(item => String(item.type || "").toLowerCase()));
     const types = [["all",tr("beforeRentTypeAll")],["console",tr("type_console")],["vr",tr("type_vr")],["handheld",tr("type_handheld")],["racing",tr("type_racing")]]
       .filter(([id]) => id === "all" || available.has(id));
-    host.innerHTML = types.map(([id,label]) => `<button class="before-rent-typechip ${(state.beforeRentDeviceType||"all")===id?"active":""}" type="button" data-before-type="${esc(id)}" aria-pressed="${(state.beforeRentDeviceType||"all")===id}">${esc(label)}</button>`).join("") + `<button class="before-rent-typechip before-rent-today-filter" type="button" data-before-today aria-pressed="${state.beforeRentTodayOnly}">${esc(tr("availableTodayFilter"))}</button><button class="before-rent-typechip before-rent-quote-chip" type="button" data-before-quote>${icon("calculator")}<span>${esc(tr("quoteBtn"))}</span></button>`;
+    host.innerHTML = types.map(([id,label]) => `<button class="before-rent-typechip ${(state.beforeRentDeviceType||"all")===id?"active":""}" type="button" data-before-type="${esc(id)}" aria-pressed="${(state.beforeRentDeviceType||"all")===id}">${esc(label)}</button>`).join("") + beforeRentAvailabilityChips() + `<button class="before-rent-typechip before-rent-quote-chip" type="button" data-before-quote>${icon("calculator")}<span>${esc(tr("quoteBtn"))}</span></button>`;
     host.querySelector("[data-before-quote]")?.addEventListener("click", () => openQuotePopup("before_rent_filters"));
     host.querySelector("[data-before-today]")?.addEventListener("click", () => {
+      // With a date picked, this chip shows it and a tap clears it.
+      if(state.beforeRentDate){ state.beforeRentDate = ""; renderBeforeRentDiscovery(); return; }
       state.beforeRentTodayOnly = !state.beforeRentTodayOnly;
       if(state.beforeRentTodayOnly && !hasRecentAvailabilitySnapshot()) fetchAvailability().catch(() => {});
       renderBeforeRentDiscovery();
     });
+    const dateInput = host.querySelector("[data-before-date]");
+    dateInput?.addEventListener("click", () => openDateInput(dateInput));
+    dateInput?.addEventListener("change", () => applyAvailabilityDate("before", dateInput.value));
     host.querySelectorAll("[data-before-type]").forEach(chip => chip.addEventListener("click", () => {
       state.beforeRentDeviceType = chip.dataset.beforeType;
       renderBeforeRentDiscovery();
@@ -4546,7 +4596,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const list = state.consoles.filter(item => item.active !== false
       && (filter.type === "all" || item.type === filter.type)
       && (filter.brand === "all" || item.brand === filter.brand)
-      && (!state.allConsolesTodayOnly || consoleTodayAvailability(item).kind === "today"));
+      && passesAvailabilityFilter(item, state.allConsolesTodayOnly, state.allConsolesDate));
     if(filter.sort === "price-desc") list.sort((a,b) => b.rate-a.rate || cName(a).localeCompare(cName(b), state.lang));
     else if(filter.sort === "price-asc") list.sort((a,b) => a.rate-b.rate || cName(a).localeCompare(cName(b), state.lang));
     else if(filter.sort === "name") list.sort((a,b) => cName(a).localeCompare(cName(b), state.lang));
@@ -4565,7 +4615,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const brands = ["all", ...Array.from(new Set(typeDevices.map(item => item.brand))).sort((a,b) => brandOrder(a)-brandOrder(b))];
     if(!brands.includes(filter.brand)) filter.brand = "all";
     byId("allConsolesTitle").textContent = tr("allConsolesTitle");
-    const subtitleCount = state.allConsolesTodayOnly ? active.filter(item => consoleTodayAvailability(item).kind === "today").length : active.length;
+    const subtitleCount = state.allConsolesTodayOnly || state.allConsolesDate
+      ? active.filter(item => passesAvailabilityFilter(item, state.allConsolesTodayOnly, state.allConsolesDate)).length : active.length;
     byId("allConsolesSubtitle").textContent = tr("allConsolesSubtitle").replace("{n}", String(subtitleCount));
     byId("allConsolesQuote").textContent = tr("quoteBtn");
     byId("allConsolesCopyUrl").innerHTML = `${icon("link")}<span>${esc(tr("allConsolesCopyUrl"))}</span>`;
@@ -4575,6 +4626,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("allConsolesSortLabel").textContent = tr("filterSort");
     byId("allConsolesTodayFilter").textContent = tr("availableTodayFilter");
     byId("allConsolesTodayFilter").setAttribute("aria-pressed", String(state.allConsolesTodayOnly));
+    const allDate = state.allConsolesDate;
+    const allBounds = availabilityDateBounds();
+    byId("allConsolesDateFilter").setAttribute("aria-pressed", String(Boolean(allDate)));
+    byId("allConsolesDateLabel").textContent = allDate ? tr("availableDateChip").replace("{date}", displayDate(allDate)) : tr("availableDateFilter");
+    byId("allConsolesDateInput").min = allBounds.min;
+    byId("allConsolesDateInput").max = allBounds.max;
+    byId("allConsolesDateInput").value = allDate || "";
+    byId("allConsolesDateInput").setAttribute("aria-label", tr("availableDatePick"));
+    byId("allConsolesDateClear").hidden = !allDate;
+    byId("allConsolesDateClear").setAttribute("aria-label", tr("availableDateClear"));
     const selectedType = types.find(([id]) => id === filter.type)?.[1] || tr("all");
     const selectedBrand = filter.brand === "all" ? tr("all") : brandLabel(filter.brand);
     [["type",selectedType],["brand",selectedBrand]].forEach(([key,value]) => {
@@ -4588,7 +4649,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("allConsolesSort").innerHTML = [["brand",tr("sort_brand")],["price-desc",tr("sort_price_desc")],["price-asc",tr("sort_price_asc")],["name",tr("sort_name")]].map(([id,label]) => `<option value="${id}" ${filter.sort===id?"selected":""}>${esc(label)}</option>`).join("");
     const list = allConsolesFiltered();
     const host = byId("allConsolesList");
-    if(!list.length){ patchHTML(host, `<p class="all-consoles-empty">${esc(tr(state.allConsolesTodayOnly ? "availableTodayEmpty" : "beforeRentEmpty"))}</p>`); return; }
+    if(!list.length){
+      const emptyText = state.allConsolesDate ? tr("availableDateEmpty").replace("{date}", displayDate(state.allConsolesDate))
+        : tr(state.allConsolesTodayOnly ? "availableTodayEmpty" : "beforeRentEmpty");
+      patchHTML(host, `<p class="all-consoles-empty">${esc(emptyText)}</p>`);
+      return;
+    }
     if(filter.sort !== "brand"){
       patchHTML(host, renderConsoleGrid(list, {bookingButton:true}));
       return;
@@ -4781,7 +4847,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const gameButtonVisible = !!(url && ready);
       const details = consoleDetails(c).filter(item => gameButtonVisible || !isGameLimitDetail(item));
       return `<article class="con-card ${ready?"":"unavailable"}" data-key="${esc(String(c.id))}">
-        <div class="con-img">${img?`<img src="${esc(img)}" alt="${esc(cName(c))}" loading="lazy">`:`<span class="emoji">${esc(c.icon)}</span>`}${ready?"":`<div class="ready-ribbon">${isQueueClosed(c) ? tr("queueClosed") : `${tr("readyOn")} ${displayDate(c.readyDate)}`}</div>`}${options.bookingButton ? availabilityBadge(consoleTodayAvailability(c)) : ""}</div>
+        <div class="con-img">${img?`<img src="${esc(img)}" alt="${esc(cName(c))}" loading="lazy">`:`<span class="emoji">${esc(c.icon)}</span>`}${ready?"":`<div class="ready-ribbon">${isQueueClosed(c) ? tr("queueClosed") : `${tr("readyOn")} ${displayDate(c.readyDate)}`}</div>`}${options.bookingButton ? availabilityBadge(availabilityFor(c, state.allConsolesDate)) : ""}</div>
         <div class="con-body">
           ${options.bookingButton ? `<div class="console-name-row"><div class="con-name" title="${esc(cName(c))}">${esc(cName(c))}</div></div>` : `<div class="con-name">${esc(cName(c))}</div>`}
           <div class="price-row"><div class="price-cell"><small>${tr("daily")}</small><b>${money(c.rate)}</b></div><div class="price-cell"><small>${tr("weekly")}</small><b>${money(c.weekly)}</b></div></div>
@@ -8562,24 +8628,63 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // holds. Check a bookable minimum rental, not just one free calendar day.
     for(let offset=0;offset<=365;offset++){
       const day = addDays(today, offset);
-      const end = addDays(day, MIN_RENTAL_DAYS);
-      if(day < earliestStart || isQueueClosed(c, day, end)) continue;
-      if(catalogReady && day < catalogReady) continue;
-      const free = matches.filter(row => {
-        const rented = /rent|เช่า/i.test(row.status);
-        if(rented && (offset === 0 || (!row.availableDate && !row.bookingRanges.length))) return false;
-        return rowAvailableForRange(row, day, end);
-      }).length;
-      if(free <= activeBookingHolds(c, day, end).length) continue;
+      if(!consoleBookableFrom(c, matches, day, offset === 0, earliestStart, catalogReady)) continue;
       return offset === 0 ? {kind:"today"} : {kind:"later",date:displayDate(day)};
     }
     return {kind:"unavailable"};
   }
+  // One start day, by the booking calendar's rules: past the day's cutoff, not
+  // closed, ready, and a unit free for the minimum rental beyond active holds.
+  function consoleBookableFrom(c, matches, day, isToday, earliestStart, catalogReady){
+    const end = addDays(day, MIN_RENTAL_DAYS);
+    if(day < earliestStart || isQueueClosed(c, day, end)) return false;
+    if(catalogReady && day < catalogReady) return false;
+    const free = matches.filter(row => {
+      const rented = /rent|เช่า/i.test(row.status);
+      if(rented && (isToday || (!row.availableDate && !row.bookingRanges.length))) return false;
+      return rowAvailableForRange(row, day, end);
+    }).length;
+    return free > activeBookingHolds(c, day, end).length;
+  }
+  /** Free to rent from this date (3 days or more)? {kind:"on"|"off"|"unknown"}. */
+  function consoleAvailabilityOn(c, iso){
+    const day = parseDate(iso);
+    if(!day || !hasRecentAvailabilitySnapshot()) return {kind:"unknown"};
+    const aliases = availabilityAliases(c);
+    const matches = state.availability.rows.filter(row => aliases.has(norm(row.deviceName)));
+    if(!matches.length) return {kind:"unknown"};
+    const today = parseDate(todayIso());
+    const ok = consoleBookableFrom(c, matches, day, day.getTime() === today.getTime(),
+      parseDate(earliestRentalStartIso()), parseDate(c.readyDate || c.unavailableUntil));
+    return ok ? {kind:"on",date:displayDate(day)} : {kind:"off"};
+  }
+  /** The filters the device lists share: a picked date wins over "available today". */
+  function passesAvailabilityFilter(c, todayOnly, dateIso){
+    if(dateIso) return consoleAvailabilityOn(c, dateIso).kind === "on";
+    return !todayOnly || consoleTodayAvailability(c).kind === "today";
+  }
+  function availabilityFor(c, dateIso){
+    return dateIso ? consoleAvailabilityOn(c, dateIso) : consoleTodayAvailability(c);
+  }
+  function shortDate(iso){ const d = parseDate(iso); return d ? `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}` : ""; }
+  function availabilityDateBounds(){ return {min: earliestRentalStartIso(), max: fmtIso(addDays(parseDate(todayIso()), 365))}; }
+  /** A picked date: today is the "available today" filter; any other day filters by that date. */
+  function applyAvailabilityDate(scope, iso){
+    const picked = parseDate(iso) ? fmtIso(parseDate(iso)) : "";
+    const isToday = picked && picked === todayIso();
+    if(scope === "all"){ state.allConsolesDate = isToday ? "" : picked; state.allConsolesTodayOnly = Boolean(isToday); }
+    else { state.beforeRentDate = isToday ? "" : picked; state.beforeRentTodayOnly = Boolean(isToday); }
+    if(picked && !hasRecentAvailabilitySnapshot()) fetchAvailability().catch(() => {});
+    if(picked) trackAnalytics("before_rent_action_clicked", {value: scope === "all" ? "available_date_all" : "available_date"});
+    if(scope === "all") renderAllConsolesModal(); else renderBeforeRentDiscovery();
+  }
+  /** Open the native date picker of an input laid over a chip (iOS opens it on tap by itself). */
+  function openDateInput(input){ try{ input.showPicker?.(); }catch{} }
   function availabilityBadge(status){
     const label = status.kind === "today" ? tr("availableTodayBadge")
-      : status.kind === "later" ? tr("availableLaterBadge").replace("{date}", status.date)
+      : status.kind === "later" || status.kind === "on" ? tr("availableLaterBadge").replace("{date}", status.date)
       : tr(status.kind === "unknown" ? "availabilityUnknownBadge" : "unavailableTodayBadge");
-    const cls = status.kind === "today" ? "is-today" : status.kind === "unknown" ? "is-unknown" : "is-later";
+    const cls = status.kind === "today" || status.kind === "on" ? "is-today" : status.kind === "unknown" ? "is-unknown" : "is-later";
     return `<span class="availability-badge ${cls}">${esc(label)}</span>`;
   }
   function evaluateAvailability(ctx = calcRentalContext()){
@@ -15687,7 +15792,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("allConsolesClose").addEventListener("click", closeAllConsoles);
     byId("allConsolesModal").addEventListener("click", event => { if(event.target === byId("allConsolesModal")) closeAllConsoles(); });
     byId("allConsolesSort").addEventListener("change", event => { state.allConsolesFilter.sort = event.target.value; renderAllConsolesModal(); });
+    byId("allConsolesDateInput").addEventListener("click", () => openDateInput(byId("allConsolesDateInput")));
+    byId("allConsolesDateInput").addEventListener("change", () => applyAvailabilityDate("all", byId("allConsolesDateInput").value));
+    byId("allConsolesDateClear").addEventListener("click", () => { state.allConsolesDate = ""; renderAllConsolesModal(); });
     byId("allConsolesTodayFilter").addEventListener("click", () => {
+      state.allConsolesDate = "";
       state.allConsolesTodayOnly = !state.allConsolesTodayOnly;
       if(state.allConsolesTodayOnly && !hasRecentAvailabilitySnapshot()) fetchAvailability().catch(() => {});
       renderAllConsolesModal();
