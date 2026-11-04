@@ -35,3 +35,15 @@ test('the device cards no longer say "คืนเต็ม*" / "refundable*"', 
   assert.doesNotMatch(html, /tr\("beforeRentDepositBack"\)\)\}\*<\/em>/);
   assert.match(html, /<span class="before-rent-device-dep">\$\{icon\("lock"\)\}<span>\$\{esc\(tr\("deposit"\)\)\} \$\{esc\(money\(item\.deposit\)\)\}<\/span><\/span>/);
 });
+
+test('the phone calendar stays open: no second open call on touch, and no redraw while it is open', () => {
+  // A tap opens the native picker on iPhone and Android; showPicker only with a mouse.
+  assert.match(html, /if\(!window\.matchMedia\?\.\("\(hover: hover\) and \(pointer: fine\)"\)\.matches\) return;/);
+  // Open from the first touch until a date is chosen or it closes; redraws wait for that.
+  assert.match(html, /function datePickerOpen\(input\)\{ return Boolean\(input && input\.dataset\.pickerOpen === "1"\); \}/);
+  assert.match(html, /input\.addEventListener\("pointerdown", open\);/);
+  assert.match(html, /if\(datePickerOpen\(openPicker\)\)\{[\s\S]*?openPicker\.addEventListener\("aj-picker-closed", renderBeforeRentTypeFilter, \{once:true\}\);/);
+  assert.match(html, /trackDatePicker\(dateInput, value => applyAvailabilityDate\("before", value\)\);/);
+  assert.match(html, /trackDatePicker\(byId\("allConsolesDateInput"\), value => applyAvailabilityDate\("all", value\)\);/);
+  assert.match(html, /if\(!datePickerOpen\(byId\("allConsolesDateInput"\)\)\)\{/);
+});

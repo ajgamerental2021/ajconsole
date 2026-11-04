@@ -4571,6 +4571,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function renderBeforeRentTypeFilter(){
     const host = byId("beforeRentTypeFilter");
     if(!host) return;
+    // The list refreshes when the queue data arrives (on load, every minute).
+    // While the customer has the calendar open the chips wait, and are drawn
+    // once it closes — replacing them took the open calendar away with them.
+    const openPicker = host.querySelector("[data-before-date]");
+    if(datePickerOpen(openPicker)){
+      if(!openPicker.dataset.redrawPending){
+        openPicker.dataset.redrawPending = "1";
+        openPicker.addEventListener("aj-picker-closed", renderBeforeRentTypeFilter, {once:true});
+      }
+      return;
+    }
     const available = new Set(state.consoles.filter(item => item.active !== false).map(item => String(item.type || "").toLowerCase()));
     const types = [["all",tr("beforeRentTypeAll")],["console",tr("type_console")],["vr",tr("type_vr")],["handheld",tr("type_handheld")],["racing",tr("type_racing")]]
       .filter(([id]) => id === "all" || available.has(id));
@@ -4585,7 +4596,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     });
     const dateInput = host.querySelector("[data-before-date]");
     dateInput?.addEventListener("click", () => openDateInput(dateInput));
-    dateInput?.addEventListener("change", () => applyAvailabilityDate("before", dateInput.value));
+    // A date chosen: the calendar is done, so the chips are drawn again with it.
+    trackDatePicker(dateInput, value => applyAvailabilityDate("before", value));
     host.querySelectorAll("[data-before-type]").forEach(chip => chip.addEventListener("click", () => {
       state.beforeRentDeviceType = chip.dataset.beforeType;
       renderBeforeRentDiscovery();
@@ -4630,9 +4642,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const allBounds = availabilityDateBounds();
     byId("allConsolesDateFilter").setAttribute("aria-pressed", String(Boolean(allDate)));
     byId("allConsolesDateLabel").textContent = allDate ? tr("availableDateChip").replace("{date}", displayDate(allDate)) : tr("availableDateFilter");
-    byId("allConsolesDateInput").min = allBounds.min;
-    byId("allConsolesDateInput").max = allBounds.max;
-    byId("allConsolesDateInput").value = allDate || "";
+    // Left alone while its calendar is open, so a refresh cannot close it.
+    if(!datePickerOpen(byId("allConsolesDateInput"))){
+      byId("allConsolesDateInput").min = allBounds.min;
+      byId("allConsolesDateInput").max = allBounds.max;
+      byId("allConsolesDateInput").value = allDate || "";
+    }
     byId("allConsolesDateInput").setAttribute("aria-label", tr("availableDatePick"));
     byId("allConsolesDateClear").hidden = !allDate;
     byId("allConsolesDateClear").setAttribute("aria-label", tr("availableDateClear"));
@@ -8678,8 +8693,34 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(picked) trackAnalytics("before_rent_action_clicked", {value: scope === "all" ? "available_date_all" : "available_date"});
     if(scope === "all") renderAllConsolesModal(); else renderBeforeRentDiscovery();
   }
-  /** Open the native date picker of an input laid over a chip (iOS opens it on tap by itself). */
-  function openDateInput(input){ try{ input.showPicker?.(); }catch{} }
+  /**
+   * Open the native date picker of an input laid over a chip — with a mouse
+   * only. A phone (iPhone, Android) opens it from the tap itself, and asking
+   * again there closed the picker a moment after it appeared.
+   */
+  function openDateInput(input){
+    if(!window.matchMedia?.("(hover: hover) and (pointer: fine)").matches) return;
+    try{ input.showPicker?.(); }catch{}
+  }
+  /** A date picker is open on this input: redrawing it now would close the picker. */
+  function datePickerOpen(input){ return Boolean(input && input.dataset.pickerOpen === "1"); }
+  /**
+   * Mark the picker open from its first touch until a date is chosen or it is
+   * closed; `whenClosed` runs then (a redraw that waited for it).
+   */
+  function trackDatePicker(input, onChange){
+    if(!input) return;
+    const open = () => { input.dataset.pickerOpen = "1"; };
+    const close = () => {
+      if(input.dataset.pickerOpen !== "1") return;
+      delete input.dataset.pickerOpen;
+      if(input.dataset.redrawPending){ delete input.dataset.redrawPending; setTimeout(() => input.dispatchEvent(new CustomEvent("aj-picker-closed")), 0); }
+    };
+    input.addEventListener("pointerdown", open);
+    input.addEventListener("focus", open);
+    input.addEventListener("blur", close);
+    input.addEventListener("change", () => { delete input.dataset.pickerOpen; delete input.dataset.redrawPending; input.blur(); onChange(input.value); });
+  }
   function availabilityBadge(status){
     const label = status.kind === "today" ? tr("availableTodayBadge")
       : status.kind === "later" || status.kind === "on" ? tr("availableLaterBadge").replace("{date}", status.date)
@@ -15793,7 +15834,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("allConsolesModal").addEventListener("click", event => { if(event.target === byId("allConsolesModal")) closeAllConsoles(); });
     byId("allConsolesSort").addEventListener("change", event => { state.allConsolesFilter.sort = event.target.value; renderAllConsolesModal(); });
     byId("allConsolesDateInput").addEventListener("click", () => openDateInput(byId("allConsolesDateInput")));
-    byId("allConsolesDateInput").addEventListener("change", () => applyAvailabilityDate("all", byId("allConsolesDateInput").value));
+    trackDatePicker(byId("allConsolesDateInput"), value => applyAvailabilityDate("all", value));
     byId("allConsolesDateClear").addEventListener("click", () => { state.allConsolesDate = ""; renderAllConsolesModal(); });
     byId("allConsolesTodayFilter").addEventListener("click", () => {
       state.allConsolesDate = "";
