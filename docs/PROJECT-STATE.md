@@ -1,3 +1,21 @@
+## 2026-11-04 — Phone date picker closing by itself fixed; payment FAQ; "บัตรเครดิต / Credit Card" everywhere
+
+- Website `bed2bf7`, the date picker on phones:
+  - It opened, then closed by itself. Two causes:
+    - `showPicker()` was called on top of the tap that had already opened it.
+    - The queue data refresh (on load and every 60 s) redrew the chips and took the open input with them.
+  - Fix: `showPicker()` is now called only for `(hover:hover) and (pointer:fine)`. `trackDatePicker` marks the input open from pointerdown/focus until change or blur, and the redraw waits for the `aj-picker-closed` event. The modal input isn't touched while it is open.
+  - Checked in emulated iPhone 13 and Pixel 7: the picker survives a data refresh, a pick shows "ว่าง 06/11", and closing without a pick redraws. The native iOS picker itself still needs a check on a real device.
+- Website `56c74d5`, FAQ:
+  - Built-in `RESERVATION_FAQ` replaces the saved "ต้องโอนจองไหม" with: ฿200 transfer, or for international customers ฿1,000 (บัตรเครดิต/E-Wallet, no fee).
+  - New `BALANCE_PAYMENT_FAQ` "ชำระส่วนที่เหลืออย่างไร?" sits right under it, listing transfer, QR PromptPay, บัตรเครดิต +3.50%, E-Wallet +2.95% and Wise, plus the payment-link note. TH/EN.
+- "บัตรเครดิต" / "Credit Card" replaces payment "บัตร" / "card" across customer-facing text:
+  - Website `56c74d5`: booking steps, payment options, privacy policy.
+  - Bot `3069540`: LINE cards, contract notices, the pay-method page, booking text.
+  - DA `b2f2c6f`: delivery and payment-request cards, the booking confirmation, extension, track page, receipt, customer guide.
+  - ID-card wording is unchanged, and the demo pages aren't touched. The contract PDF names no payment method.
+- Tests: website 416 (1 old failure), Bot 806, DA related suites and both tsc.
+
 ## 2026-11-04 — Website: "เช็คคิวว่างวันที่" (pick a date → free consoles); "คืนเต็ม*" removed
 
 - Home device rail:
