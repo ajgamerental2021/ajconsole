@@ -1,3 +1,20 @@
+## 2026-11-04 — "เช็คคิวว่างวันที่" uses the site's own calendar (the iPhone picker still closed itself)
+
+- Owner's video, iPhone: after `bed2bf7` the picker still opened and closed by itself about a second later.
+- Cause: when the picker opens on an empty date input, the iPhone puts today in it and reports that as a pick. The `change` handler applied "available today" and redrew the chips, and the open picker went with them. Holding the redraw back could not help, because the pick itself triggered it.
+- Website `b0ff587`: no native date input on these chips any more.
+  - The calendar is a month view in its own layer on the page (`openAvailabilityCalendar`, `#availCalLayer`). It sits outside the lists that redraw and appears under its chip.
+  - TH/EN month names, with the Buddhist year in Thai. Days outside `availabilityDateBounds` are disabled.
+  - Clear and close buttons; it also closes on an outside tap or Escape. Arrow keys move between days.
+  - The home row and the full list use the same calendar.
+  - It uses its own `data-avail-*` attributes, because the booking calendar's document click handler owns `data-cal-day`.
+  - A redraw now keeps keyboard focus on the chip it was on.
+- Checked in emulated iPhone 13 and Pixel 7, plus desktop with the keyboard:
+  - the calendar stays open through a redraw;
+  - a pick shows "ว่าง 06/11";
+  - clear, outside tap and Escape work, and Escape leaves the full-list modal open.
+- Tests: 417/417 pass. The rails test was also fixed: it still asserted the filter key from before the date filter.
+
 ## 2026-11-04 — A repeated payment no longer comes off the booking balance twice (AJ-20261103-R0016)
 
 - Symptom: R0016's confirmation card showed ชำระก่อนรับของ ฿3,292, which was correct (rental 1,200 + deposit 2,000 + delivery 292 = 3,492, minus the ฿200 paid). Booking Log had ฿3,092. The owner set it back to 3,292 by hand.
