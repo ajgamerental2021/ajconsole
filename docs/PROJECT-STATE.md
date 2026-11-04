@@ -1,3 +1,24 @@
+## 2026-11-04 — Once one of a customer's requests is booked, the other unpaid request is withdrawn quietly
+
+- Owner's ask: the customer made 2 requests, and only AJ-20261103-R0016 was confirmed. Keep the confirmed booking, remove the unconfirmed one (R0020), and send no further alerts or cards about it.
+- DA `bcede7f`: `cancelSupersededRequests` (rules in `services/supersededRequests.ts`).
+  - It withdraws a customer's other request when all of these hold:
+    - same customer, by LINE account or phone;
+    - still open (blank/Pending status), with no booking of its own;
+    - nothing paid (ledger, or paidAt/paymentStatus on the request);
+    - filed within 3 days of the booking's request (going by the date in the rental code), or its rental dates overlap the booking's;
+    - filed in the last 45 days.
+  - Withdrawing sets "ยกเลิก" through the existing `cancelConsolePending`, so "ดึงรายการกลับ" undoes it. It writes the marker `superseded-request:<code>`. Nobody is messaged, neither the customer nor the shop.
+  - It runs 5 s after a confirmation, 2 minutes after boot, and every 10 minutes.
+  - Test: `test:superseded-requests`.
+- Bot `f57da52`: a cancelled request is not messaged, receipted or re-carded.
+  - `listConsolePendingBookings` leaves out codes cancelled on any row. This covers the start-day reminder, AJ Office follow-ups, identity reminders and the rental lookup.
+  - The pay-later email skips cancelled codes.
+  - Slip matching skips cancelled requests.
+  - The change-payment page from an old card refuses before any Beam link or card is made. It shows "รายการนี้ถูกยกเลิกแล้ว ไม่ต้องชำระเงินสำหรับรายการนี้ ดูรายการเช่าที่ยืนยันแล้วได้ที่ คิวเช่าของฉัน" / "This rental request has been cancelled. There is nothing to pay for it. Your confirmed rental is in My rental.", with a Close button. Checked in emulated iPhone.
+  - Tests: 813/813.
+- R0020 itself will probably NOT be withdrawn automatically. The wrong slip forwarded 3,292 under R0020 (DA ledger, and the Bot's lastPayment on the request), so it now looks paid, and paid requests are left for a person. Owner: move the 3,292 to R0016 in Rental Payments/Booking. Then cancel R0020 with the Cancel button in Booking Log; if a booking was created for R0020, delete it there.
+
 ## 2026-11-04 — Slip receipt for the wrong rental with a guessed "ยอดคงเหลือ ฿7,986" (R0016 paid, R0020 shown)
 
 - Symptom: the customer paid AJ-20261103-R0016's balance of ฿3,292 by bank transfer.
