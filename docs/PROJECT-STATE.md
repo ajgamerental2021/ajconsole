@@ -1,3 +1,25 @@
+## 2026-11-04 — Slip receipt for the wrong rental with a guessed "ยอดคงเหลือ ฿7,986" (R0016 paid, R0020 shown)
+
+- Symptom: the customer paid AJ-20261103-R0016's balance of ฿3,292 by bank transfer.
+  - The SlipOK card "ตรวจสอบยอดชำระสำเร็จ" showed rental AJ-20261103-R0020, "ชำระสำหรับ: ยอดคงเหลือค่าเช่า" and "ยอดคงเหลือ ฿7,986".
+  - R0016's own card said the 3,292 was the balance.
+- Causes in the Bot (`handleLineSlipImage`):
+  - `findRecentLineBooking` took the customer's newest rental (R0020). R0020 is not a booked rental in DA (settlement 'open'), so `completeVerifiedSlip` ran instead of the booked-balance check.
+  - `classifyLineSlipPayment` set purpose = balance because of balance words in the chat. It then computed remaining = R0020 total − 3,292 − 200 = 7,986, a guess.
+  - The payment was also forwarded to DA under R0020.
+- DA `b2c7c61`:
+  - New route `POST /aj-rental/slip-balance-match` (Bot-signed, on the version-gate allow list).
+  - Given `{lineUserId, amount}`, it returns the one open booking whose balance is exactly that amount (`openBookingForBalance`), or null. Read-only.
+- Bot `e426c39`:
+  - `verifiedSlipTarget` (`services/slip-balance-target.js`) switches to that booking on the live slip path and on the pending re-check path, but never for the ฿200 reservation amount. R0016 would then have gone through `handleVerifiedBookedSlip` → new_balance → recorded in DA → card with nothing left.
+  - Chat words alone, with an amount that is not the balance, now give "unallocated": no rental code, no remaining figure, and the shop allocates it.
+  - When nothing is left, the card says "ไม่มี ชำระครบแล้ว" / "None, paid in full" instead of ฿0.00.
+  - Tests: Bot 810/810; DA tsc, flex-ledger, rental-settlement-status, auto-booking-payment.
+- Owner checks (production data cannot be read from here):
+  - R0016: the ฿3,292 probably never reached its booking, so ยอดโอนก่อนส่ง should be 0 and ชำระแล้ว should include the 3,292.
+  - R0020: Rental Payments and Booking Log may now show ฿3,292 paid, or a booking created from it. Remove it there.
+  - The customer got a wrong card. If needed, send a correction message (only after the owner approves).
+
 ## 2026-11-04 — "เช็คคิวว่างวันที่" uses the site's own calendar (the iPhone picker still closed itself)
 
 - Owner's video, iPhone: after `bed2bf7` the picker still opened and closed by itself about a second later.
