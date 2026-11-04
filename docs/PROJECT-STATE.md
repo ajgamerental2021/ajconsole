@@ -1,3 +1,18 @@
+## 2026-11-04 — A repeated payment no longer comes off the booking balance twice (AJ-20261103-R0016)
+
+- Symptom: R0016's confirmation card showed ชำระก่อนรับของ ฿3,292, which was correct (rental 1,200 + deposit 2,000 + delivery 292 = 3,492, minus the ฿200 paid). Booking Log had ฿3,092. The owner set it back to 3,292 by hand.
+- Cause: the same ฿200 Beam payment reached the Delivery App a second time, and `applyPaymentToBooking` took it off ยอดโอนก่อนส่ง again. A second arrival happens when the Bot re-sends after a timeout or a restart, or when a webhook comes late.
+  - The ledger's duplicate check only compared the latest transactionId per rental row.
+  - The booking had no record of which payments it already counted.
+  - A repro with R0016's numbers gives exactly 3,092 (with paidAmount 400).
+- DA `a96a5f5`:
+  - `integrationPaymentService.findSeenPayment` checks every charge and Beam link a row has taken, kept as `tx:`/`link:` entries in processedEventIds.
+  - `autoBookingPaymentService` keeps durable Sent Markers `booking-payment:<id>` for the payment a booking was made from and for each one applied later. A repeat leaves the balance unchanged.
+  - `deliveryPaymentPoller` passes the Beam link id.
+  - Test: `test:auto-booking-payment` has the R0016 case and ledger cases. tsc, flex-ledger, promptpay, booking-confirm-recovery and 5 payment suites pass.
+- Owner check for R0016: Booking Log ชำระแล้ว is probably 400; set it to 200. Also check that Rental Payments paidTotal is 200.
+- Limit: payments applied before this deploy have no marker yet, so a retry of one of those could still be applied once more.
+
 ## 2026-11-04 — Phone date picker closing by itself fixed; payment FAQ; "บัตรเครดิต / Credit Card" everywhere
 
 - Website `bed2bf7`, the date picker on phones:
