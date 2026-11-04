@@ -5458,3 +5458,9 @@ paused job shows slightly old numbers rather than an empty section.
 - AJ LINE OA Bot now replies with the bilingual green payment-verification Flex card when SlipOK verifies a booked customer's bank slip but Delivery App settlement lookup or Booking allocation cannot confirm the balance update. The card shows the verified transfer amount and rental code, marks its allocation as pending, and does not claim the remaining balance is zero. Staff still receive the reconciliation alert.
 - The normal successful balance path continues to show the fully paid receipt only after the operational Booking reports the balance cleared. Bot syntax check, all 767 tests, and the real local server `/liff/` response passed. The specific historical screenshot's Booking write failure was not identifiable from the image alone.
 
+## 2026-11-04 — Private-link ORENT meeting checklist
+
+- Published the owner-supplied AJ × ORENT meeting checklist as a standalone page on `ajgamerental.com`, outside site navigation. The public repository contains only AES-GCM ciphertext and a loader; the decryption key exists solely in the owner's full link (URL fragment), not in Git. The loader also blocks opening without the full link and requests search engines not to index it.
+- The original checklist remains otherwise unchanged. Its auto-save is browser-local, so the owner should use its JSON backup when moving between devices. No server-side sync or account login was added.
+- Verified locally that the full link opens the checklist, its controls initialize, edits survive reload, and the page without the key does not expose the checklist.
+
