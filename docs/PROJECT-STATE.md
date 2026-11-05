@@ -1,3 +1,27 @@
+## 2026-11-05 — Pay after the same-day cutoff: pop-up offers tomorrow and moves the rental (TH/EN)
+
+- Owner's ask: for an unpaid rental starting today, pressing Pay before the cutoff (Admin "เวลาตัดรอบเช่าวันเดียวกัน", 18:00) pays as normal. After the cutoff, Pay opens a pop-up:
+  - TH: "เลยเวลาจัดส่งของวันนี้แล้ว / หากยังสนใจเช่า ทางร้านจะเริ่มเช่าเป็นวันพรุ่งนี้แทน (DD/MM/YYYY)"
+  - EN: "Today's delivery time has passed / If you'd still like to rent, AJ will start your rental tomorrow instead (DD/MM/YYYY)"
+  - Buttons: OK (รับทราบ) and Change to tomorrow (เปลี่ยนเป็นวันพรุ่งนี้).
+  - Change to tomorrow re-checks the queue, moves the return date by the same number of days, and lets the customer pay straight away.
+- Website `7d2b2bc`:
+  - `startShiftPlan`, `showStartPassedPopup`, `shiftRentalStart`, `showStartShiftedPopup`.
+  - Covers both the payment-page Pay (`launchPayResume`) and the order-page Pay (`launchDemoBeamPayment`).
+  - The move runs a fresh queue check, moves the hold, quotes delivery and saves through the existing `savePayResumeChanges("dates")`. The order page saves at Pay via `saveChangedOrderBeforePayment`.
+  - A full queue for the new dates gets its own pop-up naming those dates, with LINE @ajgame.
+  - A start day that is already over, if pressed before the cutoff, offers "today" instead.
+  - Opening the payment page no longer calls a passed start "queue full".
+- Bot `de66315`: `rental-start-cutoff.js`. The payment-page link, Wise and the booking-flow Beam link return 409 `start_date_passed` (with earliestStart) before any Beam link. A payment-page date edit cannot move onto a passed start.
+- Checked in emulated iPhone with the Bot API mocked:
+  - TH and EN after 18:00: pop-up; OK changes nothing; Change saves 06/11–13/11 and Pay opens Beam.
+  - Before 18:00: pays straight away.
+  - Queue full for the new dates: nothing saved, and the pop-up names the new dates.
+  - Server-only refusal: pop-up from the Bot's earliestStart.
+  - LINE auto-checkout: pop-up on open.
+  - Tests: Bot 816, website 421.
+- Not run in a browser: the order-page branch, because its session state cannot be set up here. It is code-reviewed and uses the same helpers.
+
 ## 2026-11-05 — DA backend crash (Render "Exited with status 134") at 16:17
 
 - Symptoms: Render emailed "server failure" at 16:17. The app showed "โหลดข้อมูลจาก Google Sheets ไม่สำเร็จ" and kept one offline-queue item (จบงานส่งของ Darsh · AJ2).
