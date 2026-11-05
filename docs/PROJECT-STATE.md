@@ -1,3 +1,9 @@
+## 2026-11-05 — LINE connect: space between the green button and "ลองเชื่อม LINE อีกวิธี"
+
+- Website `754f878`: once the Allow text was removed (e9ddfcf), the "เชื่อม LINE ไม่ได้?" box sat 4 px under the green button.
+- Cause: `.demo-contact-channel>p` (margin 4px) outranked the box's own 18px top margin.
+- Fix: the box's rule is now more specific. The gap is 18 px in TH and EN, measured in emulated iPhone 13. Tests: 422.
+
 ## 2026-11-05 — My rental: Wise refund form could not scroll on a phone
 
 - On the English My rental page, the "Wise details (deposit refund)" form was taller than the screen. It could not be scrolled, so the Save button was out of reach.
