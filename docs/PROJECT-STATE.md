@@ -1,3 +1,13 @@
+## 2026-11-05 — Re-check of today's work: 3 fixes
+
+- Website `7923473`: on the order page, "Change to tomorrow" now saves the new dates straight away (`saveChangedOrderBeforePayment`), as the payment page does. Before, the save only happened at Pay, so a renter who reviewed first and left kept the old start on the shop's request.
+- DA `7483001`: an extension paid in a month after the rental started has its own Finance line. A later edit of the booking used to add it back onto the rental's own line, counting it twice. `extensionsOnOwnLine` now leaves it out on every sync, going by when it was paid.
+- DA `1657f7c`: the superseded-request sweep runs seconds after a confirmation, so it could withdraw a second console the customer was paying for at that moment. It now withdraws only requests that have been unpaid for `pendingTtl` (12 h, Wise longer).
+- Checked: the payment-page browser scenarios were re-run (TH/EN, before/after cutoff, queue full). Website 421, Bot 816, and the DA finance/extension/superseded/flex-ledger suites pass, plus tsc.
+- Gaps still open (not changed, for the owner to decide):
+  - A Beam link already sent directly (the payment button on the first booking card) can still be paid after the cutoff, because Beam cannot be intercepted.
+  - A request withdrawn at 12 h can no longer be paid from the 48 h email link. The shop can restore it with "ดึงรายการกลับ".
+
 ## 2026-11-05 — Pay after the same-day cutoff: pop-up offers tomorrow and moves the rental (TH/EN)
 
 - Owner's ask: for an unpaid rental starting today, pressing Pay before the cutoff (Admin "เวลาตัดรอบเช่าวันเดียวกัน", 18:00) pays as normal. After the cutoff, Pay opens a pop-up:
