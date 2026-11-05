@@ -1,3 +1,19 @@
+## 2026-11-05 — Post-merge check across the 3 repos; deposit FAQ retitled
+
+- Pulled the newest work and checked it:
+  - DA: 19 new commits (company rentals/VAT, LINE binding, Android 20261105).
+  - Website: 1 new commit (ORENT checklist).
+  - Bot: no new commits.
+- Results:
+  - DA: backend and frontend tsc are clean. Of the 131 test suites, 129 pass. `test:header-guard` needs live Google credentials, which this environment does not have.
+  - The 4 Nov work is all still in place: superseded requests, slip-balance-match, and the payment idempotency.
+  - Bot: 813/813 tests pass. Website: 418/418 pass.
+- DA `de58124`: `test:sheet-write-race` had been failing since `441844b` (28 Oct).
+  - The cause was in the test, not the app. Its stand-in for `readRangeFresh` read through the cache-wrapped client, so it joined the Finance re-read (`readSettledBookingForFinance`) of the same row that was already in flight.
+  - Production `readRangeFresh` uses the unwrapped `freshGet`.
+  - The stub now uses the fake sheet's raw read: 10/10 pass.
+- Website `b1c0155`: the FAQ question saved in site content is retitled to "คืนค่าประกันเมื่อไหร่และอย่างไร?" / "When and how is the deposit returned?" (`DEPOSIT_RETURN_QUESTION` in `normalizeFaq`). The shop's saved answer is unchanged.
+
 ## 2026-11-04 — Once one of a customer's requests is booked, the other unpaid request is withdrawn quietly
 
 - Owner's ask: the customer made 2 requests, and only AJ-20261103-R0016 was confirmed. Keep the confirmed booking, remove the unconfirmed one (R0020), and send no further alerts or cards about it.
