@@ -258,6 +258,7 @@ html.ajps-map-open #langBtn,#quoteModal.pin-map-open #quoteLangBtn{visibility:hi
 .demo-maps-found{margin:0;color:#067647;font-weight:700;line-height:1.5;overflow-wrap:anywhere}
 .demo-maps-found a{color:inherit;text-decoration:underline;text-underline-offset:2px}
 .queue-retry-actions{display:flex;justify-content:flex-end;margin-top:14px}
+.start-passed-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:16px}.start-passed-actions .btn{min-height:44px}
 /* Site announcement: above every other pop-up, Thai left / English right. */
 .line-friend-modal{position:fixed;inset:0;z-index:100001;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(16,24,40,.62)}
 .line-friend-modal.open{display:flex}
@@ -2897,6 +2898,25 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function startDateAllowed(value, now){
     const start = parseDate(value);
     return !start || start >= parseDate(earliestRentalStartIso(now));
+  }
+  /**
+   * An unpaid rental whose start has gone by — today after the cutoff, or a
+   * day already over (owner, 05/11/2026). Pay offers the earliest start that
+   * can still be delivered, the same number of days, checked against the queue
+   * again. `serverEarliest` is the Bot's answer when it refused the payment
+   * (a page left open, or a cutoff saved since it loaded).
+   */
+  function startShiftPlan(ctx, serverEarliest = ""){
+    const from = parseDate(ctx?.start), to = parseDate(ctx?.end);
+    if(!from || !to) return null;
+    const local = parseDate(earliestRentalStartIso());
+    const remote = parseDate(serverEarliest);
+    const earliest = remote && remote > local ? remote : local;
+    if(from >= earliest) return null;
+    const days = diffDays(ctx.start, ctx.end);
+    if(!Number.isFinite(days) || days < 1) return null;
+    const start = fmtIso(earliest);
+    return {start, end:fmtIso(addDays(earliest, days)), days, tomorrow:start !== todayIso()};
   }
 
   const state = {
@@ -8294,7 +8314,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       })
     }, 25000);
     const data = await response.json().catch(() => ({}));
-    if(!response.ok || !data.url) throw new Error(data.error || "Beam payment link unavailable");
+    if(!response.ok || !data.url) throw Object.assign(new Error(data.error || "Beam payment link unavailable"), {code:data.error || "", result:data});
     state.calc.beamPaymentLink = data.url;
     state.calc.beamPaymentKey = key;
     state.calc.beamPaymentExpiresAt = data.expiresAt || "";
@@ -11094,6 +11114,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     renderDemoOrderPage();
   }
   async function launchDemoBeamPayment(){
+    // The same-day cutoff passed while the order page was open, or the start day is over.
+    if(showStartPassedPopup("order", calcRentalContext())) return;
     showDemoBusy(state.calc.payment === "wise"
       ? (state.lang === "en" ? "Confirming your queue for Wise…" : "กำลังยืนยันคิวสำหรับ Wise…")
       : (state.lang === "en" ? "Opening the payment page…" : "กำลังเปิดหน้าชำระเงิน…"));
@@ -11193,6 +11215,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(error?.code === "rental_details_changed"){
         showRentalChangedPopup(() => launchDemoBeamPayment());
         return;
+      }
+      if(error?.code === "start_date_passed"){
+        if(showStartPassedPopup("order", calcRentalContext(), error.result?.earliestStart)) return;
       }
       if(error?.code === "delivery_quote_changed"){
         showDeliveryQuoteChanged(error, () => launchDemoBeamPayment());
@@ -11421,6 +11446,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       return false;
     }
     const gate = evaluateAvailability(ctx);
+    // A start that has gone by is offered a new date when Pay is pressed, not
+    // turned away as a full queue.
+    if(!gate.pass && gate.mode === "cutoff") return true;
     if(!gate.pass){ showPayResumeQueuePopup(gate.message); return false; }
     return true;
   }
@@ -11514,7 +11542,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <a class="btn" href="${esc(`${CONFIG.lineOaMessageUrl}?${lineMessage}`)}" target="_blank" rel="noopener">${esc(en ? "Message AJ on LINE" : "ทักร้านทาง LINE")}</a>
       </div>`);
   }
-  async function savePayResumeChanges(source="rental"){
+  async function savePayResumeChanges(source="rental", {onQueueBlocked=null}={}){
     const en = state.lang === "en";
     const current = payResume.rental;
     if(!current || current.paid || payResume.saving || !payResume.editorReady) return false;
@@ -11532,7 +11560,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const gate = evaluateAvailability();
       if(!gate.pass){
         hydratePayResumeEditor(current);
-        showPayResumeQueuePopup(gate.message);
+        if(onQueueBlocked) onQueueBlocked(gate.message);
+        else showPayResumeQueuePopup(gate.message);
         return false;
       }
       await ensureBookingHold(payResume.code, calcRentalContext());
@@ -11565,7 +11594,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       else{
         hydratePayResumeEditor(current);
         if(error?.message === "games_required") toast(en ? "Choose games or select ‘send the game list later’." : "เลือกรายชื่อเกม หรือเลือกแจ้งรายชื่อเกมภายหลัง", 4500);
-        else if(error?.code === "booking_hold_conflict") showPayResumeQueuePopup(error.message);
+        else if(error?.code === "booking_hold_conflict"){
+          if(onQueueBlocked) onQueueBlocked(error.message);
+          else showPayResumeQueuePopup(error.message);
+        }
         else showPayResumeProblem(error, "save");
       }
       return false;
@@ -11707,10 +11739,107 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("payResumeTitle").textContent = state.lang === "en" ? "Continue to payment" : "ทำรายการชำระเงินต่อ";
     host.innerHTML = payResumeHtml();
   }
+  // The start-has-passed pop-up on Pay: short, with the new start date, an
+  // OK button and one that moves the rental (same days) after a fresh queue check.
+  function showStartPassedPopup(kind, ctx, serverEarliest = ""){
+    const plan = startShiftPlan(ctx, serverEarliest);
+    if(!plan) return false;
+    const draw = () => {
+      const en = state.lang === "en";
+      const date = displayDate(plan.start);
+      const title = plan.tomorrow
+        ? (en ? "Today's delivery time has passed" : "เลยเวลาจัดส่งของวันนี้แล้ว")
+        : (en ? "Your start date has passed" : "เลยวันเริ่มเช่าแล้ว");
+      const body = plan.tomorrow
+        ? (en ? `If you'd still like to rent, AJ will start your rental tomorrow instead (${date}).` : `หากยังสนใจเช่า ทางร้านจะเริ่มเช่าเป็นวันพรุ่งนี้แทน (${date})`)
+        : (en ? `If you'd still like to rent, AJ will start your rental today instead (${date}).` : `หากยังสนใจเช่า ทางร้านจะเริ่มเช่าเป็นวันนี้แทน (${date})`);
+      const range = en
+        ? `New dates: ${displayDate(plan.start)} – ${displayDate(plan.end)} (${plan.days} ${plan.days === 1 ? "day" : "days"})`
+        : `วันเช่าใหม่: ${displayDate(plan.start)} – ${displayDate(plan.end)} (${plan.days} วัน)`;
+      const shiftLabel = plan.tomorrow ? (en ? "Change to tomorrow" : "เปลี่ยนเป็นวันพรุ่งนี้") : (en ? "Change to today" : "เปลี่ยนเป็นวันนี้");
+      showModal(title, `<p>${esc(body)}</p><p class="hint">${esc(range)}</p><div class="start-passed-actions"><button class="btn" type="button" id="startPassedOk">${esc(en ? "OK" : "รับทราบ")}</button><button class="btn primary" type="button" id="startPassedShift">${esc(shiftLabel)}</button></div>`, {relocalize:draw});
+      byId("startPassedOk")?.addEventListener("click", closeModal);
+      byId("startPassedShift")?.addEventListener("click", () => { closeModal(); void shiftRentalStart(kind, ctx, serverEarliest); });
+    };
+    draw();
+    return true;
+  }
+  function showStartShiftedPopup(kind, plan){
+    const draw = () => {
+      const en = state.lang === "en";
+      const amounts = kind === "resume" ? payResume.rental?.plan?.methods?.[payResume.method] : null;
+      // The payment page's amounts come from the Bot; the order page shows its own.
+      const payNow = amounts ? Number(amounts.payNow) : 0;
+      const range = `${displayDate(plan.start)} – ${displayDate(plan.end)} (${plan.days} ${en ? (plan.days === 1 ? "day" : "days") : "วัน"})`;
+      showModal(en ? "Rental dates changed" : "เปลี่ยนวันเช่าแล้ว", `<p>${esc(en ? `New dates: ${range}. The queue is free; you can pay now.` : `วันเช่าใหม่ ${range} คิวว่าง ชำระเงินต่อได้เลย`)}</p>${payNow > 0 ? `<p><b>${esc(en ? "Pay now" : "ชำระตอนนี้")}: ${money(payNow)}</b></p>` : ""}<div class="start-passed-actions"><button class="btn" type="button" id="startShiftedReview">${esc(en ? "Review first" : "ตรวจสอบรายการก่อน")}</button><button class="btn primary" type="button" id="startShiftedPay">${esc(en ? "Continue to payment" : "ชำระเงินต่อ")}</button></div>`, {relocalize:draw});
+      byId("startShiftedReview")?.addEventListener("click", closeModal);
+      byId("startShiftedPay")?.addEventListener("click", () => { closeModal(); void (kind === "resume" ? launchPayResume() : launchDemoBeamPayment()); });
+    };
+    draw();
+  }
+  function showShiftQueueFull(plan, message){
+    const en = state.lang === "en";
+    const range = `${displayDate(plan.start)} – ${displayDate(plan.end)}`;
+    showModal(en ? "Those dates are not available" : "คิววันใหม่ไม่ว่าง", `<p>${esc(en ? `${range} is not available${message ? `: ${message}` : "."}` : `ช่วง ${range} ไม่ว่าง${message ? ` (${message})` : ""}`)}</p><p class="hint">${esc(en ? "Please contact AJ on LINE @ajgame to choose other dates." : "กรุณาติดต่อร้านทาง LINE @ajgame เพื่อเลือกวันอื่น")}</p><div class="queue-retry-actions"><a class="btn primary" href="https://line.me/R/ti/p/@ajgame" target="_blank" rel="noopener">${esc(en ? "Contact AJ on LINE" : "ติดต่อร้านทาง LINE")}</a></div>`);
+  }
+  // Move the rental to the earliest start that can still be delivered, keeping
+  // its days: the queue is checked again for the new dates, the hold moves with
+  // them, and the rental is saved before the renter can pay.
+  async function shiftRentalStart(kind, ctx, serverEarliest = ""){
+    const en = state.lang === "en";
+    // Worked out again: the clock may have passed midnight or the cutoff meanwhile.
+    const plan = startShiftPlan(ctx, serverEarliest);
+    if(!plan) return;
+    if(kind === "resume"){
+      if(!payResume.rental || payResume.rental.paid) return;
+      if(!payResume.editorReady) hydratePayResumeEditor(payResume.rental);
+      if(!payResume.editorReady){
+        toast(en ? "This rental cannot be changed here. Please contact AJ on LINE @ajgame." : "เปลี่ยนวันจากหน้านี้ไม่ได้ กรุณาติดต่อร้านทาง LINE @ajgame", 5000);
+        return;
+      }
+      Object.assign(state.calc, {start:plan.start, end:plan.end, datesTouched:true});
+      // savePayResumeChanges checks the queue fresh, moves the hold, quotes the
+      // delivery and saves; on a full queue it shows the queue pop-up itself.
+      const saved = await savePayResumeChanges("dates", {onQueueBlocked:message => showShiftQueueFull(plan, message)});
+      if(saved) showStartShiftedPopup("resume", plan);
+      return;
+    }
+    const before = {start:state.calc.start, end:state.calc.end, datesTouched:state.calc.datesTouched};
+    Object.assign(state.calc, {start:plan.start, end:plan.end, datesTouched:true});
+    showDemoBusy(en ? "Checking the queue for the new dates…" : "กำลังเช็คคิวของวันใหม่…");
+    try{
+      const checked = await fetchAvailability(true);
+      if(!checked?.fresh || state.availability.error || !hasRecentAvailabilitySnapshot()) throw new Error("queue_check_failed");
+      const gate = evaluateAvailability();
+      if(!gate.pass){
+        Object.assign(state.calc, before);
+        hideDemoBusy();
+        saveLocal();
+        render();
+        showShiftQueueFull(plan, gate.message);
+        return;
+      }
+      if(state.calc.rentalCode) await ensureBookingHold(state.calc.rentalCode, calcRentalContext());
+      saveLocal();
+      render();
+      if(state.calc.demoOrderOpen) renderDemoOrderPage();
+      hideDemoBusy();
+      showStartShiftedPopup("order", plan);
+    }catch(error){
+      Object.assign(state.calc, before);
+      hideDemoBusy();
+      saveLocal();
+      render();
+      if(error?.code === "booking_hold_conflict") showShiftQueueFull(plan, error.message);
+      else toast(en ? "The queue could not be checked. Please try again." : "เช็คคิวไม่สำเร็จ กรุณาลองอีกครั้ง", 4500);
+    }
+  }
   async function launchPayResume(){
     const en = state.lang === "en";
     const r = payResume.rental;
     if(!r || r.paid || payResume.queueBlocked) return;
+    // Its start has gone by: offer the earliest start instead of paying for it.
+    if(showStartPassedPopup("resume", payResumeContext(r).ctx)) return;
     showDemoBusy(en ? "Checking the queue and the delivery fee, then opening the payment page…" : "กำลังตรวจคิว เช็คค่าส่ง และเปิดหน้าชำระเงิน…");
     try{
       // The queue may have filled since the rental was saved. Every resume
@@ -11756,6 +11885,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         return;
       }
       if(error?.code === "already_paid" || error?.code === "payment_confirmed"){ openPayResume(payResume.code, payResume.token); return; }
+      if(error?.code === "start_date_passed"){
+        if(showStartPassedPopup("resume", payResumeContext(r).ctx, error.result?.earliestStart)) return;
+      }
       // The delivery price is older than 30 minutes and Lalamove's has moved:
       // the Bot saved the new one on the rental. Show the new amounts, then
       // old and new, before anything is charged.
