@@ -1,3 +1,16 @@
+## 2026-11-05 — Finance rental income = confirmed ยอดค่าเช่ารวม + each ยอดค่าเช่าต่อ (R0015 showed 3,420; correct is 2,069)
+
+- Owner's rule: the finance book (รายรับรายจ่ายAJ_2026) takes the booking card's "ยอดค่าเช่ารวม" plus each extension card's "ยอดค่าเช่าต่อ", every time. It applies to Thai and English customers alike.
+- Cause (R0015: 899 + 1,170): the extension moved the return date. The Rental Fee formula then re-priced all 7 days at the weekly rate, and the After Work promotion no longer fitted, so the Finance sync wrote 2,250. `addRentalIncome` then added the 1,170 on top, giving 3,420.
+- DA `fad4eba`:
+  - `services/financeRevenue.ts`: `bookingCharges` over the period as confirmed. The rental fee comes from the promotion snapshot, otherwise from the extension's daily rate. Added to it is the `netAmount` of each extension that is applied, or paid and already on the booking. Payment fees are excluded.
+  - `financeRentalFee` is used by every Finance sync. If the extensions cannot be read, the sync does not write.
+  - `applyExtension` no longer calls `addRentalIncome`. `BookingService.resyncFinance` runs after the extension is applied.
+  - An extension into a later month gets a second row with the real ยอดค่าเช่าต่อ.
+  - Test: `test:finance-revenue`. The 17 related suites pass, plus tsc.
+- Owner: the R0015 row already written stays at 3,420 until the booking is next edited, so set it to 2,069. Other bookings extended before this deploy may have the same overstatement.
+- Limit: a booking with no promotion snapshot whose original rental was 7+ days is priced at 7 × the daily rate, because the weekly rate is not stored on the extension request.
+
 ## 2026-11-05 — Post-merge check across the 3 repos; deposit FAQ retitled
 
 - Pulled the newest work and checked it:
