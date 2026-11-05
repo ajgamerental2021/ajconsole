@@ -712,6 +712,13 @@ test('connecting LINE opens the phone app directly and restores the booking step
   assert.match(html, /lineConnectErrorKey = \/\^line_handoff_\//);
   assert.match(html, /contactLineConsentHelp:"หลังแตะเชื่อม LINE.*อนุญาต \(Allow\)/);
   assert.match(html, /contactLineConsentHelp:"After tapping Connect LINE.*tap Allow/);
+  // The Allow advice is a pop-up on both LINE buttons now, not text under them (05/11/2026).
+  assert.doesNotMatch(html, /<p class="demo-line-consent-help">/);
+  assert.match(html, /contactLinePopupBody:"หาก LINE แสดงหน้าขออนุญาต ให้กด อนุญาต \(Allow\) แล้วรอจนกลับมาหน้าจอง หากกดยกเลิกจะเชื่อมไม่สำเร็จ"/);
+  assert.match(html, /contactLinePopupBody:"If LINE asks for permission, tap Allow and wait until you are back on this booking page\. Tapping Cancel will not connect your account\."/);
+  assert.match(html, /contactLinePopupGo:"รับทราบและเชื่อม LINE"/);
+  assert.match(html, /contactLinePopupGo:"OK, connect LINE"/);
+  assert.match(html, /byId\("lineConnectPopupGo"\)\?\.addEventListener\("click", \(\) => \{ closeModal\(\); startLineConnect\(fallback\); \}\);/);
   assert.match(html, /contactLineTrouble:"เชื่อม LINE ไม่ได้\? ลองกดปุ่มนี้แทน"/);
   assert.match(html, /contactLineTrouble:"Can't connect LINE\? Try this button instead\."/);
   assert.doesNotMatch(html, /LINE did not open\?\s*"\s*:\s*"LINE ไม่เปิด\?/);

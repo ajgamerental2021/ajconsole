@@ -259,6 +259,7 @@ html.ajps-map-open #langBtn,#quoteModal.pin-map-open #quoteLangBtn{visibility:hi
 .demo-maps-found a{color:inherit;text-decoration:underline;text-underline-offset:2px}
 .queue-retry-actions{display:flex;justify-content:flex-end;margin-top:14px}
 .start-passed-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:16px}.start-passed-actions .btn{min-height:44px}
+.line-connect-go{background:#06c755!important;border-color:#06c755!important;color:#fff!important;display:inline-flex;align-items:center;gap:8px}.line-connect-go svg{width:20px;height:20px}
 /* Site announcement: above every other pop-up, Thai left / English right. */
 .line-friend-modal{position:fixed;inset:0;z-index:100001;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(16,24,40,.62)}
 .line-friend-modal.open{display:flex}
@@ -2319,6 +2320,10 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       contactChannelEnglishHelp:"เลือก LINE หรือ WhatsApp ได้ หรือใช้เบอร์โทรและอีเมลต่อโดยไม่เชื่อมตอนนี้",
       contactLineConnect:"เชื่อม LINE เพื่อรับข้อมูลการจอง",
       contactLineConnected:"เชื่อม LINE แล้ว",
+      contactLinePopupTitle:"ก่อนเชื่อม LINE",
+      contactLinePopupBody:"หาก LINE แสดงหน้าขออนุญาต ให้กด อนุญาต (Allow) แล้วรอจนกลับมาหน้าจอง หากกดยกเลิกจะเชื่อมไม่สำเร็จ",
+      contactLinePopupGo:"รับทราบและเชื่อม LINE",
+      contactLinePopupCancel:"ยกเลิก",
       contactLineConsentHelp:"หลังแตะเชื่อม LINE หาก LINE แสดงหน้าขออนุญาต ให้กด อนุญาต (Allow) แล้วรอจนกลับมาหน้าจอง หากกดยกเลิกจะเชื่อมไม่สำเร็จ",
       contactLineTrouble:"เชื่อม LINE ไม่ได้? ลองกดปุ่มนี้แทน",
       contactLineTryAlternative:"ลองเชื่อม LINE อีกวิธี",
@@ -2499,6 +2504,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       contactChannelEnglishHelp:"Connect LINE or use WhatsApp for booking updates.",
       contactLineConnect:"Connect LINE",
       contactLineConnected:"LINE connected",
+      contactLinePopupTitle:"Before connecting LINE",
+      contactLinePopupBody:"If LINE asks for permission, tap Allow and wait until you are back on this booking page. Tapping Cancel will not connect your account.",
+      contactLinePopupGo:"OK, connect LINE",
+      contactLinePopupCancel:"Cancel",
       contactLineConsentHelp:"After tapping Connect LINE, if LINE asks for permission, tap Allow and wait to return to this booking. Cancelling will not connect your account.",
       contactLineTrouble:"Can't connect LINE? Try this button instead.",
       contactLineTryAlternative:"Try another way to connect LINE",
@@ -4989,7 +4998,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(["Bangkok","กรุงเทพมหานคร"].includes(demoProfile.province)) demoProfile.province = demoAddressAutofilled.province = en ? "Bangkok" : "กรุงเทพมหานคร";
     localizeDemoAddress();
     card.innerHTML = `<h3>${en ? "Customer and delivery details" : "ข้อมูลลูกค้าและที่อยู่จัดส่ง"}</h3>
-      ${payResume.active ? "" : `<section class="demo-contact-channel"><b>${esc(tr("contactChannelTitle"))}</b><p>${esc(tr(en ? "contactChannelEnglishHelp" : "contactChannelThaiHelp"))}</p><div class="demo-contact-channel-actions${en ? " demo-contact-channel-actions-en" : ""}">${bookingLineConnection() ? `<span class="demo-contact-connected">${esc(tr("contactLineConnected"))}${demoProfile.lineDisplayName ? ` · ${esc(demoProfile.lineDisplayName)}` : ""}</span>` : `<a class="btn demo-line-btn" id="lineConnectBtn" href="#">${contactBrandIcon("line")}${esc(tr("contactLineConnect"))}</a>`}${en ? `<button class="btn demo-wa-btn" id="demoWhatsAppConnectBtn" type="button" aria-pressed="${demoProfile.preferredContactChannel === "whatsapp"}">${contactBrandIcon("whatsapp")}${esc(tr("contactWhatsApp"))}</button>` : ""}</div>${bookingLineConnection() && !lineFriendExempt() ? lineFriendStepHtml() : ""}${!bookingLineConnection() ? `<p class="demo-line-consent-help">${esc(tr("contactLineConsentHelp"))}</p><p class="demo-line-app-help">${esc(tr("contactLineTrouble"))} <a id="lineConnectFallback" href="#">${esc(tr("contactLineTryAlternative"))}</a></p>${lineConnectErrorKey ? `<p class="demo-line-error" role="alert">${esc(tr(lineConnectErrorKey))}</p>` : ""}<p class="demo-line-browser-note">${esc(tr("contactLineBrowserNote"))}</p>` : ""}</section>`}
+      ${payResume.active ? "" : `<section class="demo-contact-channel"><b>${esc(tr("contactChannelTitle"))}</b><p>${esc(tr(en ? "contactChannelEnglishHelp" : "contactChannelThaiHelp"))}</p><div class="demo-contact-channel-actions${en ? " demo-contact-channel-actions-en" : ""}">${bookingLineConnection() ? `<span class="demo-contact-connected">${esc(tr("contactLineConnected"))}${demoProfile.lineDisplayName ? ` · ${esc(demoProfile.lineDisplayName)}` : ""}</span>` : `<a class="btn demo-line-btn" id="lineConnectBtn" href="#">${contactBrandIcon("line")}${esc(tr("contactLineConnect"))}</a>`}${en ? `<button class="btn demo-wa-btn" id="demoWhatsAppConnectBtn" type="button" aria-pressed="${demoProfile.preferredContactChannel === "whatsapp"}">${contactBrandIcon("whatsapp")}${esc(tr("contactWhatsApp"))}</button>` : ""}</div>${bookingLineConnection() && !lineFriendExempt() ? lineFriendStepHtml() : ""}${!bookingLineConnection() ? `<p class="demo-line-app-help">${esc(tr("contactLineTrouble"))} <a id="lineConnectFallback" href="#">${esc(tr("contactLineTryAlternative"))}</a></p>${lineConnectErrorKey ? `<p class="demo-line-error" role="alert">${esc(tr(lineConnectErrorKey))}</p>` : ""}<p class="demo-line-browser-note">${esc(tr("contactLineBrowserNote"))}</p>` : ""}</section>`}
       ${state.calc.retVerified && hasVerifiedAgreementRecord() && demoIdentityExpired() ? `<div class="demo-choice-warning">${en ? "The ID card or passport on your agreement has expired, or expires before the return date, so a new Master Agreement and renewed identity verification are required before this rental. Please upload your current document in step 3." : "บัตรประชาชนหรือ Passport ในสัญญาเดิมหมดอายุแล้ว หรือหมดอายุก่อนวันคืนเครื่อง ต้องทำข้อตกลงหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้งก่อนเช่าครั้งนี้ กรุณาอัปโหลดรูปเอกสารฉบับปัจจุบันในขั้นตอนที่ 3"}</div>` : ""}
       ${demoIdentityCoveredByAgreement() ? `<div class="demo-contract-status">${esc(demoAgreementCoverText())}</div>` : ""}
       ${activeVip() ? `<div class="demo-contract-status"><b>VIP: ${esc(activeVip().name)}</b><br>${esc(en ? "Your personal VIP rental and security-deposit rates are applied automatically." : "ระบบใช้ราคาค่าเช่าและค่าประกัน VIP ของคุณให้อัตโนมัติแล้ว")}</div>` : ""}
@@ -14000,11 +14009,23 @@ We apologize for the inconvenience and hope everyone stays safe.`
     void pollLineConnectHandoff();
   }
   let lineConnectLaunchPromise = null;
+  // Both LINE buttons ask first (owner, 05/11/2026): what to do on LINE's
+  // permission screen is read at the moment it matters, not as small print
+  // under the button that most customers scroll past.
   function connectLine(event){
     event.preventDefault();
     if(lineConnectLaunchPromise) return;
     const fallback = !!event.target.closest("#lineConnectFallback");
-    const button = event.target.closest("#lineConnectBtn, #lineConnectFallback");
+    const draw = () => {
+      showModal(tr("contactLinePopupTitle"), `<p>${esc(tr("contactLinePopupBody"))}</p><div class="start-passed-actions"><button class="btn" type="button" id="lineConnectPopupCancel">${esc(tr("contactLinePopupCancel"))}</button><button class="btn primary line-connect-go" type="button" id="lineConnectPopupGo">${contactBrandIcon("line")}${esc(tr("contactLinePopupGo"))}</button></div>`, {relocalize:draw});
+      byId("lineConnectPopupCancel")?.addEventListener("click", closeModal);
+      byId("lineConnectPopupGo")?.addEventListener("click", () => { closeModal(); startLineConnect(fallback); });
+    };
+    draw();
+  }
+  function startLineConnect(fallback){
+    if(lineConnectLaunchPromise) return;
+    const button = byId(fallback ? "lineConnectFallback" : "lineConnectBtn");
     if(button){
       button.setAttribute("aria-busy", "true");
       button.textContent = tr("contactLinePreparing");
