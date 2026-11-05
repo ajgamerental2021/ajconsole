@@ -46,7 +46,7 @@ test('the panel redraw keeps drafts, and a sync does not overwrite them', () => 
 
 test('the travel question is always in the FAQ, in Thai and English, once', () => {
   const ctx = vm.createContext({});
-  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'NO_CONTRACT_FAQ', 'AGE_FAQ'].map(constant).join('\n')
+  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'AGE_FAQ'].map(constant).join('\n')
     + source.slice(source.indexOf('  const DEFAULT_FAQ = ['), source.indexOf('\n  ];', source.indexOf('  const DEFAULT_FAQ = [')) + 5)
     + fn('normalizeFaq') + ';this.normalizeFaq = normalizeFaq; this.TRAVEL_FAQ = TRAVEL_FAQ;', ctx);
   const stored = [
@@ -65,7 +65,7 @@ test('the travel question is always in the FAQ, in Thai and English, once', () =
 
 test('"ต้องโอนจองไหม" is rewritten and "ชำระส่วนที่เหลืออย่างไร" sits right under it (TH/EN)', () => {
   const ctx = vm.createContext({});
-  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'NO_CONTRACT_FAQ', 'AGE_FAQ'].map(constant).join('\n')
+  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'AGE_FAQ'].map(constant).join('\n')
     + source.slice(source.indexOf('  const DEFAULT_FAQ = ['), source.indexOf('\n  ];', source.indexOf('  const DEFAULT_FAQ = [')) + 5)
     + fn('normalizeFaq') + ';this.normalizeFaq = normalizeFaq;', ctx);
   const stored = [
@@ -84,4 +84,22 @@ test('"ต้องโอนจองไหม" is rewritten and "ชำระ�
   assert.equal(balance.aTh, 'ส่วนที่เหลือชำระตอนรับสินค้า หรือชำระเต็มล่วงหน้าได้\n\nช่องทางที่รองรับ\n• โอนธนาคาร\n• QR PromptPay\n• บัตรเครดิต (+3.50%)\n• E-Wallet (+2.95%)\n• Wise\n\nQR PromptPay / บัตรเครดิต / E-Wallet จะส่ง Payment Link ให้ชำระเมื่อของถึงปลายทาง');
   assert.match(balance.aEn, /• Credit Card \(\+3\.50%\)/);
   assert.equal(ctx.normalizeFaq(list).filter((f) => f.kind === 'balance-payment').length, 1, 'normalising again adds no second copy');
+});
+
+test('"คืนค่าประกันเมื่อไหร่" becomes "คืนค่าประกันเมื่อไหร่และอย่างไร?" / "When and how is the deposit returned?", answer kept', () => {
+  const ctx = vm.createContext({});
+  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'AGE_FAQ'].map(constant).join('\n')
+    + source.slice(source.indexOf('  const DEFAULT_FAQ = ['), source.indexOf('\n  ];', source.indexOf('  const DEFAULT_FAQ = [')) + 5)
+    + fn('normalizeFaq') + ';this.normalizeFaq = normalizeFaq;', ctx);
+  const answerEn = 'Once all equipment is returned and inspected, the deposit will be refunded the same day via Thai bank transfer or Wise for international customers.';
+  const list = ctx.normalizeFaq([{ qTh: 'คืนค่าประกันเมื่อไหร่?', aTh: 'คืนภายในวันเดียวกัน', qEn: 'When is the deposit returned?', aEn: answerEn }]);
+  const deposit = list.filter((f) => /ประกัน/.test(f.qTh));
+  assert.equal(deposit.length, 1);
+  assert.equal(deposit[0].qTh, 'คืนค่าประกันเมื่อไหร่และอย่างไร?');
+  assert.equal(deposit[0].qEn, 'When and how is the deposit returned?');
+  assert.equal(deposit[0].aTh, 'คืนภายในวันเดียวกัน');
+  assert.equal(deposit[0].aEn, answerEn);
+  const again = ctx.normalizeFaq(list).filter((f) => /ประกัน/.test(f.qTh));
+  assert.equal(again.length, 1);
+  assert.equal(again[0].qEn, 'When and how is the deposit returned?', 'the new title stays as it is');
 });
