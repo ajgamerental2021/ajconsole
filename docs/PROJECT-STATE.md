@@ -1,3 +1,20 @@
+## 2026-11-05 — DA backend crash (Render "Exited with status 134") at 16:17
+
+- Symptoms: Render emailed "server failure" at 16:17. The app showed "โหลดข้อมูลจาก Google Sheets ไม่สำเร็จ" and kept one offline-queue item (จบงานส่งของ Darsh · AJ2).
+- Exit 134 means Node aborted, almost always because the JavaScript heap ran out. Render logs cannot be read from this environment, so the cause is inferred, not confirmed.
+- Likely cause: `cancelSupersededRequests` (added 4 Nov).
+  - It runs 2 minutes after boot and every 10 minutes after that.
+  - It parsed the "ข้อมูลจอง" JSON of every row in `Line / WhatsApp LOGs`, twice.
+  - The timing fits: deploy `fad4eba` at 16:09, then boot, then the sweep, then the crash at 16:17.
+- DA `0235228`:
+  - Only rows that are open, recent (45 days), not booked, not cancelled and not paid are parsed.
+  - One run at a time, with at most 15 withdrawals per run.
+  - First run 15 minutes after boot, then every 30 minutes.
+- Owner:
+  - Check the Render dashboard after the deploy and open the app.
+  - Press Sync on the offline queue (Darsh AJ2).
+  - If it crashes again, the Render logs (FATAL ERROR …) will show the real cause.
+
 ## 2026-11-05 — Finance rental income = confirmed ยอดค่าเช่ารวม + each ยอดค่าเช่าต่อ (R0015 showed 3,420; correct is 2,069)
 
 - Owner's rule: the finance book (รายรับรายจ่ายAJ_2026) takes the booking card's "ยอดค่าเช่ารวม" plus each extension card's "ยอดค่าเช่าต่อ", every time. It applies to Thai and English customers alike.
