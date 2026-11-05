@@ -11820,6 +11820,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         return;
       }
       if(state.calc.rentalCode) await ensureBookingHold(state.calc.rentalCode, calcRentalContext());
+      // Saved for the shop now, as on the payment page: a renter who reviews
+      // first and leaves must not leave the old date on the request.
+      if(state.calc.demoOrderOpen && state.calc.confirmedRental) await saveChangedOrderBeforePayment();
       saveLocal();
       render();
       if(state.calc.demoOrderOpen) renderDemoOrderPage();
@@ -11831,7 +11834,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       saveLocal();
       render();
       if(error?.code === "booking_hold_conflict") showShiftQueueFull(plan, error.message);
-      else toast(en ? "The queue could not be checked. Please try again." : "เช็คคิวไม่สำเร็จ กรุณาลองอีกครั้ง", 4500);
+      else if(error?.message === "queue_check_failed") toast(en ? "The queue could not be checked. Please try again." : "เช็คคิวไม่สำเร็จ กรุณาลองอีกครั้ง", 4500);
+      else toast(en ? "The new dates could not be saved. No payment was started. Please try again." : "บันทึกวันเช่าใหม่ไม่สำเร็จ ยังไม่ได้เริ่มชำระเงิน กรุณาลองอีกครั้ง", 5000);
     }
   }
   async function launchPayResume(){

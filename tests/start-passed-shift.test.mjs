@@ -41,6 +41,7 @@ test('both Pay buttons ask first; the shift re-checks the queue and saves before
   assert.match(source, /if\(showStartPassedPopup\("order", calcRentalContext\(\)\)\) return;\n    showDemoBusy\(/);
   assert.match(source, /if\(error\?\.code === "start_date_passed"\)\{\n        if\(showStartPassedPopup\("resume", payResumeContext\(r\)\.ctx, error\.result\?\.earliestStart\)\) return;/);
   assert.match(source, /if\(!gate\.pass && gate\.mode === "cutoff"\) return true;/, 'opening the page is not a "queue full"');
+  assert.match(source, /if\(state\.calc\.demoOrderOpen && state\.calc\.confirmedRental\) await saveChangedOrderBeforePayment\(\);/, 'the order page saves the new dates at once too');
   assert.match(source, /const saved = await savePayResumeChanges\("dates", \{onQueueBlocked:message => showShiftQueueFull\(plan, message\)\}\);/);
   for (const text of ['เลยเวลาจัดส่งของวันนี้แล้ว', 'หากยังสนใจเช่า ทางร้านจะเริ่มเช่าเป็นวันพรุ่งนี้แทน (${date})', '"รับทราบ"', '"เปลี่ยนเป็นวันพรุ่งนี้"',
     "Today's delivery time has passed", "If you'd still like to rent, AJ will start your rental tomorrow instead (${date}).", '"OK"', '"Change to tomorrow"',
