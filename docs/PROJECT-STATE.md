@@ -1,3 +1,14 @@
+## 2026-11-05 — My rental: Wise refund form could not scroll on a phone
+
+- On the English My rental page, the "Wise details (deposit refund)" form was taller than the screen. It could not be scrolled, so the Save button was out of reach.
+- Cause: the `.sheet` overlay was fixed and centred with no overflow.
+- DA `88ccda1`:
+  - The overlay now scrolls (`overflow-y:auto`) and leaves room for the iPhone safe areas.
+  - The card uses `margin:auto`, so it is centred when it fits and starts at the top when it does not.
+  - The form opens scrolled to the top.
+  - This applies to every pop-up on My rental, TH and EN.
+- Checked in emulated iPhone 13: the card starts at 16 px from the top, and Save can be scrolled to and tapped.
+
 ## 2026-11-05 — DA crashed again at ~17:24; My rental fixes; LINE-connect pop-up
 
 - Images 1–3: at 17:26 a booking edit failed with "timeout of 120000ms" and then "Network Error". The backend had crashed again (exit 134); the email shown was the one from 16:17.
