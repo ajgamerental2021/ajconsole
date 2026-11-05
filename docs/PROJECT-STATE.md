@@ -1,3 +1,18 @@
+## 2026-11-05 — DA crashed again at ~17:24; My rental fixes; LINE-connect pop-up
+
+- Images 1–3: at 17:26 a booking edit failed with "timeout of 120000ms" and then "Network Error". The backend had crashed again (exit 134); the email shown was the one from 16:17.
+  - Cause: both crashes match the first run of `cancelSupersededRequests` after a boot (16:12+2 min, and 17:07+15 min). The 16:25 fix still read the whole `Line / WhatsApp LOGs` sheet, including every request's booking JSON, and re-read it for each withdrawal. The run died before finishing, so every boot crashed again.
+  - DA `b73fe33`: reads the header plus 6 narrow columns (batchGet by column). Booking JSON is read only for candidate rows (at most 200). A withdrawal checks the row's Rental ID cell, then writes the single status cell.
+  - DA `b73fe33` also: `npm start --max-old-space-size=384`, and a `[memory]` log line every 10 min. Test: `test:superseded-sweep` runs against an in-memory sheet.
+- Image 4, DA `e91380e`:
+  - The "How to use …" title on My rental is centred.
+  - The English page showed the deadline in Thai ("until 04/11/2026 เวลา 12:00 น.."). `ChangeEligibility.deadlineEn` and `deadlineFor()` now give "12:00 noon on 04/11/2026". Thai is unchanged.
+- Image 5, website `e9ddfcf`:
+  - The Allow text under the LINE button is removed from the booking page.
+  - Both LINE buttons open a pop-up first: title "ก่อนเชื่อม LINE" / "Before connecting LINE", with the owner's text, plus "รับทราบและเชื่อม LINE" / "OK, connect LINE" and "ยกเลิก" / "Cancel".
+  - The page shown after LINE fails to open still carries the text.
+  - Checked in emulated iPhone, TH and EN. Tests: 422.
+
 ## 2026-11-05 — Re-check of today's work: 3 fixes
 
 - Website `7923473`: on the order page, "Change to tomorrow" now saves the new dates straight away (`saveChangedOrderBeforePayment`), as the payment page does. Before, the save only happened at Pay, so a renter who reviewed first and left kept the old start on the shop's request.
