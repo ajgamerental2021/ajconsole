@@ -13356,7 +13356,10 @@ We apologize for the inconvenience and hope everyone stays safe.`
         'aj-line-oa-bot.onrender.com','delivery-app-backend-68pm.onrender.com',
         'liff.line.me','maps.app.goo.gl','www.google.com','drive.google.com',
         'docs.google.com','pay.beamcheckout.com'];
-      return url.protocol === 'https:' && !url.username && !url.password && allowed.includes(host) ? url.href : '';
+      // Subdomains of the shop's own name: the Delivery App's customer pages move
+      // onto one after Chrome flagged their Render address (07/11/2026).
+      const own = /(^|\.)ajgamerental\.com$/.test(host);
+      return url.protocol === 'https:' && !url.username && !url.password && (allowed.includes(host) || own) ? url.href : '';
     }catch{ return ''; }
   }
   async function completeBookingChatGate(){
