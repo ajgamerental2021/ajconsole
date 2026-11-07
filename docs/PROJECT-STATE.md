@@ -1,3 +1,28 @@
+## 2026-11-07 — Chrome "Dangerous site" on the Delivery App's Render address: move customer pages to our own domain
+
+- Symptom: Chrome (Google Safe Browsing) shows "Dangerous site", flagged as phishing, for `delivery-app-backend-68pm.onrender.com/c/trip/...`.
+  - The website's `ajgamerental.com/trip/`, `/my-rental/`, `/payment-request/` and `/line-bind/` only forward to that host, so they get the same warning.
+  - The likely reason: a free shared-hosting name whose pages ask for a phone number, the last digits of an ID, and bank or Wise details.
+- Changing link text alone does not help; the page itself must be served from our name.
+  - The root `ajgamerental.com` is GitHub Pages (static), so the Delivery App needs its own subdomain, e.g. `app.ajgamerental.com`, as a Render custom domain.
+- Prepared in code:
+  - DA `2a25946`, `services/publicHost.ts`: once `CUSTOMER_ACTION_BASE_URL` is set to the new host, GET `/c/*` on the Render name answers 301 to the new host. API calls are not redirected.
+  - Every customer link is already built from `CUSTOMER_ACTION_BASE_URL`.
+  - `GOOGLE_SITE_VERIFICATION_FILE` serves the Search Console ownership file. `/c/help` shows the real host. Test: `test:public-host`.
+  - Bot `d5318f5`: deposit-refund proof links on `*.ajgamerental.com` are accepted. Bot links follow the `DELIVERY_APP_BASE_URL` env.
+  - Website: the safe-link check accepts `*.ajgamerental.com`.
+- Owner steps (cannot be done from here):
+  1. Render → delivery-app-backend → Settings → Custom Domains → add `app.ajgamerental.com`.
+  2. At the DNS provider for ajgamerental.com, add a CNAME `app` → `delivery-app-backend-68pm.onrender.com`. Wait for Render to show Verified and the certificate.
+  3. Render env:
+     - DA: `CUSTOMER_ACTION_BASE_URL=https://app.ajgamerental.com`.
+     - Bot: `DELIVERY_APP_BASE_URL=https://app.ajgamerental.com`.
+  4. Tell Claude, so the website forwarders (trip/, my-rental/, payment-request/, line-bind/, rentalCodeApi) can be switched to the new host.
+  5. Google Search Console: add the `ajgamerental.com` Domain property (DNS TXT) to get security alerts.
+     - For the old address, add a URL-prefix property for the onrender host and verify it by HTML file via `GOOGLE_SITE_VERIFICATION_FILE`.
+     - Then Security issues → Request review, and/or report at safebrowsing.google.com/safebrowsing/report_error.
+- Risk: if a subdomain is ever flagged, Google can extend the warning to the whole of ajgamerental.com. Search Console alerts let the owner respond fast.
+
 ## 2026-11-05 — LINE connect: space between the green button and "ลองเชื่อม LINE อีกวิธี"
 
 - Website `754f878`: once the Allow text was removed (e9ddfcf), the "เชื่อม LINE ไม่ได้?" box sat 4 px under the green button.
