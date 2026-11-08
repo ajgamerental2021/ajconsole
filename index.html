@@ -6598,19 +6598,25 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       clearDemoFieldError("demoSignaturePad");
       renderStepActions();
     };
+    // Fingers through Touch Events with preventDefault (non-passive): iOS
+    // Safari otherwise takes the first strokes as a scroll and cancels the
+    // pointer stroke, so nothing drew until the page had moved (08/11/2026).
+    // Mouse and pen keep Pointer Events.
+    canvas.addEventListener("touchstart", event => { const touch=event.changedTouches[0]; if(touch) begin(touch.clientX,touch.clientY); event.preventDefault(); },{passive:false});
+    canvas.addEventListener("touchmove", event => { const touch=event.changedTouches[0]; if(touch) move(touch.clientX,touch.clientY); event.preventDefault(); },{passive:false});
+    canvas.addEventListener("touchend", event => { finish(); event.preventDefault(); },{passive:false});
+    canvas.addEventListener("touchcancel", finish);
     if(window.PointerEvent){
       canvas.addEventListener("pointerdown", event => {
+        if(event.pointerType === "touch") return;
         try{canvas.setPointerCapture?.(event.pointerId);}catch{}
         begin(event.clientX,event.clientY);
         event.preventDefault();
       });
-      canvas.addEventListener("pointermove", event => { if(current){ move(event.clientX,event.clientY); event.preventDefault(); } });
-      canvas.addEventListener("pointerup", event => { finish(); event.preventDefault(); });
-      canvas.addEventListener("pointercancel", finish);
+      canvas.addEventListener("pointermove", event => { if(event.pointerType !== "touch" && current){ move(event.clientX,event.clientY); event.preventDefault(); } });
+      canvas.addEventListener("pointerup", event => { if(event.pointerType !== "touch"){ finish(); event.preventDefault(); } });
+      canvas.addEventListener("pointercancel", event => { if(event.pointerType !== "touch") finish(); });
     }else{
-      canvas.addEventListener("touchstart", event => { const touch=event.changedTouches[0]; if(touch) begin(touch.clientX,touch.clientY); event.preventDefault(); },{passive:false});
-      canvas.addEventListener("touchmove", event => { const touch=event.changedTouches[0]; if(touch) move(touch.clientX,touch.clientY); event.preventDefault(); },{passive:false});
-      canvas.addEventListener("touchend", event => { finish(); event.preventDefault(); },{passive:false});
       canvas.addEventListener("mousedown", event => { begin(event.clientX,event.clientY); event.preventDefault(); });
       canvas.addEventListener("mousemove", event => { if(current){ move(event.clientX,event.clientY); event.preventDefault(); } });
       canvas.addEventListener("mouseup", finish);

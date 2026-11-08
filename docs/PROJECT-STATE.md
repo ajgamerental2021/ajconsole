@@ -1,3 +1,25 @@
+## 2026-11-08 — Verify-to-lower-deposit from the pre-payment card, the renter told after; signature pads on iPhone; DA Stock date check
+
+- Pre-payment summary card (Bot `pendingPaymentFlexMessage`, sent by pay-later, start-day reminders and AJ Office follow-ups):
+  - New button "ยืนยันตัวตนเพื่อลดค่าประกัน / Verify identity to lower deposit" → `/verify-identity/<token>`.
+  - Shown only while `identityUpgradeState(data)==='open'` and the rental is unpaid (`depositVerifyUrl` in server.js).
+- After verifying an unpaid rental (`announceIdentityUpgradeAwaitingPayment`, fire-and-forget from `submitIdentityUpgrade`):
+  - Before this change, an unpaid rental got nothing on LINE or by email after verifying: only the shop was told, and the page showed the pay link.
+  - Now LINE gets the "✅ ยืนยันตัวตนเรียบร้อยแล้ว / Identity verified" card (`identityUpgradedFlexMessage`: rental ID, old and new deposit), then the updated pre-payment summary card.
+  - Email gets the updated summary with the pay link. Subject: "ยืนยันตัวตนเรียบร้อย ค่าประกันปรับเป็น X: สรุปรายการเช่าล่าสุด รอชำระเงิน" / "Identity verified, deposit now X: updated rental summary, awaiting payment". This is `awaitingUpgrade` in rental-confirmation.js; it has no agreement number, My rental, LINE or photo links yet.
+  - Paid rentals are unchanged: the confirmation email with the agreement.
+  - If LINE fails, the email is still sent.
+- Signature pads (Bot verify page, website booking pad): fingers now go through non-passive Touch Events with preventDefault.
+  - Pointer Events are used for mouse and pen only.
+  - Before, iPhone Safari in the website's frame drew nothing until the page had been scrolled or the pad cleared.
+  - In the Bot, Clear no longer wires the pad a second time.
+  - Chromium touch test passes: first stroke inks, clear empties the pad, listener added once. WebKit is not available here, so the owner should try it on a real iPhone.
+- DA `61d9d3d`, Stock (web) "เช็คคิววันที่":
+  - The date field only keeps a draft; a new "เช็คคิว" button applies it (no past day).
+  - Cause: iOS fills today into an empty date field when the picker opens.
+  - The native picker now applies a date only on `set`; this needs the next APK.
+- Bot `4c5f8ea` (tests: `identity-upgrade-unpaid-update`), website: pad fix plus `tests/demo-signature-touch.test.mjs`.
+
 ## 2026-11-07 — Chrome "Dangerous site" on the Delivery App's Render address: move customer pages to our own domain
 
 - Symptom: Chrome (Google Safe Browsing) shows "Dangerous site", flagged as phishing, for `delivery-app-backend-68pm.onrender.com/c/trip/...`.
