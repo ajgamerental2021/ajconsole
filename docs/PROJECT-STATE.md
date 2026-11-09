@@ -1,3 +1,11 @@
+## 2026-11-09 — Website forwarders now point at app.ajgamerental.com
+
+- The owner finished the Render custom domain, the DNS CNAME and both env values (`CUSTOMER_ACTION_BASE_URL`, `DELIVERY_APP_BASE_URL` = `https://app.ajgamerental.com`).
+- Website changes: `trip/`, `my-rental/`, `payment-request/` and `line-bind/` forward to `https://app.ajgamerental.com/c/...`. These also use the new host: `rentalCodeApi` (index.html, index-depth-demo.html) and game_index `GAME_API_BASE`.
+- The safe-link allow list keeps the onrender host, so links already sent still pass.
+- Not verified from here: app.ajgamerental.com is not reachable through this session's proxy.
+- Still to do (owner): Search Console steps (domain property, onrender URL-prefix property via `GOOGLE_SITE_VERIFICATION_FILE`, Request review).
+
 ## 2026-11-09 — DA Finance → 🌏 ลูกค้า: English-name customer list (download, fill in, upload)
 
 - DA `e326466`. The owner asked for every English-name customer not ticked as a company, to mark which are companies.

@@ -26,7 +26,7 @@ test('Thai and English copied links open the same signed rental on the customer 
   for (const lang of ['th', 'en']) {
     const result = open('?t=signed.token&lang=' + lang);
     assert.deepEqual(result.replaced, [
-      'https://delivery-app-backend-68pm.onrender.com/c/my/r/signed.token?lang=' + lang,
+      'https://app.ajgamerental.com/c/my/r/signed.token?lang=' + lang,
     ]);
     assert.equal(result.document.documentElement.lang, lang);
     assert.equal(result.fields.continue.href, result.replaced[0]);

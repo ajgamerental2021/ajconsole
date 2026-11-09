@@ -14,7 +14,7 @@
   const rentalToken = params.get('r') || '';
   const lang = params.get('lang') === 'en' ? 'en' : 'th';
   document.documentElement.lang = lang;
-  const base = 'https://delivery-app-backend-68pm.onrender.com/c/my/';
+  const base = 'https://app.ajgamerental.com/c/my/';
   const target = /^[A-Za-z0-9_-]{16,256}$/.test(token)
     ? base + 'link?t=' + encodeURIComponent(token) + '&lang=' + lang
     : /^[A-Za-z0-9_-]{10,256}\.[A-Za-z0-9_-]{40,64}$/.test(rentalToken)
