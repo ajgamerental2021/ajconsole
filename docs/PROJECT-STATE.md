@@ -1,3 +1,20 @@
+## 2026-11-09 — DA Finance → 🌏 ลูกค้า: Thai / foreign / company customers by month and year
+
+- DA `f9d5edf`. A new tab in Finance, next to 🚚 ค่าส่ง; no new bottom menu.
+- Counts and % per group, two ways:
+  - "ลูกค้า (คน)": a person is counted once per month, and once per year in the year totals, matched by phone (last 9 digits), else by name.
+  - "รายการเช่า": every rental.
+- The screen has a year picker, the year total, a monthly table with a share bar on each row, and "เทียบทุกปี".
+- Rentals are counted by start date. Cancelled rentals and bundle partner rows are excluded.
+- Each rental is placed by the first of these that applies (`services/customerMixReport.ts`):
+  1. `companyCustomer` on the booking;
+  2. the Customer Type the shop entered on Customers (new `Customer.customerTypeSet` tells an entered type from the name guess);
+  3. the identity document (passport only → foreign; ID card only → Thai);
+  4. the booking name (Thai letters / Latin only);
+  5. the rental terms language.
+- The screen shows how many rentals each rule placed and lists the unknown ones. Fixing a customer's group = set Customer Type (Thai / Foreign / Company) on the Customers sheet.
+- API `GET /api/finance/customer-mix` (read only). Test: `test:customer-mix`. Real numbers were not checked: the sheets cannot be read from here.
+
 ## 2026-11-08 — Verify-to-lower-deposit from the pre-payment card, the renter told after; signature pads on iPhone; DA Stock date check
 
 - Pre-payment summary card (Bot `pendingPaymentFlexMessage`, sent by pay-later, start-day reminders and AJ Office follow-ups):
