@@ -1,3 +1,14 @@
+## 2026-11-09 — DA Finance → 🌏 ลูกค้า: English-name customer list (download, fill in, upload)
+
+- DA `e326466`. The owner asked for every English-name customer not ticked as a company, to mark which are companies.
+  - Claude cannot read the sheets from here, so this is a download/upload in the app (web).
+- The download is a CSV (UTF-8 BOM), one row per customer. It covers booking names with Latin letters and no Thai, on rentals not ticked company and not cancelled.
+  - Columns: Customer ID, name, phone, rentals, first/last start, last rental ID, entered Customer Type, counted as, and an empty "ประเภทที่ถูกต้อง (Company / Foreign / Thai)" for the owner to fill.
+- The upload previews the changes, then writes Customer Type, Customers column R only, via the new `CustomerRepo.saveCustomerType`.
+  - Bookings are not changed: ticking ลูกค้าบริษัท changes a booking's pricing and cards.
+  - The customer mix report reads Customer Type right after the booking's company flag.
+- Rows with no Customer ID (not on the Customers sheet) are skipped and listed. An .xlsx file must be saved as CSV first.
+
 ## 2026-11-09 — DA Finance → 🌏 ลูกค้า: Thai / foreign / company customers by month and year
 
 - DA `f9d5edf`. A new tab in Finance, next to 🚚 ค่าส่ง; no new bottom menu.
