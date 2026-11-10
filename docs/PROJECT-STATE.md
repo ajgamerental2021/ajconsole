@@ -1,3 +1,10 @@
+## 2026-11-10 — Trip page Google Maps: referrer policy
+
+- `/c/trip` showed OpenStreetMap even after the owner added `https://app.ajgamerental.com/*` to the Maps browser key's website restrictions.
+- Cause: the page sent `Referrer-Policy: no-referrer` (header and meta), so Google could not match any allowed website and refused the key (`gm_authFailure` → Leaflet fallback).
+- DA commit "Trip page: send the site name as referrer…" switches to `strict-origin`: the origin only, never the token path. Test in `test:lalamove-dispatch`.
+- The key's API restrictions must include Maps JavaScript API.
+
 ## 2026-11-10 — DA staff app in Thai only; Extension Pending has ✕ and refresh
 
 - DA `f32d7da`. The owner asked for no " / English" in the shop app.
