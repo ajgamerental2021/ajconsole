@@ -1,3 +1,17 @@
+## 2026-11-10 — DA staff app in Thai only; Extension Pending has ✕ and refresh
+
+- DA `f32d7da`. The owner asked for no " / English" in the shop app.
+- Extension Pending popup:
+  - the header has ↻ รีเฟรช and ✕ buttons;
+  - all text and dialogs are in Thai (deduct from deposit, confirm Wise);
+  - payment status and method are shown in Thai.
+- Removed the English halves and trailing English lines from:
+  - Console Pending (Wise confirmation, email preview);
+  - DispatchPaymentPicker, LalamoveDispatchModal, ShopIdentityModal, UsageGuideSendButton;
+  - BookingLog, CustomerDetail, DeliveryQueue (auto-dispatch), Finance (game ID).
+- Kept: real slash lists (Guest / Admin, PS5 / PS4, search placeholders), "ดูการ์ดตัวอย่าง (ไทย / English)", and the old release-note texts.
+- Customer pages (`/c/...`) stay TH/EN.
+
 ## 2026-11-10 — "Driver is changing" card sent the moment the driver leaves
 
 - Owner: `BEAM_RETURN_URL` / `BEAM_CANCEL_URL` were moved to ajgamerental.com, and cancelling in Beam was tested: it returns to payment-failed.
