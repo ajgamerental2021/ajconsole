@@ -1,3 +1,9 @@
+## 2026-11-10 — My rental links go straight to app.ajgamerental.com
+
+- DA `511082c`, `myRentalLinkService.shopMyRentalUrl`: the Booking 📋 TH / 📋 EN copy buttons and the open button now give `https://app.ajgamerental.com/c/my/r/<token>?lang=` whenever `CUSTOMER_ACTION_BASE_URL` is on `*.ajgamerental.com`. Before, they gave the website forwarder `ajgamerental.com/my-rental/?t=`. Without an own name they keep the forwarder, never onrender.
+- Bot `my-rental-link.js` `myRentalUrl` (email and LINE): when `MY_RENTAL_PAGE=delivery-app` and `DELIVERY_APP_BASE_URL` is on `*.ajgamerental.com`, the link is the DA page directly, not `aj-line-oa-bot.onrender.com/my-rental/<token>`. With the default `MY_RENTAL_PAGE=website` nothing changes.
+- Old links still work.
+
 ## 2026-11-09 — Website forwarders now point at app.ajgamerental.com
 
 - The owner finished the Render custom domain, the DNS CNAME and both env values (`CUSTOMER_ACTION_BASE_URL`, `DELIVERY_APP_BASE_URL` = `https://app.ajgamerental.com`).
