@@ -1,3 +1,14 @@
+## 2026-11-10 — Payment summary: one printed page, real channel, tappable contacts
+
+- DA `96919a6`:
+  - print CSS (`@page A4`, compact print styles) keeps the summary on one page in TH and EN; checked with a Chromium PDF, header/footer on;
+  - the contact line links to `https://line.me/R/ti/p/@ajgame`, `tel:+66816244715` and `mailto:contact@ajgamerental.com`.
+- "Cash" on R0029's reservation came from the link's plan, not from how the customer paid (by card).
+  - Bot `5c11e71` forwards `paymentChannel = beamMethodToShopMethod(Beam's method)`.
+  - DA stores it (Beam `bank` → `promptpay`) with the link id in `paymentHistoryJson`.
+  - For older records with a plan word (cash / reservation / beam), `resolvePaymentChannels` asks Bot `/api/payments/beam-status` via `beamPaymentChannel` (cached); if Beam cannot say, the page shows "online payment". The page never shows cash.
+- Old link keys are stored lower-case. `paymentHistoryOf` recovers the id as written from the row's JSON when present; otherwise the lookup may fail and fall back to "online payment".
+
 ## 2026-11-10 — DA payment summary for the renter (TH/EN)
 
 - DA `7af78f7`. A customer asked for an e-receipt; AJ cannot issue a tax invoice for a personal rental.
