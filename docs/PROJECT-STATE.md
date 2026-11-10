@@ -1,3 +1,22 @@
+## 2026-11-10 — DA payment summary for the renter (TH/EN)
+
+- DA `7af78f7`. A customer asked for an e-receipt; AJ cannot issue a tax invoice for a personal rental.
+- Booking card buttons:
+  - "🧾 สรุปการชำระเงิน" opens the page in Thai;
+  - 📋 TH / 📋 EN copy the link;
+  - 💬 LINE sends a card in the renter's language (asks to confirm; shown only when LINE is linked).
+- The page, `/c/payment-summary/<token>?lang=` (token signed `aj-payment-summary:`; it cannot open My rental):
+  - rental details and charge lines (`bookingConfirmCostLines` on the booking as confirmed), plus extension lines and the grand total;
+  - every payment with date, channel and card fee (reservation → balance on delivery → extension / taken from deposit);
+  - total paid, and the balance (`deliveryOutstandingBalance`, the delivery card's number) or "paid in full";
+  - a deposit-refund note, "not a tax invoice", and Print / Save as PDF.
+- Rental Payments has a new column `paymentHistoryJson` (one entry per payment), written by `recordPaymentEvent`.
+  - Older rows are rebuilt by `paymentHistoryOf`: the latest payment, plus the rest of paidTotal as "earlier payment".
+  - The card fee is taken from the row's delivery link when that link was paid.
+  - A booking `paidAmount` above the ledger shows as "payment (recorded by AJ)".
+- Also removed the remaining "ไทย · English" staff labels (ShopIdentityModal, UsageGuideSendButton, BookingAgreementLinkModal).
+  - Fixed DA tests that still expected English: `test:shop-identity`, `test:contract-balance`, `test:dispatch-hold` (the last one broke with f32d7da).
+
 ## 2026-11-10 — Trip page Google Maps: referrer policy
 
 - `/c/trip` showed OpenStreetMap even after the owner added `https://app.ajgamerental.com/*` to the Maps browser key's website restrictions.
