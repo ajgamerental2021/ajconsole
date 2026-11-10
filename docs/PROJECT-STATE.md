@@ -1,3 +1,15 @@
+## 2026-11-10 — Booking calendar: "could not check the queue" (availability_timeout)
+
+- Report: one `availability_api_failed: availability_timeout`, a customer on ajgamerental.com in Facebook's in-app browser.
+- Cause: both sources failed within the 18s deadline. The Bot's `/api/availability` only proxies the same Apps Script (12s timeout, 2-minute cache), and after today's several Bot deploys its cache was empty, so a slow Apps Script failed both.
+- Bot `00bd8e8`, `services/availability.js`:
+  - the queue is read at start-up and every 2 minutes (`startAvailabilityWarmup`, 25s timeout);
+  - calendar (non-fresh) requests get a snapshot up to 15 minutes old at once, with a refresh behind it;
+  - a waiting customer never queues behind the warm-up read, and their own read keeps its 12s timeout;
+  - `requireFresh` (the final check before payment) still reads the Sheet.
+- Website: `fetchAvailability` runs a second round ("กำลังเช็คคิวอีกครั้ง") before showing the error. Analytics only reports the error when both rounds fail.
+- Tests: Bot `test/availability.test.js` (+3); website `tests/availability-retry.test.mjs` (+1).
+
 ## 2026-11-10 — Balance after a reservation; summary print in Safari; instant language switch
 
 - DA `bbf8c0a`. AJ-20261109-R0029 paid its ฿3,149 balance by card, but booking 656 still showed โอนก่อนส่ง ฿3,042, and so did the summary.

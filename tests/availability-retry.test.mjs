@@ -68,3 +68,15 @@ test('the calendar explains the automatic second check in Thai and English', () 
   assert.match(html, /checkingAgain:"Checking the queue again\.\.\."/);
   assert.match(html, /calendarStatus\.textContent = state\.availability\.loading\s*\? tr\(state\.availability\.retrying \? "checkingAgain" : "checking"\)/);
 });
+
+// 10/11/2026: one failed round no longer ends in "could not check the queue".
+test('the queue check tries a second round before showing the error', () => {
+  const fetchStart = html.indexOf('  function fetchAvailability(requireFresh = false){');
+  const body = html.slice(fetchStart, html.indexOf('  function renderAvailabilityHint()', fetchStart));
+  const first = body.indexOf('availabilityPayload = await fetchAvailabilityPayload(Date.now(), showRetrying, requireFresh);');
+  const second = body.indexOf('availabilityPayload = await fetchAvailabilityPayload(Date.now(), showRetrying, requireFresh);', first + 10);
+  assert.ok(first > 0 && second > first, 'two rounds');
+  assert.ok(body.indexOf('}catch(firstError){') > first && body.indexOf('}catch(firstError){') < second);
+  assert.ok(body.indexOf('showRetrying();', first) < second, '"checking again" is shown during the second round');
+  assert.ok(body.indexOf('"availability_api_failed"') > second, 'reported only when both rounds fail');
+});

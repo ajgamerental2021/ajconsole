@@ -9017,12 +9017,23 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     renderAvailabilityHint();
     refreshAvailabilitySupport();
     try{
-      const stamp = Date.now();
-      const availabilityPayload = await fetchAvailabilityPayload(stamp, () => {
+      const showRetrying = () => {
         state.availability.retrying = true;
         renderAvailabilityHint();
         if(state.calendar.open) renderCalendar();
-      }, requireFresh);
+      };
+      let availabilityPayload;
+      try{
+        availabilityPayload = await fetchAvailabilityPayload(Date.now(), showRetrying, requireFresh);
+      }catch(firstError){
+        // One more round before telling the customer it failed: a slow Apps
+        // Script or a Bot that just restarted answers the second time. A
+        // customer in Facebook's browser got "could not check" after the
+        // first 18 seconds (10/11/2026).
+        if(String(firstError?.message || "") === "availability_cancelled") throw firstError;
+        showRetrying();
+        availabilityPayload = await fetchAvailabilityPayload(Date.now(), showRetrying, requireFresh);
+      }
       state.availability.rows = normalizeAvailabilityRows(availabilityPayload);
       if(!state.availability.rows.length) throw new Error("Availability response is empty");
       state.availability.error = "";
