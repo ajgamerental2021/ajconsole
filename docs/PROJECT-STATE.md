@@ -1,3 +1,15 @@
+## 2026-11-10 — Stock page: a device card opens on a tap, not when a scroll starts on it
+
+- Report (owner's video, iPhone): starting a scroll on a device-type card opened its details sheet while the list kept scrolling behind it.
+- Cause: the card opened on `onPressIn` (touch-down), added earlier so one tap worked on iPhone right after a refresh.
+- DA `31244e4`, `frontend/src/screens/StockScreen.tsx`:
+  - the card is wrapped in a View with touch handlers; it opens on touch end only when the finger moved at most 10px, within 0.8s, and the list did not scroll since the touch began;
+  - the FlatList reports scrolls (`onScroll`, `scrollEventThrottle={16}`);
+  - a mouse click (web) still opens through `onPress`, ignored right after a touch open or a scroll so nothing opens twice;
+  - `onPressIn` removed.
+- Checked in Chromium with an emulated iPhone: the old code opened the sheet on touch-and-drag; the new code scrolls without opening, a tap opens, a mouse click opens. FE/BE tsc and `test:flex-ledger` pass.
+- Web takes effect after the DA deploy; the Android app needs the next APK.
+
 ## 2026-11-10 — Return/delivery time page offers only times still ahead today
 
 - DA `56984b6`, `routes/customerActions.ts`:
