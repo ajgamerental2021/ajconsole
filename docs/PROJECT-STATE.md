@@ -1,3 +1,15 @@
+## 2026-11-10 — LINE-binding links on app.ajgamerental.com; payment summary fills the printed page
+
+- The DA booking buttons now all give app.ajgamerental.com:
+  - ผูก LINE was the last one still on the website forwarder `ajgamerental.com/line-bind/`;
+  - DA `a3de886` adds `publicHost.lineBindLinkUrl`, giving `/c/my/link?t=`;
+  - the same applies to the email's `/c/my/bind-from-rental` redirect.
+- Bot `2abb3b7`: `lineBindEmailUrl` gives `https://app.ajgamerental.com/c/my/bind-from-rental?t=` when `DELIVERY_APP_BASE_URL` is on `*.ajgamerental.com`.
+- Payment summary print:
+  - larger type, with the four sections spread over 268mm (`justify-content:space-between`), so it no longer bunches at the top;
+  - `printDensity` switches long rentals (more than about 20 lines) to the compact size;
+  - Chromium PDFs of short, medium and long rentals in TH and EN each came out as 1 page.
+
 ## 2026-11-10 — Payment summary: one printed page, real channel, tappable contacts
 
 - DA `96919a6`:
