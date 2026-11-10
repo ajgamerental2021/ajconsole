@@ -1,3 +1,10 @@
+## 2026-11-10 — ajgamerental.onrender.com → ajgamerental.com in customer links
+
+- Owner: the LIFF endpoints for คิวเช่าของฉัน and HOP are now on `https://app.ajgamerental.com/c/...`, and every rich menu button was tested and works.
+- DA (see the commit below) changed its defaults: game picker, payment success/failed (rental and extension), no-identity terms link, card previews and `/c/help`. Render env (`GAME_PICKER_URL`, `AJ_RENTAL_SUCCESS_URL`/`FAILED`, `AJ_EXTENSION_*`) still overrides them; the owner was asked to check those values.
+- Website: in ajboardgame (both copies), the console-bundle link default is `https://ajgamerental.com/`. The board-game sheet setting `console_bundle_url` can still override it. index-demo payment URLs were changed too.
+- Kept on purpose: the allow-lists (Bot CORS/CSP/frame-ancestors, admin passkey origins, game-picker URL check, website safe-link list). They let old links and passkeys registered on the old host keep working.
+
 ## 2026-11-10 — My rental links go straight to app.ajgamerental.com
 
 - DA `511082c`, `myRentalLinkService.shopMyRentalUrl`: the Booking 📋 TH / 📋 EN copy buttons and the open button now give `https://app.ajgamerental.com/c/my/r/<token>?lang=` whenever `CUSTOMER_ACTION_BASE_URL` is on `*.ajgamerental.com`. Before, they gave the website forwarder `ajgamerental.com/my-rental/?t=`. Without an own name they keep the forwarder, never onrender.
