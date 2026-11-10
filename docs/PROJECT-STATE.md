@@ -1,3 +1,13 @@
+## 2026-11-10 — "Driver is changing" card sent the moment the driver leaves
+
+- Owner: `BEAM_RETURN_URL` / `BEAM_CANCEL_URL` were moved to ajgamerental.com, and cancelling in Beam was tested: it returns to payment-failed.
+  - The old cancel URL pointed at `payment-cancel.html`, which does not exist.
+- DA `1a951d5`: when a driver the customer was told about drops off and Lalamove goes back to `ASSIGNING_DRIVER`, `refreshJobUnlocked` now sends "กำลังเปลี่ยนคนขับรับคืน/จัดส่ง" (TH/EN) at once.
+  - Before, it went out only together with "ได้คนขับใหม่แล้ว".
+  - `sent.driverLeftId` stops a second change card when the new driver arrives.
+  - A second driver leaving is announced again.
+- Test: `test:lalamove-dispatch` (437 checks).
+
 ## 2026-11-10 — ajgamerental.onrender.com → ajgamerental.com in customer links
 
 - Owner: the LIFF endpoints for คิวเช่าของฉัน and HOP are now on `https://app.ajgamerental.com/c/...`, and every rich menu button was tested and works.
