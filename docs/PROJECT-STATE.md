@@ -1,3 +1,15 @@
+## 2026-11-10 — Return/delivery time page offers only times still ahead today
+
+- DA `56984b6`, `routes/customerActions.ts`:
+  - `slotsStillAhead(slots, yyyy-mm-dd, now)` drops every half-hour slot whose start is not after Bangkok's now when the date is today;
+  - `renderPage(..., now)` uses it for the return and delivery edit pages; locked delivery times and confirm pages are unchanged;
+  - the page script re-filters on date change, visibilitychange/pageshow, every 30s and before Save; a time that just passed is refused with a TH/EN message, never swapped;
+  - with no slot left, a "contact AJ on LINE" note shows and Save is disabled;
+  - `POST /c/edit/:token` refuses a passed time (`time_passed`).
+- Owner's case: early return today at 17:31 → only 18:00.
+- Checked with `test:return-window` (48) and in Chromium with a fixed clock at 17:31 and 18:02, phone timezone America/New_York, TH and EN.
+- Open question: the owner's screenshot shows the page on the onrender host. The DA should 301 `/c/*` to app.ajgamerental.com when `CUSTOMER_ACTION_BASE_URL` is set; check which link was opened.
+
 ## 2026-11-10 — Booking calendar: "could not check the queue" (availability_timeout)
 
 - Report: one `availability_api_failed: availability_timeout`, a customer on ajgamerental.com in Facebook's in-app browser.
