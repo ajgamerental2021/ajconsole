@@ -1,3 +1,14 @@
+## 2026-11-10 — Balance after a reservation; summary print in Safari; instant language switch
+
+- DA `bbf8c0a`. AJ-20261109-R0029 paid its ฿3,149 balance by card, but booking 656 still showed โอนก่อนส่ง ฿3,042, and so did the summary.
+  - Cause: `applyPaymentToBooking` returned early on any booking with `reservationDue`, skipping every payment, not only the reservation.
+  - Now it skips only when the ledger did not already hold the reservation before this payment (`ledgerPaid − received < reservationDue`). Test: `test:delivery-balance-cap`.
+- Booking 656 itself was not repaired here: it was written before the fix. The owner should clear its โอนก่อนส่ง (set paid 4,149) in the app.
+- Payment summary:
+  - balance = min(the booking's balance, grand total − Σ(amount − fee));
+  - print fill reduced to 236mm and the contact line moved inside the card; Chromium PDFs with Chrome-size and Safari-size margins are 1 page for short, R0029 and long rentals in TH and EN;
+  - the page carries both languages (`.L-th` / `.L-en`) and the button switches with no reload, updating `?lang=`; without script it is a plain link.
+
 ## 2026-11-10 — LINE-binding links on app.ajgamerental.com; payment summary fills the printed page
 
 - The DA booking buttons now all give app.ajgamerental.com:
