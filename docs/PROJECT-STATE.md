@@ -1,3 +1,20 @@
+## 2026-11-11 — DA Stock: "สถิติเครื่องว่าง" (idle stats)
+
+- DA `4cc3b3f`. A button beside "ปฏิทินเช็คคิว" opens `IdleStatsModal`, which reads `GET /api/inventory/idle-stats` (`services/idleStats.ts`).
+- Per unit:
+  - the idle run that includes today (from the day after the last return to today, in days), the next booking, and the whole free run until it;
+  - the longest idle run that has ended, plus the 5 longest, the gap count and the average;
+  - busy days and % over the last 30 and 90 days (from the first booking);
+  - first booking, last return, booking count;
+  - a warning when the last return day passed within 7 days without "จบงานรับคืน".
+- States: idle, rented (until), maintain (until), never rented, and "inventory_out" (Inventory says Rented/Booked with no booking; kept out of the ranking).
+- Tabs: ranked "ว่างนานสุดตอนนี้", ranked "ว่างนานสุดที่ผ่านมา", and "ทุกเครื่อง". There are category chips, search, and a summary (idle now, average idle days, rented, in maintenance).
+- Busy-day rule:
+  - Busy: start to return day inclusive, with END (finished) rentals, unpaid holds, MAINTAIN and bundle partners included.
+  - Not busy: cancelled and dates-pending rows.
+  - Counting starts at each unit's first booking. END units are omitted.
+- Checked: `test:idle-stats`, the modal rendered in a browser (3 tabs, detail, search), the Stock button, tsc.
+
 ## 2026-11-11 — Date badge moved to the picture's top edge
 
 - The owner found the "ว่าง 12/11/2026" / "กำลังเช็คคิว" badge (EN "Available …" / "Checking dates") still took too much of the picture.
