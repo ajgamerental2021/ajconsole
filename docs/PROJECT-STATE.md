@@ -1,3 +1,10 @@
+## 2026-11-11 — Date badge moved to the picture's top edge
+
+- The owner found the "ว่าง 12/11/2026" / "กำลังเช็คคิว" badge (EN "Available …" / "Checking dates") still took too much of the picture.
+- In the device rail it now sits on the picture's top edge (`top:-9px`), mirroring the games pill on the bottom edge. About half of it is in the card's top padding.
+- Every rail picture has `overflow:visible; min-height:0`, so cards without the pill (PS Portal) show the badge the same way and picture heights stay equal.
+- Checked: TH and EN rendered in a browser, website tests 430.
+
 ## 2026-11-11 — "ราคารวม 10 เกมแล้ว" pill moved to the picture's bottom edge
 
 - The owner said the pill covered too much of the console picture.

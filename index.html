@@ -1336,6 +1336,10 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   .before-rent-device-media{position:relative;aspect-ratio:1.25;border-radius:6px;background:#f4f6f8;overflow:hidden}
   /* The games pill sits on the picture's bottom edge, mostly below it. */
   .before-rent-device-media.has-games-tag{overflow:visible;min-height:0}
+  /* The date badge ("ว่าง 12/11/2026", "กำลังเช็คคิว") on the picture's top
+     edge, as the games pill sits on its bottom edge: the picture stays clear. */
+  .before-rent-device-media{overflow:visible;min-height:0}
+  .before-rent-device-media .availability-badge{top:-9px;right:6px}
   .before-rent-device-media img{width:100%;height:100%;object-fit:contain}
   .before-rent-device-media>.ico{width:38px;height:38px;margin:auto;color:#98a2b3;position:absolute;inset:0}
   /* "ราคารวม 10 เกมแล้ว" on the picture: easy to see, quieter than the picture and the name. */
