@@ -1,3 +1,17 @@
+## 2026-11-12 — No unit clash can be saved; queue calendar shows every line, more months when wide
+
+- DA `7abc5d8`. The owner's clashes (PS5-1 #623/#604, PS5-7 #658/#651, a same-day hand-over) came from the "save anyway" overrides: Booking form ("บันทึกทั้งที่คิวชน", "คง … ตามเครื่องจริง"), Console Pending ("สร้างต่อทั้งที่คิวชน") and the paid auto-confirm, which booked a paid request onto a taken unit with a "คิวชน" note.
+- Rule (`services/unitHolds.ts`), shared by the save guard, `conflictFor`, `stockAvailabilityOn` and the queue calendar:
+  - a booking holds its unit start → return day inclusive, so never out again on the day it comes back;
+  - once its return job is done (จบงานรับคืน) the return day is free;
+  - MAINTAIN and unpaid holds count; Cancelled/END/dates-pending do not; bundle partner included.
+- `GuardedBookingRepo` wraps `bookingRepo` (sheets/dual/pg). Any add/update that changes what a row holds is checked → `UnitClashError` 409 `unit_clash` naming the other booking. Narrowing and unrelated edits still save, so existing clashes can be fixed.
+- Overrides removed (server ignores `allowUnavailable`; app dialogs offer only "use the free unit" or go back).
+- Paid with no free unit: not booked; stays in Console Pending; money stays on its rental code; one staff alert "⛔ ชำระแล้วแต่ไม่มีเครื่องว่าง" (`booking_blocked`); the Bot gets matched/booking/created:false so the customer keeps the normal "payment received" card; the 10-minute reconciler books it once a unit is freed.
+- Queue calendar: no "+N" (week rows grow to fit every line); 2 months side by side from ~1540px, 3 from ~2300px; free counts use `heldEnd`.
+- Existing clashes are not changed automatically; the owner fixes them from "ต้องดู".
+- Checked: BE/FE tsc; backend suite 137/138 (`test:header-guard` needs Sheets credentials); new `test:unit-clash-guard`; updated booking-unit-clash, console-pending-unit-by-dates, console-pending-reservation, auto-booking-payment, stock-calendar; Chromium month view at 1200/1600/2400px and phone taps.
+
 ## 2026-11-11 — Queue calendar: open booking to edit, full width on PC, landscape on phones
 
 - DA `a1a51be` (follows `4cd804c`).
