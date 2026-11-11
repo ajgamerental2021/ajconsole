@@ -1,3 +1,10 @@
+## 2026-11-12 — Queue calendar: clearer weeks, one month by default
+
+- DA `35f786c`, `components/StockCalendarModal.tsx` (+ StockScreen `keepPlace`).
+- Readability: alternate weeks on a tinted band, 2px week rule, a day-number strip per week, month cards with a dark title bar when several show; lines have no outline (colour caps at start/return only); clash lines a thin red underline; out-of-month days grey, past day numbers grey, today light blue.
+- Month mode: "ดูทีละ 1 เดือน (เต็มจอ)" (default) / "ดู N เดือนตามความกว้างจอ" (shown when 2+ fit). Each open from the Stock button resets to the current month and one month; returning from a booking opened in the calendar keeps its place.
+- Checked: FE/BE tsc, flex-ledger 29; Chromium 2000px (opens on Nov at 1 month, toggle → Nov–Dec, › → Dec–Jan, reopen → Nov at 1 month) and iPhone (no toggle, taps/drags unchanged, booking jump).
+
 ## 2026-11-12 — No unit clash can be saved; queue calendar shows every line, more months when wide
 
 - DA `7abc5d8`. The owner's clashes (PS5-1 #623/#604, PS5-7 #658/#651, a same-day hand-over) came from the "save anyway" overrides: Booking form ("บันทึกทั้งที่คิวชน", "คง … ตามเครื่องจริง"), Console Pending ("สร้างต่อทั้งที่คิวชน") and the paid auto-confirm, which booked a paid request onto a taken unit with a "คิวชน" note.
