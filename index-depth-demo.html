@@ -510,6 +510,7 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .step-img{display:block;max-width:100%;width:100%;height:auto;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow2)}
 .step-caption{text-align:center;font-size:15px;font-weight:700;line-height:1.4;color:var(--text)}
 .step-text-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.step-text-grid.single{grid-template-columns:minmax(0,1fr)}
 .step-text-card{border:1px solid var(--border);border-radius:14px;background:#fff;padding:16px;line-height:1.65}
 .step-text-card h4,.step-detail h4{margin:0 0 8px;font-size:18px}
 .step-kicker{display:inline-flex;margin:8px 0 0;padding:6px 10px;border-radius:999px;background:#fff0f0;border:1px solid #ffc6c6;color:var(--danger);font-weight:900;font-size:13px}
@@ -13411,15 +13412,13 @@ We apologize for the inconvenience and hope everyone stays safe.`
   const STEP_GUIDE = [
     {
       stepNo:0,
-      title:{th:"เลือกทำรายการเช่าได้ 2 วิธี", en:"Choose 1 of 2 rental request methods"},
+      // One way to rent since 11/11/2026: through the website. The button opens
+      // the booking page, as the menu's "จองคิวเช่า" does.
+      title:{th:"ทำรายการเช่าผ่านเว็บไซต์", en:"Rent through the website"},
       textColumns:[
         {
-          th:`<h4>1. ทำรายการผ่านแชท Line / Facebook</h4><span class="step-kicker">แจ้งรายละเอียด 4 ข้อ</span><ol><li>เครื่องที่ต้องการเช่า</li><li>วันที่เริ่มเช่า</li><li>จำนวนวันเช่า</li><li>สถานที่จัดส่ง (ลิ้งค์ Google Maps)</li></ol>`,
-          en:`<h4>1. Submit by Line / Facebook chat</h4><span class="step-kicker">Send 4 details</span><ol><li>Device you want to rent</li><li>Rental start date</li><li>Number of rental days</li><li>Delivery location (Google Maps link)</li></ol>`
-        },
-        {
-          th:`<h4>2. ทำรายการผ่านเว็บไซต์</h4><button class="btn primary step-inline-btn" type="button" data-step-next>คลิกเพื่อดูรายละเอียด</button>`,
-          en:`<h4>2. Submit through the website</h4><button class="btn primary step-inline-btn" type="button" data-step-next>Click to view details</button>`
+          th:`<h4>ทำรายการผ่านเว็บไซต์</h4><button class="btn primary step-inline-btn" type="button" data-step-book>จองคิวเช่า</button>`,
+          en:`<h4>Submit through the website</h4><button class="btn primary step-inline-btn" type="button" data-step-book>Book a rental</button>`
         }
       ],
       detail:{
@@ -13542,7 +13541,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       ${bulletList.length ? `<ul>${bulletList.map(item => `<li>${esc(item)}</li>`).join("")}</ul>` : ""}
     </div>` : "";
     const body = step.textColumns ? `
-      <div class="step-text-grid">${step.textColumns.map(item => `<div class="step-text-card">${en ? item.en : item.th}</div>`).join("")}</div>
+      <div class="step-text-grid${step.textColumns.length === 1 ? " single" : ""}">${step.textColumns.map(item => `<div class="step-text-card">${en ? item.en : item.th}</div>`).join("")}</div>
       <div class="step-detail">${(en ? step.detail.en : step.detail.th).replace("__PRICING_TIERS__",pricingTierHtml(state.lang))}</div>` : `
       <div class="step-images ${columns.length > 1 ? "split" : ""}">${columns.map(item => `
         <figure class="step-imgcol">
@@ -13560,6 +13559,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
       <button class="btn" id="stepsPrev" type="button" ${stepsIndex === 0 ? "disabled" : ""}>${tr("stepsPrev")}</button>
       <button class="btn primary" id="stepsNext" type="button">${last ? tr("stepsDone") : tr("stepsNext")}</button>`;
     byId("stepsPrev").addEventListener("click", () => { if(stepsIndex > 0){ stepsIndex--; renderStepsBody(); } });
+    byId("stepsBody").querySelectorAll("[data-step-book]").forEach(btn => btn.addEventListener("click", () => {
+      trackAnalytics("site_menu_opened", {value:"book"});
+      closeStepsPopup();
+      setBeforeRent(false, {startGuide:true});
+    }));
     byId("stepsBody").querySelectorAll("[data-step-next]").forEach(btn => btn.addEventListener("click", () => {
       if(stepsIndex < STEP_GUIDE.length - 1){ stepsIndex++; renderStepsBody(); }
     }));

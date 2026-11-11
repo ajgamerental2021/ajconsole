@@ -1,3 +1,21 @@
+## 2026-11-11 — One way to rent on the guide; "send confirmation email" on every booking
+
+- Website `index.html` (and both demos), rental guide step 0:
+  - The chat way (Line / Facebook, "send 4 details") is removed. Only the website way is left.
+  - Title: "ทำรายการเช่าผ่านเว็บไซต์" / "Rent through the website".
+  - The button reads "จองคิวเช่า" / "Book a rental". It closes the guide and opens the booking page, as the menu's "จองคิวเช่า" does.
+  - The single card spans the full width.
+- Confirmation email, Bot `0cf4900` + DA `2b4bc3a`:
+  - The problem: the email went out only when a payment was recognised. #660 (Lawrence, paid by Wise) and shop-made bookings got none.
+  - Every DA Booking card has "📧 ส่งอีเมลยืนยันการเช่า". The sheet shows the language (by name), the recipient (the website booking's email or the Customers profile, editable), the subject and the payment line from the payment summary, plus a "paid in full" switch for payments the system never saw. Nothing is sent before Send.
+  - DA `POST /api/payment-summary/confirmation-email` sends the summary lines to Bot `/api/integrations/delivery-app/rental-confirmation-email` (signed). The Bot sends the usual layout and attaches the agreement when the rental has one.
+  - With nothing paid, the email shows the amount due, not the website's unpaid summary or pay link.
+- Checked:
+  - Website: 429 tests, plus the guide in a browser for TH/EN on the 3 pages.
+  - Bot: 840 tests.
+  - DA: `test:shop-confirmation-email` (its payload also run through the Bot's builder), the sheet rendered in a browser, tsc backend and frontend.
+- Takes effect after deploying the website, DA and Bot.
+
 ## 2026-11-12 — A pending extension holds its days (no extension clashes with a delivery)
 
 - Owner case: PS5-7 is out and the renter extends 3 days. If the new return day lands on another customer's delivery of the same unit, that must never happen.
