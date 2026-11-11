@@ -1,3 +1,9 @@
+## 2026-11-12 — Inventory: Clone button
+
+- DA `31c7cfd`, `screens/InventoryAdminScreen.tsx`. Each unit has **Clone** (beside Edit): the add form with the same category, device name, deposit, daily and weekly rate; days until next booking, available date, warranty, notes and serial number blank; status Available; Device Code = next free number of the model (PS5-2 → PS5-3, skipping taken ones; no trailing number → "-2").
+- Saving (add or edit) refuses a Device Code another unit already has, case-insensitive.
+- Checked in Chromium (clone PS5 and XBOX Series S, duplicate refused, saved payload) and FE/BE tsc.
+
 ## 2026-11-12 — Website calendar: no return on the day the next rental starts
 
 - Report: XBOX Series S booked 21–24/11 (#652), yet the website calendar allowed 18/11 → return 21/11.
