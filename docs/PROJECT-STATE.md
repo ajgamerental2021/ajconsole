@@ -1,3 +1,9 @@
+## 2026-11-11 — "Send confirmation email" button fixed on phones
+
+- DA `3cdd6c0`: on a phone the button showed as a tall empty blue box. Its `flexBasis: '100%'` became its height in the card's column layout.
+- It is now a normal-height button; it fills the row only on wide screens, via `actionFull` like the other buttons. It opens the confirmation sheet as a centred pop-up.
+- Checked: the real Booking Log rendered in a browser at phone and wide widths (button 41 px tall), the pop-up, tsc.
+
 ## 2026-11-11 — Trip and payment-request links on app.ajgamerental.com
 
 - DA `8ca4946`: the problem was "คัดลอกลิงก์" beside "เปิดหน้าลูกค้า" on a delivery job, which still gave `ajgamerental.com/trip/?t=…` (the website forwarder).
