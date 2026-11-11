@@ -1,3 +1,14 @@
+## 2026-11-11 — Stock page: "ปฏิทินเช็คคิว" (queue calendar by unit, model and type)
+
+- DA `4cd804c`. Button 🗓 ปฏิทินเช็คคิว beside "เช็คคิววันที่" opens a full-screen calendar (✕, รีเฟรช). Staff app, Thai only.
+- Backend `services/stockCalendar.ts` `buildStockCalendar` + `GET /api/inventory/calendar?from&to` (≤186 days):
+  - same queue rules as `stockAvailabilityOn` and the booking clash check: Cancelled/END/dates-pending hold nothing; MAINTAIN and unpaid holds block; bundle partner via its own row or the console's bundleId; Inventory Rented/Booked with no booking blocks until Available Date;
+  - rentals sent to `to` + 90 days so a free unit can say how long it stays free; no phone numbers;
+  - alerts: overlap, same-day turnaround (urgent when delivery is before return), not ticked returned (7-day lookback), unknown/retired device code, Inventory mismatch; `fullModelDays` for the next 90 days.
+- Frontend `components/StockCalendarModal.tsx`: pick types/models/units (union, saved per device); colour and name by unit/model/type; month view with "XX เริ่มเช่า"/"XX คืนเครื่อง" lines, free count per day and a day panel; per-unit 4-week timeline with free gaps and stacked double bookings; ต้องดู tab; tap a line for the booking.
+- Checked: `test:stock-calendar` (agrees with "เช็คคิววันที่" every day), BE/FE tsc, flex-ledger 29; Chromium phone and desktop renders; emulated iPhone: drag scrolls without opening, tap opens.
+- Web after deploy; Android in the next APK.
+
 ## 2026-11-10 — Stock page: a device card opens on a tap, not when a scroll starts on it
 
 - Report (owner's video, iPhone): starting a scroll on a device-type card opened its details sheet while the list kept scrolling behind it.
