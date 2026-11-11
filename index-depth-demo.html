@@ -9329,6 +9329,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     for(let i = 0; i < text.length; i++) hash = (hash * 31 + text.charCodeAt(i)) | 0;
     return `v2:${text.length}:${hash}`;
   }
+  // "ส่งรายการจอง" on the stats page: one per rental, however it was sent.
+  // Until 11/11/2026 only the LINE, WhatsApp and Messenger hand-offs counted,
+  // so a booking made on the website itself (agreement and payment) never did.
+  function trackBookingSubmitted(summary, code, channel){
+    const key = `aj_rental_booked_tracked_${code}`;
+    try{ if(localStorage.getItem(key)) return; localStorage.setItem(key, "1"); }catch{}
+    trackAnalytics("booking_handoff_started", {channel:["line","messenger","whatsapp","copy"].includes(channel) ? channel : "web", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", rentalDays:summary.days, deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
+  }
   async function submitRentalToSheet(summary, code, channel, preparedMessage="", preparedData=null, timeoutMs=10000){
     if(!code) return true;
     const endpoint = new URL("/api/console-pending-submissions", CONFIG.contractWebUrl).toString();
@@ -9352,6 +9360,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const result = await response.json().catch(() => ({}));
       if(!response.ok || !result?.ok) throw new Error(result?.error || "console_pending_submission_failed");
       localStorage.setItem(`aj_rental_sheet_submitted_${code}`, contentKey);
+      trackBookingSubmitted(summary, code, channel);
       return true;
     }catch(error){
       console.warn("Rental sheet append skipped", error);
@@ -9861,7 +9870,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       fallbackMessage = msg;
       await submitRentalToSheet(summary, code, "line", msg, handoff.data);
       setShareStatus("line", "ready");
-      trackAnalytics("booking_handoff_started", {channel:"line", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
       const liffUrl = new URL(`https://liff.line.me/${activeLineLiffId()}`);
       liffUrl.searchParams.set("bookingLine", "1");
       liffUrl.searchParams.set("ctx", handoff.contextToken);
@@ -11016,7 +11024,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       fallbackMessage = msg;
       await submitRentalToSheet(summary, code, "whatsapp", msg, handoff.data);
       setShareStatus("whatsapp", "opened");
-      trackAnalytics("booking_handoff_started", {channel:"whatsapp", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
       location.href = whatsappShareUrl(msg);
       return true;
     }catch(error){
@@ -11039,7 +11046,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       fallbackMessage = msg;
       await submitRentalToSheet(summary, code, "messenger", msg, handoff.data);
       showMessengerBookingHandoff(msg);
-      trackAnalytics("booking_handoff_started", {channel:"messenger", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
       return true;
     }catch(error){
       trackAnalytics("booking_handoff_failed", {channel:"messenger", value:String(error?.message || "error").slice(0,80), errorCode:"messenger_handoff_failed"});

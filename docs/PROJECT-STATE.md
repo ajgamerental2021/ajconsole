@@ -1,3 +1,16 @@
+## 2026-11-11 — "Bookings sent" now counts website bookings; "price includes 10 games" on every card
+
+- Stats page "จำนวนวันเช่าที่ลูกค้าเลือก → ส่งรายการจอง" showed 0 although bookings came in.
+  - Cause: `booking_handoff_started` was sent only by the LINE, WhatsApp and Messenger hand-offs. The website's own agreement-and-payment flow and "copy" never sent it.
+  - Fix, website: `trackBookingSubmitted` in `submitRentalToSheet` sends it once per rental (localStorage key) after the Console Pending row is saved, on every path, channel `web` for the site flow. The three per-channel calls are removed. Same in the depth demo.
+  - Fix, Bot `795c2e7`: handoffs, daily bookings and booked days count once per Rental ID.
+  - Bookings before this deploy cannot be recovered in these stats; counting starts after the website deploys.
+- Website wording and look:
+  - The detail line "เลือกเกมได้ (สูงสุด) 10 เกม" or "Choose up to 10 games", whatever the shop stored, now shows as "ราคาเช่ารวมเกม 10 เกม 🔥" / "Rental price includes 10 games 🔥". This is done by `consoleDetails` through `isGameLimitDetail` and `gamesIncludedLine`.
+  - The line is highlighted on the console cards (`.detail-games`, yellow).
+  - The device rail: every device with "ดูเกมของเครื่องนี้" gets a pill on its picture, "ราคารวม 10 เกมแล้ว" / "10 games included" (`.before-rent-device-games-tag`, above the not-ready flag when there is one). The name sits 4 px lower. Those devices are PS5, PS5 Pro, PS4, Switch 2/1, Xbox X/S, ROG Xbox Ally X, Legion GO2, Steam Deck OLED, Quest 3/3s.
+- Checked: website 430, Bot 841, the rail and cards rendered in a browser TH/EN.
+
 ## 2026-11-11 — "Send confirmation email" button fixed on phones
 
 - DA `3cdd6c0`: on a phone the button showed as a tall empty blue box. Its `flexBasis: '100%'` became its height in the card's column layout.

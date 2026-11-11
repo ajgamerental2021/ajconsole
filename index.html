@@ -134,6 +134,8 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .dep{font-size:13px;color:var(--text2);font-weight:800}
 .details{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--text2)}
 .details div{background:#fafafa;border:1px solid var(--border);border-radius:9px;padding:6px 8px}
+/* "ราคาเช่ารวมเกม 10 เกม": the line customers ask about, so it stands out from the rest. */
+.details div.detail-games{background:linear-gradient(135deg,#fff3c4,#ffe08a);border:1.5px solid #f2b705;color:#7a3e00;font-weight:900;font-size:1.08em;box-shadow:0 2px 6px rgba(242,183,5,.28)}
 .calc-shell{background:#fff;border:1px solid var(--border);box-shadow:var(--shadow);border-radius:22px;overflow:hidden}
 .calc-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-bottom:1px solid var(--border);background:#fafafa}
 .step-tab{border:0;border-right:1px solid var(--border);background:transparent;padding:14px 12px;text-align:left}
@@ -1334,9 +1336,14 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   .before-rent-device-media{position:relative;aspect-ratio:1.25;border-radius:6px;background:#f4f6f8;overflow:hidden}
   .before-rent-device-media img{width:100%;height:100%;object-fit:contain}
   .before-rent-device-media>.ico{width:38px;height:38px;margin:auto;color:#98a2b3;position:absolute;inset:0}
+  /* "ราคารวม 10 เกมแล้ว" on the picture: easy to see, quieter than the picture and the name. */
+  .before-rent-device-games-tag{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:4px;max-width:calc(100% - 12px);padding:3px 9px;border-radius:999px;background:rgba(255,243,196,.96);border:1px solid #f2b705;color:#7a3e00;font-size:11px;font-weight:800;line-height:1.35;white-space:nowrap;box-shadow:0 1px 4px rgba(16,24,40,.12)}
+  .before-rent-device-games-tag .ico{width:13px;height:13px;flex:0 0 auto}
+  .before-rent-device-games-tag span{overflow:hidden;text-overflow:ellipsis}
+  .before-rent-device-games-tag.above-flag{bottom:26px}
   .before-rent-device-flag{position:absolute;inset:auto 0 0;padding:3px 6px;background:rgba(201,0,18,.9);color:#fff;font-size:10px;font-weight:800;text-align:center}
   .before-rent-device-name{display:block;font-size:13px;font-weight:900;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .before-rent-device-name-row{display:block;min-width:0}
+  .before-rent-device-name-row{display:block;min-width:0;margin-top:4px}
   .before-rent-device-name-row .before-rent-device-name{min-width:0}
   .before-rent-device-price{font-size:12px;color:#101828;font-weight:800}
   .before-rent-device-price b{font-size:17px;color:#c90012}
@@ -2398,6 +2405,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       beforeRentPromoCueDevice:"เช่า {name} →",
       beforeRentDeviceCta:"เช็คคิวและจอง →",
       beforeRentDeviceGames:"ดูเกมของเครื่องนี้",
+      beforeRentGamesIncluded:"ราคารวม 10 เกมแล้ว",
       bookingExtrasShow:"ดูโปรโมชั่นและเครื่องอื่น ๆ",
       bookingExtrasHide:"ซ่อนโปรโมชั่นและเครื่องอื่น ๆ",
       beforeRentDeviceMin:"ขั้นต่ำ 3 วัน · เริ่มต้น {total}",
@@ -2582,6 +2590,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       beforeRentPromoCueDevice:"Rent {name} →",
       beforeRentDeviceCta:"Check dates & book →",
       beforeRentDeviceGames:"View games for this console",
+      beforeRentGamesIncluded:"10 games included",
       bookingExtrasShow:"View promotions & other consoles",
       bookingExtrasHide:"Hide promotions & other consoles",
       beforeRentDeviceMin:"3-day minimum · from {total}",
@@ -3407,7 +3416,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(/ray-?\s?ban/.test(s)) return lang==="th" ? ["เคสแว่นพร้อมระบบชาร์จ (Charging Case)", "ผ้าไมโครไฟเบอร์เช็ดแว่น และสายชาร์จ Type-C"] : ["Charging case", "Microfibre cleaning cloth and USB Type-C charging cable"];
     if(/viture|xreal/.test(s)) return lang==="th" ? ["มีสายเชื่อมต่อพร้อมใช้งาน", "เพิ่ม Mobile Dock ได้ตามตัวเลือก"] : ["Connection cables included", "Mobile Dock can be added"];
     if(/rog|legion|steam deck/.test(s)) return lang==="th" ? ["มี Docking และสายครบ พร้อมเล่น", "เลือกเกมได้ตามรายการ"] : ["Docking station and cables included", "Games can be selected from catalog"];
-    return lang==="th" ? ["2 จอย", "สายครบ พร้อมเล่น", "เลือกเกมได้สูงสุด 10 เกม"] : ["2 controllers", "All cables included", "Choose up to 10 games"];
+    return lang==="th" ? ["2 จอย", "สายครบ พร้อมเล่น", gamesIncludedLine("th")] : ["2 controllers", "All cables included", gamesIncludedLine("en")];
   }
   // The online service that comes with the console, as its own line: PSN Plus
   // with PS5, PS5 Pro and PS4, Game Pass with Xbox Series X and S. Computed,
@@ -3420,9 +3429,22 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   // A console's detail lines everywhere they are shown: one box per line,
   // with its online service last unless the shop already wrote it in.
+  // The games line, said as the price including them (11/11/2026): customers
+  // kept asking in chat whether the rental price includes games. Every stored
+  // wording ("เลือกเกมได้ 10 เกม 🔥", "เลือกเกมได้สูงสุด 10 เกม", "Choose up to
+  // 10 games") reads as this one, in both languages.
+  function gamesIncludedLine(lang){
+    return lang === "en" ? "Rental price includes 10 games 🔥" : "ราคาเช่ารวมเกม 10 เกม 🔥";
+  }
+  function isGameLimitDetail(value){
+    const text = String(value || "").trim();
+    return /เลือกเกม(ได้)?(สูงสุด)?\s*10\s*เกม/i.test(text) || /ราคา(เช่า)?รวมเกม\s*10\s*เกม/i.test(text)
+      || /(choose|pick|select)\s*(up to\s*)?10\s*games/i.test(text) || /price includes\s*10\s*games/i.test(text);
+  }
   function consoleDetails(c, lang = state.lang){
     if(!c) return [];
-    const lines = splitDetailLines(lang === "en" ? c.detailsEn : c.detailsTh);
+    const lines = splitDetailLines(lang === "en" ? c.detailsEn : c.detailsTh)
+      .map(line => isGameLimitDetail(line) ? gamesIncludedLine(lang) : line);
     const service = consoleServiceLine(c, lang);
     return service && !lines.some(line => /psn\s*plus|game\s*pass/i.test(line)) ? [...lines, service] : lines;
   }
@@ -3791,10 +3813,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     url.searchParams.set("platforms", pid);
     url.searchParams.set("focus", pid);
     return url.toString();
-  }
-  function isGameLimitDetail(value){
-    const text = String(value || "").trim();
-    return /เลือกเกมได้สูงสุด\s*10\s*เกม/i.test(text) || /choose up to\s*10\s*games/i.test(text);
   }
   function consoleHasGameCatalog(c = consoleById(state.calc.consoleId)){
     return !!gameUrl(c);
@@ -4462,8 +4480,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const media = image ? `<img src="${esc(image)}" alt="" loading="lazy">` : icon(deviceIconName(item));
       const minLine = tr("beforeRentDeviceMin").replace("{total}", money(Number(item.rate || 0) * MIN_RENTAL_DAYS));
       const gamesButton = gameUrl(item) ? `<button class="before-rent-device-games" type="button" data-before-device-games="${esc(item.id)}">${esc(tr("beforeRentDeviceGames"))}</button>` : "";
+      // On the picture of every console with games: the price includes them.
+      const gamesTag = gameUrl(item) ? `<span class="before-rent-device-games-tag${flag ? " above-flag" : ""}">${icon("gamepad")}<span>${esc(tr("beforeRentGamesIncluded"))}</span></span>` : "";
       return `<div class="before-rent-device-wrap" data-key="${esc(item.id)}"><button class="before-rent-device" type="button" data-before-device="${esc(item.id)}" ${ready?"":"disabled"}>
-        <span class="before-rent-device-media">${media}${flag}${availabilityBadge(availability)}</span>
+        <span class="before-rent-device-media">${media}${gamesTag}${flag}${availabilityBadge(availability)}</span>
         <span class="before-rent-device-name-row"><span class="before-rent-device-name" title="${esc(cName(item))}">${esc(cName(item))}</span></span>
         <span class="before-rent-device-price"><b>${esc(money(item.rate))}</b>/${esc(tr("day"))}</span>
         <span class="before-rent-device-week">${esc(money(item.weekly))}/${esc(tr("wk"))}</span>
@@ -4940,7 +4960,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           ${options.bookingButton ? `<div class="console-name-row"><div class="con-name" title="${esc(cName(c))}">${esc(cName(c))}</div></div>` : `<div class="con-name">${esc(cName(c))}</div>`}
           <div class="price-row"><div class="price-cell"><small>${tr("daily")}</small><b>${money(c.rate)}</b></div><div class="price-cell"><small>${tr("weekly")}</small><b>${money(c.weekly)}</b></div></div>
           <div class="dep">${tr("deposit")} ${money(c.deposit)}</div>
-          <div class="details">${details.map(x=>`<div>${esc(x)}</div>`).join("")}</div>
+          <div class="details">${details.map(x=>`<div${isGameLimitDetail(x) ? ' class="detail-games"' : ""}>${esc(x)}</div>`).join("")}</div>
           <div class="con-actions">
           ${gameButtonVisible ? `<button class="btn soft" data-card-game="${esc(String(c.id))}" type="button">${tr("pickGames")}</button>` : ""}
           ${ready ? `<button class="btn card-quote-btn" data-card-quote="${esc(String(c.id))}" type="button"><span>${esc(tr("quoteBtn"))}</span><small>${esc(tr("quoteBtnHint"))}</small></button>` : ""}
@@ -10099,6 +10119,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     for(let i = 0; i < text.length; i++) hash = (hash * 31 + text.charCodeAt(i)) | 0;
     return `v2:${text.length}:${hash}`;
   }
+  // "ส่งรายการจอง" on the stats page: one per rental, however it was sent.
+  // Until 11/11/2026 only the LINE, WhatsApp and Messenger hand-offs counted,
+  // so a booking made on the website itself (agreement and payment) never did.
+  function trackBookingSubmitted(summary, code, channel){
+    const key = `aj_rental_booked_tracked_${code}`;
+    try{ if(localStorage.getItem(key)) return; localStorage.setItem(key, "1"); }catch{}
+    trackAnalytics("booking_handoff_started", {channel:["line","messenger","whatsapp","copy"].includes(channel) ? channel : "web", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", rentalDays:summary.days, deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
+  }
   async function submitRentalToSheet(summary, code, channel, preparedMessage="", preparedData=null, timeoutMs=10000){
     if(!code) return true;
     const endpoint = new URL("/api/console-pending-submissions", CONFIG.contractWebUrl).toString();
@@ -10122,6 +10150,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const result = await response.json().catch(() => ({}));
       if(!response.ok || !result?.ok) throw new Error(result?.error || "console_pending_submission_failed");
       localStorage.setItem(`aj_rental_sheet_submitted_${code}`, contentKey);
+      trackBookingSubmitted(summary, code, channel);
       return true;
     }catch(error){
       console.warn("Rental sheet append skipped", error);
@@ -10631,7 +10660,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       fallbackMessage = msg;
       await submitRentalToSheet(summary, code, "line", msg, handoff.data);
       setShareStatus("line", "ready");
-      trackAnalytics("booking_handoff_started", {channel:"line", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", rentalDays:summary.days, deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
       const liffUrl = new URL(`https://liff.line.me/${activeLineLiffId()}`);
       liffUrl.searchParams.set("bookingLine", "1");
       liffUrl.searchParams.set("ctx", handoff.contextToken);
@@ -12037,7 +12065,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       fallbackMessage = msg;
       await submitRentalToSheet(summary, code, "whatsapp", msg, handoff.data);
       setShareStatus("whatsapp", "opened");
-      trackAnalytics("booking_handoff_started", {channel:"whatsapp", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", rentalDays:summary.days, deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
       location.href = whatsappShareUrl(msg);
       return true;
     }catch(error){
@@ -12060,7 +12087,6 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       fallbackMessage = msg;
       await submitRentalToSheet(summary, code, "messenger", msg, handoff.data);
       showMessengerBookingHandoff(msg);
-      trackAnalytics("booking_handoff_started", {channel:"messenger", rentalId:code, customerType:state.calc.retVerified?"returning":"new", amount:summary.total, status:"submitted", rentalDays:summary.days, deviceId:state.calc.consoleId, deviceName:cName(consoleById(state.calc.consoleId)), gameName:(state.calc.games||[]).map(game=>String(game.name||game.title||game.id||"").replace(/\|/g,"/")).filter(Boolean).join("|")});
       return true;
     }catch(error){
       trackAnalytics("booking_handoff_failed", {channel:"messenger", value:String(error?.message || "error").slice(0,80), errorCode:"messenger_handoff_failed"});

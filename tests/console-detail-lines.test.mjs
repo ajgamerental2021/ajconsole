@@ -10,13 +10,23 @@ const fn = (name) => {
 };
 const ctx = { state: { lang: 'th' } };
 vm.createContext(ctx);
-vm.runInContext([fn('splitDetailLines'), fn('consoleServiceLine'), fn('consoleDetails')].join('\n'), ctx);
+vm.runInContext([fn('splitDetailLines'), fn('consoleServiceLine'), fn('gamesIncludedLine'), fn('isGameLimitDetail'), fn('consoleDetails')].join('\n'), ctx);
 const details = (c, lang) => vm.runInContext(`consoleDetails(${JSON.stringify(c)}, ${JSON.stringify(lang)})`, ctx);
 
 test('a saved literal "\\n" becomes separate boxes', () => {
   const c = { name: 'Meta Quest 3', detailsTh: ['2 จอย 🎮\\nสายครบ พร้อมเล่น ✅\\nเลือกเกมได้ 10 เกม 🔥'], detailsEn: ['2 controllers\\nAll cables'] };
-  assert.deepEqual([...details(c, 'th')], ['2 จอย 🎮', 'สายครบ พร้อมเล่น ✅', 'เลือกเกมได้ 10 เกม 🔥']);
+  assert.deepEqual([...details(c, 'th')], ['2 จอย 🎮', 'สายครบ พร้อมเล่น ✅', 'ราคาเช่ารวมเกม 10 เกม 🔥']);
   assert.deepEqual([...details(c, 'en')], ['2 controllers', 'All cables']);
+});
+
+test('the games line reads as the price including 10 games, whatever the shop wrote (TH/EN)', () => {
+  for (const line of ['เลือกเกมได้ 10 เกม 🔥', 'เลือกเกมได้สูงสุด 10 เกม', 'ราคาเช่ารวมเกม 10 เกม']) {
+    assert.deepEqual([...details({ name: 'PS Portal', detailsTh: [line] }, 'th')], ['ราคาเช่ารวมเกม 10 เกม 🔥'], line);
+  }
+  for (const line of ['Choose up to 10 games', 'Choose 10 games 🔥', 'Pick 10 games']) {
+    assert.deepEqual([...details({ name: 'PS Portal', detailsEn: [line] }, 'en')], ['Rental price includes 10 games 🔥'], line);
+  }
+  assert.deepEqual([...details({ name: 'Steam Deck', detailsTh: ['เลือกเกมได้ตามรายการ'] }, 'th')], ['เลือกเกมได้ตามรายการ'], 'no number: left as written');
 });
 
 test('PS5, PS5 Pro and PS4 get PSN Plus; Xbox Series X and S get Game Pass; others nothing (TH/EN)', () => {

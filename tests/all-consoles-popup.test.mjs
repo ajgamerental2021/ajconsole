@@ -49,8 +49,10 @@ test('type and brand filters start collapsed, show their selection, and expand o
 
 test('cards without a game-picker button omit the ten-game detail in both languages', () => {
   assert.match(source, /function isGameLimitDetail\(value\)/);
-  assert.match(source, /เลือกเกมได้สูงสุด\\s\*10\\s\*เกม/);
-  assert.match(source, /choose up to\\s\*10\\s\*games/);
+  assert.match(source, /เลือกเกม\(ได้\)\?\(สูงสุด\)\?\\s\*10\\s\*เกม/);
+  assert.match(source, /\(choose\|pick\|select\)\\s\*\(up to\\s\*\)\?10\\s\*games/);
+  // The line stands out on the card (11/11/2026).
+  assert.match(source, /isGameLimitDetail\(x\) \? ' class="detail-games"'/);
   assert.match(source, /const gameButtonVisible = !!\(url && ready\)/);
   assert.match(source, /\.filter\(item => gameButtonVisible \|\| !isGameLimitDetail\(item\)\)/);
   assert.match(source, /\$\{gameButtonVisible \? `<button class="btn soft"/);
