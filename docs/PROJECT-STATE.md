@@ -1,3 +1,11 @@
+## 2026-11-12 — Every customer link on app.ajgamerental.com (คิวเช่า TH/EN copies included)
+
+- DA `53423e0`. The Booking "คิวเช่า" 📋 TH/EN copies still gave `ajgamerental.com/my-rental/?t=…`, and a return page had opened on the Render name.
+- Cause: links used the own name only when `CUSTOMER_ACTION_BASE_URL` parsed as `https://app.ajgamerental.com`; unset or written without `https://` they fell back (website forwarder, or the Render name). 19 places also read the variable directly with the Render name as fallback.
+- Now `publicHost.customerBaseUrl()` defaults to `https://app.ajgamerental.com` (Render custom domain on this service), normalises a scheme-less value or a path to its host, and every customer link uses it. `/c/*` on the Render name 301s to it. An explicit Render value is still honoured (shop-copied links then go via the website).
+- Owner can still check the Render env value; the links no longer depend on it.
+- Checked: test:public-host, test:my-rental-link 221, backend suite 138/139 (header-guard needs Sheets credentials), BE/FE tsc.
+
 ## 2026-11-12 — Queue calendar: clearer weeks, one month by default
 
 - DA `35f786c`, `components/StockCalendarModal.tsx` (+ StockScreen `keepPlace`).
