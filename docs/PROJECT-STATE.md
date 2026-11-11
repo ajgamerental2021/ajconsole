@@ -1,3 +1,11 @@
+## 2026-11-12 — Website calendar: no return on the day the next rental starts
+
+- Report: XBOX Series S booked 21–24/11 (#652), yet the website calendar allowed 18/11 → return 21/11.
+- Cause: `rowAvailableForRange` (index.html) treated the new rental as half-open `[start, return)`, so its return day could equal another rental's start. The other direction (start on another's return day) was already refused, since stored ranges run to return + 1.
+- Fix: `end >= range.startDate`, so the new rental's return day is held too. Same in index-demo.html and index-depth-demo.html. It covers the calendar cells, the start/return gate and the final fresh check before payment, which all use this function.
+- Same-day hand-over stays possible only after the return job is done: the device then reads Available and `normalizeAvailabilityRows` drops the ended range, as before. The delivery app's save guard (DA `7abc5d8`) refuses any such booking regardless.
+- Test: `tests/same-day-turnaround.test.mjs` runs the extracted function on the owner's case (fails on the old code); all 428 website tests pass.
+
 ## 2026-11-12 — Every customer link on app.ajgamerental.com (คิวเช่า TH/EN copies included)
 
 - DA `53423e0`. The Booking "คิวเช่า" 📋 TH/EN copies still gave `ajgamerental.com/my-rental/?t=…`, and a return page had opened on the Render name.
