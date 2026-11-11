@@ -8162,7 +8162,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function rowAvailableForRange(row, start, end){
     if(!row || /end|เลิก|ปิด/i.test(String(row.status || ""))) return false;
     if(row.availableDate && start < row.availableDate) return false;
-    return !(row.bookingRanges || []).some(range => range.startDate && range.returnDate && start < range.returnDate && end > range.startDate);
+    // A rental holds its unit through its return day: the next one may start
+    // the day after, never the day it comes back (12/11/2026). So a new
+    // rental's own return day must not be another's start day either. The
+    // stored range's returnDate is already the day after its return.
+    return !(row.bookingRanges || []).some(range => range.startDate && range.returnDate && start < range.returnDate && end >= range.startDate);
   }
   function evaluateAvailability(ctx = calcRentalContext()){
     const c = consoleById(ctx.consoleId);
