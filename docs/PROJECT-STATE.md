@@ -1,3 +1,12 @@
+## 2026-11-11 — "ราคารวม 10 เกมแล้ว" pill moved to the picture's bottom edge
+
+- The owner said the pill covered too much of the console picture.
+- It now sits on the picture's bottom edge (`bottom:-11px`): about half overlaps the picture, the rest is below it.
+- The device name moved down to 14 px after the picture, so the pill never touches it (measured: 9 px gap).
+- A "ready on" flag on that card moves up 11 px to sit above the pill.
+- The picture box keeps its height: `min-height:0` stops the visible overflow from stretching the aspect-ratio box.
+- Checked: TH and EN rendered in a browser (picture height the same with or without the pill), website tests 430.
+
 ## 2026-11-11 — "Bookings sent" now counts website bookings; "price includes 10 games" on every card
 
 - Stats page "จำนวนวันเช่าที่ลูกค้าเลือก → ส่งรายการจอง" showed 0 although bookings came in.
