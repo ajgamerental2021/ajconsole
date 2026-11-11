@@ -1,3 +1,11 @@
+## 2026-11-11 — Trip and payment-request links on app.ajgamerental.com
+
+- DA `8ca4946`: the problem was "คัดลอกลิงก์" beside "เปิดหน้าลูกค้า" on a delivery job, which still gave `ajgamerental.com/trip/?t=…` (the website forwarder).
+- `brandedTripUrl` now gives `app.ajgamerental.com/c/trip/<token>?lang=` when customer pages are on the shop's own name. So does `paymentRequestUrl`, the payment-request card link and its language switch, as `/c/payment-request/<token>`.
+- The forwarder is used only when CUSTOMER_ACTION_BASE_URL is the Render name. Links already sent keep working; the website forwarders stay.
+- Checked: `test:lalamove-dispatch` 440, payment-request and its page, trip-live, public-host, my-rental-link, tsc.
+- Takes effect after the DA deploys.
+
 ## 2026-11-11 — One way to rent on the guide; "send confirmation email" on every booking
 
 - Website `index.html` (and both demos), rental guide step 0:
