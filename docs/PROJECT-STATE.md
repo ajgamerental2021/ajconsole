@@ -1,3 +1,14 @@
+## 2026-11-11 — Queue calendar: open booking to edit, full width on PC, landscape on phones
+
+- DA `a1a51be` (follows `4cd804c`).
+- Detail card → "📝 เปิด Booking #… เพื่อแก้ไข": pushes `BookingLog` (now also in the Stock stack) with `editRowIndex` + `editBookingId`; BookingLogScreen checks the row against the ID and falls back to the ID. Bundle partner rows also offer the parent booking. The calendar reopens on return.
+- Delivery/return location URLs open Google Maps.
+- รายเครื่อง fills the window on PC (no 1180px cap; up to 9 weeks when wide).
+- Phones: "ดูแบบแนวนอน" full-screen timeline, turned 90° by transform when upright (works with rotation lock and on iOS web), own PanResponder scrolling, responder-based `Tap` (TouchableOpacity cancels taps on turned shapes in react-native-web), `preventDefault` on touchend so no ghost click lands on the Stock page.
+- Review fixes: first free gap shows "ว่างถึง dd/mm" when it started before the window; "ยังไม่มีคิวถัดไป" says how far it looked. Extensions update the same booking row, so they do not raise false overlaps.
+- The owner's two "ต้องดู" alerts (PS5-7 #658/#651 and PS5-1) are overlaps in Booking Log itself; one rental in each pair needs another unit.
+- Checked: BE/FE tsc, flex-ledger 29, stock-calendar; Chromium PC 2000px, iPhone upright/landscape taps, drags, buttons and booking jump.
+
 ## 2026-11-11 — Stock page: "ปฏิทินเช็คคิว" (queue calendar by unit, model and type)
 
 - DA `4cd804c`. Button 🗓 ปฏิทินเช็คคิว beside "เช็คคิววันที่" opens a full-screen calendar (✕, รีเฟรช). Staff app, Thai only.
