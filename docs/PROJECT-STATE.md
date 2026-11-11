@@ -1,3 +1,11 @@
+## 2026-11-12 — Owner may save one clash on purpose (to fix existing clashes)
+
+- DA `8cb9f52`. Fixing existing clashes (e.g. #604/#641/#658 on PS5-6/PS5-12) needs an intermediate save that still clashes; the guard refused it.
+- Booking form POST/PUT accept `overrideClash: true` for the owner's login only (`CLASH_OVERRIDE_USERS`, default `ADMIN_USERNAME`). The save runs in `withClashOverride` (AsyncLocalStorage), and `GuardedBookingRepo` lets that one clash through with a `[unit-clash] saved by owner override` log. 409s carry `canOverride`; other logins asking get 403 `clash_override_owner_only`.
+- App: the owner sees "บันทึกทั้งที่คิวชน (เจ้าของร้าน)" after the clash message (after declining a suggested switch). No override anywhere else: website, payments, Console Pending, customer changes and extensions, AI.
+- Checked: test:booking-unit-clash 10 (owner saves, staff 403, one save only), 23 booking/queue suites, BE/FE tsc.
+- Noticed, not changed: `backend/src/routes/auth.ts` has login passwords in the tracked file (owner's default and a second account). They belong in Render env; the owner should rotate them.
+
 ## 2026-11-12 — Inventory: Clone button
 
 - DA `31c7cfd`, `screens/InventoryAdminScreen.tsx`. Each unit has **Clone** (beside Edit): the add form with the same category, device name, deposit, daily and weekly rate; days until next booking, available date, warranty, notes and serial number blank; status Available; Device Code = next free number of the model (PS5-2 → PS5-3, skipping taken ones; no trailing number → "-2").
