@@ -1,3 +1,29 @@
+## 2026-11-12 — One queue rule for the website and the delivery app (full audit)
+
+- Audit findings:
+  - (1) The website drew its calendar from whichever answered first, the Bot (an Apps Script proxy) or the Apps Script directly. That script's rules are not in any repo and could differ from the DA save guard.
+  - (2) The Bot's pre-payment booking hold took the unit count from the browser and checked only other holds, never real bookings.
+  - (3) A unit Inventory marks out with no booking and no date read as free in the website's range check.
+  - (4) DA extensions ignored MAINTAIN rows, bundle second devices and multi-unit cells.
+- DA `f5a938c`:
+  - `services/publicAvailability.ts` + `GET /api/public/availability`: every unit's held days by `unitHolds`, in the shape the website and Bot read, with no customer data. A no-date Inventory hold is published as a one-year range.
+  - `GET /api/public/availability/check`: free units of a model for a range, return day inclusive. Both endpoints are on the version-gate allow list.
+  - `extendableDays` uses `heldCodes`/`heldDays`.
+  - Booking form warnings skip "Payment and dates pending" rows.
+- Bot `18e651c` (branch + main):
+  - `/api/availability` reads the DA first and falls back to the Apps Script; `_ajSource` says which.
+  - `POST /api/booking-holds` counts free units with the DA check and refuses `queue_full` before payment. If the DA does not answer, the browser's count stands, and the DA guard still refuses at booking.
+- Website `7e6339f`:
+  - Asks the Bot first; the Apps Script only after a Bot failure or after 6 s (12 s for the final check).
+  - `queue_full` shows `queueFull` (TH/EN).
+  - Together with `59fbfeb`, a return day is never another rental's start day.
+- Unchanged: the DA save guard on every write, and the owner-only clash override (`8cb9f52`) as the only way to save a clash.
+- Checked:
+  - DA `test:public-availability`: 1,050 unit × range comparisons with the guard.
+  - A one-off cross-check passed the DA payload through the Bot's `releaseFinishedRanges` and the website's real `normalizeAvailabilityRows`/`rowAvailableForRange` (extracted from index.html): 1,470 cases, 0 mismatches after fixing (3).
+  - DA suite 139/140 (header-guard needs Sheets credentials), Bot 833, website 429.
+- Deploy order does not matter: until the DA is deployed, the Bot uses the Apps Script and the hold keeps the browser count.
+
 ## 2026-11-12 — Owner may save one clash on purpose (to fix existing clashes)
 
 - DA `8cb9f52`. Fixing existing clashes (e.g. #604/#641/#658 on PS5-6/PS5-12) needs an intermediate save that still clashes; the guard refused it.
