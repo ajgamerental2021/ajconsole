@@ -21,7 +21,9 @@ function queueCheck(fetch) {
 const validResponse = () => ({ ok: true, json: async () => ({ rows: [{ deviceName: 'PS5' }] }) });
 const stalled = () => new Promise(() => {});
 
-test('a fast queue result does not start a redundant retry', async () => {
+// 12/11/2026: the Bot's queue (the delivery app's rule) is asked first; the
+// sheet's Apps Script only when the Bot fails or is slow.
+test('a fast queue result from the Bot asks nothing else', async () => {
   const calls = [];
   const check = queueCheck(url => {
     calls.push(url);
@@ -30,7 +32,8 @@ test('a fast queue result does not start a redundant retry', async () => {
   const result = await check(123);
   assert.equal(result.rows[0].deviceName, 'PS5');
   await new Promise(resolve => setTimeout(resolve, 35));
-  assert.equal(calls.length, 2);
+  assert.equal(calls.length, 1);
+  assert.ok(calls[0].includes('bot.test'));
 });
 
 test('a queue request still pending after six seconds hedges only the direct source', async () => {
@@ -43,7 +46,8 @@ test('a queue request still pending after six seconds hedges only the direct sou
   const result = await check(123, () => { retries += 1; });
   assert.equal(result.rows[0].deviceName, 'PS5');
   assert.equal(retries, 1);
-  assert.equal(calls.length, 3);
+  assert.equal(calls.length, 2);
+  assert.ok(calls[0].includes('bot.test') && calls[1].includes('script.test'));
 });
 
 test('a failed or stalled queue check finishes within eighteen seconds without claiming availability', async () => {
@@ -51,8 +55,19 @@ test('a failed or stalled queue check finishes within eighteen seconds without c
   const check = queueCheck(url => { calls.push(url); return stalled(); });
   const started = performance.now();
   await assert.rejects(check(123));
-  assert.equal(calls.length, 3);
+  assert.equal(calls.length, 2);
   assert.ok(performance.now() - started < 250);
+});
+
+test('the final check before payment gives the Bot longer before asking the sheet', async () => {
+  const calls = [];
+  const check = queueCheck(url => { calls.push(url); return stalled(); });
+  const pending = check(123, () => {}, true).catch(() => {});
+  await new Promise(resolve => setTimeout(resolve, 80));
+  assert.equal(calls.length, 1, 'still only the Bot after 8 (scaled) seconds');
+  assert.ok(calls[0].includes('fresh=1'));
+  await pending;
+  assert.equal(calls.length, 2);
 });
 
 test('an empty queue response is rejected so another source can answer', async () => {
