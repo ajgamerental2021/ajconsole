@@ -1,3 +1,18 @@
+## 2026-11-11 — DA Stock: "สถิติคิวแน่น" and periods for both queue statistics
+
+- DA `b7c7a5a`.
+- New button "🔥 สถิติคิวแน่น", placed before the idle stats button. The idle stats button is renamed "📊 สถิติคิวว่าง".
+- `BusyStatsModal` reads `GET /api/inventory/busy-stats?from&to` (`busyStats` in `services/idleStats.ts`). Per unit:
+  - rented days in the period, and their % of the period's days since the unit's first booking;
+  - rentals touching the period, and their average length;
+  - the longest run of rented days (merged and clipped to the period);
+  - the current run, days booked ahead, and maintenance days (not counted as rented).
+- BusyStatsModal tabs: rented days, rentals, longest run, and per model (utilisation, totals, busiest and quietest unit).
+- `StatsPeriodPicker` serves both screens. Choices: all history / 30 / 90 / 180 / 365 days / this month / custom dates.
+  - Busy stats: the period may run into the future, and booked days count.
+  - Idle stats: the period stops at today. "Now" means the period's last day. Ended gaps are clipped to the period, and idle days and share are added.
+- Checked: `test:idle-stats` (periods and busy stats), both modals rendered in a browser running the real stats code (all tabs, presets and custom dates), the Stock buttons, tsc.
+
 ## 2026-11-11 — DA Stock: "สถิติเครื่องว่าง" (idle stats)
 
 - DA `4cc3b3f`. A button beside "ปฏิทินเช็คคิว" opens `IdleStatsModal`, which reads `GET /api/inventory/idle-stats` (`services/idleStats.ts`).
