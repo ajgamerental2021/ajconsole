@@ -1,3 +1,16 @@
+## 2026-11-12 — A pending extension holds its days (no extension clashes with a delivery)
+
+- Owner case: PS5-7 is out and the renter extends 3 days. If the new return day lands on another customer's delivery of the same unit, that must never happen.
+- Already true before this: the extension dropdown on the customer page (DA `customerExtension.ts`) and the server check stop at the day before the next booking. For example, next delivery 18/11 and current return 12/11 allow at most 5 days (back 17/11).
+- Gap closed, DA `4ef0f5d`:
+  - While an extension awaits payment, the Booking Log still shows the old return day, so the website or the shop could sell those days.
+  - New `services/extensionHolds.ts`: open requests (`pending_payment` not expired, `payment_verification_pending`, `paid` not applied) hold old return+1 → requested return under the booking's own row and bundle.
+  - Used by `GuardedBookingRepo`, `unitForNewBooking`, `/api/public/availability(/check)` (so the website via the Bot), inventory `/availability`, and other rentals' `extendableDays`.
+  - A request never blocks its own booking. An unreadable extension sheet falls back to bookings alone. The queue calendar still shows bookings only.
+- Website and Bot: no code change needed. The website reads the DA public queue through the Bot, so pending-extension days now show as taken.
+- Checked: new `test:extension-holds`, DA suite 140/141 (header-guard needs Sheets credentials), tsc backend and frontend.
+- Takes effect after the DA deploys on Render.
+
 ## 2026-11-12 — One queue rule for the website and the delivery app (full audit)
 
 - Audit findings:
