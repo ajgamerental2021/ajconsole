@@ -1,3 +1,13 @@
+## 2026-11-12 — Return-time card after delivery
+
+- DA `4f2033a`.
+- When the first delivery close moves the main row's Return Time (handoverTime), `notifyReturnTime` pushes the customer card "🔁 นัดรับคืนเครื่อง" / "Your return pickup time" (`handoverTimeFlex.ts`).
+  - Content: the delivered hour, return date, time and place, the ±20–40 min driver note, the rental ID, and a `return_edit` button.
+  - Sent once per booking, date and time (retry key).
+  - Skipped when the time is unchanged, the booking is cancelled or already returned, or there is no LINE.
+- The card is in the staff card preview suite.
+- Checked: test:handover-time, card-preview, flex-ledger, once-cards, lalamove-dispatch; TH and EN previews rendered.
+
 ## 2026-11-12 — Rental change holds its new days; one driver card; delivered hour → return time
 
 - DA `730b4b7`.
