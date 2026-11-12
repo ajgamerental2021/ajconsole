@@ -1,3 +1,14 @@
+## 2026-11-12 — LINE Reply usage moved to the Delivery App Profile
+
+- Commits: Bot `684ae7e`, DA `2a7a083`.
+- DA Profile has a new card, "💬 LINE Reply เดือนนี้". It shows:
+  - used / 25,000 with a bar (green, amber at 80%, red at 90%);
+  - free messages remaining, the month's projection, days counted and the busiest day;
+  - last month's total.
+- How it works: DA `GET /api/line/reply-usage` (staff login) → `askBot('reply-usage')` → Bot `POST /api/integrations/delivery-app/reply-usage`. The Bot route is HMAC-signed and returns the same `replyUsage()` as the LIFF admin. Read-only.
+- The owner no longer uses the LIFF contract page. The LIFF ⚙️ button "can't be pressed"; not investigated, and the LIFF menu item was left as is.
+- Checked: the card rendered in a browser harness (normal, ≥90%, error); backend and frontend tsc pass; flex-ledger 30/30; bot tests 851/851. The live Bot↔DA call is not checked; it needs both deployed.
+
 ## 2026-11-12 — AJ LINE Broadcast: filter followers like LINE OA
 
 - Bot `9fcf626` (`/broadcast`).
