@@ -1,3 +1,20 @@
+## 2026-11-12 — One change request per booking; duplicate-card audit
+
+- Booking 652 had six identical ฿600 MOD requests, one per press of "ยืนยันการเปลี่ยนแปลง". Six exact matches also meant the slip matched none.
+- DA `903b37c`:
+  - `openModificationRequest` takes a per-booking turn. It reuses the open request with the same choice (dates, device, accessories, option, amount) or supersedes the open ones (`cancelled`, "superseded by …").
+  - `retireOtherRequests` runs when a change is applied.
+  - `newestPerBooking` collapses old copies in slip matching and in the staff list. The list shows "ซ้ำ N ครั้ง".
+- Audit of cards that could go out twice:
+  - Dispatch cards are all sent under `withJobLock` except the confirmation, fixed in `2590432`; it now also carries a retry key.
+  - Reminders could overlap ticks: one tick runs at a time now, with retry keys.
+  - The extension "paid, not moved" card was re-sent on every repeat. It now goes out once (durable marker). The applied card has a retry key.
+  - The paid-change card has a retry key.
+  - New `lineService.retryKeyFor(marker)` builds the X-Line-Retry-Key. LINE answers a repeat with 409, which is treated as sent.
+  - Already safe: booking confirmation (lock + marker), refund cards, Bot Beam webhook.
+- Bot `ffcc8be`: LINE webhook events are deduplicated by webhookEventId (redelivery), kept 24 h and capped at 5,000.
+- Checked: DA suite 144/145 (header-guard needs Sheets credentials), `test:once-cards`, `test:modification-slip`, dispatch 443, Bot 848.
+
 ## 2026-11-12 — Trip request card sent twice (fixed)
 
 - PS5-6 (AJ-20261106-R0101) received "ร้านส่งคำขอเรียกรถรับคืนแล้ว" twice at 09:40.
