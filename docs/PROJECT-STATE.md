@@ -1,3 +1,10 @@
+## 2026-11-12 — Trip request card sent twice (fixed)
+
+- PS5-6 (AJ-20261106-R0101) received "ร้านส่งคำขอเรียกรถรับคืนแล้ว" twice at 09:40.
+- Cause: `confirmTrip` saves the job with its `orderId`, then sends the confirmation outside `withJobLock`. The staff panel's `refreshJob` of the new trip ran `sendMissingConfirmation` on the stored copy at the same time and sent the card again.
+- DA `2590432`: `sendMissingConfirmation` is single-flight per jobId. A second caller waits and copies `sent.confirmed`, and the stored job is re-read before sending.
+- `test:lalamove-dispatch` reproduces the race: 2 cards before the fix, 1 after; 442/442 pass. The other delivery and return tests pass.
+
 ## 2026-11-12 — A paid rental change by slip is applied, confirmed and recoverable
 
 - Case: AJ-20261109-R0004 (จิรายุทธ) changed 3 → 7 days (21–24/11 → 21–28/11) from the My rental link (MOD-HI3DB00J). They paid the ฿600 difference by Krungthai slip in LINE (sent in an album with screenshots). The booking did not change, and the customer got no card.
