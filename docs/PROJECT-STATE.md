@@ -1,3 +1,20 @@
+## 2026-11-12 — AJ LINE Broadcast: filter followers like LINE OA
+
+- Bot `9fcf626` (`/broadcast`).
+- Target "ผู้ติดตาม LINE OA ทั้งหมด" now has the LINE OA filters, in TH and EN:
+  - area: Bangkok, Pattaya, Northern, Central, Southern, Eastern, NorthEastern, Western (`th_01`–`th_08`);
+  - age: 15–19 … 65–69, 70+;
+  - gender;
+  - friendship period: ≤6, 7–29, 30–89, 90–179, 180–364, 365+ days;
+  - OS: iOS, Android.
+- How the filters combine: several choices in one filter mean any of them, and different filters must all match. Adjoining age or friendship bands are joined into one range.
+- Maximum now works for followers too (up to 1,000,000; with `upToRemainingQuota`).
+- A filtered or capped campaign is sent by LINE narrowcast (`filter.demographic`, same retry key). Unfiltered campaigns still use broadcast.
+- After sending, the campaign stays "sending" until `getNarrowcastProgress` reports the outcome. It then records delivered and failed counts. If LINE's errorCode 2 says too few followers match, the list shows "ผู้ติดตามที่ตรงตัวกรองน้อยเกินไป".
+- LINE gives no count in advance. Followers whose attributes LINE doesn't know are left out when a filter is used.
+- Checked: bot tests 851/851, including 3 new narrowcast tests. The page was checked in a browser, TH and EN, at desktop and phone width.
+- Not checked against live LINE. Narrowcast with a demographic filter needs LINE's minimum target reach.
+
 ## 2026-11-12 — FAQ "พัทยา/ชลบุรี เช่าได้ไหม": check the fee yourself
 
 - Website `index.html` (and the depth demo's default text):
