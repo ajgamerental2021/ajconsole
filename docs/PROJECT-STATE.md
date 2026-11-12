@@ -1,3 +1,25 @@
+## 2026-11-12 — A paid rental change by slip is applied, confirmed and recoverable
+
+- Case: AJ-20261109-R0004 (จิรายุทธ) changed 3 → 7 days (21–24/11 → 21–28/11) from the My rental link (MOD-HI3DB00J). They paid the ฿600 difference by Krungthai slip in LINE (sent in an album with screenshots). The booking did not change, and the customer got no card.
+- Causes:
+  1. A change request opened from the link stored `lineUserId: ''`, and `findModificationForSlip` needed it.
+  2. For a customer with a booking, the Bot's verified-slip path only compares the slip with the booking balance (`handleVerifiedBookedSlip`). It never asks about pending changes or extensions.
+  3. `settleModificationPayment` told only the shop. It sent no customer card and did not add the money to `paidAmount`.
+  4. There was no staff path to apply a paid change by hand.
+- Fix, DA (`31461f5`, wording fixed in `f4e5d19`):
+  - `findModificationForSlip` matches tier by tier: the request's LINE account, then the rental code, then the LINE account bound to the booking (`lineUserIdForBooking`), then the payer's first name on the slip. It needs exactly one candidate at each tier. Slip options are transfer, qr and wise.
+  - New requests fall back to the customer's bound LINE account.
+  - `POST /api/integrations/aj-rental/slip-pending-request` (allow-listed). It returns `{kind, referenceId, rentalCode, language, alreadyPaid}`.
+  - When settled: `paidAmount` += paid; `confirmPaidModification` pushes `rentalModifiedFlex` with `paid` (TH/EN, once via a durable marker); the shop alert shows the paid amount.
+  - `settleModificationPayment` accepts `allowExpired` for a staff confirmation.
+  - Booking → "เช่าต่อ/เปลี่ยน (n)" lists changes from the last 14 days. "ได้รับเงิน ฿… แล้ว · เปลี่ยนรายการ + ส่งการ์ด" calls `POST /api/extension-pending/changes/:id/confirm-paid`.
+- Fix, Bot (`3b32be8`): before the balance logic, every verified slip calls `slipPendingRequest`.
+  - On a match, `completePendingRequestSlip` forwards the payment with `referenceId`/`modificationId`/`extensionRequestId` and the payer's name.
+  - It replies with one receipt card in the request's language (new purpose `modification`), records the payment through the usual Discord/Telegram/email path, and tells the admin if the change could not be applied.
+  - If the lookup fails, the old path is used.
+- Owner action after deploy: Booking → "เช่าต่อ/เปลี่ยน" → MOD-HI3DB00J → confirm ฿600. The request's 12 h window ends about 13:30 on 12/11; the staff confirm ignores that.
+- Checked: DA `test:modification-slip`, DA suite 143/144 (header-guard needs Sheets credentials), Bot 845, the staff list rendered and confirm pressed in a browser, tsc.
+
 ## 2026-11-11 — DA Stock: "สถิติคิวแน่น" and periods for both queue statistics
 
 - DA `b7c7a5a`.
