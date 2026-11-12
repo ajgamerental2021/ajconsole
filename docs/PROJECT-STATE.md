@@ -1,3 +1,11 @@
+## 2026-11-12 — FAQ "พัทยา/ชลบุรี เช่าได้ไหม": check the fee yourself
+
+- Website `index.html` (and the depth demo's default text):
+  - The answer now reads "สามารถเช่าได้ แต่ค่าจัดส่งทั้งหมดลูกค้าเป็นผู้รับผิดชอบเอง กดปุ่มเช็คค่าจัดส่งได้ด้วยตัวเอง" / "Yes, but the customer pays all delivery costs. Check the delivery fee yourself with the button below."
+  - A "เช็คค่าส่ง" / "Check delivery fee" button closes the FAQ and opens the rent/delivery quote pop-up (`openQuotePopup("faq")`) in the page's language.
+  - The item is matched by its question (พัทยา/ชลบุรี/Pattaya/Chonburi), so an answer saved earlier in the admin also shows the new text and button. This applies to both the on-page FAQ and the FAQ pop-up.
+- Checked: TH and EN in a browser (one button; the pop-up opens with lang=th or lang=en), website tests.
+
 ## 2026-11-12 — Return pickups called 20 minutes early by default
 
 - DA `e31173c`.

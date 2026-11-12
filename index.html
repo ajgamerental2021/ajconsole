@@ -2262,7 +2262,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
     time:{qTh:"เวลาส่ง-รับคืนเครื่อง",aTh:"ปกติจัดส่งเวลา 10.00–18.00 น. ตามคิว โดยร้านต้องเตรียมเครื่องและติดตั้งเกมก่อน หากแจ้งเช่าก่อน 18.00 น. ยังสามารถจัดส่งภายในวันนั้นได้ ส่วนหลัง 18.00 น. จะจัดส่งวันถัดไป เว้นแต่ร้านยืนยันว่ายังส่งได้ เวลารับคืนในวันสิ้นสุดการเช่าจะเป็นเวลาเดียวกับเวลาที่ลูกค้ารับเครื่องในวันเริ่มเช่า เว้นแต่ตกลงกับร้านเป็นอย่างอื่น",qEn:"Delivery and return pickup times",aEn:"Delivery is normally scheduled between 10:00 and 18:00, subject to the day’s queue and device preparation. Requests made before 18:00 can usually be delivered the same day. Requests made after 18:00 will be delivered the next day unless AJ confirms same-day delivery is still available. Return pickup on the final rental day is scheduled for the same time the equipment was received on the start date, unless AJ agrees otherwise."},
     preparation:{qTh:"ระยะเวลาในการเตรียมเครื่องก่อนจัดส่ง",aTh:"เตรียมเครื่องและติดตั้งเกมประมาณ 2–3 ชั่วโมง หรือ 30 นาที–1 ชั่วโมงสำหรับเครื่องที่ไม่ต้องติดตั้งเกม",qEn:"How long does device preparation take?",aEn:"Device preparation and game installation take about 2–3 hours, or 30 minutes–1 hour for devices that do not require game installation."},
     area:{qTh:"พื้นที่ให้บริการ",aTh:"ให้บริการเช่าเฉพาะใน กรุงเทพฯ–ปริมณฑล (นครปฐม, สมุทรสาคร, สมุทรปราการ, ปทุมธานี, นนทบุรี)",qEn:"Service area",aEn:"Rental service is available only in Bangkok and the surrounding provinces: Nakhon Pathom, Samut Sakhon, Samut Prakan, Pathum Thani, and Nonthaburi."},
-    pattaya:{qTh:"พัทยา/ชลบุรี เช่าได้ไหม",aTh:"สามารถเช่าได้ แต่ค่าจัดส่งทั้งหมดลูกค้าเป็นผู้รับผิดชอบเอง กรุณาทักแชทร้านเพื่อสอบถามค่าจัดส่ง",qEn:"Can I rent in Pattaya / Chonburi?",aEn:"Yes, but the customer is responsible for all delivery costs. Please contact the shop to confirm the delivery fee."}
+    pattaya:{qTh:"พัทยา/ชลบุรี เช่าได้ไหม",aTh:"สามารถเช่าได้ แต่ค่าจัดส่งทั้งหมดลูกค้าเป็นผู้รับผิดชอบเอง กดปุ่มเช็คค่าจัดส่งได้ด้วยตัวเอง",qEn:"Can I rent in Pattaya / Chonburi?",aEn:"Yes, but the customer pays all delivery costs. Check the delivery fee yourself with the button below."}
   };
   const DELIVERY_PROCESS_FAQ = {
     kind:"deliveryProcess",
@@ -8571,8 +8571,15 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     host.innerHTML = state.faq.map(f => {
       const q = state.lang==="en" ? (f.qEn || f.qTh) : (f.qTh || f.qEn);
       const a = state.lang==="en" ? (f.aEn || f.aTh) : (f.aTh || f.aEn);
-      const action = f.kind === NO_CONTRACT_FAQ.kind ? `<button class="btn soft faq-action" type="button" data-faq-rental-terms>${esc(tr("rentalTermsRead"))}</button>` : "";
-      return `<div class="faq-item"><div class="faq-q">${esc(q)}</div>${f.kind === NO_CONTRACT_FAQ.kind ? pricingFaqMarkup(state.lang) : `<div class="faq-a">${esc(a)}</div>`}${action}</div>`;
+      // Pattaya / Chonburi (12/11/2026): the fee is checked on the quote page, not asked in chat.
+      // Matched by the question, so an answer saved in the admin before this reads the new way too.
+      const pattaya = /พัทยา|ชลบุรี|pattaya|chonburi/i.test(`${f.qTh || ""} ${f.qEn || ""}`);
+      const answer = pattaya ? (state.lang === "en"
+        ? "Yes, but the customer pays all delivery costs. Check the delivery fee yourself with the button below."
+        : "สามารถเช่าได้ แต่ค่าจัดส่งทั้งหมดลูกค้าเป็นผู้รับผิดชอบเอง กดปุ่มเช็คค่าจัดส่งได้ด้วยตัวเอง") : a;
+      const action = f.kind === NO_CONTRACT_FAQ.kind ? `<button class="btn soft faq-action" type="button" data-faq-rental-terms>${esc(tr("rentalTermsRead"))}</button>`
+        : pattaya ? `<button class="btn card-quote-btn faq-action" type="button" data-faq-quote>${esc(state.lang === "en" ? "Check delivery fee" : "เช็คค่าส่ง")}</button>` : "";
+      return `<div class="faq-item"><div class="faq-q">${esc(q)}</div>${f.kind === NO_CONTRACT_FAQ.kind ? pricingFaqMarkup(state.lang) : `<div class="faq-a">${esc(answer)}</div>`}${action}</div>`;
     }).join("");
     const btn = byId("faqExpandBtn");
     if(btn){
@@ -14464,8 +14471,15 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const items = state.faq.map(f => {
       const q = state.lang==="en" ? (f.qEn || f.qTh) : (f.qTh || f.qEn);
       const a = state.lang==="en" ? (f.aEn || f.aTh) : (f.aTh || f.aEn);
-      const action = f.kind === NO_CONTRACT_FAQ.kind ? `<button class="btn soft faq-action" type="button" data-faq-rental-terms>${esc(tr("rentalTermsRead"))}</button>` : "";
-      return `<div class="faq-item"><div class="faq-q">${esc(q)}</div>${f.kind === NO_CONTRACT_FAQ.kind ? pricingFaqMarkup(state.lang) : `<div class="faq-a">${esc(a)}</div>`}${action}</div>`;
+      // Pattaya / Chonburi (12/11/2026): the fee is checked on the quote page, not asked in chat.
+      // Matched by the question, so an answer saved in the admin before this reads the new way too.
+      const pattaya = /พัทยา|ชลบุรี|pattaya|chonburi/i.test(`${f.qTh || ""} ${f.qEn || ""}`);
+      const answer = pattaya ? (state.lang === "en"
+        ? "Yes, but the customer pays all delivery costs. Check the delivery fee yourself with the button below."
+        : "สามารถเช่าได้ แต่ค่าจัดส่งทั้งหมดลูกค้าเป็นผู้รับผิดชอบเอง กดปุ่มเช็คค่าจัดส่งได้ด้วยตัวเอง") : a;
+      const action = f.kind === NO_CONTRACT_FAQ.kind ? `<button class="btn soft faq-action" type="button" data-faq-rental-terms>${esc(tr("rentalTermsRead"))}</button>`
+        : pattaya ? `<button class="btn card-quote-btn faq-action" type="button" data-faq-quote>${esc(state.lang === "en" ? "Check delivery fee" : "เช็คค่าส่ง")}</button>` : "";
+      return `<div class="faq-item"><div class="faq-q">${esc(q)}</div>${f.kind === NO_CONTRACT_FAQ.kind ? pricingFaqMarkup(state.lang) : `<div class="faq-a">${esc(answer)}</div>`}${action}</div>`;
     }).join("");
     return `<div style="margin-bottom:10px">${copyButton}</div>${items}`;
   }
@@ -16071,6 +16085,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         return;
       }
       if(event.target.closest("[data-faq-rental-terms]")){ openRentalTermsReadOnly(); return; }
+      if(event.target.closest("[data-faq-quote]")){ closeModal(); openQuotePopup("faq"); return; }
       if(event.target.closest("[data-line-booking-help]")){ showLineBookingHelp(); return; }
       if(event.target.closest("[data-line-booking-launch]")){ setShareStatus("line", "opened"); return; }
       const beforeRentTracked = event.target.closest("[data-before-rent-track]");
