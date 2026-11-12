@@ -1,3 +1,10 @@
+## 2026-11-12 — Return-time card: after-hours wording, map pin
+
+- DA `447acf5`.
+- Delivered after 20:00: Return Time is 20:00 (as before). The card now says "ร้านรับคืนเครื่องไม่เกินเวลาร้านปิด 20:00 น. จึงนัดรับคืนเวลา 20:00 น. ในวันคืนเครื่องครับ" / "We collect returns no later than 20:00, when the shop closes…" and gives no delivered hour. Before 10:00 is worded the same way.
+- A pickup place that is a Google Maps link or bare coordinates shows as "ตามหมุดแผนที่ (ปุ่มด้านล่าง)" with a "ดูจุดรับคืนบนแผนที่" button.
+- Checked: test:handover-time (21:14 → 21:00 / 20:00, 20:10 → 20:00, link and coordinates), card-preview, flex-ledger; TH and EN previews rendered.
+
 ## 2026-11-12 — Return-time card after delivery
 
 - DA `4f2033a`.
