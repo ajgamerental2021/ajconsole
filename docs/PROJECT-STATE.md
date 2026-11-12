@@ -1,3 +1,14 @@
+## 2026-11-12 — Rental change holds its new days; one driver card; delivered hour → return time
+
+- DA `730b4b7`.
+- **Rental change dates.** The quote and the payment were already checked by unitHolds. There were two gaps:
+  - `findUnitForDates` ignored open extensions;
+  - an open MOD request didn't hold its new days.
+- Fix: `extensionHolds.modificationHoldRows` now adds rows for `pending_payment` (not expired) and `paid` requests, keyed by the booking's own row. They are included in `withExtensionHolds`, so the save guard, the website, other changes and `findUnitForDates` all see them.
+- **Duplicate "ได้คนขับรับคืนแล้ว"** (AJ-20261031-R0040). Every customer card in `dispatchService` now has a once-key: driver intro/details per driverChangeCount and driver, photo, pickedUp, near:N, nearby, arrived, change and cancel notices, return arrived and proof, and an ETA update per 10 minutes.
+- **Delivered hour → Delivery Time and Return Time** (`services/handoverTime.ts`). Runs on the first delivery close, by hand or by Lalamove/Grab (`deliveredAt = job.completedAt`). Rounding: ≤15 min → :00, ≤45 → :30, otherwise the next hour. Return is held to 10:00–20:00. Bundle partner rows and the handoff's rows are included. A return already done keeps its time.
+- Checked: new test:modification-holds, test:handover-time and the two-server case in test:lalamove-dispatch (445). Related suites pass, and so do tsc and flex-ledger.
+
 ## 2026-11-12 — LINE Reply usage moved to the Delivery App Profile
 
 - Commits: Bot `684ae7e`, DA `2a7a083`.
