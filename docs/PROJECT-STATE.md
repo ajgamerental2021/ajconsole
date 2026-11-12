@@ -1,3 +1,21 @@
+## 2026-11-12 — Console Pending: "ลูกค้าโอนเข้า Wise" + confirmation email
+
+- Commits: Bot `2b9a77f`, DA `ec23eac`. Deploy the Bot first or together with DA.
+- New button "💸 ลูกค้าโอนเข้า Wise" under the bank button.
+  - Same dialog and flow as the bank transfer: full amount or reservation, reference, verified.
+  - Uses `channel: 'wise'`. The Bot records it as paymentMethod wise / source wise_manual.
+  - Creates the Booking and sends the LINE card in the customer's language.
+  - The old English-only "ยืนยันเงินเข้า Wise" button and its overlay were removed from the modal. The Bot's `/wise-payment/*` routes are left unused.
+- Confirmation email after a bank or Wise confirmation:
+  - The Bot's `completePaidRental` emails the rental's address and returns `emailStatus` (sent / already_sent / no_email / failed).
+  - On no_email or failed, DA sends `shopConfirmationEmail(bookingId)` (now exported from routes/paymentSummary.ts), which uses the profile email and the language by name.
+  - The success dialog reports the outcome.
+- `validBankReference` accepts a leading # (Wise transfer numbers).
+- Checked:
+  - Bot: 853/853.
+  - DA: test:console-pending-restore-bank 10, reservation 75, shop-confirmation-email, flex-ledger; tsc on both apps.
+  - Both buttons were driven in a browser harness.
+
 ## 2026-11-12 — Return-time card: after-hours wording, map pin
 
 - DA `447acf5`.
