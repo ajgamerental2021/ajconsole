@@ -1,3 +1,16 @@
+## 2026-11-12 — Return pickups called 20 minutes early by default
+
+- DA `e31173c`.
+- Customer return page (`renderPage`, return only): a green note under the time, in TH and EN — the driver is booked automatically and may arrive about 20–40 minutes before or after the chosen time, depending on traffic and weather.
+- `autoDispatchService`:
+  - `RETURN_DEFAULT_LEAD_MINUTES = 20`.
+  - `effectiveLeadMinutes(plan, leg, global)` returns the plan's own lead if set, else 20 for a return, else the all-jobs lead.
+  - `armReturnPickupOnConfirm` writes lead 20 when the customer saves. If the plan is already on, it saves only the lead, so `armedAt` and the manual-takeover check are kept. A lead set by staff is kept.
+  - `maxLead` includes 20, for the midnight case.
+- `LalamoveDispatchModal` prefills 20 for a return; staff can edit it.
+- Note: returns now ignore the all-jobs lead unless a job has its own value. Deliveries still follow the all-jobs lead.
+- Checked: `test:auto-dispatch` (new cases), `test:return-window` 52, the page rendered in TH and EN, tsc.
+
 ## 2026-11-12 — One change request per booking; duplicate-card audit
 
 - Booking 652 had six identical ฿600 MOD requests, one per press of "ยืนยันการเปลี่ยนแปลง". Six exact matches also meant the slip matched none.
