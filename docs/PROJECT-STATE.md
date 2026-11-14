@@ -1,3 +1,13 @@
+## 2026-11-15 — Customer time/place edits reach every booking of the handoff
+
+- DA `e43a3b5`.
+- **Case:** TCL rented an XBOX Series X and an XBOX Series S, both returning 15/11. The customer moved the return to 12:00 and only one booking changed; the other kept 11:00 and got its own 11:00 reminder.
+- **Cause:** `companyDeliveryRows` only grouped company bookings, and only for delivery.
+- **New grouping:** `companyBookingGroup.customerLegBookings` — same phone (last 9 digits) or same LINE account, same leg date, not cancelled, leg not done, no bundle-partner rows. It is united with `companyRunBookings`, for both legs.
+- The customer edit and confirm now save the time, place and confirmation on every row. The auto driver call (`armReturnPickupOnConfirm`) and the location/note flags also go to every row.
+- `detailsSavedFlex` adds a "🎮 ใช้กับทั้ง N เครื่อง" / "All N devices" line.
+- **Checked:** test:handoff-group (new); all backend tests 151/152 (`header-guard` needs Sheets credentials); tsc passes; the card was rendered in TH and EN.
+
 ## 2026-11-14 — Unit clash: return un-tick checked; unpaid website requests hold a unit
 
 - Commits: DA `fd8cc87`, Bot `ba5c218`, website (this commit). **Deploy all three together.** With only DA deployed, the website would count a customer's own request against their own payment.
