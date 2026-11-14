@@ -1,3 +1,19 @@
+## 2026-11-15 — Identity photos: .jpg and .png only, said on every upload (TH/EN)
+
+- Commits: website (this commit) and Bot `5a99ef0`. Deploy both. DA is unchanged.
+- **Where:**
+  - Website booking step 3 and the "Verify now" pop-up (they share `demoIdentityUploadGridHtml`).
+  - Bot `/verify` (verify later, after paying).
+  - Bot `/verify-identity` (verify to lower the deposit).
+  - Bot LIFF contract page.
+- **Shown under each upload's hint:** "📎 รองรับเฉพาะไฟล์รูป .jpg และ .png เท่านั้น" / "📎 JPG and PNG photos only (.jpg, .png)".
+- **The picker:** it uses `accept="image/jpeg,image/png,.jpg,.jpeg,.png"`; on iPhone a library HEIC is then handed over as JPEG. Any other chosen file is refused and cleared, with "ไฟล์นี้ใช้ไม่ได้ รองรับเฉพาะรูปนามสกุล .jpg และ .png (ไม่เกิน N MB) กรุณาเลือกรูปใหม่ หรือกดปุ่มถ่ายรูป" (EN alike). N is 40 MB, or 15 MB on `/verify`.
+- **The camera button:** it still takes the phone's own shot. Every photo is re-encoded to JPEG before it is sent, as before.
+- **Checked:**
+  - tests/identity-photo-formats.test.mjs (website) and test/identity-photo-formats.test.js (Bot), both new.
+  - Website 433/433 and Bot 856/856.
+  - The pages were rendered TH/EN, and a .webp was refused and cleared while a .jpg was taken.
+
 ## 2026-11-15 — One Booking Confirm for one customer's several devices (delivery once)
 
 - DA `c915bad`. Only DA needs a deploy.

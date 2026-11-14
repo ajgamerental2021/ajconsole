@@ -1084,6 +1084,7 @@ body.unified-flow-demo .demo-status.pending{color:#b54708}
 body.unified-flow-demo .demo-upload{display:grid;gap:12px;padding:20px;border:1px dashed #98a2b3;border-radius:14px;background:#fafafa;line-height:1.6}
 body.unified-flow-demo .demo-upload b{font-size:16px;line-height:1.5}
 body.unified-flow-demo .demo-upload .hint{line-height:1.6}
+body.unified-flow-demo .demo-upload-format{display:inline-block;align-self:flex-start;background:#fff7e6;border:1px solid #f4c46b;color:#8a4b00;border-radius:8px;padding:4px 10px;font-size:13px;font-weight:700;line-height:1.5}
 body.unified-flow-demo .demo-upload input[type=file]{max-width:100%;font-size:14px}
 body.unified-flow-demo .demo-upload-file{color:#137333;font-weight:800;min-height:18px;word-break:break-all}
 body.unified-flow-demo .demo-upload-preview{display:block;width:100%;max-width:180px;padding:4px;border:1px solid #d0d5dd;border-radius:12px;background:#fff;cursor:pointer}
@@ -2333,7 +2334,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       individualRateAfter:" ก่อนจอง",
       calcCta:"เช็คคิว & คำนวณค่าเช่า",
       identityUploadedPreview:"ดูรูปที่อัปโหลดแบบขยาย",
-      identityReadOptional:"อ่านเลขและวันหมดอายุจากรูป (ไม่บังคับ)", identityPhotoReady:"เลือกรูปแล้ว: {name} (ส่งเมื่อกดยืนยัน)", identityFileType:"ใช้รูป JPG, PNG, WebP หรือ HEIC ไม่เกิน 40 MB ระบบจะย่อก่อนส่ง", identityPhotoDecode:"เปิดรูปนี้ไม่ได้ กรุณาเลือกรูป JPG หรือถ่ายใหม่", identityOcrBusy:"กำลังอ่านรูป คุณกรอกข้อมูลเองได้ระหว่างนี้",
+      identityReadOptional:"อ่านเลขและวันหมดอายุจากรูป (ไม่บังคับ)", identityPhotoReady:"เลือกรูปแล้ว: {name} (ส่งเมื่อกดยืนยัน)", identityFileType:"ไฟล์นี้ใช้ไม่ได้ รองรับเฉพาะรูปนามสกุล .jpg และ .png (ไม่เกิน 40 MB) กรุณาเลือกรูปใหม่ หรือกดปุ่มถ่ายรูป", identityFileFormats:"📎 รองรับเฉพาะไฟล์รูป .jpg และ .png เท่านั้น", identityPhotoDecode:"เปิดรูปนี้ไม่ได้ กรุณาเลือกรูป JPG หรือถ่ายใหม่", identityOcrBusy:"กำลังอ่านรูป คุณกรอกข้อมูลเองได้ระหว่างนี้",
       contactChannelTitle:"ช่องทางรับข้อมูลการจอง",
       contactChannelThaiHelp:"เชื่อม LINE ก่อนชำระเงิน เพื่อรับการยืนยันและดูคิวเช่าของคุณ",
       contactChannelEnglishHelp:"เลือก LINE หรือ WhatsApp ได้ หรือใช้เบอร์โทรและอีเมลต่อโดยไม่เชื่อมตอนนี้",
@@ -2518,7 +2519,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       individualRateAfter:" before booking.",
       calcCta:"Check Queue & Calculate",
       identityUploadedPreview:"View uploaded photo larger",
-      identityReadOptional:"Fill number and expiry from the photo (optional)", identityPhotoReady:"Photo selected: {name} (sent when you confirm)", identityFileType:"Use a JPG, PNG, WebP or HEIC photo up to 40 MB. It will be resized before sending.", identityPhotoDecode:"This photo could not be opened. Choose a JPG or take it again.", identityOcrBusy:"Reading the photo; you can enter the details yourself meanwhile.",
+      identityReadOptional:"Fill number and expiry from the photo (optional)", identityPhotoReady:"Photo selected: {name} (sent when you confirm)", identityFileType:"This file can’t be used. Only .jpg and .png photos are accepted (up to 40 MB). Choose another photo or use the camera button.", identityFileFormats:"📎 JPG and PNG photos only (.jpg, .png)", identityPhotoDecode:"This photo could not be opened. Choose a JPG or take it again.", identityOcrBusy:"Reading the photo; you can enter the details yourself meanwhile.",
       contactChannelTitle:"Booking updates",
       contactChannelThaiHelp:"Connect LINE before payment to receive your booking updates",
       contactChannelEnglishHelp:"Connect LINE or use WhatsApp for booking updates.",
@@ -5749,8 +5750,14 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   // Phone photos are resized and re-encoded before upload: small enough to send
   // reliably, still sharp enough to read the document number.
-  function demoIdentityFileAllowed(file){
-    return Boolean(file && (/^image\/(jpeg|png|webp|heic|heif)$/i.test(file.type) || /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name || "")) && file.size <= 40 * 1024 * 1024);
+  // A chosen file must be a .jpg or .png (15/11/2026): customers sent other
+  // formats and were not told which work. A photo taken with the camera
+  // button is the phone's own camera image and is accepted as before; every
+  // photo is re-encoded to JPEG before it is sent either way.
+  function demoIdentityFileAllowed(file, fromCamera = false){
+    if(!file || file.size > 40 * 1024 * 1024) return false;
+    if(fromCamera) return /^image\//i.test(file.type || "image/jpeg") || /\.(jpe?g|png|heic|heif)$/i.test(file.name || "");
+    return /^image\/(jpeg|png)$/i.test(file.type) || (!file.type && /\.(jpe?g|png)$/i.test(file.name || ""));
   }
   function syncDemoIdentityInputs(kind, file){
     try{
@@ -6916,7 +6923,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <label class="demo-upload">
           <b>${demoIdentityType()==="passport" ? (en ? "1. Passport photo page only" : "1. รูป Passport หน้าข้อมูลอย่างเดียว") : (en ? "1. Thai ID card only" : "1. รูปบัตรประชาชนอย่างเดียว")}</b>
           <span class="hint">${tr("idDocumentPhotoHint")}</span>
-          <input id="${prefix}IdDocument" data-identity-file="id" type="file" accept="image/*" ${uploadDisabled?"disabled":""}>
+          <span class="demo-upload-format">${esc(tr("identityFileFormats"))}</span>
+          <input id="${prefix}IdDocument" data-identity-file="id" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" ${uploadDisabled?"disabled":""}>
           <span class="demo-upload-file">${documentName ? esc(tr("identityPhotoReady").replace("{name}", documentName)) : ""}</span>
           ${documentPreview ? `<button class="demo-upload-preview" type="button" data-identity-preview="id" aria-label="${esc(tr("identityUploadedPreview"))}">${demoIdentityWatermarkHtml(documentPreview)}</button>` : ""}
           <span class="demo-upload-actions">
@@ -6930,7 +6938,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         <label class="demo-upload">
           <b>${en ? "2. Selfie holding the same document" : "2. รูปเซลฟี่คู่บัตรประชาชน/Passport"}</b>
           <span class="hint">${en ? "Face and document both visible, no sunglasses or mask, no glare, and the document not cropped." : "เห็นใบหน้าและเอกสารครบ ไม่ใส่แว่นดำหรือหน้ากาก ไม่มีแสงสะท้อน และไม่ตัดขอบบัตร"}</span>
-          <input id="${prefix}SelfieWithId" data-identity-file="selfie" type="file" accept="image/*" ${uploadDisabled?"disabled":""}>
+          <span class="demo-upload-format">${esc(tr("identityFileFormats"))}</span>
+          <input id="${prefix}SelfieWithId" data-identity-file="selfie" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" ${uploadDisabled?"disabled":""}>
           <span class="demo-upload-file">${selfieName ? esc(tr("identityPhotoReady").replace("{name}", selfieName)) : ""}</span>
           ${selfiePreview ? `<button class="demo-upload-preview" type="button" data-identity-preview="selfie" aria-label="${esc(tr("identityUploadedPreview"))}">${demoIdentityWatermarkHtml(selfiePreview)}</button>` : ""}
           <span class="demo-upload-actions">
@@ -16656,7 +16665,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         const target = byId(event.target.dataset.cameraFor || "");
         const file = event.target.files?.[0];
         if(target && file){
-          if(!demoIdentityFileAllowed(file)){
+          if(!demoIdentityFileAllowed(file, true)){
             event.target.value = "";
             toast(tr("identityFileType"));
             return;
