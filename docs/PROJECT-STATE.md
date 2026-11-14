@@ -1,3 +1,27 @@
+## 2026-11-15 — One Booking Confirm for one customer's several devices (delivery once)
+
+- DA `c915bad`. Only DA needs a deploy.
+- **Case:** นัทธพงศ์ (not a company) rented MQ3-2 (671) and MQ3s (672), both delivered 16/11 at 11:00. Two bookings meant two confirmation cards.
+- **Grouping:** `companyBookingGroup.customerOrderBookings`. It matches on the same name, the same phone (last 9 digits), the same start date and the same delivery time. It excludes company bookings, cancelled bookings, END/MAINTAIN and bundle partner rows. The earliest booking ID comes first.
+- **Service:** `services/customerOrderConfirm.ts`.
+  - `planOrderDelivery` (pure) charges the delivery once, on the earliest booking.
+    - Other bookings lose `deliveryFee` and `deliveryDiscount`, and their balance (`transferBeforeDelivery`, else `cashReceive`) drops by the fee.
+    - If only a later booking has the delivery and it is unpaid, the delivery moves to the earliest booking, balances with it.
+    - A delivery that is already paid, or a row with a financial correction, is refused with a note for the shop.
+  - The preview and the card (`customerOrderFlex`, TH/EN) list each device with its rental lines (from `bookingConfirmCostLines`), deposit and paid amount. The delivery appears once. Then come the grand total, paid, and due before delivery.
+  - The confirm and edit links are issued on the first booking. The customer action already applies to every booking of that customer's leg (`customerLegBookings`).
+  - An open reservation blocks the order card.
+  - Sending writes the plan through `bookingRepo`, pushes the card, and marks Booking Confirm Sent for every booking.
+- **Routes:** `/api/line/push/booking-confirm/:row/order-preview`, `/order` and `/order/send-test`.
+  - The test route sends to `LINE_TEST_USER_ID` and writes nothing.
+  - The single preview now returns `orderDeviceCount`, and the single-send dialogs point to the order button.
+- **Booking Log:** a "📦 รวบยอดส่ง Booking Confirm (N เครื่อง)" button and a "🧪 ตัวอย่างการ์ดรวมให้แอดมิน" button on every booking of such an order.
+- **Automatic senders** (`sendBookingConfirm` with `onceOnly`): when the order has 2 or more bookings and none has had a card, they send the order card instead. If part of the order already has a card, or the order card can't settle the delivery, they send the booking's own card as before.
+- **Reminders:**
+  - The runner and the manual reminder list every device for non-company grouped jobs.
+  - The non-company queue task key normalises the phone and name, so "083…" and "+66 83…" are one job and get one reminder.
+- **Checked:** test:order-confirm (new), using the screenshot figures: 12,181 grand total, 400 paid, 11,781 due. All backend tests and tsc pass, and the card was rendered in TH and EN.
+
 ## 2026-11-15 — Customer time/place edits reach every booking of the handoff
 
 - DA `e43a3b5`.
