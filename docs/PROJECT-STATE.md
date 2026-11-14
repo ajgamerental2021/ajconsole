@@ -1,3 +1,36 @@
+## 2026-11-14 — Change-dates grid, tap feedback, pinned calendar dates, unit-clash review
+
+DA `e250a6e`, `d8c5fa5`, `b60a7a2`. Codex's earlier attempt at these left nothing pushed; its only commit since 12/11 was `87b99ca` (completed deliveries → return scheduling, unrelated).
+
+**Change-dates page** (`/c/rental/modify`):
+- Each day shows its weekday (TH/EN), via `services/changeDateGrid.ts`.
+- With a 3-day grid, a free Monday or Tuesday shows "โปร ฿999" / "Deal ฿999". The price comes from `bookingCharges` at the unit's daily rate, so the quote matches. Other lengths show no promotion at all.
+- A sticky bottom bar shows the new start → new return (weekday, date, time), the number of days and the deal, next to "ดูราคาใหม่".
+
+**Tap feedback:**
+- `services/tapFeedback.ts` is a middleware on every `/c` HTML page.
+- A tapped link or a sent form shows a "please wait" card (TH/EN), and a form can be sent once.
+- Cancelled taps, tel/LINE links, new tabs, Back and returning from another app are handled.
+- `window.ajWait()` is there for navigation done by a page's own script.
+
+**Queue calendar → รายเครื่อง:** the dates row pins under the modal header while scrolling down, and it follows the grid's sideways scroll (`measureInWindow` on scroll; onLayout did not fire after the tab switch on web).
+
+**Unit-clash review:**
+- Every Booking write already went through `GuardedBookingRepo`. Bundle partner rows are covered by the parent's guard, and the website rule matches unitHolds.
+- Added:
+  1. `GuardedBookingRepo.exclusive`: hold-changing saves run one at a time, so concurrent saves can't both pass. A nested save inside the lock runs straight through.
+  2. These now count others' open extension and modification holds (`withExtensionHolds`): `startDayOptions`, bundle availability in `getExtrasOffer`, and the Console Pending unit suggestion.
+- Left as is:
+  - Booking Log manual unit change (owner override, by design).
+  - Un-ticking "จบงานรับคืน" (setDone false) re-holds the return day without a check.
+  - A website request that is not paid yet holds nothing until payment. The paid-but-no-unit fallback applies.
+
+**Checked:**
+- New tests: test:change-date-grid, test:tap-feedback, test:queue-sees-open-requests, and a concurrent-save case in test:unit-clash-guard (it fails without the lock).
+- All 150 backend test scripts: 149 pass. `header-guard` needs live Sheets credentials.
+- tsc passes on both apps.
+- Pages driven in a browser: change-dates TH/EN with 3 and 5 days, tap feedback, calendar pin.
+
 ## 2026-11-12 — Console Pending: "ลูกค้าโอนเข้า Wise" + confirmation email
 
 - Commits: Bot `2b9a77f`, DA `ec23eac`. Deploy the Bot first or together with DA.
