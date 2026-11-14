@@ -8612,7 +8612,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           if(!rs || !re) return;
           // Strictly before today's cell: anything ending today has ended.
           if(releaseEnded && today && re <= today) return;
-          bookingRanges.push({startDate:rs, returnDate:addDays(re, 1), status:String(item?.status || "")});
+          bookingRanges.push({startDate:rs, returnDate:addDays(re, 1), status:String(item?.status || ""), request:String(item?.request || "")});
         });
       }
       const start = parseDate(pick(row, ["startDate","rentDate","วันที่เริ่มเช่า"]));
@@ -8747,14 +8747,25 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function holdMessage(key, holds){
     return tr(key).replace("{minutes}", String(holdMinutes(holds)));
   }
+  // An unpaid website request holds a unit (14/11/2026); the app marks that
+  // range with a key of its rental code (FNV-1a, as the app's requestKey), so
+  // this customer's own request is not in their own way at checkout or when
+  // resuming payment.
+  function requestKey(code){
+    const text = `aj-req:${String(code || "").trim().toUpperCase()}`;
+    let hash = 0x811c9dc5;
+    for(let i = 0; i < text.length; i += 1){ hash ^= text.charCodeAt(i); hash = Math.imul(hash, 0x01000193) >>> 0; }
+    return hash.toString(16).padStart(8, "0");
+  }
   function rowAvailableForRange(row, start, end){
     if(!row || /end|เลิก|ปิด/i.test(String(row.status || ""))) return false;
     if(row.availableDate && start < row.availableDate) return false;
+    const own = state.calc.rentalCode ? requestKey(state.calc.rentalCode) : "";
     // A rental holds its unit through its return day: the next one may start
     // the day after, never the day it comes back (12/11/2026). So a new
     // rental's own return day must not be another's start day either. The
     // stored range's returnDate is already the day after its return.
-    return !(row.bookingRanges || []).some(range => range.startDate && range.returnDate && start < range.returnDate && end >= range.startDate);
+    return !(row.bookingRanges || []).some(range => range.startDate && range.returnDate && !(own && range.request === own) && start < range.returnDate && end >= range.startDate);
   }
   function consoleTodayAvailability(c){
     if(!hasRecentAvailabilitySnapshot()) return {kind:"unknown"};

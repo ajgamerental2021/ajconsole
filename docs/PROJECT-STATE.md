@@ -1,3 +1,25 @@
+## 2026-11-14 — Unit clash: return un-tick checked; unpaid website requests hold a unit
+
+- Commits: DA `fd8cc87`, Bot `ba5c218`, website (this commit). **Deploy all three together.** With only DA deployed, the website would count a customer's own request against their own payment.
+- **Return un-tick:** `GuardedBookingRepo.setDone(return, false)` runs the guard inside the save lock. It refuses with "เอาติ๊ก "จบงานรับคืน" ออกไม่ได้: …" (409 on `/api/bookings/:row/done` and `/api/public/bookings/:row/done`).
+- **Unpaid website requests** (`services/requestHolds.ts`):
+  - Every live Console Pending request holds one unit of its model on its dates. Live means: not cancelled, not booked, and inside its window (12 h; Wise 7 days; pulled back 7 days).
+  - Requests are placed oldest first. One customer's same device and dates count once. With no unit left, the request holds nothing.
+  - Added in `withExtensionHolds`, so the guard, the public queue, the stock date check, unit search and the change-dates grid all see it.
+  - A request's own booking is never blocked by its own hold:
+    - `findUnitClash` skips it by rentalId;
+    - `unitForNewBooking(rentalId)` (Console Pending confirm and the booking form) filters it;
+    - the Console Pending suggestion excludes it.
+  - Public queue ranges carry `request: requestKey(code)` (FNV-1a), and a request range doesn't make a unit "out today".
+    - `/api/public/availability/check?rental=` skips the asking request.
+    - The Bot's booking-hold passes the checkout's code.
+    - The website's `rowAvailableForRange` skips its own key.
+  - The clash message names the request and says to cancel it in Console Pending.
+- **Checked:**
+  - DA: test:request-holds and the un-tick case in test:unit-clash-guard. All backend tests: 150/151 (`header-guard` needs Sheets credentials).
+  - Website: 431/431, including the own-request case. The key matches the app's.
+  - Bot: 853/853.
+
 ## 2026-11-14 — Change-dates grid, tap feedback, pinned calendar dates, unit-clash review
 
 DA `e250a6e`, `d8c5fa5`, `b60a7a2`. Codex's earlier attempt at these left nothing pushed; its only commit since 12/11 was `87b99ca` (completed deliveries → return scheduling, unrelated).

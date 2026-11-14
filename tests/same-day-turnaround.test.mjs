@@ -10,7 +10,10 @@ import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const source = html.slice(html.indexOf('function rowAvailableForRange(row, start, end){'));
 const body = source.slice(0, source.indexOf('\n  }\n') + 4);
-const rowAvailableForRange = new Function(`${body}; return rowAvailableForRange;`)();
+const keySource = html.slice(html.indexOf('function requestKey(code){'), html.indexOf('function rowAvailableForRange(row, start, end){'));
+const state = { calc: { rentalCode: '' } };
+const requestKey = new Function(`${keySource}; return requestKey;`)();
+const rowAvailableForRange = new Function('state', 'requestKey', `${body}; return rowAvailableForRange;`)(state, requestKey);
 const day = (n) => new Date(2026, 10, n);
 // As normalizeAvailabilityRows stores a booking 21–24/11: returnDate is the day after the return.
 const row = { status: 'available', bookingRanges: [{ startDate: day(21), returnDate: day(25) }] };
@@ -35,4 +38,17 @@ test('the demos and the live page use the same rule', () => {
     const page = readFileSync(new URL(file, import.meta.url), 'utf8');
     assert.match(page, /start < range\.returnDate && end >= range\.startDate\);/, file);
   }
+});
+
+test("an unpaid website request's hold blocks others, never its own checkout (14/11/2026)", () => {
+  // As the app publishes it: the range carries a key of the request's code.
+  assert.equal(requestKey('AJ-20261114-R0007'), 'daaf1820', 'the same key as the app (publicAvailability.requestKey)');
+  const held = { status: 'available', bookingRanges: [{ startDate: day(21), returnDate: day(25), request: requestKey('AJ-20261114-R0007') }] };
+  state.calc.rentalCode = '';
+  assert.equal(rowAvailableForRange(held, day(21), day(24)), false, 'a new customer: held');
+  state.calc.rentalCode = 'AJ-20261114-R0099';
+  assert.equal(rowAvailableForRange(held, day(21), day(24)), false, 'another request: held');
+  state.calc.rentalCode = 'aj-20261114-r0007';
+  assert.equal(rowAvailableForRange(held, day(21), day(24)), true, 'its own payment step / resume: not in its own way');
+  state.calc.rentalCode = '';
 });
