@@ -1,3 +1,18 @@
+## 2026-11-15 — Queue: a permanent "🛍️ ส่งของขาย / รับซื้อ" entry for sold items
+
+- Commit: DA `9b8faf0`. Deploy the DA backend and the app (web, and the new Android build).
+- **Reported:** after the sold-items dispatch shipped, the owner saw nothing new on the queue and asked where to press, and where a ride already called can be seen.
+- **Cause:** the 🛵 button sat only on a sale/purchase job's own card. A day with no sale job (or an item with no job in the Sales sheet yet) left nothing to press, and nowhere to bring in an order already placed in the Lalamove app.
+- **Fix:** a row under the queue's date header, shown every day in every view, opens `SaleDispatchStartModal`.
+  - **Unfinished jobs:** every sale and purchase trip not finished yet, whatever its day, with the status of the ride called for it. Tapping one opens the ride card.
+  - **New job:** sale (shop → customer) or purchase (customer → shop), with item, name, phone, place, price, date and time. It is written to the Sales sheet as the Finance form writes it, then the ride card opens.
+  - The ride card holds the amount to collect and, at the bottom, the box that brings in an order by its Order ID.
+- **Where a called ride shows:** the green "🛵 กำลังมีงานที่เรียกรถ" bar at the top of the queue (any day; a sale trip is labelled ขายของ/รับซื้อ with its item), and the unfinished-jobs list above.
+- **Backend:** `saleDispatch.saleJobsOf` / `openSaleJobs` / `createSaleJob`; `GET` and `POST /api/dispatch/sale-jobs`.
+- **Correction to the entry below:** a sale's balance channels are the rental's four (bank, QR PromptPay, card, e-wallet). There is no cash option.
+- **Checked:** `test:sale-dispatch`; the built web app driven in a browser at phone and desktop widths (queue row → list and form → refusal message → job created → ride card with the collect and import boxes), no page errors. DA full suite passes, all except header-guard.
+- **Still not verified:** whether Lalamove lets the API account read an order placed in its mobile app.
+
 ## 2026-11-15 — Sold items (Finance Sales) ship with Lalamove / Grab; trip pages switch language in place; import an order by its ID
 
 - Commits: DA `51d23b8`, Bot `df5f876`. Deploy the DA backend and the Bot, and include the DA app changes in the new Android build.
@@ -6,7 +21,7 @@
   - A delivered sale closes its job by itself. A purchase is closed by staff after checking the item, as a return is.
 - **Amount to collect (sale):** the yellow box in the dispatch card.
   - A typed amount, "ชำระครบแล้ว — ไม่เก็บเงิน" (0: nothing on the link, nothing for the driver to collect), or blank (price − paid by link).
-  - The payment channel is chosen as for a rental: bank, QR PromptPay, card, e-wallet, cash.
+  - The payment channel is chosen as for a rental: bank, QR PromptPay, card, e-wallet.
   - The buyer's link language (TH/EN) is saved apart from the amount.
   - New Sales sheet columns, created automatically: ยอดเก็บปลายทาง, ชำระผ่านลิงก์แล้ว, ภาษาคนซื้อ.
 - **Customer link** (`/c/trip/…`, `/c/track/…`):
