@@ -1,6 +1,6 @@
 ## 2026-11-15 — Special rates fixes: devices tick bug, campaign units are not stock, per-day surcharge on extensions
 
-- Commits: website (this commit), Bot `9b88a67`, DA (see the next entry or the DA log). Deploy all three.
+- Commits: website `e23468b`, Bot `9b88a67`, DA `4a37b3c`. Deploy all three.
 - **Admin device ticks:** ticking one device and saving showed every device ticked. The generic admin draft restore keys fields by their data attributes, and all of a campaign's device boxes share one.
   - `adminSpecial` is now an own-draft panel with `specialDraftDirty`, like VIP.
   - A campaign saved while every box showed as ticked has every device saved. Untick and save it again.
