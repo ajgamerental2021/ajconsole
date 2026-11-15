@@ -1,3 +1,27 @@
+## 2026-11-15 — Sold items (Finance Sales) ship with Lalamove / Grab; trip pages switch language in place; import an order by its ID
+
+- Commits: DA `51d23b8`, Bot `df5f876`. Deploy the DA backend and the Bot, and include the DA app changes in the new Android build.
+- **Queue (app):** sale jobs (shop → buyer) and purchase jobs (seller → shop) have the 🛵 button, like delivery and return jobs.
+  - A sale is dispatch's delivery leg; a purchase is its return leg. `services/saleDispatch` shows a Sales row to dispatch as a booking for the leg asked.
+  - A delivered sale closes its job by itself. A purchase is closed by staff after checking the item, as a return is.
+- **Amount to collect (sale):** the yellow box in the dispatch card.
+  - A typed amount, "ชำระครบแล้ว — ไม่เก็บเงิน" (0: nothing on the link, nothing for the driver to collect), or blank (price − paid by link).
+  - The payment channel is chosen as for a rental: bank, QR PromptPay, card, e-wallet, cash.
+  - The buyer's link language (TH/EN) is saved apart from the amount.
+  - New Sales sheet columns, created automatically: ยอดเก็บปลายทาง, ชำระผ่านลิงก์แล้ว, ภาษาคนซื้อ.
+- **Customer link** (`/c/trip/…`, `/c/track/…`):
+  - Driver pin on the map once the item has left, the amount due and how to pay.
+  - Wording speaks of the item/order for a sale or purchase (`TRIP_KIND_STRINGS`), not of a rental.
+  - TH/EN switch in place, without reloading, for sales, purchases and rentals alike. Both dictionaries ship with the page.
+  - No rental LINE cards for a sale: staff copy the link from the card and send it.
+- **Payments:** the code is `SALE-<year>-<sequence>`. A payment through the link is recorded in the ledger and comes off the amount to collect, net of the card/e-wallet fee; a repeat counts once.
+- **Import an order placed elsewhere:** the "📥 เรียกรถไว้แล้วในแอป…" box takes an Order ID.
+  - The order is read through the Bot, never placed or changed, then followed like any other job (driver, customer link, auto-close). Works for rentals too.
+  - Refused with a clear message: bad ID, the provider will not let the account read it, cancelled/expired, already linked, or a job already running on that row.
+  - **Not verified:** whether Lalamove lets the shop's API account read an order placed in its mobile app. The developer docs were unreachable from the build environment. Try with a real order after deploying; if refused, the app says so and the order stays in Lalamove's app.
+  - Needs the Bot commit: order detail now carries `stops`.
+- **Checked:** `test:sale-dispatch` (new). Trip page in a browser, 58 cases (rental/sale/purchase × every phase × every payment channel × TH/EN): no errors, no reload, no Thai left on the English page. DA full suite passes, all except header-guard (needs Sheets credentials). Bot 866/866.
+
 ## 2026-11-15 — Money: one rule for every card, page and the driver
 
 - Commit: DA `fa5e411`. Deploy the DA backend and include it in the new Android build.
