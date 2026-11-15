@@ -1,3 +1,23 @@
+## 2026-11-15 — One customer's devices: one reminder and one delivery card (padlocks and balance together)
+
+- DA `00108c4`. Only DA needs a deploy.
+- **Queue grouping** (`groupBookingTasks`, now exported): a non-company job is one per customer per day. The customer is identified by `customerTaskKey`, in order:
+  1. the phone's last 9 digits;
+  2. else the LINE account;
+  3. else the name and contact as written.
+  - The name no longer has to match. This is the same customer rule a time or place edit uses.
+- **Reminders:** one job means one day-before and one same-day reminder for delivery and for return. They list every device by the name the customer knows (`deviceLabel`). The manual reminder does the same.
+- **Delivery card** (`deliveryCardInput`):
+  - For a non-company booking, the other rows of the job that pass `sameCustomerLeg(delivery)` join it. The card then shows the devices list, every padlock and one balance (`deliveryOutstandingBalance` over all of them).
+  - The headline and alt text read "เครื่องทั้ง N เครื่อง…" / "Your N devices…".
+  - The shop's delivery-card route adds `customerLegBookings` siblings.
+- **Payment:**
+  - `dispatchService.sameHandoff` lets `selectedPaymentMethod` and `deliveryArrivalBalanceDue` treat a paid customer handoff as paid.
+  - `autoBookingPaymentService.applyToBooking` spreads an exact group transfer, received under the first rental's code, over the customer's delivery bookings, as it already did for company runs.
+- **Checked:**
+  - test:handoff-cards (new) covers grouping by phone written two ways and by LINE, 11,781 on one card with padlocks 111 and 222, and the four reminders in TH/EN.
+  - All backend tests pass except header-guard (needs Sheets). The cards were rendered in TH and EN.
+
 ## 2026-11-15 — Identity photos: .jpg and .png only, said on every upload (TH/EN)
 
 - Commits: website (this commit) and Bot `5a99ef0`. Deploy both. DA is unchanged.
