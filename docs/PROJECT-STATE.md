@@ -1,3 +1,47 @@
+## 2026-11-15 — Campaign (special-rate) bookings marked everywhere a price shows
+
+- Commits: website (this commit), Bot `910f288`, DA `b3756b6`. Deploy all three, and include it in the new Android build.
+- **One wording, TH and EN:** "✨ ราคาพิเศษ: งาน TCL (+100 บาท/วัน × 3 วัน)" / "✨ Special rate: TCL event (+100 THB/day × 3 days)".
+  - A once-per-booking campaign reads "+500 บาท ต่อการเช่า" / "+500 THB once per booking".
+  - The English never says "rental", because several readers find the rent row by that word.
+- **Website:** the special price row (`costs[].special`) carries the rate. Cards and emails print this label.
+- **Bot:**
+  - `specialRateSummary(data, en)` reads `data.specialRate`.
+  - A gold box appears on the booking card and the pre-payment card.
+  - A highlighted row appears in the confirmation email.
+  - `buildAdminRentalRevision` keeps `special: true`. Before this, a staff revision dropped it, and the special-rate price check then failed.
+- **DA:**
+  - `services/specialRateText.ts`. `bookingCharges` adds `specialMode`/`specialAmount`.
+  - The confirm card has a gold banner and a labelled line; the combined order card has a per-device badge.
+  - **Console Pending corrected card:** the surcharge row was missing, so the card total was short by the surcharge. It is now its own `special` row.
+  - The shop booking card, the payment page and "คิวเช่าของฉัน" show the badge and the rate.
+  - App: `BookingTask.specialRate`. The customer name gets " *" and a gold tag in the queue and in Booking Log.
+- **Checked:** Bot 865/865, website 443/443, DA `test:special-rate` extended plus the full suite (all except header-guard). The website summary was probed in TH and EN.
+
+## 2026-11-15 — Refund-slip button opened the previous customer · special page tidy-up
+
+- Commits: website (this commit), DA `3125b28`.
+  - Deploy the DA backend and the website.
+  - **Build a new Android APK**: the fix includes a native plugin.
+- **Refund slip opened the wrong customer** (DA):
+  - Symptom: the "ส่งรูปคืนค่าประกัน" button on ธวัชชัย's card (R0069) opened the previous refund (ธนเทพ, R0040). The second press was right.
+  - Cause: the activity is `singleTask`. Android keeps the intent that first started it, and `Linking.getInitialURL()` reads that intent. When the app restarted, it got the old card's link back and treated it as the card just pressed. A tap that arrives while React Native is still starting is dropped.
+  - Fix:
+    - The launch page adds `opened=<ms>` to each tap.
+    - `utils/refundSlipLink` parses `opened`, plus `isFreshInitialRefundSlip` and `rememberRefundSlip`.
+    - The navigator:
+      - opens a running-app `url` event always;
+      - skips the initial URL if a tap came first, if the link was already opened (AsyncStorage list), or if it is over 2 h old;
+      - on web, clears the query.
+    - The config plugin `frontend/plugins/withLatestLinkIntent.js` adds `MainActivity.onNewIntent` → `setIntent`, so the newest tap is the intent.
+    - The queue opens only the latest link's job.
+    - The photo review shows "ส่งให้: customer · device · booking · refund amount".
+  - Test: `test:refund-slip-link`. An Expo prebuild in a copy produced the patched MainActivity.
+- **Special page** (website):
+  - The "← กลับเมนูก่อนเช่า / Back to Before rent" button is hidden in special mode (`.before-rent-back[hidden]`).
+  - The banner no longer says "ไม่ร่วมกับส่วนลดอื่น / no other discounts".
+  - Checked in TH and EN with screenshots. The normal page keeps the button.
+
 ## 2026-11-15 — Special rates fixes: devices tick bug, campaign units are not stock, per-day surcharge on extensions
 
 - Commits: website `e23468b`, Bot `9b88a67`, DA `4a37b3c`. Deploy all three.

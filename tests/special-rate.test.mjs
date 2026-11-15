@@ -69,3 +69,17 @@ test('the admin tab keeps its own unsaved edits: ticking one device never ticks 
   assert.match(html, /const ADMIN_OWN_DRAFT_PANELS = new Set\(\["adminTerms", "adminVip", "adminPricing", "adminFaq", "adminSpecial"\]\);/);
   assert.match(html, /if\(specialDraftDirty && byId\("adminSpecial"\)\?\.querySelector\("\[data-sp\]"\)\) adminSpecial\.campaigns = readAdminSpecialCampaigns\(\);/);
 });
+
+test('the special page is its own page (15/11/2026): no Before rent button, no "no other discounts" line', () => {
+  assert.match(html, /const back = byId\("beforeRentBack"\);\n    if\(back\) back\.hidden = specialModeOn\(\) && !payResume\.active;/);
+  assert.match(html, /\.before-rent-back\[hidden\]\{display:none!important\}/, 'the .btn display never shows it again');
+  assert.match(html, /<div class="special-rate-rule">\$\{esc\(specialRuleText\(\)\)\}<\/div>/);
+  assert.doesNotMatch(html, /no other discounts|ไม่ร่วมกับส่วนลดอื่น/);
+});
+
+test('the price row names the campaign and its rate (15/11/2026), never the word "rental" in English', () => {
+  assert.match(html, /function specialSurchargeLabel\(special = activeSpecial\(\), days = selectedDays\(\)\)\{/);
+  assert.match(html, /`\+\$\{money\(amount\)\}\/วัน × \$\{n\} วัน`/);
+  assert.match(html, /`\+\$\{money\(amount\)\} once per booking`/);
+  assert.match(html, /specialLabel:special\?specialSurchargeLabel\(special, days\):""/);
+});
