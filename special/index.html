@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>ราคาพิเศษ · AJ Game Rental</title>
+<style>body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;display:grid;place-items:center;min-height:100vh;background:#fffaf0;color:#5c3b00}</style>
+</head>
+<body>
+<p id="msg">กำลังเปิดหน้าราคาพิเศษ… · Opening your special rate…</p>
+<script>
+  // A special-rate link (14/11/2026): the shop sends one customer
+  // /special/?t=<token>. It opens the normal booking page in special mode;
+  // the page keeps the token for this tab and takes it out of the address bar.
+  (function(){
+    var params = new URLSearchParams(location.search);
+    var token = params.get("t") || "";
+    var lang = params.get("lang");
+    if(!/^[A-Za-z0-9_-]{10,80}$/.test(token)){
+      document.getElementById("msg").textContent = "ลิงก์ไม่ถูกต้อง กรุณาติดต่อร้านทาง LINE @ajgame · This link is not valid. Please contact AJ on LINE @ajgame.";
+      return;
+    }
+    var next = "/?special=" + encodeURIComponent(token) + (lang === "en" || lang === "th" ? "&lang=" + lang : "");
+    location.replace(next);
+  })();
+</script>
+</body>
+</html>

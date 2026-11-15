@@ -1,3 +1,41 @@
+## 2026-11-15 — Special rental rates: campaigns and one-time links
+
+- Commits: website (this commit), Bot `371b998`, DA `b6c58c8`. **Deploy all three together.**
+- **Admin** (website, new "ราคาพิเศษ / Special rates" tab):
+  - Campaign fields: TH/EN name, devices, units open for rent, surcharge per day or once per rental, amount, link validity (24/48/72 h), open/closed.
+  - Create a one-time link per customer (with a note), see each link's state and cancel a link.
+  - Bot routes: `GET /api/admin/special-rates`, `PUT …/campaigns`, `POST …/links`, `POST …/links/:id/revoke`.
+  - Store: site content `admin-special-rate`. The public site-content read refuses `admin-` keys, and the generic admin PUT refuses this key.
+- **Customer link:** `/special/?t=TOKEN` redirects to `/?special=TOKEN`.
+  - The page keeps the token in sessionStorage for this tab and removes it from the URL.
+  - It loads `GET /api/special-rate/:token`, opens the booking form and shows a banner.
+  - Device list: campaign devices only, priced with the surcharge.
+  - `calcSummary` uses catalogue prices with no promotion, returning-customer, review, VIP or board-game discount, and adds the surcharge. The discount options are hidden.
+  - The surcharge goes in a cost row with `special: true`.
+  - The booking data carries `specialToken` and `specialHolderId`. The hold request carries `specialToken`.
+  - Refusals (`special_*`) are explained in TH/EN.
+  - The pay-later page prices edits with the rental's own `specialRate` (including `consoleIds`).
+- **Bot** (`services/special-rate.js`):
+  - **Campaign units:** a unit is taken by a paid link or a live hold. Holds last 30 minutes, or 24 hours for Wise.
+  - **Booking holds:** acquiring a booking hold also takes a campaign unit.
+  - **Booking context:** checks the link and the price (`specialPricingProblem`: campaign device, exact surcharge row, no discount, VIP or promotion), holds a unit and stamps `data.specialRate`.
+  - **Payment:** checkout Beam link, pay-later link and Wise each re-check the unit (`checkRental`), and the checkout checks the base amount against `paymentPlan`.
+  - **Request row:** Console Pending submissions never take `specialRate` from the page; it comes from the cached context or `rateForRental`.
+  - **Using the link:** a paid Beam link calls `markPaid`. A lapsed hold whose rental was paid is found lazily.
+  - **Contract:** counts the surcharge as rental.
+- **DA:**
+  - `promotionSnapshotJson.special` keeps the campaign (no new column).
+  - `bookingCharges` adds `specialSurcharge` and drops the promotion, returning-customer, review and VIP discounts; `extraDiscount` still applies.
+  - The surcharge line appears on the confirm card and on My rental.
+  - Console Pending reads `data.specialRate`, quotes it, stores it on confirm and shows a badge. The change-dates grid offers no promotion price.
+- **Not covered:** rental extensions of a special booking are priced at the normal rate.
+- **Checked:**
+  - Website 439/439 (`special-rate.test.mjs` is new), Bot 864/864 (`special-rate.test.js` is new), DA all tests except header-guard (`test:special-rate` is new).
+  - In a browser with the API mocked:
+    - the banner and device list are correct in TH/EN;
+    - PS5 for 3 days prices as 1,200 + 300 with no discount, even with returning-customer and review ticked;
+    - the admin tab renders.
+
 ## 2026-11-15 — One customer's devices: one reminder and one delivery card (padlocks and balance together)
 
 - DA `00108c4`. Only DA needs a deploy.

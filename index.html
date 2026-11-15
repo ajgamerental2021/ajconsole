@@ -1159,6 +1159,25 @@ body.unified-flow-demo .demo-edit-help{margin:0 0 18px;padding:12px 14px;border:
 body.unified-flow-demo .demo-identity-art{margin:14px 0 6px}
 body.unified-flow-demo .demo-identity-art svg{width:100%;max-width:360px;height:auto;display:block}
 body.unified-flow-demo .demo-reward-row{border-color:#f2c94c;background:#fffdf5}
+.special-rate-banner{margin:0 0 16px;padding:16px 18px;border-radius:16px;border:2px solid #f2c94c;background:linear-gradient(135deg,#fffaf0,#fff3d6);display:grid;gap:6px;line-height:1.55}
+.special-rate-banner.is-error{border-color:#d92d20;background:#fff5f5;color:#912018}
+.special-rate-title{font-size:18px;font-weight:900;color:#8a4b00}
+.special-rate-rule{font-weight:700;color:#5c3b00}
+.special-rate-until{font-size:13px;color:#6b5a3a}
+.special-rate-full{font-weight:800;color:#b42318}
+.special-rate-actions{margin-top:6px}
+.sp-campaign{display:grid;gap:12px}
+.sp-head{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between}
+.sp-devices{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}
+.sp-device{display:flex;gap:6px;align-items:center;font-size:14px}
+.sp-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sp-actions .input{flex:1 1 220px}
+.sp-url{display:block;word-break:break-all;background:#fff;border-radius:8px;padding:8px}
+.sp-table-wrap{overflow-x:auto}
+.sp-table{width:100%;border-collapse:collapse;font-size:14px}
+.sp-table th,.sp-table td{border-bottom:1px solid #e5e7eb;padding:8px;text-align:left;vertical-align:top}
+.sp-link-actions{display:flex;gap:6px;flex-wrap:wrap}
+.demo-order-row.is-special b,.demo-order-row.is-special span{color:#8a4b00}
 body.unified-flow-demo .demo-reward-row b{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 body.unified-flow-demo .demo-reward-badge{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#fff3cd;font-size:14px}
 body.unified-flow-demo #demoIdentityCard .option-row,body.unified-flow-demo #demoCustomerCard .option-row{margin:14px 0}
@@ -1644,6 +1663,7 @@ body{background:#f7f8fa}
         <div class="calc-line-host" id="calcLineCardHost"></div>
       </div>
       <div class="prep-time-brief" data-i18n="preparationBrief">กรุณาเผื่อเวลาเตรียมเครื่องประมาณ 30–60 นาที หรือ 2–3 ชั่วโมงหากต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม</div>
+      <div id="specialRateBanner" hidden></div>
       <div class="calc-shell">
         <div class="demo-banner demo-only" id="unifiedDemoBanner"></div>
         <div class="calc-tabs" id="calcTabs"></div>
@@ -1989,6 +2009,22 @@ body{background:#f7f8fa}
     location.replace(`https://${CANONICAL_HOST}${location.pathname}${location.search}${location.hash}`);
   }
   const PAGE_PARAMS = new URLSearchParams(location.search);
+  // Special rental rate (14/11/2026): a private campaign link the shop sends
+  // one customer (/special/?t=…). The same booking page, only the campaign's
+  // devices, the normal price plus the campaign's surcharge and no discounts.
+  // The token is kept for this tab only; a plain visit is the normal site.
+  const SPECIAL_TOKEN_KEY = "aj_special_rate_v1";
+  const specialRate = {token:"", campaign:null, error:"", loading:false, expiresAt:"", remaining:null, full:false};
+  try{
+    const fromUrl = String(PAGE_PARAMS.get("special") || "").trim();
+    specialRate.token = /^[A-Za-z0-9_-]{10,80}$/.test(fromUrl) ? fromUrl : String(sessionStorage.getItem(SPECIAL_TOKEN_KEY) || "");
+    if(specialRate.token) sessionStorage.setItem(SPECIAL_TOKEN_KEY, specialRate.token);
+    if(fromUrl){
+      const clean = new URL(location.href);
+      clean.searchParams.delete("special");
+      history.replaceState(null, "", clean.pathname + clean.search + clean.hash);
+    }
+  }catch{ /* storage off: the link still works for this page view */ }
   // The staged-agreement flow is the only public booking path.
   // The legacy contract-first path can issue a signed PDF before payment.
   // Keep every public booking on the staged-agreement checkout path.
@@ -4338,6 +4374,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     renderFilters();
     renderConsoles();
     renderCalc();
+    renderSpecialRateBanner();
     renderFAQ();
     renderBeforeRent();
     renderInfoLinks();
@@ -5035,7 +5072,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ${state.calc.retVerified && hasVerifiedAgreementRecord() && demoIdentityExpired() ? `<div class="demo-choice-warning">${en ? "The ID card or passport on your agreement has expired, or expires before the return date, so a new Master Agreement and renewed identity verification are required before this rental. Please upload your current document in step 3." : "บัตรประชาชนหรือ Passport ในสัญญาเดิมหมดอายุแล้ว หรือหมดอายุก่อนวันคืนเครื่อง ต้องทำข้อตกลงหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้งก่อนเช่าครั้งนี้ กรุณาอัปโหลดรูปเอกสารฉบับปัจจุบันในขั้นตอนที่ 3"}</div>` : ""}
       ${demoIdentityCoveredByAgreement() ? `<div class="demo-contract-status">${esc(demoAgreementCoverText())}</div>` : ""}
       ${activeVip() ? `<div class="demo-contract-status"><b>VIP: ${esc(activeVip().name)}</b><br>${esc(en ? "Your personal VIP rental and security-deposit rates are applied automatically." : "ระบบใช้ราคาค่าเช่าและค่าประกัน VIP ของคุณให้อัตโนมัติแล้ว")}</div>` : ""}
-      ${payResume.active ? "" : `<label class="option-row demo-reward-row"><input type="checkbox" id="demoReturningOpt" ${state.calc.ret?"checked":""}><div><b><span class="demo-reward-badge">🏅</span>${activeVip() ? (en ? "VIP returning-customer benefit applied" : "ใช้สิทธิ์ลูกค้าเก่า VIP แล้ว") : (en ? "Apply returning-customer discount — 10% off the rental" : "ใช้สิทธิ์ส่วนลดลูกค้าเก่า — ลด 10% ค่าเช่า")}</b><div class="hint">${state.calc.retVerified ? (en ? "Discount eligibility confirmed" : "ตรวจสิทธิ์ส่วนลดแล้ว") : (en ? "Enter the previous phone / Rental ID in the verification window." : "ยืนยันด้วยเบอร์เดิมหรือ Rental ID ในหน้าต่างตรวจสอบสิทธิ์")}</div></div></label>`}
+      ${payResume.active || activeSpecial() ? "" : `<label class="option-row demo-reward-row"><input type="checkbox" id="demoReturningOpt" ${state.calc.ret?"checked":""}><div><b><span class="demo-reward-badge">🏅</span>${activeVip() ? (en ? "VIP returning-customer benefit applied" : "ใช้สิทธิ์ลูกค้าเก่า VIP แล้ว") : (en ? "Apply returning-customer discount — 10% off the rental" : "ใช้สิทธิ์ส่วนลดลูกค้าเก่า — ลด 10% ค่าเช่า")}</b><div class="hint">${state.calc.retVerified ? (en ? "Discount eligibility confirmed" : "ตรวจสิทธิ์ส่วนลดแล้ว") : (en ? "Enter the previous phone / Rental ID in the verification window." : "ยืนยันด้วยเบอร์เดิมหรือ Rental ID ในหน้าต่างตรวจสอบสิทธิ์")}</div></div></label>`}
       ${state.calc.ret ? demoReviewDiscountsHtml() : ""}
       ${state.calc.retVerified && !demoIdentityCoveredByAgreement() ? `<div class="demo-choice-warning">${en ? "Your returning-customer discount does not confirm a previous identity agreement. The higher deposit applies until you verify your identity and sign the agreement; you can do this now or later." : "ส่วนลดลูกค้าเก่าไม่ใช่หลักฐานว่ายืนยันตัวตนแล้ว ค่าประกันเรทไม่ยืนยันตัวตนจะใช้จนกว่าจะยืนยันตัวตนและทำสัญญา จะทำตอนนี้หรือภายหลังก็ได้"}</div>` : ""}
       ${demoContactCollapsed() ? demoContactSummaryHtml() : ""}
@@ -6186,7 +6223,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // identity within the last year; AJ does not ask for the documents again
   // until that agreement expires.
   function demoReviewDiscountsHtml(){
-    if(payResume.active) return "";
+    if(payResume.active || activeSpecial()) return "";
     const afterWorkRate = calcSummary().afterWorkDisc > 0;
     const googleLabel = tr(afterWorkRate ? "reviewGoogleAfterWork" : "reviewGoogle");
     const facebookLabel = tr(afterWorkRate ? "reviewFacebookAfterWork" : "reviewFacebook");
@@ -7411,6 +7448,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const charges = [
       // The list price, then the VIP rate as a discount: the rows add up.
       row(en ? "Rental" : "ค่าเช่า", money(summary.regularRental)),
+      ...(summary.specialSurcharge ? [row(summary.specialLabel, money(summary.specialSurcharge), "is-special")] : []),
       ...(summary.addons ? [row(en ? "Accessories" : "อุปกรณ์เสริม", money(summary.addons))] : []),
       ...(summary.bgSubtotal ? [row(en ? "Board game rental" : "ค่าเช่าบอร์ดเกม", money(summary.bgSubtotal))] : [])
     ];
@@ -7632,16 +7670,33 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return `<div class="step-readiness ${esc(status.tone)}" role="status" aria-live="polite"><span>${esc(status.text)}</span>${retry}</div>`;
   }
   function calcConsoleChoices(){
+    // A special-rate link offers its campaign's devices only (none until it has loaded).
+    const special = payResume.active
+      ? (Array.isArray(payResume.rental?.specialRate?.consoleIds) && payResume.rental.specialRate.consoleIds.length ? payResume.rental.specialRate : null)
+      : (specialModeOn() ? specialRate.campaign : null);
+    if(specialModeOn() && !payResume.active && !special) return [];
     return state.consoles
+      .filter(c => !special || special.consoleIds.map(String).includes(String(c.id)))
       .filter(c => !state.calc.type || c.type === state.calc.type)
       .sort((a,b) => brandOrder(a.brand)-brandOrder(b.brand) || consoleRank(a)-consoleRank(b) || b.rate-a.rate);
   }
   function calcConsoleChoiceLabel(consoleItem){
     const ready = isConsoleSelectable(consoleItem);
     const reason = isQueueClosed(consoleItem) ? tr("queueClosed") : `${tr("readyOn")} ${displayDate(consoleItem.readyDate)}`;
-    return `${ready ? "" : "⛔ "}${cName(consoleItem)} (${money(consoleItem.rate)}/${tr("day")})${ready ? "" : ` - ${reason}`}`;
+    const special = activeSpecial();
+    const price = special
+      ? (special.mode === "per_rental"
+        ? `${money(consoleItem.rate)}/${tr("day")} + ${money(special.amount)}`
+        : `${money(Number(consoleItem.rate) + Number(special.amount || 0))}/${tr("day")}`)
+      : `${money(consoleItem.rate)}/${tr("day")}`;
+    return `${ready ? "" : "⛔ "}${cName(consoleItem)} (${price})${ready ? "" : ` - ${reason}`}`;
   }
   function selectCalcConsole(consoleId){
+    const special = specialModeOn() && !payResume.active ? specialRate.campaign : null;
+    if(special && consoleId && !special.consoleIds.map(String).includes(String(consoleId))){
+      toast(specialErrorText("special_device_not_in_campaign"));
+      return;
+    }
     state.calc.consoleId = String(consoleId || "");
     if(state.calc.consoleId){
       const selectedConsole = consoleById(state.calc.consoleId);
@@ -8288,10 +8343,18 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         startDate:fmtIso(start),
         endDate:fmtIso(end),
         capacity:devices[0]?.capacity || 1,
-        devices
+        devices,
+        ...(specialModeOn() && specialRate.campaign ? {specialToken:specialRate.token} : {})
       })
     });
     const result = await response.json().catch(() => ({}));
+    if(response.status === 409 && String(result?.error || "").startsWith("special_")){
+      handleSpecialRefusal(result.error);
+      const error = new Error(specialErrorText(result.error) || result.error);
+      error.code = "booking_hold_conflict";
+      error.special = true;
+      throw error;
+    }
     if(response.status === 409 && result?.error === "queue_full"){
       // The shop's own queue has no unit free for these dates (checked by the
       // server, 12/11/2026): nothing is held and nothing can be paid for.
@@ -8377,6 +8440,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       })
     }, 25000);
     const data = await response.json().catch(() => ({}));
+    if(String(data.error || "").startsWith("special_")) handleSpecialRefusal(data.error);
     if(!response.ok || !data.url) throw Object.assign(new Error(data.error || "Beam payment link unavailable"), {code:data.error || "", result:data});
     state.calc.beamPaymentLink = data.url;
     state.calc.beamPaymentKey = key;
@@ -8400,6 +8464,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   function showBookingActionError(error){
     console.error("Booking action failed", error);
+    if(error?.special) return;
     if(error?.code === "booking_hold_conflict") return toast(error.message);
     return toast(state.lang === "en" ? "Cannot check availability. Please try again." : "ตรวจสอบคิวไม่สำเร็จ กรุณาลองใหม่");
   }
@@ -8451,6 +8516,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       {label:tr("endDate"), value:displayDate(state.calc.end)},
       {label:tr("rentalDays"), value:`${summary.days || 0} ${tr("day")}`},
       {label:`${tr("rental")} ${cName(c)}`, value:money(summary.regularRental)},
+      ...(summary.specialSurcharge ? [{label:summary.specialLabel, value:money(summary.specialSurcharge)}] : []),
       ...(summary.addons ? [{label:tr("accessories"), value:money(summary.addons)}] : []),
       ...(summary.extras?.length ? [{label:tr("accessories"), value:numberedSummaryList(summary.extras.map(x => state.lang==="en"?x.en:x.th)), html:true}] : []),
       ...(summary.bgSubtotal ? [{label:tr("boardGameRental"), value:money(summary.bgSubtotal)}] : []),
@@ -8499,16 +8565,140 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const media = img ? `<img class="summary-device-thumb" src="${esc(img)}" alt="${esc(cName(c))}">` : `<span class="summary-device-thumb" style="display:inline-grid;place-items:center">${esc(c.icon || "🎮")}</span>`;
     return `<span class="summary-device">${media}<span>${esc(cName(c))}</span></span>`;
   }
+  // ---- Special rental rate ----------------------------------------------
+  function specialModeOn(){ return !!specialRate.token; }
+  /** The campaign pricing this booking: the live link's, or the special rental being paid from the pay-later page. */
+  function activeSpecial(){
+    if(typeof payResume !== "undefined" && payResume.active) return payResume.rental?.specialRate || null;
+    return specialRate.token && specialRate.campaign ? specialRate.campaign : null;
+  }
+  function specialTitle(special = activeSpecial()){
+    if(!special) return "";
+    return state.lang === "en" ? (special.titleEn || special.titleTh || "") : (special.titleTh || special.titleEn || "");
+  }
+  function specialSurcharge(days, special = activeSpecial()){
+    if(!special) return 0;
+    const amount = Math.max(0, Number(special.amount) || 0);
+    return special.mode === "per_rental" ? amount : amount * Math.max(0, Number(days) || 0);
+  }
+  function specialSurchargeLabel(special = activeSpecial()){
+    const title = specialTitle(special);
+    return state.lang === "en" ? `✨ Special rate${title ? `: ${title}` : ""}` : `✨ ราคาพิเศษ${title ? `: ${title}` : ""}`;
+  }
+  function specialRuleText(special = activeSpecial()){
+    if(!special) return "";
+    const en = state.lang === "en";
+    return special.mode === "per_rental"
+      ? (en ? `Normal rental + ${money(special.amount)} per rental` : `ค่าเช่าปกติ + ${money(special.amount)} ต่อการเช่า`)
+      : (en ? `Normal rental + ${money(special.amount)} per day` : `ค่าเช่าปกติ + ${money(special.amount)} ต่อวัน`);
+  }
+  function specialErrorText(code){
+    const en = state.lang === "en";
+    const text = {
+      special_link_invalid: en ? "This special-rate link is not valid. Please ask AJ for a new link on LINE @ajgame." : "ลิงก์ราคาพิเศษนี้ไม่ถูกต้อง กรุณาขอลิงก์ใหม่จากร้านทาง LINE @ajgame",
+      special_link_expired: en ? "This special-rate link has expired. Please ask AJ for a new link on LINE @ajgame." : "ลิงก์ราคาพิเศษนี้หมดอายุแล้ว กรุณาขอลิงก์ใหม่จากร้านทาง LINE @ajgame",
+      special_link_used: en ? "This special-rate link has already been used for a booking. Each link books once." : "ลิงก์ราคาพิเศษนี้ใช้จองไปแล้ว ลิงก์หนึ่งใช้จองได้ครั้งเดียว",
+      special_link_revoked: en ? "This special-rate link has been cancelled by AJ." : "ร้านยกเลิกลิงก์ราคาพิเศษนี้แล้ว",
+      special_campaign_closed: en ? "This special rate has ended." : "ราคาพิเศษนี้ปิดแล้ว",
+      special_full: en ? "All devices at this special rate have been booked. Please contact AJ on LINE @ajgame." : "เครื่องราคาพิเศษนี้ถูกจองเต็มแล้ว กรุณาติดต่อร้านทาง LINE @ajgame",
+      special_device_not_in_campaign: en ? "This device is not part of this special rate." : "เครื่องนี้ไม่อยู่ในราคาพิเศษนี้",
+      special_no_discounts: en ? "Discounts cannot be combined with the special rate." : "ราคาพิเศษใช้ร่วมกับส่วนลดไม่ได้",
+      special_surcharge_mismatch: en ? "The special-rate price changed. Please refresh the page and try again." : "ราคาพิเศษมีการเปลี่ยนแปลง กรุณารีเฟรชหน้าแล้วลองใหม่",
+      special_amount_mismatch: en ? "The amount does not match the special rate. Please refresh the page and try again." : "ยอดชำระไม่ตรงกับราคาพิเศษ กรุณารีเฟรชหน้าแล้วลองใหม่",
+    };
+    return text[code] || "";
+  }
+  async function loadSpecialRate(){
+    if(!specialRate.token) return;
+    specialRate.loading = true;
+    try{
+      const response = await fetch(`${CONFIG.apiBase}/api/special-rate/${encodeURIComponent(specialRate.token)}?holderId=${encodeURIComponent(bookingHoldHolderId())}&_ts=${Date.now()}`, {cache:"no-store"});
+      const result = await response.json().catch(() => ({}));
+      if(result?.ok && result.campaign){
+        specialRate.campaign = result.campaign;
+        specialRate.error = "";
+        specialRate.expiresAt = String(result.expiresAt || "");
+        specialRate.remaining = Number(result.remaining);
+        specialRate.full = result.full === true;
+        // Only the campaign's devices: a device chosen elsewhere is let go.
+        if(state.calc.consoleId && !result.campaign.consoleIds.map(String).includes(String(state.calc.consoleId))) selectCalcConsole("");
+        // No discount is ever applied at a special rate.
+        state.calc.ret = false;
+        state.calc.reviewGoogle = false;
+        state.calc.reviewFacebook = false;
+      }else{
+        specialRate.campaign = null;
+        specialRate.error = String(result?.error || "special_link_invalid");
+      }
+    }catch{
+      specialRate.error = specialRate.error || "";
+    }finally{
+      specialRate.loading = false;
+      render();
+    }
+  }
+  /** A special-rate refusal from the server: say why, and show the link's new state. */
+  function handleSpecialRefusal(code){
+    if(!String(code || "").startsWith("special_")) return false;
+    if(["special_full", "special_link_used", "special_link_expired", "special_link_revoked", "special_campaign_closed", "special_link_invalid"].includes(code)){
+      if(code === "special_full") specialRate.full = true;
+      else specialRate.error = code;
+    }
+    showModal(state.lang === "en" ? "Special rate" : "ราคาพิเศษ", `<p>${esc(specialErrorText(code) || code)}</p>`);
+    render();
+    return true;
+  }
+  function leaveSpecialRate(){
+    try{ sessionStorage.removeItem(SPECIAL_TOKEN_KEY); }catch{}
+    location.href = "/";
+  }
+  function renderSpecialRateBanner(){
+    const host = byId("specialRateBanner");
+    if(!host) return;
+    const shell = document.querySelector(".calc-shell");
+    if(!specialModeOn() || payResume.active){ host.innerHTML = ""; host.hidden = true; if(shell) shell.hidden = false; return; }
+    host.hidden = false;
+    const en = state.lang === "en";
+    if(specialRate.loading && !specialRate.campaign){
+      host.innerHTML = `<div class="special-rate-banner"><b>${en ? "Loading your special rate…" : "กำลังโหลดราคาพิเศษ…"}</b></div>`;
+      if(shell) shell.hidden = true;
+      return;
+    }
+    if(specialRate.error || !specialRate.campaign){
+      host.innerHTML = `<div class="special-rate-banner is-error" role="alert"><b>${esc(specialErrorText(specialRate.error || "special_link_invalid"))}</b><div class="special-rate-actions"><button class="btn" type="button" data-special-leave>${en ? "Go to the main page" : "ไปหน้าหลัก"}</button></div></div>`;
+      if(shell) shell.hidden = true;
+      return;
+    }
+    if(shell) shell.hidden = false;
+    const until = specialRate.expiresAt ? new Date(specialRate.expiresAt) : null;
+    const untilText = until && Number.isFinite(until.getTime())
+      ? until.toLocaleString("en-GB", {timeZone:"Asia/Bangkok", day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit", hourCycle:"h23"}).replace(",", "")
+      : "";
+    host.innerHTML = `<div class="special-rate-banner">
+      <div class="special-rate-title">✨ ${en ? "Special rate" : "ราคาพิเศษ"}: ${esc(specialTitle())}</div>
+      <div class="special-rate-rule">${esc(specialRuleText())} · ${en ? "no other discounts" : "ไม่ร่วมกับส่วนลดอื่น"}</div>
+      ${specialRate.full ? `<div class="special-rate-full">${esc(specialErrorText("special_full"))}</div>` : ""}
+      ${untilText ? `<div class="special-rate-until">${en ? `This link is yours and books once · valid until ${untilText}` : `ลิงก์นี้สำหรับคุณ ใช้จองได้ 1 ครั้ง · ใช้ได้ถึง ${untilText} น.`}</div>` : ""}
+    </div>`;
+  }
+
   function calcSummary(){
     const c = consoleById(state.calc.consoleId);
     const days = selectedDays();
     if(!c || !Number.isFinite(days) || days < 1) return {days:0,rental:0,addons:0,bgSubtotal:0,bgDisc:0,bgDeposit:0,consoleDeposit:0,discounts:0,deposit:0,total:0,paymentFee:0,upfront:200,onDelivery:0,bgItems:[]};
-    const terms = selectedConsoleRentalTerms(c);
+    // A special rate: the catalogue's own price (never a VIP rate), the
+    // campaign's surcharge on top, and no promotion or discount of any kind.
+    const special = activeSpecial();
+    const baseTerms = selectedConsoleRentalTerms(c);
+    const terms = special
+      ? {...baseTerms, daily:baseTerms.regular.daily, weekly:baseTerms.regular.weekly, deposit:baseTerms.regular.deposit, vip:null, vipRateApplied:false, vipDepositApplied:false}
+      : baseTerms;
     const {daily, weekly, deposit, bundleName} = terms;
     const rental = rentalCost(days, daily, weekly);
     const regularRental = rentalCost(days, terms.regular.daily, terms.regular.weekly);
     const vipRentalDisc = Math.max(0, regularRental - rental);
-    const afterWorkPromo = afterWorkPromotion(state.calc.start, state.calc.end, rental, daily);
+    const specialSurchargeAmount = specialSurcharge(days, special);
+    const afterWorkPromo = special ? {discount:0, eligible:false} : afterWorkPromotion(state.calc.start, state.calc.end, rental, daily);
     const afterWorkDisc = afterWorkPromo.discount;
     const afterWorkPrice = afterWorkPromo.eligible ? afterWorkPromo.price : 0;
     const promotionId = afterWorkPromo.eligible ? afterWorkPromo.id : "";
@@ -8519,12 +8709,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const addons = extras.reduce((sum,x) => sum + accessoryRentalCost(x, days), 0);
     const bgItems = state.calc.boardgames.map(bgById).filter(Boolean);
     const bgSubtotal = bgItems.reduce((sum,g) => sum + bgRentalCost(g, days), 0);
-    const bgDisc = promoDiscount("bg", bgSubtotal, bgItems.length);
+    const bgDisc = special ? 0 : promoDiscount("bg", bgSubtotal, bgItems.length);
     const bgDepositTotal = bgItems.reduce((sum,g) => sum + bgDeposit(g), 0);
     const activeReviewDiscount = reviewDiscountAmount(afterWorkDisc);
-    const reviewGoogleDisc = state.calc.ret && state.calc.reviewGoogle ? activeReviewDiscount : 0;
-    const reviewFacebookDisc = state.calc.ret && state.calc.reviewFacebook ? activeReviewDiscount : 0;
-    const promoDisc = promoDiscount("console", rental + addons);
+    const reviewGoogleDisc = !special && state.calc.ret && state.calc.reviewGoogle ? activeReviewDiscount : 0;
+    const reviewFacebookDisc = !special && state.calc.ret && state.calc.reviewFacebook ? activeReviewDiscount : 0;
+    const promoDisc = special ? 0 : promoDiscount("console", rental + addons);
     // Loyalty is applied last, to the eligible rental balance after every
     // fixed promotion and review discount. This avoids discounting money the
     // customer has already saved and keeps the summary, booking and contract
@@ -8534,17 +8724,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     );
     // A device-specific VIP price replaces (rather than stacks with) the 10%
     // returning-customer discount for that device, so the configured price is exact.
-    const retDisc = state.calc.ret && state.retEnabled && !terms.vipRateApplied ? Math.round(returningDiscountBase * 0.1) : 0;
+    const retDisc = !special && state.calc.ret && state.retEnabled && !terms.vipRateApplied ? Math.round(returningDiscountBase * 0.1) : 0;
     // Without identity verification a PS5 bundle uses the configured bundle tier; a device on
     // its own steps up by its normal deposit (noContractDeposit).
     const regularNoIdentityDeposit = bundleName ? Math.max(terms.regular.deposit, pricingPolicy?.bundleNoIdentityDeposit || 15000) : noContractDeposit(terms.regular.deposit, c);
-    const vip = activeVip();
+    const vip = special ? null : activeVip();
     const vipCoversDevice = vip && (vip.depositAllDevices || vip.depositDeviceIds.includes(String(c.id)));
     const configuredNoIdentityDeposit = Number(vipCoversDevice && vip.noIdentityDepositByBase?.[regularNoIdentityDeposit]);
     const vipNoIdentityDeposit = state.calc.noContract && configuredNoIdentityDeposit > 0 && configuredNoIdentityDeposit <= regularNoIdentityDeposit ? configuredNoIdentityDeposit : 0;
     const finalDeposit = state.calc.noContract ? (vipNoIdentityDeposit || regularNoIdentityDeposit) : deposit;
     const consoleDiscounts = retDisc + reviewGoogleDisc + reviewFacebookDisc + promoDisc + afterWorkDisc;
-    const subtotalAfterDiscount = Math.max(0, rental + addons - consoleDiscounts) + Math.max(0, bgSubtotal - bgDisc);
+    const subtotalAfterDiscount = Math.max(0, rental + addons + specialSurchargeAmount - consoleDiscounts) + Math.max(0, bgSubtotal - bgDisc);
     const depositTotal = finalDeposit + bgDepositTotal;
     const delivery = quotedDeliveryTotal();
     const totalBeforeDelivery = subtotalAfterDiscount + depositTotal;
@@ -8561,7 +8751,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       upfront = total;
       onDelivery = 0;
     }
-    return {days,rental,regularRental,vipRentalDisc,vip:terms.vip,vipDepositApplied:terms.vipDepositApplied,vipDeposit:terms.vipDepositApplied ? deposit : 0,vipNoIdentityDeposit,standardVipDeposit:deposit,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,reviewGoogleDisc,reviewFacebookDisc,promoDisc,afterWorkDisc,afterWorkPrice,promotionId,promotionName,promotionNameTh,promotionNameEn,discounts:retDisc+reviewGoogleDisc+reviewFacebookDisc+promoDisc+afterWorkDisc+bgDisc+vipRentalDisc,deposit:depositTotal,delivery,totalBeforeDelivery,subtotalBeforePaymentFee,paymentFee,total,upfront,onDelivery,bundleName,extras,bgItems};
+    return {days,rental,regularRental,vipRentalDisc,vip:terms.vip,vipDepositApplied:terms.vipDepositApplied,vipDeposit:terms.vipDepositApplied ? deposit : 0,vipNoIdentityDeposit,standardVipDeposit:deposit,addons,bgSubtotal,bgDisc,bgDeposit:bgDepositTotal,consoleDeposit:finalDeposit,retDisc,reviewGoogleDisc,reviewFacebookDisc,promoDisc,afterWorkDisc,afterWorkPrice,promotionId,promotionName,promotionNameTh,promotionNameEn,discounts:retDisc+reviewGoogleDisc+reviewFacebookDisc+promoDisc+afterWorkDisc+bgDisc+vipRentalDisc,specialSurcharge:specialSurchargeAmount,specialLabel:special?specialSurchargeLabel(special):"",deposit:depositTotal,delivery,totalBeforeDelivery,subtotalBeforePaymentFee,paymentFee,total,upfront,onDelivery,bundleName,extras,bgItems};
   }
   const MONTHLY_RATE = {500:8500, 400:6500, 350:5000, 300:4000};
   function monthlyRate(daily){ return MONTHLY_RATE[Number(daily) || 0] || 0; }
@@ -9800,6 +9990,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // The list price; a VIP rate follows as its own discount row, so the rows
     // add up to what the customer pays (the contract and the shop read them).
     costs.push({label: en ? `${cName(c)} rental` : `ค่าเช่า ${cName(c)}`, value: money(s.regularRental)});
+    // A special rate's surcharge, marked so the server can check it is exactly the campaign's.
+    if(s.specialSurcharge) costs.push({label: s.specialLabel, value: money(s.specialSurcharge), special:true});
     if(s.bundleName) costs.push({label:`Bundle ${s.bundleName}`, value: en ? "included" : "รวมในค่าเช่า"});
     if(s.addons) costs.push({label: en ? "Accessories" : "อุปกรณ์เสริม", value: money(s.addons)});
     if(s.bgSubtotal) costs.push({label: en ? "Board game rental" : "ค่าเช่าบอร์ดเกม", value: money(s.bgSubtotal)});
@@ -9913,7 +10105,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       rentalTermsVersion: acceptedTermsVersion,
       rentalTermsLanguage: state.calc.rentalTermsLanguage || (en ? "en" : "th"),
       rentalTermsUrl: rentalTermsUrl(en ? "en" : "th", false, acceptedTermsVersion),
-      returningVerificationToken: state.calc.retVerificationMethod === "manual" ? state.calc.retVerificationToken : ""
+      returningVerificationToken: state.calc.retVerificationMethod === "manual" ? state.calc.retVerificationToken : "",
+      // The private link this booking came from; the server checks it and records the campaign.
+      ...(specialModeOn() && specialRate.campaign ? {specialToken:specialRate.token, specialHolderId:bookingHoldHolderId()} : {})
     };
   }
 
@@ -10053,6 +10247,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           throw Object.assign(new Error(failure.error), {code:"line_connection_required"});
         }
         const code = String(failure.error || `contract_context_${response.status}`);
+        if(code.startsWith("special_")) handleSpecialRefusal(code);
         throw Object.assign(new Error(code), {code});
       }
       const result = await response.json();
@@ -10135,7 +10330,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           ...(hasGameCatalog ? (state.calc.games || []).map(g => g.name || g.title || g.id) : []),
           hasGameCatalog && state.calc.later ? (state.lang==="en" ? "Send game list later" : "แจ้งรายชื่อเกมภายหลัง") : ""
         ].filter(Boolean).join(" | "),
-        "ยอดค่าเช่า": Math.max(0, Number(summary.regularRental||0) + Number(summary.addons||0) + Number(summary.bgSubtotal||0) - Number(summary.discounts||0)),
+        "ยอดค่าเช่า": Math.max(0, Number(summary.regularRental||0) + Number(summary.specialSurcharge||0) + Number(summary.addons||0) + Number(summary.bgSubtotal||0) - Number(summary.discounts||0)),
         "ค่าประกัน": summary.deposit,
         "ยอดรวมทั้งหมด": summary.total,
         "Google Maps": state.calc.maps || "",
@@ -10309,6 +10504,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     ];
     const costLinesTh = [
       `  - ค่าเช่า ${cName(c)}: ${money(s.regularRental)}`,
+      s.specialSurcharge ? `  - ✨ ราคาพิเศษ${activeSpecial()?.titleTh ? `: ${activeSpecial().titleTh}` : ""}: ${money(s.specialSurcharge)}` : "",
       s.bundleName ? `  - Bundle ${s.bundleName}: รวมในค่าเช่า` : "",
       s.addons ? `  - อุปกรณ์เสริม: ${money(s.addons)}` : "",
       s.bgSubtotal ? `  - ค่าเช่าบอร์ดเกม: ${money(s.bgSubtotal)}` : "",
@@ -10324,6 +10520,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     ].filter(Boolean);
     const costLinesEn = [
       `  - ${cName(c)} rental: ${money(s.regularRental)}`,
+      s.specialSurcharge ? `  - ✨ Special rate${activeSpecial()?.titleEn ? `: ${activeSpecial().titleEn}` : ""}: ${money(s.specialSurcharge)}` : "",
       s.bundleName ? `  - Bundle ${s.bundleName}: included in rental` : "",
       s.addons ? `  - Accessories: ${money(s.addons)}` : "",
       s.bgSubtotal ? `  - Board game rental: ${money(s.bgSubtotal)}` : "",
@@ -11698,7 +11895,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(error?.code === "already_paid") openPayResume(payResume.code, payResume.token);
       else{
         hydratePayResumeEditor(current);
-        if(error?.message === "games_required") toast(en ? "Choose games or select ‘send the game list later’." : "เลือกรายชื่อเกม หรือเลือกแจ้งรายชื่อเกมภายหลัง", 4500);
+        if(String(error?.code || "").startsWith("special_")) toast(specialErrorText(error.code) || error.code, 5000);
+        else if(error?.message === "games_required") toast(en ? "Choose games or select ‘send the game list later’." : "เลือกรายชื่อเกม หรือเลือกแจ้งรายชื่อเกมภายหลัง", 4500);
         else if(error?.code === "booking_hold_conflict"){
           if(onQueueBlocked) onQueueBlocked(error.message);
           else showPayResumeQueuePopup(error.message);
@@ -15104,11 +15302,12 @@ We apologize for the inconvenience and hope everyone stays safe.`
     readFaqDraftIntoState();
     byId("adminBody").innerHTML = `
       <div class="admin-tabs">
-        ${["queue","announcement","rentals","vip","pickup","about","privacy","terms","pricing","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
+        ${["queue","announcement","rentals","special","vip","pickup","about","privacy","terms","pricing","consoles","home","reviews","faq","settings","sync","addons"].map(tab => `<button class="tab ${state.adminTab===tab?"active":""}" data-admin-tab="${tab}" type="button">${tabLabel(tab)}</button>`).join("")}
       </div>
       <div class="admin-panel ${state.adminTab==="queue"?"active":""}" id="adminQueue">${adminRentalCutoffHtml()}${adminQueueHtml()}</div>
       <div class="admin-panel ${state.adminTab==="announcement"?"active":""}" id="adminAnnouncement">${adminAnnouncementHtml()}${adminLineFriendPromoHtml()}</div>
       <div class="admin-panel ${state.adminTab==="rentals"?"active":""}" id="adminRentals">${adminRentalsHtml()}</div>
+      <div class="admin-panel ${state.adminTab==="special"?"active":""}" id="adminSpecial">${adminSpecialHtml()}</div>
       <div class="admin-panel ${state.adminTab==="vip"?"active":""}" id="adminVip">${adminVipHtml()}</div>
       <div class="admin-panel ${state.adminTab==="pickup"?"active":""}" id="adminPickup">${adminPickupHtml()}</div>
       <div class="admin-panel ${state.adminTab==="about"?"active":""}" id="adminAbout">${adminAboutHtml()}</div>
@@ -15132,6 +15331,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       announcement: en ? "Announcement" : "ประกาศ",
       rentals: en ? "Rentals" : "รายการเช่า",
       vip: en ? "VIP members" : "สมาชิก VIP",
+      special: en ? "Special rates" : "ราคาพิเศษ",
       pickup: en ? "Pickup points" : "จุดรับของ",
       about: en ? "About Us" : "เกี่ยวกับเรา",
       privacy: en ? "Privacy Policy" : "นโยบายความเป็นส่วนตัว",
@@ -15370,6 +15570,180 @@ We apologize for the inconvenience and hope everyone stays safe.`
       lineInput.insertAdjacentHTML("afterend", vipLineMatchHintHtml(match));
       toast(state.lang === "en" ? "LINE Unique ID found. Press Save VIP members to keep it." : "พบ LINE Unique ID แล้ว กดบันทึกสมาชิก VIP เพื่อเก็บไว้");
     }catch{}
+  }
+  // ---- Special rental rates (14/11/2026) ---------------------------------
+  // Campaigns the shop runs itself, and the private one-time links it sends
+  // customers. Saved by the Bot (admin-only); see the booking page's special mode.
+  const adminSpecial = {loaded:false, loading:false, saving:false, campaigns:[], links:[], error:"", lastLink:null};
+  async function adminSpecialFetch(path, options = {}){
+    const response = await fetch(`${CONFIG.apiBase}${path}`, {cache:"no-store", ...options, headers:{"Content-Type":"application/json", Authorization:`Bearer ${state.adminToken}`}});
+    const result = await response.json().catch(() => ({}));
+    if(!response.ok || result?.ok === false) throw Object.assign(new Error(result?.error || `http_${response.status}`), {code:result?.error || ""});
+    return result;
+  }
+  async function loadAdminSpecial(){
+    adminSpecial.loading = true;
+    try{
+      const result = await adminSpecialFetch(`/api/admin/special-rates?_ts=${Date.now()}`);
+      adminSpecial.campaigns = Array.isArray(result.campaigns) ? result.campaigns : [];
+      adminSpecial.links = Array.isArray(result.links) ? result.links : [];
+      adminSpecial.error = "";
+      adminSpecial.loaded = true;
+    }catch(error){
+      adminSpecial.error = error.message || "load_failed";
+    }finally{
+      adminSpecial.loading = false;
+      if(state.adminTab === "special") renderAdmin();
+    }
+  }
+  function readAdminSpecialCampaigns(){
+    return adminSpecial.campaigns.map((campaign, index) => {
+      const field = name => byId("adminSpecial")?.querySelector(`[data-sp="${index}:${name}"]`);
+      if(!field("titleTh")) return campaign;
+      return {
+        id: campaign.id,
+        titleTh: field("titleTh").value.trim(),
+        titleEn: field("titleEn").value.trim(),
+        consoleIds: [...byId("adminSpecial").querySelectorAll(`[data-sp-device="${index}"]:checked`)].map(input => input.value),
+        units: Number(field("units").value),
+        mode: field("mode").value,
+        amount: Number(field("amount").value),
+        linkHours: Number(field("linkHours").value),
+        enabled: field("enabled").checked,
+        usage: campaign.usage,
+      };
+    });
+  }
+  function adminSpecialStateLabel(value){
+    const en = state.lang === "en";
+    return ({
+      open: en ? "Not used yet" : "ยังไม่ได้ใช้",
+      held: en ? "Booking now (unit held)" : "กำลังจอง (กันเครื่องไว้)",
+      paid: en ? "Paid · used" : "ชำระแล้ว · ใช้แล้ว",
+      expired: en ? "Expired" : "หมดอายุ",
+      revoked: en ? "Cancelled" : "ยกเลิกแล้ว",
+    })[value] || value;
+  }
+  function adminSpecialHtml(){
+    const en = state.lang === "en";
+    if(!adminSpecial.loaded){
+      return `<div class="card"><h3>${en ? "Special rates" : "ราคาพิเศษ"}</h3><p class="hint">${adminSpecial.error ? esc(`${en ? "Could not load" : "โหลดไม่สำเร็จ"}: ${adminSpecial.error}`) : (en ? "Loading…" : "กำลังโหลด…")}</p>${adminSpecial.error ? `<button class="btn" type="button" data-sp-reload>${en ? "Try again" : "ลองใหม่"}</button>` : ""}</div>`;
+    }
+    const when = value => {
+      const date = new Date(value);
+      return Number.isFinite(date.getTime()) ? date.toLocaleString(en ? "en-GB" : "th-TH", {timeZone:"Asia/Bangkok", day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit"}) : "";
+    };
+    const campaigns = adminSpecial.campaigns.map((campaign, index) => {
+      const usage = campaign.usage || {units:campaign.units, paid:0, held:0, remaining:campaign.units};
+      const devices = state.consoles.map(device => `<label class="sp-device"><input type="checkbox" data-sp-device="${index}" value="${esc(String(device.id))}" ${(campaign.consoleIds || []).map(String).includes(String(device.id)) ? "checked" : ""}> ${esc(cName(device))} <span class="hint">${money(device.rate)}/${en ? "day" : "วัน"}</span></label>`).join("");
+      return `<div class="card sp-campaign">
+        <div class="sp-head"><b>${esc(campaign.titleTh || campaign.titleEn || campaign.id)}</b><span class="hint">ID ${esc(campaign.id)} · ${en ? `Paid ${usage.paid} · held ${usage.held} · left ${usage.remaining} of ${usage.units}` : `จองแล้ว ${usage.paid} · กำลังจอง ${usage.held} · เหลือ ${usage.remaining} จาก ${usage.units} เครื่อง`}</span></div>
+        <div class="grid2">
+          <div class="field"><label class="label">${en ? "Name (Thai)" : "ชื่อ (ไทย)"}</label><input class="input" data-sp="${index}:titleTh" value="${esc(campaign.titleTh || "")}" maxlength="80"></div>
+          <div class="field"><label class="label">${en ? "Name (English)" : "ชื่อ (อังกฤษ)"}</label><input class="input" data-sp="${index}:titleEn" value="${esc(campaign.titleEn || "")}" maxlength="80"></div>
+          <div class="field"><label class="label">${en ? "Units open for rent" : "จำนวนเครื่องที่เปิดให้เช่า"}</label><input class="input" type="number" min="1" max="500" data-sp="${index}:units" value="${esc(String(campaign.units || 1))}"></div>
+          <div class="field"><label class="label">${en ? "Surcharge" : "การบวกเพิ่ม"}</label><select class="input" data-sp="${index}:mode"><option value="per_day" ${campaign.mode !== "per_rental" ? "selected" : ""}>${en ? "Per day" : "บวกต่อวัน"}</option><option value="per_rental" ${campaign.mode === "per_rental" ? "selected" : ""}>${en ? "Once per rental" : "บวกครั้งเดียวต่อการเช่า"}</option></select></div>
+          <div class="field"><label class="label">${en ? "Amount added (฿)" : "ยอดบวกเพิ่ม (บาท)"}</label><input class="input" type="number" min="0" max="100000" data-sp="${index}:amount" value="${esc(String(campaign.amount ?? 0))}"></div>
+          <div class="field"><label class="label">${en ? "Link valid for (hours)" : "ลิงก์ใช้ได้ (ชั่วโมง)"}</label><select class="input" data-sp="${index}:linkHours">${[24, 48, 72].map(hours => `<option value="${hours}" ${Number(campaign.linkHours || 48) === hours ? "selected" : ""}>${hours} ${en ? "hours" : "ชั่วโมง"} (${hours / 24} ${en ? "day" : "วัน"})</option>`).join("")}</select></div>
+        </div>
+        <div class="field"><label class="label">${en ? "Devices customers can choose" : "เครื่องที่ให้ลูกค้าเลือกได้"}</label><div class="sp-devices">${devices}</div></div>
+        <label class="option-row"><input type="checkbox" data-sp="${index}:enabled" ${campaign.enabled !== false ? "checked" : ""}><div><b>${en ? "Open (links work)" : "เปิดใช้ (ลิงก์ใช้งานได้)"}</b></div></label>
+        <div class="sp-actions">
+          <input class="input" data-sp-note="${index}" placeholder="${en ? "Customer name / note (optional)" : "ชื่อลูกค้า / หมายเหตุ (ไม่บังคับ)"}" maxlength="80">
+          <button class="btn primary" type="button" data-sp-link="${index}">${en ? "🔗 Create a one-time link" : "🔗 สร้างลิงก์ใช้ครั้งเดียว"}</button>
+          <button class="btn" type="button" data-sp-remove="${index}">${en ? "Remove campaign" : "ลบ campaign"}</button>
+        </div>
+      </div>`;
+    }).join("");
+    const last = adminSpecial.lastLink;
+    const links = adminSpecial.links.slice(0, 60).map(link => {
+      const campaign = adminSpecial.campaigns.find(item => item.id === link.campaignId);
+      return `<tr><td>${esc(link.note || "-")}</td><td>${esc(campaign?.titleTh || link.campaignId)}</td><td>${esc(adminSpecialStateLabel(link.state))}${link.rentalCode ? `<div class="hint">${esc(link.rentalCode)}</div>` : ""}</td><td>${esc(when(link.expiresAt))}</td><td class="sp-link-actions">${["open", "held"].includes(link.state) ? `<button class="btn" type="button" data-sp-copy="${esc(link.url)}">${en ? "Copy" : "คัดลอก"}</button><button class="btn" type="button" data-sp-revoke="${esc(link.id)}">${en ? "Cancel" : "ยกเลิก"}</button>` : ""}</td></tr>`;
+    }).join("");
+    return `<div class="card"><h3>${en ? "Special rates" : "ราคาพิเศษ"}</h3>
+        <p class="hint">${en
+          ? "A private booking page for one customer: the devices you choose, the normal rental plus your surcharge, no discounts, delivery quoted as usual. Each link books once and expires. Units are taken when paid; a customer paying holds one for 30 minutes."
+          : "หน้าจองส่วนตัวสำหรับลูกค้า 1 คน: เฉพาะเครื่องที่เลือก ราคาเช่าปกติ + ยอดที่บวกเพิ่ม ไม่มีส่วนลด ค่าส่งคิดแบบหน้าหลัก ลิงก์ใช้จองได้ครั้งเดียวและหมดอายุตามที่ตั้ง เครื่องจะถูกนับเมื่อชำระเงิน ระหว่างลูกค้ากำลังชำระเงินจะกันเครื่องไว้ให้ 30 นาที"}</p>
+        ${last ? `<div class="special-rate-banner"><b>${en ? "New link — send it to the customer" : "ลิงก์ใหม่ — ส่งให้ลูกค้าได้เลย"}</b><code class="sp-url">${esc(last.url)}</code><div>${en ? "Valid until" : "ใช้ได้ถึง"} ${esc(when(last.expiresAt))}</div><div><button class="btn primary" type="button" data-sp-copy="${esc(last.url)}">${en ? "Copy link" : "คัดลอกลิงก์"}</button></div></div>` : ""}
+        <div class="sp-actions"><button class="btn" type="button" data-sp-add>${en ? "+ Add campaign" : "+ เพิ่ม campaign"}</button><button class="btn primary" type="button" data-sp-save ${adminSpecial.saving ? "disabled" : ""}>${adminSpecial.saving ? (en ? "Saving…" : "กำลังบันทึก…") : (en ? "Save campaigns" : "บันทึก campaign")}</button><button class="btn" type="button" data-sp-reload>${en ? "Refresh" : "โหลดใหม่"}</button></div>
+      </div>
+      ${campaigns || `<div class="card"><p class="hint">${en ? "No campaigns yet." : "ยังไม่มี campaign"}</p></div>`}
+      <div class="card"><h3>${en ? "Links" : "ลิงก์ที่สร้างแล้ว"}</h3>
+        ${links ? `<div class="sp-table-wrap"><table class="sp-table"><thead><tr><th>${en ? "Customer" : "ลูกค้า"}</th><th>Campaign</th><th>${en ? "Status" : "สถานะ"}</th><th>${en ? "Expires" : "หมดอายุ"}</th><th></th></tr></thead><tbody>${links}</tbody></table></div>` : `<p class="hint">${en ? "No links yet." : "ยังไม่มีลิงก์"}</p>`}
+      </div>`;
+  }
+  async function adminSpecialAction(target){
+    const en = state.lang === "en";
+    if(target.closest("[data-sp-reload]")){ adminSpecial.loaded = false; renderAdmin(); await loadAdminSpecial(); return true; }
+    if(target.closest("[data-sp-add]")){
+      adminSpecial.campaigns = [...readAdminSpecialCampaigns(), {id:`sp-${Date.now().toString(36)}`, titleTh:"", titleEn:"", consoleIds:[], units:1, mode:"per_day", amount:0, linkHours:48, enabled:true}];
+      renderAdmin();
+      return true;
+    }
+    const remove = target.closest("[data-sp-remove]");
+    if(remove){
+      const list = readAdminSpecialCampaigns();
+      const campaign = list[Number(remove.dataset.spRemove)];
+      if(campaign?.usage?.paid || campaign?.usage?.held) { toast(en ? "This campaign has bookings; close it instead of removing it." : "campaign นี้มีการจองแล้ว ให้ปิดใช้แทนการลบ"); return true; }
+      adminSpecial.campaigns = list.filter((_, index) => index !== Number(remove.dataset.spRemove));
+      renderAdmin();
+      return true;
+    }
+    if(target.closest("[data-sp-save]")){
+      adminSpecial.campaigns = readAdminSpecialCampaigns();
+      adminSpecial.saving = true; renderAdmin();
+      try{
+        await adminSpecialFetch("/api/admin/special-rates/campaigns", {method:"PUT", body:JSON.stringify({campaigns:adminSpecial.campaigns.map(({usage, ...campaign}) => campaign)})});
+        toast(en ? "Campaigns saved" : "บันทึก campaign แล้ว");
+        await loadAdminSpecial();
+      }catch(error){
+        toast(`${en ? "Not saved" : "บันทึกไม่สำเร็จ"}: ${adminSpecialSaveError(error.code || error.message)}`);
+      }finally{ adminSpecial.saving = false; renderAdmin(); }
+      return true;
+    }
+    const make = target.closest("[data-sp-link]");
+    if(make){
+      const index = Number(make.dataset.spLink);
+      const campaign = readAdminSpecialCampaigns()[index];
+      const note = byId("adminSpecial")?.querySelector(`[data-sp-note="${index}"]`)?.value || "";
+      make.disabled = true;
+      try{
+        const result = await adminSpecialFetch("/api/admin/special-rates/links", {method:"POST", body:JSON.stringify({campaignId:campaign.id, note})});
+        adminSpecial.lastLink = result.link;
+        try{ await navigator.clipboard.writeText(result.link.url); toast(en ? "Link created and copied" : "สร้างลิงก์และคัดลอกแล้ว"); }catch{ toast(en ? "Link created" : "สร้างลิงก์แล้ว"); }
+        await loadAdminSpecial();
+      }catch(error){
+        toast(`${en ? "No link" : "สร้างลิงก์ไม่สำเร็จ"}: ${adminSpecialSaveError(error.code || error.message)}`);
+        make.disabled = false;
+      }
+      return true;
+    }
+    const copy = target.closest("[data-sp-copy]");
+    if(copy){
+      try{ await navigator.clipboard.writeText(copy.dataset.spCopy); toast(tr("copied")); }catch{ toast(copy.dataset.spCopy); }
+      return true;
+    }
+    const revoke = target.closest("[data-sp-revoke]");
+    if(revoke){
+      if(!confirm(en ? "Cancel this link? The customer can no longer book with it." : "ยกเลิกลิงก์นี้? ลูกค้าจะใช้ลิงก์นี้จองไม่ได้อีก")) return true;
+      try{ await adminSpecialFetch(`/api/admin/special-rates/links/${encodeURIComponent(revoke.dataset.spRevoke)}/revoke`, {method:"POST", body:"{}"}); await loadAdminSpecial(); }
+      catch(error){ toast(adminSpecialSaveError(error.code || error.message)); }
+      return true;
+    }
+    return false;
+  }
+  function adminSpecialSaveError(code){
+    const en = state.lang === "en";
+    return ({
+      special_campaign_title_invalid: en ? "Fill in both names (up to 80 characters)." : "กรอกชื่อทั้งไทยและอังกฤษ (ไม่เกิน 80 ตัวอักษร)",
+      special_campaign_devices_invalid: en ? "Choose at least one device." : "เลือกเครื่องอย่างน้อย 1 รุ่น",
+      special_campaign_units_invalid: en ? "Units must be 1–500." : "จำนวนเครื่องต้องเป็น 1–500",
+      special_campaign_amount_invalid: en ? "The amount must be a whole number of baht." : "ยอดบวกเพิ่มต้องเป็นจำนวนเต็มบาท",
+      special_campaign_mode_invalid: en ? "Choose per day or per rental." : "เลือกบวกต่อวันหรือต่อการเช่า",
+      special_campaign_not_found: en ? "Save the campaign first." : "บันทึก campaign ก่อนสร้างลิงก์",
+      special_campaign_closed: en ? "The campaign is closed." : "campaign นี้ปิดอยู่",
+      special_link_used: en ? "This link has been paid for and cannot be cancelled." : "ลิงก์นี้ชำระเงินแล้ว ยกเลิกไม่ได้",
+    })[code] || code;
   }
   function adminVipHtml(){
     const en = state.lang === "en";
@@ -16195,11 +16569,17 @@ We apologize for the inconvenience and hope everyone stays safe.`
       const bgDetail = event.target.closest("[data-bg-detail]");
       if(bgDetail){ showBoardGameDetail(bgDetail.dataset.bgDetail); return; }
       if(event.target.closest("[data-modal-close]")){ closeModal(); return; }
+      // Special-rate admin: its buttons are handled there (async; nothing below applies to them).
+      if(state.adminTab === "special" && event.target.closest("#adminSpecial [data-sp-reload], #adminSpecial [data-sp-add], #adminSpecial [data-sp-remove], #adminSpecial [data-sp-save], #adminSpecial [data-sp-link], #adminSpecial [data-sp-copy], #adminSpecial [data-sp-revoke]")){
+        void adminSpecialAction(event.target);
+        return;
+      }
       const adminTab = event.target.closest("[data-admin-tab]");
       if(adminTab){
         state.adminTab = adminTab.dataset.adminTab;
         if(state.adminTab === "terms" && !adminTerms.loaded) void loadAdminTerms();
         if(state.adminTab === "privacy") void loadPrivacyContent();
+        if(state.adminTab === "special" && !adminSpecial.loaded) void loadAdminSpecial();
         renderAdmin();
         return;
       }
@@ -16705,6 +17085,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       }
     });
     document.addEventListener("click", async event => {
+      if(event.target.closest("[data-special-leave]")){ leaveSpecialRate(); return; }
       const clickedButton = event.target.closest("button");
       const targetId = clickedButton?.id || event.target.id;
       if(targetId === "contractOpenLine"){ closeContractOpenModal("line"); return; }
@@ -17370,6 +17751,13 @@ We apologize for the inconvenience and hope everyone stays safe.`
         state.beforeRentActive = false;
         try{ const url = new URL(location.href); url.searchParams.delete("t"); history.replaceState(null, "", url.pathname + url.search + url.hash); }catch{}
       }
+    }
+    // A special-rate link opens the booking form itself, with its campaign.
+    if(specialModeOn() && !payLink){
+      state.beforeRentActive = false;
+      state.calc.step = 1;
+      siteAnnouncementDismissed = true;
+      void loadSpecialRate().then(() => setTimeout(() => byId("calcHeading")?.scrollIntoView({block:"start"}), 80));
     }
     bindEvents();
     // Shown first on every visit, above whatever pop-up the link opens.
