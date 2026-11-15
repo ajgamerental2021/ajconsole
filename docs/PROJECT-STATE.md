@@ -1,3 +1,20 @@
+## 2026-11-15 — "ยกเลิก (คืนเงินเต็มจำนวน)": cancel a booking, record the full refund, no revenue
+
+- Commits: DA `85dcf7f`, `61808da`. Deploy the DA backend and include it in the new Android build.
+- **App:** a new button in the Booking card's "เพิ่มเติม" menu.
+  - Hidden on bookings already cancelled and on a bundle's second device.
+  - The confirmation shows the customer, device, dates and the amount paid, which is the amount returned. The amount is the larger of the row's paid amount and the payment ledger.
+  - It sends nothing to the customer and transfers nothing. The shop refunds first, then records it here.
+- **Backend** (`services/bookingCancelService`, `GET/POST /api/bookings/:rowIndex/cancel-full-refund`):
+  - Refuses if the row now holds another booking, if it is a bundle partner, if it is already cancelled, or if the paid amount changed since the preview.
+  - Writes status Cancelled + `cancelledAt` (the unit is free), คืนเงินโอน = amount returned, an empty balance, and `financialCorrectionJson.cancelRefund {amount, at, by}`, plus the modify note and change log.
+- **Finance:** a cancelled booking keeps paid − `cancelRefund`. A full refund gives 0 revenue and no deposit.
+  - คืนเงินโอน is *not* used as the signal: on every booking it already holds the deposit to return.
+  - Older cancelled bookings keep their revenue as before.
+- **App card:** a cancelled booking shows "คืนเงินเต็มจำนวน ฿X · ไม่มียอดรายรับ". "Rental:" only reads a correction that has a `grandTotal`.
+- **For ปิยธิดา (683):** press the new button once the backend and app are deployed.
+- **Checked:** `test:cancel-full-refund` (new), `test:cancellation-review` updated, DA full suite (all except header-guard).
+
 ## 2026-11-15 — Campaign bookings on the stock calendar · app Edit form prices the campaign
 
 - Commit: DA `951607a`. Deploy the DA backend and include it in the new Android build.
