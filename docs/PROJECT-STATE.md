@@ -1,3 +1,15 @@
+## 2026-11-15 — Campaign bookings on the stock calendar · app Edit form prices the campaign
+
+- Commit: DA `951607a`. Deploy the DA backend and include it in the new Android build.
+- **PS5-13 was empty on ปฏิทินเช็คคิว** while Lachlan (special rate, GTA6) had it 15–27/11. Campaign bookings were set to hold no unit days.
+  - Now a campaign booking holds the unit it is on: the calendar shows it, and other rentals cannot take that console.
+  - The campaign booking itself is still never refused by a full queue (`findUnitClash` skips it). A clash it makes shows under "ต้องดู".
+  - Console Pending confirm now puts a campaign rental on a free unit of the model when there is one. With none free, it keeps its unit and does not refuse.
+- **App Edit form (Booking Log) summary** showed ฿4,500 without the +฿2,000 per-rental surcharge. That summary is priced on the device.
+  - It now adds the surcharge row and drops the promo, review, VIP and 10% discounts, as `bookingCharges` does. Those toggles are disabled; the shop's extra discount stays.
+  - The stored balance (โอนก่อนส่ง 7,636) already included the 2,000.
+- **Checked:** DA full suite (all except header-guard), `test:special-rate` updated.
+
 ## 2026-11-15 — Campaign (special-rate) bookings marked everywhere a price shows
 
 - Commits: website (this commit), Bot `910f288`, DA `b3756b6`. Deploy all three, and include it in the new Android build.
