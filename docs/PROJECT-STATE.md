@@ -1,3 +1,20 @@
+## 2026-11-15 — Special rates fixes: devices tick bug, campaign units are not stock, per-day surcharge on extensions
+
+- Commits: website (this commit), Bot `9b88a67`, DA (see the next entry or the DA log). Deploy all three.
+- **Admin device ticks:** ticking one device and saving showed every device ticked. The generic admin draft restore keys fields by their data attributes, and all of a campaign's device boxes share one.
+  - `adminSpecial` is now an own-draft panel with `specialDraftDirty`, like VIP.
+  - A campaign saved while every box showed as ticked has every device saved. Untick and save it again.
+- **Campaign units are not stock:**
+  - Website: in special mode the calendar is all free, apart from shop closures, the start cutoff and the 3-day minimum. Ready dates are ignored, there is no promotion badge, and there is no stock refresh after the hold.
+  - Bot: `/api/booking-holds` with `specialToken`, or for a rental code a campaign holds, takes the campaign unit only (first customer, 30 minutes). It never calls `freeUnitsFromDeliveryApp` or `bookingHolds.acquire`, so normal calendars do not see it.
+  - DA:
+    - `unitHolds.isSpecialRateBooking` makes `holdKindOf` null, so a special booking holds no unit days and is not blocked by any.
+    - Console Pending confirm skips the unit search and the dates-moved availability refusal.
+    - `requestHolds` skips special requests.
+    - Extensions of a special booking have no queue limit.
+- **Extensions:** a per-day campaign adds its amount for each extra day (`computeExtensionQuote.specialPerDay`, a line on the extension page), and no discount applies. A once-per-rental campaign adds nothing.
+- **Checked:** website 441/441, Bot 864/864, DA `test:special-rate` extended. The calendar was rendered with stock fully booked: all dates free, no badge.
+
 ## 2026-11-15 — Special rental rates: campaigns and one-time links
 
 - Commits: website (this commit), Bot `371b998`, DA `b6c58c8`. **Deploy all three together.**

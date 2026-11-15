@@ -55,3 +55,17 @@ test('the admin page manages campaigns and one-time links', () => {
   for (const field of ['titleTh', 'titleEn', 'units', 'mode', 'amount', 'linkHours', 'enabled']) assert.ok(html.includes(`data-sp="\${index}:${field}"`), field);
   assert.match(html, /<option value="per_day"[^>]*>\$\{en \? "Per day" : "บวกต่อวัน"\}<\/option><option value="per_rental"/);
 });
+
+test('a special rate never checks the stock queue (15/11/2026): every date free, no promotion badge', () => {
+  assert.match(html, /if\(activeSpecial\(\)\) return \{mode:"ok",pass:true,message:tr\("available"\)\};/);
+  assert.match(html, /if\(activeSpecial\(\)\) return \{cls:"available", note:calendarCellText\("available"\)\};/);
+  assert.match(html, /if\(activeSpecial\(\)\) return true;\n    if\(!hasRecentAvailabilitySnapshot\(\)\) return false;/);
+  assert.match(html, /if\(activeSpecial\(\)\) return hold;\n    const refreshed = await fetchAvailability\(true\);/);
+  assert.match(html, /if\(special && \(special\.consoleIds \|\| \[\]\)\.map\(String\)\.includes\(String\(item\?\.id\)\)\) return !isQueueClosed\(item\);/);
+  assert.match(html, /if\(typeof activeSpecial === "function" && activeSpecial\(\)\) return \{eligible:false, discount:0, price:0\};/);
+});
+
+test('the admin tab keeps its own unsaved edits: ticking one device never ticks them all', () => {
+  assert.match(html, /const ADMIN_OWN_DRAFT_PANELS = new Set\(\["adminTerms", "adminVip", "adminPricing", "adminFaq", "adminSpecial"\]\);/);
+  assert.match(html, /if\(specialDraftDirty && byId\("adminSpecial"\)\?\.querySelector\("\[data-sp\]"\)\) adminSpecial\.campaigns = readAdminSpecialCampaigns\(\);/);
+});

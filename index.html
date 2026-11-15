@@ -3559,7 +3559,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function isQueueClosed(item, startValue, endValue){
     return queueRulesForItem(item).some(rule => queueRuleOverlaps(rule, startValue, endValue));
   }
-  function isConsoleSelectable(item){ return isReady(item) && !isQueueClosed(item); }
+  // A special-rate campaign's devices are its own units, not the shop's stock:
+  // their ready date and queue never decide (only the shop's closures do).
+  function isConsoleSelectable(item){
+    const special = typeof activeSpecial === "function" ? activeSpecial() : null;
+    if(special && (special.consoleIds || []).map(String).includes(String(item?.id))) return !isQueueClosed(item);
+    return isReady(item) && !isQueueClosed(item);
+  }
   // Four specific ฿2,000 models hold ฿5,000 without identity; other
   // ฿2,000 models hold ฿10,000. Bundles and ฿4,000 models hold ฿15,000.
   let pricingPolicy = null;
@@ -3659,7 +3665,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // and each rebuild put the stored values back over whatever was being typed.
   // Typed values are kept per field until that tab's own Save/Add/Delete is
   // pressed. Tabs with their own draft handling are left to it.
-  const ADMIN_OWN_DRAFT_PANELS = new Set(["adminTerms", "adminVip", "adminPricing", "adminFaq"]);
+  // Special rates keep their own unsaved edits: their device boxes share one
+  // data key per campaign, so the generic draft restore ticked every box.
+  const ADMIN_OWN_DRAFT_PANELS = new Set(["adminTerms", "adminVip", "adminPricing", "adminFaq", "adminSpecial"]);
   let adminFieldDrafts = {};
   function adminDraftKey(el){
     const panel = el.closest?.(".admin-panel");
@@ -3926,6 +3934,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return {daily, weekly, deposit, bundleName, regular, vip, vipRateApplied:Boolean(vipRates), vipDepositApplied:deposit !== regular.deposit};
   }
   function afterWorkPromotion(startValue, endValue, regularRental, dailyRate){
+    // No promotion is ever offered at a special rate, not even as a calendar badge.
+    if(typeof activeSpecial === "function" && activeSpecial()) return {eligible:false, discount:0, price:0};
     return promotionFor(startValue,endValue,regularRental,dailyRate,consoleById(state.calc.consoleId));
   }
   function afterWorkPromotionLabel(price,name){
@@ -8399,6 +8409,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       throw error;
     }
     const hold = await acquireBookingHold(rentalCode, ctx);
+    // A special rate's unit is the campaign's, held by the server just now; the stock queue is not its business.
+    if(activeSpecial()) return hold;
     const refreshed = await fetchAvailability(true);
     if(!refreshed?.fresh){
       await releaseBookingHold(rentalCode);
@@ -9174,6 +9186,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(isQueueClosed(c, start, end)) return {mode:"closed",pass:false,message:tr("queueClosed")};
     if(!startDateAllowed(start)) return {mode:"cutoff",pass:false,message:cutoffStartNotice()};
     if(diffDays(start,end) < 3) return {mode:"min",pass:false,message:tr("minDays")};
+    // A special rate counts the campaign's own units (held on the server), never the stock queue.
+    if(activeSpecial()) return {mode:"ok",pass:true,message:tr("available")};
     if(!state.availability.rows.length) return {mode:"fallback",pass:true,message:""};
     const bundleGate = selectedBundleAvailabilityGate(start, end, ctx);
     if(!bundleGate.pass) return {mode:bundleGate.holds?.length ? "hold" : "busy",pass:false,message:bundleGate.message};
@@ -9442,6 +9456,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // Choosing a start date, only that delivery day matters for a closure; the
     // return day is checked when it is picked.
     if(isQueueClosed(c, start, isReturnCandidate ? end : start)) return {cls:"busy", note:calendarCellText("closed")};
+    if(activeSpecial()) return {cls:"available", note:calendarCellText("available")};
     // A hold only blocks a date when it uses up the last free unit. The
     // customer's own hold never blocks them: the server replaces it when they
     // book again, exactly as it does not count it as a conflict.
@@ -9474,6 +9489,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(start && !startDateAllowed(start)) return false;
     if(c && start && end && isQueueClosed(c, start, end)) return false;
     if(!c || !start || !end) return true;
+    if(activeSpecial()) return true;
     if(!hasRecentAvailabilitySnapshot()) return false;
     if(!state.availability.rows.length) return true;
     if(!selectedBundleAvailabilityGate(start, end).pass) return false;
@@ -15280,6 +15296,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
     toast(tr("adminSignedOut"));
   }
   let vipDraftDirty = false;
+  /** Unsaved edits on the Special rates tab, read back before every redraw. */
+  let specialDraftDirty = false;
   /**
    * FAQ text typed but not yet saved. The panel is redrawn whenever promotions
    * refresh (every minute) or a tab changes, and each redraw rebuilt the FAQ
@@ -15298,6 +15316,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     // Keep unpublished edits to the terms across re-renders of the panel.
     $$("[data-terms-field]").forEach(input => { adminTerms[input.dataset.termsField] = input.value; });
     if(vipDraftDirty && byId("adminVip")?.querySelector("[data-vip-row]")) state.vipCustomers.items = readVipCustomersFromAdmin();
+    if(specialDraftDirty && byId("adminSpecial")?.querySelector("[data-sp]")) adminSpecial.campaigns = readAdminSpecialCampaigns();
     if(pricingDraftDirty && byId("adminPricing")) pricingDraft = readPricingDraft();
     readFaqDraftIntoState();
     byId("adminBody").innerHTML = `
@@ -15674,7 +15693,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
   }
   async function adminSpecialAction(target){
     const en = state.lang === "en";
-    if(target.closest("[data-sp-reload]")){ adminSpecial.loaded = false; renderAdmin(); await loadAdminSpecial(); return true; }
+    if(target.closest("[data-sp-reload]")){ specialDraftDirty = false; adminSpecial.loaded = false; renderAdmin(); await loadAdminSpecial(); return true; }
     if(target.closest("[data-sp-add]")){
       adminSpecial.campaigns = [...readAdminSpecialCampaigns(), {id:`sp-${Date.now().toString(36)}`, titleTh:"", titleEn:"", consoleIds:[], units:1, mode:"per_day", amount:0, linkHours:48, enabled:true}];
       renderAdmin();
@@ -15694,6 +15713,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       adminSpecial.saving = true; renderAdmin();
       try{
         await adminSpecialFetch("/api/admin/special-rates/campaigns", {method:"PUT", body:JSON.stringify({campaigns:adminSpecial.campaigns.map(({usage, ...campaign}) => campaign)})});
+        specialDraftDirty = false;
         toast(en ? "Campaigns saved" : "บันทึก campaign แล้ว");
         await loadAdminSpecial();
       }catch(error){
@@ -16796,6 +16816,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     });
     document.addEventListener("change", async event => {
       if(event.target.closest?.("[data-vip-row]")) vipDraftDirty = true;
+      if(event.target.closest?.("#adminSpecial [data-sp], #adminSpecial [data-sp-device]")) specialDraftDirty = true;
       if(event.target.matches('[data-vip-field="name"],[data-vip-field="phone"]')){
         void lookupVipLineForRow(event.target.closest('[data-vip-row]'));
         return;
@@ -16927,6 +16948,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     });
     document.addEventListener("input", event => {
       if(event.target.closest?.("[data-vip-row]")) vipDraftDirty = true;
+      if(event.target.closest?.("#adminSpecial [data-sp], #adminSpecial [data-sp-device]")) specialDraftDirty = true;
       if(event.target.matches?.("[data-faq]")) faqDraftDirty = true;
       if(event.target.id === "mapsInput"){ state.calc.maps = event.target.value.trim(); if(state.calc.maps.length > 8){ markGuideDone("maps"); setGuideStage("ret"); } saveLocal(); renderGuide(); }
       if(UNIFIED_FLOW_DEMO && event.target.id === "demoRefundAccount"){
