@@ -1,3 +1,28 @@
+## 2026-11-15 — Money: one rule for every card, page and the driver
+
+- Commit: DA `fa5e411`. Deploy the DA backend and include it in the new Android build.
+- **Reported cases:**
+  - R0088 (คิวเช่าของฉัน) showed total 3,847, paid 1,000, due 3,327.
+  - R0082 showed total 3,855, "Paid in full" 3,990. The difference is a ฿135 card fee (3.5%).
+- **Causes:**
+  - A card or e-wallet payment put its fee into ชำระแล้ว (`applyPaymentToBooking`).
+  - My rental's after-start view dropped the payment method, and with it the fee line.
+  - The Booking Confirm card and My rental printed the stored ยอดโอนก่อนส่ง as-is, while the delivery card and สรุปจ่าย capped it. Each did it differently.
+  - A price edit left ยอดโอนก่อนส่ง where it was.
+- **Rule** (`services/bookingMoney`): `charged + extra + fees − paidTotal − reservationOpen − adjustment = balance`.
+  - **Fees come from:** the ledger entry's fee, else worked out from a card/e-wallet channel, else ledger money above the charges. An amount the shop typed is never a fee: a run's one transfer is recorded on its first booking.
+  - **Balance:** once anything is paid it is never more than charged − paid (R0029). Before any payment the shop's figure stands; above the charges it shows as "ยอดเพิ่มเติม (ตามที่ร้านบันทึก)". A shop figure below the charges shows as "ปรับยอดโดยร้าน".
+  - **Runs:** the balance is worked out over the whole run.
+- **Used by:** Booking Confirm, the combined order card, My rental, the delivery card, dispatch (9 places, plus the default driver note), สรุปจ่าย and the app's ยอดไม่ตรง badge.
+- **Prevention:**
+  - A payment applies only its rent; the fee stays apart.
+  - `keepBalanceInStep`: a price edit moves the balance by the price change, re-read after the sheet re-prices. This only happens when the balance agreed with the booking before the edit and staff did not change it themselves.
+- **Fixing existing bookings:** in the app (Booking Log), the "⚠️ ยอดไม่ตรง" filter lists all of them.
+  - Tap a badge to see total / paid / expected / recorded.
+  - Then either Edit the booking (if a charge such as an accessory is missing) or set the balance (`POST /api/bookings/:rowIndex/balance-fix`). The fix also sets ชำระแล้ว to the rent paid, without fees, when the ledger has the payments.
+  - **R0088:** if the extra 480 is a missing charge (for example an extra controller, 120 × 4 days), add it in Edit. Otherwise set the balance to 2,847.
+- **Checked:** `test:booking-money` (R0082 and R0088 replayed, 400 random bookings: every column adds up and the driver asks the same amount). DA full suite passes, all except header-guard.
+
 ## 2026-11-15 — "ยกเลิก (คืนเงินเต็มจำนวน)": cancel a booking, record the full refund, no revenue
 
 - Commits: DA `85dcf7f`, `61808da`. Deploy the DA backend and include it in the new Android build.
