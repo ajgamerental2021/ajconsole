@@ -1,3 +1,25 @@
+## 2026-11-16 — 30-day rentals: Booking Log and Finance missed the monthly price (booking 686)
+
+- Commit: DA `0b96f22`. Deploy the DA backend; the fix to existing rows runs at startup.
+- **Reported:** booking 686 (Judy, PS5-14, 30 days, special rate +1,500).
+  - The app priced it 6,500 + 1,500 = 8,000.
+  - The Booking Log's Rental Fee read 10,800, so the Finance book read 12,300 (row 66), and Postgres copied the sheet.
+- **Cause:** the Rental Fee formula found the monthly price with `SWITCH(daily, 400, 6500, …)`.
+  - The app's Inventory form writes RAW, so PS5-14's daily rate is most likely the text "400". SWITCH never matches text.
+  - The formula fell back to weeks and days: 4 × 2,500 + 2 × 400 = 10,800.
+  - Arithmetic takes the text as a number, so nothing else showed it.
+  - The special rate was not involved.
+  - The sheet itself could not be read from here; the cause was reproduced in `test:rental-rates` (text "400" with the old formula gives exactly 10,800).
+- **Fix:**
+  - The formula compares `VALUE(daily)`.
+  - Inventory deposit and rates are written as numbers.
+  - At startup the older formula is replaced on open rentals, as on 03/11. Each changed booking's Finance line is synced again (686 → 8,000), and the shop is told.
+- **Prevention:** at startup, open non-company rentals whose formula prices off the rate card are reported to the shop on LINE ("⚠️ ค่าเช่าใน Booking Log ไม่ตรงเรทราคา"). Typed fees are not reported.
+- **After deploy:** check booking 686 shows 6,500 and Finance row 66 shows 8,000.
+  - If it still shows 10,800, the cell holds a typed number. Clear it and save the booking once in the app; the formula is written back.
+  - Resend Booking Confirm if the customer got 12,300.
+- **Checked:** `test:rental-rates` 20/20; inventory Postgres sync 14/14 on Postgres 16; DA full suite passes, all except header-guard.
+
 ## 2026-11-16 — Delivery App slowness measured and this week's regressions fixed; Phase 5 check
 
 - Commit: DA `9480b7c`. Deploy the DA backend.
