@@ -86,7 +86,7 @@ test('the price row names the campaign and its rate (15/11/2026), never the word
 
 test('locked dates (16/11/2026): the campaign can fix the start day, the number of days, both or neither', () => {
   // The return day is the start plus the days, as the calendar counts them.
-  assert.match(html, /return \{start, days, min, end:start && days && !min \? fmtIso\(addDays\(parseDate\(start\), days\)\) : "", any:!!\(start \|\| days\)\};/);
+  assert.match(html, /return \{start, days, min, end:start && days && !min \? fmtIso\(addDays\(parseDate\(start\), days\)\) : "", from, any:!!\(start \|\| days \|\| from\)\};/);
   // Days exact or at least (owner, 16/11/2026): a minimum is the calendar's shortest rental.
   assert.match(html, /const min = !!days && special\?\.lockDaysMode === "min";/);
   assert.match(html, /if\(lock\.days && \(lock\.min \? !\(days >= lock\.days\) : days !== lock\.days\)\) return false;/);
@@ -122,4 +122,17 @@ test('a date lock can be cleared on a phone, whose date picker cannot empty the 
   assert.match(html, /#adminSpecial \[data-sp-revoke\], #adminSpecial \[data-sp-lock-clear\]"\)\)\{/, 'the click reaches the handler');
   assert.match(html, /if\(field\("lockStart"\)\) field\("lockStart"\)\.value = "";/);
   assert.match(html, /if\(field\("lockDays"\)\) field\("lockDays"\)\.value = "";/);
+});
+
+test('an earliest start day (17/11/2026): only that day or later can be picked, when the start is not locked', () => {
+  assert.match(html, /const from = !start && \/\^\\d\{4\}-\\d\{2\}-\\d\{2\}\$\/\.test\(rawFrom\) && parseDate\(rawFrom\) \? rawFrom : "";/);
+  assert.match(html, /if\(lock\.from && fmtIso\(date\) < lock\.from\) return false;/, 'earlier days cannot be picked');
+  assert.match(html, /if\(lock\.from && !\(String\(startValue \|\| ""\) >= lock\.from\)\) return false;/, 'and OK needs it');
+  assert.match(html, /if\(dateLock\.from && !calendarLockAllows\(dateLock, picked\)\) return;/);
+  assert.match(html, /\|\| parseDate\(specialFirstStartIso\(\)\);/, 'the calendar opens on that month');
+  assert.match(html, /`เลือกวันเริ่มได้ตั้งแต่ \$\{specialLockDate\(lock\.from\)\} เป็นต้นไป`/);
+  assert.match(html, /`Start from \$\{specialLockDate\(lock\.from\)\} onwards`/);
+  assert.ok(html.includes('data-sp="${index}:startFrom"'));
+  assert.ok(html.includes('data-sp-lock-clear="${index}:from"'));
+  assert.match(html, /special_campaign_start_from_invalid: en \? "(?:[^"\\]|\\.)+" : "(?:[^"\\]|\\.)+"/);
 });

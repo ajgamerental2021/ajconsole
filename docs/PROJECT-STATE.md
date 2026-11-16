@@ -1,3 +1,23 @@
+## 2026-11-17 — Campaign: earliest start day ("เลือกวันเริ่มได้ตั้งแต่")
+
+- Commits: Bot `fc2a627`; website (this commit). Deploy both.
+- **Asked:** a campaign whose start is not locked can still set the first day a customer may start. For example, today is the 17th and the date is the 19th: the 17th and 18th cannot be picked.
+- **Admin → ราคาพิเศษ → ล็อควันเช่า:** new field "เลือกวันเริ่มได้ตั้งแต่ (ใช้เมื่อไม่ได้ล็อควันเริ่ม)", with a "✕ ไม่กำหนด" button. "ล้างการล็อควันทั้งหมด" clears it too.
+  - The sentence explains it, combined with exact or minimum days.
+  - With a locked start it says the field is not used.
+- **Bot:**
+  - `startFrom` is validated (`special_campaign_start_from_invalid`), and stored empty when the start is locked.
+  - `specialDatesProblem` refuses an earlier start at booking, at the hold and on a pay-later date edit.
+  - `campaignLockFields` carries it.
+- **Website calendar:**
+  - Earlier days show "เลือกไม่ได้" and cannot be picked; OK needs a start on or after it.
+  - The calendar opens on that month, and a saved earlier start is let go.
+  - The banner and header say "เลือกวันเริ่มได้ตั้งแต่ … เป็นต้นไป" (EN "Start from … onwards").
+- **Checked:**
+  - Bot `special-rate` 14, full 873. Website 448.
+  - Playwright, iPhone 13: from only, from + at least 7, from + exactly 7, EN, the old cases unchanged.
+  - Admin TH/EN: preview, save, reload, clear.
+
 ## 2026-11-16 — Campaign date lock: clear it on a phone
 
 - Commit: website (this commit). Deploy the website.

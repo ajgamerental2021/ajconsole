@@ -8606,7 +8606,15 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const days = Number.isInteger(rawDays) && rawDays >= 3 ? rawDays : 0;
     // "min": at least that many days, the customer picks the return day; else exactly that many.
     const min = !!days && special?.lockDaysMode === "min";
-    return {start, days, min, end:start && days && !min ? fmtIso(addDays(parseDate(start), days)) : "", any:!!(start || days)};
+    // The earliest start a customer can pick (17/11/2026), when the start is not locked.
+    const rawFrom = String(special?.startFrom || "");
+    const from = !start && /^\d{4}-\d{2}-\d{2}$/.test(rawFrom) && parseDate(rawFrom) ? rawFrom : "";
+    return {start, days, min, end:start && days && !min ? fmtIso(addDays(parseDate(start), days)) : "", from, any:!!(start || days || from)};
+  }
+  /** The first day the calendar opens on: the cutoff's earliest start, or the campaign's later one. */
+  function specialFirstStartIso(lock = specialDateLock()){
+    const earliest = earliestRentalStartIso();
+    return lock.from && lock.from > earliest ? lock.from : earliest;
   }
   /** The shortest rental the calendar allows: a campaign's minimum, else 3 days. */
   function calendarMinDays(lock = specialDateLock()){
@@ -8615,6 +8623,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   /** Do these dates keep the special rate's lock? */
   function specialDatesOk(startValue, endValue, lock = specialDateLock()){
     if(lock.start && startValue !== lock.start) return false;
+    if(lock.from && !(String(startValue || "") >= lock.from)) return false;
     const days = diffDays(startValue, endValue);
     if(lock.days && (lock.min ? !(days >= lock.days) : days !== lock.days)) return false;
     return true;
@@ -8642,6 +8651,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(lock.start) return en
       ? `Fixed start: ${specialLockDate(lock.start)} · choose your return day (at least 3 days)`
       : `วันเริ่มเช่าที่กำหนด: ${specialLockDate(lock.start)} · เลือกวันคืนได้ (ขั้นต่ำ 3 วัน)`;
+    if(lock.from){
+      const fromText = en ? `Start from ${specialLockDate(lock.from)} onwards` : `เลือกวันเริ่มได้ตั้งแต่ ${specialLockDate(lock.from)} เป็นต้นไป`;
+      if(lock.min) return `${fromText} · ${en ? `at least ${lock.days} days` : `เช่าขั้นต่ำ ${lock.days} วัน`}`;
+      if(lock.days) return `${fromText} · ${en ? `${lock.days} days; you return ${lock.days} days later` : `เช่า ${lock.days} วัน วันคืนคือ ${lock.days} วันหลังวันเริ่ม`}`;
+      return fromText;
+    }
     if(lock.min) return en
       ? `At least ${lock.days} days · choose your start and return days`
       : `เช่าขั้นต่ำ ${lock.days} วัน · เลือกวันเริ่มและวันคืนได้`;
@@ -8653,7 +8668,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function applySpecialDateLock(){
     const lock = specialDateLock();
     if(!lock.any || specialLockStartPassed(lock)) return false;
-    const start = lock.start || state.calc.start || "";
+    const picked = lock.start || state.calc.start || "";
+    // A start before the campaign's earliest day is let go (and its return day with it).
+    const start = lock.from && picked && picked < lock.from ? "" : picked;
     let end = state.calc.end || "";
     if(lock.days && !lock.min) end = start ? fmtIso(addDays(parseDate(start), lock.days)) : "";
     else if(!(diffDays(start, end) >= calendarMinDays(lock))) end = "";
@@ -8668,6 +8685,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function lockCalendarDraft(lock = specialDateLock()){
     if(!lock.any) return;
     if(lock.start) state.calendar.draftStart = lock.start;
+    if(lock.from && state.calendar.draftStart && state.calendar.draftStart < lock.from){
+      state.calendar.draftStart = "";
+      state.calendar.draftEnd = "";
+    }
     if(lock.days && !lock.min) state.calendar.draftEnd = state.calendar.draftStart ? fmtIso(addDays(parseDate(state.calendar.draftStart), lock.days)) : "";
     else if(!(diffDays(state.calendar.draftStart, state.calendar.draftEnd) >= calendarMinDays(lock))) state.calendar.draftEnd = "";
     // A minimum alone is the usual two picks (start, then a return day far enough on).
@@ -8681,6 +8702,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
    * Days only: the usual picks (exact: any start; minimum: checked as the minimum).
    */
   function calendarLockAllows(lock, date){
+    if(lock.from && fmtIso(date) < lock.from) return false;
     if(lock.start && lock.days && !lock.min) return false;
     if(lock.start) return diffDays(lock.start, date) >= calendarMinDays(lock);
     return true;
@@ -9493,7 +9515,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(state.calendar.mode === "end" && !state.calendar.draftStart) state.calendar.mode = "start";
     lockCalendarDraft();
     const selected = parseDate(state.calendar.mode === "start" ? state.calendar.draftStart : (state.calendar.draftEnd || state.calendar.draftStart))
-      || parseDate(earliestRentalStartIso());
+      || parseDate(specialFirstStartIso());
     const selectedMonth = new Date(selected.getFullYear(), selected.getMonth(), 1);
     const currentMonth = currentCalendarMonth();
     state.calendar.base = selectedMonth < currentMonth ? currentMonth : selectedMonth;
@@ -9695,6 +9717,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const picked = parseDate(iso);
     if(!picked) return;
     const dateLock = specialDateLock();
+    // Before the campaign's earliest start day nothing can be picked.
+    if(dateLock.from && !calendarLockAllows(dateLock, picked)) return;
     if(dateLock.start || (dateLock.days && !dateLock.min)){
       if(!calendarLockAllows(dateLock, picked)) return;
       if(dateLock.start){
@@ -15782,6 +15806,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         lockStart: field("lockStart").value.trim(),
         lockDays: field("lockDays").value.trim() === "" ? 0 : Number(field("lockDays").value),
         lockDaysMode: field("lockDaysMode").value === "min" ? "min" : "exact",
+        startFrom: field("startFrom") ? field("startFrom").value.trim() : (campaign.startFrom || ""),
         enabled: field("enabled").checked,
         usage: campaign.usage,
       };
@@ -15791,7 +15816,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
    * What a campaign's date lock does, in words, with the return day worked out
    * (16/11/2026): start 19/11/2026 for 7 days returns on 26/11/2026.
    */
-  function adminSpecialLockPreview(startValue, daysValue, modeValue){
+  function adminSpecialLockPreview(startValue, daysValue, modeValue, fromValue){
     const en = state.lang === "en";
     const day = value => parseDate(value).toLocaleDateString(en ? "en-GB" : "th-TH-u-ca-gregory", {weekday:"short", day:"numeric", month:"short", year:"numeric"});
     const rawStart = String(startValue || "").trim();
@@ -15804,6 +15829,27 @@ We apologize for the inconvenience and hope everyone stays safe.`
       ? (en ? " ⚠️ This start date has passed: links cannot be made and customers cannot book." : " ⚠️ วันเริ่มนี้ผ่านไปแล้ว: สร้างลิงก์ไม่ได้และลูกค้าจองไม่ได้")
       : "";
     const min = modeValue === "min";
+    const rawFrom = String(fromValue || "").trim();
+    const from = /^\d{4}-\d{2}-\d{2}$/.test(rawFrom) && parseDate(rawFrom) ? rawFrom : "";
+    if(rawFrom && !from) return {warn:true, text:en ? "Choose a valid earliest start date." : "เลือกวัน \"เริ่มได้ตั้งแต่\" ให้ถูกต้อง"};
+    // A locked start overrides "from": say so rather than drop it silently.
+    const fromIgnored = start && from ? (en ? " (The start day is locked, so \"start from\" is not used.)" : " (ล็อควันเริ่มไว้แล้ว จึงไม่ใช้ \"เริ่มได้ตั้งแต่\")") : "";
+    if(!start && from){
+      const sampleEnd = fmtIso(addDays(parseDate(from), days || 3));
+      const already = !startDateAllowed(from) ? (en ? " (This day has passed: customers choose as usual.)" : " (วันนี้เลยวันนั้นแล้ว ลูกค้าเลือกได้ตามปกติ)") : "";
+      const head = en ? `📅 Customers can start from ${day(from)} onwards; earlier days cannot be chosen.` : `📅 ลูกค้าเลือกวันเริ่มได้ตั้งแต่ ${day(from)} เป็นต้นไป วันก่อนหน้านั้นเลือกไม่ได้`;
+      const tail = days && min
+        ? (en ? ` At least ${days} days (e.g. start ${day(from)} → return ${day(sampleEnd)} or later).` : ` เช่าขั้นต่ำ ${days} วัน (เช่น เริ่ม ${day(from)} → คืนได้ตั้งแต่ ${day(sampleEnd)} เป็นต้นไป)`)
+        : days
+          ? (en ? ` Exactly ${days} days (e.g. start ${day(from)} → return ${day(sampleEnd)}).` : ` เช่า ${days} วันพอดี (เช่น เริ่ม ${day(from)} → คืน ${day(sampleEnd)})`)
+          : (en ? " Customers choose the return day (at least 3 days)." : " ลูกค้าเลือกวันคืนเอง (ขั้นต่ำ 3 วัน)");
+      return {warn:false, text:head + tail + already};
+    }
+    const result = adminSpecialLockSentence({en, day, start, days, min, passed});
+    return {warn:result.warn, text:result.text + fromIgnored};
+  }
+  /** The sentence for a locked start and/or days (no "start from"). */
+  function adminSpecialLockSentence({en, day, start, days, min, passed}){
     if(start && days && min){
       const firstEnd = fmtIso(addDays(parseDate(start), days));
       return {warn:!!passed, text:(en
@@ -15838,19 +15884,19 @@ We apologize for the inconvenience and hope everyone stays safe.`
     }
     return {warn:false, text:en ? "Dates not locked: customers choose the start and return days." : "ไม่ล็อควัน: ลูกค้าเลือกวันเริ่มและวันคืนเอง"};
   }
-  function adminSpecialLockPreviewHtml(index, startValue, daysValue, modeValue){
-    const preview = adminSpecialLockPreview(startValue, daysValue, modeValue);
+  function adminSpecialLockPreviewHtml(index, startValue, daysValue, modeValue, fromValue){
+    const preview = adminSpecialLockPreview(startValue, daysValue, modeValue, fromValue);
     return `<div class="sp-lock-preview${preview.warn ? " is-warn" : ""}" data-sp-lock-preview="${index}" aria-live="polite">${esc(preview.text)}</div>`;
   }
   /** The admin typed a lock: the sentence under it follows at once. */
   function refreshAdminSpecialLockPreview(target){
-    const match = String(target?.dataset?.sp || "").match(/^(\d+):lock(Start|Days|DaysMode)$/);
+    const match = String(target?.dataset?.sp || "").match(/^(\d+):(lockStart|lockDays|lockDaysMode|startFrom)$/);
     if(!match) return;
     const host = byId("adminSpecial");
     const old = host?.querySelector(`[data-sp-lock-preview="${match[1]}"]`);
     if(!old) return;
     const field = name => host.querySelector(`[data-sp="${match[1]}:${name}"]`)?.value || "";
-    old.outerHTML = adminSpecialLockPreviewHtml(match[1], field("lockStart"), field("lockDays"), field("lockDaysMode"));
+    old.outerHTML = adminSpecialLockPreviewHtml(match[1], field("lockStart"), field("lockDays"), field("lockDaysMode"), field("startFrom"));
   }
   function adminSpecialStateLabel(value){
     const en = state.lang === "en";
@@ -15890,7 +15936,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
             <div class="field"><label class="label">${en ? "Start day" : "วันเริ่มเช่า"}</label><div class="sp-lock-start"><input class="input" type="date" data-sp="${index}:lockStart" value="${esc(campaign.lockStart || "")}"><button class="btn" type="button" data-sp-lock-clear="${index}:start" aria-label="${en ? "Do not lock the start day" : "ไม่ล็อควันเริ่ม"}">✕ ${en ? "Not locked" : "ไม่ล็อค"}</button></div></div>
             <div class="field"><label class="label">${en ? "Number of days" : "จำนวนวันเช่า"}</label><div class="sp-lock-days"><select class="input" data-sp="${index}:lockDaysMode"><option value="exact" ${campaign.lockDaysMode !== "min" ? "selected" : ""}>${en ? "Exactly" : "พอดี"}</option><option value="min" ${campaign.lockDaysMode === "min" ? "selected" : ""}>${en ? "At least" : "ขั้นต่ำ"}</option></select><input class="input" type="number" min="3" max="90" step="1" inputmode="numeric" placeholder="${en ? "Not locked" : "ไม่ล็อค"}" data-sp="${index}:lockDays" value="${Number(campaign.lockDays) > 0 ? esc(String(campaign.lockDays)) : ""}"><span>${en ? "days" : "วัน"}</span></div></div>
           </div>
-          ${adminSpecialLockPreviewHtml(index, campaign.lockStart, campaign.lockDays, campaign.lockDaysMode)}
+          <div class="field"><label class="label">${en ? "Customers can start from (only when the start day is not locked)" : "เลือกวันเริ่มได้ตั้งแต่ (ใช้เมื่อไม่ได้ล็อควันเริ่ม)"}</label><div class="sp-lock-start"><input class="input" type="date" data-sp="${index}:startFrom" value="${esc(campaign.startFrom || "")}"><button class="btn" type="button" data-sp-lock-clear="${index}:from" aria-label="${en ? "No earliest start day" : "ไม่กำหนดวันเริ่มได้ตั้งแต่"}">✕ ${en ? "None" : "ไม่กำหนด"}</button></div></div>
+          ${adminSpecialLockPreviewHtml(index, campaign.lockStart, campaign.lockDays, campaign.lockDaysMode, campaign.startFrom)}
           <div><button class="btn" type="button" data-sp-lock-clear="${index}:all">${en ? "Clear all date locks" : "ล้างการล็อควันทั้งหมด"}</button></div>
         </div>
         <div class="field"><label class="label">${en ? "Devices customers can choose" : "เครื่องที่ให้ลูกค้าเลือกได้"}</label><div class="sp-devices">${devices}</div></div>
@@ -15928,7 +15975,12 @@ We apologize for the inconvenience and hope everyone stays safe.`
       const [index, what] = String(lockClear.dataset.spLockClear || "").split(":");
       const host = byId("adminSpecial");
       const field = name => host?.querySelector(`[data-sp="${index}:${name}"]`);
-      if(field("lockStart")) field("lockStart").value = "";
+      if(what !== "from"){
+        if(field("lockStart")) field("lockStart").value = "";
+      }
+      if(what === "from" || what === "all"){
+        if(field("startFrom")) field("startFrom").value = "";
+      }
       if(what === "all"){
         if(field("lockDays")) field("lockDays").value = "";
         if(field("lockDaysMode")) field("lockDaysMode").value = "exact";
@@ -15940,7 +15992,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     }
     if(target.closest("[data-sp-reload]")){ specialDraftDirty = false; adminSpecial.loaded = false; renderAdmin(); await loadAdminSpecial(); return true; }
     if(target.closest("[data-sp-add]")){
-      adminSpecial.campaigns = [...readAdminSpecialCampaigns(), {id:`sp-${Date.now().toString(36)}`, titleTh:"", titleEn:"", consoleIds:[], units:1, mode:"per_day", amount:0, linkHours:48, lockStart:"", lockDays:0, lockDaysMode:"exact", enabled:true}];
+      adminSpecial.campaigns = [...readAdminSpecialCampaigns(), {id:`sp-${Date.now().toString(36)}`, titleTh:"", titleEn:"", consoleIds:[], units:1, mode:"per_day", amount:0, linkHours:48, lockStart:"", lockDays:0, lockDaysMode:"exact", startFrom:"", enabled:true}];
       renderAdmin();
       return true;
     }
@@ -16009,6 +16061,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       special_campaign_closed: en ? "The campaign is closed." : "campaign นี้ปิดอยู่",
       special_link_used: en ? "This link has been paid for and cannot be cancelled." : "ลิงก์นี้ชำระเงินแล้ว ยกเลิกไม่ได้",
       special_campaign_lock_start_invalid: en ? "Choose a valid start date, or leave it empty." : "เลือกวันเริ่มเช่าให้ถูกต้อง หรือเว้นว่างไว้",
+      special_campaign_start_from_invalid: en ? "Choose a valid \"start from\" date, or leave it empty." : "เลือกวัน \"เริ่มได้ตั้งแต่\" ให้ถูกต้อง หรือเว้นว่างไว้",
       special_campaign_lock_days_invalid: en ? "Locked days must be a whole number from 3 to 90, or empty." : "จำนวนวันที่ล็อคต้องเป็นจำนวนเต็ม 3–90 วัน หรือเว้นว่างไว้",
       special_dates_passed: en ? "The locked start date has passed. Change it or clear it, save, then make the link." : "วันเริ่มที่ล็อคไว้ผ่านไปแล้ว แก้หรือลบวันแล้วกดบันทึกก่อนสร้างลิงก์",
     })[code] || code;
