@@ -1164,10 +1164,16 @@ body.unified-flow-demo .demo-reward-row{border-color:#f2c94c;background:#fffdf5}
 .special-rate-title{font-size:18px;font-weight:900;color:#8a4b00}
 .special-rate-rule{font-weight:700;color:#5c3b00}
 .special-rate-until{font-size:13px;color:#6b5a3a}
+.special-rate-lock{font-weight:800;color:#1f3f9e;background:#eef3ff;border:1px solid #c7d5ff;border-radius:10px;padding:8px 10px}
 .special-rate-full{font-weight:800;color:#b42318}
 .special-rate-actions{margin-top:6px}
 .sp-campaign{display:grid;gap:12px}
 .sp-head{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between}
+.sp-lock{display:grid;gap:8px;padding:12px;border:1px solid #c7d5ff;border-radius:14px;background:#f6f8ff}
+.sp-lock-title{display:grid;gap:2px}
+.sp-lock-days{display:grid;grid-template-columns:minmax(96px,auto) 1fr auto;gap:8px;align-items:center}
+.sp-lock-preview{font-weight:700;color:#1f3f9e;line-height:1.5}
+.sp-lock-preview.is-warn{color:#b42318}
 .sp-devices{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}
 .sp-device{display:flex;gap:6px;align-items:center;font-size:14px}
 .sp-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -8585,6 +8591,97 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(typeof payResume !== "undefined" && payResume.active) return payResume.rental?.specialRate || null;
     return specialRate.token && specialRate.campaign ? specialRate.campaign : null;
   }
+  /**
+   * The dates a special rate locks (16/11/2026): {start, days, end}, "" / 0 for
+   * a part the customer chooses. The return day is the start plus the days, as
+   * the calendar counts them (start 19/11/2026 for 7 days returns 26/11/2026).
+   */
+  function specialDateLock(special = activeSpecial()){
+    const rawStart = String(special?.lockStart || "");
+    const start = /^\d{4}-\d{2}-\d{2}$/.test(rawStart) && parseDate(rawStart) ? rawStart : "";
+    const rawDays = Number(special?.lockDays);
+    const days = Number.isInteger(rawDays) && rawDays >= 3 ? rawDays : 0;
+    // "min": at least that many days, the customer picks the return day; else exactly that many.
+    const min = !!days && special?.lockDaysMode === "min";
+    return {start, days, min, end:start && days && !min ? fmtIso(addDays(parseDate(start), days)) : "", any:!!(start || days)};
+  }
+  /** The shortest rental the calendar allows: a campaign's minimum, else 3 days. */
+  function calendarMinDays(lock = specialDateLock()){
+    return lock.min ? lock.days : 3;
+  }
+  /** Do these dates keep the special rate's lock? */
+  function specialDatesOk(startValue, endValue, lock = specialDateLock()){
+    if(lock.start && startValue !== lock.start) return false;
+    const days = diffDays(startValue, endValue);
+    if(lock.days && (lock.min ? !(days >= lock.days) : days !== lock.days)) return false;
+    return true;
+  }
+  /** A locked start day the shop can no longer deliver on (over, or today after the cutoff). */
+  function specialLockStartPassed(lock = specialDateLock()){
+    return !!lock.start && !startDateAllowed(lock.start);
+  }
+  function specialLockDate(value){
+    const d = parseDate(value);
+    return d ? d.toLocaleDateString(state.lang === "en" ? "en-GB" : "th-TH-u-ca-gregory", {weekday:"short", day:"numeric", month:"short", year:"numeric"}) : "-";
+  }
+  function specialLockText(lock = specialDateLock()){
+    if(!lock.any) return "";
+    const en = state.lang === "en";
+    if(lock.start && lock.days && !lock.min) return en
+      ? `Fixed dates: start ${specialLockDate(lock.start)} · return ${specialLockDate(lock.end)} (${lock.days} days)`
+      : `วันเช่าที่กำหนด: เริ่ม ${specialLockDate(lock.start)} · คืน ${specialLockDate(lock.end)} (${lock.days} วัน)`;
+    if(lock.start && lock.min){
+      const firstEnd = fmtIso(addDays(parseDate(lock.start), lock.days));
+      return en
+        ? `Fixed start: ${specialLockDate(lock.start)} · at least ${lock.days} days · choose your return day (${specialLockDate(firstEnd)} or later)`
+        : `วันเริ่มเช่าที่กำหนด: ${specialLockDate(lock.start)} · เช่าขั้นต่ำ ${lock.days} วัน · เลือกวันคืนได้ (ตั้งแต่ ${specialLockDate(firstEnd)} เป็นต้นไป)`;
+    }
+    if(lock.start) return en
+      ? `Fixed start: ${specialLockDate(lock.start)} · choose your return day (at least 3 days)`
+      : `วันเริ่มเช่าที่กำหนด: ${specialLockDate(lock.start)} · เลือกวันคืนได้ (ขั้นต่ำ 3 วัน)`;
+    if(lock.min) return en
+      ? `At least ${lock.days} days · choose your start and return days`
+      : `เช่าขั้นต่ำ ${lock.days} วัน · เลือกวันเริ่มและวันคืนได้`;
+    return en
+      ? `Fixed length: ${lock.days} days · choose your start day; you return ${lock.days} days later`
+      : `จำนวนวันเช่าที่กำหนด: ${lock.days} วัน · เลือกวันเริ่มได้ วันคืนคือ ${lock.days} วันหลังวันเริ่ม`;
+  }
+  /** The page's dates follow the lock: a locked start (and its return day) filled in, dates that break it let go. */
+  function applySpecialDateLock(){
+    const lock = specialDateLock();
+    if(!lock.any || specialLockStartPassed(lock)) return false;
+    const start = lock.start || state.calc.start || "";
+    let end = state.calc.end || "";
+    if(lock.days && !lock.min) end = start ? fmtIso(addDays(parseDate(start), lock.days)) : "";
+    else if(!(diffDays(start, end) >= calendarMinDays(lock))) end = "";
+    if(start === state.calc.start && end === state.calc.end) return false;
+    state.calc.start = start;
+    state.calc.end = end;
+    state.calc.datesTouched = !!(start && end);
+    saveLocal();
+    return true;
+  }
+  /** The calendar opens on the locked dates: a locked start leaves only the return day to pick, a locked length only the start. */
+  function lockCalendarDraft(lock = specialDateLock()){
+    if(!lock.any) return;
+    if(lock.start) state.calendar.draftStart = lock.start;
+    if(lock.days && !lock.min) state.calendar.draftEnd = state.calendar.draftStart ? fmtIso(addDays(parseDate(state.calendar.draftStart), lock.days)) : "";
+    else if(!(diffDays(state.calendar.draftStart, state.calendar.draftEnd) >= calendarMinDays(lock))) state.calendar.draftEnd = "";
+    // A minimum alone is the usual two picks (start, then a return day far enough on).
+    if(lock.start) state.calendar.mode = "end";
+    else if(lock.days && !lock.min) state.calendar.mode = "start";
+    else if(!state.calendar.draftStart) state.calendar.mode = "start";
+  }
+  /**
+   * Can this day be picked under the lock? Start and exact days: none. Start
+   * locked: a return day far enough on (3 days, or the campaign's minimum).
+   * Days only: the usual picks (exact: any start; minimum: checked as the minimum).
+   */
+  function calendarLockAllows(lock, date){
+    if(lock.start && lock.days && !lock.min) return false;
+    if(lock.start) return diffDays(lock.start, date) >= calendarMinDays(lock);
+    return true;
+  }
   function specialTitle(special = activeSpecial()){
     if(!special) return "";
     return state.lang === "en" ? (special.titleEn || special.titleTh || "") : (special.titleTh || special.titleEn || "");
@@ -8628,6 +8725,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       special_no_discounts: en ? "Discounts cannot be combined with the special rate." : "ราคาพิเศษใช้ร่วมกับส่วนลดไม่ได้",
       special_surcharge_mismatch: en ? "The special-rate price changed. Please refresh the page and try again." : "ราคาพิเศษมีการเปลี่ยนแปลง กรุณารีเฟรชหน้าแล้วลองใหม่",
       special_amount_mismatch: en ? "The amount does not match the special rate. Please refresh the page and try again." : "ยอดชำระไม่ตรงกับราคาพิเศษ กรุณารีเฟรชหน้าแล้วลองใหม่",
+      special_dates_locked: en ? "This special rate is for fixed dates only. Please book the dates shown on the page." : "ราคาพิเศษนี้จองได้เฉพาะวันที่กำหนด กรุณาจองตามวันที่แสดงบนหน้านี้",
+      special_dates_passed: en ? "The start date for this special rate has passed. Please contact AJ on LINE @ajgame." : "วันเริ่มเช่าของราคาพิเศษนี้ผ่านไปแล้ว กรุณาติดต่อ AJ ทาง LINE @ajgame",
     };
     return text[code] || "";
   }
@@ -8649,6 +8748,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         state.calc.ret = false;
         state.calc.reviewGoogle = false;
         state.calc.reviewFacebook = false;
+        // Locked dates are filled in for the customer (and cannot be changed).
+        applySpecialDateLock();
       }else{
         specialRate.campaign = null;
         specialRate.error = String(result?.error || "special_link_invalid");
@@ -8695,7 +8796,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(shell) shell.hidden = true;
       return;
     }
+    if(specialLockStartPassed()){
+      host.innerHTML = `<div class="special-rate-banner is-error" role="alert"><b>${esc(specialErrorText("special_dates_passed"))}</b><div class="special-rate-actions"><button class="btn" type="button" data-special-leave>${en ? "Go to the main page" : "ไปหน้าหลัก"}</button></div></div>`;
+      if(shell) shell.hidden = true;
+      return;
+    }
     if(shell) shell.hidden = false;
+    const lockText = specialLockText();
     const until = specialRate.expiresAt ? new Date(specialRate.expiresAt) : null;
     const untilText = until && Number.isFinite(until.getTime())
       ? until.toLocaleString("en-GB", {timeZone:"Asia/Bangkok", day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit", hourCycle:"h23"}).replace(",", "")
@@ -8703,6 +8810,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     host.innerHTML = `<div class="special-rate-banner">
       <div class="special-rate-title">✨ ${en ? "Special rate" : "ราคาพิเศษ"}: ${esc(specialTitle())}</div>
       <div class="special-rate-rule">${esc(specialRuleText())}</div>
+      ${lockText ? `<div class="special-rate-lock">📅 ${esc(lockText)}</div>` : ""}
       ${specialRate.full ? `<div class="special-rate-full">${esc(specialErrorText("special_full"))}</div>` : ""}
       ${untilText ? `<div class="special-rate-until">${en ? `This link is yours and books once · valid until ${untilText}` : `ลิงก์นี้สำหรับคุณ ใช้จองได้ 1 ครั้ง · ใช้ได้ถึง ${untilText} น.`}</div>` : ""}
     </div>`;
@@ -9380,7 +9488,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     state.calendar.draftStart = invalidStart ? "" : state.calc.start;
     state.calendar.draftEnd = invalidStart ? "" : state.calc.end;
     if(state.calendar.mode === "end" && !state.calendar.draftStart) state.calendar.mode = "start";
-    const selected = parseDate(state.calendar.mode === "start" ? state.calendar.draftStart : state.calendar.draftEnd)
+    lockCalendarDraft();
+    const selected = parseDate(state.calendar.mode === "start" ? state.calendar.draftStart : (state.calendar.draftEnd || state.calendar.draftStart))
       || parseDate(earliestRentalStartIso());
     const selectedMonth = new Date(selected.getFullYear(), selected.getMonth(), 1);
     const currentMonth = currentCalendarMonth();
@@ -9412,10 +9521,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const rangeAvailable = calendarRangeAvailable(state.calendar.draftStart, state.calendar.draftEnd);
     const selectedConsole = consoleById(state.calc.consoleId);
     byId("calendarTitle").textContent = `${tr("calTitle")}${selectedConsole ? ` - ${cName(selectedConsole)}` : ""}`;
-    byId("calendarInstruction").textContent = state.calendar.mode === "start" ? tr("startDate") : tr("selectReturnDate");
+    const dateLock = specialDateLock();
+    byId("calendarInstruction").textContent = dateLock.any ? `📅 ${specialLockText(dateLock)}` : (state.calendar.mode === "start" ? tr("startDate") : tr("selectReturnDate"));
     byId("calendarLangBtn").textContent = state.lang === "en" ? "🇹🇭 TH" : "🇬🇧 EN";
     byId("calendarClear").textContent = tr("calClear");
-    byId("calendarClear").disabled = !(state.calendar.draftStart || state.calendar.draftEnd || state.calc.start || state.calc.end);
+    byId("calendarClear").disabled = (dateLock.start && dateLock.days) || !(state.calendar.draftStart || state.calendar.draftEnd || state.calc.start || state.calc.end);
     byId("calStartLabel").textContent = tr("startDate");
     byId("calEndLabel").textContent = tr("endDate");
     byId("calStartValue").textContent = calendarHeadline(state.calendar.draftStart);
@@ -9446,7 +9556,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       {cls:"ring-blue", label:tr("calEndDay")}
     ].map(item => `<span><i class="${esc(item.cls || "")}" style="${item.color ? `background:${item.color}` : ""}"></i>${esc(item.label)}</span>`).join("");
     const apply = byId("calendarApply");
-    apply.disabled = !(Number.isFinite(days) && days >= 3 && rangeAvailable);
+    apply.disabled = !(Number.isFinite(days) && days >= 3 && rangeAvailable && specialDatesOk(state.calendar.draftStart, state.calendar.draftEnd, dateLock));
     const selectedDayCount = Number.isFinite(days) && days > 0 ? days : 0;
     apply.textContent = state.lang === "en"
       ? `${tr("confirmRange")} (${selectedDayCount} ${selectedDayCount === 1 ? "day" : "days"} rental)`
@@ -9493,8 +9603,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   function calendarCellText(kind){
     const labels = state.lang === "en"
-      ? {available:"Free", unavailable:"Full", closed:"Closed", disabled:"Past", cutoff:tr("cutoffStartCell"), before:"Not selectable", min:"Min. 3 days", start:"Start", range:"Rental", end:"Return"}
-      : {available:"ว่าง", unavailable:"ไม่ว่าง", closed:"ปิดคิว", disabled:"ผ่านมาแล้ว", cutoff:tr("cutoffStartCell"), before:"เลือกไม่ได้", min:"ขั้นต่ำ 3 วัน", start:"เริ่มเช่า", range:"ช่วงเช่า", end:"คืนเครื่อง"};
+      ? {available:"Free", unavailable:"Full", closed:"Closed", disabled:"Past", cutoff:tr("cutoffStartCell"), before:"Not selectable", min:`Min. ${calendarMinDays()} days`, start:"Start", range:"Rental", end:"Return"}
+      : {available:"ว่าง", unavailable:"ไม่ว่าง", closed:"ปิดคิว", disabled:"ผ่านมาแล้ว", cutoff:tr("cutoffStartCell"), before:"เลือกไม่ได้", min:`ขั้นต่ำ ${calendarMinDays()} วัน`, start:"เริ่มเช่า", range:"ช่วงเช่า", end:"คืนเครื่อง"};
     return labels[kind] || "";
   }
   function calendarRangeAvailable(startValue, endValue){
@@ -9525,14 +9635,18 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     for(let i=0;i<firstVisibleDate.getDay();i++) cells.push(`<button class="day blank" type="button"></button>`);
     const start = parseDate(state.calendar.draftStart), end = parseDate(state.calendar.draftEnd);
     const earliestStart = parseDate(earliestRentalStartIso());
+    const dateLock = specialDateLock();
     for(let d=firstVisibleDay; d<=daysInMonth; d++){
       const date = new Date(month.getFullYear(), month.getMonth(), d);
       const iso = fmtIso(date);
+      // A special rate's locked dates: the rental is shown, nothing else can be picked.
+      const lockedOut = dateLock.any && !calendarLockAllows(dateLock, date);
+      const inLockedRange = lockedOut && start && date >= start && date <= (end || start);
       const beforeStart = state.calendar.mode === "end" && start && date < start;
-      const minBlocked = state.calendar.mode === "end" && start && date > start && diffDays(start,date) < 3;
+      const minBlocked = state.calendar.mode === "end" && start && date > start && diffDays(start,date) < calendarMinDays(dateLock) && !inLockedRange;
       const isPast = date < today;
       const cutoffBlocked = state.calendar.mode === "start" && date < earliestStart;
-      let disabled = isPast || minBlocked || cutoffBlocked;
+      let disabled = isPast || minBlocked || cutoffBlocked || (lockedOut && !inLockedRange);
       let queueUnavailable = false;
       const cls = ["day"];
       let note = calendarCellText("available");
@@ -9559,6 +9673,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       else if(cutoffBlocked) note = calendarCellText("cutoff");
       else if(beforeStart && !queueUnavailable) note = calendarCellText("before");
       else if(minBlocked) note = calendarCellText("min");
+      else if(lockedOut && !inLockedRange && !queueUnavailable) note = calendarCellText("before");
       if(!disabled && start && iso === fmtIso(start)) cls.push("start");
       if(!disabled && end && iso === fmtIso(end)) cls.push("end");
       if(!disabled && start && end && date > start && date < end){ cls.push("range"); note = calendarCellText("range"); }
@@ -9569,13 +9684,29 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         cls.push("promo");
         note = tr("afterWorkPromoCell").replace("{price}", money(afterWorkCalendarPromo.price));
       }
-      cells.push(`<button class="${cls.join(" ")}" data-cal-day="${iso}" type="button" ${disabled?"disabled":""}><span>${d}</span><small>${esc(note)}</small></button>`);
+      cells.push(`<button class="${cls.join(" ")}" data-cal-day="${iso}" type="button" ${disabled || lockedOut?"disabled":""}><span>${d}</span><small>${esc(note)}</small></button>`);
     }
     return `<div class="month"><h4>${esc(label)}</h4><div class="week">${(state.lang==="en"?["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]:["อา","จ","อ","พ","พฤ","ศ","ส"]).map(x=>`<div>${x}</div>`).join("")}</div><div class="days">${cells.join("")}</div></div>`;
   }
   function pickCalendarDay(iso){
     const picked = parseDate(iso);
     if(!picked) return;
+    const dateLock = specialDateLock();
+    if(dateLock.start || (dateLock.days && !dateLock.min)){
+      if(!calendarLockAllows(dateLock, picked)) return;
+      if(dateLock.start){
+        state.calendar.draftStart = dateLock.start;
+        state.calendar.draftEnd = iso;
+        state.calendar.mode = "end";
+      }else{
+        // Days locked: the day picked is the start, its return day follows.
+        state.calendar.draftStart = iso;
+        state.calendar.draftEnd = fmtIso(addDays(picked, dateLock.days));
+        state.calendar.mode = "start";
+      }
+      renderCalendar();
+      return;
+    }
     if(state.calendar.mode === "start" || (state.calendar.draftStart && state.calendar.draftEnd)){
       state.calendar.draftStart = iso;
       state.calendar.draftEnd = "";
@@ -9583,7 +9714,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       renderCalendar();
     }else{
       const start = parseDate(state.calendar.draftStart);
-      if(!start || diffDays(start, picked) < 3){
+      if(!start || diffDays(start, picked) < calendarMinDays(dateLock)){
         state.calendar.draftStart = iso;
         state.calendar.draftEnd = "";
         state.calendar.mode = "end";
@@ -9596,6 +9727,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function applyCalendarRange(){
     const days = diffDays(state.calendar.draftStart, state.calendar.draftEnd);
     if(!startDateAllowed(state.calendar.draftStart) || !Number.isFinite(days) || days < 3 || !calendarRangeAvailable(state.calendar.draftStart, state.calendar.draftEnd)) return;
+    if(!specialDatesOk(state.calendar.draftStart, state.calendar.draftEnd)) return;
     const savePayResumeDates = payResume.active && state.calendar.fromOrder;
     state.calc.start = state.calendar.draftStart;
     state.calc.end = state.calendar.draftEnd;
@@ -9617,6 +9749,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       state.calendar.draftStart = "";
       state.calendar.draftEnd = "";
       state.calendar.mode = "start";
+      lockCalendarDraft();
       renderCalendar();
       return;
     }
@@ -9641,6 +9774,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     setGuideStage("start", {syncStep:false});
     saveLocal();
     void releaseBookingHold(previousCode);
+    lockCalendarDraft();
     renderCalendar();
   }
   function rentalCodeDate(){
@@ -15642,10 +15776,78 @@ We apologize for the inconvenience and hope everyone stays safe.`
         mode: field("mode").value,
         amount: Number(field("amount").value),
         linkHours: Number(field("linkHours").value),
+        lockStart: field("lockStart").value.trim(),
+        lockDays: field("lockDays").value.trim() === "" ? 0 : Number(field("lockDays").value),
+        lockDaysMode: field("lockDaysMode").value === "min" ? "min" : "exact",
         enabled: field("enabled").checked,
         usage: campaign.usage,
       };
     });
+  }
+  /**
+   * What a campaign's date lock does, in words, with the return day worked out
+   * (16/11/2026): start 19/11/2026 for 7 days returns on 26/11/2026.
+   */
+  function adminSpecialLockPreview(startValue, daysValue, modeValue){
+    const en = state.lang === "en";
+    const day = value => parseDate(value).toLocaleDateString(en ? "en-GB" : "th-TH-u-ca-gregory", {weekday:"short", day:"numeric", month:"short", year:"numeric"});
+    const rawStart = String(startValue || "").trim();
+    const start = /^\d{4}-\d{2}-\d{2}$/.test(rawStart) && parseDate(rawStart) ? rawStart : "";
+    const rawDays = String(daysValue ?? "").trim();
+    const days = rawDays === "" || rawDays === "0" ? 0 : Number(rawDays);
+    if(rawStart && !start) return {warn:true, text:en ? "Choose a valid start date." : "เลือกวันเริ่มให้ถูกต้อง"};
+    if(days && (!Number.isInteger(days) || days < 3 || days > 90)) return {warn:true, text:en ? "Locked days must be a whole number from 3 to 90." : "จำนวนวันที่ล็อคต้องเป็นจำนวนเต็ม 3–90 วัน"};
+    const passed = start && !startDateAllowed(start)
+      ? (en ? " ⚠️ This start date has passed: links cannot be made and customers cannot book." : " ⚠️ วันเริ่มนี้ผ่านไปแล้ว: สร้างลิงก์ไม่ได้และลูกค้าจองไม่ได้")
+      : "";
+    const min = modeValue === "min";
+    if(start && days && min){
+      const firstEnd = fmtIso(addDays(parseDate(start), days));
+      return {warn:!!passed, text:(en
+        ? `📅 Start fixed on ${day(start)}, at least ${days} days. Customers choose the return day: ${day(firstEnd)} or later.`
+        : `📅 ล็อควันเริ่ม ${day(start)} เช่าขั้นต่ำ ${days} วัน ลูกค้าเลือกวันคืนเอง ตั้งแต่ ${day(firstEnd)} เป็นต้นไป`) + passed};
+    }
+    if(days && min){
+      const sample = earliestRentalStartIso();
+      const sampleEnd = fmtIso(addDays(parseDate(sample), days));
+      return {warn:false, text:en
+        ? `📅 At least ${days} days. Customers choose the start and the return day (e.g. start ${day(sample)} → return ${day(sampleEnd)} or later).`
+        : `📅 เช่าขั้นต่ำ ${days} วัน ลูกค้าเลือกวันเริ่มและวันคืนเอง (เช่น เริ่ม ${day(sample)} → คืนได้ตั้งแต่ ${day(sampleEnd)} เป็นต้นไป)`};
+    }
+    if(start && days){
+      const end = fmtIso(addDays(parseDate(start), days));
+      return {warn:!!passed, text:(en
+        ? `📅 Customers rent ${day(start)} → return ${day(end)} (${days} days). The calendar picks these dates; no other dates can be chosen.`
+        : `📅 ลูกค้าจะเช่า ${day(start)} → คืน ${day(end)} (${days} วัน) ปฏิทินเลือกให้อัตโนมัติ ลูกค้าเลือกวันอื่นไม่ได้`) + passed};
+    }
+    if(start){
+      const earliestEnd = fmtIso(addDays(parseDate(start), 3));
+      return {warn:!!passed, text:(en
+        ? `📅 Start fixed on ${day(start)}. Customers choose the return day (at least 3 days: ${day(earliestEnd)} or later).`
+        : `📅 ล็อควันเริ่ม ${day(start)} ลูกค้าเลือกวันคืนเอง (ขั้นต่ำ 3 วัน คืนได้ตั้งแต่ ${day(earliestEnd)})`) + passed};
+    }
+    if(days){
+      const sample = earliestRentalStartIso();
+      const sampleEnd = fmtIso(addDays(parseDate(sample), days));
+      return {warn:false, text:en
+        ? `📅 Exactly ${days} days. Customers choose the start; the return day is ${days} days later (e.g. start ${day(sample)} → return ${day(sampleEnd)}).`
+        : `📅 ล็อค ${days} วันพอดี ลูกค้าเลือกวันเริ่มเอง วันคืนคือ ${days} วันหลังวันเริ่ม (เช่น เริ่ม ${day(sample)} → คืน ${day(sampleEnd)})`};
+    }
+    return {warn:false, text:en ? "Dates not locked: customers choose the start and return days." : "ไม่ล็อควัน: ลูกค้าเลือกวันเริ่มและวันคืนเอง"};
+  }
+  function adminSpecialLockPreviewHtml(index, startValue, daysValue, modeValue){
+    const preview = adminSpecialLockPreview(startValue, daysValue, modeValue);
+    return `<div class="sp-lock-preview${preview.warn ? " is-warn" : ""}" data-sp-lock-preview="${index}" aria-live="polite">${esc(preview.text)}</div>`;
+  }
+  /** The admin typed a lock: the sentence under it follows at once. */
+  function refreshAdminSpecialLockPreview(target){
+    const match = String(target?.dataset?.sp || "").match(/^(\d+):lock(Start|Days|DaysMode)$/);
+    if(!match) return;
+    const host = byId("adminSpecial");
+    const old = host?.querySelector(`[data-sp-lock-preview="${match[1]}"]`);
+    if(!old) return;
+    const field = name => host.querySelector(`[data-sp="${match[1]}:${name}"]`)?.value || "";
+    old.outerHTML = adminSpecialLockPreviewHtml(match[1], field("lockStart"), field("lockDays"), field("lockDaysMode"));
   }
   function adminSpecialStateLabel(value){
     const en = state.lang === "en";
@@ -15679,6 +15881,14 @@ We apologize for the inconvenience and hope everyone stays safe.`
           <div class="field"><label class="label">${en ? "Amount added (฿)" : "ยอดบวกเพิ่ม (บาท)"}</label><input class="input" type="number" min="0" max="100000" data-sp="${index}:amount" value="${esc(String(campaign.amount ?? 0))}"></div>
           <div class="field"><label class="label">${en ? "Link valid for (hours)" : "ลิงก์ใช้ได้ (ชั่วโมง)"}</label><select class="input" data-sp="${index}:linkHours">${[24, 48, 72].map(hours => `<option value="${hours}" ${Number(campaign.linkHours || 48) === hours ? "selected" : ""}>${hours} ${en ? "hours" : "ชั่วโมง"} (${hours / 24} ${en ? "day" : "วัน"})</option>`).join("")}</select></div>
         </div>
+        <div class="sp-lock">
+          <div class="sp-lock-title"><b>${en ? "Rental dates (optional)" : "ล็อควันเช่า (ไม่บังคับ)"}</b><span class="hint">${en ? "Leave empty to let the customer choose. Lock either one, or both. Days can be exact, or a minimum (that many or more)." : "เว้นว่างไว้ = ลูกค้าเลือกเอง ล็อคอย่างใดอย่างหนึ่ง หรือทั้งสองอย่างก็ได้ จำนวนวันเลือกได้ว่า พอดี หรือ ขั้นต่ำ (เท่านี้ขึ้นไป)"}</span></div>
+          <div class="grid2">
+            <div class="field"><label class="label">${en ? "Start day" : "วันเริ่มเช่า"}</label><input class="input" type="date" data-sp="${index}:lockStart" value="${esc(campaign.lockStart || "")}"></div>
+            <div class="field"><label class="label">${en ? "Number of days" : "จำนวนวันเช่า"}</label><div class="sp-lock-days"><select class="input" data-sp="${index}:lockDaysMode"><option value="exact" ${campaign.lockDaysMode !== "min" ? "selected" : ""}>${en ? "Exactly" : "พอดี"}</option><option value="min" ${campaign.lockDaysMode === "min" ? "selected" : ""}>${en ? "At least" : "ขั้นต่ำ"}</option></select><input class="input" type="number" min="3" max="90" step="1" inputmode="numeric" placeholder="${en ? "Not locked" : "ไม่ล็อค"}" data-sp="${index}:lockDays" value="${Number(campaign.lockDays) > 0 ? esc(String(campaign.lockDays)) : ""}"><span>${en ? "days" : "วัน"}</span></div></div>
+          </div>
+          ${adminSpecialLockPreviewHtml(index, campaign.lockStart, campaign.lockDays, campaign.lockDaysMode)}
+        </div>
         <div class="field"><label class="label">${en ? "Devices customers can choose" : "เครื่องที่ให้ลูกค้าเลือกได้"}</label><div class="sp-devices">${devices}</div></div>
         <label class="option-row"><input type="checkbox" data-sp="${index}:enabled" ${campaign.enabled !== false ? "checked" : ""}><div><b>${en ? "Open (links work)" : "เปิดใช้ (ลิงก์ใช้งานได้)"}</b></div></label>
         <div class="sp-actions">
@@ -15709,7 +15919,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const en = state.lang === "en";
     if(target.closest("[data-sp-reload]")){ specialDraftDirty = false; adminSpecial.loaded = false; renderAdmin(); await loadAdminSpecial(); return true; }
     if(target.closest("[data-sp-add]")){
-      adminSpecial.campaigns = [...readAdminSpecialCampaigns(), {id:`sp-${Date.now().toString(36)}`, titleTh:"", titleEn:"", consoleIds:[], units:1, mode:"per_day", amount:0, linkHours:48, enabled:true}];
+      adminSpecial.campaigns = [...readAdminSpecialCampaigns(), {id:`sp-${Date.now().toString(36)}`, titleTh:"", titleEn:"", consoleIds:[], units:1, mode:"per_day", amount:0, linkHours:48, lockStart:"", lockDays:0, lockDaysMode:"exact", enabled:true}];
       renderAdmin();
       return true;
     }
@@ -15777,6 +15987,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
       special_campaign_not_found: en ? "Save the campaign first." : "บันทึก campaign ก่อนสร้างลิงก์",
       special_campaign_closed: en ? "The campaign is closed." : "campaign นี้ปิดอยู่",
       special_link_used: en ? "This link has been paid for and cannot be cancelled." : "ลิงก์นี้ชำระเงินแล้ว ยกเลิกไม่ได้",
+      special_campaign_lock_start_invalid: en ? "Choose a valid start date, or leave it empty." : "เลือกวันเริ่มเช่าให้ถูกต้อง หรือเว้นว่างไว้",
+      special_campaign_lock_days_invalid: en ? "Locked days must be a whole number from 3 to 90, or empty." : "จำนวนวันที่ล็อคต้องเป็นจำนวนเต็ม 3–90 วัน หรือเว้นว่างไว้",
+      special_dates_passed: en ? "The locked start date has passed. Change it or clear it, save, then make the link." : "วันเริ่มที่ล็อคไว้ผ่านไปแล้ว แก้หรือลบวันแล้วกดบันทึกก่อนสร้างลิงก์",
     })[code] || code;
   }
   function adminVipHtml(){
@@ -16830,7 +17043,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     });
     document.addEventListener("change", async event => {
       if(event.target.closest?.("[data-vip-row]")) vipDraftDirty = true;
-      if(event.target.closest?.("#adminSpecial [data-sp], #adminSpecial [data-sp-device]")) specialDraftDirty = true;
+      if(event.target.closest?.("#adminSpecial [data-sp], #adminSpecial [data-sp-device]")){ specialDraftDirty = true; refreshAdminSpecialLockPreview(event.target); }
       if(event.target.matches('[data-vip-field="name"],[data-vip-field="phone"]')){
         void lookupVipLineForRow(event.target.closest('[data-vip-row]'));
         return;
@@ -16962,7 +17175,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     });
     document.addEventListener("input", event => {
       if(event.target.closest?.("[data-vip-row]")) vipDraftDirty = true;
-      if(event.target.closest?.("#adminSpecial [data-sp], #adminSpecial [data-sp-device]")) specialDraftDirty = true;
+      if(event.target.closest?.("#adminSpecial [data-sp], #adminSpecial [data-sp-device]")){ specialDraftDirty = true; refreshAdminSpecialLockPreview(event.target); }
       if(event.target.matches?.("[data-faq]")) faqDraftDirty = true;
       if(event.target.id === "mapsInput"){ state.calc.maps = event.target.value.trim(); if(state.calc.maps.length > 8){ markGuideDone("maps"); setGuideStage("ret"); } saveLocal(); renderGuide(); }
       if(UNIFIED_FLOW_DEMO && event.target.id === "demoRefundAccount"){

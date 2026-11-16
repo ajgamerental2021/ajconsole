@@ -83,3 +83,35 @@ test('the price row names the campaign and its rate (15/11/2026), never the word
   assert.match(html, /`\+\$\{money\(amount\)\} once per booking`/);
   assert.match(html, /specialLabel:special\?specialSurchargeLabel\(special, days\):""/);
 });
+
+test('locked dates (16/11/2026): the campaign can fix the start day, the number of days, both or neither', () => {
+  // The return day is the start plus the days, as the calendar counts them.
+  assert.match(html, /return \{start, days, min, end:start && days && !min \? fmtIso\(addDays\(parseDate\(start\), days\)\) : "", any:!!\(start \|\| days\)\};/);
+  // Days exact or at least (owner, 16/11/2026): a minimum is the calendar's shortest rental.
+  assert.match(html, /const min = !!days && special\?\.lockDaysMode === "min";/);
+  assert.match(html, /if\(lock\.days && \(lock\.min \? !\(days >= lock\.days\) : days !== lock\.days\)\) return false;/);
+  assert.match(html, /diffDays\(start,date\) < calendarMinDays\(dateLock\)/);
+  assert.match(html, /`เช่าขั้นต่ำ \$\{lock\.days\} วัน · เลือกวันเริ่มและวันคืนได้`/);
+  // The page fills in the locked dates as soon as the campaign loads.
+  assert.match(html, /\/\/ Locked dates are filled in for the customer \(and cannot be changed\)\.\n\s+applySpecialDateLock\(\);/);
+  // The calendar opens on them; nothing else can be picked, and OK needs them.
+  assert.match(html, /if\(state\.calendar\.mode === "end" && !state\.calendar\.draftStart\) state\.calendar\.mode = "start";\n\s+lockCalendarDraft\(\);/);
+  assert.match(html, /const lockedOut = dateLock\.any && !calendarLockAllows\(dateLock, date\);/);
+  assert.match(html, /\$\{disabled \|\| lockedOut\?"disabled":""\}/);
+  assert.match(html, /if\(!calendarLockAllows\(dateLock, picked\)\) return;/);
+  assert.match(html, /if\(!specialDatesOk\(state\.calendar\.draftStart, state\.calendar\.draftEnd\)\) return;/);
+  assert.match(html, /apply\.disabled = !\(Number\.isFinite\(days\) && days >= 3 && rangeAvailable && specialDatesOk\(/);
+  // Told on the page and in the calendar, TH and EN; a passed start closes the page.
+  assert.match(html, /`วันเช่าที่กำหนด: เริ่ม \$\{specialLockDate\(lock\.start\)\} · คืน \$\{specialLockDate\(lock\.end\)\} \(\$\{lock\.days\} วัน\)`/);
+  assert.match(html, /`Fixed dates: start \$\{specialLockDate\(lock\.start\)\} · return \$\{specialLockDate\(lock\.end\)\} \(\$\{lock\.days\} days\)`/);
+  assert.match(html, /if\(specialLockStartPassed\(\)\)\{\n\s+host\.innerHTML = `<div class="special-rate-banner is-error"/);
+  for (const code of ['special_dates_locked', 'special_dates_passed']) assert.match(html, new RegExp(`${code}: en \\? "[^"]+" : "[^"]+"`), code);
+});
+
+test('the admin page sets the lock and shows the return day it gives', () => {
+  for (const field of ['lockStart', 'lockDays', 'lockDaysMode']) assert.ok(html.includes(`data-sp="\${index}:${field}"`), field);
+  assert.match(html, /lockDays: field\("lockDays"\)\.value\.trim\(\) === "" \? 0 : Number\(field\("lockDays"\)\.value\),/, 'empty = not locked');
+  assert.match(html, /`📅 ลูกค้าจะเช่า \$\{day\(start\)\} → คืน \$\{day\(end\)\} \(\$\{days\} วัน\) ปฏิทินเลือกให้อัตโนมัติ ลูกค้าเลือกวันอื่นไม่ได้`/);
+  assert.match(html, /\{ specialDraftDirty = true; refreshAdminSpecialLockPreview\(event\.target\); \}/, 'the sentence follows the typing');
+  for (const code of ['special_campaign_lock_start_invalid', 'special_campaign_lock_days_invalid']) assert.match(html, new RegExp(`${code}: en \\? "[^"]+" : "[^"]+"`), code);
+});

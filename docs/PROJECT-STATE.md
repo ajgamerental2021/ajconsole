@@ -1,3 +1,35 @@
+## 2026-11-16 — Campaigns can lock the rental dates (start day, number of days, exact or minimum)
+
+- Commits: Bot `0804f57`, `1349d8b`; website (this commit). Deploy the Bot and the website together.
+- **Asked:** a campaign can fix the start day and/or the number of days. The calendar picks them for the customer and no other dates can be chosen. Either one, both, or neither. The days can be exact or a minimum ("ขั้นต่ำ 7 วัน").
+- **Arithmetic:** 19/11/2026 + 7 days returns on **26/11/2026**, not 29/11. The calendar counts days as return minus start. The admin page works the return day out as you type.
+- **Admin → ราคาพิเศษ, each campaign, "ล็อควันเช่า (ไม่บังคับ)":**
+  - วันเริ่มเช่า (date);
+  - จำนวนวันเช่า: [พอดี | ขั้นต่ำ] + days (3–90). Empty = not locked.
+  - A live sentence below gives the return day, and warns when the start has passed or the days are out of range.
+- **Bot (`special-rate.js`):**
+  - `validateCampaign` stores `lockStart`, `lockDays` and `lockDaysMode` (`exact`/`min`). `campaignDateLock` and `campaignLockFields` give one shape for the public view, the rental's `specialRate` and the pay-later page.
+  - `specialDatesProblem` counts days from the dates themselves. Breaking the lock is refused with `special_dates_locked` at:
+    - the booking;
+    - the calendar's hold;
+    - a pay-later edit to new dates. An edit that keeps the booked dates is not refused.
+  - Once the locked start day is over (Bangkok), no link is made and an open link books nothing (`special_dates_passed`).
+- **Website, special link:**
+  - Locked dates are filled in on load. The banner and the calendar header say what is fixed, in TH and EN.
+  - The calendar allows only what the lock permits:
+    - start and exact days: nothing to pick;
+    - start only: a return day 3+ (or the minimum) days on;
+    - exact days only: any start, return = start + N;
+    - minimum only: the usual two picks, with "ขั้นต่ำ N วัน" on the blocked days.
+  - A passed start closes the page with a message.
+- **Not locked:** after booking, the Delivery App's date change and extension work as before.
+- **Checked:**
+  - Bot `special-rate` 11, full 870.
+  - Website 445.
+  - Playwright on the real page (iPhone 13):
+    - all six lock cases, EN, a passed start;
+    - admin TH/EN at desktop and 375 px: preview, save, clear, reload.
+
 ## 2026-11-16 — The customer's note reaches the driver (return PS5-5: "อยู่ในตลาดร้านชื่อ ทวีทรัพย์" missing from the dispatch)
 
 - Commit: DA `c7ad6d0`. Deploy the DA backend.
