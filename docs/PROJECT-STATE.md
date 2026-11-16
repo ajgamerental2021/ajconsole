@@ -1,3 +1,19 @@
+## 2026-11-16 — Finance follows the bookings (booking 686: app right, Finance sheet still 12,300)
+
+- Commit: DA `38444cc`. Deploy the DA backend; the app button needs the app (web, or the next Android build).
+- **Reported:** after the Rental Fee fix the booking was right (6,500 + 1,500 = 8,000) but the Finance sheet still read 12,300.
+- **Cause:** a booking's Finance line was written only when the app saved that booking. A fee that changed any other way never reached it, and nothing checked:
+  - a formula fixed at startup;
+  - a cell edited in the sheet;
+  - an extension settled elsewhere.
+- **Fix:** `reconcileFinanceRentals` compares every booking that started this month or last (Bangkok) with its Finance line.
+  - It uses the rule each save uses: the booking's confirmed total with special rate, discounts and paid extensions.
+  - It rewrites the lines that differ; lines it cannot find are only reported.
+  - It skips cancelled bookings, queue holds, bundle partners, MAINTAIN rows and rows the sheet is still calculating.
+- **When it runs:** after the startup fee upgrade, then every hour. The shop gets a LINE alert listing each change ("📒 แก้ยอดใน Finance ให้ตรง Booking").
+- **By hand:** `GET` / `POST /api/finance/reconcile-rentals`, and a check-then-fix button on the Finance dashboard ("📒 ตรวจยอดรายรับตาม Booking").
+- **Checked:** `test:finance-reconcile` (686 goes from 12,300 to 8,000; matching, older, cancelled and still-calculating rows are left alone; a missing line is reported; extensions are counted). DA full suite passes, all except header-guard.
+
 ## 2026-11-16 — 30-day rentals: Booking Log and Finance missed the monthly price (booking 686)
 
 - Commit: DA `0b96f22`. Deploy the DA backend; the fix to existing rows runs at startup.
