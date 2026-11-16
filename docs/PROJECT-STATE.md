@@ -1,3 +1,34 @@
+## 2026-11-16 — Accessory dropped from a booking (R0088), accessories named in the email, sold-items button moved to the header
+
+- Commits: DA `f817fe5`, Bot `3a89361`. Deploy the DA backend, the Bot, and the app (web, and the new Android build).
+- **Reported:** booking 685 (AJ-20261115-R0088) — the customer added one controller (฿480) on the website.
+  - The email was right (grand total ฿4,327), but the booking had no accessory and came out ฿480 short.
+  - The app also counted the controller as a game ("เลือกเกมแล้ว (3)").
+- **Cause:** the website and the Bot call it "Add 1 controller (3 players)" with id `ps5-extra-controller-1`. The app knew only "… (up to 3 players)", the Thai name and `pad1`.
+  - The name landed among the games.
+  - Edit ticked no accessory, and saving set the extras fee to 0.
+- **Fix:** `bookingExtrasCatalog` gives each accessory `aliasIds` / `aliasNames` for the website's and the Bot's ids and wording.
+  - `labelKey()` / `findAccessory()` match a label regardless of "add/เพิ่ม", "up to", punctuation and numbering.
+  - Used by the request → booking path, Edit (`frontend/src/utils/accessoryMatch.ts`), Booking Confirm lines, extensions, the customer change page and the game/add-on split.
+  - Badminton rackets and the Joy-Con wheel were added; the website sells them.
+- **Prevention:** Edit keeps an extras fee it cannot tick. A yellow note names it, and it changes only when staff choose otherwise.
+- **Repairing existing bookings:** `services/lostAccessories` finds a booking whose add-on name is still on the row but is no longer charged. Cancelled, returned and company bookings are excluded.
+  - Booking Log shows "⚠️ อุปกรณ์เสริมหาย: … ฿480 · แตะเพื่อใส่กลับ"; it is also listed under "⚠️ ยอดไม่ตรง".
+  - Tapping it calls `POST /api/bookings/:rowIndex/restore-accessories`, which puts the ids, name and fee back, priced for the booking's dates.
+  - The balance fix refuses while an accessory is lost, so the gap cannot be closed by giving the accessory away.
+- **Customer wording (TH/EN):**
+  - The Bot's confirmation email: "Accessories: Add 1 controller (3 players)" / "อุปกรณ์เสริม: เพิ่มจอย 1 อัน (เล่นได้ 3 คน)".
+  - The LINE Booking Confirm card and the reservation payment page name the accessory too.
+- **Queue:** the "🛍️ ส่งของขาย / รับซื้อ" button moved from under the date bar to the header, left of "เรียกรถอัตโนมัติทุกงาน".
+  - On phones it is a stacked icon with "ขาย/ซื้อ", and the auto label wraps, so the title stays whole.
+- **Checked:**
+  - `test:lost-accessories` (new); Bot `test/rental-charge-lines` (email in both languages); Bot 868/868.
+  - The built web app in a browser:
+    - R0088's badge → restore ฿480 → totals agree.
+    - Edit with the Bot's English name ticks the controller and saves ฿480.
+    - The header at 360/390/820/1426 px wide without covering the title.
+  - DA full suite passes, all except header-guard.
+
 ## 2026-11-15 — Queue: a permanent "🛍️ ส่งของขาย / รับซื้อ" entry for sold items
 
 - Commit: DA `9b8faf0`. Deploy the DA backend and the app (web, and the new Android build).
