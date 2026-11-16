@@ -1,3 +1,26 @@
+## 2026-11-16 — Proof photos stuck at 0/14, cancel locked (delivery PS5-2 · 607)
+
+- Commit: DA `d19140b`.
+- **Deploy:**
+  - the DA backend and the web app;
+  - the Android build;
+  - **the owner pastes `backend/scripts/proof-upload-apps-script.gs` into the proof Apps Script and deploys a new version.**
+- **Cause:**
+  - The Apps Script searched the whole root folder by name for the booking's folder on every photo, and the root gains a folder per booking.
+  - The server waited on it with no limit.
+  - The app waited 120 s × 3 per photo with cancel disabled.
+- **Fix:**
+  - **Server:**
+    - Apps Script limits: upload 75 s, list and delete 30 s. A timeout returns 504, and the app repeats it with `retry:true`, which finds a copy that did arrive.
+    - Remembers the folder id per booking and sends it.
+  - **Script:** opens the folder by id (or a 6 h cache), searches by name only once, and creates under a lock.
+  - **App:**
+    - "หยุดอัปโหลด" aborts the upload in flight; cancelled requests are never repeated.
+    - Each photo waits at most 90 s.
+- **Checked:**
+  - `test:proof-script-timeout`, `test:proof-upload-retry`, full DA suite (all except header-guard).
+  - Playwright on the web build: a hanging upload stops at once; a normal one finishes 3/3.
+
 ## 2026-11-16 — Pages stuck "loading" (main calendar, Admin → ราคาพิเศษ, campaign link)
 
 - Commit: Bot `881990a`. Deploy the Bot.
