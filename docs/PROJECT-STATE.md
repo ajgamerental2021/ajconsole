@@ -1,3 +1,35 @@
+## 2026-11-16 — Delivery App slowness measured and this week's regressions fixed; Phase 5 check
+
+- Commit: DA `9480b7c`. Deploy the DA backend.
+- **Measured** with `perf:sheets` (fake Sheets at 350 ms a trip, real Postgres 16, `pg` mode as on Render). The harness now keeps its writes, warms up first and takes `PERF_TTL_MS`; before, it counted one-off tab creation as reads.
+
+  | Screen (after 20 s idle) | 12/11 | 16/11 before | now |
+  |---|---|---|---|
+  | Console Pending, first open | 3.5 s | 4.9 s | 3.9 s |
+  | Console Pending, reopen | 3.1 s | 4.5 s | 3.4 s |
+  | Pending badge | 3.0 s | 4.0 s | 3.0 s |
+  | Booking list | 0.8 s | 2.6 s | 1.5 s |
+  | Delivery queue (week) | 1.1 s | 1.1 s | 1.1 s |
+
+- **Causes:**
+  - The unit holds (14/11) read Rental Extensions, Rental Modifications and the request log one after another, on every Console Pending price and every booking save. They are now read together, and the Console Pending prewarm also fetches the two hold tabs.
+  - Prices built a second Pending list next to the one with LINE names. They now reuse it.
+  - The money rule (15/11) made the Booking list read the payment ledger after the bookings, with a header check before every ledger read. The ledger and the LINE lookups now start with the bookings, and the header is checked once per 10 minutes. That also helps the queue, driver cards and payments.
+- **Still Sheets-bound:** Console Pending reads LOG, AJ Contract and Rental Payments (about 1 MB, about 3 s) whenever the cache has expired. Only moving them to Postgres (rest of 5.3) removes that. Real Sheets trips from Render are often 0.5–1.5 s, slower than the harness.
+- **Phase 5:**
+  - Modes: bookings, inventory and customers are on `pg`; confirmations are on `dual`.
+  - `test:booking-pg-sync` against a real Postgres had failed since `2e65dd2` (05/11).
+    - The pg-mode save still writes the right row.
+    - Since that commit it deliberately no longer waits for the full pass, so the test now waits for it: 18/18.
+  - The other Postgres tests pass against real Postgres: sheet tables 14, customer read 7, confirmations 7.
+  - No direct Booking Log, Customers or Inventory writes were added this week.
+  - Still open:
+    - 5.0b and 5.2 need the owner to check Profile → 🗄️ ฐานข้อมูล for ✅;
+    - confirmations: verify 0, then switch to `pg`;
+    - rest of 5.3 (Rental Payments, Extensions, Finance, LOG/AJ Contract via the Bot);
+    - 6.1 is off; 6.2 is the owner's decision; 6.3 needs `POSTGRES_BACKUP_DRIVE_FOLDER_ID`.
+- **Checked:** new `test:reads-in-parallel`. DA full suite passes, all except header-guard.
+
 ## 2026-11-16 — Accessory dropped from a booking (R0088), accessories named in the email, sold-items button moved to the header
 
 - Commits: DA `f817fe5`, Bot `3a89361`. Deploy the DA backend, the Bot, and the app (web, and the new Android build).
