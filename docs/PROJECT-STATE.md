@@ -1,3 +1,17 @@
+## 2026-11-16 — The customer's note reaches the driver (return PS5-5: "อยู่ในตลาดร้านชื่อ ทวีทรัพย์" missing from the dispatch)
+
+- Commit: DA `c7ad6d0`. Deploy the DA backend.
+- **Reported:** the customer's return note showed on their page and their LINE card, but the dispatch card had nothing under "ส่งให้คนขับเสมอ", so the driver never got it.
+- **Cause:** the page and the dispatch read the note from different places.
+  - The page reads the note saved with the trip's confirmation (Delivery Confirmations), or the instructions given when booking, for the same place.
+  - The dispatch note read only the job's "ลูกค้าแจ้ง (รับคืน): …" line. An edit writes that line; a confirmation never does. A return never took the booking instructions.
+- **Fix:** one rule, `customerNotesForTrip`, for the customer page and every dispatch (by hand and automatic, through the new `confirmationFor` dependency).
+  - First choice: the note saved or confirmed for the trip at its current place. It is used alone; if the customer cleared it, nothing is sent.
+  - Otherwise: the latest note written on the job, plus the booking-time instructions when the trip goes to the booked place (a return at the delivery place included).
+  - The note is sent even with "ไม่ใส่โน้ตเพิ่ม" ticked.
+- **Not covered:** trips placed before the deploy need the note typed on the card, or sent to the driver in the Lalamove app.
+- **Checked:** `test:lalamove-dispatch` 453, including end to end (confirmed note → card → order) and the edge cases: an old place, a cleared note, a return picked up elsewhere. DA full suite passes, all except header-guard.
+
 ## 2026-11-16 — Finance follows the bookings (booking 686: app right, Finance sheet still 12,300)
 
 - Commit: DA `38444cc`. Deploy the DA backend; the app button needs the app (web, or the next Android build).
