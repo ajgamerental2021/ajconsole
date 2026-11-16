@@ -1,3 +1,15 @@
+## 2026-11-16 — Campaign date lock: clear it on a phone
+
+- Commit: website (this commit). Deploy the website.
+- **Reported:** after picking a start day there was no way to remove it. The iPhone date picker's "Reset" puts the old date back, and it cannot empty the field.
+- **Fix:** Admin → ราคาพิเศษ → ล็อควันเช่า gets two buttons:
+  - "✕ ไม่ล็อค" beside the start day clears the start only;
+  - "ล้างการล็อควันทั้งหมด" clears the start, the days and the mode (back to พอดี).
+  - The sentence underneath updates at once, and a toast reminds you to press บันทึก campaign. TH/EN.
+- **Checked:** website 447. Playwright on iPhone 13, TH/EN:
+  - clear the start → save sends `lockStart:''` with the days kept;
+  - clear all → save sends `'' / 0 / exact`; reloaded fields are empty.
+
 ## 2026-11-16 — Proof photos stuck at 0/14, cancel locked (delivery PS5-2 · 607)
 
 - Commit: DA `d19140b`.

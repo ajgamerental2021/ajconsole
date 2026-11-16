@@ -115,3 +115,11 @@ test('the admin page sets the lock and shows the return day it gives', () => {
   assert.match(html, /\{ specialDraftDirty = true; refreshAdminSpecialLockPreview\(event\.target\); \}/, 'the sentence follows the typing');
   for (const code of ['special_campaign_lock_start_invalid', 'special_campaign_lock_days_invalid']) assert.match(html, new RegExp(`${code}: en \\? "[^"]+" : "[^"]+"`), code);
 });
+
+test('a date lock can be cleared on a phone, whose date picker cannot empty the field (16/11/2026)', () => {
+  assert.match(html, /data-sp-lock-clear="\$\{index\}:start"/);
+  assert.match(html, /data-sp-lock-clear="\$\{index\}:all"/);
+  assert.match(html, /#adminSpecial \[data-sp-revoke\], #adminSpecial \[data-sp-lock-clear\]"\)\)\{/, 'the click reaches the handler');
+  assert.match(html, /if\(field\("lockStart"\)\) field\("lockStart"\)\.value = "";/);
+  assert.match(html, /if\(field\("lockDays"\)\) field\("lockDays"\)\.value = "";/);
+});

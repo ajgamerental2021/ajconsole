@@ -1172,6 +1172,8 @@ body.unified-flow-demo .demo-reward-row{border-color:#f2c94c;background:#fffdf5}
 .sp-head{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between}
 .sp-lock{display:grid;gap:8px;padding:12px;border:1px solid #c7d5ff;border-radius:14px;background:#f6f8ff}
 .sp-lock-title{display:grid;gap:2px}
+.sp-lock-start{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.sp-lock-start .btn{white-space:nowrap}
 .sp-lock-days{display:grid;grid-template-columns:minmax(96px,auto) 1fr auto;gap:8px;align-items:center}
 .sp-lock-preview{font-weight:700;color:#1f3f9e;line-height:1.5}
 .sp-lock-preview.is-warn{color:#b42318}
@@ -15885,10 +15887,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
         <div class="sp-lock">
           <div class="sp-lock-title"><b>${en ? "Rental dates (optional)" : "ล็อควันเช่า (ไม่บังคับ)"}</b><span class="hint">${en ? "Leave empty to let the customer choose. Lock either one, or both. Days can be exact, or a minimum (that many or more)." : "เว้นว่างไว้ = ลูกค้าเลือกเอง ล็อคอย่างใดอย่างหนึ่ง หรือทั้งสองอย่างก็ได้ จำนวนวันเลือกได้ว่า พอดี หรือ ขั้นต่ำ (เท่านี้ขึ้นไป)"}</span></div>
           <div class="grid2">
-            <div class="field"><label class="label">${en ? "Start day" : "วันเริ่มเช่า"}</label><input class="input" type="date" data-sp="${index}:lockStart" value="${esc(campaign.lockStart || "")}"></div>
+            <div class="field"><label class="label">${en ? "Start day" : "วันเริ่มเช่า"}</label><div class="sp-lock-start"><input class="input" type="date" data-sp="${index}:lockStart" value="${esc(campaign.lockStart || "")}"><button class="btn" type="button" data-sp-lock-clear="${index}:start" aria-label="${en ? "Do not lock the start day" : "ไม่ล็อควันเริ่ม"}">✕ ${en ? "Not locked" : "ไม่ล็อค"}</button></div></div>
             <div class="field"><label class="label">${en ? "Number of days" : "จำนวนวันเช่า"}</label><div class="sp-lock-days"><select class="input" data-sp="${index}:lockDaysMode"><option value="exact" ${campaign.lockDaysMode !== "min" ? "selected" : ""}>${en ? "Exactly" : "พอดี"}</option><option value="min" ${campaign.lockDaysMode === "min" ? "selected" : ""}>${en ? "At least" : "ขั้นต่ำ"}</option></select><input class="input" type="number" min="3" max="90" step="1" inputmode="numeric" placeholder="${en ? "Not locked" : "ไม่ล็อค"}" data-sp="${index}:lockDays" value="${Number(campaign.lockDays) > 0 ? esc(String(campaign.lockDays)) : ""}"><span>${en ? "days" : "วัน"}</span></div></div>
           </div>
           ${adminSpecialLockPreviewHtml(index, campaign.lockStart, campaign.lockDays, campaign.lockDaysMode)}
+          <div><button class="btn" type="button" data-sp-lock-clear="${index}:all">${en ? "Clear all date locks" : "ล้างการล็อควันทั้งหมด"}</button></div>
         </div>
         <div class="field"><label class="label">${en ? "Devices customers can choose" : "เครื่องที่ให้ลูกค้าเลือกได้"}</label><div class="sp-devices">${devices}</div></div>
         <label class="option-row"><input type="checkbox" data-sp="${index}:enabled" ${campaign.enabled !== false ? "checked" : ""}><div><b>${en ? "Open (links work)" : "เปิดใช้ (ลิงก์ใช้งานได้)"}</b></div></label>
@@ -15918,6 +15921,23 @@ We apologize for the inconvenience and hope everyone stays safe.`
   }
   async function adminSpecialAction(target){
     const en = state.lang === "en";
+    // A phone's date picker has no way to empty the field (iOS "Reset" puts
+    // the old date back), so the lock is cleared here (16/11/2026).
+    const lockClear = target.closest("[data-sp-lock-clear]");
+    if(lockClear){
+      const [index, what] = String(lockClear.dataset.spLockClear || "").split(":");
+      const host = byId("adminSpecial");
+      const field = name => host?.querySelector(`[data-sp="${index}:${name}"]`);
+      if(field("lockStart")) field("lockStart").value = "";
+      if(what === "all"){
+        if(field("lockDays")) field("lockDays").value = "";
+        if(field("lockDaysMode")) field("lockDaysMode").value = "exact";
+      }
+      specialDraftDirty = true;
+      if(field("lockStart")) refreshAdminSpecialLockPreview(field("lockStart"));
+      toast(en ? "Cleared. Press Save campaigns to keep it." : "ล้างแล้ว กดบันทึก campaign เพื่อยืนยัน");
+      return true;
+    }
     if(target.closest("[data-sp-reload]")){ specialDraftDirty = false; adminSpecial.loaded = false; renderAdmin(); await loadAdminSpecial(); return true; }
     if(target.closest("[data-sp-add]")){
       adminSpecial.campaigns = [...readAdminSpecialCampaigns(), {id:`sp-${Date.now().toString(36)}`, titleTh:"", titleEn:"", consoleIds:[], units:1, mode:"per_day", amount:0, linkHours:48, lockStart:"", lockDays:0, lockDaysMode:"exact", enabled:true}];
@@ -16818,7 +16838,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(bgDetail){ showBoardGameDetail(bgDetail.dataset.bgDetail); return; }
       if(event.target.closest("[data-modal-close]")){ closeModal(); return; }
       // Special-rate admin: its buttons are handled there (async; nothing below applies to them).
-      if(state.adminTab === "special" && event.target.closest("#adminSpecial [data-sp-reload], #adminSpecial [data-sp-add], #adminSpecial [data-sp-remove], #adminSpecial [data-sp-save], #adminSpecial [data-sp-link], #adminSpecial [data-sp-copy], #adminSpecial [data-sp-revoke]")){
+      if(state.adminTab === "special" && event.target.closest("#adminSpecial [data-sp-reload], #adminSpecial [data-sp-add], #adminSpecial [data-sp-remove], #adminSpecial [data-sp-save], #adminSpecial [data-sp-link], #adminSpecial [data-sp-copy], #adminSpecial [data-sp-revoke], #adminSpecial [data-sp-lock-clear]")){
         void adminSpecialAction(event.target);
         return;
       }
