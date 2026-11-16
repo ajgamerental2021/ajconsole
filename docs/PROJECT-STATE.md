@@ -1,3 +1,19 @@
+## 2026-11-16 — Pages stuck "loading" (main calendar, Admin → ราคาพิเศษ, campaign link)
+
+- Commit: Bot `881990a`. Deploy the Bot.
+- **Reported:** the main calendar stayed on "กำลังเช็คคิวอีกครั้ง…"; Admin → ราคาพิเศษ and a campaign link stayed on "กำลังโหลด…".
+- **Checked live**, after allowing the Bot, Delivery App and website hosts in this environment:
+  - The Bot runs `1349d8b`; it started 15:27 UTC (22:27 Bangkok).
+  - `/api/availability` answers 200 in under 1 s.
+  - The Delivery App is healthy.
+  - ajgamerental.com in a fresh browser: the queue loads, a campaign link loads (an invalid one shows its message), no page errors.
+  - So the calendar failure lines up with the Bot's deploy restart.
+- **Real flaw found:** the campaign page and the admin list could load slowly.
+  - Before answering, the special-rate service asks, for every hold that lapsed in the last week, whether its rental was paid after all.
+  - It asked one by one, with no time limit, inside its one-at-a-time queue, so a slow Sheets / Delivery App lookup held both pages up.
+  - Now they are asked together, each cut short after 4 s as "not paid yet" (remembered for 2 minutes).
+- **Checked:** Bot 871, including a test where the lookup never answers and the admin list still returns in under 400 ms.
+
 ## 2026-11-16 — Delivery-place hint: one clear sentence on the calculator and in step 2
 
 - Commit: website (this commit). Deploy the website.
