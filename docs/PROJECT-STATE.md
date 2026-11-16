@@ -1,3 +1,13 @@
+## 2026-11-16 — Delivery-place hint: one clear sentence on the calculator and in step 2
+
+- Commit: website (this commit). Deploy the website.
+- **Asked:** the hint under "สถานที่ส่ง" on the rental/delivery calculator (`/quote/`) read awkwardly, and step 2 of booking had none.
+- **Now, both places, same words:**
+  - TH: "พิมพ์ชื่อคอนโด / หมู่บ้าน / ที่อยู่ แล้วเลือกจากรายการตามที่โชว์ หรือวางลิงก์ Google Maps หรือกดใช้ตำแหน่งปัจจุบัน หรือปักหมุดบนแผนที่ ระบบจะคำนวณค่าส่งไป-กลับจาก Lalamove ให้อัตโนมัติ"
+  - EN: "Type your condo / village / address and choose it from the list that appears, or paste a Google Maps link, or tap Use my current location, or pin it on the map. The round-trip delivery fee is worked out with Lalamove automatically."
+- Step 2 shows it under the 📍 / 🗺️ buttons (`.demo-maps-hint`).
+- **Checked:** website tests 446, including a test that the two texts match. Both pages viewed on iPhone 13 in TH and EN.
+
 ## 2026-11-16 — Campaigns can lock the rental dates (start day, number of days, exact or minimum)
 
 - Commits: Bot `0804f57`, `1349d8b`; website (this commit). Deploy the Bot and the website together.

@@ -175,3 +175,11 @@ test('a chosen place follows a language switch: the green line at once, its name
   assert.match(html, /if\(place && place\.lang && place\.lang !== state\.lang\)\{\n      search\.relabel\(\{\.\.\.place, link: place\.link \|\| demoProfile\.maps\}\)/);
   assert.match(html, /return name \|\| address \? \{name, address, lat, lng, lang, link\} : null;/);
 });
+
+test('the delivery-place hint reads the same on the calculator and in step 2, TH and EN (16/11/2026)', () => {
+  const th = 'พิมพ์ชื่อคอนโด / หมู่บ้าน / ที่อยู่ แล้วเลือกจากรายการตามที่โชว์ หรือวางลิงก์ Google Maps หรือกดใช้ตำแหน่งปัจจุบัน หรือปักหมุดบนแผนที่ ระบบจะคำนวณค่าส่งไป-กลับจาก Lalamove ให้อัตโนมัติ';
+  const en = 'Type your condo / village / address and choose it from the list that appears, or paste a Google Maps link, or tap Use my current location, or pin it on the map. The round-trip delivery fee is worked out with Lalamove automatically.';
+  const site = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.ok(quote.includes(`mapsHint: '${th}'`) && quote.includes(`mapsHint: '${en}'`), 'calculator');
+  assert.ok(site.includes(`<p class="hint demo-maps-hint">\${en ? "${en}" : "${th}"}</p>`), 'step 2, under the delivery place');
+});
