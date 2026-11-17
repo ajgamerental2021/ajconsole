@@ -136,3 +136,10 @@ test('an earliest start day (17/11/2026): only that day or later can be picked, 
   assert.ok(html.includes('data-sp-lock-clear="${index}:from"'));
   assert.match(html, /special_campaign_start_from_invalid: en \? "(?:[^"\\]|\\.)+" : "(?:[^"\\]|\\.)+"/);
 });
+
+test('the calendar never opens without a console (17/11/2026): the customer is taken to the console box', () => {
+  assert.match(html, /if\(!options\.fromOrder && !consoleById\(state\.calc\.consoleId\)\)\{\n\s+promptChooseConsoleFirst\(\);\n\s+return;\n\s+\}/);
+  assert.match(html, /chooseConsoleFirst:"เลือกเครื่องเกมก่อน แล้วปฏิทินจะแสดงวันว่างของเครื่องนั้น"/);
+  assert.match(html, /chooseConsoleFirst:"Choose a console first\. The calendar then shows its free dates\."/);
+  assert.match(html, /data-cal-choose-console>/);
+});

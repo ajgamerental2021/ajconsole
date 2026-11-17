@@ -1165,6 +1165,7 @@ body.unified-flow-demo .demo-reward-row{border-color:#f2c94c;background:#fffdf5}
 .special-rate-title{font-size:18px;font-weight:900;color:#8a4b00}
 .special-rate-rule{font-weight:700;color:#5c3b00}
 .special-rate-until{font-size:13px;color:#6b5a3a}
+#calcConsole.needs-console{outline:3px solid #d9342b;outline-offset:2px;box-shadow:0 0 0 6px rgba(217,52,43,.18);transition:box-shadow .2s}
 .special-rate-lock{font-weight:800;color:#1f3f9e;background:#eef3ff;border:1px solid #c7d5ff;border-radius:10px;padding:8px 10px}
 .special-rate-full{font-weight:800;color:#b42318}
 .special-rate-actions{margin-top:6px}
@@ -2532,7 +2533,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       preparationDetail:"<summary>ระยะเวลาเตรียมเครื่องโดยประมาณ (กดเพื่ออ่าน)</summary><div><span>เริ่มนับหลังจากร้านยืนยันคิว ได้รับรายชื่อเกมครบถ้วน และได้รับยอดจองหรือยอดชำระตามช่องทางที่เลือก</span><ul><li>กรณีต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 2–3 ชั่วโมง</li><li>กรณีไม่ต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 30–60 นาที</li></ul><span>ระยะเวลาจริงอาจเปลี่ยนแปลงตามขนาดเกม ความเร็วในการดาวน์โหลด จำนวนเกม และคิวงานในขณะนั้น ทางร้านจะแจ้งเวลาที่เครื่องพร้อมจัดส่งให้ทราบอีกครั้ง</span></div>",
       step1:"เลือกเครื่อง/วันที่", step2:"รายละเอียดการจอง", step3:"สรุปและส่ง", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"เลือกเกม", step2DetailsTitle:"การจัดส่ง การชำระเงิน และเอกสาร", step3Title:"สรุปและส่งข้อความ", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"📖 อ่านขั้นตอนการเช่าก่อนเริ่ม", quoteBtn:"คำนวณค่าเช่า/ค่าจัดส่ง", quoteBtnHint:"รู้ยอดรวมก่อนจอง", quoteTitle:"คำนวณค่าเช่า/ค่าส่ง", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
       nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
-      deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
+      deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", chooseConsoleFirst:"เลือกเครื่องเกมก่อน แล้วปฏิทินจะแสดงวันว่างของเครื่องนั้น", chooseConsoleButton:"เลือกเครื่องเกม", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
       gamePickerTitle:"เลือกเกม", gameStorageWarning:"⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ", gameChangeWarning:"⚠️ ไม่สามารถเพิ่มหรือเปลี่ยนเกมได้ระหว่างระยะเวลาเช่า", summaryHelp:"ตรวจสอบข้อมูล แล้วกดจองผ่านช่องทางที่สะดวก",
       personalRateWarning:"⚠️ ราคาเช่าเป็นเรทบุคคล ไม่สามารถออกใบกำกับภาษี/ใบเสร็จได้ หากต้องการเอกสาร กรุณาติดต่อ Line: <b>@ajgame</b> หรือ โทร. <b>081-624-4715</b> 🙏",
       daily:"รายวัน", weekly:"รายสัปดาห์", day:"วัน", wk:"สัปดาห์", deposit:"ค่าประกัน", ready:"พร้อม", notReady:"ยังไม่พร้อม", readyOn:"พร้อมวันที่",
@@ -2717,7 +2718,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       preparationDetail:"<summary>Estimated preparation time (tap to read)</summary><div><span>Preparation begins after AJ confirms availability, receives the complete game list, and receives the reservation deposit or payment through the selected payment method.</span><ul><li>If additional games need to be downloaded or installed: approximately 2–3 hours</li><li>If no additional downloads or installations are required: approximately 30–60 minutes</li></ul><span>Actual preparation time may vary depending on game size, download speed, the number of games, and the current service queue. AJ will confirm the expected delivery-ready time again.</span></div>",
       step1:"Device / Dates", step2:"Booking details", step3:"Review and send", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Choose games", step2DetailsTitle:"Delivery, payment and documents", step3Title:"Summary and send", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"📖 Read rental steps first", quoteBtn:"Rental/delivery cost calculator", quoteBtnHint:"See the total before booking", quoteTitle:"Rental & delivery calculator", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
       nextStep:"Next step", backStep:"Back",
-      deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", startDate:"Start date", endDate:"Return date",
+      deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", chooseConsoleFirst:"Choose a console first. The calendar then shows its free dates.", chooseConsoleButton:"Choose a console", startDate:"Start date", endDate:"Return date",
       gamePickerTitle:"Select Games", gameStorageWarning:"⚠️ Limited device storage. Some games may not all fit.", gameChangeWarning:"⚠️ Games cannot be added or changed during the rental period.", summaryHelp:"Review the details, then book through your preferred channel.",
       personalRateWarning:"⚠️ Individual rental rates only. Tax invoice / receipt is not available. For documents, contact Line: <b>@ajgame</b> or call <b>081-624-4715</b> 🙏",
       daily:"Daily", weekly:"Weekly", day:"day", wk:"week", deposit:"Deposit", ready:"Ready", notReady:"Not ready", readyOn:"Ready on",
@@ -9506,6 +9507,13 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // the page changes until the renter presses OK, so clearing or closing
   // leaves the booking as it was.
   function openCalendar(mode, options={}){
+    // No console yet: the calendar has nothing to show (17/11/2026: a customer
+    // opened it from the start-date box and saw every day greyed out with
+    // "-- Choose console --"). Take them to the console box instead.
+    if(!options.fromOrder && !consoleById(state.calc.consoleId)){
+      promptChooseConsoleFirst();
+      return;
+    }
     state.calendar.open = true;
     state.calendar.mode = mode;
     state.calendar.fromOrder = !!options.fromOrder;
@@ -9524,6 +9532,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     refreshBookingHolds().catch(() => {});
     startBookingHoldPolling();
     renderCalendar();
+  }
+  /** Point the customer at the console box: scrolled to, highlighted, focused, and told why. */
+  function promptChooseConsoleFirst(){
+    if(state.calendar.open) closeCalendar();
+    const select = byId("calcConsole");
+    toast(tr("chooseConsoleFirst"));
+    if(!select) return;
+    select.scrollIntoView({block:"center", behavior:"smooth"});
+    select.classList.add("needs-console");
+    window.setTimeout(() => select.classList.remove("needs-console"), 2600);
+    try{ select.focus({preventScroll:true}); }catch{}
   }
   function closeCalendar(){ state.calendar.open = false; state.calendar.fromOrder = false; stopBookingHoldPolling(); byId("calendarModal").classList.remove("open"); }
   function toggleCalendarLang(){
@@ -9558,7 +9577,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("calStartSub").textContent = state.calendar.draftStart ? tr("calStartSub") : tr("startDate");
     byId("calEndSub").textContent = state.calendar.draftEnd ? tr("calEndSub") : tr("selectReturnDate");
     const calendarStatus = byId("calendarStatus");
-    if(!state.availability.loading && (state.availability.error || !hasRecentAvailabilitySnapshot())){
+    if(!selectedConsole && !state.calendar.fromOrder){
+      calendarStatus.className = "hint calendar-status-error";
+      calendarStatus.innerHTML = `<span>${esc(tr("chooseConsoleFirst"))}</span><button class="btn availability-retry" type="button" data-cal-choose-console>${esc(tr("chooseConsoleButton"))}</button>`;
+    }else if(!state.availability.loading && (state.availability.error || !hasRecentAvailabilitySnapshot())){
       calendarStatus.className = "hint calendar-status-error";
       calendarStatus.innerHTML = `<span>${esc(tr("queueError"))}</span><button class="btn availability-retry" type="button" data-availability-retry>${tr("retryQueue")}</button>`;
     }else{
@@ -16876,6 +16898,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         openGamePicker();
         return;
       }
+      if(event.target.closest("[data-cal-choose-console]")){ promptChooseConsoleFirst(); return; }
       const calDay = event.target.closest("[data-cal-day]");
       if(calDay){ pickCalendarDay(calDay.dataset.calDay); return; }
       const guideAction = event.target.closest("[data-guide-action]");

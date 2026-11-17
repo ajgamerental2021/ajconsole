@@ -1,3 +1,11 @@
+## 2026-11-17 — Customer saw an all-grey calendar ("Don't see details on website")
+
+- Commit: website (this commit). Deploy the website.
+- **Not an outage:** the Bot and DA were up, and every model's calendar on the live data has pickable days (PS5 Pro is genuinely full until 09/01/2027).
+- **Cause:** the cells in the customer's screenshot read "-- Choose console --", and the title had no device. The start-date box opened the calendar with no console chosen, so every day was disabled with nothing to explain why.
+- **Fix:** `openCalendar` without a console (not the pay-later "fromOrder" path) does not open. It toasts "Choose a console first…" (TH/EN), scrolls to and highlights `#calcConsole`, and focuses it. A calendar already open without one shows that message with a "Choose a console" button instead of a dead grid.
+- **Checked:** website 449. Playwright, iPhone 13, EN/TH: tapping Start date with no console keeps the calendar closed and highlights the console box; after choosing PS4 the calendar opens with 45 pickable days. All models checked live: only PS5 Pro has no free day in the two months shown.
+
 ## 2026-11-17 — Stock dates still wrong (PS5 29/11, Viture Beast 20/11): one availability rule
 
 - Commit: DA `56cac15`. Deploy the DA backend; no app build needed.
