@@ -1,3 +1,14 @@
+## 2026-11-17 — Removing duplicate #675 from Console Pending cancelled #676's Finance line
+
+- Commit: DA `01c7bc2`. Deploy the DA backend. About 90 s after start (and hourly), the reconcile puts Dec row 5 back to ฿1,200 for #676, clears ยกเลิก and the red fill, and sends the "📒" alert.
+- **Cause:**
+  - Finance lines are matched by device + pickup date (+ name), so the duplicate #675 (cancelled when removed) and the live #676 shared Dec row 5.
+  - The cancel path wrote ยกเลิก/0 over it, and the cancelled-Finance repair loop would have kept rewriting it.
+- **Fix:**
+  - `activeFinanceTwin`: a cancelled booking with a live booking on the same unit and start day never touches the line.
+  - The reconcile window is last month to +3 months, and a live booking's line marked ยกเลิก is always fixed.
+- **Checked:** `test:finance-reconcile` (+ the #675/#676 case); full DA suite, all except header-guard. Booking #676 itself was never cancelled.
+
 ## 2026-11-17 — Customer saw an all-grey calendar ("Don't see details on website")
 
 - Commit: website (this commit). Deploy the website.
