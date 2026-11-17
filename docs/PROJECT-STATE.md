@@ -1,3 +1,21 @@
+## 2026-11-17 — PS5-12…15 shown "ว่าง" while booked and with customers
+
+- Commit: DA `81857e7`. Deploy the DA backend. About a minute after start it repairs rows 42–45 itself and sends "🛠️ ซ่อมสูตรสถานะเครื่องใน Inventory" on LINE.
+- **Cause:**
+  - The Inventory sheet's Status / Days Until Next Booking / Available Date (G:I) are formulas over the Booking Log.
+  - Adding a unit in the app appended "Available" / '' / '' over them, and editing a unit rewrote A:L with values.
+  - So app-added units (PS5-12…15) were frozen at Available, and the Postgres copy followed.
+  - Booking 680 Lachlan (PS5-13, rented), 686 Judy (PS5-14, rented), 688 Lewis (PS5-15, from 18/11), ภัทรดล (PS5-12, from 19/11).
+  - It looked tied to the campaign bookings only by coincidence: those were the newest units.
+- **Fix:**
+  - The add/edit paths never write G:I, except a deliberate status (END / MAINTAIN), cleared when one is taken back.
+  - `repairInventoryFormulas` copies a healthy row's formula into missing cells (copyPaste PASTE_FORMULA): after every add/edit, 60 s after start and hourly. It then syncs Postgres and alerts the shop.
+- **Not affected:** customers and double-booking. The website, the queue calendar, "เช็คคิววันที่" and the save guard all use bookings. Only the Stock cards and the Dashboard read G:I.
+- **Checked:**
+  - `test:inventory-formulas` (6), `test:inventory-metadata` (refuses a whole-row write).
+  - Full DA suite, all except header-guard; `customer-pg-read` was shared-DB contention and passes alone.
+  - Live `/api/public/inventory` before the fix: rows 42–45 Available, `daysUntilNextBooking` null.
+
 ## 2026-11-17 — Campaign: earliest start day ("เลือกวันเริ่มได้ตั้งแต่")
 
 - Commits: Bot `fc2a627`; website (this commit). Deploy both.
