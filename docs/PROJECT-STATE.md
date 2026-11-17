@@ -1,3 +1,23 @@
+## 2026-11-17 — Stock "ว่างเร็วสุด" wrong (PS5 19/11, PS5 Pro 23/11 while booked solid); Console Pending expiry and remove button
+
+- Commit: DA `cfbfa69`.
+- **Deploy:** the DA backend and web app; a new Android build.
+- **After deploy:** #675 พรรษสรวง (unpaid since 15/11) is cancelled within 2 minutes, which frees PS5-4 05–08/12. It can be pulled back with its Rental ID.
+- **Stock cause:** the card printed the sheet's Available Date (the end of the current rental) as "earliest free". It ignored the next rental and the 3-day minimum.
+- **Stock fix:**
+  - `nextRentable` / GET `/api/inventory/next-rentable` gives each unit's first ≥3-day start and its length. It uses the "เช็คคิววันที่" rule, request and extension holds included.
+  - Cards and the unit list use it. A failed load says so.
+  - Live today: PS5 from 26/11 (PS5-15); PS5 Pro from 10/01/2027.
+- **Console Pending:**
+  - Unpaid `awaiting_payment` holds its unit for 12 h; it had no limit before. After that, `holdKindOf` frees the unit at once, and a sweep every 30 min cancels the booking with a shop alert.
+  - Parked rows leave after 15 days: paid ones stay booked, unpaid ones are cancelled.
+  - 🗑️ remove button and a ⏰ deadline on each card.
+  - "ดึงรายการกลับ" revives a removed row. A late payment revives it if the unit is free, else alerts the shop. The ledger reconcile never releases a removed and cancelled row.
+- **Checked:**
+  - `test:next-rentable`, `test:queue-hold-expiry`, `test:stock-date-availability` (now wired), `test:stock-calendar`.
+  - Full DA suite, all except header-guard.
+  - Playwright on the web build: Stock cards and unit list; Console Pending deadline and remove (unpaid → cancel, paid → remove only).
+
 ## 2026-11-17 — PS5-12…15 shown "ว่าง" while booked and with customers
 
 - Commit: DA `81857e7`. Deploy the DA backend. About a minute after start it repairs rows 42–45 itself and sends "🛠️ ซ่อมสูตรสถานะเครื่องใน Inventory" on LINE.
