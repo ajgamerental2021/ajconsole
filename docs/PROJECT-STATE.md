@@ -1,3 +1,15 @@
+## 2026-11-17 — Stock dates still wrong (PS5 29/11, Viture Beast 20/11): one availability rule
+
+- Commit: DA `56cac15`. Deploy the DA backend; no app build needed.
+- **Cause:** Stock had its own fallback over the sheet's Available Date, used on every day after a unit's last booking. Two effects:
+  - Booked units with a blank date (PS5-12…15) became "unknown";
+  - Viture Beast's free-from date was read as busy-until.
+- **Fix:** `stockAvailabilityOn` and `nextRentable` take held ranges from `publicAvailability`. That is the website's queue and the save guard's rule, the only place a fallback now applies (a unit marked out with no booking behind it).
+- **Verified live, 18 models:** Stock earliest = the website calendar's first bookable day (its parser +1s returnDate; rule `start < returnDate && end >= startDate`). 0 mismatches.
+  - PS5 26/11, PS5 Pro 10/01/2027, Xbox Series X 09/12, Meta Quest 3 25/11, Meta Quest 3s 01/12, Viture Beast 19/11; the rest are free today.
+- **Website:** unchanged; no off-by-one, since the parser converts. It can be stricter than DA (cutoff, closures, 30-min holds), never looser.
+- **For the owner to check:** same-day back-to-back bookings, flagged ⚠ on the queue calendar: PS5-6 28/11, PS5-12 23/11, XBOX Series X 23/11.
+
 ## 2026-11-17 — Stock "ว่างเร็วสุด" wrong (PS5 19/11, PS5 Pro 23/11 while booked solid); Console Pending expiry and remove button
 
 - Commit: DA `cfbfa69`.
