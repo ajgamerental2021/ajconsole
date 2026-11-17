@@ -1,3 +1,18 @@
+## 2026-11-17 — Render: "delivery-app-backend exceeded its memory limit" (again)
+
+- Commit: DA `35ccd5a`. Deploy the DA backend; no app build needed.
+- **Cause:**
+  - `readRequestLog` (requestHolds.ts) read the whole request log, `A1:AZ` with every request's booking JSON ever made.
+  - It did so uncached on every public availability (the Bot polls it), `/availability/check`, save guard, Console Pending, and Stock `/availability` + `/next-rentable`.
+  - Today's Stock "ว่างเร็วสุด" added another read on every Stock load.
+- **Fix:**
+  - Read the header plus the narrow columns.
+  - Read the booking JSON per cell, only for rows created in the last 8 days (`REQUEST_LOOKBACK_MS`; every hold window is ≤ 7 d) or restored.
+  - Cancelled codes still come from the whole status column.
+  - One read is shared for 15 s with in-flight dedupe (`forgetRequestLog()`).
+- **Checked:** `test:request-log-narrow` (new); `test:request-holds`; `test:public-availability`; `test:special-rate` (its source assertion now accepts `return`); full DA suite all except header-guard.
+- **After deploy:** watch the `[memory]` lines in the Render log. RSS should stay well under 512 MB.
+
 ## 2026-11-17 — Removing duplicate #675 from Console Pending cancelled #676's Finance line
 
 - Commit: DA `01c7bc2`. Deploy the DA backend. About 90 s after start (and hourly), the reconcile puts Dec row 5 back to ฿1,200 for #676, clears ยกเลิก and the red fill, and sends the "📒" alert.
