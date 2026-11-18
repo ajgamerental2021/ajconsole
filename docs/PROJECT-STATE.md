@@ -1,3 +1,15 @@
+## 2026-11-18 — PS5: website earliest 3/12, queue calendar showed 27/11 free
+
+- Commit: DA `be0db18`. Deploy the DA backend (the calendar then shows the holds as dashed "รอชำระ" bars). A web/app build adds the hold names and the detail note.
+- **Cause:**
+  - The website counts unpaid website requests as holds (since 14/11), via `withExtensionHolds`. `/inventory/calendar` used raw bookings.
+  - Live 18/11: three request holds (PS5-10 27/11–14/12, PS5-13 28/11–05/12, PS5-11 01/12–08/12). Without them PS5-10 was rentable from 27/11. The website applied the rule correctly.
+- **Fix:**
+  - The calendar builds from `withExtensionHolds`. `CalendarRental.pending` is request/extension/change; holds show as kind `unpaid` and are counted in the free/total header. A request has no Booking to open. A change or extension beside its own booking raises no clash alert.
+  - `requestHolds.bookedByCustomer`: a request is dropped when the same phone/LINE has a live booking of the same model on overlapping days.
+- **Owner:** check Console Pending for those three requests; remove any that are already booked or not real.
+- **Checked:** `test:stock-calendar`, `test:request-holds` (+ cases); full DA suite all except header-guard.
+
 ## 2026-11-18 — "Driver is near your delivery point" card: Call driver button
 
 - Commit: DA `252c743`. Deploy the DA backend.
