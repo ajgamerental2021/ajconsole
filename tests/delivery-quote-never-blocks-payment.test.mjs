@@ -19,7 +19,8 @@ test('the fallback is both failure kinds, and explained right above the button i
   const fallback = between('function deliveryQuoteFallback(){', '\n  }');
   assert.match(fallback, /"unavailable"/);
   assert.match(fallback, /"needs_pin"/);
-  assert.match(html, /<div class="demo-payment-launch">\$\{deliveryFallbackHtml\(\)\}<button/);
+  // The 10-minute lock countdown (19/11/2026) sits above it; the fallback stays right above the button.
+  assert.match(html, /<div class="demo-payment-launch">\$\{demoHoldCountdownHtml\(\)\}\$\{deliveryFallbackHtml\(\)\}<button/);
   assert.match(fallback, /"out_of_area"/);
   // Above the button: why, then check again or contact AJ on LINE / WhatsApp.
   assert.match(between('function deliveryFallbackHtml(){', '\n  }'), /deliveryQuoteStatusText\(\)[\s\S]*deliveryQuoteActionsHtml\(/);

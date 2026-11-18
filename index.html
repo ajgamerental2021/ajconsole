@@ -1111,6 +1111,10 @@ body.unified-flow-demo:not(.demo-order-open) #demoOrderPage{display:none!importa
 body.pay-resume-open #payResumeSection{display:block}
 body.pay-resume-open main > section:not(#payResumeSection){display:none!important}
 .pay-resume-title{margin:0 0 14px;font-size:22px}
+body.unified-flow-demo .demo-hold-countdown{margin:0 0 10px;padding:10px 12px;border-radius:10px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:14px;line-height:1.5;font-weight:700}
+body.unified-flow-demo .demo-hold-countdown b{font-variant-numeric:tabular-nums;font-size:16px}
+body.unified-flow-demo .demo-hold-countdown.is-ended{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
+body.unified-flow-demo .demo-hold-countdown.is-idle{background:#f8fafc;border-color:#e2e8f0;color:#334155;font-weight:600}
 body.unified-flow-demo .demo-pay-later-note{margin:10px 0 0;padding:10px 12px;border-radius:10px;background:#f0f9f2;border:1px solid #cfe9d6;color:#14532d;font-size:14px;line-height:1.5}
 body.unified-flow-demo .demo-order-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
 body.unified-flow-demo .demo-order-section{margin-bottom:16px;padding:0}
@@ -7584,7 +7588,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <div>
         <section class="demo-order-section"><h3>${en ? "Identity verification" : "การยืนยันตัวตน"}</h3><div class="demo-order-box"><div class="demo-order-row"><span>${en?"Status":"สถานะ"}</span><b class="demo-status ${identityTone}">${esc(identityState)}</b></div>${identityActionsHtml}</div></section>
         <section class="demo-order-section"><h3>${en ? "Payment" : "การชำระเงิน"}</h3>${demoPaymentBreakdownHtml(summary)}</section>
-        <section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${demoPaymentOptionsHtml()}<div class="demo-payment-launch">${deliveryFallbackHtml()}<button class="btn primary demo-pay-btn" id="demoBeamPay" type="button" ${canPay ? "" : "disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${payLabel}</span></button>${demoPayLaterNoteHtml()}${UNIFIED_FLOW_TEST_CHARGE ? `<p class="hint">${en?"This demo charges ฿1. The payment is still recorded against this Rental ID and follows the existing webhook flow.":"หน้าทดสอบเรียกเก็บ 1 บาท และยังบันทึกผลกับ Rental ID นี้ผ่าน webhook เดิม"}</p>` : ""}</div></section>
+        <section class="demo-order-section"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${demoPaymentOptionsHtml()}<div class="demo-payment-launch">${demoHoldCountdownHtml()}${deliveryFallbackHtml()}<button class="btn primary demo-pay-btn" id="demoBeamPay" type="button" ${canPay ? "" : "disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${payLabel}</span></button>${demoPayLaterNoteHtml()}${UNIFIED_FLOW_TEST_CHARGE ? `<p class="hint">${en?"This demo charges ฿1. The payment is still recorded against this Rental ID and follows the existing webhook flow.":"หน้าทดสอบเรียกเก็บ 1 บาท และยังบันทึกผลกับ Rental ID นี้ผ่าน webhook เดิม"}</p>` : ""}</div></section>
       </div>
     </div>`);
   }
@@ -11312,6 +11316,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       render();
       scrollToDemoOrderTop();
       maybeSendPayLaterEmail();
+      void lockOrderSlot(code);
     }catch(error){
       if(String(error?.message || "") === "booking_availability_refresh_failed"){ showQueueRetryDialog(); return; }
       console.error("Booking preparation failed", error);
@@ -11766,6 +11771,69 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   // confirmation alone. Queued once per Rental ID, after the Console Pending
   // row with the final figures is written (the Bot's copy follows that row).
   const payLaterEmail = {code:"", to:"", sent:false, sending:false};
+  /**
+   * The 10-minute lock (19/11/2026, the owner's rule): the slot is held for
+   * this rental from the moment its order page opens, and Pay holds it again
+   * for 10 minutes while the customer pays. The box above Pay counts down the
+   * lock the Bot actually holds (its expiresAt), so the clock is never the
+   * page's guess. When it ends, Pay checks the slot and holds it again if free.
+   */
+  const demoHoldState = {problem:"", timer:0};
+  function ownCheckoutHold(){
+    const code = String(state.calc.rentalCode || "").trim().toUpperCase();
+    if(!code) return null;
+    const holds = [...(state.availability.holds || []).filter(hold => hold.mine), ...(savedOwnBookingHold() || [])];
+    return holds.filter(hold => String(hold.rentalCode || "").toUpperCase() === code && Date.parse(hold.expiresAt || "") > 0)
+      .sort((a, b) => Date.parse(b.expiresAt) - Date.parse(a.expiresAt))[0] || null;
+  }
+  function demoHoldCountdownState(){
+    const en = state.lang === "en";
+    const hold = ownCheckoutHold();
+    const left = hold ? Math.ceil((Date.parse(hold.expiresAt) - Date.now()) / 1000) : 0;
+    if(hold && left > 0){
+      const clock = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
+      return {tone:"", html: en
+        ? `⏱ This slot is held for you. Please complete payment within <b>${clock}</b> minutes.`
+        : `⏱ ล็อคคิวนี้ไว้ให้คุณแล้ว กรุณาชำระเงินภายใน <b>${clock}</b> นาที`};
+    }
+    if(demoHoldState.problem) return {tone:"is-ended", html:esc(demoHoldState.problem)};
+    if(hold) return {tone:"is-ended", html: en
+      ? "⏱ Your 10-minute hold has ended. Tap Pay to check the slot again and hold it for another 10 minutes if it is still free."
+      : "⏱ หมดเวลาล็อคคิว 10 นาทีแล้ว กด “ชำระเงิน” เพื่อเช็คคิวและล็อคให้ใหม่อีก 10 นาที (ถ้ายังว่าง)"};
+    return {tone:"is-idle", html: en
+      ? "⏱ When you tap Pay, the slot is held for you for 10 minutes while you pay."
+      : "⏱ เมื่อกด “ชำระเงิน” ระบบจะล็อคคิวไว้ให้คุณ 10 นาทีระหว่างชำระเงิน"};
+  }
+  function demoHoldCountdownHtml(){
+    if(activeSpecial()) return "";
+    const view = demoHoldCountdownState();
+    // Drawn on a reload or a pay-later return too: the clock keeps ticking there.
+    if(!demoHoldState.timer) setTimeout(startDemoHoldCountdown, 0);
+    return `<p class="demo-hold-countdown ${view.tone}" id="demoHoldCountdown" role="timer" aria-live="off">${view.html}</p>`;
+  }
+  function tickDemoHoldCountdown(){
+    const box = byId("demoHoldCountdown");
+    if(!box) return;
+    const view = demoHoldCountdownState();
+    if(box.innerHTML !== view.html) box.innerHTML = view.html;
+    box.className = `demo-hold-countdown ${view.tone}`.trim();
+  }
+  function startDemoHoldCountdown(){
+    if(!demoHoldState.timer) demoHoldState.timer = setInterval(tickDemoHoldCountdown, 1000);
+    tickDemoHoldCountdown();
+  }
+  /** Lock the slot as the order page opens: the 10 minutes start now. */
+  async function lockOrderSlot(code){
+    if(activeSpecial() || !code) return;
+    demoHoldState.problem = "";
+    try{
+      await ensureBookingHold(code);
+    }catch(error){
+      demoHoldState.problem = error?.code === "booking_hold_conflict" && error?.message ? error.message
+        : (state.lang === "en" ? "The slot could not be locked just now. Tap Pay to check it again." : "ยังล็อคคิวไม่สำเร็จ กด “ชำระเงิน” เพื่อเช็คคิวอีกครั้ง");
+    }
+    startDemoHoldCountdown();
+  }
   function demoPayLaterNoteHtml(){
     const code = state.calc.rentalCode;
     if(!code || payLaterEmail.code !== code) return "";
@@ -15988,8 +16056,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
     }).join("");
     return `<div class="card"><h3>${en ? "Special rates" : "ราคาพิเศษ"}</h3>
         <p class="hint">${en
-          ? "A private booking page for one customer: the devices you choose, the normal rental plus your surcharge, no discounts, delivery quoted as usual. Each link books once and expires. Units are taken when paid; a customer paying holds one for 30 minutes."
-          : "หน้าจองส่วนตัวสำหรับลูกค้า 1 คน: เฉพาะเครื่องที่เลือก ราคาเช่าปกติ + ยอดที่บวกเพิ่ม ไม่มีส่วนลด ค่าส่งคิดแบบหน้าหลัก ลิงก์ใช้จองได้ครั้งเดียวและหมดอายุตามที่ตั้ง เครื่องจะถูกนับเมื่อชำระเงิน ระหว่างลูกค้ากำลังชำระเงินจะกันเครื่องไว้ให้ 30 นาที"}</p>
+          ? "A private booking page for one customer: the devices you choose, the normal rental plus your surcharge, no discounts, delivery quoted as usual. Each link books once and expires. Units are taken when paid; a customer paying holds one for 10 minutes."
+          : "หน้าจองส่วนตัวสำหรับลูกค้า 1 คน: เฉพาะเครื่องที่เลือก ราคาเช่าปกติ + ยอดที่บวกเพิ่ม ไม่มีส่วนลด ค่าส่งคิดแบบหน้าหลัก ลิงก์ใช้จองได้ครั้งเดียวและหมดอายุตามที่ตั้ง เครื่องจะถูกนับเมื่อชำระเงิน ระหว่างลูกค้ากำลังชำระเงินจะกันเครื่องไว้ให้ 10 นาที"}</p>
         ${last ? `<div class="special-rate-banner"><b>${en ? "New link — send it to the customer" : "ลิงก์ใหม่ — ส่งให้ลูกค้าได้เลย"}</b><code class="sp-url">${esc(last.url)}</code><div>${en ? "Valid until" : "ใช้ได้ถึง"} ${esc(when(last.expiresAt))}</div><div><button class="btn primary" type="button" data-sp-copy="${esc(last.url)}">${en ? "Copy link" : "คัดลอกลิงก์"}</button></div></div>` : ""}
         <div class="sp-actions"><button class="btn" type="button" data-sp-add>${en ? "+ Add campaign" : "+ เพิ่ม campaign"}</button><button class="btn primary" type="button" data-sp-save ${adminSpecial.saving ? "disabled" : ""}>${adminSpecial.saving ? (en ? "Saving…" : "กำลังบันทึก…") : (en ? "Save campaigns" : "บันทึก campaign")}</button><button class="btn" type="button" data-sp-reload>${en ? "Refresh" : "โหลดใหม่"}</button></div>
       </div>
