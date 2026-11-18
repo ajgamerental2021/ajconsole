@@ -1,7 +1,7 @@
 ## 2026-11-19 — 10-minute checkout lock with countdown; Delivery App faster under load
 
 - **Commits:**
-  - Bot `89fa52d`; website `5181408`; DA `3b48c11` plus the next DA commit (cache peek).
+  - Bot `89fa52d`; website `5181408`; DA `3b48c11` and `f0fe4ee` (cache peek).
   - Deploy order: DA, then Bot, then website.
 - **10-minute lock (owner's rule):**
   - **Website:** `lockOrderSlot` locks the slot as the order page opens. The countdown box above Pay (`demoHoldCountdown`, TH/EN, mm:ss) counts down the Bot hold's own `expiresAt`. When it ends, Pay re-checks the slot and locks it again if free.
