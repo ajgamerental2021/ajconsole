@@ -1,3 +1,9 @@
+## 2026-11-18 — "Driver is near your delivery point" card: Call driver button
+
+- Commit: DA `252c743`. Deploy the DA backend.
+- The arrival cards (nearby and arrived) of a delivery trip add a secondary "📞 โทรหาคนขับ / 📞 Call driver" button (`tel:` the driver's number) in the footer, under the pay button and above the automated-message note. There is no button when the number isn't dialable.
+- **Checked:** `test:lalamove-dispatch` 457 (+4); full DA suite all except header-guard.
+
 ## 2026-11-18 — My rental page padlock; active trips by arrival time
 
 - Commit: DA `72aaaee`. Deploy the DA backend. The my-rental page is served by the backend; the app's own re-sort arrives with the next web/app build.
