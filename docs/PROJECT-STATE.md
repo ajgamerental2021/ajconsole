@@ -1,3 +1,15 @@
+## 2026-11-18 — My rental page padlock; active trips by arrival time
+
+- Commit: DA `72aaaee`. Deploy the DA backend. The my-rental page is served by the backend; the app's own re-sort arrives with the next web/app build.
+- **Padlock on คิวเช่าของฉัน (TH/EN):**
+  - Each rental, history included, shows `MyRental.padlocks`: `lockCodesOf(booking.lockCode, bundle partner)` with the Padlock Registry entries.
+  - Each lock shows its code, model and colour, a small photo (same-host `/c/padlock/...`) that opens the full-screen viewer, and the 3 unlock steps when the lock has `steps`.
+  - Words switch live with the page's language toggle; the preview page shows the same.
+- **Active trips:** order changed from km left to soonest arrival.
+  - `tripMinutesLeft` uses the ETA (Lalamove or Google with live traffic), or km left at 25 km/h before pickup (no ETA yet). Ties go to fewer km.
+  - The bar stays each trip's share of its own route, so bars across trips aren't comparable; the minutes are.
+- **Checked:** `test:my-rental-link` 244 (+13, Chromium TH/EN/history, no sideways scroll); `test:trip-live` 31; full DA suite all except header-guard.
+
 ## 2026-11-18 — DA queue "กำลังมีงานที่เรียกรถ": nearest first
 
 - Commit: DA `fbcb481`. Deploy the DA backend; that alone fixes the order. The web app build also sorts on each 20 s refresh (it ships with the next web/app build).
