@@ -1,3 +1,14 @@
+## 2026-11-18 (19:30) — Unpaid web requests hold their unit 30 min only
+
+- Commit: DA `1423008`. Deploy the DA backend; R0051 (PS5-10) and R0084 (PS5-13) release on start.
+- **Why:** the owner still saw both holding with 4–9 h left after the 12 h change.
+- **Rule:**
+  - `REQUEST_WINDOW.ttl` = `REQUEST_HOLD_MS` 30 min, every channel; this is the unit hold.
+  - The Console Pending listing (`pendingTtl`) stays 12 h and holds nothing after 30 min.
+  - A shop pull-back holds 12 h.
+  - The save guard still checks a late booking.
+- **Checked:** `test:request-holds` (+30-min cases); full DA suite all except header-guard.
+
 ## 2026-11-18 — Unpaid web requests: hold at most 12 h (owner's rule)
 
 - Commit: DA `3471820`. Deploy the DA backend (rule + calendar data); the next web/app build shows the release time in the calendar detail.
