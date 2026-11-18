@@ -1,3 +1,15 @@
+## 2026-11-18 — Unpaid web requests: hold at most 12 h (owner's rule)
+
+- Commit: DA `3471820`. Deploy the DA backend (rule + calendar data); the next web/app build shows the release time in the calendar detail.
+- **Rule:**
+  - The website checkout hold stays the Bot's 30 min (`booking-holds.js`).
+  - After submit, Console Pending lists the request and holds its unit for at most 12 h from creation, for every channel (Wise was 7 d), then drops it.
+  - A shop pull-back gives 12 h from the pull-back (was 7 d).
+  - `REQUEST_LOOKBACK_MS` is 2 d.
+- **Calendar:** request holds carry `holdUntil`, shown as "ปล่อยเครื่อง วัน… HH:MM (อีก …)".
+- **Unchanged:** the Bot's slip-to-request matching (7 d) holds no unit; a late payer can still be matched and the shop pulls the request back.
+- **Checked:** request-holds, stock-calendar, console-pending-restore-bank, web-booking-discounts, request-log-narrow; full DA suite all except header-guard.
+
 ## 2026-11-18 — PS5: website earliest 3/12, queue calendar showed 27/11 free
 
 - Commit: DA `be0db18`. Deploy the DA backend (the calendar then shows the holds as dashed "รอชำระ" bars). A web/app build adds the hold names and the detail note.
