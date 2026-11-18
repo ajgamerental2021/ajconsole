@@ -52,3 +52,24 @@ test("an unpaid website request's hold blocks others, never its own checkout (14
   assert.equal(rowAvailableForRange(held, day(21), day(24)), true, 'its own payment step / resume: not in its own way');
   state.calc.rentalCode = '';
 });
+
+// 18/11/2026, as live: R0218 paid and was booked (the queue shows its range
+// with its key) while its 30-minute checkout hold was still on the Bot; R0204
+// could not pay for its own unit because that hold was counted a second time.
+test('a checkout hold for a rental already in the queue is not counted again; nor is its own from another browser', () => {
+  const src = html.slice(html.indexOf('function matchingBookingHolds(c, start, end, includeMine=false){'), html.indexOf('function activeBookingHolds('));
+  const st = { calc: { rentalCode: 'AJ-20261118-R0204' }, availability: { rows: [
+    { deviceName: 'PS5', bookingRanges: [{ startDate: '2026-11-28', returnDate: '2026-12-02', rental: requestKey('AJ-20261118-R0218') }] },
+    { deviceName: 'PS5', bookingRanges: [{ startDate: '2026-11-27', returnDate: '2026-12-05', request: requestKey('AJ-20261118-R0204') }] },
+  ], holds: [] } };
+  const norm = (v) => String(v || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const parseDate = (v) => (v ? new Date(`${v}T00:00:00`) : null);
+  const matching = new Function('state', 'requestKey', 'availabilityAliases', 'norm', 'parseDate', `${src}; return matchingBookingHolds;`)(
+    st, requestKey, () => new Set(['ps5']), norm, parseDate);
+  const later = new Date(Date.now() + 20 * 60_000).toISOString();
+  const hold = (rentalCode) => ({ rentalCode, deviceName: 'PS5', startDate: '2026-11-28', endDate: '2026-12-01', expiresAt: later, mine: false });
+  st.availability.holds = [hold('AJ-20261118-R0218'), hold('AJ-20261118-R0204'), hold('AJ-20261118-R0300')];
+  const counted = matching({}, parseDate('2026-11-27'), parseDate('2026-12-04')).map((h) => h.rentalCode);
+  assert.deepEqual(counted, ['AJ-20261118-R0300'], 'only a rental the queue does not already show');
+  assert.equal(matching({}, parseDate('2026-11-27'), parseDate('2026-12-04'), true).length, 3, 'includeMine lists every hold');
+});

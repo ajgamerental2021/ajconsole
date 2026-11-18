@@ -8971,7 +8971,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           if(!rs || !re) return;
           // Strictly before today's cell: anything ending today has ended.
           if(releaseEnded && today && re <= today) return;
-          bookingRanges.push({startDate:rs, returnDate:addDays(re, 1), status:String(item?.status || ""), request:String(item?.request || "")});
+          bookingRanges.push({startDate:rs, returnDate:addDays(re, 1), status:String(item?.status || ""), request:String(item?.request || ""), rental:String(item?.rental || "")});
         });
       }
       const start = parseDate(pick(row, ["startDate","rentDate","วันที่เริ่มเช่า"]));
@@ -9073,9 +9073,19 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!c || !start || !end) return [];
     const aliases = availabilityAliases(c);
     const now = Date.now();
+    // A checkout hold for a rental the queue already shows (booked, or an unpaid
+    // request holding its unit) is the same rental: counting it again took the
+    // last unit away (18/11/2026: R0218 had just paid and was booked; R0204
+    // could not pay for its own unit). Nor is this rental's own hold from
+    // another browser in its way.
+    const inQueue = new Set(state.availability.rows.filter(row => aliases.has(norm(row.deviceName)))
+      .flatMap(row => (row.bookingRanges || []).map(range => range.request || range.rental).filter(Boolean)));
+    const ownCode = String(state.calc.rentalCode || "").trim().toUpperCase();
     return (state.availability.holds || []).filter(hold => {
       const holdStart = parseDate(hold.startDate), holdEnd = parseDate(hold.endDate);
       const expiresAt = Date.parse(hold.expiresAt || "");
+      const code = String(hold.rentalCode || "").trim().toUpperCase();
+      if(!includeMine && code && (code === ownCode || inQueue.has(requestKey(code)))) return false;
       return (includeMine || !hold.mine) && aliases.has(norm(hold.deviceName)) && holdStart && holdEnd && expiresAt > now && start <= holdEnd && end >= holdStart;
     });
   }
