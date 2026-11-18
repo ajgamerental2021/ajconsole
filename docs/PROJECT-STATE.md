@@ -1,3 +1,25 @@
+## 2026-11-19 — Phase 5.3c: LOGs, AJ Contract and Rental Payments read from Postgres
+
+- **Commits:** Bot `78aa916`; DA `4d6daff` (+ doc `POSTGRES_MIGRATION.md`). **Deploy the Bot first, then the DA.** With the DA first, the Bot's writes would reach the copy only on the 2-min pass.
+- **Design:**
+  - The sheet stays the record and writes still go to the sheet.
+  - `sheet_tab_rows` / `sheet_tab_state` (migration 025) hold a copy of the 3 tabs, kept by `services/sheetTabMirror.ts`.
+  - `config/googleSheets.setSheetMirrorHook` answers `values.get` / `batchGet` from the copy when healthy. Healthy means: a full pass within 10 min, no write in flight, every announced write read back. Otherwise reads go to Google as before.
+  - DA writes mark the tab before they go out and are read back by row (appends by `updatedRange`), one refresh at a time per tab.
+  - The Bot wraps its single Sheets client (`sheet-write-notice.js`) and awaits a signed `POST /api/integrations/aj-rental/sheet-written` (3 s; after a failure, a 60 s breaker stops the waiting).
+  - A full pass every 2 min catches hand edits (`missedSinceBoot`).
+  - `readRangeFresh` (reads a write is built on) never uses the copy.
+- **Flag:** `DATA_SOURCE_LOG_TABS=pg` in `render.yaml`; rollback with `sheets`. Status is on Profile → 🗄️ ฐานข้อมูล (per tab: rows, current or not, last check, failures, hand edits).
+- **perf:sheets** (pg, 350 ms fake Sheets), sheets → pg:
+  - Console Pending: 3405 → 437 ms.
+  - Badge: 2991 → 379 ms.
+  - Booking list after expiry: 1491 → 39 ms.
+  - Quotes are 20/20 in both.
+- **Checked:** `test:sheet-tab-mirror` (8, with real Postgres: range answers identical to Google's for every shape used, ordering under concurrent writes, all fallbacks, the Sheets layer end to end); Bot `sheet-write-notice` (7) and full Bot 883; DA full suite all except header-guard.
+- **Known limits:**
+  - A hand edit in one of these tabs reaches the copy within 2 min (it was 20 s of cache before).
+  - A Bot notice that fails is covered by the same pass.
+
 ## 2026-11-19 — 10-minute checkout lock with countdown; Delivery App faster under load
 
 - **Commits:**
