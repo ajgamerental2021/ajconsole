@@ -1,3 +1,10 @@
+## 2026-11-18 — DA queue "กำลังมีงานที่เรียกรถ": nearest first
+
+- Commit: DA `fbcb481`. Deploy the DA backend; that alone fixes the order. The web app build also sorts on each 20 s refresh (it ships with the next web/app build).
+- **Was:** sorted by the provider's ETA, which jumps, so the list looked unordered.
+- **Now:** sorted by km left to the driver's next stop, `to_pickup` and `to_dropoff` alike. No GPS goes after, still finding a driver goes last, then ETA, then newest. The rule lives in `tripLive.tripOrder` (server) and `tripLiveText.tripOrder`/`tripsByDistance` (app).
+- **Checked:** `test:trip-live` 31 (+5); full DA suite all except header-guard.
+
 ## 2026-11-17 — Render: "delivery-app-backend exceeded its memory limit" (again)
 
 - Commit: DA `35ccd5a`. Deploy the DA backend; no app build needed.
