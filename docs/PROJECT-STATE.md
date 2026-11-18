@@ -1,3 +1,17 @@
+## 2026-11-18 (22:00) — R0204 could not pay for its own unit: double count of checkout holds
+
+- Commits: DA `579fcdb`, Bot `029c9fd` (main), website `0db27a0`. Deploy the DA first, then the Bot and the website (each works alone; the fix needs the DA's `counted`).
+- **Cause:**
+  - R0218 paid and was booked on PS5-13 (28/11–01/12) while its 30-min checkout hold was still in the Bot's memory.
+  - For R0204 (27/11–04/12) the DA counted 1 free unit: PS5-10, R0204's own request hold, skipped.
+  - The Bot then subtracted R0218's hold again, giving 0 free and `queue_full`. The website showed "เปิดหน้าชำระเงินไม่สำเร็จ".
+  - This double count existed since request holds (14/11) whenever the last unit was involved.
+- **Fix:**
+  - DA booking ranges carry `rental: requestKey(rentalId)`; `/availability/check` returns `counted` (keys already taken out of `free`, own excluded).
+  - Bot `bookingHolds.acquire(input, {counted})` skips counted rentals' holds and holds with the candidate's own Rental ID; `requestKey` added to the Bot.
+  - Website `matchingBookingHolds` skips holds whose key is in the model's ranges or whose code is the page's own; `normalizeAvailabilityRows` keeps `rental`.
+- **Checked:** live DA check for R0204 (`free 1`, key `7df0709f` matches the Bot's `requestKey`); Bot 876, website 450, DA full suite all except header-guard.
+
 ## 2026-11-18 (19:30) — Unpaid web requests hold their unit 30 min only
 
 - Commit: DA `1423008`. Deploy the DA backend; R0051 (PS5-10) and R0084 (PS5-13) release on start.
