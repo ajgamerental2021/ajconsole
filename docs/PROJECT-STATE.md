@@ -1,3 +1,27 @@
+## 2026-11-19 — 10-minute checkout lock with countdown; Delivery App faster under load
+
+- **Commits:**
+  - Bot `89fa52d`; website `5181408`; DA `3b48c11` plus the next DA commit (cache peek).
+  - Deploy order: DA, then Bot, then website.
+- **10-minute lock (owner's rule):**
+  - **Website:** `lockOrderSlot` locks the slot as the order page opens. The countdown box above Pay (`demoHoldCountdown`, TH/EN, mm:ss) counts down the Bot hold's own `expiresAt`. When it ends, Pay re-checks the slot and locks it again if free.
+  - **Bot:** `bookingHoldMinutes` is capped at 10 in code; Render's `BOOKING_HOLD_MINUTES` was 30 and `render.yaml` now says 10. `DEFAULT_HOLD_MS` is 10 min and `SPECIAL_HOLD_MS` is 10 min (campaign Wise stays 24 h).
+  - **DA:** `REQUEST_HOLD_MS` is 10 min (the Console Pending listing stays 12 h).
+- **Load measurements:**
+  - Live public availability: about 380 ms alone; 20 at once gave p95 of 1.1–1.5 s, CPU-bound at about 55 ms each on the starter instance.
+  - Causes:
+    - `structuredClone` of the whole booking list on every read: 12 ms, now a per-object copy at 0.45 ms.
+    - The sheet cache's JSON round trip of every response (the response carries functions): 8 ms per 1.2 MB, now row copies at 0.2 ms.
+    - The narrow request-log read added 2 sequential Sheets trips after Console Pending's full LOG read; it now uses the cached LOG via `peekCachedRows`.
+  - `perf:sheets` (pg mode, 20 s TTL), before → after:
+    - Console Pending: 5307 → 3434 ms, CPU 415 → 139 ms.
+    - Reopen: 198 → 52 ms.
+    - Badge: 5144 → 2988 ms, CPU 253 → 55 ms.
+- **Still Sheets-bound:**
+  - Console Pending's big read: LOG, AJ Contract and Rental Payments, about 1 MB and about 3 s on a cold cache.
+  - Moving those to Postgres (rest of Phase 5.3) is the next big win.
+- **Checked:** Bot 876, website 455 (+ `checkout-hold-countdown`), DA full suite (`sheet-tables-pg-sync` passes alone; parallel DB contention).
+
 ## 2026-11-18 (22:00) — R0204 could not pay for its own unit: double count of checkout holds
 
 - Commits: DA `579fcdb`, Bot `029c9fd` (main), website `0db27a0`. Deploy the DA first, then the Bot and the website (each works alone; the fix needs the DA's `counted`).
