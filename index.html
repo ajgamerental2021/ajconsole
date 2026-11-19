@@ -715,6 +715,14 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .faq-q{font-weight:900;margin-bottom:5px}
 .faq-a{font-size:13px;color:var(--text2);white-space:pre-line}
 .faq-action{margin-top:10px}
+.faq-example-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.faq-example-actions .btn{min-height:40px}
+.identity-example-pop{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,23,42,.6)}
+.identity-example-card{background:#fff;border-radius:16px;max-width:440px;width:100%;max-height:calc(100dvh - 32px);overflow:auto;padding:16px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.identity-example-card h3{margin:0 0 6px;font-size:18px}
+.identity-example-card p{margin:0 0 10px;color:#374151;font-size:14px;line-height:1.55}
+.identity-example-card img{display:block;width:100%;height:auto;max-height:60dvh;object-fit:contain;border-radius:10px;background:#f3f4f6}
+.identity-example-card .btn{width:100%;margin-top:12px;justify-content:center}
 .faq-deposit-intro,.faq-deposit-note{font-size:14px;line-height:1.6;color:var(--text2)}
 .faq-deposit-intro{margin:4px 0 14px}
 .faq-deposit-note{margin:14px 0 0}
@@ -2349,6 +2357,18 @@ You may ask to access, correct, object to, restrict or delete your data, or with
     aTh:"ได้ แต่ค่าประกันจะปรับตามรุ่น: PS4, Nintendo Switch 1, XBOX Series S และ PS Portal: ฿2,000 → ฿5,000; รุ่นอื่นที่ค่าประกัน ฿2,000 → ฿10,000; ค่าประกัน ฿4,000 → ฿15,000; Bundle PS5 → ฿15,000 และผู้เช่ายังคงต้องอ่านและยอมรับข้อตกลงการเช่า",
     qEn:"Can I rent without identity verification?",
     aEn:"Yes, but the deposit changes by model: PS4, Nintendo Switch 1, XBOX Series S and PS Portal: ฿2,000 → ฿5,000; other ฿2,000 deposits → ฿10,000; ฿4,000 deposits → ฿15,000; PS5 bundles → ฿15,000. The renter must still read and accept the Rental Terms."
+  };
+  /**
+   * How to verify, with the example photos the identity step itself shows
+   * (19/11/2026): the Thai page shows the Thai ID card, the English page the
+   * passport. Each opens in its own popup, so the FAQ popup stays open behind.
+   */
+  const IDENTITY_HOW_FAQ = {
+    kind:"identity-how",
+    qTh:"ยืนยันตัวตนยังไง?",
+    aTh:"ยืนยันตัวตนบนเว็บในขั้นตอนจอง ใช้รูป 2 รูป\n\n1. รูปบัตรประชาชน (ตัวจริงหรือสำเนา) เขียนข้อความกำกับว่าใช้สำหรับเช่าเครื่องกับ AJ เท่านั้น และเซ็นชื่อกำกับ ไม่ต้องเบลอข้อมูลบนบัตร ถ่ายให้เห็นบัตรครบ 4 ขอบ เลขบัตรและวันหมดอายุอ่านได้ ไม่มีแสงสะท้อน\n2. รูปเซลฟี่ถือบัตรประชาชนใบเดียวกัน ให้เห็นใบหน้าและบัตรชัดในรูปเดียว ไม่ใส่แว่นดำหรือหน้ากาก\n\nถ้าไม่มีบัตรตัวจริงอยู่กับตัว ใช้สำเนาบัตร หรือมือถือที่เปิดรูปบัตรมาถือคู่ถ่ายเซลฟี่ได้\nผู้ยืนยันตัวตนต้องอายุ 20 ปีขึ้นไป ยืนยันแล้วใช้ได้ 1 ปี\n\nกดดูรูปตัวอย่างด้านล่างได้",
+    qEn:"How do I verify my identity?",
+    aEn:"You verify on the website while booking, with 2 photos.\n\n1. Your passport photo page (the original or a copy), with a note written on it saying it is only for renting from AJ, and your signature. Do not blur your details. Keep all four edges in the photo, the passport number and expiry readable, and no glare.\n2. A selfie holding the same passport, with your face and the passport both clear in one photo, no sunglasses or mask.\n\nNo passport with you? A copy, or a phone showing a photo of it, held up in the selfie is fine.\nThe person verifying must be 20 or older. A verification lasts one year.\n\nTap below to see example photos."
   };
   const AGE_FAQ = {
     qTh:"อายุไม่ถึง 20 ปีบริบูรณ์ เช่าได้ไหม?",
@@ -4369,6 +4389,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const contractIndex = safeContractIndex >= 0 ? safeContractIndex : normalized.findIndex(faq => matches(faq, /สัญญา/, /contract|agreement/i));
       normalized.splice(contractIndex >= 0 ? contractIndex + 1 : normalized.length, 0, {...NO_CONTRACT_FAQ});
     }
+    // "How do I verify my identity?" right above "Can I rent without identity verification?".
+    normalized = normalized.filter(faq => faq.kind !== IDENTITY_HOW_FAQ.kind && !matches(faq, /^ยืนยันตัวตนยังไง/, /^How do I verify my identity/i));
+    const noContractIndex = normalized.findIndex(faq => faq.kind === NO_CONTRACT_FAQ.kind);
+    normalized.splice(noContractIndex >= 0 ? noContractIndex : normalized.length, 0, {...IDENTITY_HOW_FAQ});
     const hasRentalChangeFaq = normalized.some(x =>
       x.qTh === RENTAL_CHANGE_FAQ.qTh || x.qEn === RENTAL_CHANGE_FAQ.qEn
     );
@@ -8928,6 +8952,44 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return cost + d * Number(daily||0);
   }
 
+  const IDENTITY_FAQ_EXAMPLES = {
+    th: {
+      id: {file:"id-example-th.png", button:"🖼️ ดูรูปตัวอย่าง: บัตรประชาชน", title:"ตัวอย่างรูปบัตรประชาชน",
+        text:"รูปบัตรประชาชน (ตัวจริงหรือสำเนา) ที่เขียนข้อความกำกับว่าใช้สำหรับเช่าเครื่องกับ AJ ในช่วงวันที่เช่าเท่านั้น และเซ็นชื่อกำกับ เห็นบัตรครบทั้ง 4 ขอบ เลขบัตรและวันหมดอายุอ่านได้ ไม่มีแสงสะท้อน ไม่ต้องเบลอข้อมูลบนบัตรของคุณ (รูปตัวอย่างเบลอไว้เพื่อความเป็นส่วนตัวของเจ้าของรูปเท่านั้น)"},
+      selfie: {file:"selfie-example-th.png", button:"🖼️ ดูรูปตัวอย่าง: เซลฟี่คู่บัตรประชาชน", title:"ตัวอย่างรูปเซลฟี่คู่บัตรประชาชน",
+        text:"ถือบัตรประชาชนใบเดียวกันไว้ข้างใบหน้า ให้เห็นทั้งใบหน้าและบัตรชัดในรูปเดียว ไม่ใส่แว่นดำหรือหน้ากาก ไม่ตัดขอบบัตร (รูปตัวอย่างปิดใบหน้าไว้เพื่อความเป็นส่วนตัวเท่านั้น รูปของคุณต้องเห็นหน้าชัด)"}
+    },
+    en: {
+      id: {file:"id-example-en.png", button:"🖼️ Example: passport photo", title:"Example passport photo",
+        text:"Your passport photo page (the original or a copy) with a note written on it saying it is only for renting from AJ for your rental dates, and your signature. All four edges visible, the passport number and expiry readable, no glare. Do not blur your own details (the example is blurred only to protect its owner's privacy)."},
+      selfie: {file:"selfie-example-en.png", button:"🖼️ Example: selfie with passport", title:"Example selfie with passport",
+        text:"Hold the same passport next to your face, with your face and the passport both clear in one photo. No sunglasses or mask, and the passport not cut off. (The face in the example is hidden only for privacy; yours must be clearly visible.)"}
+    }
+  };
+  function identityFaqExampleButtons(){
+    const set = IDENTITY_FAQ_EXAMPLES[state.lang === "en" ? "en" : "th"];
+    return `<div class="faq-example-actions">${["id","selfie"].map(kind => `<button class="btn soft" type="button" data-identity-faq-example="${kind}">${esc(set[kind].button)}</button>`).join("")}</div>`;
+  }
+  /** One example photo in its own popup, above anything already open, with what it shows and Close. */
+  function showIdentityFaqExample(kind){
+    const en = state.lang === "en";
+    const item = IDENTITY_FAQ_EXAMPLES[en ? "en" : "th"][kind === "selfie" ? "selfie" : "id"];
+    document.querySelector(".identity-example-pop")?.remove();
+    const pop = document.createElement("div");
+    pop.className = "identity-example-pop";
+    pop.setAttribute("role", "dialog");
+    pop.setAttribute("aria-modal", "true");
+    pop.setAttribute("aria-label", item.title);
+    pop.innerHTML = `<div class="identity-example-card"><h3>${esc(item.title)}</h3><p>${esc(item.text)}</p><img src="${esc(new URL(`/assets/${item.file}`, CONFIG.apiBase).toString())}" alt="${esc(item.title)}"><button class="btn primary" type="button" data-identity-example-close>${en ? "Close" : "ปิด"}</button></div>`;
+    const close = () => { pop.remove(); document.removeEventListener("keydown", onKey); };
+    const onKey = event => { if(event.key === "Escape") close(); };
+    pop.addEventListener("click", event => {
+      if(event.target === pop || event.target.closest("[data-identity-example-close]")) close();
+    });
+    document.addEventListener("keydown", onKey);
+    document.body.appendChild(pop);
+    pop.querySelector("[data-identity-example-close]")?.focus();
+  }
   function renderFAQ(){
     const host = byId("faqList");
     host.classList.toggle("collapsed", !state.faqExpanded);
@@ -8941,6 +9003,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         ? "Yes, but the customer pays all delivery costs. Check the delivery fee yourself with the button below."
         : "สามารถเช่าได้ แต่ค่าจัดส่งทั้งหมดลูกค้าเป็นผู้รับผิดชอบเอง กดปุ่มเช็คค่าจัดส่งได้ด้วยตัวเอง") : a;
       const action = f.kind === NO_CONTRACT_FAQ.kind ? `<button class="btn soft faq-action" type="button" data-faq-rental-terms>${esc(tr("rentalTermsRead"))}</button>`
+        : f.kind === IDENTITY_HOW_FAQ.kind ? identityFaqExampleButtons()
         : pattaya ? `<button class="btn card-quote-btn faq-action" type="button" data-faq-quote>${esc(state.lang === "en" ? "Check delivery fee" : "เช็คค่าส่ง")}</button>` : "";
       return `<div class="faq-item"><div class="faq-q">${esc(q)}</div>${f.kind === NO_CONTRACT_FAQ.kind ? pricingFaqMarkup(state.lang) : `<div class="faq-a">${esc(answer)}</div>`}${action}</div>`;
     }).join("");
@@ -14987,6 +15050,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         ? "Yes, but the customer pays all delivery costs. Check the delivery fee yourself with the button below."
         : "สามารถเช่าได้ แต่ค่าจัดส่งทั้งหมดลูกค้าเป็นผู้รับผิดชอบเอง กดปุ่มเช็คค่าจัดส่งได้ด้วยตัวเอง") : a;
       const action = f.kind === NO_CONTRACT_FAQ.kind ? `<button class="btn soft faq-action" type="button" data-faq-rental-terms>${esc(tr("rentalTermsRead"))}</button>`
+        : f.kind === IDENTITY_HOW_FAQ.kind ? identityFaqExampleButtons()
         : pattaya ? `<button class="btn card-quote-btn faq-action" type="button" data-faq-quote>${esc(state.lang === "en" ? "Check delivery fee" : "เช็คค่าส่ง")}</button>` : "";
       return `<div class="faq-item"><div class="faq-q">${esc(q)}</div>${f.kind === NO_CONTRACT_FAQ.kind ? pricingFaqMarkup(state.lang) : `<div class="faq-a">${esc(answer)}</div>`}${action}</div>`;
     }).join("");
@@ -16900,6 +16964,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
         return;
       }
       if(event.target.closest("[data-faq-rental-terms]")){ openRentalTermsReadOnly(); return; }
+      const identityExample = event.target.closest("[data-identity-faq-example]");
+      if(identityExample){ showIdentityFaqExample(identityExample.dataset.identityFaqExample); return; }
       if(event.target.closest("[data-faq-quote]")){ closeModal(); openQuotePopup("faq"); return; }
       if(event.target.closest("[data-line-booking-help]")){ showLineBookingHelp(); return; }
       if(event.target.closest("[data-line-booking-launch]")){ setShareStatus("line", "opened"); return; }

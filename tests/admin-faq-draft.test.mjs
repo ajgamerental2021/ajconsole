@@ -46,7 +46,7 @@ test('the panel redraw keeps drafts, and a sync does not overwrite them', () => 
 
 test('the travel question is always in the FAQ, in Thai and English, once', () => {
   const ctx = vm.createContext({});
-  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'AGE_FAQ'].map(constant).join('\n')
+  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'IDENTITY_HOW_FAQ', 'AGE_FAQ'].map(constant).join('\n')
     + source.slice(source.indexOf('  const DEFAULT_FAQ = ['), source.indexOf('\n  ];', source.indexOf('  const DEFAULT_FAQ = [')) + 5)
     + fn('normalizeFaq') + ';this.normalizeFaq = normalizeFaq; this.TRAVEL_FAQ = TRAVEL_FAQ;', ctx);
   const stored = [
@@ -65,7 +65,7 @@ test('the travel question is always in the FAQ, in Thai and English, once', () =
 
 test('"ต้องโอนจองไหม" is rewritten and "ชำระส่วนที่เหลืออย่างไร" sits right under it (TH/EN)', () => {
   const ctx = vm.createContext({});
-  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'AGE_FAQ'].map(constant).join('\n')
+  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'IDENTITY_HOW_FAQ', 'AGE_FAQ'].map(constant).join('\n')
     + source.slice(source.indexOf('  const DEFAULT_FAQ = ['), source.indexOf('\n  ];', source.indexOf('  const DEFAULT_FAQ = [')) + 5)
     + fn('normalizeFaq') + ';this.normalizeFaq = normalizeFaq;', ctx);
   const stored = [
@@ -88,7 +88,7 @@ test('"ต้องโอนจองไหม" is rewritten and "ชำระ�
 
 test('"คืนค่าประกันเมื่อไหร่" becomes "คืนค่าประกันเมื่อไหร่และอย่างไร?" / "When and how is the deposit returned?", answer kept', () => {
   const ctx = vm.createContext({});
-  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'AGE_FAQ'].map(constant).join('\n')
+  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'IDENTITY_HOW_FAQ', 'AGE_FAQ'].map(constant).join('\n')
     + source.slice(source.indexOf('  const DEFAULT_FAQ = ['), source.indexOf('\n  ];', source.indexOf('  const DEFAULT_FAQ = [')) + 5)
     + fn('normalizeFaq') + ';this.normalizeFaq = normalizeFaq;', ctx);
   const answerEn = 'Once all equipment is returned and inspected, the deposit will be refunded the same day via Thai bank transfer or Wise for international customers.';
@@ -102,4 +102,35 @@ test('"คืนค่าประกันเมื่อไหร่" becomes 
   const again = ctx.normalizeFaq(list).filter((f) => /ประกัน/.test(f.qTh));
   assert.equal(again.length, 1);
   assert.equal(again[0].qEn, 'When and how is the deposit returned?', 'the new title stays as it is');
+});
+
+// 19/11/2026: "How do I verify my identity?" sits right above "Can I rent without
+// identity verification?", with the identity step's own example photos: the Thai
+// ID card on the Thai page, the passport on the English page.
+test('"ยืนยันตัวตนยังไง?" is right above the no-identity question, once, TH/EN with example photos', () => {
+  const ctx = vm.createContext({});
+  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'IDENTITY_HOW_FAQ', 'AGE_FAQ'].map(constant).join('\n')
+    + source.slice(source.indexOf('  const DEFAULT_FAQ = ['), source.indexOf('\n  ];', source.indexOf('  const DEFAULT_FAQ = [')) + 5)
+    + fn('normalizeFaq') + ';this.normalizeFaq = normalizeFaq;', ctx);
+  const list = ctx.normalizeFaq([
+    {qTh: 'ทำสัญญาการเช่าปลอดภัยไหม?', aTh: 'ปลอดภัย', qEn: 'Is the rental agreement safe?', aEn: 'Yes'},
+    {qTh: 'เช่าโดยไม่ยืนยันตัวตนได้ไหม?', aTh: 'เก่า', qEn: 'Can I rent without identity verification?', aEn: 'old'},
+    {qTh: 'ยืนยันตัวตนยังไง?', aTh: 'คำตอบเก่า', qEn: 'How do I verify my identity?', aEn: 'old answer'},
+  ]);
+  const how = list.findIndex((f) => f.kind === 'identity-how');
+  const none = list.findIndex((f) => f.kind === 'noContractTerms');
+  assert.equal(how, none - 1, 'right above');
+  assert.equal(list.filter((f) => f.kind === 'identity-how' || /^ยืนยันตัวตนยังไง/.test(f.qTh)).length, 1, 'once, an older copy replaced');
+  assert.match(list[how].aTh, /บัตรประชาชน/);
+  assert.doesNotMatch(list[how].aTh, /Passport/i);
+  assert.match(list[how].aEn, /passport/);
+  assert.doesNotMatch(list[how].aEn, /ID card/);
+  assert.equal(ctx.normalizeFaq(list).filter((f) => f.kind === 'identity-how').length, 1, 'normalising again adds no second copy');
+  // The photos: the identity step's own, by language, each in its own popup with Close.
+  assert.match(source, /id: \{file:"id-example-th\.png", button:"🖼️ ดูรูปตัวอย่าง: บัตรประชาชน"/);
+  assert.match(source, /selfie: \{file:"selfie-example-th\.png", button:"🖼️ ดูรูปตัวอย่าง: เซลฟี่คู่บัตรประชาชน"/);
+  assert.match(source, /id: \{file:"id-example-en\.png", button:"🖼️ Example: passport photo"/);
+  assert.match(source, /selfie: \{file:"selfie-example-en\.png", button:"🖼️ Example: selfie with passport"/);
+  assert.match(fn('showIdentityFaqExample'), /data-identity-example-close>\$\{en \? "Close" : "ปิด"\}<\/button>/);
+  assert.equal((source.match(/: f\.kind === IDENTITY_HOW_FAQ\.kind \? identityFaqExampleButtons\(\)/g) || []).length, 2, 'on the page and in the FAQ popup');
 });
