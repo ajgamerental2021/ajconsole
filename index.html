@@ -8443,7 +8443,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   async function ensureBookingHold(rentalCode, ctx = calcRentalContext()){
     const initialGate = evaluateAvailability(ctx);
     if(!initialGate.pass){
-      const error = new Error(initialGate.message || "booking_hold_conflict");
+      // The full queue said plainly, with the earliest start (20/11/2026), on every page that holds.
+      const error = new Error(queueFullText(ctx, initialGate) || initialGate.message || "booking_hold_conflict");
       error.code = "booking_hold_conflict";
       throw error;
     }
@@ -8458,7 +8459,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const freshGate = evaluateAvailability(ctx);
     if(!freshGate.pass){
       await releaseBookingHold(rentalCode);
-      const error = new Error(freshGate.message || "booking_hold_conflict");
+      const error = new Error(queueFullText(ctx, freshGate) || freshGate.message || "booking_hold_conflict");
       error.code = "booking_hold_conflict";
       throw error;
     }
@@ -9484,7 +9485,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(holds.length) return {mode:"hold",pass:false,message:holdMessage("bookingHold", holds)};
     const nextReady = matches.map(row => row.availableDate).filter(Boolean).sort((a,b)=>a-b)[0];
     if(nextReady && start < nextReady) return {mode:"busy",pass:false,message:`${tr("readyOn")} ${displayDate(nextReady)}`};
-    const nextReturn = matches.flatMap(row => (row.bookingRanges || []).map(range => range.returnDate).filter(Boolean)).filter(date => date >= start).sort((a,b)=>a-b)[0];
+    // A later date only (20/11/2026): "ready on 02/12" for a rental starting 02/12 contradicted itself.
+    const nextReturn = matches.flatMap(row => (row.bookingRanges || []).map(range => range.returnDate).filter(Boolean)).filter(date => date > start).sort((a,b)=>a-b)[0];
     if(nextReturn) return {mode:"busy",pass:false,message:`${tr("busy")} (${tr("readyOn")} ${displayDate(nextReturn)})`};
     return {mode:"ok",pass:true,message:tr("available")};
   }
@@ -11725,7 +11727,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const checked = await fetchAvailability(true);
     if(!checked?.fresh || state.availability.error || !hasRecentAvailabilitySnapshot()) throw new Error("queue_check_failed");
     const gate = evaluateAvailability();
-    if(!gate.pass) throw Object.assign(new Error(gate.message || "queue_check_failed"), {code:"booking_hold_conflict"});
+    if(!gate.pass) throw Object.assign(new Error(queueFullText(calcRentalContext(), gate) || gate.message || "queue_check_failed"), {code:"booking_hold_conflict"});
     await ensureBookingHold(code, calcRentalContext());
     // The first Console Pending write runs in the background when step 3 ends.
     // Let it finish so this update cannot race with an older snapshot.
