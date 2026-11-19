@@ -1,3 +1,27 @@
+## 2026-11-19 — Device swap mid-rental: price difference, new confirmation card, round-trip ride
+
+- **Commits:** Bot `aad6d82`, then DA `af8a0f6` (migration 028 `device_swaps` runs at start). **Deploy order:** Bot first, then DA. The DA's swap trip needs the Bot's leg `swap`. The app (frontend) ships with the DA web build; a native build is needed for the phone app.
+- **Where:** Booking card → ⋯ เพิ่มเติม → 🔁 เปลี่ยนเครื่อง. Uses `DeviceSwapModal` and `/api/device-swap/:rowIndex/{options,fare,quote,apply}`.
+- **Price** (`deviceSwapService.priceSwap`):
+  - the new model's normal base fee for the rental's dates, with the booking's own discount flags, worked out by `bookingCharges`. In the shop's example, Viture Pro 2 had returning 10% and both reviews, and the old total was ฿2,826 (checked in the test);
+  - plus the new deposit, the old delivery fee (it still covers the return), and the swap trip fee (paid by the customer in full; Lalamove 3-stop quote or typed by staff);
+  - less paid so far: the booking's or the ledger's figure. If neither has one and the device was delivered, it counts as paid in full. Staff can edit it.
+  - The result is the amount to pay, or the amount the shop owes back.
+- **Apply:**
+  - booking: `deviceCode` → a free unit of the new model, the `financialCorrectionJson` (source `device_swap`) price snapshot, and `paidAmount`;
+  - a `device_swaps` row;
+  - the customer's card (`deviceSwapFlex` = `paymentRequestFlex` + title and summary, TH/EN by `languageForBooking`) with a signed payment link for the net and the chosen method (bank, Beam, credit, e-wallet, or Wise for EN). With no LINE linked, the link is returned for the staff to copy;
+  - an entry in the Rental Change Log (action `swap`) and a shop alert.
+- **Ride:**
+  - The swap trip is a queue job on its day: row 8,500,000 + seq, and it only appears on `/api/bookings` today, tomorrow and range, so no reminders are sent for it.
+  - `GuardedBookingRepo` keeps its time, place and done state on `device_swaps` and never writes those rows to the Booking Log.
+  - Dispatch quotes a `deviceSwap` booking with leg `swap`. The Bot quotes it as shop → customer → shop, and the order's recipients are the customer at the middle stop and the shop at the last. Grab is refused.
+  - `taskDoneService` skips the handover time, the usage guide and the delivery cost for swap rows.
+- **Known limits:**
+  - The new unit is held in the queue from the moment the swap is sent, and the old unit is freed at the same moment. Staff should schedule the swap soon.
+  - Not offered for company bookings, PS5 bundles, or cancelled or returned bookings.
+- **Checked:** DA `test:device-swap` 6/6 (real Postgres, with a dispatch harness for the 3-stop quote and order); full DA suite all pass except header-guard (`test:handover-time` and `test:usage-guides` source checks updated); frontend `tsc`. Bot: 3 new tests in `lalamove-dispatch`; full suite 893.
+
 ## 2026-11-19 — LOGs and AJ Contract written to Postgres first (Phase 5.3e); home card "จองคิวเช่า"
 
 - **Commits:**
