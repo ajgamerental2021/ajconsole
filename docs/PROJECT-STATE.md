@@ -1,3 +1,24 @@
+## 2026-11-19 — Pay with a full queue: the reason shown, the customer picks new dates (website `2c6e752`)
+
+- **What happened:**
+  - A customer pressed Pay for AJ-20261119-R0262, PS5 02/12–11/12.
+  - On the booking page they saw only "เปิดหน้าชำระเงินไม่สำเร็จ".
+  - The emailed payment page then said "เครื่องอาจไม่ว่าง (พร้อมวันที่ 02/12)" and sent them to LINE.
+  - Live queue: the only PS5 free around then (PS5-7) is held through 02/12, the other rental's return day. The DA and the website both hold the return day: the website's `normalizeAvailabilityRows` already stores the return day plus one. So 02/12 was really full and 03/12–12/12 was free.
+- **Causes:**
+  1. `launchDemoBeamPayment` had no branch for `booking_hold_conflict`, so the queue refusal fell through to the generic toast.
+  2. `evaluateAvailability`'s `nextReturn` message showed a rental's return date that happened to fall on the start date, which read as "ready on 02/12".
+  3. The payment-link page checked the queue with `state.calc.rentalCode` (the booking page's rental). The customer's own 10-minute request hold could therefore count against them.
+- **Fix:**
+  - `queueFullText`: "{device} คิวเต็มช่วง A – B แล้ว เช่า N วันได้เร็วสุดเริ่ม X (คืน Y)", with EN. A checkout hold by another customer, or a closed queue, keeps its own message.
+  - `earliestFreeStart`: the same number of days, up to 180 days ahead, using `evaluateAvailability`.
+  - Booking page: `showQueueFullPopup` adds a "เลือกวันเช่าใหม่" button (`data-queue-back-to-dates` → step 1) and LINE as a second option. The other failures now say whether the connection dropped, and that no payment was started.
+  - Payment-link page: the popup has "เลือกวันเช่าใหม่" (`data-pay-resume-new-dates` → `openCalendar`) when the editor is ready. The field note points to "แก้ไขข้อมูล" under ช่วงเวลา.
+  - `queueOwnRentalCode` and `withOwnQueueCode(r.rentalCode, …)` wrap the page's queue check and its `ensureBookingHold`.
+- **Checked:**
+  - Website tests 460, including the new `queue-full-message` (3) and a new same-day case for the link's own code.
+  - The popup itself was not opened in a browser here (the local browser check was not permitted).
+
 ## 2026-11-19 — Device swap mid-rental: price difference, new confirmation card, round-trip ride
 
 - **Commits:** Bot `aad6d82`, then DA `af8a0f6` (migration 028 `device_swaps` runs at start). **Deploy order:** Bot first, then DA. The DA's swap trip needs the Bot's leg `swap`. The app (frontend) ships with the DA web build; a native build is needed for the phone app.
