@@ -1,3 +1,26 @@
+## 2026-11-20 — Slow app (memory leak in the Sheets cache, server timing), faster proof photos; full-queue review
+
+- **Commits:** DA `69c89eb`; website `204bca6` (follow-up to `2c6e752`). No Bot change. Deploy the DA and the website, in either order.
+- **Full-queue payment, review:**
+  - Every caller of `ensureBookingHold` now throws `queueFullText`: "full for A – B, earliest start X". The callers are the order page's slot lock and countdown box, the step-3 handoff, the order-page update, and the payment link's save. They used to show `gate.message`, which could read "ready on 02/12" for a 02/12 start.
+  - `nextReturn` in the "ready on" hint must now be after the requested start.
+  - The server side already excludes the asking rental: the Bot passes `rental` to `/availability/check` and `freeUnitsFor` ignores its own request.
+- **Slow app:**
+  - `config/googleSheets` readCache only dropped an entry when its tab was written, so every distinct range stayed for the life of the process. That fits the slow GC near the 384 MB cap and the exit 134 on 05/11.
+  - Fix: `cacheEntry`/`pruneReadCache`, a minute sweep (past max(ttl, STALE_MAX_MS)) and a cap of `SHEET_CACHE_MAX_ENTRIES` 400.
+  - `services/serverHealth.ts`: a request timer (route shapes, 1-hour p95/max, `[slow]` log lines at ≥ 3 s), event-loop delay and memory, shown on the DbHealthCard ("เซิร์ฟเวอร์ · …").
+  - `sheetTabMirror.timedPass`: owned tabs are read whole from Google every 10 min (`SHEET_TAB_OWNED_PASS_MS`); the others stay at 2 min.
+  - **Next:** after deploy, read Profile → 🗄️ ฐานข้อมูล during a slow moment.
+    - High heap or event-loop p99: the server itself. Render starter is 512 MB and 0.5 CPU; consider Standard.
+    - One slow route: fix that route.
+- **Proof photos:**
+  - 1280 px at 0.68 (was 1440 at 0.7);
+  - 5 parallel uploads (was 3);
+  - builds without expo-image-manipulator: quality 0.5. The iOS minimum build 20260823 predates the resizer (1 Nov); such phones send full-size photos;
+  - `[proof] … KB in … ms` per upload in the Render log (Apps Script time).
+  - The Apps Script still does `setSharing` per file; sharing the folder once would save time, but needs a redeploy of the Apps Script.
+- **Checked:** website tests 460; DA full suite all pass except header-guard (`test:server-health` 3 new; `test:my-rental-link` case 541 now uses `soon(2)`: it failed nightly on the UTC vs Bangkok day); tsc on backend and frontend.
+
 ## 2026-11-19 — Pay with a full queue: the reason shown, the customer picks new dates (website `2c6e752`)
 
 - **What happened:**
