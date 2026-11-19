@@ -1,3 +1,20 @@
+## 2026-11-19 — Rental Payments written to Postgres first (Phase 5.3d); FAQ "how do I verify my identity"
+
+- **Commits:** DA `f733d5e` (+ log `719dc0b`); website `41fbdf6` (FAQ). **Deploy order:** Bot `78aa916` (if not yet), then DA `719dc0b`; the website any time.
+- **Rental Payments (owner chose: start with this tab; nobody edits it by hand):**
+  - `DATA_SOURCE_PAYMENTS_WRITE=pg` (needs `DATA_SOURCE_LOG_TABS=pg`), set in `render.yaml`; migration 026 (`sheet_tab_rows.sheet_pending`, `sheet_tab_state.version`).
+  - `config/googleSheets` `invalidating()` asks `hook.ownWrite` first. RAW writes to an owned tab are saved in Postgres, marked `append`/`update`, and answered at once in Google's shape.
+  - A push worker writes the rows to the sheet in order (`writeRangeDirect`), retries, and clears the mark only when the row is still what was sent. Marks survive a restart.
+  - Pass every 2 min: waiting rows are ours; any other difference is taken from the sheet (old instance during a deploy, the sheet's number formatting). An append whose sheet row someone else filled moves to the end (also checked right before each append push).
+  - `version` check: a save from an out-of-date copy (two instances overlapping at deploy) is refused and redone after the other's write.
+  - Postgres down: the write goes to the sheet as before, and reads use the sheet until a pass takes it in. Flag turned off with rows waiting: they are sent first.
+  - `readRangeFresh` answers owned tabs from the copy; the mirror itself reads the sheet via `readRangeDirect`.
+  - Status: Profile → 🗄️ ฐานข้อมูล, Rental Payments line: "รอส่งเข้าชีต N แถว", push failures, rows taken from the sheet.
+  - Rollback: `DATA_SOURCE_PAYMENTS_WRITE=sheets` (check "รอส่งเข้าชีต" is 0 first; leftovers are sent anyway).
+  - Next: LOGs / AJ Contract writes need the Bot to write through the DA.
+- **FAQ (website `41fbdf6`):** "ยืนยันตัวตนยังไง? / How do I verify my identity?" above the no-contract item. Thai uses the Thai example photos and says บัตรประชาชน; English uses the English photos and says passport. Photos open in a popup with a caption and a Close/ปิด button.
+- **Checked:** `test:payments-pg-write` 7/7 (real Postgres included), `test:sheet-tab-mirror` 8/8, DA full suite (171) all pass except header-guard; backend and frontend `tsc`. FAQ checked in Playwright, TH and EN.
+
 ## 2026-11-19 — Phase 5.3c: LOGs, AJ Contract and Rental Payments read from Postgres
 
 - **Commits:** Bot `78aa916`; DA `4d6daff` (+ doc `POSTGRES_MIGRATION.md`). **Deploy the Bot first, then the DA.** With the DA first, the Bot's writes would reach the copy only on the 2-min pass.
