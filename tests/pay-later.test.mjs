@@ -35,7 +35,7 @@ test('opening the payment link checks the queue at once and says so in a pop-up'
   assert.match(html, /const queueReady = await checkPayResumeQueue\(autoCheckout\);/);
   const check = html.slice(html.indexOf('async function checkPayResumeQueue(requireFresh=false)'), html.indexOf('function payResumeContext('));
   assert.match(check, /evaluateAvailability\(ctx\)/);
-  assert.match(check, /showPayResumeQueuePopup\(gate\.message\)/);
+  assert.match(check, /showPayResumeQueuePopup\(await withOwnQueueCode\(r\.rentalCode, \(\) => queueFullText\(ctx, gate\)\)\)/);
   assert.match(html, /คิวช่วงนี้ไม่ว่างแล้ว/);
   assert.match(html, /These dates are no longer available/);
   assert.match(html, /showPayResumeQueuePopup\(error\.message\)/);

@@ -13,7 +13,10 @@ const body = source.slice(0, source.indexOf('\n  }\n') + 4);
 const keySource = html.slice(html.indexOf('function requestKey(code){'), html.indexOf('function rowAvailableForRange(row, start, end){'));
 const state = { calc: { rentalCode: '' } };
 const requestKey = new Function(`${keySource}; return requestKey;`)();
-const rowAvailableForRange = new Function('state', 'requestKey', `${body}; return rowAvailableForRange;`)(state, requestKey);
+// The page's own rental (19/11/2026: the booking page's, or a payment link's while it checks).
+let linkCode = '';
+const ownQueueCode = () => String(linkCode || state.calc.rentalCode || '').trim().toUpperCase();
+const rowAvailableForRange = new Function('state', 'requestKey', 'ownQueueCode', `${body}; return rowAvailableForRange;`)(state, requestKey, ownQueueCode);
 const day = (n) => new Date(2026, 10, n);
 // As normalizeAvailabilityRows stores a booking 21–24/11: returnDate is the day after the return.
 const row = { status: 'available', bookingRanges: [{ startDate: day(21), returnDate: day(25) }] };
@@ -64,12 +67,29 @@ test('a checkout hold for a rental already in the queue is not counted again; no
   ], holds: [] } };
   const norm = (v) => String(v || '').toLowerCase().replace(/\s+/g, ' ').trim();
   const parseDate = (v) => (v ? new Date(`${v}T00:00:00`) : null);
-  const matching = new Function('state', 'requestKey', 'availabilityAliases', 'norm', 'parseDate', `${src}; return matchingBookingHolds;`)(
-    st, requestKey, () => new Set(['ps5']), norm, parseDate);
+  const matching = new Function('state', 'requestKey', 'availabilityAliases', 'norm', 'parseDate', 'ownQueueCode', `${src}; return matchingBookingHolds;`)(
+    st, requestKey, () => new Set(['ps5']), norm, parseDate, () => String(st.calc.rentalCode || '').trim().toUpperCase());
   const later = new Date(Date.now() + 20 * 60_000).toISOString();
   const hold = (rentalCode) => ({ rentalCode, deviceName: 'PS5', startDate: '2026-11-28', endDate: '2026-12-01', expiresAt: later, mine: false });
   st.availability.holds = [hold('AJ-20261118-R0218'), hold('AJ-20261118-R0204'), hold('AJ-20261118-R0300')];
   const counted = matching({}, parseDate('2026-11-27'), parseDate('2026-12-04')).map((h) => h.rentalCode);
   assert.deepEqual(counted, ['AJ-20261118-R0300'], 'only a rental the queue does not already show');
   assert.equal(matching({}, parseDate('2026-11-27'), parseDate('2026-12-04'), true).length, 3, 'includeMine lists every hold');
+});
+
+test('a payment link\'s page counts its own rental as its own, whatever the booking page holds (19/11/2026)', () => {
+  // The customer of AJ-20261119-R0262 opened the emailed link: the booking page
+  // in the same browser was on another rental, so their own request hold took
+  // the last PS5 away from them.
+  state.calc.rentalCode = 'AJ-20261119-R0001';
+  const row = { status: 'Available', bookingRanges: [{ startDate: new Date(2026, 11, 2), returnDate: new Date(2026, 11, 12), request: requestKey('AJ-20261119-R0262') }] };
+  assert.equal(rowAvailableForRange(row, new Date(2026, 11, 2), new Date(2026, 11, 11)), false, 'without the link\'s code: blocked by its own hold');
+  linkCode = 'AJ-20261119-R0262';
+  assert.equal(rowAvailableForRange(row, new Date(2026, 11, 2), new Date(2026, 11, 11)), true, 'with it: its own hold does not count');
+  linkCode = '';
+  state.calc.rentalCode = '';
+  const html2 = html.slice(html.indexOf('async function checkPayResumeQueue('), html.indexOf('function payResumeContext('));
+  assert.match(html2, /withOwnQueueCode\(r\.rentalCode, \(\) => evaluateAvailability\(ctx\)\)/);
+  const launch = html.slice(html.indexOf('async function launchPayResume()'), html.indexOf('async function notifyDemoLine()'));
+  assert.match(launch, /await withOwnQueueCode\(r\.rentalCode, async \(\) => \{[\s\S]*?await ensureBookingHold\(r\.rentalCode, ctx\);/);
 });

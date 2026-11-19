@@ -9147,7 +9147,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     // another browser in its way.
     const inQueue = new Set(state.availability.rows.filter(row => aliases.has(norm(row.deviceName)))
       .flatMap(row => (row.bookingRanges || []).map(range => range.request || range.rental).filter(Boolean)));
-    const ownCode = String(state.calc.rentalCode || "").trim().toUpperCase();
+    const ownCode = ownQueueCode();
     return (state.availability.holds || []).filter(hold => {
       const holdStart = parseDate(hold.startDate), holdEnd = parseDate(hold.endDate);
       const expiresAt = Date.parse(hold.expiresAt || "");
@@ -9157,6 +9157,66 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     });
   }
   function activeBookingHolds(c, start, end){ return matchingBookingHolds(c, start, end, false); }
+  // The rental whose own holds never block it (19/11/2026): the booking page's,
+  // or, while a payment link's page checks and pays, that link's rental. Its
+  // page read the booking page's code before, so a customer's own 10-minute
+  // request hold took the last unit away from them.
+  let queueOwnRentalCode = "";
+  function ownQueueCode(){ return String(queueOwnRentalCode || state.calc.rentalCode || "").trim().toUpperCase(); }
+  async function withOwnQueueCode(code, work){
+    const before = queueOwnRentalCode;
+    queueOwnRentalCode = String(code || "");
+    try{ return await work(); }finally{ queueOwnRentalCode = before; }
+  }
+  /** The first start, from the one asked for, at which the same rental (same number of days) is free. */
+  function earliestFreeStart(ctx){
+    const start = parseDate(ctx.start), end = parseDate(ctx.end);
+    if(!start || !end) return null;
+    const days = Math.max(1, diffDays(start, end));
+    const floor = parseDate(earliestRentalStartIso());
+    let day = floor && start < floor ? floor : start;
+    for(let i = 0; i <= 180; i++, day = addDays(day, 1)){
+      if(evaluateAvailability({...ctx, start:fmtIso(day), end:fmtIso(addDays(day, days))}).pass) return day;
+    }
+    return null;
+  }
+  /**
+   * Why these dates cannot be paid for, in the customer's words: the queue is
+   * full for them, and the earliest the same rental can start (19/11/2026). A
+   * hold by someone paying right now, or a closed queue, says so instead.
+   */
+  function queueFullText(ctx, gate){
+    const en = state.lang === "en";
+    if(gate && ["hold", "closed", "cutoff", "min"].includes(gate.mode) && gate.message) return gate.message;
+    const c = consoleById(ctx.consoleId);
+    const name = c ? cName(c) : (en ? "This console" : "เครื่องนี้");
+    const start = parseDate(ctx.start), end = parseDate(ctx.end);
+    if(!start || !end) return tr("queueFull");
+    const days = diffDays(start, end);
+    const earliest = earliestFreeStart(ctx);
+    const head = en
+      ? `${name} is fully booked for ${displayDate(start)} – ${displayDate(end)}.`
+      : `${name} คิวเต็มช่วง ${displayDate(start)} – ${displayDate(end)} แล้ว`;
+    const next = earliest && earliest.getTime() !== start.getTime()
+      ? (en
+        ? ` The earliest a ${days}-day rental can start is ${displayDate(earliest)} (return ${displayDate(addDays(earliest, days))}).`
+        : ` เช่า ${days} วันได้เร็วสุดเริ่ม ${displayDate(earliest)} (คืน ${displayDate(addDays(earliest, days))})`)
+      : (en ? " Please choose other dates." : " กรุณาเลือกวันอื่น");
+    return head + next;
+  }
+  /** The booking page: Pay found the queue full — say why, and take them back to the dates. */
+  function showQueueFullPopup(ctx, serverMessage){
+    const en = state.lang === "en";
+    const gate = evaluateAvailability(ctx);
+    const text = gate.pass ? (serverMessage || tr("queueFull")) : queueFullText(ctx, gate);
+    const waiting = !gate.pass && gate.mode === "hold";
+    showModal(en ? "These dates are no longer available" : "คิวช่วงนี้ไม่ว่างแล้ว",
+      `<p>${esc(text)}</p><p class="hint">${esc(waiting
+        ? (en ? "No money has been taken. Check again in a few minutes, or choose other dates." : "ยังไม่มีการตัดเงิน เช็คคิวใหม่ในอีกสักครู่ หรือเลือกวันอื่นได้เลย")
+        : (en ? "No money has been taken. Choose new dates and pay again." : "ยังไม่มีการตัดเงิน เลือกวันเช่าใหม่แล้วกดชำระเงินอีกครั้งได้เลย"))}</p>`
+      + `<div class="queue-retry-actions"><button class="btn primary" type="button" data-queue-back-to-dates>${esc(en ? "Choose new dates" : "เลือกวันเช่าใหม่")}</button>`
+      + `<a class="btn" href="${esc(CONFIG.lineOaMessageUrl || "https://line.me/R/ti/p/@ajgame")}" target="_blank" rel="noopener">${esc(en ? "Ask AJ on LINE" : "ทักร้านทาง LINE")}</a></div>`);
+  }
   function availableUnitsForRange(matches, start, end){
     return matches.filter(row => rowAvailableForRange(row, start, end)).length;
   }
@@ -9196,7 +9256,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function rowAvailableForRange(row, start, end){
     if(!row || /end|เลิก|ปิด/i.test(String(row.status || ""))) return false;
     if(row.availableDate && start < row.availableDate) return false;
-    const own = state.calc.rentalCode ? requestKey(state.calc.rentalCode) : "";
+    const own = ownQueueCode() ? requestKey(ownQueueCode()) : "";
     // A rental holds its unit through its return day: the next one may start
     // the day after, never the day it comes back (12/11/2026). So a new
     // rental's own return day must not be another's start day either. The
@@ -11809,6 +11869,16 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         showRentalChangedPopup(() => launchDemoBeamPayment());
         return;
       }
+      // 19/11/2026: a full queue fell through to "Unable to open the payment
+      // page" and the customer was never told the dates were gone.
+      if(error?.code === "booking_hold_conflict"){
+        showQueueFullPopup(calcRentalContext(), error.message);
+        return;
+      }
+      if(error?.message === "booking_availability_refresh_failed"){
+        toast(state.lang === "en" ? "The queue could not be checked just now. No payment was started. Please try again." : "เช็คคิวไม่สำเร็จ ยังไม่ได้เริ่มชำระเงิน กรุณากดชำระอีกครั้ง", 5000);
+        return;
+      }
       if(error?.code === "start_date_passed"){
         if(showStartPassedPopup("order", calcRentalContext(), error.result?.earliestStart)) return;
       }
@@ -11824,7 +11894,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         ? (state.lang === "en" ? "Your changes could not be saved yet. No payment was started. Please try Pay now again." : "ยังบันทึกการแก้ไขไม่สำเร็จ ระบบยังไม่เริ่มชำระเงิน กรุณากดชำระอีกครั้ง")
         : error?.code === "console_pending_submission_failed"
         ? (state.lang === "en" ? "We could not save your rental for the shop. No payment was started. Please try again." : "บันทึกรายการให้ร้านไม่สำเร็จ ยังไม่ได้เริ่มชำระเงิน กรุณาลองอีกครั้ง")
-        : (state.lang === "en" ? "Unable to open the payment page. Please try again." : "เปิดหน้าชำระเงินไม่สำเร็จ กรุณาลองใหม่"));
+        : /timeout|abort|network|failed to fetch|load failed/i.test(String(error?.name || "") + " " + String(error?.message || ""))
+        ? (state.lang === "en" ? "The connection dropped before the payment page opened. No payment was started. Please try again." : "การเชื่อมต่อขัดข้องก่อนเปิดหน้าชำระเงิน ยังไม่ได้เริ่มชำระเงิน กรุณาลองอีกครั้ง")
+        : (state.lang === "en" ? "Unable to open the payment page. No payment was started. Please try again." : "เปิดหน้าชำระเงินไม่สำเร็จ ยังไม่ได้เริ่มชำระเงิน กรุณาลองใหม่"), 5000);
     }
   }
   // The pay-later email: once the renter confirms step 3 and the order page has
@@ -12082,7 +12154,15 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const en = state.lang === "en";
     payResume.queueBlocked = message || (en ? "These dates are no longer available." : "คิวช่วงวันที่นี้ไม่ว่างแล้ว");
     renderPayResume();
-    showModal(en ? "These dates are no longer available" : "คิวช่วงนี้ไม่ว่างแล้ว", `<p>${esc(payResume.queueBlocked)}</p><p class="hint">${esc(en ? "This rental can no longer be paid for these dates. Please contact AJ on LINE @ajgame to choose new dates." : "รายการนี้ไม่สามารถชำระเงินสำหรับวันที่เดิมได้แล้ว กรุณาติดต่อร้านทาง LINE @ajgame เพื่อเลือกวันใหม่")}</p><div class="queue-retry-actions"><a class="btn primary" href="https://line.me/R/ti/p/@ajgame" target="_blank" rel="noopener">${esc(en ? "Contact AJ on LINE" : "ติดต่อร้านทาง LINE")}</a></div>`);
+    // 19/11/2026: the customer changes the dates here and pays, rather than
+    // being sent to LINE for it.
+    const canChange = payResume.editorReady && !payResume.rental?.paid;
+    showModal(en ? "These dates are no longer available" : "คิวช่วงนี้ไม่ว่างแล้ว",
+      `<p>${esc(payResume.queueBlocked)}</p><p class="hint">${esc(canChange
+        ? (en ? "No money has been taken. Choose new dates below and pay for them straight away." : "ยังไม่มีการตัดเงิน เลือกวันเช่าใหม่ได้เองเลย แล้วชำระเงินต่อได้ทันที")
+        : (en ? "This rental can no longer be paid for these dates. Please message AJ on LINE @ajgame to choose new dates." : "รายการนี้ชำระเงินสำหรับวันที่เดิมไม่ได้แล้ว กรุณาทักร้านทาง LINE @ajgame เพื่อเลือกวันใหม่"))}</p>`
+      + `<div class="queue-retry-actions">${canChange ? `<button class="btn primary" type="button" data-pay-resume-new-dates>${esc(en ? "Choose new dates" : "เลือกวันเช่าใหม่")}</button>` : ""}`
+      + `<a class="btn${canChange ? "" : " primary"}" href="https://line.me/R/ti/p/@ajgame" target="_blank" rel="noopener">${esc(en ? "Message AJ on LINE" : "ทักร้านทาง LINE")}</a></div>`);
   }
   async function checkPayResumeQueue(requireFresh=false){
     const r = payResume.rental;
@@ -12101,11 +12181,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       toast(state.lang === "en" ? "The queue could not be checked. Please try again." : "เช็คคิวไม่สำเร็จ กรุณาลองอีกครั้ง", 4500);
       return false;
     }
-    const gate = evaluateAvailability(ctx);
+    const gate = await withOwnQueueCode(r.rentalCode, () => evaluateAvailability(ctx));
     // A start that has gone by is offered a new date when Pay is pressed, not
     // turned away as a full queue.
     if(!gate.pass && gate.mode === "cutoff") return true;
-    if(!gate.pass){ showPayResumeQueuePopup(gate.message); return false; }
+    if(!gate.pass){ showPayResumeQueuePopup(await withOwnQueueCode(r.rentalCode, () => queueFullText(ctx, gate))); return false; }
     return true;
   }
   function payResumeContext(rental){
@@ -12362,7 +12442,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
           ${paidRows.length ? `<div class="demo-total-group">${paidRows.join("")}</div>` : ""}
         </div></section>
         ${individualRateNoticeHtml()}
-        ${canPay ? `<section class="demo-order-section" id="payResumePayment"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${paymentPickerHtml({selected:payResume.method, amountHtml:payResumeAmountHtml, choiceAttr:"data-pay-resume-choice", inputName:"payResumeChoice", allowWise:en && !!r.plan?.methods?.wise, deliveryReady:true})}<div class="demo-payment-launch">${payResume.queueBlocked ? `<p class="field-error" role="alert">${esc(payResume.queueBlocked)} ${esc(en ? "Please contact AJ on LINE @ajgame." : "กรุณาติดต่อร้านทาง LINE @ajgame")}</p>` : ""}<button class="btn primary demo-pay-btn" id="payResumePay" type="button" ${payResume.queueBlocked ? "disabled" : ""}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${en ? "Pay now" : "ชำระเงิน"}</span></button></div></section>`
+        ${canPay ? `<section class="demo-order-section" id="payResumePayment"><h3>${en ? "Choose payment method" : "เลือกช่องทางชำระเงิน"}</h3>${paymentPickerHtml({selected:payResume.method, amountHtml:payResumeAmountHtml, choiceAttr:"data-pay-resume-choice", inputName:"payResumeChoice", allowWise:en && !!r.plan?.methods?.wise, deliveryReady:true})}<div class="demo-payment-launch">${payResume.queueBlocked ? `<p class="field-error" role="alert">${esc(payResume.queueBlocked)} ${esc(payResume.editorReady
+  ? (en ? "Use Edit details under Rental period to choose new dates." : "กด \"แก้ไขข้อมูล\" ที่หัวข้อช่วงเวลาเพื่อเลือกวันเช่าใหม่")
+  : (en ? "Please message AJ on LINE @ajgame." : "กรุณาทักร้านทาง LINE @ajgame"))}</p>` : ""}<button class="btn primary demo-pay-btn" id="payResumePay" type="button" ${payResume.queueBlocked ? "disabled" : ""}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>${en ? "Pay now" : "ชำระเงิน"}</span></button></div></section>`
           : r.paid ? `<p class="hint">${esc(en ? "This rental has been paid. Thank you." : "รายการนี้ชำระเงินเรียบร้อยแล้ว ขอบคุณที่ใช้บริการ")}</p>` : ""}
       </div>
     </div>`;
@@ -12509,9 +12591,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(!ctx.consoleId || !ctx.start || !ctx.end) throw new Error("queue_check_failed");
       const verifiedQueue = await fetchAvailability(true);
       if(!verifiedQueue?.fresh || state.availability.error || !hasRecentAvailabilitySnapshot()) throw new Error("queue_check_failed");
-      const gate = evaluateAvailability(ctx);
-      if(!gate.pass) throw Object.assign(new Error(gate.message), {code:"booking_hold_conflict"});
-      await ensureBookingHold(r.rentalCode, ctx);
+      await withOwnQueueCode(r.rentalCode, async () => {
+        const gate = evaluateAvailability(ctx);
+        if(!gate.pass) throw Object.assign(new Error(queueFullText(ctx, gate)), {code:"booking_hold_conflict"});
+        await ensureBookingHold(r.rentalCode, ctx);
+      });
       if(payResume.method === "wise"){
         if(!en || !wisePaymentAvailability().available) throw Object.assign(new Error("wise_unavailable"), {code:"wise_unavailable"});
         const response = await bookingFetch(`${CONFIG.apiBase}/api/rentals/payment-page/wise`, {
@@ -17727,6 +17811,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         else await launchDemoBeamPayment();
         return;
       }
+      if(event.target.closest("[data-pay-resume-new-dates]")){ closeModal(); openCalendar("start", {fromOrder:true}); return; }
       const payResumeEdit = event.target.closest("[data-pay-resume-edit]");
       if(payResumeEdit){
         const kind = payResumeEdit.dataset.payResumeEdit;
