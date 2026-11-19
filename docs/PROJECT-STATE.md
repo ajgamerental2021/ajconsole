@@ -1,3 +1,36 @@
+## 2026-11-19 — LOGs and AJ Contract written to Postgres first (Phase 5.3e); home card "จองคิวเช่า"
+
+- **Commits:**
+  - Bot `958a5a0`.
+  - DA `96e646d`. It also fixes Rental Payments (5.3d, `f733d5e`): only the written cells are sent, and the grid grows when a write passes its last row.
+  - Website `4ab8f0e`.
+- **Deploy order:**
+  1. Bot `958a5a0`. Until the DA is deployed it gets 404 from the new route and keeps using Google.
+  2. DA `96e646d` (migrations 026 and 027 run at start).
+  3. Website any time.
+  - With the DA first and the old Bot still running, the old Bot's direct writes make the DA re-read the tab after each one. Correct, but slower.
+- **How it works:**
+  - `DATA_SOURCE_LOGS_WRITE=pg` (needs `DATA_SOURCE_LOG_TABS=pg`) is in `render.yaml`.
+  - The Bot wraps its Sheets client (`sheet-proxy.js`, outside `sheet-write-notice.js`). Values calls on `Line / WhatsApp LOGs` and `AJ Contract`, and deleting an AJ Contract row, go to the signed `POST /api/integrations/aj-rental/sheets`.
+  - The DA runs them through its own client: reads come from the copy, writes go through `ownWrite`.
+  - The route answers 409 `not_owned` when the DA does not own the tab. The Bot then uses Google for a minute.
+  - A failed read falls back to Google. A write falls back only if it never reached the DA (ECONNREFUSED and the like). Otherwise it throws, so nothing lands twice.
+- **Owned writes are cell-level (migration 027, `sheet_pending_cells`):**
+  - Each waiting cell keeps its mode (RAW or USER_ENTERED) and its input. The Bot's `asSheetText` leading `'` is kept for the sheet and dropped in the copy.
+  - The push sends only those cells: `values.batchUpdate` with `includeValuesInResponse`, then copies what the sheet shows (number formatting, formula results) back into the copy.
+  - Formula columns are never overwritten.
+  - `appendDimension` runs first when a write lands past the end of the grid. Before this, a push past row 1000 would have failed.
+  - Append collisions use `looselySame` (formatting-tolerant, otherwise strict).
+  - `deleteRows` waits for waiting cells to be sent, deletes the rows in the sheet, then shifts the copy.
+- **Website:** the main red card says "จองคิวเช่า" / "Book Now". The white badge was "จองคิวเลย" / "BOOK NOW", which repeated the title; it is now "เริ่มที่นี่" / "START HERE".
+- **Checked:**
+  - DA: `test:logs-pg-write` 5/5 (includes the route over HTTP with the signature) and `test:payments-pg-write` 7/7; full suite 172, all pass except header-guard; `tsc` on backend and frontend.
+  - Bot: `sheet-proxy` 7 new tests; 890 in total.
+  - Website: 456 tests; checked TH and EN in Playwright.
+- **Rollback:**
+  - `DATA_SOURCE_LOGS_WRITE=sheets` on the DA. Waiting rows are sent first, and the Bot falls back on 409 by itself.
+  - Or roll the Bot back alone: the DA then sees the old Bot's direct writes and re-reads the tab.
+
 ## 2026-11-19 — Rental Payments written to Postgres first (Phase 5.3d); FAQ "how do I verify my identity"
 
 - **Commits:** DA `f733d5e` (+ log `719dc0b`); website `41fbdf6` (FAQ). **Deploy order:** Bot `78aa916` (if not yet), then DA `719dc0b`; the website any time.
