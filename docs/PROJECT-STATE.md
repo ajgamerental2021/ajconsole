@@ -1,3 +1,16 @@
+## 2026-11-20 — Confirmation email layout, swap trip back to the shop, days on the shop card, customer email on the Booking card (Bot `df09708`, DA `97adb33`)
+
+- **Deploy:** Bot `df09708` first, then DA `97adb33`. Without the Bot, stops carry no `delivered` flag and the swap trip never switches to the return leg.
+- **Email:** the rental-confirmation table now splits label 40% / value 60% with `table-layout:fixed`, and labels wrap. The campaign row spans the full width. A long special-rate label squeezed every value.
+- **Swap trip:**
+  - The Bot's `summariseOrder` reports `stops[].delivered`.
+  - The DA sets `job.swapReturning` when the middle stop is delivered. ETA, staff map and tripLive (`to_shop`) then head to the shop.
+  - The customer's near/arrival cards are skipped, and the public track page shows "arrived".
+  - Auto-close stays at COMPLETED (back at the shop) → `completeSwap`.
+- **Shop booking card:** "จำนวนวันเช่า" (booking days, else the date span).
+- **Booking card:** `GET /api/bookings/:rowIndex/customer-email` (the request log's `ข้อมูลจอง.email`, else the profile email) feeds `CustomerEmailLine`; tap to copy. It loads only when details are opened.
+- **Checked:** DA full suite passes except header-guard; `test:device-swap` 12; Bot 899.
+
 ## 2026-11-20 — LOCKED unit leaked to a customer date change (fixed); swap trip hand-over wording (DA `f6a6bbe`)
 
 - **Deploy:** DA `f6a6bbe`, after website `85f361e`, Bot `4b4aa82` and DA `740532e`. No Bot or website change in this one.
