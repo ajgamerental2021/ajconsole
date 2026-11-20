@@ -1,3 +1,18 @@
+## 2026-11-20 — Device swap to another unit of the same model: photos, unit choice, new padlock (DA `f365135`)
+
+- **Commit:** DA `f365135` (migration 029 runs on start). No Bot or website change. Deploy the DA only.
+- **What it does:**
+  - Booking → ⋯ → 🔁 เปลี่ยนเครื่อง now lists the customer's own model first ("เครื่องใหม่รุ่นเดิม"), every model with the units free for the whole rental, and lets the staff pick the unit.
+  - Same model: the booking's charges are kept exactly. Only the trip is added, and only when the customer pays it. "ร้านออกค่ารถ" works for both kinds; it is the default for the same model.
+  - Optional new padlock code. The swap job in the queue shows it, and the delivery card uses it.
+  - When the swap job is done (by hand or Lalamove auto-close), `completeSwap` moves the booking to the new unit and the new padlock, once (`applied_at`). A clash is refused with the reason.
+  - Until then `swapHoldRows`, through `withExtensionHolds`, holds the unit the booking does not carry yet, so the calendar and the website see it:
+    - same model: the new unit, for the whole rental;
+    - model swap: the old unit, until the swap day.
+  - Swap-job photos are stored as `swap.<swapId>-…`. The swap job sees only its own photos, as delivery photos; the rental's own lists leave them out.
+  - Edit the unit and padlock of an open swap from the modal or from the queue card button. A same-model swap with nothing charged can be cancelled. One open swap per booking.
+- **Checked:** `test:device-swap` 10 (4 new, with real Postgres); DA full suite all pass except header-guard (sheet-tables-pg-sync only failed in parallel on the migration race; passes alone).
+
 ## 2026-11-20 — Slow app (memory leak in the Sheets cache, server timing), faster proof photos; full-queue review
 
 - **Commits:** DA `69c89eb`; website `204bca6` (follow-up to `2c6e752`). No Bot change. Deploy the DA and the website, in either order.
