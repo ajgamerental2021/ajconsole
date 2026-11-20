@@ -1,3 +1,11 @@
+## 2026-11-20 — Locked units selectable by the shop in the Booking form (DA `0d1954a`)
+
+- **Cause:** `groupInventoryUnits` (sheet) and `pgInventoryRepo.groupUnits` sorted units into active and END only. LOCKED units went to neither, so the Booking device picker (fed by the grouped inventory) never listed PS5-16/PS5-17.
+- **Fix:** groups carry `lockedUnits`, which are kept out of `activeUnits`/`totalUnits`. `BookingLogScreen` lists them with a 🔒 label ("ร้านเลือกได้ ลูกค้าจองเองไม่ได้").
+- **Customers unchanged:** the website calendar (`publicAvailability` holds locked units), My rental date change/extension (`startDayOptions`, `findUnitForDates`), and website/LINE requests (`unitForNewBooking`, `detectDeviceCode`) still never pick a locked unit.
+- **Deploy:** DA only.
+- **Checked:** DA full suite passes except header-guard. Seven DB tests had failed only because Postgres stopped mid-run; they pass when rerun.
+
 ## 2026-11-20 — Confirmation email layout, swap trip back to the shop, days on the shop card, customer email on the Booking card (Bot `df09708`, DA `97adb33`)
 
 - **Deploy:** Bot `df09708` first, then DA `97adb33`. Without the Bot, stops carry no `delivered` flag and the swap trip never switches to the return leg.
