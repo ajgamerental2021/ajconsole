@@ -1,3 +1,23 @@
+## 2026-11-20 — LOCKED unit leaked to a customer date change (fixed); swap trip hand-over wording (DA `f6a6bbe`)
+
+- **Deploy:** DA `f6a6bbe`, after website `85f361e`, Bot `4b4aa82` and DA `740532e`. No Bot or website change in this one.
+- **Incident:**
+  - PS5-16 was LOCKED, yet AJ-20261120-R0064's date change (28/11–05/12) was moved onto it.
+  - Cause: `findUnitForDates` looked for another unit of the same model and skipped only END units, not LOCKED ones.
+  - The website calendar was already correct (`publicAvailability`).
+  - **R0064 is still on PS5-16.** The shop must move it by hand.
+- **Fix:**
+  - `isLocked`/`offerable` in `bookingExtrasService`, used by `findUnitForDates`, `unitForNewBooking` and `startDayOptions`, and in `consolePendingService.detectDeviceCode`.
+  - A customer's own unit is not used either once it is locked.
+  - Staff paths opt in with `allowLocked`: the Booking save `unitClash`, queue-resume and `agentTools`. Even there, no automatic switch onto a locked unit.
+- **Not covered:**
+  - Extending a rental that already sits on a unit locked later (the unit is with the customer).
+  - The Apps Script availability fallback, used when the DA is down.
+- **Swap trip:**
+  - The delivery cards (requested, driver, picked up, near) carry "🔁 งานเปลี่ยนเครื่อง" in TH/EN: have the current device ready and hand it to the driver.
+  - The driver's note says to bring it back to the shop.
+- **Checked:** DA full suite passes except header-guard; `test:console-pending-unit-by-dates` 6; `test:device-swap` 12.
+
 ## 2026-11-20 — PS5 Pro guide, PS5 placement picture after the guide card, clearer swap card/email (website `85f361e`, Bot `4b4aa82`, DA `740532e`)
 
 - **Deploy order:**
