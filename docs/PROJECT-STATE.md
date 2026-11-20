@@ -1,3 +1,26 @@
+## 2026-11-20 — Swap email and My rental history; swap modal fix; Inventory LOCKED (Bot `065104b`, DA `cc61b77`)
+
+- **Deploy:** Bot `065104b` first (new endpoint `/api/integrations/delivery-app/device-swap-email`), then DA `cc61b77`. No website change.
+- **Swap email:**
+  - `applySwap` asks the Bot to email the renter: the card's lines in their language, the amount and its payment link, the new padlock code, and the My rental link.
+  - Once per swap (durable key). The address comes from the booking record; the profile email is used only when the record has none.
+  - The result and the shop alert say whether the email went.
+- **My rental:** each rental card (active and past) has "🔁 ประวัติการเปลี่ยนเครื่อง / Device changes":
+  - each swap's title, day, trip (or "paid by AJ"), extra or refund, new padlock and status, in TH/EN;
+  - a "📷 photos" link when the swap job has photos;
+  - model names only, never shelf codes; cancelled swaps are not shown.
+- **Swap modal bug (owner's video):**
+  - Picking a model was undone at once: `load` depended on the parent's inline `onClose`, so every re-render of the Booking screen re-ran the reset effect.
+  - Fix: `onClose` is now kept in a ref.
+- **Inventory status:**
+  - Available, Rented and Booked are the sheet's formula, so choosing them was never saved; only END was.
+  - New status **LOCKED**: `publicAvailability` holds the unit for the next 365 days for customers (website and Bot `/check`). The shop view (Stock, `{ shop: true }`) counts its bookings only, and booking or swapping onto it still works.
+  - The app offers อัตโนมัติ (clears a hand-set status, the formula returns) / 🔒 LOCKED / END.
+- **Checked:**
+  - DA full suite: all pass except header-guard;
+  - `test:device-swap` 11; `test:my-rental-link` 245; `test:public-availability` (locked case);
+  - Bot 897 (`device-swap-email` 4 new).
+
 ## 2026-11-20 — Device swap to another unit of the same model: photos, unit choice, new padlock (DA `f365135`)
 
 - **Commit:** DA `f365135` (migration 029 runs on start). No Bot or website change. Deploy the DA only.
