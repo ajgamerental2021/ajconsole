@@ -1,3 +1,26 @@
+## 2026-11-20 — PS5 Pro guide, PS5 placement picture after the guide card, clearer swap card/email (website `85f361e`, Bot `4b4aa82`, DA `740532e`)
+
+- **Deploy order:**
+  1. Website `85f361e`, which hosts `assets/usage-guides/ps5-placement.jpg` and its preview.
+  2. Bot `4b4aa82`.
+  3. DA `740532e`.
+- **Usage guides:**
+  - `followImages` per guide: LINE image messages sent right after the card, in the same push, once the device is delivered.
+  - Sent once per rental (`usage-guide-images:` marker).
+  - If staff sent the card earlier, closing the delivery sends only the pictures.
+  - New default guide `ps5-pro`. PS5 Pro used to match the PS5 guide; the `ps5p` match word catches codes like PS5P-1.
+  - Saved settings are seeded once (`seeded`), so a removal by the shop sticks.
+  - Thai, English and company renters alike: the image is bilingual and the recipient comes from `lineUserIdForBooking`.
+- **Swap card/email:**
+  - In one sentence: what happens, when, the padlock, the cost (or "no extra charge"), and what to have ready.
+  - The email has no emoji.
+  - Bot `sendCustomerEmail` now turns non-BMP characters in the HTML into references; emoji had arrived as "?" in Gmail through the Apps Script.
+- **Swap trip dispatch (owner's question):** one Lalamove order, shop → customer → shop. Grab is refused.
+- **Checked:**
+  - DA full suite passes except header-guard (sheet-tables-pg-sync failed only in parallel; passes alone);
+  - `test:usage-guides` 11; `test:device-swap` 11;
+  - Bot 898.
+
 ## 2026-11-20 — Swap email and My rental history; swap modal fix; Inventory LOCKED (Bot `065104b`, DA `cc61b77`)
 
 - **Deploy:** Bot `065104b` first (new endpoint `/api/integrations/delivery-app/device-swap-email`), then DA `cc61b77`. No website change.
