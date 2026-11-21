@@ -1,3 +1,19 @@
+## 2026-11-21 — Calendar showed free days that were not (website `de846c7`, Bot `e48f60c`, DA `788839b`)
+
+- **Symptom:** the PS5 calendar showed every day "ว่าง". A moment later the same days showed "ไม่ว่าง".
+- **Cause:** when the Bot is slow (the website hedges after 6 s) or the delivery app fails (inside the Bot), the queue comes from the sheet's Apps Script. That copy lists a LOCKED unit (PS5-7, -16, -17) as a bare status with no bookings, and the website rule only rejected END, so locked units read as free every day. The real queue then replaced it.
+- **Website:**
+  - `rowAvailableForRange` rejects `/lock|ล็อค/`.
+  - A sheet payload (`_ajSource` `sheet`, or `apps-script` from the Bot) is never cached to localStorage.
+  - The Bot is asked again up to 4 times (4 s, 8 s, 12 s, 16 s).
+- **Bot:**
+  - `holdLockedRows` holds the sheet's LOCKED rows from today for a year.
+  - A calendar read when the app fails keeps the app's recent answer (`_ajKept`, at most 15 min old) instead of overwriting the cache with the sheet's.
+  - `requireFresh` (the final check before payment) never takes the kept answer.
+- **DA:** the Booking picker shows a locked unit as just "🔒 ล็อค".
+- **Not changed:** the Apps Script itself (not in either repo). It still ignores unpaid-request and checkout holds, so it remains a stand-in only.
+- **Deploy:** website, Bot, DA (any order).
+
 ## 2026-11-21 — Promotion off per model; special-rate admin folds; game catalogue stays fresh (website `689ff3e`, Bot `a77b52c`, DA `d145f74`)
 
 - **Rental promotions:**
