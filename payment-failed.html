@@ -23,12 +23,27 @@
     try{ sessionStorage.removeItem("aj_beam_departure_v1"); }catch{}
     (() => {
       const params = new URLSearchParams(location.search);
-      const lang = params.get("lang") === "th" ? "th" : "en";
+      const lang = params.get("lang")?.toLowerCase() === "th" ? "th" : "en";
       const copy = {en:{badge:"● Payment not completed",title:"Payment was not completed",message:"No successful payment was confirmed. You can return and try again.",code:"Rental code",notice:"If you believe you were charged, screenshot this page and contact AJ before trying again.",retry:"Try payment again",contact:"Contact AJ"},th:{badge:"● การชำระเงินไม่สำเร็จ",title:"การชำระเงินยังไม่เสร็จสมบูรณ์",message:"ระบบยังไม่พบการชำระเงินสำเร็จ คุณสามารถกลับไปลองใหม่ได้",code:"รหัสการเช่า",notice:"หากพบว่ามีการตัดเงินแล้ว กรุณาแคปหน้าจอนี้และติดต่อ AJ ก่อนลองชำระซ้ำ",retry:"ลองชำระเงินอีกครั้ง",contact:"ติดต่อ AJ"}}[lang];
       const set = (id, value) => { document.getElementById(id).textContent = value; };
       document.documentElement.lang = lang; set("badge",copy.badge);set("title",copy.title);set("message",copy.message);set("rentalCodeLabel",copy.code);set("rentalCode",params.get("rentalCode")||"-");set("notice",copy.notice);set("retryButton",copy.retry);set("contactButton",copy.contact);document.getElementById("language").value=lang;
+      const extensionRef = params.get("ref") || "";
+      const extension = /^EXT-[a-f0-9]{16}$/i.test(extensionRef);
+      if(extension){
+        set("rentalCodeLabel", lang === "en" ? "Extension request" : "รหัสคำขอเช่าต่อ");
+        set("rentalCode", extensionRef);
+        set("message", lang === "en"
+          ? "To try again, open My Rental in LINE and return to your extension request."
+          : "หากต้องการลองใหม่ ให้เปิดคิวเช่าของฉันทาง LINE แล้วกลับไปที่คำขอเช่าต่อเดิม");
+        set("retryButton", lang === "en" ? "Open LINE" : "เปิด LINE");
+        document.getElementById("contactButton").hidden = true;
+      }
       document.getElementById("language").addEventListener("change",event=>{params.set("lang",event.target.value);location.search=params.toString()});
-      document.getElementById("retryButton").addEventListener("click",()=>{if(history.length>1)history.back();else location.href=`index-demo.html?lang=${lang}`});
+      document.getElementById("retryButton").addEventListener("click",()=>{
+        if(extension) location.href = "https://lin.ee/N4i6cb6";
+        else if(history.length > 1) history.back();
+        else location.href = `index-demo.html?lang=${lang}`;
+      });
     })();
   </script>
 </body>

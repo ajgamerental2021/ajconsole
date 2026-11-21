@@ -2,7 +2,7 @@
 
 - Console Pending and its email preview can copy either the private rental summary or a direct Beam checkout link with the selected payment method. The latter opens the provider after checking the current rental, queue hold and price. Regular rentals require the live queue. Campaign rentals use the saved campaign and the Bot checks its hold. Opening a link does not settle the booking.
 - The verified Beam webhook uses the original Rental ID for Booking creation. With a conflicting booking, the existing pending/reconciliation workflow applies.
-- The Delivery App extension form adds no-fee Beam QR PromptPay in Thai and English. Its checkout uses the extension request reference. Verified payments recheck the assigned physical units before changing the return date. Company extensions keep the agreed bank-transfer option.
+- The Delivery App extension form adds no-fee Beam QR PromptPay in Thai and English. Its checkout uses the extension request reference. Verified payments recheck the assigned physical units before changing the return date. The Beam return pages show the extension reference and the right language. Company extensions keep the agreed bank-transfer option.
 - Browser fixtures covered both copy buttons, both languages, mobile and desktop checkout, sold-out and already-paid rentals, and missing authoritative queue data. No real customer payment was used for QA.
 
 ## 2026-11-21 — Console Pending payment links and extension availability
