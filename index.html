@@ -12230,7 +12230,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const header = document.querySelector("nav")?.getBoundingClientRect().height || 0;
     window.scrollTo({top:Math.max(0, window.scrollY + target.getBoundingClientRect().top - header - 12), behavior:"smooth"});
   }
-  function openPayResume(code, token, {silent=false, autoCheckout=false, focusPayment=false}={}){
+  function openPayResume(code, token, {silent=false, autoCheckout=false, focusPayment=false, preferredMethod=""}={}){
     if(!silent) Object.assign(payResume, {active:true, code, token, loading:true, saving:false, error:"", rental:null, queueBlocked:"", editorReady:false});
     document.body.classList.add("pay-resume-open");
     try{ sessionStorage.setItem(PAY_RESUME_TOKEN_KEY, JSON.stringify({code, token})); }catch{}
@@ -12244,7 +12244,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const result = await response.json().catch(() => ({}));
       if(!response.ok || !result.rental) throw new Error(result.error || "unavailable");
       payResume.rental = result.rental;
-      const chosen = String(result.rental.paymentOption || "");
+      const supported = result.rental.plan?.methods || {};
+      const canPreselect = ["cash", "bank", "credit", "ewallet", "wise"].includes(preferredMethod)
+        && Object.hasOwn(supported, preferredMethod) && !autoCheckout
+        && (preferredMethod !== "wise" || state.lang === "en");
+      const chosen = canPreselect ? preferredMethod : String(silent ? payResume.method : result.rental.paymentOption || "");
       payResume.method = result.rental.plan?.methods?.[chosen] ? chosen : "cash";
       hydratePayResumeEditor(result.rental);
     }).catch(error => {
@@ -18515,7 +18519,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
       onLineFriendClicked(link.id === "lineFriendGateAdd" ? "gate" : link.id === "lineFriendBtn" ? "step" : "promo");
     });
     if(paidRentalNotice) window.setTimeout(() => showPaidRentalNotice(paidRentalNotice), 300);
-    if(payLink) openPayResume(payLink.code, payLink.token, {autoCheckout:["selected", "reservation"].includes(payParams.get("checkout")), focusPayment:payParams.get("focus") === "payment"});
+    if(payLink) openPayResume(payLink.code, payLink.token, {
+      autoCheckout:["selected", "reservation"].includes(payParams.get("checkout")),
+      focusPayment:payParams.get("focus") === "payment",
+      preferredMethod:payParams.get("pay_method") || ""
+    });
     bindBeforeRentSectionAnalytics();
     trackAnalytics("page_view");
     render();

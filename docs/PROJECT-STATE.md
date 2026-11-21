@@ -1,3 +1,10 @@
+## 2026-11-21 — Console Pending payment links and extension availability
+
+- The staff picker on Console Pending and its email preview copies the rental's private payment page with `pay_method` set to the selected channel. The page validates the choice against the server quote, scrolls to payment and keeps the normal queue check and customer confirmation.
+- The Bot's signed pay-later preview supports a link-only response for unpaid rentals, including rentals without an email address. This does not send email or create a Beam checkout.
+- Delivery App extension limits now follow the assigned unit, including campaign rentals, all held days covering or following the return, and bundle devices. Unavailable dates are refused again on quote, create, edit, payment and application.
+- Public queue verification: PS5-3 was held Nov 19–22 and the next booking starts Nov 23. Browser QA for preselected payment methods used synthetic rentals in Thai and English at mobile and desktop widths.
+
 ## 2026-11-21 — Special-rate countdown; checkout closes with the 10-minute hold (website `8cce31b`, Bot `cfacfac`)
 
 - **Owner's ask:** a 10-minute payment window, synced with the calendar's hold; a campaign never tied to the device queue.
