@@ -7057,6 +7057,32 @@ function buildDataBundle() {
   };
 }
 
+// One game from the synced file, with the built-in fields it was saved without.
+function normalizeBundleGame(sg, defMap) {
+  var def = defMap[sg.id] || {};
+  return Object.assign({}, def, sg, {
+    imgUrl:  (sg.imgUrl && !sg.imgUrl.startsWith('data:')) ? sg.imgUrl : (def.imgUrl || ''),
+    genre:   (sg.genre  && sg.genre.length)  ? sg.genre  : (def.genre  || []),
+    year:    sg.year    || def.year    || null,
+    players: sg.players || def.players || null,
+  });
+}
+function leanGameJson(g) {
+  var lean = Object.assign({}, g);
+  if (lean.imgUrl && lean.imgUrl.startsWith('data:')) delete lean.imgUrl;
+  return JSON.stringify(lean);
+}
+// The catalogue as this device last loaded or saved it (id -> game JSON), and
+// when. A save merges against it, so a device left open since before another
+// device added a game (GTA6, 20/11/2026) cannot wipe that game out, and the
+// picker reloads a catalogue that has been open too long.
+var catalogBaseline = null;
+var catalogLoadedAt = 0;
+function rememberCatalogBaseline() {
+  catalogBaseline = {};
+  games.forEach(function(g) { catalogBaseline[g.id] = leanGameJson(g); });
+}
+
 function applyDataBundle(bundle) {
   if (!bundle || !Array.isArray(bundle.games)) return false;
   // Deletions made on any device travel with the synced data.
@@ -7065,21 +7091,15 @@ function applyDataBundle(bundle) {
   }
   var defMap = {};
   DEFAULT_GAMES.forEach(function(dg) { defMap[dg.id] = dg; });
-  games = bundle.games.map(function(sg) {
-    var def = defMap[sg.id] || {};
-    return Object.assign({}, def, sg, {
-      imgUrl:  (sg.imgUrl && !sg.imgUrl.startsWith('data:')) ? sg.imgUrl : (def.imgUrl || ''),
-      genre:   (sg.genre  && sg.genre.length)  ? sg.genre  : (def.genre  || []),
-      year:    sg.year    || def.year    || null,
-      players: sg.players || def.players || null,
-    });
-  });
+  games = bundle.games.map(function(sg) { return normalizeBundleGame(sg, defMap); });
   var ids = new Set(bundle.games.map(function(s){ return s.id; }));
   DEFAULT_GAMES.forEach(function(dg){ if (!ids.has(dg.id) && !isDeletedGame(dg.id)) games.push(Object.assign({}, dg)); });
   if (bundle.platforms && bundle.platforms.length) platforms = bundle.platforms;
   ensurePlayStationPlatforms();
   if (bundle.howToSteps) howToSteps = bundle.howToSteps;
   if (bundle.faqItems)   faqItems   = bundle.faqItems;
+  rememberCatalogBaseline();
+  catalogLoadedAt = Date.now();
   return true;
 }
 
@@ -7149,6 +7169,62 @@ function fetchFromJSONBin(options) {
 }
 
 // บันทึกข้อมูลขึ้น Gist (PATCH — ไม่ต้องการ SHA!)
+/**
+ * Three-way merge of the shared catalogue: this device's games against the
+ * copy it last loaded (the baseline) and the copy saved now (remote). A game
+ * this device changed keeps its change; anything another device added,
+ * changed or deleted since is kept too.
+ */
+function mergeRemoteCatalog(remote) {
+  if (!remote || !Array.isArray(remote.games)) return;
+  var defMap = {};
+  DEFAULT_GAMES.forEach(function(dg) { defMap[dg.id] = dg; });
+  var base = catalogBaseline;
+  var remoteDeleted = Array.isArray(remote.deletedGameIds) ? remote.deletedGameIds.map(String) : [];
+  remoteDeleted.forEach(function(id) { if (!isDeletedGame(id)) deletedGameIds.push(id); });
+  var remoteById = {};
+  remote.games.forEach(function(g) { remoteById[g.id] = g; });
+  var localIds = new Set(games.map(function(g) { return g.id; }));
+  var merged = [];
+  games.forEach(function(g) {
+    var mine = leanGameJson(g);
+    var changedHere = !base || base[g.id] !== mine;
+    var r = remoteById[g.id];
+    if (!r) {
+      // Gone from the saved copy: deleted elsewhere, unless it is new here.
+      if (base && base[g.id] !== undefined && !changedHere) return;
+      if (remoteDeleted.indexOf(String(g.id)) >= 0 && !changedHere) return;
+      merged.push(g);
+      return;
+    }
+    merged.push(changedHere ? g : normalizeBundleGame(r, defMap));
+  });
+  remote.games.forEach(function(r) {
+    if (localIds.has(r.id) || isDeletedGame(String(r.id))) return;
+    // Deleted here since the last load: stays deleted.
+    if (base && base[r.id] !== undefined) return;
+    merged.push(normalizeBundleGame(r, defMap));
+  });
+  games = merged;
+}
+
+function fetchLatestGistBundle() {
+  return fetch('https://api.github.com/gists/' + gistConfig.gistId + '?_=' + Date.now(), {
+    headers: { 'Authorization': 'Bearer ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json' },
+    cache: 'no-store',
+  }).then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  }).then(function(gist) {
+    var fileObj = gist.files && gist.files['ajgame-data.json'];
+    if (!fileObj) return null;
+    if (fileObj.truncated && fileObj.raw_url) return fetch(fileObj.raw_url, { cache: 'no-store' }).then(function(r) { return r.json(); });
+    return JSON.parse(fileObj.content);
+  });
+}
+
+// Saves run one after another: each reads the latest copy before writing.
+var gistPushChain = Promise.resolve();
 function pushToJSONBin(silent) {
   loadGistConfigFromStorage();
   if (!gistConfig.token || !gistConfig.gistId) {
@@ -7156,27 +7232,48 @@ function pushToJSONBin(silent) {
     return;
   }
   if (!silent) showSyncStatus('🔄 กำลัง sync...', 'info');
-  var bundle = buildDataBundle();
-  fetch('https://api.github.com/gists/' + gistConfig.gistId, {
-    method: 'PATCH',
-    headers: {
-      'Authorization': 'Bearer ' + gistConfig.token,
-      'Accept': 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      files: { 'ajgame-data.json': { content: JSON.stringify(bundle, null, 2) } }
-    }),
-  })
-  .then(function(r) {
-    if (r.status === 401) throw new Error('Token ไม่ถูกต้อง (401) — ตรวจสอบ token');
-    if (r.status === 404) throw new Error('ไม่พบ Gist ID (404) — ตรวจสอบ Gist ID');
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    return r.json();
-  })
-  .then(function() {
-    if (!silent) showSyncStatus('✅ Sync สำเร็จ! ทุก browser/device จะโหลดข้อมูลใหม่อัตโนมัติ', 'ok');
-    showToast('✅ Sync เรียบร้อย');
+  gistPushChain = gistPushChain.then(function() { return pushCatalogOnce(silent); }, function() { return pushCatalogOnce(silent); });
+  return gistPushChain;
+}
+function pushCatalogOnce(silent) {
+  return fetchLatestGistBundle()
+  .catch(function(e) { console.warn('[AJGame] Could not read the latest catalogue before saving:', e.message); return null; })
+  .then(function(remote) {
+    var before = games.length;
+    if (remote) mergeRemoteCatalog(remote);
+    var bundle = buildDataBundle();
+    return fetch('https://api.github.com/gists/' + gistConfig.gistId, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': 'Bearer ' + gistConfig.token,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        files: { 'ajgame-data.json': { content: JSON.stringify(bundle, null, 2) } }
+      }),
+    })
+    .then(function(r) {
+      if (r.status === 401) throw new Error('Token ไม่ถูกต้อง (401) — ตรวจสอบ token');
+      if (r.status === 404) throw new Error('ไม่พบ Gist ID (404) — ตรวจสอบ Gist ID');
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function() {
+      rememberCatalogBaseline();
+      catalogLoadedAt = Date.now();
+      try {
+        localStorage.setItem('ajgame_games', JSON.stringify(games.map(function(g) { return JSON.parse(leanGameJson(g)); })));
+        localStorage.setItem('ajgame_deleted', JSON.stringify(deletedGameIds));
+      } catch (e) {}
+      if (games.length !== before) {
+        // Games another device added came in with this save: show them.
+        try { renderPublic(); } catch (e) {}
+        try { if (typeof renderAdminGames === 'function') renderAdminGames(); } catch (e) {}
+      }
+      if (!silent) showSyncStatus('✅ Sync สำเร็จ! ทุก browser/device จะโหลดข้อมูลใหม่อัตโนมัติ', 'ok');
+      showToast('✅ Sync เรียบร้อย');
+    });
   })
   .catch(function(e) {
     var msg = e.message || 'เชื่อมต่อ GitHub Gist ไม่ได้';
@@ -7242,6 +7339,38 @@ function showSyncStatus(msg, type) {
 
 document.body.classList.add('catalog-sync-loading');
 loadData();
+// A catalogue that failed to load, or has been open a while, is fetched again
+// (a customer's LINE browser can keep this page alive for hours).
+var catalogRefreshing = null;
+var catalogFirstLoadDone = false;
+function refreshCatalog(maxAgeMs) {
+  if (!catalogFirstLoadDone) return Promise.resolve(false);
+  if (catalogRefreshing) return catalogRefreshing;
+  if (catalogLoadedAt && Date.now() - catalogLoadedAt < maxAgeMs) return Promise.resolve(false);
+  // Never under an admin who may be part-way through an edit.
+  if (typeof catalogAdminToken !== 'undefined' && catalogAdminToken) return Promise.resolve(false);
+  catalogRefreshing = fetchFromJSONBin({ render:false }).then(function(loaded) {
+    if (loaded) {
+      if (typeof window.ajApplyGameCatalogFilters === 'function') window.ajApplyGameCatalogFilters();
+      try { renderPublic(); } catch (e) {}
+      try { refreshPickerAfterCatalog(); } catch (e) {}
+    }
+    return loaded;
+  }).catch(function() { return false; }).then(function(loaded) { catalogRefreshing = null; return loaded; });
+  return catalogRefreshing;
+}
+function retryCatalogLoad(attempt) {
+  if (catalogLoadedAt || attempt > 3) return;
+  setTimeout(function() {
+    refreshCatalog(0).then(function(loaded) { if (!loaded) retryCatalogLoad(attempt + 1); });
+  }, attempt * 4000);
+}
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'AJ_PICKER_OPEN') refreshCatalog(60 * 1000);
+});
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible') refreshCatalog(2 * 60 * 1000);
+});
 window.ajGameCatalogReady = fetchFromJSONBin({ render:false }).then(function(loadedFromGist){
   if (typeof window.ajApplyGameCatalogFilters === 'function') window.ajApplyGameCatalogFilters();
   renderPublic();
@@ -7254,6 +7383,8 @@ window.ajGameCatalogReady = fetchFromJSONBin({ render:false }).then(function(loa
   if (typeof renderFAQ === 'function') renderFAQ();
   return false;
 }).then(function(result){
+  catalogFirstLoadDone = true;
+  if (!result) retryCatalogLoad(1);
   document.body.classList.remove('catalog-sync-loading');
   return result;
 });

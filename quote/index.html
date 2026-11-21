@@ -279,6 +279,9 @@
     var keys = [promoKey(c.name), promoKey(c.nameEn), promoKey(c.id)];
     if (Array.isArray(campaign.deviceKeys) && campaign.deviceKeys.length
       && !keys.some(function (key) { return campaign.deviceKeys.indexOf(key) >= 0; })) return null;
+    // A model switched off in the campaign keeps its normal price.
+    if (Array.isArray(campaign.excludedDeviceKeys)
+      && keys.some(function (key) { return campaign.excludedDeviceKeys.indexOf(key) >= 0; })) return null;
     var terms = termsOf(c), rent = rentalCost(n, terms.rate, terms.weekly);
     var byDevice = keys.map(function (key) { return Number(campaign.pricesByDevice && campaign.pricesByDevice[key]) || 0; }).find(function (price) { return price > 0; });
     var price = campaign.mode === 'percent'

@@ -166,6 +166,10 @@ h2{font-size:clamp(28px,4vw,42px);line-height:1.15;font-weight:900}
 .option-row{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border);border-radius:12px;padding:11px;background:#fff;cursor:pointer}
 .option-row[hidden],.demo-profile-grid[hidden],.demo-wise-panel[hidden]{display:none!important}
 .option-row input{margin-top:5px;accent-color:var(--accent)}
+.promo-device-row .option-row span{display:flex;flex-direction:column;gap:2px}
+.promo-device-row .promo-device-state{color:#15803d;font-size:12px}
+.promo-device-row.is-off .option-row{background:#fafafa}
+.promo-device-row.is-off .promo-device-state{color:#b91c1c}
 .review-discount-box{display:flex;flex-direction:column;gap:8px;margin:8px 0 10px 26px}
 .review-discount-box .option-row{background:#fffdfd}
 .review-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
@@ -1181,8 +1185,14 @@ body.unified-flow-demo .demo-reward-row{border-color:#f2c94c;background:#fffdf5}
 .special-rate-lock{font-weight:800;color:#1f3f9e;background:#eef3ff;border:1px solid #c7d5ff;border-radius:10px;padding:8px 10px}
 .special-rate-full{font-weight:800;color:#b42318}
 .special-rate-actions{margin-top:6px}
-.sp-campaign{display:grid;gap:12px}
-.sp-head{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between}
+.sp-campaign{display:block}
+.sp-campaign > :not(summary){margin-top:12px}
+.sp-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;cursor:pointer;list-style:none}
+.sp-head::-webkit-details-marker{display:none}
+.sp-head .hint{flex-basis:100%;margin:0}
+.sp-chevron{display:inline-block;transition:transform .15s;color:var(--muted,#666)}
+.sp-campaign[open] .sp-chevron{transform:rotate(90deg)}
+.sp-links-toggle{margin-top:10px}
 .sp-lock{display:grid;gap:8px;padding:12px;border:1px solid #c7d5ff;border-radius:14px;background:#f6f8ff}
 .sp-lock-title{display:grid;gap:2px}
 .sp-lock-start{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
@@ -2059,7 +2069,7 @@ body{background:#f7f8fa}
 
   const CONFIG = {
     version: "index2-clean-1",
-    gamePickerVersion: "20261022-1",
+    gamePickerVersion: "20261121-1",
     defaultGistId: "4e8fb8c04f38df0538dc9172da99887a",
     gistFile: "aj_rental_data.json",
     defaultGistRawUrl: "https://gist.githubusercontent.com/ajgamerental2021/4e8fb8c04f38df0538dc9172da99887a/raw/aj_rental_data.json",
@@ -3716,6 +3726,37 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const key = adminDraftKey(event.target);
     if(key) adminFieldDrafts[key] = event.target.type === "checkbox" || event.target.type === "radio" ? event.target.checked : event.target.value;
   });
+  // Special-rate campaign cards: remember which ones the admin unfolded.
+  document.addEventListener("toggle", event => {
+    const card = event.target;
+    if(!card?.matches?.("details[data-sp-campaign]")) return;
+    if(card.open) adminSpecial.open.add(card.dataset.spCampaign);
+    else adminSpecial.open.delete(card.dataset.spCampaign);
+  }, true);
+  // Rental promotion form: the scope picks which models are ticked, and each
+  // tick shows whether that model keeps the promotion or its normal price.
+  document.addEventListener("change", event => {
+    const form = event.target?.closest?.("[data-rental-promo-form]");
+    if(!form) return;
+    const en = state.lang === "en";
+    const paint = input => {
+      const row = input.closest(".promo-device-row");
+      row?.classList.toggle("is-off", !input.checked);
+      const label = row?.querySelector(".promo-device-state");
+      if(label) label.textContent = input.checked ? (en ? "In this promotion" : "ร่วมโปรนี้") : (en ? "Promotion off · normal price" : "ปิดโปร · ใช้ราคาปกติ");
+      const price = row?.querySelector("[data-promo-device-price]");
+      if(price) price.disabled = !input.checked;
+    };
+    if(event.target.matches("[data-promo-device]")){ paint(event.target); return; }
+    if(!event.target.matches('[name="scope"],[name="deviceType"]')) return;
+    const scope = form.querySelector('[name="scope"]')?.value;
+    if(scope === "devices") return;
+    const type = form.querySelector('[name="deviceType"]')?.value;
+    form.querySelectorAll("[data-promo-device]").forEach(input => {
+      const next = scope === "all" || input.dataset.promoType === type;
+      if(input.checked !== next){ input.checked = next; input.dispatchEvent(new Event("change", {bubbles:true})); }
+    });
+  });
   document.addEventListener("change", event => {
     const key = adminDraftKey(event.target);
     if(key) adminFieldDrafts[key] = event.target.type === "checkbox" || event.target.type === "radio" ? event.target.checked : event.target.value;
@@ -3759,7 +3800,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(!campaign.enabled || Number(campaign.days) !== days
         || (campaign.startDate && (start < campaign.startDate || start > campaign.endDate))
         || (campaign.startWeekdays?.length && !campaign.startWeekdays.includes(weekday))
-        || (campaign.deviceKeys?.length && !keys.some(key => campaign.deviceKeys.includes(key)))) return [];
+        || (campaign.deviceKeys?.length && !keys.some(key => campaign.deviceKeys.includes(key)))
+        // A model switched off in the campaign keeps its normal price.
+        || keys.some(key => (campaign.excludedDeviceKeys || []).includes(key))) return [];
       const price = campaign.mode === "percent" ? Math.round(baseFee*(100-Number(campaign.percent))/100)
         : keys.map(key => Number(campaign.pricesByDevice?.[key])).find(value => value > 0)
           || Number(campaign.pricesByDailyRate?.[promotionKey(dailyRate)]) || Number(campaign.fixedPrice);
@@ -16018,7 +16061,10 @@ We apologize for the inconvenience and hope everyone stays safe.`
   // ---- Special rental rates (14/11/2026) ---------------------------------
   // Campaigns the shop runs itself, and the private one-time links it sends
   // customers. Saved by the Bot (admin-only); see the booking page's special mode.
-  const adminSpecial = {loaded:false, loading:false, saving:false, campaigns:[], links:[], error:"", lastLink:null};
+  // Campaign cards start folded; \`open\` keeps the ones the admin unfolded (or
+  // just added) open across re-renders. Links show the newest one until
+  // \`linksOpen\` (21/11/2026).
+  const adminSpecial = {loaded:false, loading:false, saving:false, campaigns:[], links:[], error:"", lastLink:null, open:new Set(), linksOpen:false};
   async function adminSpecialFetch(path, options = {}){
     const response = await fetch(`${CONFIG.apiBase}${path}`, {cache:"no-store", ...options, headers:{"Content-Type":"application/json", Authorization:`Bearer ${state.adminToken}`}});
     const result = await response.json().catch(() => ({}));
@@ -16170,8 +16216,10 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const campaigns = adminSpecial.campaigns.map((campaign, index) => {
       const usage = campaign.usage || {units:campaign.units, paid:0, held:0, remaining:campaign.units};
       const devices = state.consoles.map(device => `<label class="sp-device"><input type="checkbox" data-sp-device="${index}" value="${esc(String(device.id))}" ${(campaign.consoleIds || []).map(String).includes(String(device.id)) ? "checked" : ""}> ${esc(cName(device))} <span class="hint">${money(device.rate)}/${en ? "day" : "วัน"}</span></label>`).join("");
-      return `<div class="card sp-campaign">
-        <div class="sp-head"><b>${esc(campaign.titleTh || campaign.titleEn || campaign.id)}</b><span class="hint">ID ${esc(campaign.id)} · ${en ? `Paid ${usage.paid} · held ${usage.held} · left ${usage.remaining} of ${usage.units}` : `จองแล้ว ${usage.paid} · กำลังจอง ${usage.held} · เหลือ ${usage.remaining} จาก ${usage.units} เครื่อง`}</span></div>
+      const title = campaign.titleTh || campaign.titleEn || (en ? "New campaign" : "campaign ใหม่");
+      const closed = campaign.enabled === false;
+      return `<details class="card sp-campaign" data-sp-campaign="${esc(campaign.id)}" ${adminSpecial.open.has(campaign.id) ? "open" : ""}>
+        <summary class="sp-head"><span class="sp-chevron" aria-hidden="true">▸</span><b>${esc(title)}</b><span class="bg-pill ${closed ? "red" : "green"}">${closed ? (en ? "Closed" : "ปิดใช้") : (en ? "Open" : "เปิดใช้")}</span><span class="hint">ID ${esc(campaign.id)} · ${en ? `Paid ${usage.paid} · held ${usage.held} · left ${usage.remaining} of ${usage.units}` : `จองแล้ว ${usage.paid} · กำลังจอง ${usage.held} · เหลือ ${usage.remaining} จาก ${usage.units} เครื่อง`}</span></summary>
         <div class="grid2">
           <div class="field"><label class="label">${en ? "Name (Thai)" : "ชื่อ (ไทย)"}</label><input class="input" data-sp="${index}:titleTh" value="${esc(campaign.titleTh || "")}" maxlength="80"></div>
           <div class="field"><label class="label">${en ? "Name (English)" : "ชื่อ (อังกฤษ)"}</label><input class="input" data-sp="${index}:titleEn" value="${esc(campaign.titleEn || "")}" maxlength="80"></div>
@@ -16197,10 +16245,13 @@ We apologize for the inconvenience and hope everyone stays safe.`
           <button class="btn primary" type="button" data-sp-link="${index}">${en ? "🔗 Create a one-time link" : "🔗 สร้างลิงก์ใช้ครั้งเดียว"}</button>
           <button class="btn" type="button" data-sp-remove="${index}">${en ? "Remove campaign" : "ลบ campaign"}</button>
         </div>
-      </div>`;
-    }).join("");
+      </details>`;
+    // Newest first: campaigns are kept in the order they were added.
+    }).reverse().join("");
     const last = adminSpecial.lastLink;
-    const links = adminSpecial.links.slice(0, 60).map(link => {
+    const sortedLinks = adminSpecial.links.slice().sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+    const shownLinks = adminSpecial.linksOpen ? sortedLinks.slice(0, 60) : sortedLinks.slice(0, 1);
+    const links = shownLinks.map(link => {
       const campaign = adminSpecial.campaigns.find(item => item.id === link.campaignId);
       return `<tr><td>${esc(link.note || "-")}</td><td>${esc(campaign?.titleTh || link.campaignId)}</td><td>${esc(adminSpecialStateLabel(link.state))}${link.rentalCode ? `<div class="hint">${esc(link.rentalCode)}</div>` : ""}</td><td>${esc(when(link.expiresAt))}</td><td class="sp-link-actions">${["open", "held"].includes(link.state) ? `<button class="btn" type="button" data-sp-copy="${esc(link.url)}">${en ? "Copy" : "คัดลอก"}</button><button class="btn" type="button" data-sp-revoke="${esc(link.id)}">${en ? "Cancel" : "ยกเลิก"}</button>` : ""}</td></tr>`;
     }).join("");
@@ -16211,10 +16262,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
         ${last ? `<div class="special-rate-banner"><b>${en ? "New link — send it to the customer" : "ลิงก์ใหม่ — ส่งให้ลูกค้าได้เลย"}</b><code class="sp-url">${esc(last.url)}</code><div>${en ? "Valid until" : "ใช้ได้ถึง"} ${esc(when(last.expiresAt))}</div><div><button class="btn primary" type="button" data-sp-copy="${esc(last.url)}">${en ? "Copy link" : "คัดลอกลิงก์"}</button></div></div>` : ""}
         <div class="sp-actions"><button class="btn" type="button" data-sp-add>${en ? "+ Add campaign" : "+ เพิ่ม campaign"}</button><button class="btn primary" type="button" data-sp-save ${adminSpecial.saving ? "disabled" : ""}>${adminSpecial.saving ? (en ? "Saving…" : "กำลังบันทึก…") : (en ? "Save campaigns" : "บันทึก campaign")}</button><button class="btn" type="button" data-sp-reload>${en ? "Refresh" : "โหลดใหม่"}</button></div>
       </div>
-      ${campaigns || `<div class="card"><p class="hint">${en ? "No campaigns yet." : "ยังไม่มี campaign"}</p></div>`}
-      <div class="card"><h3>${en ? "Links" : "ลิงก์ที่สร้างแล้ว"}</h3>
+      <div class="card sp-links"><h3>${en ? "Links" : "ลิงก์ที่สร้างแล้ว"}${sortedLinks.length ? ` <span class="hint">(${sortedLinks.length})</span>` : ""}</h3>
         ${links ? `<div class="sp-table-wrap"><table class="sp-table"><thead><tr><th>${en ? "Customer" : "ลูกค้า"}</th><th>Campaign</th><th>${en ? "Status" : "สถานะ"}</th><th>${en ? "Expires" : "หมดอายุ"}</th><th></th></tr></thead><tbody>${links}</tbody></table></div>` : `<p class="hint">${en ? "No links yet." : "ยังไม่มีลิงก์"}</p>`}
-      </div>`;
+        ${sortedLinks.length > 1 ? `<button class="btn sp-links-toggle" type="button" data-sp-links-toggle>${adminSpecial.linksOpen ? (en ? "▴ Show the latest only" : "▴ ย่อ แสดงเฉพาะล่าสุด") : (en ? `▾ Show all ${Math.min(sortedLinks.length, 60)} links` : `▾ ดูทั้งหมด ${Math.min(sortedLinks.length, 60)} ลิงก์`)}</button>` : ""}
+      </div>
+      ${campaigns || `<div class="card"><p class="hint">${en ? "No campaigns yet." : "ยังไม่มี campaign"}</p></div>`}`;
   }
   async function adminSpecialAction(target){
     const en = state.lang === "en";
@@ -16240,10 +16292,19 @@ We apologize for the inconvenience and hope everyone stays safe.`
       toast(en ? "Cleared. Press Save campaigns to keep it." : "ล้างแล้ว กดบันทึก campaign เพื่อยืนยัน");
       return true;
     }
+    if(target.closest("[data-sp-links-toggle]")){
+      adminSpecial.campaigns = readAdminSpecialCampaigns();
+      adminSpecial.linksOpen = !adminSpecial.linksOpen;
+      renderAdmin();
+      return true;
+    }
     if(target.closest("[data-sp-reload]")){ specialDraftDirty = false; adminSpecial.loaded = false; renderAdmin(); await loadAdminSpecial(); return true; }
     if(target.closest("[data-sp-add]")){
-      adminSpecial.campaigns = [...readAdminSpecialCampaigns(), {id:`sp-${Date.now().toString(36)}`, titleTh:"", titleEn:"", consoleIds:[], units:1, mode:"per_day", amount:0, linkHours:48, lockStart:"", lockDays:0, lockDaysMode:"exact", startFrom:"", enabled:true}];
+      const id = `sp-${Date.now().toString(36)}`;
+      adminSpecial.open.add(id);
+      adminSpecial.campaigns = [...readAdminSpecialCampaigns(), {id, titleTh:"", titleEn:"", consoleIds:[], units:1, mode:"per_day", amount:0, linkHours:48, lockStart:"", lockDays:0, lockDaysMode:"exact", startFrom:"", enabled:true}];
       renderAdmin();
+      byId("adminSpecial")?.querySelector(`[data-sp-campaign="${id}"]`)?.scrollIntoView({behavior:"smooth", block:"start"});
       return true;
     }
     const remove = target.closest("[data-sp-remove]");
@@ -16277,6 +16338,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       try{
         const result = await adminSpecialFetch("/api/admin/special-rates/links", {method:"POST", body:JSON.stringify({campaignId:campaign.id, note})});
         adminSpecial.lastLink = result.link;
+        adminSpecial.linksOpen = false;
         try{ await navigator.clipboard.writeText(result.link.url); toast(en ? "Link created and copied" : "สร้างลิงก์และคัดลอกแล้ว"); }catch{ toast(en ? "Link created" : "สร้างลิงก์แล้ว"); }
         await loadAdminSpecial();
       }catch(error){
@@ -16828,9 +16890,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const en = state.lang === "en";
     const campaigns = rentalPromotions.campaigns || [];
     const editing = promotionEditingId === "new"
-      ? {id:"",titleTh:"",titleEn:"",enabled:true,startDate:"",endDate:"",startWeekdays:[],days:3,deviceKeys:[],mode:"fixed",fixedPrice:0,percent:0,pricesByDevice:{},pricesByDailyRate:{}}
+      ? {id:"",titleTh:"",titleEn:"",enabled:true,startDate:"",endDate:"",startWeekdays:[],days:3,deviceKeys:[],excludedDeviceKeys:[],mode:"fixed",fixedPrice:0,percent:0,pricesByDevice:{},pricesByDailyRate:{}}
       : campaigns.find(c => c.id === promotionEditingId);
-    const list = campaigns.map(c => `<div class="admin-item-head"><div class="admin-main"><b>${esc(state.lang === "en" ? c.titleEn : c.titleTh)}</b><small>${c.startDate ? `${esc(c.startDate)} – ${esc(c.endDate)}` : (en ? "Every week" : "ทุกสัปดาห์")} · ${c.days} ${en ? "days" : "วัน"}</small></div><span class="bg-pill ${c.enabled ? "green" : "red"}">${c.enabled ? (en ? "Active" : "ใช้งานอยู่") : (en ? "Inactive" : "ปิดใช้งาน")}</span><button class="btn" type="button" data-edit-rental-promo="${esc(c.id)}">${tr("edit")}</button><button class="btn danger" type="button" data-delete-rental-promo="${esc(c.id)}">${tr("delete")}</button></div>`).join("");
+    const list = campaigns.map(c => `<div class="admin-item-head"><div class="admin-main"><b>${esc(state.lang === "en" ? c.titleEn : c.titleTh)}</b><small>${c.startDate ? `${esc(c.startDate)} – ${esc(c.endDate)}` : (en ? "Every week" : "ทุกสัปดาห์")} · ${c.days} ${en ? "days" : "วัน"}${(c.excludedDeviceKeys || []).length ? ` · ${en ? "off for" : "ปิดโปร"} ${(c.excludedDeviceKeys || []).length} ${en ? "model(s)" : "รุ่น"}` : ""}</small></div><span class="bg-pill ${c.enabled ? "green" : "red"}">${c.enabled ? (en ? "Active" : "ใช้งานอยู่") : (en ? "Inactive" : "ปิดใช้งาน")}</span><button class="btn" type="button" data-edit-rental-promo="${esc(c.id)}">${tr("edit")}</button><button class="btn danger" type="button" data-delete-rental-promo="${esc(c.id)}">${tr("delete")}</button></div>`).join("");
     const form = !editing ? "" : `<div class="admin-edit open" data-rental-promo-form>
       <h4>${promotionEditingId === "new" ? (en ? "New promotion" : "โปรโมชั่นใหม่") : (en ? "Edit promotion" : "แก้ไขโปรโมชั่น")}</h4>
       <div class="grid2"><label class="field">${en ? "Thai name" : "ชื่อภาษาไทย"}<input class="input" name="titleTh" value="${esc(editing.titleTh)}"></label><label class="field">${en ? "English name" : "ชื่อภาษาอังกฤษ"}<input class="input" name="titleEn" value="${esc(editing.titleEn)}"></label>
@@ -16841,7 +16903,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
       <label class="option-row"><input type="checkbox" name="enabled" ${editing.enabled ? "checked" : ""}><b>${en ? "Enabled" : "เปิดใช้งาน"}</b></label>
       <div class="hint">${en ? "Leave both dates empty for a recurring offer. Choose weekdays below only if needed." : "เว้นวันที่ทั้งสองช่องว่างไว้สำหรับโปรที่ใช้ซ้ำทุกสัปดาห์ เลือกวันในสัปดาห์ด้านล่างได้"}</div>
       <div class="guide-actions">${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map((day,i) => `<label><input type="checkbox" data-promo-weekday="${i}" ${editing.startWeekdays.includes(i) ? "checked" : ""}> ${day}</label>`).join("")}</div>
-      <details><summary>${en ? "Individual devices and fixed prices" : "เครื่องแต่ละรุ่นและราคาโปรรายเครื่อง"}</summary><div class="grid2">${state.consoles.map(c => {const key=promotionKey(c.nameEn || c.name);return `<div class="field"><label class="option-row"><input type="checkbox" data-promo-device="${esc(key)}" ${editing.deviceKeys.includes(key) ? "checked" : ""}>${esc(en ? (c.nameEn || c.name) : (c.name || c.nameEn))}</label><input class="input" type="number" min="0" data-promo-device-price="${esc(key)}" value="${Number(editing.pricesByDevice?.[key]) || 0}" placeholder="${en ? "Optional fixed price" : "ราคาโปรรายเครื่อง (ถ้ามี)"}"></div>`;}).join("")}</div></details>
+      <details class="promo-devices" open><summary>${en ? "Devices in this promotion and fixed prices" : "เครื่องแต่ละรุ่นและราคาโปรรายเครื่อง"}</summary>
+        <p class="hint">${en ? "Untick a model to switch this promotion off for it: that model is charged its normal price. A fixed price here overrides the campaign price for that model." : "ติ๊กออก = ปิดโปรนี้สำหรับเครื่องรุ่นนั้น ลูกค้าจ่ายราคาปกติ · ใส่ราคาโปรรายเครื่องเพื่อใช้แทนราคาของโปรนี้"}</p>
+        <div class="grid2">${state.consoles.map(c => {const key=promotionKey(c.nameEn || c.name);const on=editing.deviceKeys.length ? editing.deviceKeys.includes(key) : !(editing.excludedDeviceKeys || []).includes(key);return `<div class="field promo-device-row ${on ? "" : "is-off"}"><label class="option-row"><input type="checkbox" data-promo-device="${esc(key)}" data-promo-type="${esc(c.type || "")}" ${on ? "checked" : ""}><span><b>${esc(en ? (c.nameEn || c.name) : (c.name || c.nameEn))}</b><small class="promo-device-state">${on ? (en ? "In this promotion" : "ร่วมโปรนี้") : (en ? "Promotion off · normal price" : "ปิดโปร · ใช้ราคาปกติ")}</small></span></label><input class="input" type="number" min="0" data-promo-device-price="${esc(key)}" value="${Number(editing.pricesByDevice?.[key]) || ""}" placeholder="${en ? "Fixed price for this model (optional)" : "ราคาโปรรายเครื่อง (ถ้ามี)"}" ${on ? "" : "disabled"}></div>`;}).join("")}</div></details>
       <details><summary>${en ? "Fixed prices by daily rate" : "ราคาโปรตามเรทรายวัน"}</summary><div class="grid2">${[...new Set(state.consoles.map(c => Number(c.rate)))].sort((a,b)=>a-b).map(rate => `<label class="field">${money(rate)} / ${en ? "day" : "วัน"}<input class="input" type="number" min="0" data-promo-rate="${rate}" value="${Number(editing.pricesByDailyRate?.[rate]) || 0}"></label>`).join("")}</div></details>
       <div class="guide-actions"><button class="btn primary" type="button" id="saveRentalPromotion">${en ? "Save and sync promotion" : "บันทึกและซิงก์โปรโมชั่น"}</button><button class="btn" type="button" id="cancelRentalPromotion">${en ? "Cancel" : "ยกเลิก"}</button></div><p class="hint" id="rentalPromotionStatus"></p>
     </div>`;
@@ -16862,16 +16926,19 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const value = name => form.querySelector(`[name="${name}"]`)?.value?.trim() || "";
     const mode = value("mode");
     const scope = value("scope");
-    const deviceKeys = scope === "all" ? [] : scope === "type"
-      ? state.consoles.filter(c => c.type === value("deviceType")).map(c => promotionKey(c.nameEn || c.name))
-      : [...form.querySelectorAll("[data-promo-device]:checked")].map(input => input.dataset.promoDevice);
-    const pricesByDevice = Object.fromEntries([...form.querySelectorAll("[data-promo-device-price]")].map(input => [input.dataset.promoDevice,Number(input.value)]).filter(([,price]) => price > 0));
+    // The model ticks are the truth: changing the selection re-ticks them,
+    // and an unticked model keeps its normal price.
+    const ticked = [...form.querySelectorAll("[data-promo-device]:checked")].map(input => input.dataset.promoDevice);
+    const unticked = [...form.querySelectorAll("[data-promo-device]:not(:checked)")].map(input => input.dataset.promoDevice);
+    const deviceKeys = scope === "all" ? [] : ticked;
+    const excludedDeviceKeys = scope === "all" ? unticked : [];
+    const pricesByDevice = Object.fromEntries([...form.querySelectorAll("[data-promo-device-price]")].filter(input => ticked.includes(input.dataset.promoDevicePrice)).map(input => [input.dataset.promoDevicePrice,Number(input.value)]).filter(([,price]) => price > 0));
     const pricesByDailyRate = Object.fromEntries([...form.querySelectorAll("[data-promo-rate]")].map(input => [input.dataset.promoRate,Number(input.value)]).filter(([,price]) => price > 0));
     const existing = rentalPromotions.campaigns.find(c => c.id === promotionEditingId);
-    const campaign = {id:existing?.id || `promo-${Date.now()}`,titleTh:value("titleTh"),titleEn:value("titleEn"),enabled:form.querySelector('[name="enabled"]').checked,startDate:value("startDate"),endDate:value("endDate"),startWeekdays:[...form.querySelectorAll("[data-promo-weekday]:checked")].map(input => Number(input.dataset.promoWeekday)),days:Number(value("days")),deviceKeys,mode,fixedPrice:Number(value("fixedPrice")),percent:Number(value("percent")),pricesByDevice,pricesByDailyRate};
+    const campaign = {id:existing?.id || `promo-${Date.now()}`,titleTh:value("titleTh"),titleEn:value("titleEn"),enabled:form.querySelector('[name="enabled"]').checked,startDate:value("startDate"),endDate:value("endDate"),startWeekdays:[...form.querySelectorAll("[data-promo-weekday]:checked")].map(input => Number(input.dataset.promoWeekday)),days:Number(value("days")),deviceKeys,excludedDeviceKeys,mode,fixedPrice:Number(value("fixedPrice")),percent:Number(value("percent")),pricesByDevice,pricesByDailyRate};
     const en = state.lang === "en";
     if(!campaign.titleTh || !campaign.titleEn || !Number.isInteger(campaign.days) || campaign.days < 1 || (!!campaign.startDate !== !!campaign.endDate) || (campaign.startDate && campaign.startDate > campaign.endDate)
-      || (scope !== "all" && !deviceKeys.length) || (mode === "percent" && !(campaign.percent > 0 && campaign.percent <= 100))
+      || !ticked.length || (scope !== "all" && !deviceKeys.length) || (mode === "percent" && !(campaign.percent > 0 && campaign.percent <= 100))
       || (mode === "fixed" && !campaign.fixedPrice && !Object.keys(pricesByDevice).length && !Object.keys(pricesByDailyRate).length)){
       status.textContent = en ? "Check names, dates, devices and price." : "ตรวจชื่อ วันที่ เครื่องที่ร่วมโปร และราคา"; return;
     }
