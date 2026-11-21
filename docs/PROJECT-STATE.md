@@ -1,4 +1,4 @@
-## 2026-11-21 — Extension offered days over a full queue (DA `2c7c4bd`)
+## 2026-11-21 — Extension offered days over a full queue (DA `81c977a`)
 
 - **Case:** PS5-3. The customer returns on 22/11 and the next rental starts on 23/11, yet the extension page offered up to 30 days.
 - **Cause:** `dateDay` read only a bare `dd/mm/yyyy` or `yyyy-mm-dd`. A start with a time ("23/11/2026 10:00"), a sheet apostrophe, or an ISO time read as null, so the row was skipped. This affected both `extendableDays` and the save-time clash guard (`bookedDays`/`heldDays`).
