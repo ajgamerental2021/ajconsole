@@ -1,3 +1,18 @@
+## 2026-11-21 — Special-rate countdown; checkout closes with the 10-minute hold (website `8cce31b`, Bot `cfacfac`)
+
+- **Owner's ask:** a 10-minute payment window, synced with the calendar's hold; a campaign never tied to the device queue.
+- **Already in code:**
+  - Stock checkout holds are capped at 10 minutes (`BOOKING_HOLD_MINUTES` ≤ 10).
+  - Special holds are 10 minutes (24 h for Wise).
+  - Special mode skips the stock queue on the website calendar and gate, in the Bot's holds, and in DA unit checks (`!item.specialRate`).
+- **Website:** `lockOrderSlot` and `demoHoldCountdownHtml` now run at a special rate too. The countdown text says the payment page closes at the same time.
+- **Bot:**
+  - `createBeamPaymentLink({ lifetimeMs })`. The booking site's checkout link (payment-success return, not `deliveryAppPayment`, not an extension) and the pay-later page's link expire after `bookingHolds.ttlMs` instead of 48 h.
+  - Delivery-app links and extensions keep 48 h.
+  - The special hold's fallback expiry is 10 min.
+- **R0066** (`?pay=AJ-20261121-R0066`): made while the customer's page had lost the special token, so it is a normal-rate rental. Its pay-later page checks the stock PS5 queue, which is full. The `?pay=` link needs the email's private `t` token, so it does not open without it (by design).
+- **Deploy:** Bot `cfacfac`, website `8cce31b`.
+
 ## 2026-11-21 — Special rate lost after the LINE round trip (website `15e14f5`, Bot `21c5508`)
 
 - **Symptom:** the same customer's next screenshot showed the normal PS5 calendar ("In progress · retry in 9 min" on 21–28/11), not the special one.
