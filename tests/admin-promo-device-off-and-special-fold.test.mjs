@@ -36,5 +36,14 @@ test('special-rate admin: every button is wired; a held link shows its hold and 
 });
 
 test('a special-rate refusal at payment shows its own message only', () => {
-  assert.match(page, /if\(error\?\.special \|\| String\(error\?\.code \|\| ""\)\.startsWith\("special_"\)\) return;\n      if\(error\?\.code === "line_connection_required"\)/);
+  assert.match(page, /if\(error\?\.special\) return;\n      if\(String\(error\?\.code \|\| ""\)\.startsWith\("special_"\)\)\{ handleSpecialRefusal\(error\.code\); return; \}/);
+  // A returning customer's leftover ticks are no discount at a special rate (21/11/2026).
+  assert.match(page, /returningCustomer: !activeSpecial\(\) && !!state\.calc\.ret,/);
+  assert.match(page, /reviewGoogle: !activeSpecial\(\) && !!state\.calc\.reviewGoogle,/);
+});
+
+test('at a special rate the returning-customer ticks are no change to the rental (Rental ID, WhatsApp, payment)', () => {
+  assert.match(page, /!activeSpecial\(\) && state\.calc\.ret \? "ret" : "",/);
+  assert.match(page, /index === 8 \|\| \(activeSpecial\(\) && index >= 9\) \|\| value === after\[index\]/);
+  assert.match(page, /\.filter\(key => !\(activeSpecial\(\) && VERIFIED_ONLY_FIELDS\.includes\(key\)\)\)/);
 });

@@ -2451,7 +2451,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       contactDraftRestoreTitle:"กำลังกู้ข้อมูลการจอง",
       contactDraftRestoreHelp:"ข้อมูลที่กรอกไว้ยังอยู่ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง",
       contactDraftRestoreRetry:"ลองอีกครั้ง",
-      contactWhatsAppFailed:"เปิด WhatsApp ไม่สำเร็จ กรุณาลองอีกครั้ง",
+      contactWhatsAppFailed:"เปิด WhatsApp ไม่สำเร็จ ข้ามขั้นตอนนี้แล้วใช้เบอร์โทรและอีเมลต่อได้",
       rentalConnectLine:"เชื่อม LINE เพื่อรับข้อมูลการเช่า",
       rentalContactWhatsApp:"ติดต่อร้านทาง WhatsApp",
       beforeRentTitle:"เช่าเครื่องเกม ส่งถึงบ้าน",
@@ -2603,7 +2603,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       identityReadOptional:"Fill number and expiry from the photo (optional)", identityPhotoReady:"Photo selected: {name} (sent when you confirm)", identityFileType:"This file can’t be used. Only .jpg and .png photos are accepted (up to 40 MB). Choose another photo or use the camera button.", identityFileFormats:"📎 JPG and PNG photos only (.jpg, .png)", identityPhotoDecode:"This photo could not be opened. Choose a JPG or take it again.", identityOcrBusy:"Reading the photo; you can enter the details yourself meanwhile.",
       contactChannelTitle:"Booking updates",
       contactChannelThaiHelp:"Connect LINE before payment to receive your booking updates",
-      contactChannelEnglishHelp:"Connect LINE or use WhatsApp for booking updates.",
+      contactChannelEnglishHelp:"Optional: connect LINE or WhatsApp for booking updates. You can also continue with your phone number and email — it is not needed to pay.",
       contactLineConnect:"Connect LINE",
       contactLineConnected:"LINE connected",
       contactLinePopupTitle:"Before connecting LINE",
@@ -2636,7 +2636,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       contactDraftRestoreTitle:"Still restoring your booking",
       contactDraftRestoreHelp:"Your details are safe. Check your connection and try again.",
       contactDraftRestoreRetry:"Try again",
-      contactWhatsAppFailed:"Could not open WhatsApp. Please try again",
+      contactWhatsAppFailed:"Could not open WhatsApp. You can skip this step and continue with your phone number and email.",
       rentalConnectLine:"Connect LINE for rental updates",
       rentalContactWhatsApp:"Message AJ on WhatsApp",
       beforeRentTitle:"Game Console Rental",
@@ -10056,9 +10056,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       hasGameCatalog ? state.calc.games.map(g => g.id || g.name || g.title).join(",") : "",
       hasGameCatalog && state.calc.later ? "later" : "",
       state.calc.noContract ? "nocon" : "",
-      state.calc.ret ? "ret" : "",
-      state.calc.reviewGoogle ? "reviewGoogle" : "",
-      state.calc.reviewFacebook ? "reviewFacebook" : ""
+      // A special rate takes no discount, so the returning-customer check
+      // ticking these is no change to the rental (21/11/2026: it cost a
+      // customer their Rental ID, and WhatsApp and payment both failed).
+      !activeSpecial() && state.calc.ret ? "ret" : "",
+      !activeSpecial() && state.calc.reviewGoogle ? "reviewGoogle" : "",
+      !activeSpecial() && state.calc.reviewFacebook ? "reviewFacebook" : ""
       // The payment choice and the delivery quote change the total but not the
       // rental, so they keep its Rental ID: the renter's signed agreement and
       // identity photos stay filed under the ID they pay for.
@@ -10075,7 +10078,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const before = previous.split("|");
     const after = current.split("|");
     if(before.length !== 12 || after.length !== 12
-      || !before.every((value, index) => index === 8 || value === after[index])) return;
+      || !before.every((value, index) => index === 8 || (activeSpecial() && index >= 9) || value === after[index])) return;
     state.calc.rentalCodeSig = current;
     saveLocal();
   }
@@ -10096,7 +10099,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function confirmedRentalChanges(){
     const saved = state.calc.confirmedRental;
     if(!saved || typeof saved !== "object") return null;
-    return CONFIRMED_RENTAL_FIELDS.filter(key => snapshotValueKey(key, saved[key]) !== snapshotValueKey(key, state.calc[key]));
+    return CONFIRMED_RENTAL_FIELDS
+      .filter(key => !(activeSpecial() && VERIFIED_ONLY_FIELDS.includes(key)))
+      .filter(key => snapshotValueKey(key, saved[key]) !== snapshotValueKey(key, state.calc[key]));
   }
   function confirmedRentalChangeRows(changes){
     const en = state.lang === "en";
@@ -10494,10 +10499,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       paymentOption: state.calc.payment,
       paymentOptionLabel: en ? paymentOptionMessageLabelEn() : paymentOptionMessageLabelTh(),
       vip: s.vip ? {id:s.vip.id, name:s.vip.name, rentalDiscount:s.vipRentalDisc, depositDiscount:s.vipDepositApplied, deposit:s.vipDeposit, noIdentityDeposit:s.vipNoIdentityDeposit, standardDeposit:s.standardVipDeposit} : null,
-      returningCustomer: !!state.calc.ret,
+      // A special rate takes no discount: the returning-customer check may
+      // have ticked these, and the server refused the booking for it (21/11/2026).
+      returningCustomer: !activeSpecial() && !!state.calc.ret,
       returningVerified: !!state.calc.retVerified,
-      reviewGoogle: !!state.calc.reviewGoogle,
-      reviewFacebook: !!state.calc.reviewFacebook,
+      reviewGoogle: !activeSpecial() && !!state.calc.reviewGoogle,
+      reviewFacebook: !activeSpecial() && !!state.calc.reviewFacebook,
       // The live quote behind the delivery fee: Lalamove's round trip, AJ's
       // discount, and what the customer pays, for the shop's booking and card.
       // True when the renter goes ahead without a live delivery price.
@@ -11931,7 +11938,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       // A special-rate refusal already has its own message on screen (all
       // units taken, link expired…): no "Unable to open the payment page" on
       // top of it (21/11/2026).
-      if(error?.special || String(error?.code || "").startsWith("special_")) return;
+      if(error?.special) return;
+      if(String(error?.code || "").startsWith("special_")){ handleSpecialRefusal(error.code); return; }
       if(error?.code === "line_connection_required"){
         state.calc.demoOrderOpen = false;
         state.calc.step = 2;

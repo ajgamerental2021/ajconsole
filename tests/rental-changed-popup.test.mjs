@@ -17,7 +17,7 @@ function constant(name) {
 }
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-function setup(lang = 'th') {
+function setup(lang = 'th', special = false) {
   const code = 'AJ-20261018-R0031';
   const calc = {consoleId:'PS5', start:'2026-10-20', end:'2026-10-23', bundleId:'', extras:[], boardgames:[],
     games:[{id:'g1', nameTh:'เกมหนึ่ง', nameEn:'Game One'}], later:false, ret:true, retVerified:true,
@@ -30,7 +30,7 @@ function setup(lang = 'th') {
     CONFIG:{lineOaMessageUrl:'https://line.me/R/oaMessage/@ajgame/'},
     consoleById:(id) => ({PS5:{name:'PS5 Slim', nameEn:'PS5 Slim'}, NSW:{name:'Switch 2', nameEn:'Switch 2'}}[id]),
     displayDate:(v) => v ? v.split('-').reverse().join('/') : '-',
-    consoleHasGameCatalog:() => true, calcSummary:() => ({}),
+    consoleHasGameCatalog:() => true, calcSummary:() => ({}), activeSpecial:() => special,
     saveLocal(){ saves++; }, render(){}, closeModal(){ closed++; },
     showModal(title, body){ modal.title = title; modal.body = body; }});
   vm.runInContext(fn('rentalSignature') + fn('reconcileConfirmedIdentitySignature')
@@ -188,4 +188,26 @@ test('an expired booking context is renewed once before saving the changed order
   assert.equal(handoffs, 2);
   assert.equal(refreshedQuote, true);
   assert.equal(calc.demoContextToken, 'new-context');
+});
+
+// 21/11/2026: at a special rate the returning-customer check ticked "ret" after
+// step 3; the Rental ID was then refused (WhatsApp and payment both failed).
+test('at a special rate a returning-customer tick after step 3 is no change: the Rental ID still pays', () => {
+  const {ctx, calc, code} = setup('en', true);
+  calc.ret = false;
+  calc.rentalCodeSig = ctx.rentalSignature();
+  calc.confirmedRental = ctx.confirmedRentalSnapshot();
+  calc.ret = true;
+  calc.reviewGoogle = true;
+  assert.equal(ctx.confirmedRentalChanges().length, 0);
+  assert.equal(ctx.confirmedRentalCodeForPayment({}), code);
+});
+
+test('a signature saved before this change (with "ret") is recovered at a special rate', () => {
+  const {ctx, calc, code} = setup('en', true);
+  calc.ret = true;
+  calc.rentalCodeSig = ctx.rentalSignature().split('|').map((v, i) => (i === 9 ? 'ret' : v)).join('|');
+  ctx.reconcileConfirmedIdentitySignature({});
+  assert.equal(calc.rentalCodeSig, ctx.rentalSignature());
+  assert.equal(ctx.confirmedRentalCodeForPayment({}), code);
 });

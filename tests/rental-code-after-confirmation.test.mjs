@@ -14,7 +14,7 @@ function fn(name, async = false) {
 test('the payment step keeps the confirmed Rental ID in both languages', () => {
   for (const lang of ['th', 'en']) {
     const state = {lang, calc: {demoOrderOpen:true, demoOrderCode:'AJ-20261006-R0060', rentalCode:'AJ-20261006-R0060', rentalCodeSig:'same', demoAgreementFor:'AJ-20261006-R0060', demoIdentityFor:'AJ-20261006-R0060'}};
-    const ctx = vm.createContext({state, rentalSignature:()=> 'same', saveLocal(){}, confirmedRentalChanges:()=>null});
+    const ctx = vm.createContext({state, rentalSignature:()=> 'same', saveLocal(){}, confirmedRentalChanges:()=>null, activeSpecial:()=>false});
     vm.runInContext(fn('reconcileConfirmedIdentitySignature') + fn('confirmedRentalCodeForPayment'), ctx);
     assert.equal(ctx.confirmedRentalCodeForPayment({}), 'AJ-20261006-R0060');
     state.calc.rentalCode = 'AJ-20261006-R0070';
@@ -54,7 +54,7 @@ test('switching identity choice on the confirmed order keeps its Rental ID, but 
     const state = {lang, calc:{consoleId:'N2', start:'2026-10-09', end:'2026-10-12', noContract:true,
       rentalCode:code, demoOrderCode:code, demoOrderOpen:true, rentalCodeSig:''}};
     const ctx = vm.createContext({state, demoProfile:{identitySkipped:true}, demoDelivery:{},
-      calcSummary:()=>({}), consoleHasGameCatalog:()=>false,
+      calcSummary:()=>({}), consoleHasGameCatalog:()=>false, activeSpecial:()=>false,
       syncDemoNoContractAcceptance(){}, saveLocal(){}, render(){},
       pricingPolicy:{}, byId:()=>null, confirmedRentalChanges:()=>null});
     Object.assign(state.calc, {bundleId:'', extras:[], boardgames:[], games:[], ret:false, reviewGoogle:false, reviewFacebook:false});
@@ -75,7 +75,7 @@ test('a saved checkout from the older site recovers only the identity-choice mis
     bundleId:'', extras:[], boardgames:[], games:[], ret:false, reviewGoogle:false, reviewFacebook:false,
     rentalCode:code, demoOrderCode:code, demoOrderOpen:true, rentalCodeSig:''}};
   let saves = 0;
-  const ctx = vm.createContext({state, calcSummary:()=>({}), consoleHasGameCatalog:()=>false,
+  const ctx = vm.createContext({state, calcSummary:()=>({}), consoleHasGameCatalog:()=>false, activeSpecial:()=>false,
     saveLocal(){saves++;}, confirmedRentalChanges:()=>null});
   vm.runInContext('let rentalCodeRequest=null;' + fn('rentalSignature')
     + fn('reconcileConfirmedIdentitySignature') + fn('ensureRentalCode', true)
