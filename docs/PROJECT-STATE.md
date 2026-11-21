@@ -1,3 +1,19 @@
+## 2026-11-21 — Special rate: a returning customer could not pay (Bot `c229261`, website `d63f05c`)
+
+- **Cause:**
+  - The returning-customer check sets `state.calc.ret` (and the review ticks can stay on).
+  - At a special rate these give no discount and their checkbox is hidden, but `bookingStructured` still sent them as `returningCustomer`/`reviewGoogle`/`reviewFacebook`.
+  - The Bot's booking context refused the booking with `special_no_discounts`; the customer saw "Unable to open the payment page".
+  - The same tick changed `rentalSignature` after step 3, so `ensureRentalCode` threw `rental_details_changed`: the English WhatsApp button showed "could not open WhatsApp".
+- **Bot:** at a special rate the three flags are cleared before `specialPricingProblem`, on booking and on a pay-later edit. Real discount rows are still refused. Customers on an older page are covered by the Bot alone.
+- **Website:**
+  - At a special rate the flags are not sent, not part of the signature, and not a confirmed-rental change.
+  - The signature reconcile accepts an older saved signature that differs only at positions 9–11.
+  - A special refusal at payment opens its own message.
+  - The English contact step says LINE/WhatsApp are optional.
+- **Deploy:** Bot first (this unblocks the customer even before the website), then the website.
+- **Also open:** the campaign still reads full (`remaining 0`). Check the Admin links for another link holding or paid in `sp-mwps8o66`.
+
 ## 2026-11-21 — Special-rate customer could not pay: the campaign's unit was taken (website `15b2395`, Bot `40fb74d`)
 
 - **Case:** link `g0wJ…` (campaign `sp-mwps8o66` "GTA6 22nd Nov", 1 unit, start fixed on 22/11, at least 7 days).
