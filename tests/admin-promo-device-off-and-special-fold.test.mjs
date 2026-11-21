@@ -26,3 +26,15 @@ test('special-rate campaigns fold, newest first; links sit above them and show t
   assert.ok(page.indexOf('<div class="card sp-links">') < page.indexOf('${campaigns || `<div class="card"><p class="hint">${en ? "No campaigns yet."'), 'links card before the campaigns');
   assert.match(page, /adminSpecial\.open\.add\(id\);/);
 });
+
+test('special-rate admin: every button is wired; a held link shows its hold and can be released; a link into a full campaign warns', () => {
+  const wired = page.match(/event\.target\.closest\("(#adminSpecial \[data-sp-[^"]+)"\)\)\{\n\s*void adminSpecialAction/)[1];
+  for (const attr of ['data-sp-release', 'data-sp-links-toggle', 'data-sp-revoke', 'data-sp-link']) assert.ok(wired.includes(`[${attr}]`), attr);
+  assert.match(page, /\$\{link\.holdUntil \? `<div class="hint">\$\{en \? "Unit held until" : "กันเครื่องถึง"\}/);
+  assert.match(page, /\/api\/admin\/special-rates\/links\/\$\{encodeURIComponent\(release\.dataset\.spRelease\)\}\/release/);
+  assert.match(page, /if\(result\.link\?\.campaignFull\)\{/);
+});
+
+test('a special-rate refusal at payment shows its own message only', () => {
+  assert.match(page, /if\(error\?\.special \|\| String\(error\?\.code \|\| ""\)\.startsWith\("special_"\)\) return;\n      if\(error\?\.code === "line_connection_required"\)/);
+});

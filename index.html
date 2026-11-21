@@ -11928,6 +11928,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }catch(error){
       hideDemoBusy();
       console.error("Demo Beam payment failed", error);
+      // A special-rate refusal already has its own message on screen (all
+      // units taken, link expired…): no "Unable to open the payment page" on
+      // top of it (21/11/2026).
+      if(error?.special || String(error?.code || "").startsWith("special_")) return;
       if(error?.code === "line_connection_required"){
         state.calc.demoOrderOpen = false;
         state.calc.step = 2;
@@ -16278,7 +16282,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const shownLinks = adminSpecial.linksOpen ? sortedLinks.slice(0, 60) : sortedLinks.slice(0, 1);
     const links = shownLinks.map(link => {
       const campaign = adminSpecial.campaigns.find(item => item.id === link.campaignId);
-      return `<tr><td>${esc(link.note || "-")}</td><td>${esc(campaign?.titleTh || link.campaignId)}</td><td>${esc(adminSpecialStateLabel(link.state))}${link.rentalCode ? `<div class="hint">${esc(link.rentalCode)}</div>` : ""}</td><td>${esc(when(link.expiresAt))}</td><td class="sp-link-actions">${["open", "held"].includes(link.state) ? `<button class="btn" type="button" data-sp-copy="${esc(link.url)}">${en ? "Copy" : "คัดลอก"}</button><button class="btn" type="button" data-sp-revoke="${esc(link.id)}">${en ? "Cancel" : "ยกเลิก"}</button>` : ""}</td></tr>`;
+      return `<tr><td>${esc(link.note || "-")}</td><td>${esc(campaign?.titleTh || link.campaignId)}</td><td>${esc(adminSpecialStateLabel(link.state))}${link.holdUntil ? `<div class="hint">${en ? "Unit held until" : "กันเครื่องถึง"} ${esc(when(link.holdUntil))}</div>` : ""}${link.rentalCode ? `<div class="hint">${esc(link.rentalCode)}</div>` : ""}</td><td>${esc(when(link.expiresAt))}</td><td class="sp-link-actions">${["open", "held"].includes(link.state) ? `<button class="btn" type="button" data-sp-copy="${esc(link.url)}">${en ? "Copy" : "คัดลอก"}</button>${link.state === "held" ? `<button class="btn" type="button" data-sp-release="${esc(link.id)}">${en ? "Release unit" : "ปล่อยเครื่อง"}</button>` : ""}<button class="btn" type="button" data-sp-revoke="${esc(link.id)}">${en ? "Cancel" : "ยกเลิก"}</button>` : ""}</td></tr>`;
     }).join("");
     return `<div class="card"><h3>${en ? "Special rates" : "ราคาพิเศษ"}</h3>
         <p class="hint">${en
@@ -16364,6 +16368,14 @@ We apologize for the inconvenience and hope everyone stays safe.`
         const result = await adminSpecialFetch("/api/admin/special-rates/links", {method:"POST", body:JSON.stringify({campaignId:campaign.id, note})});
         adminSpecial.lastLink = result.link;
         adminSpecial.linksOpen = false;
+        if(result.link?.campaignFull){
+          // The campaign's units are all paid or held: the customer cannot pay
+          // until one comes free (21/11/2026).
+          const who = (result.link.holders || []).map(h => `• ${h.note || h.id}: ${h.state === "paid" ? (en ? "paid" : "ชำระแล้ว") : `${en ? "holding until" : "กันเครื่องถึง"} ${new Date(h.holdUntil).toLocaleString(en ? "en-GB" : "th-TH", {timeZone:"Asia/Bangkok", day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit"})}`}`).join("\n");
+          alert(en
+            ? `Link created, but all ${result.link.units} unit(s) of this campaign are taken, so the customer cannot pay yet:\n${who}\n\nRaise "Units open for rent" and save, or release / cancel the link holding it.`
+            : `สร้างลิงก์แล้ว แต่เครื่องของ campaign นี้ถูกใช้ครบ ${result.link.units} เครื่อง ลูกค้าจะยังชำระเงินไม่ได้:\n${who}\n\nเพิ่ม "จำนวนเครื่องที่เปิดให้เช่า" แล้วบันทึก หรือกด "ปล่อยเครื่อง" / "ยกเลิก" ลิงก์ที่กันไว้`);
+        }
         try{ await navigator.clipboard.writeText(result.link.url); toast(en ? "Link created and copied" : "สร้างลิงก์และคัดลอกแล้ว"); }catch{ toast(en ? "Link created" : "สร้างลิงก์แล้ว"); }
         await loadAdminSpecial();
       }catch(error){
@@ -16375,6 +16387,15 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const copy = target.closest("[data-sp-copy]");
     if(copy){
       try{ await navigator.clipboard.writeText(copy.dataset.spCopy); toast(tr("copied")); }catch{ toast(copy.dataset.spCopy); }
+      return true;
+    }
+    const release = target.closest("[data-sp-release]");
+    if(release){
+      if(!confirm(en
+        ? "Release the unit this link holds? Another link can then book it. If this customer is paying right now, their payment may arrive for a unit someone else takes."
+        : "ปล่อยเครื่องที่ลิงก์นี้กันไว้? ลิงก์อื่นจะจองเครื่องนี้ได้ ถ้าลูกค้าคนนี้กำลังชำระเงินอยู่ อาจได้เงินมาแต่เครื่องถูกคนอื่นจองไปแล้ว")) return true;
+      try{ await adminSpecialFetch(`/api/admin/special-rates/links/${encodeURIComponent(release.dataset.spRelease)}/release`, {method:"POST", body:"{}"}); await loadAdminSpecial(); toast(en ? "Unit released" : "ปล่อยเครื่องแล้ว"); }
+      catch(error){ toast(adminSpecialSaveError(error.code || error.message)); }
       return true;
     }
     const revoke = target.closest("[data-sp-revoke]");
@@ -17236,7 +17257,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(bgDetail){ showBoardGameDetail(bgDetail.dataset.bgDetail); return; }
       if(event.target.closest("[data-modal-close]")){ closeModal(); return; }
       // Special-rate admin: its buttons are handled there (async; nothing below applies to them).
-      if(state.adminTab === "special" && event.target.closest("#adminSpecial [data-sp-reload], #adminSpecial [data-sp-add], #adminSpecial [data-sp-remove], #adminSpecial [data-sp-save], #adminSpecial [data-sp-link], #adminSpecial [data-sp-copy], #adminSpecial [data-sp-revoke], #adminSpecial [data-sp-lock-clear]")){
+      if(state.adminTab === "special" && event.target.closest("#adminSpecial [data-sp-reload], #adminSpecial [data-sp-add], #adminSpecial [data-sp-remove], #adminSpecial [data-sp-save], #adminSpecial [data-sp-link], #adminSpecial [data-sp-copy], #adminSpecial [data-sp-revoke], #adminSpecial [data-sp-release], #adminSpecial [data-sp-links-toggle], #adminSpecial [data-sp-lock-clear]")){
         void adminSpecialAction(event.target);
         return;
       }
