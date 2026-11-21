@@ -1,3 +1,10 @@
+## 2026-11-21 — Verify Beam checkout from the delivery tracking page
+
+- The delivery card was caching Beam links by the amount and channel. Card and e-wallet links previously used the booking-site return page, so the Bot applied the booking site's ten-minute lifetime.
+- Trip Pay now opens the Delivery App's checkout route, checks the live balance and provider status, and renews expired links. New delivery links use their own return page. A successful payment is reconciled using its rental reference before the app offers another checkout.
+- The shop-provided receipt from the incident was verified and reconciled to the existing rental. The real trip showed a zero balance and the payment route reported paid in both languages. The scoped repair was removed after verification.
+- Delivery App `586338d`, Bot `114e8bc`. Existing website checkout and extension expiry use their own payment windows.
+
 ## 2026-11-21 — Extension payment windows expire after ten minutes
 
 - Delivery App reads the same deadline for the extension hold, the payment countdown and expiry. New Beam checkouts get the deadline as an absolute timestamp from the app (Bot `9c6d8da`, Delivery App `dbd2512`).
