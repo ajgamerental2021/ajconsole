@@ -9298,7 +9298,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return hash.toString(16).padStart(8, "0");
   }
   function rowAvailableForRange(row, start, end){
-    if(!row || /end|เลิก|ปิด/i.test(String(row.status || ""))) return false;
+    // A LOCKED unit (Inventory status, 20/11/2026) is the shop's to hand out,
+    // never free to a customer. The Bot's queue already holds it; the sheet's
+    // Apps Script reports it as a bare status, which read as free on every day
+    // (21/11/2026: PS5 showed "ว่าง" until the Bot answered).
+    if(!row || /end|เลิก|ปิด|lock|ล็อค/i.test(String(row.status || ""))) return false;
     if(row.availableDate && start < row.availableDate) return false;
     const own = ownQueueCode() ? requestKey(ownQueueCode()) : "";
     // A rental holds its unit through its return day: the next one may start
@@ -9585,7 +9589,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       fetchJsonWithTimeout(`${CONFIG.availabilityUrl}${CONFIG.availabilityUrl.includes("?")?"&":"?"}_ts=${stamp}-retry`, 16000, controller.signal)
         .then(payload => {
           if(!normalizeAvailabilityRows(payload).length) throw new Error("Availability response is empty");
-          return payload;
+          // The sheet's copy misses unpaid requests, checkout holds and
+          // locks the Bot's queue has: a stand-in until the Bot answers.
+          return payload && typeof payload === "object" ? {...payload, _ajSource:"sheet"} : payload;
         }).then(resolveRetry, rejectRetry);
     };
     void first.catch(startRetry);
@@ -9610,6 +9616,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     refreshBookingHolds().catch(() => {
       state.availability.holds = mergeBookingHolds(state.availability.holds);
     });
+  }
+  // The sheet answered for a slow Bot: ask the Bot again shortly, a few times,
+  // so its queue (unpaid requests, holds, locked units) replaces the stand-in.
+  let sheetRecheckTimer = 0, sheetRecheckTries = 0;
+  function scheduleBotAvailabilityRecheck(){
+    if(sheetRecheckTimer || sheetRecheckTries >= 4) return;
+    sheetRecheckTries += 1;
+    sheetRecheckTimer = window.setTimeout(() => {
+      sheetRecheckTimer = 0;
+      fetchAvailability().catch(() => {});
+    }, 4000 * sheetRecheckTries);
   }
   function fetchAvailability(requireFresh = false){
     if(availabilityRequest) return requireFresh ? availabilityRequest.then(() => fetchAvailability(true)) : availabilityRequest;
@@ -9641,10 +9658,18 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       state.availability.error = "";
       state.availability.stale = false;
       state.availability.lastSync = Number(availabilityPayload?._ajFetchedAt) || Date.now();
-      try{
-        localStorage.setItem(AVAILABILITY_CACHE_KEY, JSON.stringify({savedAt:state.availability.lastSync,payload:availabilityPayload}));
-      }catch(error){
-        console.warn("Availability cache skipped", error);
+      // The sheet answered: directly (the Bot was slow) or through the Bot
+      // (the delivery app was slow).
+      const fromSheet = ["sheet","apps-script"].includes(availabilityPayload?._ajSource);
+      state.availability.source = fromSheet ? "sheet" : "bot";
+      if(fromSheet) scheduleBotAvailabilityRecheck();
+      else{
+        sheetRecheckTries = 0;
+        try{
+          localStorage.setItem(AVAILABILITY_CACHE_KEY, JSON.stringify({savedAt:state.availability.lastSync,payload:availabilityPayload}));
+        }catch(error){
+          console.warn("Availability cache skipped", error);
+        }
       }
       return {fresh:true};
     }catch(error){

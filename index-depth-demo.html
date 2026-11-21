@@ -8161,7 +8161,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return tr(key).replace("{minutes}", String(holdMinutes(holds)));
   }
   function rowAvailableForRange(row, start, end){
-    if(!row || /end|เลิก|ปิด/i.test(String(row.status || ""))) return false;
+    if(!row || /end|เลิก|ปิด|lock|ล็อค/i.test(String(row.status || ""))) return false;
     if(row.availableDate && start < row.availableDate) return false;
     // A rental holds its unit through its return day: the next one may start
     // the day after, never the day it comes back (12/11/2026). So a new

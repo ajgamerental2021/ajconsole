@@ -3225,7 +3225,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
     return new Set([c.name, c.nameEn].map(norm).filter(Boolean));
   }
   function rowAvailableForRange(row, start, end){
-    if(!row || /end|เลิก|ปิด/i.test(String(row.status || ""))) return false;
+    if(!row || /end|เลิก|ปิด|lock|ล็อค/i.test(String(row.status || ""))) return false;
     if(row.availableDate && start < row.availableDate) return false;
     // A rental holds its unit through its return day: the next one may start
     // the day after, never the day it comes back (12/11/2026). So a new
