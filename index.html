@@ -2045,12 +2045,40 @@ body{background:#f7f8fa}
   // Special rental rate (14/11/2026): a private campaign link the shop sends
   // one customer (/special/?t=…). The same booking page, only the campaign's
   // devices, the normal price plus the campaign's surcharge and no discounts.
-  // The token is kept for this tab only; a plain visit is the normal site.
+  // The token is kept for this tab, and on this device until the link
+  // expires: a customer who went out to LINE (or WhatsApp) and came back in
+  // another tab landed on the normal site with the special booking's dates,
+  // and the full PS5 queue refused them (21/11/2026). A link that is used up,
+  // expired or cancelled is dropped quietly when it came from storage.
   const SPECIAL_TOKEN_KEY = "aj_special_rate_v1";
-  const specialRate = {token:"", campaign:null, error:"", loading:false, expiresAt:"", remaining:null, full:false};
+  const SPECIAL_TOKEN_DEVICE_KEY = "aj_special_rate_device_v1";
+  const specialRate = {token:"", campaign:null, error:"", loading:false, expiresAt:"", remaining:null, full:false, fromStorage:false};
+  const SPECIAL_TOKEN_PATTERN = /^[A-Za-z0-9_-]{10,80}$/;
+  function rememberSpecialToken(token, expiresAt){
+    try{
+      sessionStorage.setItem(SPECIAL_TOKEN_KEY, token);
+      const until = Date.parse(expiresAt || "") || (Date.now() + 48 * 60 * 60 * 1000);
+      localStorage.setItem(SPECIAL_TOKEN_DEVICE_KEY, JSON.stringify({token, until}));
+    }catch{}
+  }
+  function forgetSpecialToken(){
+    try{ sessionStorage.removeItem(SPECIAL_TOKEN_KEY); localStorage.removeItem(SPECIAL_TOKEN_DEVICE_KEY); }catch{}
+  }
+  function storedSpecialToken(){
+    try{
+      const session = String(sessionStorage.getItem(SPECIAL_TOKEN_KEY) || "");
+      if(SPECIAL_TOKEN_PATTERN.test(session)) return session;
+      const saved = JSON.parse(localStorage.getItem(SPECIAL_TOKEN_DEVICE_KEY) || "null");
+      if(saved && SPECIAL_TOKEN_PATTERN.test(String(saved.token || "")) && Number(saved.until) > Date.now()) return String(saved.token);
+      localStorage.removeItem(SPECIAL_TOKEN_DEVICE_KEY);
+    }catch{}
+    return "";
+  }
   try{
     const fromUrl = String(PAGE_PARAMS.get("special") || "").trim();
-    specialRate.token = /^[A-Za-z0-9_-]{10,80}$/.test(fromUrl) ? fromUrl : String(sessionStorage.getItem(SPECIAL_TOKEN_KEY) || "");
+    const urlToken = SPECIAL_TOKEN_PATTERN.test(fromUrl) ? fromUrl : "";
+    specialRate.token = urlToken || storedSpecialToken();
+    specialRate.fromStorage = !urlToken && !!specialRate.token;
     if(specialRate.token) sessionStorage.setItem(SPECIAL_TOKEN_KEY, specialRate.token);
     if(fromUrl){
       const clean = new URL(location.href);
@@ -8838,6 +8866,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         specialRate.campaign = result.campaign;
         specialRate.error = "";
         specialRate.expiresAt = String(result.expiresAt || "");
+        rememberSpecialToken(specialRate.token, specialRate.expiresAt);
         specialRate.remaining = Number(result.remaining);
         specialRate.full = result.full === true;
         // Only the campaign's devices: a device chosen elsewhere is let go.
@@ -8848,6 +8877,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         state.calc.reviewFacebook = false;
         // Locked dates are filled in for the customer (and cannot be changed).
         applySpecialDateLock();
+      }else if(specialRate.fromStorage && ["special_link_used", "special_link_expired", "special_link_revoked", "special_link_invalid", "special_campaign_closed", "special_dates_passed"].includes(String(result?.error || ""))){
+        // A link remembered from an earlier visit that has since finished: the normal site.
+        forgetSpecialToken();
+        specialRate.token = "";
+        specialRate.campaign = null;
+        specialRate.error = "";
       }else{
         specialRate.campaign = null;
         specialRate.error = String(result?.error || "special_link_invalid");
@@ -8871,7 +8906,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return true;
   }
   function leaveSpecialRate(){
-    try{ sessionStorage.removeItem(SPECIAL_TOKEN_KEY); }catch{}
+    forgetSpecialToken();
     location.href = "/";
   }
   function renderSpecialRateBanner(){
@@ -14771,7 +14806,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
       profile:Object.fromEntries(DEMO_PROFILE_FIELDS.map(key => [key,demoProfile[key]])),
       refund:{account:demoAgreement.account,wise:{...demoAgreement.wise},returningBankName:demoReturningBankName},
       returningBaseline:demoReturningBaseline,
-      contactFromLine:demoContactFromLine
+      contactFromLine:demoContactFromLine,
+      // The new tab has no storage of this one: the special rate goes with the draft.
+      specialToken:specialRate.token || ""
     };
   }
   async function saveLineBookingDraft(pending){
@@ -14798,6 +14835,12 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const draft = result.draft;
     if(!draft.calc || !draft.profile || !draft.refund || typeof draft.calc !== "object" || typeof draft.profile !== "object") throw new Error("line_draft_invalid");
     for(const key of LINE_DRAFT_CALC_FIELDS) if(Object.hasOwn(draft.calc,key)) state.calc[key] = draft.calc[key];
+    if(SPECIAL_TOKEN_PATTERN.test(String(draft.specialToken || "")) && draft.specialToken !== specialRate.token){
+      specialRate.token = draft.specialToken;
+      specialRate.fromStorage = false;
+      rememberSpecialToken(specialRate.token, "");
+      void loadSpecialRate();
+    }
     for(const key of DEMO_PROFILE_FIELDS) if(Object.hasOwn(draft.profile,key)) demoProfile[key] = draft.profile[key];
     demoAgreement.account = String(draft.refund.account || "").slice(0,20);
     if(draft.refund.wise && typeof draft.refund.wise === "object") for(const key of Object.keys(demoAgreement.wise)) if(key in draft.refund.wise) demoAgreement.wise[key] = String(draft.refund.wise[key] || "").slice(0,200);

@@ -143,3 +143,15 @@ test('the calendar never opens without a console (17/11/2026): the customer is t
   assert.match(html, /chooseConsoleFirst:"Choose a console first\. The calendar then shows its free dates\."/);
   assert.match(html, /data-cal-choose-console>/);
 });
+
+// 21/11/2026: the customer went out to LINE and came back in another tab: the
+// special rate was gone and the full PS5 queue refused the dates.
+test('the special link survives another tab (until it expires) and the LINE round trip; a finished one is dropped quietly', () => {
+  assert.match(html, /localStorage\.setItem\(SPECIAL_TOKEN_DEVICE_KEY, JSON\.stringify\(\{token, until\}\)\);/);
+  assert.match(html, /Number\(saved\.until\) > Date\.now\(\)\) return String\(saved\.token\);/);
+  assert.match(html, /rememberSpecialToken\(specialRate\.token, specialRate\.expiresAt\);/);
+  assert.match(html, /\}else if\(specialRate\.fromStorage && \["special_link_used", "special_link_expired"/);
+  assert.match(html, /specialToken:specialRate\.token \|\| ""/);
+  assert.match(html, /if\(SPECIAL_TOKEN_PATTERN\.test\(String\(draft\.specialToken \|\| ""\)\) && draft\.specialToken !== specialRate\.token\)\{/);
+  assert.match(html, /forgetSpecialToken\(\);\n    location\.href = "\/";/);
+});

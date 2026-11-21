@@ -29,6 +29,8 @@ for (const language of ['th', 'en']) {
       DEMO_PROFILE_FIELDS:profileFields, URL, CONFIG:{contractWebUrl:'https://bot.example.com'},
       sessionStorage:{setItem:(key,value)=>saved.set(key,value),getItem:key=>saved.get(key)||null,removeItem:key=>saved.delete(key)},
       saveLocal(){}, saveDemoProfile(){},
+      specialRate:{token:'SPECIALtoken123456', fromStorage:false}, SPECIAL_TOKEN_PATTERN:/^[A-Za-z0-9_-]{10,80}$/,
+      rememberSpecialToken(){}, loadSpecialRate:async()=>{ context.specialLoaded = true; },
       bookingFetch:async (url, options) => {
         if(options.method === 'PUT') { serverDraft=JSON.parse(options.body); return {ok:true}; }
         assert.match(String(url),/\/draft$/);
@@ -43,9 +45,14 @@ for (const language of ['th', 'en']) {
     assert.equal(serverDraft.profile.deliveryInstructions,'Gate 2');
     assert.equal(serverDraft.refund.account,'1234567890');
     assert.equal(JSON.stringify(serverDraft).includes('identityNumber'),false);
+    // The special rate goes with the draft to the new tab (21/11/2026).
+    assert.equal(serverDraft.specialToken,'SPECIALtoken123456');
+    context.specialRate.token='';
     context.state.calc={step:1};context.demoProfile={};context.demoAgreement.account='';context.demoAgreement.wise={payout:'bank',wiseEmail:'',wiseAccountNumber:''};
     context.api.setReturn({id:'i'.repeat(43),key:'r'.repeat(43)});
     assert.equal(await context.api.restoreLineBookingDraft(),true);
+    assert.equal(context.specialRate.token,'SPECIALtoken123456');
+    assert.equal(context.specialLoaded,true);
     for(const key of ['consoleId','start','end','bundleId','extras','boardgames','games','retVerified','retVerificationToken','reviewGoogle','reviewFacebook','noContract','rentalTermsAccepted'])
       assert.deepEqual(JSON.parse(JSON.stringify(context.state.calc[key])),originalCalc[key],key);
     for(const key of ['fullName','phone','email','maps','deliveryInstructions','deliveryNotes','refundBankId','refundAccountName','refundDeferred','termsAccepted','identitySkipped'])
