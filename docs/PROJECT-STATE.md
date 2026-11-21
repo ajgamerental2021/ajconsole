@@ -1,3 +1,19 @@
+## 2026-11-21 — Promotion off per model; special-rate admin folds; game catalogue stays fresh (website `689ff3e`, Bot `a77b52c`, DA `d145f74`)
+
+- **Rental promotions:**
+  - Each campaign has a tick per model. Under "all devices", an unticked model is saved in `excludedDeviceKeys` and keeps its normal price.
+  - It is honoured by the website `promotionFor`, the quick quote, Bot `promotionFor`/LIFF, and DA `rentalPromotionFor`.
+  - Fixed prices per model had been saved under the key `undefined` (wrong data attribute). They are now saved under the model's key.
+- **Special rates admin:**
+  - Campaigns are folded `<details>`, newest first. A new campaign opens and scrolls into view.
+  - The links card sits above the campaigns and shows only the latest link until "ดูทั้งหมด".
+- **GTA6 missing in a customer's LINE browser:**
+  - The catalogue (Gist `ajgame-data.json`) loaded once per page. A picker kept open since before a game was added never re-read it.
+  - The picker now reloads the catalogue on `AJ_PICKER_OPEN` when it is over 60 s old, and when the page becomes visible again when it is over 2 min old. A failed load retries up to 3 times.
+  - Catalogue saves are serialised and three-way merged against the latest Gist copy, so a stale admin device cannot drop games added elsewhere.
+  - `gamePickerVersion` is now 20261121-1.
+- **Deploy:** website, then Bot, then DA (DA only reads `excludedDeviceKeys`; no migration).
+
 ## 2026-11-20 — Locked units selectable by the shop in the Booking form (DA `0d1954a`)
 
 - **Cause:** `groupInventoryUnits` (sheet) and `pgInventoryRepo.groupUnits` sorted units into active and END only. LOCKED units went to neither, so the Booking device picker (fed by the grouped inventory) never listed PS5-16/PS5-17.
