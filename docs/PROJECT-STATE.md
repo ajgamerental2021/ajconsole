@@ -7236,3 +7236,8 @@ paused job shows slightly old numbers rather than an empty section.
 - The original checklist remains otherwise unchanged. Its auto-save is browser-local, so the owner should use its JSON backup when moving between devices. No server-side sync or account login was added.
 - Verified locally that the full link opens the checklist, its controls initialize, edits survive reload, and the page without the key does not expose the checklist.
 
+## 21 November 2026 — Delivery balance checkout without an expiry
+
+- Delivery App `d3550e0` routes Thai and English delivery-card buttons and tracking-page payments through a signed app URL. Checkout uses the current balance for the delivery and a Beam link with no timestamp limit for PromptPay, card and e-wallet. On opening an older app URL, the app checks any existing Beam link and replaces a timed checkout after confirming its status. Older cards that link directly to Beam need a fresh card or the tracking-page button if the original link expired.
+- LINE OA Bot `657b1e3` requests Beam's no-expiry setting for signed delivery-balance requests. Reservation and extension checkout deadlines follow their existing rules. No booking-site or Android client changes.
+- TypeScript and the Beam, dispatch, delivery-card, balance, payment, and extension-hold tests passed. The delivery checkout tests cover both languages, paying after handoff, combined bookings, old timed links, already-paid links and invalid signatures.
