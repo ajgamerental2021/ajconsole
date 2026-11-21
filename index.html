@@ -8464,7 +8464,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         endDate:fmtIso(end),
         capacity:devices[0]?.capacity || 1,
         devices,
-        ...(specialModeOn() && specialRate.campaign ? {specialToken:specialRate.token} : {})
+        ...((ctx.useSpecialRate ?? specialModeOn()) && specialRate.campaign ? {specialToken:specialRate.token} : {})
       })
     });
     const result = await response.json().catch(() => ({}));
@@ -8511,7 +8511,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       console.warn("Booking hold release skipped", error);
     }
   }
-  async function ensureBookingHold(rentalCode, ctx = calcRentalContext()){
+  async function ensureBookingHold(rentalCode, ctx = calcRentalContext(), {requireAuthoritativeQueue = false} = {}){
     const initialGate = evaluateAvailability(ctx);
     if(!initialGate.pass){
       // The full queue said plainly, with the earliest start (20/11/2026), on every page that holds.
@@ -8521,9 +8521,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     }
     const hold = await acquireBookingHold(rentalCode, ctx);
     // A special rate's unit is the campaign's, held by the server just now; the stock queue is not its business.
-    if(activeSpecial()) return hold;
+    if(ctx.useSpecialRate ?? activeSpecial()) return hold;
     const refreshed = await fetchAvailability(true);
-    if(!refreshed?.fresh){
+    if(!refreshed?.fresh || (requireAuthoritativeQueue && state.availability.source !== "bot")){
       await releaseBookingHold(rentalCode);
       throw new Error("booking_availability_refresh_failed");
     }
@@ -9555,7 +9555,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!startDateAllowed(start)) return {mode:"cutoff",pass:false,message:cutoffStartNotice()};
     if(diffDays(start,end) < 3) return {mode:"min",pass:false,message:tr("minDays")};
     // A special rate counts the campaign's own units (held on the server), never the stock queue.
-    if(activeSpecial()) return {mode:"ok",pass:true,message:tr("available")};
+    if(ctx.useSpecialRate ?? activeSpecial()) return {mode:"ok",pass:true,message:tr("available")};
     if(!state.availability.rows.length) return {mode:"fallback",pass:true,message:""};
     const bundleGate = selectedBundleAvailabilityGate(start, end, ctx);
     if(!bundleGate.pass) return {mode:bundleGate.holds?.length ? "hold" : "busy",pass:false,message:bundleGate.message};
@@ -12230,11 +12230,15 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const header = document.querySelector("nav")?.getBoundingClientRect().height || 0;
     window.scrollTo({top:Math.max(0, window.scrollY + target.getBoundingClientRect().top - header - 12), behavior:"smooth"});
   }
-  function openPayResume(code, token, {silent=false, autoCheckout=false, focusPayment=false, preferredMethod=""}={}){
+  const payResumeBeamMethods = ["cash", "bank", "credit", "ewallet"];
+  function openPayResume(code, token, {silent=false, autoCheckout=false, directBeam=false, focusPayment=false, preferredMethod=""}={}){
+    const wantsBeam = directBeam && payResumeBeamMethods.includes(preferredMethod);
+    let startCheckout = autoCheckout;
     if(!silent) Object.assign(payResume, {active:true, code, token, loading:true, saving:false, error:"", rental:null, queueBlocked:"", editorReady:false});
     document.body.classList.add("pay-resume-open");
     try{ sessionStorage.setItem(PAY_RESUME_TOKEN_KEY, JSON.stringify({code, token})); }catch{}
     if(!silent){ renderPayResume(); window.scrollTo(0, 0); }
+    if(wantsBeam) showDemoBusy(state.lang === "en" ? "Checking your rental and opening Beam checkout…" : "กำลังตรวจรายการเช่าและเปิดหน้าชำระเงิน Beam…");
     bookingFetch(`${CONFIG.apiBase}/api/rentals/payment-page`, {
       method:"POST",
       cache:"no-store",
@@ -12245,9 +12249,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(!response.ok || !result.rental) throw new Error(result.error || "unavailable");
       payResume.rental = result.rental;
       const supported = result.rental.plan?.methods || {};
-      const canPreselect = ["cash", "bank", "credit", "ewallet", "wise"].includes(preferredMethod)
+      const canPreselect = [...payResumeBeamMethods, "wise"].includes(preferredMethod)
         && Object.hasOwn(supported, preferredMethod) && !autoCheckout
         && (preferredMethod !== "wise" || state.lang === "en");
+      startCheckout = autoCheckout || (wantsBeam && canPreselect);
       const chosen = canPreselect ? preferredMethod : String(silent ? payResume.method : result.rental.paymentOption || "");
       payResume.method = result.rental.plan?.methods?.[chosen] ? chosen : "cash";
       hydratePayResumeEditor(result.rental);
@@ -12255,19 +12260,26 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(!silent) payResume.error = error.message === "link_invalid" ? "link_invalid" : "unavailable";
     }).finally(async () => {
       payResume.loading = false;
-      renderPayResume();
-      if(payResume.rental && !payResume.rental.paid){
-        if(focusPayment && !autoCheckout){
+      try{
+        renderPayResume();
+        if(!payResume.rental || payResume.rental.paid) return;
+        if(focusPayment && !startCheckout){
           window.setTimeout(focusPayResumePayment, 100);
           window.setTimeout(focusPayResumePayment, 900);
         }
-        const queueReady = await checkPayResumeQueue(autoCheckout);
-        if(autoCheckout && queueReady && !payResume.queueBlocked){
-          try{ const url = new URL(location.href); url.searchParams.delete("checkout"); history.replaceState(null, "", url.pathname + url.search + url.hash); }catch{}
-          await launchPayResume();
-        }else if(autoCheckout){
+        const queueReady = wantsBeam && startCheckout ? true : await checkPayResumeQueue(startCheckout);
+        if(startCheckout && queueReady && !payResume.queueBlocked){
+          try{
+            const url = new URL(location.href);
+            url.searchParams.delete("checkout");
+            history.replaceState(null, "", url.pathname + url.search + url.hash);
+          }catch{}
+          await launchPayResume({requireAuthoritativeQueue:wantsBeam});
+        }else if(startCheckout){
           window.setTimeout(focusPayResumePayment, 100);
         }
+      }finally{
+        if(wantsBeam) hideDemoBusy();
       }
     });
   }
@@ -12290,10 +12302,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   async function checkPayResumeQueue(requireFresh=false){
     const r = payResume.rental;
     if(!r) return false;
-    // The catalogue may still be loading on a device that never booked here.
-    let found = payResumeContext(r);
-    if(!found.item){ await gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {}); found = payResumeContext(r); }
-    const {ctx} = found;
+    // The payment API checks and renews the campaign hold for this saved rental.
+    if(r.specialRate?.campaignId) return true;
+    const {ctx} = await loadPayResumeContext(r);
     if(!ctx.consoleId || !ctx.start || !ctx.end){
       if(requireFresh) toast(state.lang === "en" ? "The rental details could not be checked. Please try again." : "ตรวจสอบข้อมูลการเช่าไม่สำเร็จ กรุณาลองอีกครั้ง", 4500);
       return false;
@@ -12311,10 +12322,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(!gate.pass){ showPayResumeQueuePopup(await withOwnQueueCode(r.rentalCode, () => queueFullText(ctx, gate))); return false; }
     return true;
   }
+  async function loadPayResumeContext(rental){
+    const found = payResumeContext(rental);
+    if(found.item) return found;
+    // The catalogue may still be loading on a device that never booked here.
+    await gistFetch().then(data => { if(data) applyRemoteData(data); }).catch(() => {});
+    return payResumeContext(rental);
+  }
   function payResumeContext(rental){
     const wanted = norm(rental.deviceName);
     const item = consoleById(rental.consoleId) || state.consoles.find(c => [c.name, c.nameEn, cName(c)].some(name => norm(name) === wanted));
-    return {item, ctx:{consoleId:item ? String(item.id) : "", start:payResumeIso(rental.startIso, rental.startDate), end:payResumeIso(rental.endIso, rental.endDate), bundleId:String(rental.bundleId || "")}};
+    return {item, ctx:{consoleId:item ? String(item.id) : "", start:payResumeIso(rental.startIso, rental.startDate), end:payResumeIso(rental.endIso, rental.endDate), bundleId:String(rental.bundleId || ""), useSpecialRate:false}};
   }
   function payResumeAmountHtml(method){
     const amounts = payResume.rental?.plan?.methods?.[method];
@@ -12700,25 +12718,30 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       else toast(en ? "The new dates could not be saved. No payment was started. Please try again." : "บันทึกวันเช่าใหม่ไม่สำเร็จ ยังไม่ได้เริ่มชำระเงิน กรุณาลองอีกครั้ง", 5000);
     }
   }
-  async function launchPayResume(){
+  let payResumeOpeningCheckout = false;
+  async function launchPayResume({requireAuthoritativeQueue = false} = {}){
     const en = state.lang === "en";
     const r = payResume.rental;
-    if(!r || r.paid || payResume.queueBlocked) return;
+    if(!r || r.paid || payResume.queueBlocked || payResumeOpeningCheckout) return;
     // Its start has gone by: offer the earliest start instead of paying for it.
     if(showStartPassedPopup("resume", payResumeContext(r).ctx)) return;
+    payResumeOpeningCheckout = true;
     showDemoBusy(en ? "Checking the queue and the delivery fee, then opening the payment page…" : "กำลังตรวจคิว เช็คค่าส่ง และเปิดหน้าชำระเงิน…");
     try{
       // The queue may have filled since the rental was saved. Every resume
       // payment, including the LINE shortcut, must pass a fresh check.
-      const {ctx} = payResumeContext(r);
-      if(!ctx.consoleId || !ctx.start || !ctx.end) throw new Error("queue_check_failed");
-      const verifiedQueue = await fetchAvailability(true);
-      if(!verifiedQueue?.fresh || state.availability.error || !hasRecentAvailabilitySnapshot()) throw new Error("queue_check_failed");
-      await withOwnQueueCode(r.rentalCode, async () => {
-        const gate = evaluateAvailability(ctx);
-        if(!gate.pass) throw Object.assign(new Error(queueFullText(ctx, gate)), {code:"booking_hold_conflict"});
-        await ensureBookingHold(r.rentalCode, ctx);
-      });
+      if(!r.specialRate?.campaignId){
+        const {ctx} = await loadPayResumeContext(r);
+        if(!ctx.consoleId || !ctx.start || !ctx.end) throw new Error("queue_check_failed");
+        const verifiedQueue = await fetchAvailability(true);
+        if(!verifiedQueue?.fresh || state.availability.error || !hasRecentAvailabilitySnapshot()
+          || (requireAuthoritativeQueue && state.availability.source !== "bot")) throw new Error("queue_check_failed");
+        await withOwnQueueCode(r.rentalCode, async () => {
+          const gate = evaluateAvailability(ctx);
+          if(!gate.pass) throw Object.assign(new Error(queueFullText(ctx, gate)), {code:"booking_hold_conflict"});
+          await ensureBookingHold(r.rentalCode, ctx, {requireAuthoritativeQueue});
+        });
+      }
       if(payResume.method === "wise"){
         if(!en || !wisePaymentAvailability().available) throw Object.assign(new Error("wise_unavailable"), {code:"wise_unavailable"});
         const response = await bookingFetch(`${CONFIG.apiBase}/api/rentals/payment-page/wise`, {
@@ -12752,6 +12775,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         showPayResumeQueuePopup(error.message);
         return;
       }
+      if(String(error?.code || "").startsWith("special_")){
+        showPayResumeQueuePopup(specialErrorText(error.code));
+        return;
+      }
       if(error?.code === "already_paid" || error?.code === "payment_confirmed"){ openPayResume(payResume.code, payResume.token); return; }
       if(error?.code === "start_date_passed"){
         if(showStartPassedPopup("resume", payResumeContext(r).ctx, error.result?.earliestStart)) return;
@@ -12781,6 +12808,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         return;
       }
       showPayResumeProblem(error, "pay");
+    }finally{
+      payResumeOpeningCheckout = false;
     }
   }
   async function notifyDemoLine(){
@@ -18521,6 +18550,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(paidRentalNotice) window.setTimeout(() => showPaidRentalNotice(paidRentalNotice), 300);
     if(payLink) openPayResume(payLink.code, payLink.token, {
       autoCheckout:["selected", "reservation"].includes(payParams.get("checkout")),
+      directBeam:payParams.get("checkout") === "beam",
       focusPayment:payParams.get("focus") === "payment",
       preferredMethod:payParams.get("pay_method") || ""
     });
