@@ -1,3 +1,10 @@
+## 2026-11-21 — Extension payment windows expire after ten minutes
+
+- Delivery App reads the same deadline for the extension hold, the payment countdown and expiry. New Beam checkouts get the deadline as an absolute timestamp from the app (Bot `9c6d8da`, Delivery App `dbd2512`).
+- An unpaid extension releases its extra days at the deadline. The expiry sweep sends a bilingual LINE card with a new-request button, retries temporary failures with the same LINE retry key, and checks Beam for payment before notifying.
+- Existing bank-transfer extensions still holding a slot move to the same ten-minute window. A verified payment timestamp inside the window can be reconciled if confirmation arrived late, with the normal queue guard before changing the return date.
+- Tested live customer page copy in both languages and confirmed PS5-17 no longer has the pending one-day extension on 3 Dec; the original return on 2 Dec remains in the queue.
+
 ## 2026-11-21 — Extension offered days over a full queue (DA `81c977a`)
 
 - **Case:** PS5-3. The customer returns on 22/11 and the next rental starts on 23/11, yet the extension page offered up to 30 days.
