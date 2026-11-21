@@ -1,3 +1,21 @@
+## 2026-11-21 — Special-rate customer could not pay: the campaign's unit was taken (website `15b2395`, Bot `40fb74d`)
+
+- **Case:** link `g0wJ…` (campaign `sp-mwps8o66` "GTA6 22nd Nov", 1 unit, start fixed on 22/11, at least 7 days).
+  - The link itself is valid.
+  - `/api/special-rate/:token` reported `remaining 0, full true` from 09:41 to at least 09:54, well past a 10-minute hold.
+  - So another link in the campaign holds the unit (a Wise hold lasts 24 h) or has paid, or the customer kept retrying.
+  - The page showed "Unable to open the payment page" on top of the special-rate message.
+- **Bot:**
+  - `createLink` returns `campaignFull`, `units` and `holders` (note, paid or held, `holdUntil`).
+  - `adminView` links carry `holdUntil`.
+  - `releaseHold` sets the hold's `until` to 0 (a late payment is still picked up by `settle`), via `POST /api/admin/special-rates/links/:id/release`.
+- **Website:**
+  - Admin links show "กันเครื่องถึง …" and a "ปล่อยเครื่อง" button (with a confirm warning).
+  - Creating a link into a full campaign alerts the shop with who holds the unit.
+  - `data-sp-release` and `data-sp-links-toggle` were missing from the special tab's click selector. This means the "ดูทั้งหมด" button from `689ff3e` did nothing; both are now wired.
+  - `launchDemoBeamPayment` returns quietly on a special refusal, whose modal already explains.
+- **Deploy:** Bot, then website.
+
 ## 2026-11-21 — Calendar showed free days that were not (website `de846c7`, Bot `e48f60c`, DA `788839b`)
 
 - **Symptom:** the PS5 calendar showed every day "ว่าง". A moment later the same days showed "ไม่ว่าง".
