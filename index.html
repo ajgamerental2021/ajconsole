@@ -12045,19 +12045,21 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(hold && left > 0){
       const clock = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
       return {tone:"", html: en
-        ? `⏱ This slot is held for you. Please complete payment within <b>${clock}</b> minutes.`
-        : `⏱ ล็อคคิวนี้ไว้ให้คุณแล้ว กรุณาชำระเงินภายใน <b>${clock}</b> นาที`};
+        ? `⏱ This slot is held for you. Please complete payment within <b>${clock}</b> minutes — the payment page closes at the same time.`
+        : `⏱ ล็อคคิวนี้ไว้ให้คุณแล้ว กรุณาชำระเงินภายใน <b>${clock}</b> นาที หน้าชำระเงินจะปิดพร้อมกัน`};
     }
     if(demoHoldState.problem) return {tone:"is-ended", html:esc(demoHoldState.problem)};
     if(hold) return {tone:"is-ended", html: en
       ? "⏱ Your 10-minute hold has ended. Tap Pay to check the slot again and hold it for another 10 minutes if it is still free."
       : "⏱ หมดเวลาล็อคคิว 10 นาทีแล้ว กด “ชำระเงิน” เพื่อเช็คคิวและล็อคให้ใหม่อีก 10 นาที (ถ้ายังว่าง)"};
+    // ↑ The payment page opened from Pay closes at the same moment.
     return {tone:"is-idle", html: en
-      ? "⏱ When you tap Pay, the slot is held for you for 10 minutes while you pay."
-      : "⏱ เมื่อกด “ชำระเงิน” ระบบจะล็อคคิวไว้ให้คุณ 10 นาทีระหว่างชำระเงิน"};
+      ? "⏱ When you tap Pay, the slot is held for you for 10 minutes while you pay. The payment page is open for those 10 minutes."
+      : "⏱ เมื่อกด “ชำระเงิน” ระบบจะล็อคคิวไว้ให้คุณ 10 นาที และหน้าชำระเงินเปิดให้ชำระได้ภายใน 10 นาทีนั้น"};
   }
   function demoHoldCountdownHtml(){
-    if(activeSpecial()) return "";
+    // A special rate counts down too (21/11/2026): its campaign unit is held
+    // for 10 minutes the same way, and the payment page closes with it.
     const view = demoHoldCountdownState();
     // Drawn on a reload or a pay-later return too: the clock keeps ticking there.
     if(!demoHoldState.timer) setTimeout(startDemoHoldCountdown, 0);
@@ -12076,7 +12078,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   }
   /** Lock the slot as the order page opens: the 10 minutes start now. */
   async function lockOrderSlot(code){
-    if(activeSpecial() || !code) return;
+    if(!code) return;
     demoHoldState.problem = "";
     try{
       await ensureBookingHold(code);

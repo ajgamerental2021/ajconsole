@@ -22,7 +22,7 @@ test('a held slot counts down mm:ss, TH and EN', () => {
   assert.match(th.html, /ล็อคคิวนี้ไว้ให้คุณแล้ว กรุณาชำระเงินภายใน <b>9:4[01]<\/b> นาที/);
   assert.equal(th.tone, '');
   const en = make('en', [mine(65)])();
-  assert.match(en.html, /This slot is held for you\. Please complete payment within <b>1:0[45]<\/b> minutes\./);
+  assert.match(en.html, /This slot is held for you\. Please complete payment within <b>1:0[45]<\/b> minutes — the payment page closes at the same time\./);
 });
 
 test('another rental\'s hold or someone else\'s is not this page\'s clock', () => {
@@ -48,4 +48,10 @@ test('not locked yet: says Pay locks it for 10 minutes; a lock that failed says 
 test('the order page locks the slot as it opens, and the box sits above Pay', () => {
   assert.match(html, /maybeSendPayLaterEmail\(\);\n\s+void lockOrderSlot\(code\);/);
   assert.match(html, /\$\{demoHoldCountdownHtml\(\)\}\$\{deliveryFallbackHtml\(\)\}<button class="btn primary demo-pay-btn" id="demoBeamPay"/);
+});
+
+test('a special rate counts down and locks on the order page too (21/11/2026)', () => {
+  const page = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(page, /function demoHoldCountdownHtml\(\)\{\n    if\(activeSpecial\(\)\) return "";/);
+  assert.match(page, /async function lockOrderSlot\(code\)\{\n    if\(!code\) return;/);
 });
