@@ -68,7 +68,7 @@
     (() => {
       const params = new URLSearchParams(location.search);
       const copy = {en:{badge:"● Payment successful",title:"Thank you for your payment!",message:"Your payment has been received. AJ will continue processing your rental booking.",rentalCode:"Rental code",amount:"Amount",method:"Payment method",paymentLink:"Payment link ID",reference:"Reference",statusLabel:"Status",status:"Paid",autoNotice:"AJ receives the payment notice automatically. To open a chat AJ can reply to, tap the payment message button in your LINE rental card or send the message below. This is optional.",manualNotice:"Please screenshot this page and send it to AJ via LINE, WhatsApp, or Facebook. AJ will verify the payment in the system.",line:"Report payment via LINE",whatsapp:"Report payment via WhatsApp",facebook:"Notify via Facebook",back:"Back to rental list",close:"Close"},th:{badge:"● ชำระเงินสำเร็จ",title:"ขอบคุณสำหรับการชำระเงิน",message:"ระบบได้รับการชำระเงินแล้ว ทาง AJ จะดำเนินการจองเช่าของคุณต่อไป",rentalCode:"รหัสการเช่า",amount:"จำนวนเงิน",method:"ช่องทางชำระ",paymentLink:"รหัสลิงก์ชำระเงิน",reference:"เลขอ้างอิง",statusLabel:"สถานะ",status:"ชำระแล้ว",autoNotice:"ระบบแจ้งยอดชำระให้ร้านอัตโนมัติแล้ว หากต้องการให้ร้านเห็นแชทและตอบกลับ กดปุ่มแจ้งชำระในการ์ด LINE หรือส่งข้อความด้านล่างจากบัญชีของคุณ",manualNotice:"ระบบกำลังตรวจสอบยอดชำระ หากต้องการติดต่อร้านใช้ WhatsApp หรือ Facebook",line:"แจ้งชำระเงินทาง LINE",whatsapp:"แจ้งชำระเงินทาง WhatsApp",facebook:"แจ้งทาง Facebook",back:"กลับไปหน้ารายการเช่า",close:"ปิด"}};
-      const lang = params.get("lang") === "th" ? "th" : "en";
+      const lang = params.get("lang")?.toLowerCase() === "th" ? "th" : "en";
       const t = copy[lang];
       const set = (id, value) => { document.getElementById(id).textContent = value || "-"; };
       document.documentElement.lang = lang;
@@ -77,10 +77,34 @@
       const amount = Number(params.get("amount"));
       set("amount", Number.isFinite(amount) && amount > 0 ? `฿${amount.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2})}` : "-");
       const methodKey = params.get("method") || "";
-      const methodLabels = {en:{cash:"Reservation deposit",bank:"Full payment (Thai QR / transfer)",credit:"Credit Card",ewallet:"E-Wallet"},th:{cash:"ค่าจองคิว",bank:"ชำระเต็มจำนวน (QR / โอน)",credit:"บัตรเครดิต",ewallet:"E-Wallet"}};
+      const methodLabels = {en:{cash:"Reservation deposit",bank:"Full payment (Thai QR / transfer)",credit:"Credit Card",ewallet:"E-Wallet",promptpay:"Beam QR PromptPay"},th:{cash:"ค่าจองคิว",bank:"ชำระเต็มจำนวน (QR / โอน)",credit:"บัตรเครดิต",ewallet:"E-Wallet",promptpay:"QR พร้อมเพย์ผ่าน Beam"}};
       set("method", methodLabels[lang][methodKey] || methodKey || "-");
       set("paymentLink", params.get("paymentLinkId") || params.get("paymentId") || params.get("id"));
       set("reference", params.get("referenceId") || params.get("orderId"));
+      document.getElementById("language").value = lang;
+      document.getElementById("language").addEventListener("change", event => { params.set("lang", event.target.value); location.search = params.toString(); });
+      document.getElementById("closeButton").addEventListener("click", () => { if(history.length > 1) history.back(); else location.href = document.getElementById("backButton").href; });
+      const extensionRef = params.get("ref") || "";
+      if(/^EXT-[a-f0-9]{16}$/i.test(extensionRef)){
+        const en = lang === "en";
+        set("badge", en ? "● Verifying payment" : "● กำลังตรวจสอบยอดชำระ");
+        set("status", en ? "Awaiting verification" : "รอยืนยันยอดชำระ");
+        set("message", en
+          ? "AJ will confirm your new return date once your extension payment is verified."
+          : "ร้านจะยืนยันวันคืนเครื่องใหม่เมื่อระบบตรวจสอบยอดชำระค่าเช่าต่อเรียบร้อยแล้ว");
+        set("rentalCodeLabel", en ? "Extension request" : "รหัสคำขอเช่าต่อ");
+        set("rentalCode", extensionRef);
+        for(const id of ["paymentLink", "reference"]){
+          const value = document.getElementById(id);
+          if(!value || value.textContent !== "-") continue;
+          value.closest(".row")?.remove();
+        }
+        set("notice", en ? "Check My Rental in LINE for your updated return date." : "ดูวันคืนเครื่องล่าสุดได้ในคิวเช่าของฉันทาง LINE");
+        document.getElementById("contactActions").hidden = true;
+        set("backButton", en ? "Open LINE" : "เปิด LINE");
+        document.getElementById("backButton").href = "https://lin.ee/N4i6cb6";
+        return;
+      }
       const lineConnected = params.get("line") === "1";
       const unifiedDemo = params.get("flowDemo") === "1";
       const notice = document.getElementById("notice");
@@ -195,9 +219,6 @@
         try { await navigator.clipboard.writeText(contactMessage); } catch {}
         location.href = "https://m.me/ajgamerental";
       });
-      document.getElementById("language").value = lang;
-      document.getElementById("language").addEventListener("change", event => { params.set("lang", event.target.value); location.search = params.toString(); });
-      document.getElementById("closeButton").addEventListener("click", () => { if(history.length > 1) history.back(); else location.href = document.getElementById("backButton").href; });
       if(!unifiedDemo) document.getElementById("backButton").href = `index.html?myRental=${encodeURIComponent(params.get("rentalCode") || "")}&lang=${lang}`;
     })();
   </script>
