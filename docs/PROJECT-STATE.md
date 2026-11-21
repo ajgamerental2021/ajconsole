@@ -1,3 +1,14 @@
+## 2026-11-21 — Special rate lost after the LINE round trip (website `15e14f5`, Bot `21c5508`)
+
+- **Symptom:** the same customer's next screenshot showed the normal PS5 calendar ("In progress · retry in 9 min" on 21–28/11), not the special one.
+- **Cause:** the special token lived in `sessionStorage` (one tab). LINE connect returns in a new tab with only the booking draft, so the page was the normal site with the special dates, against a full PS5 queue.
+- **Website:**
+  - The token is also kept in `localStorage` (`aj_special_rate_device_v1`) until the link's `expiresAt`.
+  - It goes in the LINE booking draft (`specialToken`) and is restored from it.
+  - A remembered token whose link is used, expired, revoked, invalid, closed or past its start day is dropped quietly (no error banner on a later plain visit).
+- **Bot:** `publicView` counts the link's own live hold as the customer's from any browser (it used to say "full" to the same customer in a second browser).
+- **Deploy:** Bot (`c229261` → `21c5508`) and website (`d63f05c` → `15e14f5`).
+
 ## 2026-11-21 — Special rate: a returning customer could not pay (Bot `c229261`, website `d63f05c`)
 
 - **Cause:**
