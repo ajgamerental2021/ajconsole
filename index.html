@@ -13590,15 +13590,24 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("infoModalLang").textContent = state.lang === "en" ? "TH" : "EN";
     byId("infoTermsCopyUrl").innerHTML = `${icon("link")}<span>${esc(tr("copyTermsUrl"))}</span>`;
     byId("infoModalClose").setAttribute("aria-label", state.lang === "en" ? "Close" : "ปิด");
-    if(activeInfoPage === "about") byId("infoModalBody").innerHTML = aboutInfoHtml();
-    if(activeInfoPage === "contact") byId("infoModalBody").innerHTML = contactListHtml();
-    if(activeInfoPage === "privacy") byId("infoModalBody").innerHTML = richTextHtml(privacyText(state.lang), {lead:true});
+    let html = "";
+    if(activeInfoPage === "about") html = aboutInfoHtml();
+    if(activeInfoPage === "contact") html = contactListHtml();
+    if(activeInfoPage === "privacy") html = richTextHtml(privacyText(state.lang), {lead:true});
     if(activeInfoPage === "terms"){
       const url = new URL("/rental-terms/", CONFIG.apiBase);
       url.searchParams.set("lang", state.lang);
       url.searchParams.set("embed", "1");
-      byId("infoModalBody").innerHTML = `<iframe class="info-modal-frame" title="${esc(copy.termsTitle)}" src="${esc(url.toString())}"></iframe>`;
+      html = `<iframe class="info-modal-frame" title="${esc(copy.termsTitle)}" src="${esc(url.toString())}"></iframe>`;
     }
+    // The page redraws itself whenever data comes in (the queue, every
+    // minute); the open page is redrawn only when what it shows has changed.
+    // Rebuilding it reloaded the terms and sent the reader back to the top
+    // (22/11/2026).
+    const body = byId("infoModalBody");
+    if(body.dataset.rendered === html) return;
+    body.dataset.rendered = html;
+    body.innerHTML = html;
   }
   function adminAboutHtml(){
     const en = state.lang === "en";
@@ -14120,6 +14129,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("infoModal")?.classList.remove("open");
     if(byId("infoModal")) delete byId("infoModal").dataset.page;
     byId("infoModalBody").innerHTML = "";
+    delete byId("infoModalBody").dataset.rendered;
     activeInfoPage = "";
   }
 
