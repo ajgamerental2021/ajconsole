@@ -1,3 +1,20 @@
+## 2026-11-22 — Shop alerts: goods arriving in about 5 minutes, and arrived (DA `7b2ea67`)
+
+- **Ask:** notify the admin only, on PC and mobile, when goods are about 5 minutes away and when they have arrived, for deliveries and returns.
+- **How:**
+  - Two new `StaffAlertKind`s, `arriving_soon` and `arrived`, sent through the existing `notifyStaff`: Expo push to phones, web push to PCs, and the in-app feed.
+  - The dispatch poller (every 30 s) runs `alertStaffArrival` on each refresh.
+  - The target is `job.to` while `PICKED_UP` (the customer on a delivery, the shop on a return), or `job.from` on a swap coming back. The swap's customer stop is announced when `swapReturning` is set, if GPS has not already done so.
+- **Rules:**
+  - "Soon" fires at ETA ≤ 5 min, or a fresh fix (≤ 90 s old) within 1 km.
+  - "Arrived" fires at a fresh fix within 150 m.
+  - Each fires once per trip (keys in `job.staffAlerts`). "Arrived" also marks "soon" as done.
+- **ETA:** a return's ETA to the shop is asked once a minute, within 8 km, into `job.staffEta`. It never goes into `job.eta`, which is the customer's promised time read by the overdue-ETA card. Writing to it broke 5 `test:lalamove-dispatch` checks, which are now passing.
+- **Completed alerts:** a return already announced as at the shop skips its "completed" alert. A delivery still gets "ส่งสำเร็จ" at handover.
+- **Checked:** `test:staff-arrival-alerts` (28 checks: pure rules plus a whole delivery and a whole return through `refreshJob`), `test:lalamove-dispatch` 458, `test:device-swap`. The DA full suite passes except header-guard.
+- **Deploy:** DA only (backend; the frontend change is a type only).
+- **PCs:** a PC shows the alerts only when the browser allows notifications for the app.
+
 ## 2026-11-21 — Verify Beam checkout from the delivery tracking page
 
 - The delivery card was caching Beam links by the amount and channel. Card and e-wallet links previously used the booking-site return page, so the Bot applied the booking site's ten-minute lifetime.
