@@ -1,3 +1,13 @@
+## 2026-11-22 — Rental Terms 2026-11-22 (clause 4); terms window no longer reloads (Bot `dd44d0d`, website `b4f0e32`)
+
+- **Terms:**
+  - New shipped version `2026-11-22`, effective 2026-11-22 12:35 +07:00. Clause 4 (damage, loss or defects) uses the owner's Thai wording, with English to match. It allows up to 3 business days to check a fault found at return, with the deposit refund pending the result and no automatic extension.
+  - `2026-10-20` stays as `DELIVERY_TIMING_RENTAL_TERMS_VERSION` for renters who accepted it.
+  - The live sheet was on 2026-10-20, so no admin-published edits are superseded.
+  - The website reads the version from `/api/rental-terms`, so open pages ask renters to accept again.
+- **Terms window:** `render()` runs on every data refresh and called `renderInfoModal()`, which replaced the body (a new terms iframe) each time. It now writes only when its html changes; the close function clears the record.
+- **Deploy:** Bot, then website.
+
 ## 2026-11-22 — Shop alerts: goods arriving in about 5 minutes, and arrived (DA `7b2ea67`)
 
 - **Ask:** notify the admin only, on PC and mobile, when goods are about 5 minutes away and when they have arrived, for deliveries and returns.
