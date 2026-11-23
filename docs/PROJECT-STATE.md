@@ -1,3 +1,18 @@
+## 2026-11-23 — Live clock on each active-trip card (DA `beb35b1`)
+
+- **Ask:** a real-time HH:MM:SS clock, clearly visible in the top-right corner of each called-trip card.
+- **How:**
+  - `TripClock` in `ActiveTripsBar` has its own 1-second interval, so the list itself still re-renders only on its 20-second refresh.
+  - `tripTimer` / `elapsedClock` (in `utils/tripLiveText.ts`) count from `driverAcceptedAt`. While there is no driver they count from `calledAt`, shown in amber with the label "รอคนขับ".
+  - Hours run past 24 rather than wrapping.
+  - The start line now shows only the clock time.
+- **Layout:** the customer name and rental ID wrap under the leg badge, so on a phone the clock never cuts the ID.
+- **Checked:**
+  - `test:late-driver-change` (63) and `test:trip-live` pass.
+  - Rendered the real component through react-native-web and Playwright with stub data, at 960 px and 390 px: the clock went from 00:28:13 to 00:28:15 in 2 s, and the ID was fully visible.
+  - The DA full suite passes except header-guard.
+- **Deploy:** the staff app web build/OTA only. No backend change.
+
 ## 2026-11-23 — Late drivers changed automatically; trip and card times (DA `e115734`)
 
 - **Ask:** change the driver when they are late: not moved from where they took the trip for 10 minutes, or not within 4–7 km of the shop after 15 minutes. Show when the driver took each trip (active-trips cards and the job detail, plus the date the trip was called) and when each customer card was sent. The customer's driver-change card should just say the driver is changing.
