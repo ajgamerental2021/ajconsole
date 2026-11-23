@@ -1,3 +1,20 @@
+## 2026-11-23 — Late drivers changed automatically; trip and card times (DA `e115734`)
+
+- **Ask:** change the driver when they are late: not moved from where they took the trip for 10 minutes, or not within 4–7 km of the shop after 15 minutes. Show when the driver took each trip (active-trips cards and the job detail, plus the date the trip was called) and when each customer card was sent. The customer's driver-change card should just say the driver is changing.
+- **Rules (Lalamove only, `ON_GOING`):**
+  - `job.driverWatch` pins the first fresh fix (≤ 90 s) for each driver; `movedAt` is set once they are more than 300 m from it.
+  - 10 min not moved: `driver_late` warning to the shop.
+  - 15 min (Lalamove's change window, so a 10-minute change is not possible): change if still not moved, or if more than `DISPATCH_AUTO_CHANGE_RADIUS_KM` (default 4) from the pickup. The pickup is the shop on a delivery and the customer on a return. Never within 500 m of the pickup.
+  - At most 2 automatic changes per trip (`autoDriverChanges`); after that the shop gets a `driver_late` alert to decide. A refused change sets `failedAt` (no retry for that driver) and alerts the shop.
+  - `DISPATCH_AUTO_DRIVER_CHANGE=off` turns it off.
+  - Lalamove's status can lag, so a driver at the customer can still read `ON_GOING`. The rules skip a driver once seen within 500 m of the pickup (`reachedPickupAt`), within 1 km of `job.to` (on a return only after moving), or with `gpsArrival`. "Not moved" needs at least 8 min (warning) or 13 min (change) actually watched. An existing `test:lalamove-dispatch` case caught this.
+  - A staff "change driver" press that lands on a look that just changed the driver returns the changed trip instead of `driver_required`.
+- **Code:** `changeDriverUnlocked` and the automatic change share `releaseDriver` (reason `DRIVER_LATE`). The shop sees "🔄 เปลี่ยนคนขับอัตโนมัติ" with the reason. `driver_late` is a popup kind.
+- **Customer card:** "กำลังเปลี่ยนคนขับ จะแจ้งข้อมูลคนขับใหม่ทางแชทนี้" / "Your driver is being changed. The new driver's details will follow in this chat."
+- **Times:** `tripLive` adds `driverAcceptedAt` and `calledAt`. New `sent.driverDetailsAt` and `sent.nearAt`. The active-trips card shows the start time and elapsed time. The tracking modal shows the called date, the accepted time, elapsed or total time, and the change count, plus a sent time on each card row.
+- **Checked:** `test:late-driver-change` (57 checks: the rules, whole trips through `refreshJob` including the limit, a refused change and the off switch, both cards, the time formatting). DA full suite and both `tsc` runs.
+- **Deploy:** DA backend, then the staff app web build/OTA as usual. No new secrets; the two env vars are optional.
+
 ## 2026-11-22 — Rental Terms 2026-11-22 (clause 4); terms window no longer reloads (Bot `dd44d0d`, website `b4f0e32`)
 
 - **Terms:**
