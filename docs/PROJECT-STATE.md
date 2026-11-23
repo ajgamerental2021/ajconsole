@@ -1,3 +1,22 @@
+## 2026-11-23 — Active-trip ETA: always shown, counted down live (DA `f94587c`)
+
+- **Ask:** show a time even without a fresh route, updated in real time from the actual position, instead of hiding it.
+- **`tripLive` tiers:**
+  1. The fresh `liveRoute` (at most 5 minutes old).
+  2. Otherwise the last `liveRoute` worked out from the same fix (`fixAt` equals the current fix, up to 60 minutes), counted down.
+  3. Otherwise `estimateEta` from the current fix, at city speed, measured from the fix time.
+- **Estimates:** tiers 2 and 3 set `etaApprox` and never show less than 1 minute. They never use `job.eta`, the customer's promise.
+- **New fields:** `etaAt`, `etaApprox`, `locationAt`.
+- **App:**
+  - `tripEtaText(trip, now)` counts down from `etaAt`.
+  - An estimate reads "ประมาณ" and is shown in amber. When the position is more than 3 minutes old, it adds "ตำแหน่งล่าสุด HH:MM".
+  - `TripEtaLine` re-renders every 10 seconds, on the card and in the map popup.
+- **Checked:**
+  - `test:trip-live` (46) and `test:live-route` (19).
+  - Rendered through react-native-web and Playwright at 390 px: the time went from 6 to 5 minutes without a refresh.
+  - DA full suite passes except header-guard.
+- **Deploy:** DA backend, then the staff app web build/OTA.
+
 ## 2026-11-23 — Active-trip ETA now the shop's live route, never the customer's promise (DA `ea72c33`)
 
 - **Report:**
