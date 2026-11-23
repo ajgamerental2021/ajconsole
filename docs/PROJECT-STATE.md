@@ -1,3 +1,20 @@
+## 2026-11-23 — Active-trip ETA now the shop's live route, never the customer's promise (DA `ea72c33`)
+
+- **Report:**
+  - On AJ-20261111-R0039, a return on its way back, the card said "in 3 minutes" while the map said 28. A later look said 2 minutes against 20.
+  - `tripLive` counted down `job.eta`. On a return that is the time promised to the customer at pickup, which never moves.
+  - The card's km was straight-line; the map's is road distance.
+- **Fix:** `job.liveRoute` is the driver's road route with traffic to the current stop: the pickup, the drop-off, or the shop on a swap's way back.
+  - Refreshed in `refreshJobUnlocked` every 90 s, from a fix at most 3 min old.
+  - Reuses `job.route` / `job.returnRoute` when they are newer.
+- **Readers:**
+  - `tripLive` shows it only while it is at most 5 min old and for the same driver and stop; otherwise no time.
+  - `staffMapState` takes its minutes and km from it.
+  - `staffArrivalEta` prefers it.
+  - `sendOverdueReturnEta` reuses it for the same fix; otherwise its own route request becomes the live route, so there is one route request per look.
+- **Checked:** `test:live-route` (19: the R0039 case through `refreshJob`, the promise left untouched, card and map equal, the 90 s cadence, a stale fix, the overdue card, completion clears it) and `test:trip-live` (39). Updated `test:staff-arrival-alerts`. The DA full suite passes (177, except header-guard).
+- **Deploy:** DA backend only.
+
 ## 2026-11-23 — Live clock on each active-trip card (DA `beb35b1`)
 
 - **Ask:** a real-time HH:MM:SS clock, clearly visible in the top-right corner of each called-trip card.
