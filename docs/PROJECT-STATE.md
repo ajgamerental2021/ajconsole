@@ -7341,3 +7341,9 @@ paused job shows slightly old numbers rather than an empty section.
 
 - Main LINE OA Bot `2137e22` exposes four earliest bookable start dates from the Delivery App source of the website calendar. It checks the three-day minimum through return day, checkout holds, the same-day cutoff and queue closures.
 - Detached bot `044d224` converts those dates to Buddhist Era and Gregorian dates, adds an editable highlighted LINE card and puts the same text before the Messenger buttons via Dialogflow. The greeting editor can hide the section. Recognised handwritten four-model blocks are separated from the original greeting. An unavailable feed displays the website prompt.
+
+## 23 November 2026 — Verified payment receipts
+
+- The payment-return page displays Beam's confirmed amount and the channel used on the successful charge, even when Beam omitted those fields from its return URL. It checks the link against the rental reference. The read-only check does not confirm or charge a rental. The existing unified booking confirmation still runs where it did before.
+- Delivery App My Rentals has bilingual reservation, balance and full-payment receipts derived from confirmed payment history, plus the PS5 placement guide. The dispatch payment notification and current trip link follow the latest payment channel.
+- Verified the customer's example against Beam: ฿1,000 via QR PromptPay. The read-only payment check does not send messages or make booking changes.
