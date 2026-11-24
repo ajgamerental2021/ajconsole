@@ -7361,3 +7361,8 @@ paused job shows slightly old numbers rather than an empty section.
 
 - Both booking-page LINE buttons start the verification session and save its private draft in one request. The website can still use the older two-request API during deployment, retries a transient failure once, and reports rate and size limits separately. A local storage write failure can no longer stop the initial server save.
 - The production server accepted the combined draft request with the booking origin. The screenshot establishes a failure before LINE opened; the original request's specific failure is unknown.
+
+## 24 November 2026 — WhatsApp booking consent
+
+- In English checkout, **Use WhatsApp** prepares a message with a greeting, rental ID, booking-specific permission and an explicit reminder to return to the website, finish the booking and pay the reservation fee. The post-payment chat message uses the same paragraph spacing and icons. The customer must tap Send in WhatsApp for the shop to receive their permission.
+- Delivery App tracks the WhatsApp consent and badge work in `SHARED-WORKSPACE.md` under “WhatsApp booking updates”. Review both files before continuing this integration. Update both handover files for each WhatsApp change, including verification, live status and any pending activation steps.

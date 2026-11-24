@@ -2633,7 +2633,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       identityReadOptional:"Fill number and expiry from the photo (optional)", identityPhotoReady:"Photo selected: {name} (sent when you confirm)", identityFileType:"This file can’t be used. Only .jpg and .png photos are accepted (up to 40 MB). Choose another photo or use the camera button.", identityFileFormats:"📎 JPG and PNG photos only (.jpg, .png)", identityPhotoDecode:"This photo could not be opened. Choose a JPG or take it again.", identityOcrBusy:"Reading the photo; you can enter the details yourself meanwhile.",
       contactChannelTitle:"Booking updates",
       contactChannelThaiHelp:"Connect LINE before payment to receive your booking updates",
-      contactChannelEnglishHelp:"Booking updates are optional. To get them on WhatsApp, tap Use WhatsApp and send the prepared message in the chat. You can continue your booking and payment with your phone number and email.",
+      contactChannelEnglishHelp:"WhatsApp updates are optional. Tap Use WhatsApp and send the prepared message. Then return to this website to finish your booking and pay the reservation fee.",
       contactLineConnect:"Connect LINE",
       contactLineConnected:"LINE connected",
       contactLinePopupTitle:"Before connecting LINE",
@@ -12847,7 +12847,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       // Step 2 only chooses where updates go; the booking itself is finished
       // on the website. The message must not read as a request for the shop to
       // take the booking over in chat.
-      const message = `I agree to receive booking, payment, delivery and return updates from AJ Game Rental on this WhatsApp for rental ${code}.`;
+      const message = [
+        "👋 Hello AJ Game Rental!",
+        `🎮 Rental ID: ${code}`,
+        `✅ I agree to receive booking, payment, delivery and return updates from AJ Game Rental on this WhatsApp for rental ${code}.`,
+        "💳 After sending this message, I’ll return to the website to finish my booking and pay the reservation fee.",
+      ].join("\n\n");
       demoProfile.preferredContactChannel = "whatsapp";
       saveDemoProfile({now:true});
       render();
@@ -12861,7 +12866,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const code = state.calc.rentalCode || "-";
     const token = rentalViewToken(code);
     const rentalUrl = token ? `https://ajgamerental.com/?myRental=${encodeURIComponent(code)}&t=${encodeURIComponent(token)}&lang=en` : "https://ajgamerental.com/?myRental=1&lang=en";
-    const message = `AJ Game Rental payment confirmation\nRental ID: ${code}\nI have completed payment. I will attach the successful-payment screenshot in this chat. Please confirm my rental details.\n\nMy rental: ${rentalUrl}`;
+    const message = [
+      "👋 Hello AJ Game Rental!",
+      `🎮 Rental ID: ${code}`,
+      "💳 I’ve completed my payment. I’ll attach the payment screenshot in this chat. Please confirm my rental details.",
+      `📋 My rental: ${rentalUrl}`,
+    ].join("\n\n");
     location.href = whatsappShareUrl(message);
   }
   function unicodeSafeText(value){
