@@ -7347,3 +7347,8 @@ paused job shows slightly old numbers rather than an empty section.
 - The payment-return page displays Beam's confirmed amount and the channel used on the successful charge, even when Beam omitted those fields from its return URL. It checks the link against the rental reference. The read-only check does not confirm or charge a rental. The existing unified booking confirmation still runs where it did before.
 - Delivery App My Rentals has bilingual reservation, balance and full-payment receipts derived from confirmed payment history, plus the PS5 placement guide. The dispatch payment notification and current trip link follow the latest payment channel.
 - Verified the customer's example against Beam: ฿1,000 via QR PromptPay. The read-only payment check does not send messages or make booking changes.
+
+## 24 November 2026 — Greeting calendar refresh
+
+- The LINE and Messenger greeting used the website fallback for every model when the detached bot could not get the authoritative dates within its 2.5-second reply budget. The live source returned dates for all four models when checked. Render CLI access had expired, so the historical request's error could not be confirmed.
+- Detached bot 92c5ec5 now refreshes the verified queue on startup and every 20 seconds, shares the in-flight refresh, and keeps verified dates for a maximum of 45 seconds. An unsuccessful or incomplete fetch leaves the last verified dates alone until they age out. Health reports the last verified refresh. Tests cover slow and incomplete responses.
