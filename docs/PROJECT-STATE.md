@@ -4012,6 +4012,10 @@ Delivery App commit `2bd4e0a` (main); details in its CHANGELOG and SHARED-WORKSP
 
 # Project state
 
+## 2026-11-24 — WhatsApp booking update consent wording
+
+- The English booking page explains that customers must send the prepared WhatsApp message to request updates and can still continue to payment. The message names AJ Game Rental, the rental code, and the update categories. Opening WhatsApp still sets a local contact preference. Confirmed opt-in storage and event routing are pending in Delivery App.
+
 ## 2026-10-24 — Wise checkout QR and visible payment link
 
 - English Wise checkout keeps its existing manual-transfer modal, amount, Rental ID reference, Wise Tag, Copy Tag, Pay with Wise, WhatsApp and LINE receipt actions. Added the owner-supplied QR above a visible `https://wise.com/pay/me/somchaih6` link and a Copy Wise link button; Thai fallback copy is present even though Wise remains an English-only payment choice.

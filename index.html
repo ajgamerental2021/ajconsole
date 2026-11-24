@@ -2633,7 +2633,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       identityReadOptional:"Fill number and expiry from the photo (optional)", identityPhotoReady:"Photo selected: {name} (sent when you confirm)", identityFileType:"This file can’t be used. Only .jpg and .png photos are accepted (up to 40 MB). Choose another photo or use the camera button.", identityFileFormats:"📎 JPG and PNG photos only (.jpg, .png)", identityPhotoDecode:"This photo could not be opened. Choose a JPG or take it again.", identityOcrBusy:"Reading the photo; you can enter the details yourself meanwhile.",
       contactChannelTitle:"Booking updates",
       contactChannelThaiHelp:"Connect LINE before payment to receive your booking updates",
-      contactChannelEnglishHelp:"Optional: connect LINE or WhatsApp for booking updates. You can also continue with your phone number and email — it is not needed to pay.",
+      contactChannelEnglishHelp:"Booking updates are optional. To get them on WhatsApp, tap Use WhatsApp and send the prepared message in the chat. You can continue your booking and payment with your phone number and email.",
       contactLineConnect:"Connect LINE",
       contactLineConnected:"LINE connected",
       contactLinePopupTitle:"Before connecting LINE",
@@ -12847,7 +12847,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       // Step 2 only chooses where updates go; the booking itself is finished
       // on the website. The message must not read as a request for the shop to
       // take the booking over in chat.
-      const message = `Hello AJ Game Rental, I'm finishing my booking ${code} on your website. Once it's confirmed, please send my booking updates to this WhatsApp.`;
+      const message = `I agree to receive booking, payment, delivery and return updates from AJ Game Rental on this WhatsApp for rental ${code}.`;
       demoProfile.preferredContactChannel = "whatsapp";
       saveDemoProfile({now:true});
       render();
