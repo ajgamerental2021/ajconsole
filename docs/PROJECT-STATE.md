@@ -7388,3 +7388,9 @@ paused job shows slightly old numbers rather than an empty section.
 - Homepage banners use one tappable dot per slide under the artwork. Swipe left for the next slide and right for the previous one. A horizontal swipe suppresses link activation. A regular tap still follows the slide's destination. Auto-advance respects the configured interval and the visitor's reduced-motion preference.
 - Admin → Home supports a Thai image and an English image for each banner, with a preview and upload field for each. Existing banners default to sharing the same image across both languages. Turn sharing off and upload an English image before publishing a split banner. Turning sharing on keeps the uploaded English artwork available for later use. Captions, destination and both images follow the slide when reordered.
 - Browser regression checks used a 375px simulated touch device and a 1440px desktop viewport with both languages. Admin upload and publish checks used simulated Gist writes so they did not edit the live banner settings.
+
+## 25 November 2026 — Compact homepage dots and collapsible banner editor
+
+- The dot row keeps its touch targets below the artwork. The measured image-to-booking gap fell from 58px to 30px for an enabled carousel.
+- Admin → Home starts with collapsed banner rows showing a thumbnail and localized caption. Opening a row reveals the full editor. Collapsing keeps the draft, moving a banner carries its open row with it, and validation opens the affected row and focuses its field. Reopening Admin starts with all rows collapsed.
+- Browser checks covered Thai on a 375px touch viewport and English at 1440px, including dot selection and banner editing, validation, upload, reorder and save with simulated Gist writes.

@@ -993,28 +993,35 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
   .before-rent-section{width:100%;max-width:100vw;padding:34px 0 54px;overflow:hidden}
   .before-rent-section>.container{width:100%;max-width:1200px;min-width:0}
   .before-rent-panel{width:100%;min-width:0;border:3px solid #c90012;border-radius:16px;background:#fff;padding:26px;box-shadow:0 16px 40px rgba(15,23,42,.08)}
-  .hero-carousel{margin:0 0 12px;min-width:0}
+  .hero-carousel{min-width:0}
   .hero-carousel[hidden]{display:none}
   .hero-carousel-image{display:block;width:100%;aspect-ratio:2 / 1;border-radius:16px;overflow:hidden;background:#17191f;touch-action:pan-y pinch-zoom}
   .hero-carousel-image:focus-visible{outline:3px solid #fff;outline-offset:-5px}
   .hero-carousel img{display:block;width:100%;height:100%;object-fit:contain}
   .hero-carousel-dots{display:flex;justify-content:center;flex-wrap:wrap}
-  .hero-carousel-dots button{display:grid;place-items:center;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:transparent;cursor:pointer}
+  .hero-carousel-dots button{display:grid;place-items:center;width:30px;height:24px;padding:0;border:0;border-radius:50%;background:transparent;cursor:pointer}
   .hero-carousel-dots button::before{content:"";width:8px;height:8px;border-radius:50%;background:#758196}
   .hero-carousel-dots button[aria-current="true"]::before{width:10px;height:10px;background:#c90012}
   .hero-carousel-dots button:focus-visible{outline:2px solid #c90012;outline-offset:-3px}
+  .hero-carousel:not([hidden])+.before-rent-grid{margin-top:6px}
   .before-rent-head.has-hero-carousel{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);padding:0}
   .hero-admin-slider{display:grid;gap:12px;margin-top:12px}
-  .hero-admin-slide{display:grid;grid-template-columns:minmax(0,250px) minmax(0,1fr);gap:14px;align-items:start;padding:12px}
+  .hero-admin-summary{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 12px;cursor:pointer;list-style:none}
+  .hero-admin-summary::-webkit-details-marker{display:none}
+  .hero-admin-summary::after{content:"";width:7px;height:7px;margin:0 3px 4px;border:solid #526077;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .hero-admin-slide[open]>.hero-admin-summary{border-bottom:1px solid var(--border)}
+  .hero-admin-slide[open]>.hero-admin-summary::after{margin-block:4px 0;transform:rotate(225deg)}
+  .hero-admin-summary:focus-visible{outline:2px solid #c90012;outline-offset:-3px}
+  .hero-admin-summary .hero-admin-index{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;line-height:1.25;font-size:.95rem}
+  .hero-admin-editor{display:grid;grid-template-columns:minmax(0,250px) minmax(0,1fr);gap:14px;align-items:start;padding:12px}
   .hero-admin-image{aspect-ratio:2 / 1;display:grid;place-items:center;margin:0;border-radius:9px;background:#f1f3f6;overflow:hidden;color:#425166;font-size:13px;text-align:center}
   .hero-admin-image img{width:100%;height:100%;object-fit:contain}
   .hero-admin-artwork{display:grid;gap:12px;min-width:0}
   .hero-admin-artwork input[type="file"]{width:100%;min-width:0;font:inherit}
-  .hero-admin-index{display:block;margin-bottom:5px}
   .hero-admin-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
   .hero-admin-save{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0}
   .hero-admin-status[data-error="true"]{color:#a30012}
-  @media(max-width:640px){.hero-admin-slide{grid-template-columns:minmax(0,1fr)}}
+  @media(max-width:640px){.hero-admin-editor{grid-template-columns:minmax(0,1fr)}}
   .before-rent-head{text-align:center;padding:8px 8px 4px}
   .before-rent-head h1{max-width:900px;margin:0 auto;color:#17191f;font-family:Kanit,Sarabun,system-ui,sans-serif;font-size:clamp(36px,4.6vw,58px);font-weight:700;line-height:1.16;letter-spacing:-.025em;white-space:normal;overflow-wrap:anywhere}
   html[lang="en"] .before-rent-head h1{font-family:"Space Grotesk",Sarabun,sans-serif;font-weight:800;letter-spacing:-.045em}
@@ -16092,7 +16099,10 @@ We apologize for the inconvenience and hope everyone stays safe.`
     void loadPrivacyContent();
     if(state.adminTab === "terms" && !adminTerms.loaded) void loadAdminTerms();
   }
-  function closeAdmin(){ byId("adminOverlay").classList.remove("open"); }
+  function closeAdmin(){
+    byId("adminOverlay").classList.remove("open");
+    heroAdminExpanded.length = 0;
+  }
   function signOutAdmin(){
     forgetAdminSession();
     closeAdmin();
@@ -17110,6 +17120,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     return `${adminHeroCarouselHtml()}<div class="admin-home-sections">${sections}</div><button class="btn primary" id="saveHome" type="button" style="margin-top:14px">${tr("save")}</button>`;
   }
   let heroCarouselDraft;
+  const heroAdminExpanded = [];
   let heroAdminStatus;
   let heroAdminBusy = false;
   function adminHeroCarouselHtml(){
@@ -17124,28 +17135,40 @@ We apologize for the inconvenience and hope everyone stays safe.`
         <button type="button" class="btn primary" id="heroSave" ${disabled}>${esc(tr("heroSave"))}</button>
         <span id="heroAdminStatus" class="hint hero-admin-status" role="status" data-error="${!!heroAdminStatus?.error}">${esc(heroAdminStatusText())}</span>
       </div>
-      <div class="hero-admin-slider">${carousel.items.length ? carousel.items.map((item,index) => `<div class="admin-item hero-admin-slide">
-        <div class="hero-admin-artwork">
-          ${heroAdminImageHtml(item.url, item.sameImage ? "heroImageShared" : "heroImageTh", "url", index, disabled)}
-          ${item.sameImage ? "" : heroAdminImageHtml(item.urlEn, "heroImageEn", "urlEn", index, disabled)}
-        </div>
-        <div>
-          <b class="hero-admin-index">${index+1}. ${esc((state.lang === "en" ? item.altEn : item.altTh) || item.altEn || item.altTh || "")}</b>
-          <label class="option-row"><input type="checkbox" data-hero-field="sameImage" data-index="${index}" ${item.sameImage ? "checked" : ""} ${disabled}> ${esc(tr("heroSameImage"))}</label>
-          <div class="grid2">
-            <label class="field"><span class="label">${esc(tr("heroAltTh"))}</span><input class="input" data-hero-field="altTh" data-index="${index}" value="${esc(item.altTh)}" ${disabled}></label>
-            <label class="field"><span class="label">${esc(tr("heroAltEn"))}</span><input class="input" data-hero-field="altEn" data-index="${index}" value="${esc(item.altEn)}" ${disabled}></label>
+      <div class="hero-admin-slider">${carousel.items.length ? carousel.items.map((item,index) => {
+        const thumbnail = state.lang === "en" && !item.sameImage && item.urlEn ? item.urlEn : item.url;
+        return `<details class="admin-item hero-admin-slide" data-hero-row="${index}" ${heroAdminExpanded[index] ? "open" : ""}>
+          <summary class="hero-admin-summary">
+            <span class="hero-admin-image" data-hero-image="${esc(thumbnail)}" aria-hidden="true"></span>
+            <b class="hero-admin-index">${esc(heroAdminSlideTitle(item,index))}</b>
+          </summary>
+          <div class="hero-admin-editor">
+            <div class="hero-admin-artwork">
+              ${heroAdminImageHtml(item.url, item.sameImage ? "heroImageShared" : "heroImageTh", "url", index, disabled)}
+              ${item.sameImage ? "" : heroAdminImageHtml(item.urlEn, "heroImageEn", "urlEn", index, disabled)}
+            </div>
+            <div>
+              <label class="option-row"><input type="checkbox" data-hero-field="sameImage" data-index="${index}" ${item.sameImage ? "checked" : ""} ${disabled}> ${esc(tr("heroSameImage"))}</label>
+              <div class="grid2">
+                <label class="field"><span class="label">${esc(tr("heroAltTh"))}</span><input class="input" data-hero-field="altTh" data-index="${index}" value="${esc(item.altTh)}" ${disabled}></label>
+                <label class="field"><span class="label">${esc(tr("heroAltEn"))}</span><input class="input" data-hero-field="altEn" data-index="${index}" value="${esc(item.altEn)}" ${disabled}></label>
+              </div>
+              <label class="field"><span class="label">${esc(tr("heroLink"))}</span><input class="input" inputmode="url" data-hero-field="href" data-index="${index}" value="${esc(item.href || "")}" placeholder="https://…" ${disabled}></label>
+              <div class="hint">${esc(tr("heroLinkHelp"))}</div>
+              <div class="hero-admin-actions">
+                <button type="button" class="btn" data-hero-edit="up:${index}" ${index===0?"disabled":disabled}>${esc(tr("heroUp"))}</button>
+                <button type="button" class="btn" data-hero-edit="down:${index}" ${index===carousel.items.length-1?"disabled":disabled}>${esc(tr("heroDown"))}</button>
+                <button type="button" class="btn danger" data-hero-edit="remove:${index}" ${disabled}>${esc(tr("delete"))}</button>
+              </div>
+            </div>
           </div>
-          <label class="field"><span class="label">${esc(tr("heroLink"))}</span><input class="input" inputmode="url" data-hero-field="href" data-index="${index}" value="${esc(item.href || "")}" placeholder="https://…" ${disabled}></label>
-          <div class="hint">${esc(tr("heroLinkHelp"))}</div>
-          <div class="hero-admin-actions">
-            <button type="button" class="btn" data-hero-edit="up:${index}" ${index===0?"disabled":disabled}>${esc(tr("heroUp"))}</button>
-            <button type="button" class="btn" data-hero-edit="down:${index}" ${index===carousel.items.length-1?"disabled":disabled}>${esc(tr("heroDown"))}</button>
-            <button type="button" class="btn danger" data-hero-edit="remove:${index}" ${disabled}>${esc(tr("delete"))}</button>
-          </div>
-        </div>
-      </div>`).join("") : esc(tr("heroEmpty"))}</div>
+        </details>`;
+      }).join("") : esc(tr("heroEmpty"))}</div>
     </div>`;
+  }
+  function heroAdminSlideTitle(item,index){
+    const title = state.lang === "en" ? item.altEn || item.altTh : item.altTh || item.altEn;
+    return `${index+1}. ${title || tr("heroDefaultAlt")}`;
   }
   function heroAdminImageHtml(url,label,field,index,disabled){
     return `<div>
@@ -17158,16 +17181,28 @@ We apologize for the inconvenience and hope everyone stays safe.`
       </label>
     </div>`;
   }
-  function renderHeroAdminPreviews(){
-    $$("[data-hero-image]").forEach(preview => {
+  function renderHeroAdminPreviews(root=document){
+    const selector = ".hero-admin-summary [data-hero-image], .hero-admin-slide[open] .hero-admin-editor [data-hero-image]";
+    root.querySelectorAll(selector).forEach(preview => {
+      if(preview.dataset.loading || preview.querySelector("img")) return;
+      preview.dataset.loading = "true";
       void loadHeroImage(preview.dataset.heroImage).then(src => {
         if(!preview.isConnected) return;
         const image = new Image();
         image.alt = "";
         image.src = src;
         preview.replaceChildren(image);
-      }).catch(() => { if(preview.isConnected) preview.textContent = tr("heroImageError"); });
+      }).catch(() => {
+        if(preview.tagName === "FIGURE") preview.textContent = tr("heroImageError");
+      }).finally(() => { delete preview.dataset.loading; });
     });
+  }
+  function focusHeroAdminField(selector,index){
+    const field = $(`${selector}[data-index="${index}"]`);
+    if(!field) return;
+    heroAdminExpanded[index] = true;
+    field.closest("[data-hero-row]").open = true;
+    field.focus();
   }
   function heroAdminStatusText(){
     return heroAdminStatus ? tr(heroAdminStatus.key).replace("{number}",heroAdminStatus.number || "") : "";
@@ -17179,6 +17214,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
   }
   function readHeroCarouselAdmin(){
     if(!byId("heroEnable")) return;
+    $$("[data-hero-row]").forEach(row => { heroAdminExpanded[Number(row.dataset.heroRow)] = row.open; });
     const carousel = structuredClone(heroCarouselDraft || state.home.carousel);
     $$("[data-hero-field]").forEach(el => {
       const item = carousel.items[Number(el.dataset.index)];
@@ -17194,13 +17230,13 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const invalid = draft.items.findIndex(item => item.href?.trim() && !heroDestination(item.href));
     if(invalid !== -1){
       setHeroAdminStatus("heroLinkInvalid",true,invalid+1);
-      $(`[data-hero-field="href"][data-index="${invalid}"]`)?.focus();
+      focusHeroAdminField('[data-hero-field="href"]',invalid);
       return;
     }
     const missingEnglish = draft.items.findIndex(item => !item.sameImage && !item.urlEn);
     if(draft.enabled && missingEnglish !== -1){
       setHeroAdminStatus("heroNeedsEnglish",true,missingEnglish+1);
-      $(`[data-hero-replace="urlEn"][data-index="${missingEnglish}"]`)?.focus();
+      focusHeroAdminField('[data-hero-replace="urlEn"]',missingEnglish);
       return;
     }
     if(draft.enabled && !draft.items.length){ setHeroAdminStatus("heroNeedsImage",true); return; }
@@ -17609,10 +17645,21 @@ We apologize for the inconvenience and hope everyone stays safe.`
   }
 
   function bindEvents(){
+    document.addEventListener("toggle", event => {
+      const row = event.target;
+      if(!row.matches?.("[data-hero-row]") || !row.isConnected || !byId("adminOverlay").classList.contains("open")) return;
+      heroAdminExpanded[Number(row.dataset.heroRow)] = row.open;
+      if(row.open) renderHeroAdminPreviews(row);
+    },true);
     document.addEventListener("input", event => {
       if(!heroAdminBusy && event.target.closest?.("[data-hero-admin]")){
         readHeroCarouselAdmin();
         setHeroAdminStatus();
+        if(event.target.matches('[data-hero-field="altTh"], [data-hero-field="altEn"]')){
+          const index = Number(event.target.dataset.index);
+          const summary = event.target.closest("[data-hero-row]").querySelector(".hero-admin-index");
+          summary.textContent = heroAdminSlideTitle(heroCarouselDraft.items[index],index);
+        }
       }
     });
     document.addEventListener("change", event => {
@@ -18473,10 +18520,16 @@ We apologize for the inconvenience and hope everyone stays safe.`
         const index = Number(key);
         const items = heroCarouselDraft.items;
         const next = index+(operation==="up" ? -1 : 1);
-        if(operation==="remove") items.splice(index,1);
-        else if(items[index] && items[next]) [items[index],items[next]] = [items[next],items[index]];
+        if(operation==="remove"){
+          items.splice(index,1);
+          heroAdminExpanded.splice(index,1);
+        }else if(items[index] && items[next]){
+          [items[index],items[next]] = [items[next],items[index]];
+          [heroAdminExpanded[index],heroAdminExpanded[next]] = [heroAdminExpanded[next],heroAdminExpanded[index]];
+        }
         setHeroAdminStatus();
         renderAdmin();
+        $(`[data-hero-row="${operation === "remove" ? Math.min(index,items.length-1) : next}"] summary`)?.focus({preventScroll:true});
         return;
       }
       if(targetId === "heroSave"){ void publishHeroCarousel(); return; }
