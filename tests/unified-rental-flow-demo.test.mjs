@@ -679,7 +679,7 @@ test('connecting LINE opens the phone app directly and restores the booking step
   assert.match(html, /const LINE_CONNECT_HANDOFF_KEY = "aj_line_connect_handoff_v1"/);
   assert.match(html, /new URL\(`line:\/\/app\/\$\{CONFIG\.lineLiffId\}`\)/);
   assert.match(html, /id="lineConnectBtn" href="#"/);
-  assert.match(html, /let pending = await ensureLineConnectHandoff\(\)/);
+  assert.match(html, /pending = await ensureLineConnectHandoff\(draft\)/);
   assert.doesNotMatch(html, /window\.open\("about:blank"/);
   assert.match(html, /completeLineConnectionHandoff\(\)/);
   assert.match(html, /lineAccessToken:accessToken/);
@@ -700,8 +700,8 @@ test('connecting LINE opens the phone app directly and restores the booking step
   assert.match(html, /toast\(tr\("contactLineConnected"\)\)/);
   assert.match(html, /\/api\/customers\/line-connection\/start/);
   assert.match(html, /pending\.launchedAt = Date\.now\(\)/);
-  assert.match(html, /let pending = await ensureLineConnectHandoff\(\)/);
-  assert.match(html, /await saveLineBookingDraft\(pending\)/);
+  assert.match(html, /pending = await ensureLineConnectHandoff\(draft\)/);
+  assert.match(html, /if\(!result\.draftSaved\) await saveLineBookingDraft\(pending, draft\)/);
   assert.doesNotMatch(html, /contactLineReady:/);
   assert.doesNotMatch(html, /contactEmailSelected:/);
   assert.match(html, /contactLineBrowserNote:"หมายเหตุ:.*Chrome และ Safari เท่านั้น"/);
@@ -709,7 +709,7 @@ test('connecting LINE opens the phone app directly and restores the booking step
   assert.match(html, /id="lineConnectBtn" href="#"/);
   assert.doesNotMatch(html, /id="lineConnectBtn"[^>]*aria-disabled=/);
   assert.match(html, /lineConnectErrorKey = "contactLineExpired"/);
-  assert.match(html, /lineConnectErrorKey = \/\^line_handoff_\//);
+  assert.match(html, /lineConnectErrorKey = code === "line_draft_too_large"/);
   assert.match(html, /contactLineConsentHelp:"หลังแตะเชื่อม LINE.*อนุญาต \(Allow\)/);
   assert.match(html, /contactLineConsentHelp:"After tapping Connect LINE.*tap Allow/);
   // The Allow advice is a pop-up on both LINE buttons now, not text under them (05/11/2026).

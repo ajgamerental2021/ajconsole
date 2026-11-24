@@ -20,6 +20,7 @@ test('a failed LINE handoff start restores an actionable button and shows an inl
   const alerts = [];
   const context = {
     lineConnectErrorKey: '',
+    lineBookingDraft: () => ({version:1}), saveDemoProfile() {},
     ensureLineConnectHandoff: async () => { throw new Error('line_handoff_start_failed'); },
     byId: id => id === 'demoCustomerCard' ? { querySelector: () => null } : button,
     tr: key => key,
@@ -47,6 +48,7 @@ test('both LINE buttons open the Allow pop-up first; its OK starts the connect, 
     closeModal: () => { closed++; },
     byId: id => ({ addEventListener: (_type, fn) => { listeners[id] = fn; }, setAttribute() {}, removeAttribute() {}, querySelector: () => null }),
     tr: key => key, esc: value => value, contactBrandIcon: () => '',
+    lineBookingDraft: () => ({version:1}), saveDemoProfile() {},
     ensureLineConnectHandoff: async () => { started++; throw new Error('line_handoff_stop'); },
     render() {}, toast() {}, console: { warn() {} },
   };

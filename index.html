@@ -2476,6 +2476,8 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       lineFriendPromoAdd:"เพิ่มเพื่อน",
       contactLineFailed:"ยังเชื่อม LINE ไม่สำเร็จ กรุณาลองอีกครั้ง",
       contactDraftSaveFailed:"บันทึกข้อมูลจองก่อนเปิด LINE ไม่สำเร็จ กรุณาลองอีกครั้ง",
+      contactDraftTooLarge:"ข้อมูลจองยาวเกินกำหนด กรุณาลดข้อความในช่องหมายเหตุแล้วลองเชื่อม LINE อีกครั้ง",
+      contactLineBusy:"ลองเชื่อม LINE หลายครั้งเกินไป กรุณารอสักครู่ก่อนลองใหม่",
       contactDraftRestoreTitle:"กำลังกู้ข้อมูลการจอง",
       contactDraftRestoreHelp:"ข้อมูลที่กรอกไว้ยังอยู่ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง",
       contactDraftRestoreRetry:"ลองอีกครั้ง",
@@ -2660,7 +2662,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       lineFriendPromoClose:"Close",
       lineFriendPromoAdd:"Add friend",
       contactLineFailed:"LINE was not connected. Please try again",
-      contactDraftSaveFailed:"Could not save your booking before opening LINE. Please try again",
+      contactDraftSaveFailed:"Could not save your booking before opening LINE. Please try again.",
+      contactDraftTooLarge:"Your booking details are too long. Shorten the notes and try connecting LINE again.",
+      contactLineBusy:"There were too many LINE connection attempts. Please wait before trying again.",
       contactDraftRestoreTitle:"Still restoring your booking",
       contactDraftRestoreHelp:"Your details are safe. Check your connection and try again.",
       contactDraftRestoreRetry:"Try again",
@@ -14448,7 +14452,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
   const LINE_CONNECTION_KEY = "aj_line_connection_v1";
   const LINE_CONNECT_HANDOFF_KEY = "aj_line_connect_handoff_v1";
   let lineConnectPollTimer = 0;
-  let lineConnectStartPromise = null;
+  let lineConnectPending = null;
   let lineConnectPollInFlight = false;
   let lineConnectErrorKey = "";
   function activeLineConnection(){
@@ -14716,16 +14720,23 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(profile?.userId && profile.userId !== result.lineUserId) return false;
     return saveVerifiedLineConnection(result);
   }
-  function pendingLineConnectHandoff(){
+  function rememberLineConnectHandoff(pending){
+    lineConnectPending = pending;
     try{
-      const saved = JSON.parse(localStorage.getItem(LINE_CONNECT_HANDOFF_KEY) || "null");
-      const expiryMargin = saved?.launchedAt ? 0 : 45000;
-      if(!saved || !/^[A-Za-z0-9_-]{32,64}$/.test(saved.id) || !/^[A-Za-z0-9_-]{32,64}$/.test(saved.pollKey) || Number(saved.expiresAt) <= Date.now() + expiryMargin){
-        localStorage.removeItem(LINE_CONNECT_HANDOFF_KEY);
-        return null;
-      }
-      return saved;
-    }catch{ return null; }
+      if(pending) localStorage.setItem(LINE_CONNECT_HANDOFF_KEY, JSON.stringify(pending));
+      else localStorage.removeItem(LINE_CONNECT_HANDOFF_KEY);
+    }catch{}
+  }
+  function pendingLineConnectHandoff(){
+    let saved = lineConnectPending;
+    if(!saved){
+      try{ saved = JSON.parse(localStorage.getItem(LINE_CONNECT_HANDOFF_KEY) || "null"); }catch{}
+    }
+    if(!saved || !/^[A-Za-z0-9_-]{32,64}$/.test(saved.id) || !/^[A-Za-z0-9_-]{32,64}$/.test(saved.pollKey) || Number(saved.expiresAt) <= Date.now()){
+      rememberLineConnectHandoff(null);
+      return null;
+    }
+    return saved;
   }
   function updateLineConnectLinks(pending){
     const origin = isInsideLineClient() ? "line" : "browser";
@@ -14738,23 +14749,22 @@ We apologize for the inconvenience and hope everyone stays safe.`
     }
     if(fallback) fallback.href = lineConnectionWebAppUrl(state.lang, origin, pending.id, lineBookingSelection());
   }
-  async function ensureLineConnectHandoff(){
-    const existing = pendingLineConnectHandoff();
-    if(existing){ updateLineConnectLinks(existing); return existing; }
-    if(lineConnectStartPromise) return lineConnectStartPromise;
-    lineConnectStartPromise = (async () => {
-      const response = await bookingFetch(new URL("/api/customers/line-connection/start", CONFIG.contractWebUrl), {
-        method:"POST", cache:"no-store", headers:{"Content-Type":"application/json"}, body:"{}"
-      }, 8000);
-      const result = await response.json().catch(() => ({}));
-      if(!response.ok || !result.ok || !/^[A-Za-z0-9_-]{32,64}$/.test(result.id || "") || !/^[A-Za-z0-9_-]{32,64}$/.test(result.pollKey || "")) throw new Error("line_handoff_start_failed");
-      const pending = {id:result.id, pollKey:result.pollKey, expiresAt:Number(result.expiresAt), step:2, launchedAt:0};
-      if(!Number.isFinite(pending.expiresAt) || pending.expiresAt <= Date.now() + 45000) throw new Error("line_handoff_expired");
-      localStorage.setItem(LINE_CONNECT_HANDOFF_KEY, JSON.stringify(pending));
-      updateLineConnectLinks(pending);
-      return pending;
-    })().finally(() => { lineConnectStartPromise = null; });
-    return lineConnectStartPromise;
+  async function ensureLineConnectHandoff(draft){
+    const response = await bookingFetch(new URL("/api/customers/line-connection/start", CONFIG.contractWebUrl), {
+      method:"POST", cache:"no-store", headers:{"Content-Type":"application/json"}, body:JSON.stringify({draft})
+    }, 12000);
+    const result = await response.json().catch(() => ({}));
+    if(response.status === 413 || result.error === "line_draft_too_large") throw new Error("line_draft_too_large");
+    if(response.status === 429) throw new Error("line_handoff_busy");
+    if(result.error === "line_draft_invalid") throw new Error("line_draft_invalid");
+    if(!response.ok || !result.ok || !/^[A-Za-z0-9_-]{32,64}$/.test(result.id || "") || !/^[A-Za-z0-9_-]{32,64}$/.test(result.pollKey || "")){
+      throw Object.assign(new Error("line_handoff_start_failed"), {retryable:response.status >= 500});
+    }
+    const pending = {id:result.id, pollKey:result.pollKey, expiresAt:Number(result.expiresAt), step:2, launchedAt:0};
+    if(!Number.isFinite(pending.expiresAt) || pending.expiresAt <= Date.now() + 45000) throw Object.assign(new Error("line_handoff_expired"), {retryable:true});
+    // The previous server may still answer during a rolling deploy.
+    if(!result.draftSaved) await saveLineBookingDraft(pending, draft);
+    return pending;
   }
   async function pollLineConnectHandoff(){
     clearTimeout(lineConnectPollTimer);
@@ -14773,7 +14783,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       }, 10000);
       const result = await response.json().catch(() => ({}));
       if(response.ok && result.status === "connected"){
-        localStorage.removeItem(LINE_CONNECT_HANDOFF_KEY);
+        rememberLineConnectHandoff(null);
         if(saveVerifiedLineConnection(result)){
           state.calc.step = pending.step;
           state.beforeRentActive = false;
@@ -14785,8 +14795,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
         }
       }
       if(response.status === 404){
-        localStorage.removeItem(LINE_CONNECT_HANDOFF_KEY);
-        void ensureLineConnectHandoff().catch(error => console.warn("LINE connection restart failed", error));
+        rememberLineConnectHandoff(null);
         toast(tr("contactLineExpired"));
         return;
       }
@@ -14856,22 +14865,19 @@ We apologize for the inconvenience and hope everyone stays safe.`
       specialToken:specialRate.token || ""
     };
   }
-  async function saveLineBookingDraft(pending){
-    // The new Safari/Chrome tab has separate storage. Keep private details on
-    // the booking server for this verified handoff, never in the LINE URL.
-    saveLocal();
-    saveDemoProfile({now:true});
+  async function saveLineBookingDraft(pending, draft){
     const response = await bookingFetch(new URL(`/api/customers/line-connection/${encodeURIComponent(pending.id)}/draft`, CONFIG.contractWebUrl), {
-      method:"PUT",cache:"no-store",headers:{"Content-Type":"application/json","X-Line-Connection-Key":pending.pollKey},body:JSON.stringify(lineBookingDraft())
+      method:"PUT",cache:"no-store",headers:{"Content-Type":"application/json","X-Line-Connection-Key":pending.pollKey},body:JSON.stringify(draft)
     }, 10000);
-    if(!response.ok) throw new Error(`line_draft_${response.status}`);
+    if(response.status === 413) throw new Error("line_draft_too_large");
+    if(!response.ok) throw Object.assign(new Error(`line_draft_${response.status}`), {retryable:response.status === 400 || response.status >= 500});
   }
   const LINE_RESUME_KEY = "aj_line_draft_resume_v1";
   let lineDraftReturn = null;
   async function restoreLineBookingDraft(){
     const resume = lineDraftReturn || (() => { try{ return JSON.parse(sessionStorage.getItem(LINE_RESUME_KEY) || "null"); }catch{ return null; } })();
     if(!resume || !/^[A-Za-z0-9_-]{32,64}$/.test(resume.id || "") || !/^[A-Za-z0-9_-]{32,64}$/.test(resume.key || "")) return false;
-    sessionStorage.setItem(LINE_RESUME_KEY, JSON.stringify(resume));
+    try{ sessionStorage.setItem(LINE_RESUME_KEY, JSON.stringify(resume)); }catch{}
     const response = await bookingFetch(new URL(`/api/customers/line-connection/${encodeURIComponent(resume.id)}/draft`, CONFIG.contractWebUrl), {
       cache:"no-store",headers:{"X-Line-Resume-Key":resume.key}
     }, 10000);
@@ -14898,17 +14904,16 @@ We apologize for the inconvenience and hope everyone stays safe.`
     }
     state.calc.step = 2;
     state.calc.datesTouched = !!state.calc.start && !!state.calc.end;
-    saveLocal();
+    try{ saveLocal(); }catch{}
     saveDemoProfile({now:true});
-    sessionStorage.removeItem(LINE_RESUME_KEY);
+    try{ sessionStorage.removeItem(LINE_RESUME_KEY); }catch{}
+    lineDraftReturn = null;
     return true;
   }
   function launchLineConnection(pending){
     pending.launchedAt = Date.now();
-    localStorage.setItem(LINE_CONNECT_HANDOFF_KEY, JSON.stringify(pending));
+    rememberLineConnectHandoff(pending);
     updateLineConnectLinks(pending);
-    saveLocal();
-    saveDemoProfile({now:true});
     void pollLineConnectHandoff();
   }
   let lineConnectLaunchPromise = null;
@@ -14936,13 +14941,14 @@ We apologize for the inconvenience and hope everyone stays safe.`
     lineConnectErrorKey = "";
     byId("demoCustomerCard")?.querySelector(".demo-line-error")?.remove();
     lineConnectLaunchPromise = (async () => {
-      let pending = await ensureLineConnectHandoff();
-      try{ await saveLineBookingDraft(pending); }
+      const draft = lineBookingDraft();
+      try{ saveLocal(); }catch{}
+      saveDemoProfile({now:true});
+      let pending;
+      try{ pending = await ensureLineConnectHandoff(draft); }
       catch(error){
-        // A previous attempt may have used this handoff. Start a fresh one once.
-        localStorage.removeItem(LINE_CONNECT_HANDOFF_KEY);
-        pending = await ensureLineConnectHandoff();
-        await saveLineBookingDraft(pending);
+        if(!error?.retryable && !(error instanceof TypeError) && error?.name !== "AbortError") throw error;
+        pending = await ensureLineConnectHandoff(draft);
       }
       launchLineConnection(pending);
       lineConnectErrorKey = "";
@@ -14951,7 +14957,10 @@ We apologize for the inconvenience and hope everyone stays safe.`
         : lineConnectionAppUrl(state.lang, isInsideLineClient() ? "line" : "browser", pending.id, lineBookingSelection()));
     })().catch(error => {
       console.warn("LINE connection failed before opening the app", error);
-      lineConnectErrorKey = /^line_handoff_/.test(String(error?.message || "")) ? "contactLineStartFailed" : "contactDraftSaveFailed";
+      const code = String(error?.message || "");
+      lineConnectErrorKey = code === "line_draft_too_large" ? "contactDraftTooLarge"
+        : code === "line_handoff_busy" ? "contactLineBusy"
+        : /^line_handoff_/.test(code) || error instanceof TypeError || error?.name === "AbortError" ? "contactLineStartFailed" : "contactDraftSaveFailed";
       render();
       toast(tr(lineConnectErrorKey));
     }).finally(() => {
@@ -18495,7 +18504,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(lineConnectReturn || lineProofReturned){
       state.calc.step = lineConnectReturn?.step || 2;
       siteAnnouncementDismissed = true;
-      if(lineProofReturned){ localStorage.removeItem(LINE_CONNECT_HANDOFF_KEY); saveDemoProfile({now:true}); }
+      if(lineProofReturned){ rememberLineConnectHandoff(null); saveDemoProfile({now:true}); }
     }
     if(directTermsEntry) siteAnnouncementDismissed = true;
     restoreAvailabilityCache();

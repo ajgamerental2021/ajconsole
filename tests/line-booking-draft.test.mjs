@@ -5,6 +5,7 @@ import vm from 'node:vm';
 
 const page = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const section = page.slice(page.indexOf('  const LINE_DRAFT_CALC_FIELDS = '), page.indexOf('  function launchLineConnection('));
+const start = page.slice(page.indexOf("  async function ensureLineConnectHandoff("), page.indexOf("  async function pollLineConnectHandoff()"));
 const profileFields = vm.runInNewContext(page.match(/const DEMO_PROFILE_FIELDS = (\[[^\n]+\]);/)[1]);
 
 for (const language of ['th', 'en']) {
@@ -32,14 +33,19 @@ for (const language of ['th', 'en']) {
       specialRate:{token:'SPECIALtoken123456', fromStorage:false}, SPECIAL_TOKEN_PATTERN:/^[A-Za-z0-9_-]{10,80}$/,
       rememberSpecialToken(){}, loadSpecialRate:async()=>{ context.specialLoaded = true; },
       bookingFetch:async (url, options) => {
-        if(options.method === 'PUT') { serverDraft=JSON.parse(options.body); return {ok:true}; }
+        if(options.method === 'POST') {
+          assert.match(String(url), /line-connection\/start$/);
+          serverDraft=JSON.parse(options.body).draft;
+          return {ok:true,status:201,json:async()=>({ok:true,id:'i'.repeat(43),pollKey:'p'.repeat(43),expiresAt:Date.now()+600000,draftSaved:true})};
+        }
+        assert.notEqual(options.method, 'PUT', 'atomic save needs one request');
         assert.match(String(url),/\/draft$/);
         assert.equal(options.headers['X-Line-Resume-Key'],'r'.repeat(43));
         return {ok:true,json:async()=>({ok:true,draft:serverDraft})};
       },
     };
-    vm.runInNewContext(`${section}\nthis.api={saveLineBookingDraft,restoreLineBookingDraft,lineBookingDraft,setReturn:resume=>lineDraftReturn=resume};`,context);
-    await context.api.saveLineBookingDraft({id:'i'.repeat(43),pollKey:'p'.repeat(43)});
+    vm.runInNewContext(`${section}\n${start}\nthis.api={ensureLineConnectHandoff,restoreLineBookingDraft,lineBookingDraft,setReturn:resume=>lineDraftReturn=resume};`,context);
+    await context.api.ensureLineConnectHandoff(context.api.lineBookingDraft());
     assert.equal(serverDraft.calc.bundleId,'family');
     assert.equal(serverDraft.calc.reviewFacebook,true);
     assert.equal(serverDraft.profile.deliveryInstructions,'Gate 2');

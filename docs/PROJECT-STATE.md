@@ -7352,3 +7352,8 @@ paused job shows slightly old numbers rather than an empty section.
 
 - The LINE and Messenger greeting used the website fallback for every model when the detached bot could not get the authoritative dates within its 2.5-second reply budget. The live source returned dates for all four models when checked. Render CLI access had expired, so the historical request's error could not be confirmed.
 - Detached bot 92c5ec5 now refreshes the verified queue on startup and every 20 seconds, shares the in-flight refresh, and keeps verified dates for a maximum of 45 seconds. An unsuccessful or incomplete fetch leaves the last verified dates alone until they age out. Health reports the last verified refresh. Tests cover slow and incomplete responses.
+
+## 24 November 2026 — LINE connection draft
+
+- Both booking-page LINE buttons start the verification session and save its private draft in one request. The website can still use the older two-request API during deployment, retries a transient failure once, and reports rate and size limits separately. A local storage write failure can no longer stop the initial server save.
+- The production server accepted the combined draft request with the booking origin. The screenshot establishes a failure before LINE opened; the original request's specific failure is unknown.
