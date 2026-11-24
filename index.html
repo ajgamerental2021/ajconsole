@@ -995,14 +995,23 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
   .before-rent-panel{width:100%;min-width:0;border:3px solid #c90012;border-radius:16px;background:#fff;padding:26px;box-shadow:0 16px 40px rgba(15,23,42,.08)}
   .hero-carousel{position:relative;margin:0 0 12px;border-radius:16px;overflow:hidden;background:#17191f;aspect-ratio:2 / 1}
   .hero-carousel[hidden]{display:none}
+  .hero-carousel-image{display:block;width:100%;height:100%}
+  .hero-carousel-image:focus-visible{outline:3px solid #fff;outline-offset:-5px}
   .hero-carousel img{display:block;width:100%;height:100%;object-fit:contain}
-  .hero-carousel-controls{position:absolute;inset:auto 8px 8px;display:flex;align-items:center;justify-content:center;gap:6px}
+  .hero-carousel-controls{position:absolute;inset:auto 8px 8px;display:flex;align-items:center;justify-content:center;gap:6px;pointer-events:none}
   .hero-carousel-controls button,.hero-carousel-count{border:0;border-radius:999px;background:#16181de8;color:#fff;min-width:44px;min-height:44px;font:inherit;display:grid;place-items:center;padding:0 10px}
-  .hero-carousel-controls button{cursor:pointer}
+  .hero-carousel-controls button{cursor:pointer;pointer-events:auto}
   .hero-carousel-controls button:focus-visible{outline:2px solid #fff;outline-offset:2px}
   .before-rent-head.has-hero-carousel{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);padding:0}
   .hero-admin-slider{display:grid;gap:12px;margin-top:12px}
-  .hero-admin-slider .admin-item{padding:12px}
+  .hero-admin-slide{display:grid;grid-template-columns:minmax(0,250px) minmax(0,1fr);gap:14px;align-items:start;padding:12px}
+  .hero-admin-image{aspect-ratio:2 / 1;display:grid;place-items:center;margin:0;border-radius:9px;background:#f1f3f6;overflow:hidden;color:#425166;font-size:13px;text-align:center}
+  .hero-admin-image img{width:100%;height:100%;object-fit:contain}
+  .hero-admin-index{display:block;margin-bottom:5px}
+  .hero-admin-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .hero-admin-save{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0}
+  .hero-admin-status[data-error="true"]{color:#a30012}
+  @media(max-width:640px){.hero-admin-slide{grid-template-columns:minmax(0,1fr)}}
   .before-rent-head{text-align:center;padding:8px 8px 4px}
   .before-rent-head h1{max-width:900px;margin:0 auto;color:#17191f;font-family:Kanit,Sarabun,system-ui,sans-serif;font-size:clamp(36px,4.6vw,58px);font-weight:700;line-height:1.16;letter-spacing:-.025em;white-space:normal;overflow-wrap:anywhere}
   html[lang="en"] .before-rent-head h1{font-family:"Space Grotesk",Sarabun,sans-serif;font-weight:800;letter-spacing:-.045em}
@@ -2450,6 +2459,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
 
   const I18N = {
     th:{
+      heroLink:"URL ปลายทางเมื่อกดรูป (ไม่บังคับ)", heroLinkHelp:"ใส่ URL แบบ https:// หรือเส้นทางในเว็บ เช่น /?booking=1", heroLinkInvalid:"ตรวจ URL ปลายทางของแบนเนอร์หมายเลข {number}", heroImageLoading:"กำลังโหลดรูป…", heroImageError:"โหลดรูปไม่ได้", heroSaving:"กำลังเผยแพร่แบนเนอร์…", heroEnabledSaved:"เผยแพร่แล้ว · Carousel เปิดอยู่", heroDisabledSaved:"บันทึกแล้ว · Carousel ปิดอยู่", heroNeedsImage:"อัปโหลดอย่างน้อย 1 รูปก่อนเปิด Carousel",
       heroCarousel:"ภาพแบนเนอร์หน้าแรก", heroEnable:"เปิด Carousel หน้าแรก", heroSeconds:"เวลาต่อรูป (วินาที)", heroUpload:"อัปโหลดรูป", heroSpecs:"ขนาดแนะนำ 1600 × 800 พิกเซล (2:1) ใช้ขนาดเดียวกันทั้งมือถือ แท็บเล็ต และคอมพิวเตอร์ รองรับ JPG, PNG และ WebP ค่าเริ่มต้น 5 วินาทีต่อรูป ปรับได้ 3–60 วินาที", heroEmpty:"ยังไม่มีรูปแบนเนอร์", heroNeedsSync:"ตั้งค่า GitHub Gist Token ในแท็บ Sync ก่อนอัปโหลด", heroInvalid:"ใช้รูป JPG, PNG หรือ WebP สัดส่วน 2:1 และขนาดไฟล์ไม่เกิน 20 MB", heroFailed:"อัปโหลดหรือบันทึกแบนเนอร์ไม่สำเร็จ กรุณาลองใหม่", heroSaved:"เผยแพร่แบนเนอร์แล้ว", heroUploaded:"อัปโหลดรูปแล้ว กดบันทึกแบนเนอร์เพื่อเผยแพร่", heroSave:"บันทึกแบนเนอร์", heroUploadBusy:"กำลังอัปโหลด…", heroAltTh:"คำอธิบายรูป ไทย", heroAltEn:"คำอธิบายรูป อังกฤษ", heroPrev:"ภาพก่อนหน้า", heroNext:"ภาพถัดไป", heroPause:"หยุดเลื่อน", heroResume:"เริ่มเลื่อน", heroUp:"เลื่อนขึ้น", heroDown:"เลื่อนลง", heroDefaultAlt:"แบนเนอร์ AJ เช่าเครื่องเกม",
 
       individualRateBefore:"ราคานี้เป็นเรทเช่าในนามบุคคล หากต้องการเอกสารในนามบริษัท เช่น ใบเสร็จ ใบกำกับภาษี หรือเอกสารผู้ให้เช่า โปรดขอเรทบริษัททาง LINE ",
@@ -2639,6 +2649,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       faqTitle:"คำถามที่พบบ่อย", faqExpand:"ดูคำถามทั้งหมด", faqCollapse:"ย่อคำถาม", adminLogin:"เข้าสู่ระบบ Admin", adminUser:"ผู้ใช้", adminPassword:"รหัสผ่าน", adminSubmit:"เข้าสู่ระบบ", adminPasskeyLogin:"เข้าสู่ระบบด้วย Passkey", adminRemember:"จดจำการเข้าสู่ระบบบนเครื่องนี้ 30 วัน", adminSignOut:"ออกจากระบบ", adminSignedOut:"ออกจากระบบเครื่องนี้แล้ว", adminPasskeyRegister:"เพิ่ม Passkey", adminBroadcast:"AJ LINE Broadcast", adminPasskeyLabel:"ชื่อ Passkey เช่น MacBook หรือ iPhone", adminPasskeySaved:"เพิ่ม Passkey เรียบร้อยแล้ว", adminPasskeyFailed:"ไม่สามารถใช้ Passkey ได้ กรุณาลองใหม่หรือใช้รหัสผ่าน", wrongPassword:"ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", rentalCode:"รหัสการเช่า", temporaryRentalCode:"รหัสรายการชั่วคราว", save:"บันทึก", add:"เพิ่ม", edit:"แก้ไข", delete:"ลบ", sync:"Sync", pull:"Pull", push:"Push"
     },
     en:{
+      heroLink:"Destination URL when clicked (optional)", heroLinkHelp:"Enter an https:// URL or a site path such as /?booking=1", heroLinkInvalid:"Check the destination URL for banner {number}", heroImageLoading:"Loading image…", heroImageError:"Image could not be loaded", heroSaving:"Publishing banners…", heroEnabledSaved:"Published · Carousel is on", heroDisabledSaved:"Saved · Carousel is off", heroNeedsImage:"Upload at least one image before enabling the carousel",
       heroCarousel:"Homepage banners", heroEnable:"Enable homepage carousel", heroSeconds:"Seconds per slide", heroUpload:"Upload images", heroSpecs:"Recommended size 1600 × 800 px (2:1). Use the same artwork on phones, tablets and desktops. JPG, PNG and WebP supported. Default 5 seconds per slide, adjustable from 3–60 seconds.", heroEmpty:"No banner images yet", heroNeedsSync:"Set the GitHub Gist token in Sync before uploading", heroInvalid:"Use a 2:1 JPG, PNG or WebP image up to 20 MB", heroFailed:"Could not upload or save the banners. Please try again.", heroSaved:"Banners published", heroUploaded:"Images uploaded. Save banners to publish.", heroSave:"Save banners", heroUploadBusy:"Uploading…", heroAltTh:"Thai image description", heroAltEn:"English image description", heroPrev:"Previous image", heroNext:"Next image", heroPause:"Pause slideshow", heroResume:"Play slideshow", heroUp:"Move up", heroDown:"Move down", heroDefaultAlt:"AJ Game Rental banner",
 
       individualRateBefore:"This is an individual rental rate. For company documents such as a receipt, tax invoice, or lessor documents, request a company rate via LINE ",
@@ -3763,7 +3774,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   let adminFieldDrafts = {};
   function adminDraftKey(el){
     const panel = el.closest?.(".admin-panel");
-    if(!panel || ADMIN_OWN_DRAFT_PANELS.has(panel.id)) return "";
+    if(!panel || ADMIN_OWN_DRAFT_PANELS.has(panel.id) || el.closest("[data-hero-admin]")) return "";
     if(!/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || ["file", "password", "button", "submit"].includes(el.type)) return "";
     const data = Object.entries(el.dataset || {}).map(([k, v]) => `${k}=${v}`).sort().join("&");
     if(!el.id && !data && !el.name) return "";
@@ -4323,6 +4334,18 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     localStorage.setItem(LS.boardGameEnabled, state.boardGameEnabled ? "true" : "false");
     localStorage.setItem(LS.draft, JSON.stringify({at:Date.now(), calc:state.calc}));
   }
+  function heroDestination(value){
+    const href = String(value ?? "").trim();
+    if(!href || /[\\\x00-\x1f\x7f]/.test(href) || href.startsWith("//")) return "";
+    if(/^(?:\/|\?|#)/.test(href)) return href;
+    try{
+      const url = new URL(href);
+      if((url.protocol === "https:" || url.protocol === "http:") && !url.username && !url.password) return url.href;
+    }catch{
+      // A destination can also be left blank.
+    }
+    return "";
+  }
   function normalizeHeroCarousel(value){
     const seconds = Number(value?.seconds);
     const items = Array.isArray(value?.items) ? value.items : [];
@@ -4330,7 +4353,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       enabled: value?.enabled === true,
       seconds: Number.isFinite(seconds) && seconds >= 3 && seconds <= 60 ? Math.round(seconds) : 5,
       items: items.filter(item => item && /^https:\/\/gist\.githubusercontent\.com\/[^?#]+\/rental-hero-[a-z0-9-]+\.txt$/i.test(item.url))
-        .map(item => ({url:item.url, altTh:String(item.altTh || ""), altEn:String(item.altEn || "")})),
+        .map(item => ({url:item.url, altTh:String(item.altTh || ""), altEn:String(item.altEn || ""), href:heroDestination(item.href)})),
     };
   }
   function normalizeHome(home){
@@ -5106,10 +5129,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
 
   function loadHeroImage(url){
     if(!heroImages.has(url)){
-      if(heroImages.size >= 3) heroImages.delete(heroImages.keys().next().value);
-      heroImages.set(url, fetch(url, {credentials:"omit", signal:AbortSignal.timeout(8000)}).then(async response => {
-        const image = response.ok ? await response.text() : "";
-        if(!/^data:image\/(?:webp|jpeg);base64,[A-Za-z0-9+/=]+$/.test(image)) throw new Error("Invalid banner");
+      if(heroImages.size >= 6) heroImages.delete(heroImages.keys().next().value);
+      heroImages.set(url, fetch(url, {credentials:"omit", signal:AbortSignal.timeout(15000)}).then(async response => {
+        const image = response.ok ? (await response.text()).trim() : "";
+        if(!/^data:image\/(?:webp|jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(image)) throw new Error("Invalid banner");
         const decoded = new Image();
         decoded.src = image;
         await decoded.decode();
@@ -5134,7 +5157,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     host.replaceChildren();
     if(!carousel.enabled || !carousel.items.length) return;
     host.setAttribute("aria-label", tr("heroCarousel"));
-    patchHTML(host, `<img width="1600" height="800" alt="">
+    patchHTML(host, `<a class="hero-carousel-image"><img width="1600" height="800" alt=""></a>
       ${carousel.items.length > 1 ? `<div class="hero-carousel-controls">
         <button type="button" data-hero-control="prev" aria-label="${esc(tr("heroPrev"))}">‹</button>
         <span class="hero-carousel-count"></span>
@@ -5146,6 +5169,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(!heroPaused && !document.hidden && !host.matches(":hover, :focus-within") && carousel.items.length > 1)
         heroTimer = setTimeout(() => void show(heroSlide + 1), carousel.seconds * 1000);
     };
+    const imageLink = host.querySelector(".hero-carousel-image");
+    const img = imageLink.querySelector("img");
     const pauseLabel = () => {
       const button = host.querySelector('[data-hero-control="pause"]');
       if(button){
@@ -5162,7 +5187,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       try{
         const src = await loadHeroImage(item.url);
         if(sequence !== heroRequest) return;
-        const img = host.querySelector("img");
+        if(item.href) imageLink.setAttribute("href", item.href);
+        else imageLink.removeAttribute("href");
         img.src = src;
         img.alt = (state.lang === "en" ? item.altEn : item.altTh) || tr("heroDefaultAlt");
         const count = host.querySelector(".hero-carousel-count");
@@ -16073,6 +16099,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       <div class="admin-panel ${state.adminTab==="addons"?"active":""}" id="adminAddons">${adminAddonsHtml()}</div>`;
     if(pricingDraftDirty) restorePricingDraft(pricingDraft);
     restoreAdminFieldDrafts();
+    if(state.adminTab === "home") renderHeroAdminPreviews();
   }
   function tabLabel(tab){
     const en = state.lang === "en";
@@ -17037,61 +17064,107 @@ We apologize for the inconvenience and hope everyone stays safe.`
     return `${adminHeroCarouselHtml()}<div class="admin-home-sections">${sections}</div><button class="btn primary" id="saveHome" type="button" style="margin-top:14px">${tr("save")}</button>`;
   }
   let heroCarouselDraft;
+  let heroAdminStatus;
+  let heroAdminBusy = false;
   function adminHeroCarouselHtml(){
     const carousel = heroCarouselDraft || state.home.carousel;
-    return `<div class="card" style="margin-bottom:14px"><h3>${esc(tr("heroCarousel"))}</h3>
+    const disabled = heroAdminBusy ? "disabled" : "";
+    return `<div class="card" data-hero-admin style="margin-bottom:14px"><h3>${esc(tr("heroCarousel"))}</h3>
       <p class="hint">${esc(tr("heroSpecs"))}</p>
-      <label class="option-row"><input id="heroEnable" type="checkbox" ${carousel.enabled ? "checked" : ""}> ${esc(tr("heroEnable"))}</label>
-      <label class="field"><span class="label">${esc(tr("heroSeconds"))}</span><input class="input" id="heroSeconds" type="number" min="3" max="60" value="${carousel.seconds}"></label>
-      <label class="field"><span class="label">${esc(tr("heroUpload"))}</span><input id="heroUpload" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
-      <div class="hero-admin-slider">${carousel.items.length ? carousel.items.map((item,index) => `<div class="admin-item">
-        <b>${index+1}.</b>
-        <div class="grid2">
-          <label class="field"><span class="label">${esc(tr("heroAltTh"))}</span><input class="input" data-hero-alt="altTh" data-index="${index}" value="${esc(item.altTh)}"></label>
-          <label class="field"><span class="label">${esc(tr("heroAltEn"))}</span><input class="input" data-hero-alt="altEn" data-index="${index}" value="${esc(item.altEn)}"></label>
+      <label class="option-row"><input id="heroEnable" type="checkbox" ${carousel.enabled ? "checked" : ""} ${disabled}> ${esc(tr("heroEnable"))}</label>
+      <label class="field"><span class="label">${esc(tr("heroSeconds"))}</span><input class="input" id="heroSeconds" type="number" min="3" max="60" required value="${esc(carousel.seconds)}" ${disabled}></label>
+      <label class="field"><span class="label">${esc(tr("heroUpload"))}</span><input id="heroUpload" type="file" accept="image/jpeg,image/png,image/webp" multiple ${disabled}></label>
+      <div class="hero-admin-save">
+        <button type="button" class="btn primary" id="heroSave" ${disabled}>${esc(tr("heroSave"))}</button>
+        <span id="heroAdminStatus" class="hint hero-admin-status" role="status" data-error="${!!heroAdminStatus?.error}">${esc(heroAdminStatusText())}</span>
+      </div>
+      <div class="hero-admin-slider">${carousel.items.length ? carousel.items.map((item,index) => `<div class="admin-item hero-admin-slide">
+        <figure class="hero-admin-image" data-hero-image="${esc(item.url)}">
+          <span>${esc(tr("heroImageLoading"))}</span>
+        </figure>
+        <div>
+          <b class="hero-admin-index">${index+1}. ${esc((state.lang === "en" ? item.altEn : item.altTh) || item.altEn || item.altTh || "")}</b>
+          <div class="grid2">
+            <label class="field"><span class="label">${esc(tr("heroAltTh"))}</span><input class="input" data-hero-field="altTh" data-index="${index}" value="${esc(item.altTh)}" ${disabled}></label>
+            <label class="field"><span class="label">${esc(tr("heroAltEn"))}</span><input class="input" data-hero-field="altEn" data-index="${index}" value="${esc(item.altEn)}" ${disabled}></label>
+          </div>
+          <label class="field"><span class="label">${esc(tr("heroLink"))}</span><input class="input" inputmode="url" data-hero-field="href" data-index="${index}" value="${esc(item.href || "")}" placeholder="https://…" ${disabled}></label>
+          <div class="hint">${esc(tr("heroLinkHelp"))}</div>
+          <div class="hero-admin-actions">
+            <button type="button" class="btn" data-hero-edit="up:${index}" ${index===0?"disabled":disabled}>${esc(tr("heroUp"))}</button>
+            <button type="button" class="btn" data-hero-edit="down:${index}" ${index===carousel.items.length-1?"disabled":disabled}>${esc(tr("heroDown"))}</button>
+            <button type="button" class="btn danger" data-hero-edit="remove:${index}" ${disabled}>${esc(tr("delete"))}</button>
+          </div>
         </div>
-        <button type="button" class="btn" data-hero-edit="up:${index}" ${index===0?"disabled":""}>${esc(tr("heroUp"))}</button>
-        <button type="button" class="btn" data-hero-edit="down:${index}" ${index===carousel.items.length-1?"disabled":""}>${esc(tr("heroDown"))}</button>
-        <button type="button" class="btn danger" data-hero-edit="remove:${index}">${esc(tr("delete"))}</button>
       </div>`).join("") : esc(tr("heroEmpty"))}</div>
-      <button type="button" class="btn primary" id="heroSave" style="margin-top:12px">${esc(tr("heroSave"))}</button>
     </div>`;
+  }
+  function renderHeroAdminPreviews(){
+    $$("[data-hero-image]").forEach(preview => {
+      void loadHeroImage(preview.dataset.heroImage).then(src => {
+        if(!preview.isConnected) return;
+        const image = new Image();
+        image.alt = "";
+        image.src = src;
+        preview.replaceChildren(image);
+      }).catch(() => { if(preview.isConnected) preview.textContent = tr("heroImageError"); });
+    });
+  }
+  function heroAdminStatusText(){
+    return heroAdminStatus ? tr(heroAdminStatus.key).replace("{number}",heroAdminStatus.number || "") : "";
+  }
+  function setHeroAdminStatus(key, error=false, number){
+    heroAdminStatus = key ? {key,error,number} : undefined;
+    const el = byId("heroAdminStatus");
+    if(el){ el.textContent = heroAdminStatusText(); el.dataset.error = String(error); }
   }
   function readHeroCarouselAdmin(){
     if(!byId("heroEnable")) return;
-    const carousel = normalizeHeroCarousel(heroCarouselDraft || state.home.carousel);
-    $$("[data-hero-alt]").forEach(el => {
+    const carousel = structuredClone(heroCarouselDraft || state.home.carousel);
+    $$("[data-hero-field]").forEach(el => {
       const item = carousel.items[Number(el.dataset.index)];
-      if(item) item[el.dataset.heroAlt] = el.value.trim();
+      if(item) item[el.dataset.heroField] = el.value;
     });
-    heroCarouselDraft = normalizeHeroCarousel({...carousel,enabled:byId("heroEnable").checked,seconds:byId("heroSeconds").value});
+    heroCarouselDraft = {...carousel,enabled:byId("heroEnable").checked,seconds:byId("heroSeconds").value};
   }
-  async function publishHeroCarousel(button){
-    if(!localStorage.getItem(LS.gistToken)){ toast(tr("heroNeedsSync")); return; }
+  async function publishHeroCarousel(){
+    if(heroAdminBusy) return;
+    if(!localStorage.getItem(LS.gistToken)){ setHeroAdminStatus("heroNeedsSync",true); return; }
     readHeroCarouselAdmin();
-    button.disabled = true;
+    const draft = heroCarouselDraft;
+    const invalid = draft.items.findIndex(item => item.href?.trim() && !heroDestination(item.href));
+    if(invalid !== -1){
+      setHeroAdminStatus("heroLinkInvalid",true,invalid+1);
+      $(`[data-hero-field="href"][data-index="${invalid}"]`)?.focus();
+      return;
+    }
+    if(draft.enabled && !draft.items.length){ setHeroAdminStatus("heroNeedsImage",true); return; }
+    if(!byId("heroSeconds").reportValidity()) return;
+    const carousel = normalizeHeroCarousel(draft);
+    heroAdminBusy = true;
+    setHeroAdminStatus("heroSaving");
+    renderAdmin();
     try{
       clearTimeout(state.autoPushTimer);
-      const carousel = heroCarouselDraft;
-      await gistPush(false,{...state.home,carousel});
+      await gistPush(false,{...state.home,carousel},AbortSignal.timeout(20000));
       state.home.carousel = carousel;
       heroCarouselDraft = undefined;
       saveLocal();
       render();
-      toast(tr("heroSaved"));
-    }catch{ toast(tr("heroFailed")); }
-    finally{ button.disabled = false; }
+      setHeroAdminStatus(carousel.enabled ? "heroEnabledSaved" : "heroDisabledSaved");
+    }catch{ setHeroAdminStatus("heroFailed",true); }
+    finally{ heroAdminBusy = false; renderAdmin(); }
   }
   async function uploadHeroImages(input){
     const files = [...input.files];
-    if(!files.length) return;
+    if(!files.length || heroAdminBusy) return;
     const token = localStorage.getItem(LS.gistToken);
     const gist = localStorage.getItem(LS.gistId) || CONFIG.defaultGistId;
-    if(!token || !/^[a-f0-9]+$/i.test(gist)){ input.value = ""; toast(tr("heroNeedsSync")); return; }
-    input.disabled = true;
-    const saveButton = byId("heroSave");
-    saveButton.disabled = true;
-    toast(tr("heroUploadBusy"));
+    if(!token || !/^[a-f0-9]+$/i.test(gist)){ input.value = ""; setHeroAdminStatus("heroNeedsSync",true); return; }
+    readHeroCarouselAdmin();
+    heroAdminBusy = true;
+    setHeroAdminStatus("heroUploadBusy");
+    renderAdmin();
     const added = [];
     try{
       for(const file of files){
@@ -17105,9 +17178,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
           canvas.getContext("2d").drawImage(image,0,0,1600,800);
         }finally{ image.close(); }
         const name = `rental-hero-${crypto.randomUUID()}.txt`;
+        const encoded = canvas.toDataURL("image/webp",0.86);
+        const content = encoded.startsWith("data:image/webp;") ? encoded : canvas.toDataURL("image/jpeg",0.86);
         const response = await fetch(`https://api.github.com/gists/${gist}`,{
           method:"PATCH", headers:{Authorization:`token ${token}`,"Content-Type":"application/json"},
-          body:JSON.stringify({files:{[name]:{content:canvas.toDataURL("image/webp",0.86)}}}),
+          body:JSON.stringify({files:{[name]:{content}}}),
           signal:AbortSignal.timeout(20000),
         });
         if(!response.ok) throw new Error("upload");
@@ -17116,17 +17191,13 @@ We apologize for the inconvenience and hope everyone stays safe.`
         if(!slide) throw new Error("upload");
         added.push(slide);
       }
-      toast(tr("heroUploaded"));
-    }catch(error){ toast(tr(error.message === "invalid" ? "heroInvalid" : "heroFailed")); }
-    readHeroCarouselAdmin();
-    if(added.length){
-      heroCarouselDraft ||= normalizeHeroCarousel(state.home.carousel);
+      setHeroAdminStatus("heroUploaded");
+    }catch(error){ setHeroAdminStatus(error.message === "invalid" ? "heroInvalid" : "heroFailed",true); }
+    finally{
       heroCarouselDraft.items.push(...added);
+      heroAdminBusy = false;
+      if(byId("adminOverlay").classList.contains("open")) renderAdmin();
     }
-    if(added.length && state.adminTab==="home") renderAdmin();
-    saveButton.disabled = false;
-    input.value = "";
-    input.disabled = false;
   }
 
   function homeToneOptions(selected="red"){
@@ -17444,7 +17515,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       return rawRes.json();
     }
   }
-  async function gistPush(create=false, homeData=state.home){
+  async function gistPush(create=false, homeData=state.home, signal){
     const id = localStorage.getItem(LS.gistId) || CONFIG.defaultGistId;
     const token = localStorage.getItem(LS.gistToken) || "";
     if(!token) throw new Error("Missing GitHub token");
@@ -17454,7 +17525,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const res = await fetch(create ? "https://api.github.com/gists" : `https://api.github.com/gists/${id}`, {
       method:create ? "POST" : "PATCH",
       headers:{Authorization:`token ${token}`, "Content-Type":"application/json"},
-      body:JSON.stringify(body)
+      body:JSON.stringify(body),
+      signal
     });
     const json = await res.json().catch(() => ({}));
     if(!res.ok) throw new Error(json.message || `Gist ${res.status}`);
@@ -17468,6 +17540,12 @@ We apologize for the inconvenience and hope everyone stays safe.`
   }
 
   function bindEvents(){
+    document.addEventListener("input", event => {
+      if(!heroAdminBusy && event.target.closest?.("[data-hero-admin]")){
+        readHeroCarouselAdmin();
+        setHeroAdminStatus();
+      }
+    });
     document.addEventListener("change", event => {
       if(event.target.id === "heroUpload") void uploadHeroImages(event.target);
     });
@@ -18314,6 +18392,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(registrySave){ void saveRegistryDevice(registrySave.dataset.registrySave); return; }
       const heroEdit = event.target.closest("[data-hero-edit]");
       if(heroEdit){
+        if(heroAdminBusy) return;
         readHeroCarouselAdmin();
         const [operation,key] = heroEdit.dataset.heroEdit.split(":");
         const index = Number(key);
@@ -18321,10 +18400,11 @@ We apologize for the inconvenience and hope everyone stays safe.`
         const next = index+(operation==="up" ? -1 : 1);
         if(operation==="remove") items.splice(index,1);
         else if(items[index] && items[next]) [items[index],items[next]] = [items[next],items[index]];
+        setHeroAdminStatus();
         renderAdmin();
         return;
       }
-      if(targetId === "heroSave"){ void publishHeroCarousel(event.target); return; }
+      if(targetId === "heroSave"){ void publishHeroCarousel(); return; }
       if(targetId === "saveHome") saveHomeFromAdmin();
       if(targetId === "addFaq"){ readFaqDraftIntoState(); state.faq.push({qTh:"",aTh:"",qEn:"",aEn:""}); saveAndRenderAdmin("FAQ added"); }
       if(targetId === "saveFaq") saveFaqFromAdmin();
