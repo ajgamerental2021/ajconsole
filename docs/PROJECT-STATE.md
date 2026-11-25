@@ -1,3 +1,24 @@
+## 2026-11-25 — Override history, offline header-guard test, demo page shut, Bot server.js split
+
+- **Ask:** do four of the audit recommendations: shut index-demo.html, keep the owner's clash overrides and show them in the app, make header-guard run without credentials, split the Bot's server.js by flow.
+- **DA `7c84969`:**
+  - every owner override is kept in `clash_overrides` (migration 033), after the save succeeds;
+  - Booking → "ประวัติข้ามคิว" is shown to the owner's login only;
+  - `test:clash-override-log` checks it, with and without a database.
+- **DA `5ba0b85`:** `test:header-guard` uses an in-memory sheet; the full DA suite is 180/180.
+- **Website `ae20fbc`:** `index-demo.html` has noindex and a TH/EN demo banner, and sends nothing: no Sheet row, payment link, LINE card, contract or chat message.
+- **Bot `d44d9eb`:**
+  - `src/server.js` (10,942 → 7,424 lines) is split into `src/routes/payment.js`, `identity.js` and `contract.js`, code unchanged;
+  - `server.js` mounts each route group where it was registered;
+  - the Express stack is identical (221 layers), TypeScript checkJs finds no undefined names, and 24 requests answer the same on the old and new server;
+  - tests read the source through `test/helpers/server-source.js`;
+  - `npm test` 926/926.
+- **Deploy:**
+  1. DA backend (migration 033 runs on start);
+  2. staff app web/OTA (history screen);
+  3. Bot;
+  4. website.
+
 ## 2026-11-25 — Full audit: queue clashes, TH/EN, recommendations (DA `6f25107`, `042e1cb`)
 
 - **Ask:** check the website, the Delivery App, the Bot, the LINE cards and everything else in detail, for both languages; fix what is wrong; check queue clashes (the shop moves bookings in the DA); recommend what to add or remove.
