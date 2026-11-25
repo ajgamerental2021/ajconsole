@@ -1,3 +1,16 @@
+## 2026-11-25 — Staff extension offer: readable copy text (DA `e44c5cf`)
+
+- **Ask:** the copied extension-request text was 11 lines run together. Split it into sentences and blocks, add emoji, in TH and EN.
+- **Change:** `staffExtensionDetails().message` is built by `staffExtensionMessage`. It has five blocks separated by blank lines:
+  - the title;
+  - rental ID, customer and device;
+  - days, original return and new return;
+  - payment method, amount and deadline;
+  - "👉 View details and pay here:" with the signed link.
+- **Unchanged:** `rows`, `title` and `deadlineText`, which feed the signed summary page.
+- **Checked:** `test:extension-stale` asserts the block layout. The DA full suite passes except header-guard.
+- **Deploy:** DA backend.
+
 ## 2026-11-25 — Usage guide for unit AJ2 (a PS4) found through Inventory (DA `adf2547`, tests `b28f6f6`)
 
 - **Report:** "ส่งวิธีใช้งาน" on AJ2's delivery card said no guide existed, although the PS4 guide is there.
