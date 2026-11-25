@@ -1,3 +1,18 @@
+## 2026-11-25 — Usage guide for unit AJ2 (a PS4) found through Inventory (DA `adf2547`, tests `b28f6f6`)
+
+- **Report:** "ส่งวิธีใช้งาน" on AJ2's delivery card said no guide existed, although the PS4 guide is there.
+- **Cause:** guides matched only the booking's device name and code, and "AJ2" doesn't say PS4.
+- **Fix:**
+  - Each rented unit code, including a bundle partner's, adds Inventory's `deviceName` and `category`, placed right after the code so guides keep the rented order (`inventoryDeviceNames`).
+  - `GuideSenderDeps.units` defaults to `inventoryUnitNames()`. A failed read only leaves those names out.
+  - Covers the queue and Booking Log buttons, the automatic send at delivery close, and the customer's My rental page.
+  - `GET /api/usage-guides/booking/:rowIndex` also returns `devices`, so the "no guide" dialog names what was matched or says which guide is switched off.
+- **Tests:**
+  - `test:usage-guides` adds AJ2: alone, any case, bundle order, unknown code, through the sender with and without Inventory, and with an Inventory failure.
+  - `test:special-rate` and `test:booking-line-status` were red at `0d64f08` before this change. They were asserting pre-refactor code shapes from `b83cd56` (the extension submit quote moved into `extensionQuoteForContext`, which still adds `specialPerDay`) and `70cc240` (`withBookingChannels` wraps `withLineLinked`). Both are updated to check the same behaviour.
+  - DA full suite passes except header-guard.
+- **Deploy:** DA backend, then the staff app web build/OTA (the dialog wording).
+
 ## 2026-11-23 — Active-trip ETA: always shown, counted down live (DA `f94587c`)
 
 - **Ask:** show a time even without a fresh route, updated in real time from the actual position, instead of hiding it.
