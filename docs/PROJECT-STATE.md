@@ -1,3 +1,16 @@
+## 2026-11-25 — WhatsApp: the six missing booking events wired (DA `5f521a7`)
+
+- **Ask:** after reviewing the WhatsApp code, add the six events the sender lacked.
+- **Added:** `services/whatsappRentalEvents.ts` sends through the existing `notifyBookingOnWhatsApp`, so consent, STOP, once-per-key and the off switch all apply.
+  - **`paid`:** new money on an existing booking.
+  - **`schedule_updated`:** the customer's own handoff edit, or a modification.
+  - **`delivery_driver_at_shop`:** fresh GPS within 200 m of the shop.
+  - **`extension_requested`, `extension_confirmed`, `extension_expired`:** sent whether or not the renter has LINE.
+- **Review fix:** a return's "on the way" was sent together with "driver assigned" because `ON_GOING` is acceptance. It now waits until the driver moves 300 m.
+- **Checked:** `test:whatsapp-rental-events` (21 checks), including the real sender on local Postgres with Gupshup faked. The DA full suite passes except header-guard. No real WhatsApp was sent.
+- **Live status:** nothing changes until the env switch is on and Meta has approved each event's template (`WHATSAPP_TEMPLATE_<EVENT>`). See Delivery App `SHARED-WORKSPACE.md` → "WhatsApp booking updates" for the full list and the remaining activation steps.
+- **Deploy:** DA backend.
+
 ## 2026-11-25 — Staff extension offer: readable copy text (DA `e44c5cf`)
 
 - **Ask:** the copied extension-request text was 11 lines run together. Split it into sentences and blocks, add emoji, in TH and EN.
