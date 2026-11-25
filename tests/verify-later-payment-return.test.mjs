@@ -85,3 +85,9 @@ test('"Fill number and expiry from the photo" shows its progress under its own b
   const ocr = readFileSync(new URL('../assets/identity-ocr.js', import.meta.url), 'utf8');
   assert.match(ocr, /logger: \(event\) => \{ if \(progressListener\) progressListener\(event\.progress, event\.status\); \}/);
 });
+
+test('payment failed: "try again" never leads to the demo page', () => {
+  const failed = page('payment-failed.html');
+  assert.doesNotMatch(failed, /index-demo\.html/);
+  assert.match(failed, /index\.html\?myRental=\$\{encodeURIComponent\(code\)\}&lang=\$\{lang\}/);
+});

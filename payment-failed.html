@@ -42,7 +42,14 @@
       document.getElementById("retryButton").addEventListener("click",()=>{
         if(extension) location.href = "https://lin.ee/N4i6cb6";
         else if(history.length > 1) history.back();
-        else location.href = `index-demo.html?lang=${lang}`;
+        // The live booking site, never the demo fork (25/11/2026): a customer who
+        // landed here in a fresh tab was sent to the old demo page.
+        else {
+          const code = String(params.get("rentalCode") || "").trim();
+          location.href = /^AJ-[A-Z0-9-]{6,40}$/i.test(code)
+            ? `index.html?myRental=${encodeURIComponent(code)}&lang=${lang}`
+            : `index.html?lang=${lang}`;
+        }
       });
     })();
   </script>
