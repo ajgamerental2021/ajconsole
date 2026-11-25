@@ -69,7 +69,9 @@ test('typing on the price tab survives the panel being rebuilt', () => {
 test('the Step 2 WhatsApp message says the booking is finished on the website', () => {
   const start = source.indexOf('  async function chooseDemoWhatsApp(');
   const body = source.slice(start, source.indexOf('\n  }', start));
-  assert.match(body, /I'm finishing my booking \$\{code\} on your website\. Once it's confirmed, please send my booking updates to this WhatsApp\./);
+  // The consent line the Delivery App's inbound parser accepts, word for word (whatsappRentalConsent optInLine, 24/11/2026).
+  assert.match(body, /`✅ I agree to receive booking, payment, delivery and return updates from AJ Game Rental on this WhatsApp for rental \$\{code\}\.`/);
+  assert.match(body, /I’ll return to the website to finish my booking and pay the reservation fee\./);
   assert.doesNotMatch(body, /I am booking rental/);
 });
 

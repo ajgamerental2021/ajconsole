@@ -32,7 +32,8 @@ test('under the pay button: the email comes in 15 minutes, or has been sent (TH/
 });
 
 test('opening the payment link checks the queue at once and says so in a pop-up', () => {
-  assert.match(html, /const queueReady = await checkPayResumeQueue\(autoCheckout\);/);
+  // A direct Beam link skips this look: launchPayResume checks the authoritative queue itself (d3e5336).
+  assert.match(html, /const queueReady = wantsBeam && startCheckout \? true : await checkPayResumeQueue\(startCheckout\);/);
   const check = html.slice(html.indexOf('async function checkPayResumeQueue(requireFresh=false)'), html.indexOf('function payResumeContext('));
   assert.match(check, /evaluateAvailability\(ctx\)/);
   assert.match(check, /showPayResumeQueuePopup\(await withOwnQueueCode\(r\.rentalCode, \(\) => queueFullText\(ctx, gate\)\)\)/);
@@ -44,16 +45,18 @@ test('opening the payment link checks the queue at once and says so in a pop-up'
 
 test('LINE reservation action checks a fresh queue before automatically opening Beam', () => {
   const open = html.slice(html.indexOf('function openPayResume('), html.indexOf('function showPayResumeQueuePopup('));
-  assert.match(open, /if\(autoCheckout && queueReady && !payResume\.queueBlocked\)/);
+  assert.match(open, /let startCheckout = autoCheckout;/);
+  assert.match(open, /if\(startCheckout && queueReady && !payResume\.queueBlocked\)/);
   assert.doesNotMatch(open, /payResume\.method = "cash"/, 'preserve the method selected for this rental');
-  assert.match(open, /await launchPayResume\(\)/);
+  assert.match(open, /await launchPayResume\(\{requireAuthoritativeQueue:wantsBeam\}\)/);
   assert.match(html, /autoCheckout:\["selected", "reservation"\]\.includes\(payParams\.get\("checkout"\)\)/);
   assert.match(html, /focusPayment:payParams\.get\("focus"\) === "payment"/);
   assert.match(html, /id="payResumePayment"/);
   assert.match(html, /const snapshot = await fetchAvailability\(requireFresh\)/);
   assert.match(html, /!snapshot\?\.fresh/);
-  const launch = html.slice(html.indexOf('async function launchPayResume()'), html.indexOf('async function notifyDemoLine()'));
+  const launch = html.slice(html.indexOf('async function launchPayResume('), html.indexOf('async function notifyDemoLine()'));
   assert.match(launch, /const verifiedQueue = await fetchAvailability\(true\)/);
+  assert.match(launch, /\(requireAuthoritativeQueue && state\.availability\.source !== "bot"\)\) throw new Error\("queue_check_failed"\)/);
   assert.match(launch, /if\(!verifiedQueue\?\.fresh/);
   assert.match(launch, /const gate = evaluateAvailability\(ctx\)/);
   assert.ok(launch.indexOf('await ensureBookingHold') < launch.indexOf('/api/rentals/payment-page/link'));
@@ -61,10 +64,10 @@ test('LINE reservation action checks a fresh queue before automatically opening 
 
 test('the payment page opens from the email link and pays through the server', () => {
   assert.match(html, /payParams\.has\("pay"\)/);
-  assert.match(html, /if\(payLink\) openPayResume\(payLink\.code, payLink\.token, \{autoCheckout:/);
+  assert.match(html, /if\(payLink\) openPayResume\(payLink\.code, payLink\.token, \{\s*autoCheckout:/);
   assert.match(html, /\/api\/rentals\/payment-page`/);
-  const launch = html.slice(html.indexOf('async function launchPayResume()'), html.indexOf('async function notifyDemoLine()'));
-  assert.match(launch, /await ensureBookingHold\(r\.rentalCode, ctx\)/);
+  const launch = html.slice(html.indexOf('async function launchPayResume('), html.indexOf('async function notifyDemoLine()'));
+  assert.match(launch, /await ensureBookingHold\(r\.rentalCode, ctx, \{requireAuthoritativeQueue\}\)/);
   assert.match(launch, /\/api\/rentals\/payment-page\/link/);
   assert.match(launch, /body:JSON\.stringify\(\{token:payResume\.token, method:payResume\.method\}\)/);
   assert.doesNotMatch(launch, /amount:/, 'the page never names the amount');
@@ -76,7 +79,7 @@ test('the payment page opens from the email link and pays through the server', (
 
 test('the queue check takes the rental it is asked about', () => {
   assert.match(html, /function evaluateAvailability\(ctx = calcRentalContext\(\)\)/);
-  assert.match(html, /async function ensureBookingHold\(rentalCode, ctx = calcRentalContext\(\)\)/);
+  assert.match(html, /async function ensureBookingHold\(rentalCode, ctx = calcRentalContext\(\), \{requireAuthoritativeQueue = false\} = \{\}\)/);
   assert.match(html, /consoleId: String\(c\.id \|\| ""\),/);
 });
 
@@ -111,8 +114,8 @@ test('no floating "เช็คคิว & คำนวณค่าเช่า"
 test('payment resume times out and sends English Wise to manual transfer, not Beam', () => {
   assert.match(html, /bookingFetch\(`\$\{CONFIG\.apiBase\}\/api\/rentals\/payment-page`, \{[\s\S]*?\}, 15000\)\.then/);
   assert.match(html, /inputName:"payResumeChoice", allowWise:en && !!r\.plan\?\.methods\?\.wise/);
-  const launch = html.slice(html.indexOf('async function launchPayResume()'), html.indexOf('async function notifyDemoLine()'));
-  assert.ok(launch.indexOf('if(payResume.method === "wise")') < launch.indexOf('/api/rentals/payment-page/link'));
+  const launch = html.slice(html.indexOf('async function launchPayResume('), html.indexOf('async function notifyDemoLine()'));
+  assert.ok(launch.indexOf('if(payResume.method === "wise")') > 0 && launch.indexOf('if(payResume.method === "wise")') < launch.indexOf('/api/rentals/payment-page/link'));
   assert.match(launch, /\/api\/rentals\/payment-page\/wise/);
   assert.match(launch, /wiseTransferHtml\(\{upfront:result\.amount\}, r\.rentalCode\)/);
 });

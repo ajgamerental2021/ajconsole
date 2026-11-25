@@ -9,7 +9,9 @@ function functionSource(name) {
   const start = html.indexOf(`function ${name}(`);
   assert.ok(start >= 0, `${name} exists`);
   let depth = 0;
-  for (let i = html.indexOf('{', start); i < html.length; i += 1) {
+  // The body's brace, not one in a destructured parameter list ({a = 1} = {}).
+  const body = html.slice(start).search(/\)\s*\{/);
+  for (let i = start + body + html.slice(start + body).indexOf('{'); i < html.length; i += 1) {
     if (html[i] === '{') depth += 1;
     if (html[i] === '}' && --depth === 0) return html.slice(start, i + 1);
   }

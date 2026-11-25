@@ -39,7 +39,7 @@ test('no discount of any kind at a special rate', () => {
 test('the surcharge is its own marked line, and the server is given the link to check', () => {
   assert.match(html, /if\(s\.specialSurcharge\) costs\.push\(\{label: s\.specialLabel, value: money\(s\.specialSurcharge\), special:true\}\);/);
   assert.match(html, /\{specialToken:specialRate\.token, specialHolderId:bookingHoldHolderId\(\)\}/);
-  assert.match(html, /\.\.\.\(specialModeOn\(\) && specialRate\.campaign \? \{specialToken:specialRate\.token\} : \{\}\)/, 'the 30-minute hold takes a campaign unit');
+  assert.match(html, /\.\.\.\(\(ctx\.useSpecialRate \?\? specialModeOn\(\)\) && specialRate\.campaign \? \{specialToken:specialRate\.token\} : \{\}\)/, 'the 30-minute hold takes a campaign unit');
   assert.match(html, /"ยอดค่าเช่า": Math\.max\(0, Number\(summary\.regularRental\|\|0\) \+ Number\(summary\.specialSurcharge\|\|0\)/);
 });
 
@@ -57,10 +57,10 @@ test('the admin page manages campaigns and one-time links', () => {
 });
 
 test('a special rate never checks the stock queue (15/11/2026): every date free, no promotion badge', () => {
-  assert.match(html, /if\(activeSpecial\(\)\) return \{mode:"ok",pass:true,message:tr\("available"\)\};/);
+  assert.match(html, /if\(ctx\.useSpecialRate \?\? activeSpecial\(\)\) return \{mode:"ok",pass:true,message:tr\("available"\)\};/);
   assert.match(html, /if\(activeSpecial\(\)\) return \{cls:"available", note:calendarCellText\("available"\)\};/);
   assert.match(html, /if\(activeSpecial\(\)\) return true;\n    if\(!hasRecentAvailabilitySnapshot\(\)\) return false;/);
-  assert.match(html, /if\(activeSpecial\(\)\) return hold;\n    const refreshed = await fetchAvailability\(true\);/);
+  assert.match(html, /if\(ctx\.useSpecialRate \?\? activeSpecial\(\)\) return hold;\n    const refreshed = await fetchAvailability\(true\);/);
   assert.match(html, /if\(special && \(special\.consoleIds \|\| \[\]\)\.map\(String\)\.includes\(String\(item\?\.id\)\)\) return !isQueueClosed\(item\);/);
   assert.match(html, /if\(typeof activeSpecial === "function" && activeSpecial\(\)\) return \{eligible:false, discount:0, price:0\};/);
 });

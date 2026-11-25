@@ -90,6 +90,6 @@ test('a payment link\'s page counts its own rental as its own, whatever the book
   state.calc.rentalCode = '';
   const html2 = html.slice(html.indexOf('async function checkPayResumeQueue('), html.indexOf('function payResumeContext('));
   assert.match(html2, /withOwnQueueCode\(r\.rentalCode, \(\) => evaluateAvailability\(ctx\)\)/);
-  const launch = html.slice(html.indexOf('async function launchPayResume()'), html.indexOf('async function notifyDemoLine()'));
-  assert.match(launch, /await withOwnQueueCode\(r\.rentalCode, async \(\) => \{[\s\S]*?await ensureBookingHold\(r\.rentalCode, ctx\);/);
+  const launch = html.slice(html.indexOf('async function launchPayResume('), html.indexOf('async function notifyDemoLine()'));
+  assert.match(launch, /await withOwnQueueCode\(r\.rentalCode, async \(\) => \{[\s\S]*?await ensureBookingHold\(r\.rentalCode, ctx, \{requireAuthoritativeQueue\}\);/);
 });
