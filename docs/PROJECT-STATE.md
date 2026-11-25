@@ -1,3 +1,19 @@
+## 2026-11-25 — Full audit: queue clashes, TH/EN, recommendations (DA `6f25107`, `042e1cb`)
+
+- **Ask:** check the website, the Delivery App, the Bot, the LINE cards and everything else in detail, for both languages; fix what is wrong; check queue clashes (the shop moves bookings in the DA); recommend what to add or remove.
+- **Queue clashes:**
+  - every Booking Log write goes through `GuardedBookingRepo`;
+  - fixed: an owner's over-the-queue staff extension was refused by the guard once paid (the money was in and the date stayed), and now applies under the owner override;
+  - fixed: special-rate rows are checked when moved or widened after placement.
+- **TH/EN:**
+  - fixed: two Thai-only errors on the customer time/place page;
+  - LINE cards (DA and Bot), /c/ pages, the trip page, emails, website `index.html` and its subpages were checked and are bilingual.
+- **Website `7ea5f8c`:** fixed: `payment-failed.html` retry with no history sent customers to `index-demo.html`; it now goes to `index.html?myRental=<code>`.
+- **Open risk (not changed; owner's decision):** Guest Mode endpoints (`/api/public/bookings/*`: done, proofs, run confirmation) have no login; anyone with the app headers can tick or untick a job done (which also sends the refund review card to the shop admins) and upload or delete proof photos.
+- **Checked:** DA full suite 178/179 (header-guard needs Sheets credentials, as before), backend and frontend tsc clean, Bot 918/918, website 478/478.
+- **Also not changed:** `index-demo.html` is public, has no `noindex` and still submits rentals to the sheet.
+- **Deploy:** DA backend (`042e1cb`), then the website (`7ea5f8c`).
+
 ## 2026-11-25 — WhatsApp now mirrors every LINE customer card (DA `3816f9d`, Bot `75bfbe5`)
 
 - **Ask:** check again for missing event cards, and make WhatsApp exactly what a LINE customer receives.
