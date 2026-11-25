@@ -1,3 +1,21 @@
+## 2026-11-25 — WhatsApp now mirrors every LINE customer card (DA `3816f9d`, Bot `75bfbe5`)
+
+- **Ask:** check again for missing event cards, and make WhatsApp exactly what a LINE customer receives.
+- **Audit:** every customer-facing LINE push in the Delivery App and the Bot was mapped.
+- **Added:** 26 Utility templates (48 in total), each wired where its LINE card goes and before any LINE-only exit, so a WhatsApp-only renter gets them.
+  - **Trip:** almost there (minutes), at the door, delivered, balance due, equipment collected, pickup photo, overdue return update, changing driver, request cancelled, delivery and return photos, return pickup time, delivery details.
+  - **Rental:** date change proposed or withdrawn, rental cancelled, choose games, games saved, payment request or summary, manual reminder, device swap, extension cancelled, details received.
+  - **From the Bot:** unpaid reservation, identity verification, agreement ready, deposit lowered, booking revised, website choices.
+- **Staff send buttons:** they now report success when only WhatsApp reached the customer.
+- **Links:** links off `app.ajgamerental.com/c/` use a signed, AJ-only redirect.
+- **Not sent on WhatsApp:** LINE-only flows (account link, slips sent in chat, chat replies) and the marketing review card.
+- **Checked:** `test:whatsapp-rental-events` 33, the Bot test, Bot suite 918, DA full suite except header-guard. No real WhatsApp was sent.
+- **To enable:**
+  - submit the 26 templates in `delivery-app/docs/WHATSAPP-TEMPLATES-2026-11-25.md` and set each `WHATSAPP_TEMPLATE_<EVENT>` after approval;
+  - set `WHATSAPP_BOOKING_NOTIFICATIONS=true` on both the Delivery App and the Bot (plus the payment method in Meta and KYC in Gupshup);
+  - test with the shop's own number first.
+- **Deploy:** DA backend first, then the Bot (the Bot only calls the new endpoint when its switch is on).
+
 ## 2026-11-25 — WhatsApp: the six missing booking events wired (DA `5f521a7`)
 
 - **Ask:** after reviewing the WhatsApp code, add the six events the sender lacked.
