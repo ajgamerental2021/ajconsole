@@ -18,6 +18,12 @@
   2. Bot, then the website (the website reads linkExpiry; the Bot accepts both shapes);
   3. after Meta approval, set `WHATSAPP_TEMPLATE_RETURN_TODAY_PADLOCK` on DA.
 
+## 2026-11-27 — Games pill in full, logo rows without the bank emoji
+
+- **Website `e5cd493`:**
+  - the pill on each device picture reads "รวม 10 เกม" / "Incl. 10 games" in full;
+  - the footer and rental-steps logo rows no longer have the 🏦 emoji.
+
 ## 2026-11-27 — Payments footer, checkout logos, popups that point at the field, rental steps; no cash
 
 - **Website `e2f87cf`:**
