@@ -18,6 +18,18 @@
   2. Bot, then the website (the website reads linkExpiry; the Bot accepts both shapes);
   3. after Meta approval, set `WHATSAPP_TEMPLATE_RETURN_TODAY_PADLOCK` on DA.
 
+## 2026-11-27 — Payments footer, checkout logos, popups that point at the field, rental steps; no cash
+
+- **Website `e2f87cf`:**
+  - the footer reads "Payments powered by Beam" followed by every payment logo;
+  - Balance on delivery shows the QR PromptPay mark;
+  - the full-payment options are just their names;
+  - "ตรวจสอบข้อมูล" in every "can't continue" popup takes the customer to the field, with a red frame, and opens the calendar for a date;
+  - dividers between the device prices and the two review sections;
+  - the "how to rent" popup now starts with "ทำรายการเช่า" and shows the payment logos.
+- **Bot `5bd8d61`:** the English booking message no longer offers cash.
+- **Checked:** website 495/495, Bot 929/929, browser TH/EN at phone and desktop width.
+
 ## 2026-11-26 — Website: promotions, payment FAQ, QR PromptPay
 
 - **Website `a71560b`:**
