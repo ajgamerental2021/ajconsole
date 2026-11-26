@@ -1057,6 +1057,13 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .site-footer{border-top:1px solid var(--border);background:#fff;color:#8a8f98}
 .site-footer-inner{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding-top:16px;padding-bottom:16px}
 .site-footer-main{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.site-payments{flex:1 1 100%;display:flex;flex-direction:column;gap:8px}
+.site-payments-powered{display:flex;align-items:center;gap:8px;margin:0;color:#667085;font-size:13px;font-weight:700;line-height:1}
+.site-beam-logo{display:block;height:18px;width:auto}
+.pay-logos{display:flex;flex-wrap:wrap;gap:6px}
+.pay-logo{display:inline-flex;align-items:center;justify-content:center;width:46px;height:30px;padding:3px 4px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;font-size:17px;line-height:1;box-sizing:border-box}
+.pay-logo img{display:block;max-width:100%;max-height:100%;object-fit:contain}
+.step-pay-logos{margin-top:8px}
 .site-info-links{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap}
 .site-info-link{appearance:none;border:0;background:transparent;padding:4px 0;color:#475467;font:inherit;font-size:12.5px;font-weight:800;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .site-info-links .site-info-link[data-info-page="contact"]{display:inline-flex;align-items:center;gap:5px}
@@ -1119,6 +1126,9 @@ body.unified-flow-demo .demo-terms-frame{width:100%;height:300px;border:1px soli
 body.unified-flow-demo .demo-identity-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:20px;margin:18px 0}
 body.unified-flow-demo .req{color:#d92d20;margin-left:3px}
 body.unified-flow-demo .input.is-invalid{border-color:#d92d20;box-shadow:0 0 0 3px rgba(217,45,32,.16)}
+.attention-ring{outline:3px solid #d92d20!important;outline-offset:3px;border-radius:10px;animation:attentionPulse 1.1s ease-in-out 3}
+@keyframes attentionPulse{0%,100%{outline-color:#d92d20}50%{outline-color:rgba(217,45,32,.25)}}
+@media (prefers-reduced-motion: reduce){.attention-ring{animation:none}}
 body.unified-flow-demo .option-row.is-invalid{border-color:#d92d20;background:#fff5f4}
 body.unified-flow-demo .field-error{margin:6px 0 0;color:#b42318;font-weight:800;line-height:1.45}
 body.unified-flow-demo .demo-id-type{display:flex;flex-wrap:wrap;gap:8px}
@@ -1382,6 +1392,8 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
   .before-rent-discovery-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;text-align:left}
   .before-rent-discovery-head h2{margin:4px 0 0;font-size:24px}
   .before-rent-mini-section{margin-top:18px;padding:0}
+  /* The same rule as above "เครื่องเกมทั้งหมดและโปรโมชั่น" between the devices, the reviews and the activities (26/11/2026). */
+  .before-rent-mini-section.has-divider{margin-top:22px;padding-top:20px;border-top:1px solid #e5e7eb}
   .before-rent-mini-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px;margin:0 0 10px}
   .before-rent-mini-head h3{margin:0;font-size:19px}
   .before-rent-count{padding:2px 9px;border-radius:999px;background:#fff1f2;color:#c90012;font-size:12px;font-weight:900}
@@ -1515,6 +1527,7 @@ body.unified-flow-demo .demo-notify-actions{display:flex;flex-wrap:wrap;gap:10px
     .before-rent-final-cta .btn{width:100%;min-width:0}
     .site-footer-inner{align-items:flex-start;flex-direction:column-reverse}
     .site-footer-main{align-items:flex-start;flex-direction:column;gap:8px}
+    .site-payments{margin-top:10px;margin-bottom:6px;gap:10px}
     .info-modal-highlight{grid-template-columns:1fr}
     .info-modal-body{padding:18px 16px}
     .info-modal-frame{min-height:calc(100dvh - 90px)}
@@ -1669,7 +1682,7 @@ body{background:#f7f8fa}
               <div id="beforeRentPromos" class="before-rent-promos" tabindex="0" role="region" aria-label="โปรโมชั่น"></div>
             </div>
           </section>
-          <section class="before-rent-mini-section" id="beforeRentReviewsSection" hidden>
+          <section class="before-rent-mini-section has-divider" id="beforeRentReviewsSection" hidden>
             <div class="before-rent-mini-head">
               <h3 data-i18n="beforeRentReviews">รีวิวจากลูกค้าจริง</h3>
               <span class="before-rent-count" id="beforeRentReviewsCount"></span>
@@ -1680,7 +1693,7 @@ body{background:#f7f8fa}
             </div>
             <div class="before-rent-review-links" id="beforeRentReviewLinks"></div>
           </section>
-          <section class="before-rent-mini-section" id="beforeRentHighlightsSection" hidden>
+          <section class="before-rent-mini-section has-divider" id="beforeRentHighlightsSection" hidden>
             <div class="before-rent-mini-head">
               <h3 data-i18n="beforeRentHighlights">รีวิวจากลูกค้าและกิจกรรมที่ผ่านมา</h3>
               <span class="before-rent-count" id="beforeRentHighlightsCount"></span>
@@ -1816,7 +1829,7 @@ body{background:#f7f8fa}
 
 <footer class="site-footer">
   <div class="container site-footer-inner">
-    <div class="site-footer-main"><p class="site-copyright" data-i18n="siteCopyright">AJ Game Rental © 2026. สงวนลิขสิทธิ์</p><div class="site-info-links" data-info-links aria-label="ข้อมูลเว็บไซต์"></div></div>
+    <div class="site-footer-main"><div class="site-payments"><p class="site-payments-powered"><span data-i18n="sitePaymentsPowered">Payments powered by</span><img class="site-beam-logo" src="assets/payment/beam.png" alt="Beam" width="61" height="18"></p><div class="pay-logos" id="sitePaymentLogos" role="img"></div></div><p class="site-copyright" data-i18n="siteCopyright">AJ Game Rental © 2026. สงวนลิขสิทธิ์</p><div class="site-info-links" data-info-links aria-label="ข้อมูลเว็บไซต์"></div></div>
     <div class="site-socials" role="navigation" aria-label="Social media">
       <a class="site-social-link" data-analytics-social="youtube" href="https://www.youtube.com/@ajgamerental" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg>
@@ -2687,6 +2700,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       returning:"ลูกค้าเก่า (เท่านั้น) รับส่วนลด 10% ค่าเช่า", returningOnly:"ลูกค้าเก่าเท่านั้น", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 โอนจองคิว ฿200 และชำระยอดที่เหลือปลายทาง", bank:"📱 QR PromptPay: ชำระเต็มจำนวน", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%",
       wiseAvailabilityNote:"ไม่สามารถชำระผ่าน Wise ในวันเสาร์-อาทิตย์หรือวันหยุดธนาคารไทยได้ เนื่องจากเงินจะเข้าในวันทำการถัดไป", wiseUnavailableWeekend:"วันนี้ไม่สามารถเลือก Wise ได้ (วันเสาร์-อาทิตย์)", wiseUnavailableHoliday:"วันนี้ไม่สามารถเลือก Wise ได้ (วันหยุดธนาคารไทย)", returningVerifyTitle:"ยืนยันสิทธิ์ส่วนลดลูกค้าเก่า", returningVerifyHelp:"กรอกเบอร์โทรที่เคยใช้เช่า และเลขบัตรประชาชน 4 ตัวท้าย", returningVerifyPhone:"เบอร์โทรศัพท์", returningVerifyFirstName:"ชื่อจริง (ไม่ต้องใส่นามสกุล)", returningVerifyLast4:"เลขบัตรประชาชน 4 ตัวท้าย", returningVerifyNoIdentity:"ไม่เคยยืนยันตัวตน", returningVerifyHistoryHelp:"สำหรับลูกค้าเก่าที่ไม่เคยยืนยันตัวตน กรุณาใช้ชื่อจริงร่วมกับรหัสการเช่าครั้งก่อนหรือเบอร์โทรศัพท์เพื่อยืนยัน ไม่ต้องใส่นามสกุล", returningVerifyRentalSuffix:"Rental ID 5 ตัวท้าย", returningVerifyUsePhone:"ใช้เบอร์โทรแทน", returningVerifyHistoryPhone:"เบอร์โทรศัพท์ที่เคยส่งให้ทางร้าน", returningVerifyFindRentalId:"วิธีการหา Rental ID", returningVerifySubmit:"ตรวจสอบสิทธิ์", returningVerifyCancel:"ยกเลิก", returningVerifyChecking:"กำลังตรวจสอบ...", returningVerifySuccess:"ยืนยันสิทธิ์ลูกค้าเก่าเรียบร้อย", returningVerifyNotFound:"ไม่พบประวัติ Confirmed ที่ชื่อจริงและข้อมูลยืนยันตรงกัน กรุณาตรวจสอบข้อมูลหรือติดต่อ AJ", returningVerifyError:"ตรวจสอบสิทธิ์ไม่ได้ในขณะนี้ กรุณาลองใหม่ภายหลัง", returningVerifyInvalid:"กรุณากรอกเบอร์โทร 10 หลัก และเลขบัตร 4 ตัวท้าย", returningVerifyHistoryInvalid:"กรุณากรอกชื่อจริง และ Rental ID 5 ตัวท้ายหรือเบอร์โทรศัพท์ที่ถูกต้อง", returningLineVerifiedTitle:"ตรวจพบประวัติลูกค้าเก่า ใช้ส่วนลดค่าเช่า 10% แล้ว", returningLineVerifiedDetail:"ยืนยันสิทธิ์ผ่านบัญชี LINE และเลือกส่วนลดให้อัตโนมัติแล้ว",
       returningVerifyPrivacy:"ใช้ข้อมูลนี้เพื่อตรวจสิทธิ์ส่วนลดเท่านั้น หน้าเว็บจะไม่แสดงเลขบัตรหรือประวัติการเช่าของลูกค้ารายอื่น",
+      sitePaymentsPowered:"ระบบชำระเงินโดย", sitePaymentsAccepted:"ช่องทางชำระเงินที่รองรับ",
       siteCopyright:"AJ Game Rental © 2026. สงวนลิขสิทธิ์",
       reviewGoogle:"รับส่วนลดเพิ่มจากการรีวิวบน Google Maps มูลค่า 100 บาท", reviewFacebook:"รับส่วนลดเพิ่มจากการรีวิวบน Facebook มูลค่า 100 บาท", reviewGoogleAfterWork:"รับส่วนลดเพิ่มจากการรีวิวบน Google Maps มูลค่า 50 บาท", reviewFacebookAfterWork:"รับส่วนลดเพิ่มจากการรีวิวบน Facebook มูลค่า 50 บาท", reviewGoogleHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Google Maps ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewFacebookHelp:"ต้องการรับส่วนลดให้รีวิวผ่านปุ่ม รีวิว Facebook ด้านล่าง และแคปหน้าจอส่งมาให้ที่แชทที่ติดต่อกับ AJ", reviewGoogleBtn:"รีวิว Google Maps", reviewFacebookBtn:"รีวิว Facebook", reviewGoogleDiscount:"ส่วนลดรีวิว Google Maps", reviewFacebookDiscount:"ส่วนลดรีวิว Facebook",
       boardGameCollapsed:"ต้องการเพิ่มบอร์ดเกม? กดเพื่อขยายและเลือกเข้าชุดเช่า", ps5BundleCollapsed:"ต้องการ Bundle? กดเพื่อจับคู่ PS5 กับอุปกรณ์อื่น",
@@ -2878,6 +2892,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       returning:"Returning customers only: 10% off rental fee", returningOnly:"Returning customers only", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"💵 Balance on delivery", bank:"📱 QR PromptPay", wise:"🌍 Wise", credit:"💳 Credit Card: pay full amount + 3.50% fee", ewallet:"👛 E-Wallet: pay full amount + 2.95%",
       wiseAvailabilityNote:"Wise payments are unavailable on weekends and Thai bank holidays because funds arrive on the next business day.", wiseUnavailableWeekend:"Wise is unavailable today (weekend).", wiseUnavailableHoliday:"Wise is unavailable today (Thai bank holiday).", returningVerifyTitle:"Verify returning-customer discount", returningVerifyHelp:"Enter your first name (surname not required) and the last 4 characters of your Passport.", returningVerifyName:"First name (surname not required)", returningVerifyFirstName:"First name (surname not required)", returningVerifyLast4:"Last 4 Passport characters", returningVerifyNoIdentity:"I have never verified my identity", returningVerifyHistoryHelp:"For returning customers who have never verified their identity. Please use your first name with your previous Rental ID or phone number to verify eligibility. Surname is not required.", returningVerifyRentalSuffix:"Last 5 characters of Rental ID", returningVerifyUsePhone:"Use phone number instead", returningVerifyHistoryPhone:"Phone number previously provided to AJ", returningVerifyFindRentalId:"How to find your Rental ID", returningVerifySubmit:"Check eligibility", returningVerifyCancel:"Cancel", returningVerifyChecking:"Checking...", returningVerifySuccess:"Returning-customer eligibility confirmed.", returningVerifyNotFound:"No Confirmed rental matched both the first name and verification detail. Check the details or contact AJ.", returningVerifyError:"Eligibility cannot be checked right now. Please try again later.", returningVerifyInvalid:"Enter your first name (surname not required) and the last 4 Passport characters.", returningVerifyHistoryInvalid:"Enter your first name and the last 5 characters of your Rental ID or a valid phone number.", returningLineVerifiedTitle:"Returning customer found: 10% rental discount applied", returningLineVerifiedDetail:"Verified through your LINE account and selected automatically.",
       returningVerifyPrivacy:"This information is used only to verify discount eligibility. The page will not reveal another customer's passport details or rental history.",
+      sitePaymentsPowered:"Payments powered by", sitePaymentsAccepted:"Accepted payment methods",
       siteCopyright:"AJ Game Rental © 2026. All rights reserved.",
       reviewGoogle:"Extra ฿100 discount for a Google Maps review", reviewFacebook:"Extra ฿100 discount for a Facebook review", reviewGoogleAfterWork:"Extra ฿50 discount for a Google Maps review", reviewFacebookAfterWork:"Extra ฿50 discount for a Facebook review", reviewGoogleHelp:"To receive this discount, tap Review Google Maps below, then send a screenshot to the AJ chat you are using.", reviewFacebookHelp:"To receive this discount, tap Review Facebook below, then send a screenshot to the AJ chat you are using.", reviewGoogleBtn:"Review Google Maps", reviewFacebookBtn:"Review Facebook", reviewGoogleDiscount:"Google Maps review discount", reviewFacebookDiscount:"Facebook review discount",
       boardGameCollapsed:"Want board games? Expand to add them to this rental.", ps5BundleCollapsed:"Want a bundle? Expand to pair PS5 with another device.",
@@ -5197,6 +5212,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     byId("langBtn").textContent = state.lang === "en" ? "🇹🇭 TH" : "🇬🇧 EN";
     $$("[data-i18n]").forEach(el => { el.textContent = tr(el.dataset.i18n); });
     $$("[data-i18n-html]").forEach(el => { el.innerHTML = tr(el.dataset.i18nHtml); });
+    renderSitePaymentLogos();
     refreshGamePickerLangBtn();
     refreshGamePickerHowToBtn();
   }
@@ -5869,6 +5885,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
   function showDeliveryQuoteProblem(retryAction){
     const en = state.lang === "en";
     deliveryQuoteRetryAction = retryAction || null;
+    progressProblemFocus = {step:2, field:"demoMaps"};
     showModal(en ? "Delivery fee needed first" : "ต้องได้ค่าส่งก่อนไปต่อ", `
       <p>${esc(deliveryQuoteStatusText({settled:true}))}</p>
       <p class="hint">${esc(en ? "No rental or payment has been made yet." : "ยังไม่มีการส่งรายการเช่าหรือชำระเงิน")}</p>
@@ -7138,8 +7155,8 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(has("address", "pickupLocation", "returnLocation", "pickupMapUrl", "returnMapUrl")) return {step:2, field:"demoMaps", message: en ? "Please check the delivery address and Google Maps link on step 2." : "กรุณาตรวจที่อยู่จัดส่งและลิงก์ Google Maps ในขั้นตอนที่ 2"};
     if(has("deviceId", "deviceName", "rentalStart", "rentalEnd", "rentalDays", "rentalFee", "securityDeposit")) return {step:1, message: en ? "The rental details are incomplete. Please check the console and dates on step 1." : "ข้อมูลการเช่าไม่ครบ กรุณาตรวจเครื่องและวันที่ในขั้นตอนที่ 1"};
     if(fields.some(name => /^(refund|wise|noThaiBankAccount)/.test(name))) return {step:2, field:"demoRefundSection", message: en ? "Please check the refund account details." : "กรุณาตรวจข้อมูลบัญชีรับเงินคืนค่าประกัน"};
-    if(has("signatureDataUrl")) return {step:3, message: en ? "Please sign inside the box again." : "กรุณาเซ็นลายเซ็นในกรอบอีกครั้ง"};
-    if(has("consentAccepted", "privacyAccepted", "termsAccepted")) return {step:3, message: en ? "Please tick to confirm and agree to the agreement." : "กรุณาติ๊กยืนยันและยอมรับสัญญา"};
+    if(has("signatureDataUrl")) return {step:3, field:"demoSignaturePad", message: en ? "Please sign inside the box again." : "กรุณาเซ็นลายเซ็นในกรอบอีกครั้ง"};
+    if(has("consentAccepted", "privacyAccepted", "termsAccepted")) return {step:3, field:"demoAgreementConsent", message: en ? "Please tick to confirm and agree to the agreement." : "กรุณาติ๊กยืนยันและยอมรับสัญญา"};
     if(code === "booking_context_not_found" || code === "agreement_context_unavailable") return {step:3, message: en ? "The booking session timed out. Please press confirm again." : "ข้อมูลการจองหมดเวลา กรุณากดยืนยันอีกครั้ง"};
     return {step:3, message: en ? "The agreement could not be saved right now. Please try again in a moment." : "บันทึกสัญญาไม่สำเร็จในขณะนี้ กรุณาลองใหม่อีกครั้ง"};
   }
@@ -7162,7 +7179,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         field.scrollIntoView({behavior:"smooth", block:"center"});
       }
     }
-    showDemoProgressProblem(problem.message, problem.step);
+    showDemoProgressProblem(problem.message, problem.step, {field: problem.field || ""});
   }
   async function submitDemoAgreement(contextToken){
     if(!demoAgreementNeeded()) return;
@@ -8478,8 +8495,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(state.calc.payment === "ewallet") return "E-Wallet: ชำระเต็มจำนวนก่อนจัดส่ง (+ค่าธรรมเนียม 2.95%)";
     return paymentOptionLabelTh();
   }
-  function paymentCardBadgesHtml(){
-    return `<span class="payment-brand-badges" aria-label="Visa and Mastercard accepted"><img class="payment-card-logo" src="https://storage.googleapis.com/beam-guides/payment-method-logo/credit-card/png/visa.png" alt="Visa"><img class="payment-card-logo" src="https://storage.googleapis.com/beam-guides/payment-method-logo/credit-card/png/mastercard.png" alt="Mastercard"></span>`;
+  const THAI_QR_LOGO_IMG = `<img class="payment-card-logo payment-qr-logo" src="assets/payment/thai-qr-promptpay.png" alt="Thai QR PromptPay">`;
+  function paymentCardBadgesHtml(withThaiQr = false){
+    return `<span class="payment-brand-badges" aria-label="${withThaiQr ? "Thai QR PromptPay, Visa and Mastercard accepted" : "Visa and Mastercard accepted"}">${withThaiQr ? THAI_QR_LOGO_IMG : ""}<img class="payment-card-logo" src="https://storage.googleapis.com/beam-guides/payment-method-logo/credit-card/png/visa.png" alt="Visa"><img class="payment-card-logo" src="https://storage.googleapis.com/beam-guides/payment-method-logo/credit-card/png/mastercard.png" alt="Mastercard"></span>`;
   }
   function paymentEwalletBadgesHtml(){
     const wallets = [
@@ -8491,8 +8509,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     ];
     return `<span class="payment-wallet-badges" aria-label="Supported E-Wallets">${wallets.map(([file, name]) => `<img class="payment-wallet-logo" src="https://storage.googleapis.com/beam-guides/payment-method-logo/e-wallets/png/${file}" alt="${name}">`).join("")}</span>`;
   }
+  // Balance on delivery takes a Thai QR scan too (26/11/2026): its mark leads
+  // the Visa/Mastercard row, the e-wallets stay on the row under it.
   function paymentReservationBadgesHtml(){
-    return `${paymentCardBadgesHtml()}${paymentEwalletBadgesHtml()}`;
+    return `${paymentCardBadgesHtml(true)}${paymentEwalletBadgesHtml()}`;
   }
   const DEPOSIT_REFUND_HELP_LINKS = [
     ["wiseLinkTime", "https://wise.com/help/articles/2524078/how-long-will-my-transfer-take"],
@@ -8514,10 +8534,10 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const option = (value, copy, extraClass = "", optionDisabled = disabled) =>
       `<label class="payment-option ${extraClass}" data-key="${value}"><input type="radio" name="${inputName}" ${choiceAttr}="${value}" ${selected === value ? "checked" : ""} ${optionDisabled}>${copy}${amountHtml(value)}</label>`;
     const fullPayment = [
-      option("bank", bankQrOptionHtml()),
+      option("bank", bankQrOptionHtml(true)),
       ...(en && allowWise ? [option("wise", wiseOptionHtml(status), status.available ? "" : "is-disabled", wiseDisabled)] : []),
-      option("credit", creditOptionHtml()),
-      option("ewallet", ewalletOptionHtml())
+      option("credit", creditOptionHtml(true)),
+      option("ewallet", ewalletOptionHtml(true))
     ].join("");
     // "E-Wallet" is kept whole so a phone never breaks it after "E-", and the
     // Thai amount stays on the same line as the words before it.
@@ -8594,26 +8614,28 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       : status.reason === "holiday"
         ? tr("wiseUnavailableHoliday")
         : "";
-    return `<span class="payment-option-copy"><span class="payment-wise-title"><img class="payment-wise-logo" src="https://wise.com/public-resources/assets/logos/wise/brand_logo.svg" alt="Wise"> pay full amount</span><small class="payment-wise-note">${tr("wiseAvailabilityNote")}</small>${blocked ? `<small class="wise-status blocked">${blocked}</small>` : ""}${paymentRefundNoteHtml()}</span>`;
+    return `<span class="payment-option-copy"><span class="payment-wise-title"><img class="payment-wise-logo" src="https://wise.com/public-resources/assets/logos/wise/brand_logo.svg" alt="Wise"></span><small class="payment-wise-note">${tr("wiseAvailabilityNote")}</small>${blocked ? `<small class="wise-status blocked">${blocked}</small>` : ""}${paymentRefundNoteHtml()}</span>`;
   }
   // The full payment by Thai QR (26/11/2026): Beam opens PromptPay only for
   // "bank", so it is named for what the renter scans, with the Thai QR mark
   // under it the way Credit Card shows Visa and Mastercard.
   function paymentThaiQrBadgeHtml(){
-    return `<span class="payment-brand-badges" aria-label="Thai QR PromptPay"><img class="payment-card-logo payment-qr-logo" src="assets/payment/thai-qr-promptpay.png" alt="Thai QR PromptPay"></span>`;
+    return `<span class="payment-brand-badges" aria-label="Thai QR PromptPay">${THAI_QR_LOGO_IMG}</span>`;
   }
-  function bankQrOptionHtml(){
-    const title = state.lang === "en" ? "📱 QR PromptPay: pay full amount" : "📱 QR PromptPay: ชำระเต็มจำนวน";
+  // In the "pay the full amount" group (short) the options drop those words:
+  // the group's title says it (26/11/2026). The summary keeps them.
+  function bankQrOptionHtml(short = false){
+    const title = short ? "📱 QR PromptPay" : state.lang === "en" ? "📱 QR PromptPay: pay full amount" : "📱 QR PromptPay: ชำระเต็มจำนวน";
     const fee = state.lang === "en" ? "No fee" : "ไม่มีค่าธรรมเนียม";
     return `<span class="payment-option-copy"><span>${title}</span><small>${fee}</small>${paymentThaiQrBadgeHtml()}</span>`;
   }
-  function creditOptionHtml(){
-    const title = state.lang === "en" ? "💳 Credit Card: pay full amount" : "💳 บัตรเครดิต: ชำระเต็มจำนวน";
+  function creditOptionHtml(short = false){
+    const title = state.lang === "en" ? (short ? "💳 Credit Card" : "💳 Credit Card: pay full amount") : (short ? "💳 บัตรเครดิต" : "💳 บัตรเครดิต: ชำระเต็มจำนวน");
     const fee = state.lang === "en" ? "+ 3.50% fee" : "+ ค่าธรรมเนียม 3.50%";
     return `<span class="payment-option-copy"><span>${title}</span><small>${fee}</small>${paymentCardBadgesHtml()}${paymentRefundNoteHtml()}</span>`;
   }
-  function ewalletOptionHtml(){
-    const title = state.lang === "en" ? "👛 E-Wallet: pay full amount" : "👛 E-Wallet: ชำระเต็มจำนวน";
+  function ewalletOptionHtml(short = false){
+    const title = short ? "👛 E-Wallet" : state.lang === "en" ? "👛 E-Wallet: pay full amount" : "👛 E-Wallet: ชำระเต็มจำนวน";
     const fee = state.lang === "en" ? "+ 2.95% fee" : "+ ค่าธรรมเนียม 2.95%";
     return `<span class="payment-option-copy"><span>${title}</span><small>${fee}</small>${paymentEwalletBadgesHtml()}${paymentRefundNoteHtml()}</span>`;
   }
@@ -9385,6 +9407,21 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     document.addEventListener("keydown", onKey);
     document.body.appendChild(pop);
     pop.querySelector("[data-identity-example-close]")?.focus();
+  }
+  /**
+   * Every way the shop takes money as one row of same-size logos (26/11/2026),
+   * from the FAQ's list so the footer and the rental steps never drift from it.
+   */
+  function paymentLogoStripHtml(){
+    return PAYMENT_METHOD_ROWS.flatMap(row => row.logos).map(([src, name]) => /^(?:https:|assets\/)/.test(src)
+      ? `<span class="pay-logo" title="${esc(name)}"><img src="${esc(src)}" alt="${esc(name)}" loading="lazy"></span>`
+      : `<span class="pay-logo" title="${esc(name)}" role="img" aria-label="${esc(name)}">${esc(src)}</span>`).join("");
+  }
+  function renderSitePaymentLogos(){
+    const host = byId("sitePaymentLogos");
+    if(!host) return;
+    host.setAttribute("aria-label", tr("sitePaymentsAccepted"));
+    if(!host.childElementCount) host.innerHTML = paymentLogoStripHtml();
   }
   /** One line per payment method: its name and fee, then its logos, all the same size. */
   function paymentMethodsFaqHtml(lang){
@@ -11723,8 +11760,63 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <p>${esc(message || (en ? "AJ could not check the queue for your dates just now. Please check again; once it works, you go straight on to payment." : "ตอนนี้ระบบเช็คคิวของวันที่เลือกไม่สำเร็จ กรุณากดเช็คคิวอีกครั้ง เมื่อเช็คผ่านจะไปหน้าชำระเงินให้ทันที"))}</p>
       <div class="queue-retry-actions"><button class="btn primary" type="button" data-queue-retry-continue>${en ? "Check the queue again" : "ลองเช็คคิวอีกครั้ง"}</button></div>`);
   }
-  function showDemoProgressProblem(message, step = state.calc.step, {retryConfirm = false} = {}){
+  // "ตรวจสอบข้อมูล" / "Check the details" (26/11/2026) takes the renter to the
+  // field the popup is about: the step that holds it, scrolled into view with a
+  // red frame, and the calendar opened when it is a date. Worked out when the
+  // button is pressed, so it points at what is still wrong then.
+  let progressProblemFocus = null;
+  function progressProblemTarget(step, field){
+    if(field === "startDate" || field === "endDate") return {el: byId(field), calendar: field === "startDate" ? "start" : "end"};
+    if(field) return {el: field === "demoSignaturePad" ? byId("demoSignatureBox") : byId(field)};
+    if(step === 1){
+      if(!state.calc.consoleId) return {el: byId("calcConsole")};
+      if(!state.calc.start) return {el: byId("startDate"), calendar: "start"};
+      const days = selectedDays();
+      if(!state.calc.end || !Number.isFinite(days) || days < 3) return {el: byId("endDate"), calendar: "end"};
+      if(state.availability.gate.pass === false) return {el: byId("startDate"), calendar: "start"};
+      if(UNIFIED_FLOW_DEMO && !gameSelectionReady()) return {el: byId("demoGameCard")};
+      return {el: byId("startDate")};
+    }
+    if(step === 2 && UNIFIED_FLOW_DEMO){
+      const problem = demoStep2Problems()[0];
+      return {el: problem ? byId(problem.id) : null};
+    }
+    if(step === 3 && UNIFIED_FLOW_DEMO){
+      const problem = demoStep3Problems()[0];
+      return {el: problem ? (problem.id === "demoSignaturePad" ? byId("demoSignatureBox") : byId(problem.id)) : null};
+    }
+    return {el: null};
+  }
+  function focusProgressProblem(focus = progressProblemFocus){
+    progressProblemFocus = null;
+    if(!focus) return;
+    if(focus.step && focus.step !== state.calc.step) goCalcStep(focus.step, {scrollTabs:true});
+    // Steps 2 and 3 also write each problem under its field.
+    if(UNIFIED_FLOW_DEMO && focus.step === 2) showDemoStep2Problems();
+    if(UNIFIED_FLOW_DEMO && focus.step === 3) showDemoStep3Problems();
+    let target = progressProblemTarget(focus.step, focus.field);
+    // A field on another step's page: open that step first, then find it again.
+    const pane = target.el?.closest(".pane");
+    if(pane && !pane.classList.contains("active") && /^pane\d$/.test(pane.id)){
+      goCalcStep(Number(pane.id.slice(4)), {scrollTabs:true});
+      target = progressProblemTarget(focus.step, focus.field);
+    }
+    let el = target.el;
+    if(el && (el.type === "checkbox" || el.type === "file" || el.type === "radio")) el = el.closest("label, .option-row") || el;
+    if(!el) return;
+    window.setTimeout(() => {
+      el.scrollIntoView({behavior:"smooth", block:"center"});
+      el.classList.remove("attention-ring");
+      void el.offsetWidth;
+      el.classList.add("attention-ring");
+      window.setTimeout(() => el.classList.remove("attention-ring"), 5000);
+      if(target.calendar) window.setTimeout(() => openCalendar(target.calendar), 650);
+      else if(/^(INPUT|SELECT|TEXTAREA)$/.test(target.el?.nodeName || "")) window.setTimeout(() => { try{ target.el.focus({preventScroll:true}); }catch{} }, 450);
+    }, 60);
+  }
+  function showDemoProgressProblem(message, step = state.calc.step, {retryConfirm = false, field = ""} = {}){
     const en = state.lang === "en";
+    progressProblemFocus = {step, field};
     showModal(en ? "Cannot continue yet" : "ยังไปขั้นตอนถัดไปไม่ได้", `
       <p>${esc(message)}</p>
       <div class="queue-retry-actions"><button class="btn" type="button" data-progress-problem-close>${en ? "Check the details" : "ตรวจสอบข้อมูล"}</button>${retryConfirm ? `<button class="btn primary" type="button" data-progress-retry-confirm>${en ? "Send again" : "ส่งอีกครั้ง"}</button>` : ""}</div>`);
@@ -11787,7 +11879,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(problems.length){
         if(state.calc.step === 2) showDemoStep2Problems();
         else showDemoStep3Problems(problems);
-        showDemoProgressProblem(problems[0].message);
+        showDemoProgressProblem(problems[0].message, state.calc.step, {field: problems[0].id});
         return;
       }
       if(!(await checkDemoQueueAutomatically())) return;
@@ -11830,7 +11922,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     try{
       if((state.lang === "th" || demoProfile.preferredContactChannel === "line") && !bookingLineConnection()){
         hideDemoBusy();
-        showDemoProgressProblem(tr("contactLineRequired"), 2);
+        showDemoProgressProblem(tr("contactLineRequired"), 2, {field:"lineConnectBtn"});
         return;
       }
       if(demoAgreementNeeded() && !(await ensureIdentityDraftAlive())){
@@ -11871,7 +11963,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       ]);
       if(identitySent.status === "rejected"){
         console.error("Identity upload failed", identitySent.reason);
-        showDemoProgressProblem(identitySent.reason?.message === "identity_image_decode_failed" ? tr("identityPhotoDecode") : (state.lang === "en" ? "The identity images could not be sent. Your selected photos are still here; tap Send again, or choose Verify later." : "ส่งรูปยืนยันตัวตนไม่สำเร็จ รูปที่เลือกยังอยู่ กดส่งอีกครั้งหรือเลือกยืนยันตัวตนภายหลัง"), state.calc.step, {retryConfirm:true});
+        showDemoProgressProblem(identitySent.reason?.message === "identity_image_decode_failed" ? tr("identityPhotoDecode") : (state.lang === "en" ? "The identity images could not be sent. Your selected photos are still here; tap Send again, or choose Verify later." : "ส่งรูปยืนยันตัวตนไม่สำเร็จ รูปที่เลือกยังอยู่ กดส่งอีกครั้งหรือเลือกยืนยันตัวตนภายหลัง"), state.calc.step, {retryConfirm:true, field:"demoIdDocument"});
         return;
       }
       if(agreementSaved.status === "rejected"){
@@ -11894,7 +11986,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(error?.code === "line_connection_required"){
         state.calc.step = 2;
         render();
-        showDemoProgressProblem(tr("contactLineRequired"), 2);
+        showDemoProgressProblem(tr("contactLineRequired"), 2, {field:"lineConnectBtn"});
         return;
       }
       if(error?.code === "delivery_quote_changed"){
@@ -11909,7 +12001,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         showRentalChangedPopup(() => confirmDemoOrder());
         return;
       }
-      showDemoProgressProblem((error?.code === "booking_hold_conflict" ? error.message : (state.lang === "en" ? "The rental could not be prepared right now. Please try again. If this continues, contact AJ." : "เตรียมข้อมูลการเช่าไม่สำเร็จ กรุณาลองอีกครั้ง หากยังติดขัดให้ติดต่อร้าน")));
+      showDemoProgressProblem((error?.code === "booking_hold_conflict" ? error.message : (state.lang === "en" ? "The rental could not be prepared right now. Please try again. If this continues, contact AJ." : "เตรียมข้อมูลการเช่าไม่สำเร็จ กรุณาลองอีกครั้ง หากยังติดขัดให้ติดต่อร้าน")), error?.code === "booking_hold_conflict" ? 1 : state.calc.step, {field: error?.code === "booking_hold_conflict" ? "startDate" : ""});
     }finally{
       hideDemoBusy();
     }
@@ -12233,7 +12325,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       }
       if((state.lang === "th" || demoProfile.preferredContactChannel === "line") && !bookingLineConnection()){
         hideDemoBusy();
-        showDemoProgressProblem(tr("contactLineRequired"), 2);
+        showDemoProgressProblem(tr("contactLineRequired"), 2, {field:"lineConnectBtn"});
         return;
       }
       await saveChangedOrderBeforePayment();
@@ -12315,7 +12407,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         state.calc.demoOrderOpen = false;
         state.calc.step = 2;
         render();
-        showDemoProgressProblem(tr("contactLineRequired"), 2);
+        showDemoProgressProblem(tr("contactLineRequired"), 2, {field:"lineConnectBtn"});
         return;
       }
       if(error?.code === "rental_details_changed"){
@@ -15685,8 +15777,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
         }
       ],
       detail:{
-        th:`<div class="step-detail-section"><h4>หลังส่งข้อมูล</h4><ul><li>ทางร้านตรวจคิว สรุปค่าใช้จ่ายพร้อมค่าจัดส่ง และแจ้งขั้นตอนถัดไป</li><li><span class="step-mark">ผู้เช่าครั้งแรกต้องยืนยันตัวตนก่อนนัดส่งเครื่อง</span> <span class="step-mark">ผู้เช่าต้องมีอายุ 20 ปีบริบูรณ์ขึ้นไป</span> ยกเว้นการยืนยันตัวตนได้หากเลือกไม่ยืนยันตัวตนและยอมรับค่าประกันที่เพิ่มขึ้น</li><li>สัญญาหลักมีอายุ 1 ปี สามารถใช้ข้อมูลและลายมือชื่อเดิมสำหรับการเช่าครั้งถัดไปได้ โดยแต่ละครั้งต้องยืนยันรายละเอียดและเงื่อนไขการเช่าใหม่ เมื่อครบ 1 ปีหรือบัตรประชาชน/Passport หมดอายุ ต้องทำสัญญาหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้ง</li><li>ชำระเงินตามช่องทางที่เลือก หลังทางร้านยืนยันคิวและค่าจัดส่ง</li></ul></div><div class="step-detail-section"><h4>เตรียมเครื่องและจัดส่ง</h4><ul><li>เริ่มเตรียมหลังร้านยืนยันคิว ได้รับรายชื่อเกมครบ และได้รับยอดจองหรือยอดชำระแล้ว หากต้องดาวน์โหลดหรือติดตั้งเกมเพิ่ม ใช้เวลาประมาณ <span class="step-mark">2–3 ชั่วโมง</span>; หากไม่ต้องติดตั้งเพิ่ม ใช้เวลาประมาณ 30–60 นาที เวลาจริงขึ้นอยู่กับขนาดเกม ความเร็วดาวน์โหลด จำนวนเกม และคิวงาน โดยร้านจะแจ้งเวลาพร้อมส่งอีกครั้ง</li><li>จัดส่งด้วย Lalamove / Grab ประมาณ 1-2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ</li><li><strong>ทางร้านเป็นฝ่ายเรียกรถให้ทั้งขาส่งไปและขารับคืนเครื่อง ผู้เช่าเพียงรอรับและส่งคืนเครื่องให้กับคนขับ</strong></li><li>เมื่อของถึง สามารถเปิดกระเป๋าเช็คของกับคนส่งของก่อน แล้วชำระยอดที่เหลือพร้อมส่งสลิปให้ร้านทางแชท</li></ul>__PRICING_TIERS__</div><div class="step-detail-section"><h4>การคืนเครื่อง</h4><ul><li>ทางร้านเรียกรถเข้าไปรับเครื่อง และลูกค้ายืนยันอุปกรณ์ก่อนส่งคืน</li><li>ส่งของให้คนรับของ แล้วแจ้งยืนยันหรือส่งรูปให้ร้านทางแชท</li><li>ร้านเช็คเครื่องและอุปกรณ์ จากนั้นคืนค่าประกันเข้าบัญชีในสัญญา หรือบัญชีที่แจ้งทางแชท</li></ul><p><strong>*ทางร้านเรียกรถขนส่งให้ทั้งขาส่งและขารับกลับเท่านั้น</strong></p><p><strong>**ทางร้านให้บริการแบบออนไลน์เท่านั้น ไม่มีรับหรือคืนเครื่องที่หน้าร้าน</strong></p></div>`,
-        en:`<div class="step-detail-section"><h4>After submitting details</h4><ul><li>The shop checks availability, confirms the total including delivery, and sends the next steps.</li><li><span class="step-mark">First-time renters must verify their identity before delivery.</span> <span class="step-mark">Renters must be at least 20 years old.</span> Verification can be skipped only by choosing no identity verification and accepting the higher deposit.</li><li>The Master Agreement is valid for 1 year. The existing information and signature may be used for subsequent rentals, but the rental details and terms must be confirmed again for each rental. After 1 year or when the Thai ID card or passport expires, a new Master Agreement and renewed identity verification are required.</li><li>Pay with the selected method after the shop confirms availability and delivery cost.</li></ul></div><div class="step-detail-section"><h4>Preparation and delivery</h4><ul><li>Preparation begins after AJ confirms availability, receives the complete game list, and receives the reservation deposit or payment. Additional downloads or installations take approximately <span class="step-mark">2–3 hours</span>; without additional installation, preparation takes approximately 30–60 minutes. Actual time depends on game size, download speed, the number of games, and the current queue. AJ will confirm the delivery-ready time.</li><li>Delivery by Lalamove / Grab takes approximately 1-2 hours, depending on distance, traffic, and weather.</li><li><strong>AJ arranges the driver for both delivery and return. The renter only needs to receive the console and hand it back to the driver.</strong></li><li>On arrival, you can check the items with the delivery rider first, then pay the remaining balance and send the slip to the shop by chat.</li></ul>__PRICING_TIERS__</div><div class="step-detail-section"><h4>Returning the device</h4><ul><li>The shop calls a rider for pickup, and you can confirm the accessories before return.</li><li>Hand the items to the pickup rider, then confirm or send a photo to the shop by chat.</li><li>The shop checks the device and accessories, then refunds the deposit to the bank account in the contract or the account sent by chat.</li></ul><p><strong>*The shop arranges transport for both delivery and return pickup only.</strong></p><p><strong>**Online service only. Pickup or return at the shop is not available.</strong></p></div>`
+        th:`<div class="step-detail-section"><h4>ทำรายการเช่า</h4><ul><li>เลือกเครื่อง อุปกรณ์เสริมหรือ Bundle (ถ้ามี) วันเช่า และเกมที่ต้องการ</li><li>เชื่อมต่อและเพิ่มเพื่อน LINE ของร้าน เพื่อรับข้อมูลการเช่า</li><li>กรอกข้อมูลผู้เช่า: ชื่อ-นามสกุล เบอร์โทร อีเมล ที่อยู่จัดส่ง และบัญชีสำหรับรับคืนค่าประกัน (ชาวต่างชาติใช้ Wise ได้)</li><li>เลือกว่าจะยืนยันตัวตนหรือไม่ หากยืนยันตัวตน จะถ่ายรูปบัตรและเซ็นสัญญาในขั้นตอนถัดไป</li><li><span class="step-mark">ผู้เช่าครั้งแรกต้องยืนยันตัวตนก่อนนัดส่งเครื่อง</span> <span class="step-mark">ผู้เช่าต้องมีอายุ 20 ปีบริบูรณ์ขึ้นไป</span> ยกเว้นการยืนยันตัวตนได้หากเลือกไม่ยืนยันตัวตนและยอมรับค่าประกันที่เพิ่มขึ้น</li><li>สัญญาหลักมีอายุ 1 ปี สามารถใช้ข้อมูลและลายมือชื่อเดิมสำหรับการเช่าครั้งถัดไปได้ โดยแต่ละครั้งต้องยืนยันรายละเอียดและเงื่อนไขการเช่าใหม่ เมื่อครบ 1 ปีหรือบัตรประชาชน/Passport หมดอายุ ต้องทำสัญญาหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้ง</li><li>ชำระเงินตามช่องทางที่เลือก__PAYMENT_LOGOS__</li></ul></div><div class="step-detail-section"><h4>เตรียมเครื่องและจัดส่ง</h4><ul><li>เริ่มเตรียมหลังร้านยืนยันคิว ได้รับรายชื่อเกมครบ และได้รับยอดจองหรือยอดชำระแล้ว หากต้องดาวน์โหลดหรือติดตั้งเกมเพิ่ม ใช้เวลาประมาณ <span class="step-mark">2–3 ชั่วโมง</span>; หากไม่ต้องติดตั้งเพิ่ม ใช้เวลาประมาณ 30–60 นาที เวลาจริงขึ้นอยู่กับขนาดเกม ความเร็วดาวน์โหลด จำนวนเกม และคิวงาน โดยร้านจะแจ้งเวลาพร้อมส่งอีกครั้ง</li><li>จัดส่งด้วย Lalamove / Grab ประมาณ 1-2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ</li><li><strong>ทางร้านเป็นฝ่ายเรียกรถให้ทั้งขาส่งไปและขารับคืนเครื่อง ผู้เช่าเพียงรอรับและส่งคืนเครื่องให้กับคนขับ</strong></li><li>เมื่อของถึง สามารถเปิดกระเป๋าเช็คของกับคนส่งของก่อน แล้วชำระยอดที่เหลือพร้อมส่งสลิปให้ร้านทางแชท</li></ul>__PRICING_TIERS__</div><div class="step-detail-section"><h4>การคืนเครื่อง</h4><ul><li>ทางร้านเรียกรถเข้าไปรับเครื่อง และลูกค้ายืนยันอุปกรณ์ก่อนส่งคืน</li><li>ส่งของให้คนรับของ แล้วแจ้งยืนยันหรือส่งรูปให้ร้านทางแชท</li><li>ร้านเช็คเครื่องและอุปกรณ์ จากนั้นคืนค่าประกันเข้าบัญชีในสัญญา หรือบัญชีที่แจ้งทางแชท</li></ul><p><strong>*ทางร้านเรียกรถขนส่งให้ทั้งขาส่งและขารับกลับเท่านั้น</strong></p><p><strong>**ทางร้านให้บริการแบบออนไลน์เท่านั้น ไม่มีรับหรือคืนเครื่องที่หน้าร้าน</strong></p></div>`,
+        en:`<div class="step-detail-section"><h4>Make a booking</h4><ul><li>Choose the device, any accessories or bundle, the rental dates and your games.</li><li>Send your booking to AJ on WhatsApp to receive your rental details (LINE works too).</li><li>Fill in your details: full name, phone number, email, delivery address, and a Thai bank account or Wise for the deposit refund.</li><li>Choose whether to verify your identity. If you verify, you take photos of your ID and sign the agreement in the next step.</li><li><span class="step-mark">First-time renters must verify their identity before delivery.</span> <span class="step-mark">Renters must be at least 20 years old.</span> Verification can be skipped only by choosing no identity verification and accepting the higher deposit.</li><li>The Master Agreement is valid for 1 year. The existing information and signature may be used for subsequent rentals, but the rental details and terms must be confirmed again for each rental. After 1 year or when the Thai ID card or passport expires, a new Master Agreement and renewed identity verification are required.</li><li>Pay with the method you chose.__PAYMENT_LOGOS__</li></ul></div><div class="step-detail-section"><h4>Preparation and delivery</h4><ul><li>Preparation begins after AJ confirms availability, receives the complete game list, and receives the reservation deposit or payment. Additional downloads or installations take approximately <span class="step-mark">2–3 hours</span>; without additional installation, preparation takes approximately 30–60 minutes. Actual time depends on game size, download speed, the number of games, and the current queue. AJ will confirm the delivery-ready time.</li><li>Delivery by Lalamove / Grab takes approximately 1-2 hours, depending on distance, traffic, and weather.</li><li><strong>AJ arranges the driver for both delivery and return. The renter only needs to receive the console and hand it back to the driver.</strong></li><li>On arrival, you can check the items with the delivery rider first, then pay the remaining balance and send the slip to the shop by chat.</li></ul>__PRICING_TIERS__</div><div class="step-detail-section"><h4>Returning the device</h4><ul><li>The shop calls a rider for pickup, and you can confirm the accessories before return.</li><li>Hand the items to the pickup rider, then confirm or send a photo to the shop by chat.</li><li>The shop checks the device and accessories, then refunds the deposit to the bank account in the contract or the account sent by chat.</li></ul><p><strong>*The shop arranges transport for both delivery and return pickup only.</strong></p><p><strong>**Online service only. Pickup or return at the shop is not available.</strong></p></div>`
       }
     },
     {
@@ -15805,7 +15897,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     </div>` : "";
     const body = step.textColumns ? `
       <div class="step-text-grid${step.textColumns.length === 1 ? " single" : ""}">${step.textColumns.map(item => `<div class="step-text-card">${en ? item.en : item.th}</div>`).join("")}</div>
-      <div class="step-detail">${(en ? step.detail.en : step.detail.th).replace("__PRICING_TIERS__",pricingTierHtml(state.lang))}</div>` : `
+      <div class="step-detail">${(en ? step.detail.en : step.detail.th).replace("__PRICING_TIERS__",pricingTierHtml(state.lang)).replace("__PAYMENT_LOGOS__",`<span class="pay-logos step-pay-logos" role="img" aria-label="${esc(tr("sitePaymentsAccepted"))}">${paymentLogoStripHtml()}</span>`)}</div>` : `
       <div class="step-images ${columns.length > 1 ? "split" : ""}">${columns.map(item => `
         <figure class="step-imgcol">
           <img class="step-img" src="${esc(item.src)}" alt="${esc(en ? item.en : item.th)}">
@@ -18654,8 +18746,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(event.target.closest("[data-progress-retry-confirm]")){ closeModal(); await confirmDemoOrder(); return; }
       if(event.target.closest("[data-rental-changed-restore]")){ await useConfirmedRentalAndRetry(); return; }
       if(event.target.closest("[data-rental-changed-verify]")){ closeModal(); openReturningEligibility(); return; }
-      if(event.target.closest("[data-progress-problem-close], [data-booking-problem-dismiss]")){ closeModal(); return; }
-      if(event.target.closest("[data-queue-back-to-dates]")){ closeModal(); goCalcStep(1, {scrollTabs:true}); return; }
+      if(event.target.closest("[data-progress-problem-close]")){ closeModal(); focusProgressProblem(); return; }
+      if(event.target.closest("[data-booking-problem-dismiss]")){ closeModal(); return; }
+      if(event.target.closest("[data-queue-back-to-dates]")){ closeModal(); focusProgressProblem({step:1, field:"startDate"}); return; }
       if(targetId === "demoSignatureClear"){ clearDemoSignature(); return; }
       if(targetId === "siteAnnouncementOk"){ closeSiteAnnouncement(); return; }
       if(targetId === "saveAnnouncement"){ void saveAnnouncementFromAdmin(); return; }

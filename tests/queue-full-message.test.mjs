@@ -45,7 +45,9 @@ test('Pay on the booking page shows it and goes back to the dates; the payment l
   const pay = slice('async function launchDemoBeamPayment(', '// The pay-later email:');
   assert.match(pay, /if\(error\?\.code === "booking_hold_conflict"\)\{\s*showQueueFullPopup\(calcRentalContext\(\), error\.message\);/);
   assert.match(html, /data-queue-back-to-dates>\$\{esc\(en \? "Choose new dates" : "เลือกวันเช่าใหม่"\)\}/);
-  assert.match(html, /if\(event\.target\.closest\("\[data-queue-back-to-dates\]"\)\)\{ closeModal\(\); goCalcStep\(1, \{scrollTabs:true\}\); return; \}/);
+  // Back to step 1 with the start date framed and the calendar open (26/11/2026).
+  assert.match(html, /if\(event\.target\.closest\("\[data-queue-back-to-dates\]"\)\)\{ closeModal\(\); focusProgressProblem\(\{step:1, field:"startDate"\}\); return; \}/);
+  assert.match(html, /if\(focus\.step && focus\.step !== state\.calc\.step\) goCalcStep\(focus\.step, \{scrollTabs:true\}\);/);
   const popup = slice('function showPayResumeQueuePopup(message){', 'async function checkPayResumeQueue(');
   assert.match(popup, /data-pay-resume-new-dates/);
   assert.match(popup, /เลือกวันเช่าใหม่ได้เองเลย แล้วชำระเงินต่อได้ทันที/);

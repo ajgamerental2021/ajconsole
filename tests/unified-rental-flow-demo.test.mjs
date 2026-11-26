@@ -440,7 +440,7 @@ test('confirm checks the queue automatically, retries once, and explains a failu
   assert.match(html, /for\(let attempt = 0; attempt < 2 && !fresh; attempt\+\+\)/);
   assert.match(html, /showDemoBusy\(en \? "Checking availability/);
   assert.match(html, /showQueueRetryDialog\(en \? "The automatic queue check failed twice/);
-  assert.match(html, /showDemoProgressProblem\(problems\[0\]\.message\)/);
+  assert.match(html, /showDemoProgressProblem\(problems\[0\]\.message, state\.calc\.step, \{field: problems\[0\]\.id\}\)/);
   assert.match(html, /await confirmDemoOrder\(\);/);
 });
 

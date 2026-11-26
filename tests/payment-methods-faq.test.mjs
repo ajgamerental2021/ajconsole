@@ -88,12 +88,14 @@ test('one line per method, name and fee, every logo in the same-size tile (TH/EN
 test('the full Thai QR payment reads "QR PromptPay" with its mark, both languages, everywhere it is named', () => {
   for (const lang of ['th', 'en']) {
     const ctx = vm.createContext({state: {lang}});
-    vm.runInContext(fn('paymentThaiQrBadgeHtml') + fn('bankQrOptionHtml') + ';this.option = bankQrOptionHtml;', ctx);
+    vm.runInContext("const THAI_QR_LOGO_IMG = " + source.match(/const THAI_QR_LOGO_IMG = (`[^`]*`);/)[1] + ";" + fn('paymentThaiQrBadgeHtml') + fn('bankQrOptionHtml') + ';this.option = bankQrOptionHtml;', ctx);
     const html = ctx.option();
+    // In the "pay the full amount" group the words are dropped (26/11/2026).
+    assert.match(ctx.option(true), /<span>📱 QR PromptPay<\/span><small>/);
     assert.match(html, lang === 'en' ? /📱 QR PromptPay: pay full amount<\/span><small>No fee<\/small>/ : /📱 QR PromptPay: ชำระเต็มจำนวน<\/span><small>ไม่มีค่าธรรมเนียม<\/small>/);
     assert.match(html, /<img class="payment-card-logo payment-qr-logo" src="assets\/payment\/thai-qr-promptpay\.png" alt="Thai QR PromptPay">/);
   }
-  assert.match(fn('paymentPickerHtml'), /option\("bank", bankQrOptionHtml\(\)\)/);
+  assert.match(fn('paymentPickerHtml'), /option\("bank", bankQrOptionHtml\(true\)\)/);
   assert.match(fn('paymentOptionSummaryHtml'), /if\(state\.calc\.payment === "bank"\) return `\$\{label\} \$\{paymentThaiQrBadgeHtml\(\)\}`;/);
   assert.doesNotMatch(source, /Thai Bank Transfer|โอนผ่านบัญชีธนาคารไทย/);
 });
