@@ -86,12 +86,11 @@ test('the price row names the campaign and its rate (15/11/2026), never the word
 
 test('locked dates (16/11/2026): the campaign can fix the start day, the number of days, both or neither', () => {
   // The return day is the start plus the days, as the calendar counts them.
-  assert.match(html, /return \{start, days, min, end:start && days && !min \? fmtIso\(addDays\(parseDate\(start\), days\)\) : "", from, any:!!\(start \|\| days \|\| from\)\};/);
-  // Days exact or at least (owner, 16/11/2026): a minimum is the calendar's shortest rental.
-  assert.match(html, /const min = !!days && special\?\.lockDaysMode === "min";/);
-  assert.match(html, /if\(lock\.days && \(lock\.min \? !\(days >= lock\.days\) : days !== lock\.days\)\) return false;/);
+  assert.match(html, /end:start && range\.exact \? fmtIso\(addDays\(parseDate\(start\), range\.exact\)\) : "", from, any:!!\(start \|\| rules\.length \|\| from\)\};/);
+  // The days are conditions (26/11/2026): the calendar's shortest and longest rental.
+  assert.match(html, /if\(lock\.rules\.length && !specialLengthOk\(diffDays\(startValue, endValue\), lock\)\) return false;/);
   assert.match(html, /diffDays\(start,date\) < calendarMinDays\(dateLock\)/);
-  assert.match(html, /`เช่าขั้นต่ำ \$\{lock\.days\} วัน · เลือกวันเริ่มและวันคืนได้`/);
+  assert.match(html, /diffDays\(start,date\) > calendarMaxDays\(dateLock\)/);
   // The page fills in the locked dates as soon as the campaign loads.
   assert.match(html, /\/\/ Locked dates are filled in for the customer \(and cannot be changed\)\.\n\s+applySpecialDateLock\(\);/);
   // The calendar opens on them; nothing else can be picked, and OK needs them.
@@ -102,18 +101,18 @@ test('locked dates (16/11/2026): the campaign can fix the start day, the number 
   assert.match(html, /if\(!specialDatesOk\(state\.calendar\.draftStart, state\.calendar\.draftEnd\)\) return;/);
   assert.match(html, /apply\.disabled = !\(Number\.isFinite\(days\) && days >= 3 && rangeAvailable && specialDatesOk\(/);
   // Told on the page and in the calendar, TH and EN; a passed start closes the page.
-  assert.match(html, /`วันเช่าที่กำหนด: เริ่ม \$\{specialLockDate\(lock\.start\)\} · คืน \$\{specialLockDate\(lock\.end\)\} \(\$\{lock\.days\} วัน\)`/);
-  assert.match(html, /`Fixed dates: start \$\{specialLockDate\(lock\.start\)\} · return \$\{specialLockDate\(lock\.end\)\} \(\$\{lock\.days\} days\)`/);
+  assert.match(html, /`วันเช่าที่กำหนด: เริ่ม \$\{specialLockDate\(lock\.start\)\} · คืน \$\{specialLockDate\(lock\.end\)\} \(\$\{lock\.exact\} วัน\)`/);
+  assert.match(html, /`Fixed dates: start \$\{specialLockDate\(lock\.start\)\} · return \$\{specialLockDate\(lock\.end\)\} \(\$\{lock\.exact\} days\)`/);
   assert.match(html, /if\(specialLockStartPassed\(\)\)\{\n\s+host\.innerHTML = `<div class="special-rate-banner is-error"/);
   for (const code of ['special_dates_locked', 'special_dates_passed']) assert.match(html, new RegExp(`${code}: en \\? "[^"]+" : "[^"]+"`), code);
 });
 
 test('the admin page sets the lock and shows the return day it gives', () => {
-  for (const field of ['lockStart', 'lockDays', 'lockDaysMode']) assert.ok(html.includes(`data-sp="\${index}:${field}"`), field);
-  assert.match(html, /lockDays: field\("lockDays"\)\.value\.trim\(\) === "" \? 0 : Number\(field\("lockDays"\)\.value\),/, 'empty = not locked');
-  assert.match(html, /`📅 ลูกค้าจะเช่า \$\{day\(start\)\} → คืน \$\{day\(end\)\} \(\$\{days\} วัน\) ปฏิทินเลือกให้อัตโนมัติ ลูกค้าเลือกวันอื่นไม่ได้`/);
+  for (const field of ['lockStart', 'rule']) assert.ok(html.includes(`data-sp="\${index}:${field}"`), field);
+  assert.match(html, /dayRules: adminSpecialRuleRows\(index\)\.filter\(rule => rule\.days !== ""\)\.map\(rule => \(\{type:rule\.type, days:Number\(rule\.days\)\}\)\),/, 'empty rows = no condition');
+  assert.match(html, /`📅 ลูกค้าจะเช่า \$\{day\(start\)\} → คืน \$\{returnWindow\(start\)\} \(\$\{range\.exact\} วัน\) ปฏิทินเลือกให้อัตโนมัติ ลูกค้าเลือกวันอื่นไม่ได้`/);
   assert.match(html, /\{ specialDraftDirty = true; refreshAdminSpecialLockPreview\(event\.target\); \}/, 'the sentence follows the typing');
-  for (const code of ['special_campaign_lock_start_invalid', 'special_campaign_lock_days_invalid']) assert.match(html, new RegExp(`${code}: en \\? "[^"]+" : "[^"]+"`), code);
+  for (const code of ['special_campaign_lock_start_invalid', 'special_campaign_lock_days_invalid', 'special_campaign_lock_days_conflict']) assert.match(html, new RegExp(`${code}: en \\? "[^"]+" : "[^"]+"`), code);
 });
 
 test('a date lock can be cleared on a phone, whose date picker cannot empty the field (16/11/2026)', () => {
@@ -121,7 +120,7 @@ test('a date lock can be cleared on a phone, whose date picker cannot empty the 
   assert.match(html, /data-sp-lock-clear="\$\{index\}:all"/);
   assert.match(html, /#adminSpecial \[data-sp-revoke\],[^"]*#adminSpecial \[data-sp-lock-clear\]"\)\)\{/, 'the click reaches the handler');
   assert.match(html, /if\(field\("lockStart"\)\) field\("lockStart"\)\.value = "";/);
-  assert.match(html, /if\(field\("lockDays"\)\) field\("lockDays"\)\.value = "";/);
+  assert.match(html, /if\(what === "all"\) host\?\.querySelector\(`\[data-sp-rules="\$\{index\}"\]`\)\?\.replaceChildren\(\);/, 'and every days condition');
 });
 
 test('an earliest start day (17/11/2026): only that day or later can be picked, when the start is not locked', () => {
@@ -154,4 +153,59 @@ test('the special link survives another tab (until it expires) and the LINE roun
   assert.match(html, /specialToken:specialRate\.token \|\| ""/);
   assert.match(html, /if\(SPECIAL_TOKEN_PATTERN\.test\(String\(draft\.specialToken \|\| ""\)\) && draft\.specialToken !== specialRate\.token\)\{/);
   assert.match(html, /forgetSpecialToken\(\);\n    location\.href = "\/";/);
+});
+
+/** A function of the page, by name, to run here. */
+function pageFunction(name) {
+  const start = html.indexOf(`function ${name}(`);
+  assert.ok(start >= 0, `${name} exists`);
+  const body = html.slice(start).search(/\)\s*\{/);
+  let depth = 0;
+  for (let i = start + body + html.slice(start + body).indexOf('{'); i < html.length; i += 1) {
+    if (html[i] === '{') depth += 1;
+    if (html[i] === '}' && --depth === 0) return html.slice(start, i + 1);
+  }
+  throw new Error(`${name} has no end`);
+}
+
+test('days conditions (26/11/2026): any number, all must hold; old campaigns read as one', async () => {
+  const vm = await import('node:vm');
+  const context = { state: { lang: 'th' } };
+  vm.runInNewContext(['specialDayRules', 'specialDayRange', 'specialLengthOk', 'specialLengthText'].map(pageFunction).join('\n'), context);
+  const lockOf = (special) => {
+    const rules = context.specialDayRules(special);
+    const range = context.specialDayRange(rules);
+    return { rules, minDays: range.min, maxDays: range.max, exact: range.exact };
+  };
+  // At least 7 and at most 10 (the owner's example: both conditions at once).
+  const range = lockOf({ dayRules: [{ type: 'min', days: 7 }, { type: 'max', days: 10 }] });
+  assert.deepEqual([range.minDays, range.maxDays, range.exact], [7, 10, 0]);
+  assert.deepEqual([6, 7, 10, 11].map((days) => context.specialLengthOk(days, range)), [false, true, true, false]);
+  assert.equal(context.specialLengthText(range, false), 'เช่า 7–10 วัน');
+  assert.equal(context.specialLengthText(range, true), '7–10 days');
+  // At least 7 and at most 7: exactly 7.
+  assert.equal(lockOf({ dayRules: [{ type: 'min', days: 7 }, { type: 'max', days: 7 }] }).exact, 7);
+  // At most alone: 3 days up to it.
+  const upTo = lockOf({ dayRules: [{ type: 'max', days: 5 }] });
+  assert.deepEqual([2, 3, 5, 6].map((days) => context.specialLengthOk(days, upTo)), [false, true, true, false]);
+  assert.equal(context.specialLengthText(upTo, false), 'เช่าไม่เกิน 5 วัน');
+  // More than two: the strictest of each.
+  const many = lockOf({ dayRules: [{ type: 'min', days: 5 }, { type: 'max', days: 14 }, { type: 'min', days: 7 }, { type: 'max', days: 10 }] });
+  assert.deepEqual([many.minDays, many.maxDays], [7, 10]);
+  // A campaign or rental saved before 26/11/2026.
+  assert.deepEqual(JSON.parse(JSON.stringify(lockOf({ lockDays: 7, lockDaysMode: 'min' }).rules)), [{ type: 'min', days: 7 }]);
+  assert.equal(lockOf({ lockDays: 7 }).exact, 7);
+  assert.equal(context.specialLengthText(lockOf({ lockDays: 7, lockDaysMode: 'min' }), false), 'เช่าขั้นต่ำ 7 วัน');
+  // Nothing set: the booking page's own 3 days, no upper limit.
+  const none = lockOf({});
+  assert.deepEqual([none.rules.length, none.minDays, none.maxDays], [0, 3, 0]);
+});
+
+test('the admin page adds and removes days conditions; conflicting ones are flagged before saving', () => {
+  assert.match(html, /data-sp-rule-add="\$\{index\}">\$\{en \? "\+ Add a days condition" : "\+ เพิ่มเงื่อนไขจำนวนวัน"\}/);
+  assert.match(html, /\$\{option\("exact", "พอดี", "Exactly"\)\}\$\{option\("min", "ขั้นต่ำ", "At least"\)\}\$\{option\("max", "ไม่เกิน", "At most"\)\}/);
+  assert.match(html, /data-sp-rule-remove="\$\{index\}:\$\{key\}"/);
+  assert.match(html, /if\(list\.children\.length >= 10\)/);
+  assert.match(html, /`เงื่อนไขขัดกัน: ต้องเช่าอย่างน้อย \$\{range\.min\} วัน แต่ไม่เกิน \$\{range\.max\} วัน แก้หรือลบเงื่อนไขใดเงื่อนไขหนึ่ง`/);
+  assert.match(html, /#adminSpecial \[data-sp-revoke\],[^"]*#adminSpecial \[data-sp-rule-add\], #adminSpecial \[data-sp-rule-remove\], #adminSpecial \[data-sp-lock-clear\]"\)\)\{/, 'the clicks reach the handler');
 });
