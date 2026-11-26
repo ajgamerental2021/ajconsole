@@ -33,7 +33,7 @@ test('an opened payment group stays open when the page redraws', () => {
     demoDelivery: { status: 'ready' },
     wisePaymentAvailability: () => ({ available: true }),
     bangkokNow: () => ({ iso: '2026-10-16' }),
-    cashDeliveryOptionHtml: () => 'cash', creditOptionHtml: () => 'credit', ewalletOptionHtml: () => 'ewallet', wiseOptionHtml: () => 'wise',
+    cashDeliveryOptionHtml: () => 'cash', bankQrOptionHtml: () => 'bank', creditOptionHtml: () => 'credit', ewalletOptionHtml: () => 'ewallet', wiseOptionHtml: () => 'wise',
     paymentOptionAmountHtml: () => '',
   };
   vm.runInNewContext(`const paymentGroupOpened = {};\n${fn('paymentPickerHtml')}\nthis.picker = paymentPickerHtml; this.opened = paymentGroupOpened;`, context);

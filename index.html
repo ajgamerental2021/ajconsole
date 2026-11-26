@@ -402,6 +402,7 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .payment-refund-links span{color:#98a2b3}
 .payment-brand-badges{display:inline-flex;align-items:center;gap:6px;margin-left:5px;vertical-align:middle}
 .payment-card-logo{display:block;width:auto;height:20px;max-width:42px;object-fit:contain}
+.payment-qr-logo{height:24px;border-radius:5px}
 .payment-wallet-badges{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:6px}
 .payment-wallet-logo{display:block;width:auto;height:24px;max-width:48px;object-fit:contain;border-radius:5px}
 .sum-row .payment-option-copy{align-items:flex-end}
@@ -719,6 +720,13 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .faq-q{font-weight:900;margin-bottom:5px}
 .faq-a{font-size:13px;color:var(--text2);white-space:pre-line}
 .faq-action{margin-top:10px}
+.faq-pay-methods{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px}
+.faq-pay-method{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:#fafbfc}
+.faq-pay-name{display:flex;flex-direction:column;min-width:0;font-size:14px;line-height:1.35}
+.faq-pay-name small{font-size:12px;font-weight:700;color:var(--text2)}
+.faq-pay-logos{display:flex;flex-wrap:wrap;gap:5px}
+.faq-pay-logo{display:inline-flex;align-items:center;justify-content:center;width:52px;height:30px;padding:3px 4px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;font-size:17px;line-height:1;box-sizing:border-box}
+.faq-pay-logo img{display:block;max-width:100%;max-height:100%;object-fit:contain}
 .faq-example-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .faq-example-actions .btn{min-height:40px}
 .identity-example-pop{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,23,42,.6)}
@@ -1652,7 +1660,7 @@ body{background:#f7f8fa}
               <div id="beforeRentDevices" class="before-rent-devices" tabindex="0" role="region" aria-label="รายการเครื่องเกมทั้งหมด"></div>
             </div>
           </section>
-          <section class="before-rent-mini-section">
+          <section class="before-rent-mini-section" id="beforeRentPromosSection" hidden>
             <div class="before-rent-mini-head">
               <h3 data-i18n="beforeRentFeatured">โปรโมชั่น</h3>
               <span class="before-rent-hint" id="beforeRentPromoHint"></span>
@@ -2426,6 +2434,36 @@ You may ask to access, correct, object to, restrict or delete your data, or with
     qEn:"How do I pay the balance?",
     aEn:"Pay the balance when you receive the console, or pay in full in advance.\n\nPayment methods\n• Bank transfer\n• QR PromptPay\n• Credit Card (+3.50%)\n• E-Wallet (+2.95%)\n• Wise\n\nFor QR PromptPay, Credit Card and E-Wallet, we send a Payment Link to pay when the console arrives."
   };
+  // Every way the shop takes money, one per line with its logo (26/11/2026),
+  // and that cash is not one of them. Built in, like the two above.
+  const PAYMENT_METHODS_FAQ = {
+    kind:"payment-methods",
+    qTh:"ชำระค่าจองหรือค่าเช่าอย่างไร",
+    aTh:"เลือกช่องทางชำระได้ในขั้นตอนคำนวณค่าเช่า แล้วชำระตามที่ระบบแจ้ง\n\nช่องทางการชำระเงินที่รองรับ",
+    qEn:"How do I pay the reservation or the rental?",
+    aEn:"Choose how to pay in the rental calculator, then pay as shown.\n\nAccepted payment methods"
+  };
+  const PAYMENT_METHOD_ROWS = [
+    {th:"QR PromptPay", en:"QR PromptPay", noteTh:"ไม่มีค่าธรรมเนียม", noteEn:"No fee", logos:[["assets/payment/thai-qr-promptpay.png","Thai QR PromptPay"]]},
+    {th:"โอนเข้าบัญชีธนาคาร", en:"Thai bank transfer", noteTh:"ไม่มีค่าธรรมเนียม", noteEn:"No fee", logos:[["🏦","Bank"]]},
+    {th:"บัตรเครดิต", en:"Credit Card", noteTh:"+ ค่าธรรมเนียม 3.50%", noteEn:"+ 3.50% fee", logos:[
+      ["https://storage.googleapis.com/beam-guides/payment-method-logo/credit-card/png/visa.png","Visa"],
+      ["https://storage.googleapis.com/beam-guides/payment-method-logo/credit-card/png/mastercard.png","Mastercard"]]},
+    {th:"E-Wallet", en:"E-Wallet", noteTh:"+ ค่าธรรมเนียม 2.95%", noteEn:"+ 2.95% fee", logos:[
+      ["https://storage.googleapis.com/beam-guides/payment-method-logo/e-wallets/png/true-money.png","TrueMoney"],
+      ["https://storage.googleapis.com/beam-guides/payment-method-logo/e-wallets/png/shopee-pay.png","ShopeePay"],
+      ["https://storage.googleapis.com/beam-guides/payment-method-logo/e-wallets/png/line.png","LINE Pay"],
+      ["https://storage.googleapis.com/beam-guides/payment-method-logo/e-wallets/png/alipay.png","Alipay"],
+      ["https://storage.googleapis.com/beam-guides/payment-method-logo/e-wallets/png/wechat.png","WeChat Pay"]]},
+    {th:"Wise", en:"Wise", noteTh:"สำหรับลูกค้าต่างชาติ", noteEn:"For international customers", logos:[["https://wise.com/public-resources/assets/logos/wise/brand_logo.svg","Wise"]]}
+  ];
+  const CASH_FAQ = {
+    kind:"cash",
+    qTh:"รับชำระด้วยเงินสดไหม?",
+    aTh:"ทางร้านไม่รับชำระด้วยเงินสด รวมถึงการฝากเงินสดไว้กับคนขับ รับเฉพาะช่องทางที่แจ้งไว้ในข้อ \"ชำระค่าจองหรือค่าเช่าอย่างไร\" เท่านั้น เพื่อให้ทุกยอดมีหลักฐานการชำระเงินที่ตรวจสอบได้",
+    qEn:"Do you accept cash?",
+    aEn:"No. We don't accept cash, including cash handed to the driver. Please pay only by the methods listed under \"How do I pay the reservation or the rental?\", so every payment has a record that can be checked."
+  };
   const NO_CONTRACT_FAQ = {
     kind:"noContractTerms",
     qTh:"เช่าโดยไม่ยืนยันตัวตนได้ไหม?",
@@ -2646,7 +2684,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       bundle:"Bundle", accessories:"อุปกรณ์เสริม", noBundle:"ไม่เพิ่ม Bundle", noAccessory:"ไม่เพิ่มอุปกรณ์เสริม", contract:"ยืนยันตัวตน", contractHelp:"แนะนำสำหรับผู้เช่าครั้งแรก กรอกก่อนนัดส่งเครื่อง", contractAge:"*ผู้ยืนยันตัวตนต้องมีอายุ 20 ปีขึ้นไปเท่านั้น*", contractOpenTitle:"เลือกวิธียืนยันตัวตน", contractOpenMessage:"หากคุณใช้ LINE แนะนำให้เปิดผ่าน LINE เพื่อเชื่อมข้อมูลยืนยันตัวตนกับบัญชีของคุณ", contractOpenLine:"เปิดผ่าน LINE", contractOpenWeb:"ยืนยันตัวตนผ่านเว็บ", contractOpenNote:"ไม่มี LINE? สามารถยืนยันตัวตนผ่านเว็บได้ตามปกติ", contractOpenClose:"ปิดหน้าต่าง",
       masterAgreementTitle:"อ่านและยืนยันรายการเช่าครั้งนี้", masterAgreementLegacy:"ยืนยันสิทธิ์จากประวัติลูกค้าเก่าแล้ว (ข้อมูลเดิมไม่มีเลขที่ข้อตกลงหลัก)", masterAgreementIdentity:"ข้าพเจ้ายืนยันว่าข้อมูลระบุตัวตนและข้อมูลติดต่อไม่เปลี่ยนแปลง และยินยอมให้อ้างอิงข้อมูลลูกค้าเก่าที่ผ่านการยืนยัน", masterAgreementOrder:"ข้าพเจ้ายืนยันว่าข้อมูลระบุตัวตนและข้อมูลติดต่อไม่เปลี่ยนแปลง ยินยอมให้อ้างอิงข้อมูลลูกค้าเก่าที่ผ่านการยืนยัน และได้ตรวจสอบรายละเอียดการเช่าครั้งนี้ อ่านและยอมรับเงื่อนไขการเช่าแล้ว", masterAgreementConfirm:"ยอมรับและทำรายการต่อ", masterAgreementAcceptedChooseChannel:"ยืนยันแล้ว กรุณากดเลือกช่องทางจองด้านล่างเพื่อส่งข้อมูลให้ร้าน", masterAgreementExpired:"ข้อตกลงหลักหมดอายุแล้ว ต้องจัดทำข้อตกลงหลักใหม่โดยยืนยันตัวตนอีกครั้ง หรือเลือกเช่าโดยไม่ยืนยันตัวตน", masterAgreementId:"เลขที่ข้อตกลงหลัก", masterAgreementExpiry:"ใช้ได้ถึง", rentalOrderId:"เลขที่รายการเช่า",
       noContract:"เช่าโดยไม่ยืนยันตัวตน", noContractHelp:"ยังต้องอ่านและยอมรับเงื่อนไขการเช่า โดยค่าประกันจะปรับตามรุ่น: PS4, Nintendo Switch 1, XBOX Series S และ PS Portal: ฿2,000 → ฿5,000; รุ่นอื่นที่ค่าประกัน ฿2,000 → ฿10,000; ค่าประกัน ฿4,000 → ฿15,000; Bundle PS5 → ฿15,000", rentalTermsTitle:"เงื่อนไขการเช่า", rentalTermsAccept:"ข้าพเจ้าได้อ่าน เข้าใจ และยอมรับเงื่อนไขการเช่า การคืนล่าช้า ความเสียหาย การยกเลิก และการคืนเงินประกันทั้งหมดแล้ว", rentalTermsConfirm:"ยืนยันและทำรายการต่อ", rentalTermsCancel:"ยกเลิก", rentalTermsAccepted:"ลูกค้ารับทราบเงื่อนไขการเช่าแล้ว", rentalTermsRead:"อ่านเงื่อนไขการเช่า",
-      returning:"ลูกค้าเก่า (เท่านั้น) รับส่วนลด 10% ค่าเช่า", returningOnly:"ลูกค้าเก่าเท่านั้น", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 โอนจองคิว ฿200 และชำระยอดที่เหลือปลายทาง", bank:"🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%",
+      returning:"ลูกค้าเก่า (เท่านั้น) รับส่วนลด 10% ค่าเช่า", returningOnly:"ลูกค้าเก่าเท่านั้น", maps:"Google Maps ที่อยู่จัดส่ง", mapsHelp:"วิธีคัดลอกลิงก์ Google Maps", mapsInputHelp:"ใส่ลิงก์ Google Maps เพื่อเช็คค่าส่งเร็วขึ้น", mapsDeliveryArea:"* จัดส่งเฉพาะใน กรุงเทพฯ และ ปริมณฑล เท่านั้น", mapsDeliveryPromo:"🔥 โปรค่าส่ง: 3–6 วัน ฟรีขากลับ* | 7 วันขึ้นไป ฟรีไป-กลับ* | สูงสุด 100 บาท/เที่ยว", payment:"ช่องทางชำระเงิน", cash:"💸 โอนจองคิว ฿200 และชำระยอดที่เหลือปลายทาง", bank:"📱 QR PromptPay: ชำระเต็มจำนวน", wise:"Wise", credit:"💳 บัตรเครดิต: ชำระเต็มจำนวน + ค่าธรรมเนียม 3.50%", ewallet:"👛 E-Wallet: ชำระเต็มจำนวน + ค่าธรรมเนียม 2.95%",
       wiseAvailabilityNote:"ไม่สามารถชำระผ่าน Wise ในวันเสาร์-อาทิตย์หรือวันหยุดธนาคารไทยได้ เนื่องจากเงินจะเข้าในวันทำการถัดไป", wiseUnavailableWeekend:"วันนี้ไม่สามารถเลือก Wise ได้ (วันเสาร์-อาทิตย์)", wiseUnavailableHoliday:"วันนี้ไม่สามารถเลือก Wise ได้ (วันหยุดธนาคารไทย)", returningVerifyTitle:"ยืนยันสิทธิ์ส่วนลดลูกค้าเก่า", returningVerifyHelp:"กรอกเบอร์โทรที่เคยใช้เช่า และเลขบัตรประชาชน 4 ตัวท้าย", returningVerifyPhone:"เบอร์โทรศัพท์", returningVerifyFirstName:"ชื่อจริง (ไม่ต้องใส่นามสกุล)", returningVerifyLast4:"เลขบัตรประชาชน 4 ตัวท้าย", returningVerifyNoIdentity:"ไม่เคยยืนยันตัวตน", returningVerifyHistoryHelp:"สำหรับลูกค้าเก่าที่ไม่เคยยืนยันตัวตน กรุณาใช้ชื่อจริงร่วมกับรหัสการเช่าครั้งก่อนหรือเบอร์โทรศัพท์เพื่อยืนยัน ไม่ต้องใส่นามสกุล", returningVerifyRentalSuffix:"Rental ID 5 ตัวท้าย", returningVerifyUsePhone:"ใช้เบอร์โทรแทน", returningVerifyHistoryPhone:"เบอร์โทรศัพท์ที่เคยส่งให้ทางร้าน", returningVerifyFindRentalId:"วิธีการหา Rental ID", returningVerifySubmit:"ตรวจสอบสิทธิ์", returningVerifyCancel:"ยกเลิก", returningVerifyChecking:"กำลังตรวจสอบ...", returningVerifySuccess:"ยืนยันสิทธิ์ลูกค้าเก่าเรียบร้อย", returningVerifyNotFound:"ไม่พบประวัติ Confirmed ที่ชื่อจริงและข้อมูลยืนยันตรงกัน กรุณาตรวจสอบข้อมูลหรือติดต่อ AJ", returningVerifyError:"ตรวจสอบสิทธิ์ไม่ได้ในขณะนี้ กรุณาลองใหม่ภายหลัง", returningVerifyInvalid:"กรุณากรอกเบอร์โทร 10 หลัก และเลขบัตร 4 ตัวท้าย", returningVerifyHistoryInvalid:"กรุณากรอกชื่อจริง และ Rental ID 5 ตัวท้ายหรือเบอร์โทรศัพท์ที่ถูกต้อง", returningLineVerifiedTitle:"ตรวจพบประวัติลูกค้าเก่า ใช้ส่วนลดค่าเช่า 10% แล้ว", returningLineVerifiedDetail:"ยืนยันสิทธิ์ผ่านบัญชี LINE และเลือกส่วนลดให้อัตโนมัติแล้ว",
       returningVerifyPrivacy:"ใช้ข้อมูลนี้เพื่อตรวจสิทธิ์ส่วนลดเท่านั้น หน้าเว็บจะไม่แสดงเลขบัตรหรือประวัติการเช่าของลูกค้ารายอื่น",
       siteCopyright:"AJ Game Rental © 2026. สงวนลิขสิทธิ์",
@@ -2837,7 +2875,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       bundle:"Bundle", accessories:"Accessories", noBundle:"No bundle", noAccessory:"No extra accessory", contract:"Identity verification", contractHelp:"Recommended for first-time renters. Complete it before delivery.", contractAge:"*The person verifying their identity must be at least 20 years old.*", contractOpenTitle:"Choose how to verify your identity", contractOpenMessage:"If you use LINE, open through LINE to link identity verification to your account.", contractOpenLine:"Open with LINE", contractOpenWeb:"Continue in browser", contractOpenNote:"Don't use LINE? You can verify your identity directly in your browser.", contractOpenClose:"Close dialog",
       masterAgreementTitle:"Review and accept this Rental Order", masterAgreementLegacy:"Returning-customer history verified (the legacy record has no Master Agreement number)", masterAgreementIdentity:"I confirm that my identity and contact details are unchanged and consent to this rental referencing my verified returning-customer record.", masterAgreementOrder:"I confirm that my identity and contact details are unchanged, consent to this rental referencing my verified returning-customer record, and have reviewed this rental, read the Rental Terms, and accept this Rental Order.", masterAgreementConfirm:"Accept and continue", masterAgreementAcceptedChooseChannel:"Accepted. Please choose a booking channel below to send the details to AJ.", masterAgreementExpired:"Your Master Agreement has expired. Create a new Master Agreement with renewed identity verification, or choose no identity verification.", masterAgreementId:"Master Agreement no.", masterAgreementExpiry:"Valid until", rentalOrderId:"Rental Order no.",
       noContract:"Rent without identity verification", noContractHelp:"You must still read and accept the rental terms. The deposit changes by model: PS4, Nintendo Switch 1, XBOX Series S and PS Portal: ฿2,000 → ฿5,000; other ฿2,000 deposits → ฿10,000; ฿4,000 deposits → ฿15,000; PS5 bundles → ฿15,000.", rentalTermsTitle:"Rental Terms", rentalTermsAccept:"I have read, understood, and accepted all rental, late-return, damage, cancellation, and deposit-refund terms.", rentalTermsConfirm:"Accept and continue", rentalTermsCancel:"Cancel", rentalTermsAccepted:"Customer has acknowledged the Rental Terms", rentalTermsRead:"View Rental Terms", wiseLinkTime:"Wise transfer time", wiseLinkPolicy:"Wise policy", wiseLinkCoverage:"Where Wise works",
-      returning:"Returning customers only: 10% off rental fee", returningOnly:"Returning customers only", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"💵 Balance on delivery", bank:"🏦 Thai Bank Transfer", wise:"🌍 Wise", credit:"💳 Credit Card: pay full amount + 3.50% fee", ewallet:"👛 E-Wallet: pay full amount + 2.95%",
+      returning:"Returning customers only: 10% off rental fee", returningOnly:"Returning customers only", maps:"Google Maps delivery address", mapsHelp:"How to copy a Google Maps link", mapsInputHelp:"Paste Google Maps link to check delivery fee faster.", mapsDeliveryArea:"* Delivery is available only in Bangkok and surrounding metropolitan areas.", mapsDeliveryPromo:"🔥 Delivery promotion: 3–6 days, free return trip* | 7+ days, free round trip* | Maximum ฿100 per trip", payment:"Payment Option", cash:"💵 Balance on delivery", bank:"📱 QR PromptPay", wise:"🌍 Wise", credit:"💳 Credit Card: pay full amount + 3.50% fee", ewallet:"👛 E-Wallet: pay full amount + 2.95%",
       wiseAvailabilityNote:"Wise payments are unavailable on weekends and Thai bank holidays because funds arrive on the next business day.", wiseUnavailableWeekend:"Wise is unavailable today (weekend).", wiseUnavailableHoliday:"Wise is unavailable today (Thai bank holiday).", returningVerifyTitle:"Verify returning-customer discount", returningVerifyHelp:"Enter your first name (surname not required) and the last 4 characters of your Passport.", returningVerifyName:"First name (surname not required)", returningVerifyFirstName:"First name (surname not required)", returningVerifyLast4:"Last 4 Passport characters", returningVerifyNoIdentity:"I have never verified my identity", returningVerifyHistoryHelp:"For returning customers who have never verified their identity. Please use your first name with your previous Rental ID or phone number to verify eligibility. Surname is not required.", returningVerifyRentalSuffix:"Last 5 characters of Rental ID", returningVerifyUsePhone:"Use phone number instead", returningVerifyHistoryPhone:"Phone number previously provided to AJ", returningVerifyFindRentalId:"How to find your Rental ID", returningVerifySubmit:"Check eligibility", returningVerifyCancel:"Cancel", returningVerifyChecking:"Checking...", returningVerifySuccess:"Returning-customer eligibility confirmed.", returningVerifyNotFound:"No Confirmed rental matched both the first name and verification detail. Check the details or contact AJ.", returningVerifyError:"Eligibility cannot be checked right now. Please try again later.", returningVerifyInvalid:"Enter your first name (surname not required) and the last 4 Passport characters.", returningVerifyHistoryInvalid:"Enter your first name and the last 5 characters of your Rental ID or a valid phone number.", returningLineVerifiedTitle:"Returning customer found: 10% rental discount applied", returningLineVerifiedDetail:"Verified through your LINE account and selected automatically.",
       returningVerifyPrivacy:"This information is used only to verify discount eligibility. The page will not reveal another customer's passport details or rental history.",
       siteCopyright:"AJ Game Rental © 2026. All rights reserved.",
@@ -4505,11 +4543,23 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(matches(faq, /^(อายุไม่ถึง|อายุต่ำกว่า)\s*20\s*ปี/, /(?:under|younger than|at least)\s*20|minimum age/i)) return {...AGE_FAQ};
       if(faq.kind === RESERVATION_FAQ.kind || matches(faq, /^ต้องโอนจองไหม/, /^Do I (?:need|have) to (?:pay|transfer)[^?]*(?:reserv|book)/i)) return {...RESERVATION_FAQ};
       if(faq.kind === BALANCE_PAYMENT_FAQ.kind || matches(faq, /^ชำระส่วนที่เหลืออย่างไร/, /^How do I pay the balance/i)) return {...BALANCE_PAYMENT_FAQ};
+      if(faq.kind === PAYMENT_METHODS_FAQ.kind || matches(faq, /^ชำระค่าจองหรือค่าเช่าอย่างไร/, /^How (?:do|can) I pay (?:for )?(?:the )?(?:reservation|booking|rental)/i)) return {...PAYMENT_METHODS_FAQ};
+      if(faq.kind === CASH_FAQ.kind || matches(faq, /^รับ(?:ชำระด้วย)?เงินสด/, /^Do you (?:accept|take) cash/i)) return {...CASH_FAQ};
       // The answer says how as well as when (owner, 05/11/2026): only the
       // question is retitled; the saved answer stays as the shop wrote it.
       if(matches(faq, /^คืนค่าประกันเมื่อไ(?:หร่|ร)/, /^When (?:is|will) (?:the|my) deposit (?:be )?(?:returned|refunded)/i)) return {...faq, kind: faq.kind || "deposit-return", qTh: DEPOSIT_RETURN_QUESTION.th, qEn: DEPOSIT_RETURN_QUESTION.en};
       return faq;
     });
+    // The ways to pay, then "no cash" right under them; the list goes in just
+    // before "Do I need to pay to reserve?" when the saved FAQ has none.
+    normalized = normalized.filter(faq => faq.kind !== CASH_FAQ.kind);
+    let methodsIndex = normalized.findIndex(faq => faq.kind === PAYMENT_METHODS_FAQ.kind);
+    if(methodsIndex < 0){
+      const reservationAt = normalized.findIndex(faq => faq.kind === RESERVATION_FAQ.kind);
+      methodsIndex = reservationAt >= 0 ? reservationAt : normalized.length;
+      normalized.splice(methodsIndex, 0, {...PAYMENT_METHODS_FAQ});
+    }
+    normalized.splice(methodsIndex + 1, 0, {...CASH_FAQ});
     // "How do I pay the balance?" right under "Do I need to pay to reserve?".
     normalized = normalized.filter(faq => faq.kind !== BALANCE_PAYMENT_FAQ.kind);
     const reservationIndex = normalized.findIndex(faq => faq.kind === RESERVATION_FAQ.kind);
@@ -4693,7 +4743,11 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       // only rendered when there is no image to avoid double-stacked copy.
       const copy = item.image ? "" : `<span class="before-rent-promo-copy"><strong>${esc(title || "AJ")}</strong>${sub ? `<span>${esc(sub)}</span>` : ""}</span>`;
       return `<a class="before-rent-promo ${item.image?"":"is-plain"}" href="${esc(safeHref(item.url))}" aria-label="${esc(label)}" ${target?`data-promo-device="${esc(target.id)}"`:""}>${item.image ? `<img src="${esc(item.image)}" alt="${esc(label)}" loading="lazy">` : ""}${copy}${cue}</a>`;
-    }).join("") || `<button class="before-rent-promo is-plain" type="button" data-before-start><span class="before-rent-promo-copy"><strong>${esc(tr("beforeRentRent"))}</strong><span>${esc(tr("beforeRentRentSub"))}</span></span><span class="before-rent-promo-cue" aria-hidden="true">${esc(tr("beforeRentPromoCue"))}</span></button>`);
+    }).join(""));
+    // Every promotion switched off in admin (highlight and newGames) hides the
+    // whole "โปรโมชั่น" heading, not a stand-in card (26/11/2026).
+    const promosSection = byId("beforeRentPromosSection");
+    if(promosSection) promosSection.hidden = promos.length === 0;
 
     const preferred = ["ps5","ps5 pro","nintendo switch 2","nintendo switch 1","meta quest 3","steam deck oled","xbox series x","rog xbox ally x","viture beast","lenovo legion go2","ps4"];
     const rank = item => {
@@ -8405,21 +8459,21 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     return `<span class="summary-list">${list.map(esc).map(x => `<span>${x}</span>`).join("")}</span>`;
   }
   function paymentOptionLabelEn(){
-    return {cash:"💵 Pay ฿1,000 by Credit Card, E-Wallet or Thai QR scan to reserve (no fee); pay the balance on delivery", bank:"🏦 Thai Bank Transfer: pay full amount", wise:"🌍 Wise: pay full amount", credit:tr("credit"), ewallet:tr("ewallet")}[state.calc.payment] || tr("cash");
+    return {cash:"💵 Pay ฿1,000 by Credit Card, E-Wallet or Thai QR scan to reserve (no fee); pay the balance on delivery", bank:"📱 QR PromptPay: pay full amount", wise:"🌍 Wise: pay full amount", credit:tr("credit"), ewallet:tr("ewallet")}[state.calc.payment] || tr("cash");
   }
   function paymentOptionLabelTh(){
     return {cash:tr("cash"), bank:tr("bank"), credit:tr("credit"), ewallet:tr("ewallet")}[state.calc.payment] || tr("cash");
   }
   function paymentOptionMessageLabelEn(){
     if(state.calc.payment === "cash") return "Pay ฿1,000 by Credit Card, E-Wallet or Thai QR scan to reserve (no fee) + balance on delivery";
-    if(state.calc.payment === "bank") return "Thai Bank Transfer: pay full amount before delivery (no fee)";
+    if(state.calc.payment === "bank") return "QR PromptPay: pay full amount before delivery (no fee)";
     if(state.calc.payment === "credit") return "Credit Card: pay full amount before delivery (+3.50% fee)";
     if(state.calc.payment === "ewallet") return "E-Wallet: pay full amount before delivery (+2.95%)";
     return paymentOptionLabelEn();
   }
   function paymentOptionMessageLabelTh(){
     if(state.calc.payment === "cash") return "โอนจองคิว ฿200 และชำระยอดที่เหลือปลายทาง";
-    if(state.calc.payment === "bank") return "โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน";
+    if(state.calc.payment === "bank") return "QR PromptPay: ชำระเต็มจำนวน (ไม่มีค่าธรรมเนียม)";
     if(state.calc.payment === "credit") return "บัตรเครดิต: ชำระเต็มจำนวนก่อนจัดส่ง (+ค่าธรรมเนียม 3.50%)";
     if(state.calc.payment === "ewallet") return "E-Wallet: ชำระเต็มจำนวนก่อนจัดส่ง (+ค่าธรรมเนียม 2.95%)";
     return paymentOptionLabelTh();
@@ -8460,7 +8514,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     const option = (value, copy, extraClass = "", optionDisabled = disabled) =>
       `<label class="payment-option ${extraClass}" data-key="${value}"><input type="radio" name="${inputName}" ${choiceAttr}="${value}" ${selected === value ? "checked" : ""} ${optionDisabled}>${copy}${amountHtml(value)}</label>`;
     const fullPayment = [
-      option("bank", `<span class="payment-option-copy"><span>${en ? "🏦 Thai Bank Transfer: pay full amount" : "🏦 โอนผ่านบัญชีธนาคารไทย: ชำระเต็มจำนวน"}</span></span>`),
+      option("bank", bankQrOptionHtml()),
       ...(en && allowWise ? [option("wise", wiseOptionHtml(status), status.available ? "" : "is-disabled", wiseDisabled)] : []),
       option("credit", creditOptionHtml()),
       option("ewallet", ewalletOptionHtml())
@@ -8542,6 +8596,17 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
         : "";
     return `<span class="payment-option-copy"><span class="payment-wise-title"><img class="payment-wise-logo" src="https://wise.com/public-resources/assets/logos/wise/brand_logo.svg" alt="Wise"> pay full amount</span><small class="payment-wise-note">${tr("wiseAvailabilityNote")}</small>${blocked ? `<small class="wise-status blocked">${blocked}</small>` : ""}${paymentRefundNoteHtml()}</span>`;
   }
+  // The full payment by Thai QR (26/11/2026): Beam opens PromptPay only for
+  // "bank", so it is named for what the renter scans, with the Thai QR mark
+  // under it the way Credit Card shows Visa and Mastercard.
+  function paymentThaiQrBadgeHtml(){
+    return `<span class="payment-brand-badges" aria-label="Thai QR PromptPay"><img class="payment-card-logo payment-qr-logo" src="assets/payment/thai-qr-promptpay.png" alt="Thai QR PromptPay"></span>`;
+  }
+  function bankQrOptionHtml(){
+    const title = state.lang === "en" ? "📱 QR PromptPay: pay full amount" : "📱 QR PromptPay: ชำระเต็มจำนวน";
+    const fee = state.lang === "en" ? "No fee" : "ไม่มีค่าธรรมเนียม";
+    return `<span class="payment-option-copy"><span>${title}</span><small>${fee}</small>${paymentThaiQrBadgeHtml()}</span>`;
+  }
   function creditOptionHtml(){
     const title = state.lang === "en" ? "💳 Credit Card: pay full amount" : "💳 บัตรเครดิต: ชำระเต็มจำนวน";
     const fee = state.lang === "en" ? "+ 3.50% fee" : "+ ค่าธรรมเนียม 3.50%";
@@ -8556,6 +8621,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     if(state.calc.payment === "cash") return cashDeliveryOptionHtml();
     if(state.calc.payment === "ewallet") return ewalletOptionHtml();
     const label = esc(state.lang === "en" ? paymentOptionLabelEn() : paymentOptionLabelTh());
+    if(state.calc.payment === "bank") return `${label} ${paymentThaiQrBadgeHtml()}`;
     return state.calc.payment === "credit" ? `${label} ${paymentCardBadgesHtml()}` : label;
   }
   function paymentFeeLabel(){
@@ -9320,6 +9386,21 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
     document.body.appendChild(pop);
     pop.querySelector("[data-identity-example-close]")?.focus();
   }
+  /** One line per payment method: its name and fee, then its logos, all the same size. */
+  function paymentMethodsFaqHtml(lang){
+    const en = lang === "en";
+    return `<ul class="faq-pay-methods">${PAYMENT_METHOD_ROWS.map(row => `<li class="faq-pay-method">`
+      + `<span class="faq-pay-name"><b>${esc(en ? row.en : row.th)}</b><small>${esc(en ? row.noteEn : row.noteTh)}</small></span>`
+      + `<span class="faq-pay-logos">${row.logos.map(([src, name]) => /^(?:https:|assets\/)/.test(src)
+        ? `<span class="faq-pay-logo"><img src="${esc(src)}" alt="${esc(name)}" loading="lazy"></span>`
+        : `<span class="faq-pay-logo" role="img" aria-label="${esc(name)}">${esc(src)}</span>`).join("")}</span>`
+      + `</li>`).join("")}</ul>`;
+  }
+  /** An FAQ answer as the page and the FAQ popup both draw it. */
+  function faqAnswerHtml(f, answer){
+    if(f.kind === NO_CONTRACT_FAQ.kind) return pricingFaqMarkup(state.lang);
+    return `<div class="faq-a">${esc(answer)}</div>${f.kind === PAYMENT_METHODS_FAQ.kind ? paymentMethodsFaqHtml(state.lang) : ""}`;
+  }
   function renderFAQ(){
     const host = byId("faqList");
     host.classList.toggle("collapsed", !state.faqExpanded);
@@ -9335,7 +9416,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       const action = f.kind === NO_CONTRACT_FAQ.kind ? `<button class="btn soft faq-action" type="button" data-faq-rental-terms>${esc(tr("rentalTermsRead"))}</button>`
         : f.kind === IDENTITY_HOW_FAQ.kind ? identityFaqExampleButtons()
         : pattaya ? `<button class="btn card-quote-btn faq-action" type="button" data-faq-quote>${esc(state.lang === "en" ? "Check delivery fee" : "เช็คค่าส่ง")}</button>` : "";
-      return `<div class="faq-item"><div class="faq-q">${esc(q)}</div>${f.kind === NO_CONTRACT_FAQ.kind ? pricingFaqMarkup(state.lang) : `<div class="faq-a">${esc(answer)}</div>`}${action}</div>`;
+      return `<div class="faq-item"><div class="faq-q">${esc(q)}</div>${faqAnswerHtml(f, answer)}${action}</div>`;
     }).join("");
     const btn = byId("faqExpandBtn");
     if(btn){
@@ -15576,7 +15657,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
       const action = f.kind === NO_CONTRACT_FAQ.kind ? `<button class="btn soft faq-action" type="button" data-faq-rental-terms>${esc(tr("rentalTermsRead"))}</button>`
         : f.kind === IDENTITY_HOW_FAQ.kind ? identityFaqExampleButtons()
         : pattaya ? `<button class="btn card-quote-btn faq-action" type="button" data-faq-quote>${esc(state.lang === "en" ? "Check delivery fee" : "เช็คค่าส่ง")}</button>` : "";
-      return `<div class="faq-item"><div class="faq-q">${esc(q)}</div>${f.kind === NO_CONTRACT_FAQ.kind ? pricingFaqMarkup(state.lang) : `<div class="faq-a">${esc(answer)}</div>`}${action}</div>`;
+      return `<div class="faq-item"><div class="faq-q">${esc(q)}</div>${faqAnswerHtml(f, answer)}${action}</div>`;
     }).join("");
     return `<div style="margin-bottom:10px">${copyButton}</div>${items}`;
   }
