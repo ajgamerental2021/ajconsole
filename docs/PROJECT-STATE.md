@@ -18,6 +18,13 @@
   2. Bot, then the website (the website reads linkExpiry; the Bot accepts both shapes);
   3. after Meta approval, set `WHATSAPP_TEMPLATE_RETURN_TODAY_PADLOCK` on DA.
 
+## 2026-11-26 — เช่าต่อ: returning-customer 10% switch
+
+- **DA `ad64bea`:**
+  - the staff "เช่าต่อ" modal has a "ส่วนลดลูกค้าเก่า 10%" switch: on to start for regular rentals, off for VIP or special rate, not shown for company;
+  - the server prices and charges by it; the copied message, the offer page and the LINE card show the rental, the discount and the total, TH/EN.
+- **Checked:** DA tsc (backend and frontend), full suite 181/181.
+
 ## 2026-11-26 — Padlock return terms in the owner's words, LINE card and My rental (DA `6cb3a76`)
 
 - **Ask:** replace the padlock charges box on the return-day card with the owner's text "⚠️ เงื่อนไขการคืนแม่กุญแจ" (TH, and translated to EN), on LINE and WhatsApp.
