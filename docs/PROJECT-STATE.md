@@ -18,6 +18,13 @@
   2. Bot, then the website (the website reads linkExpiry; the Bot accepts both shapes);
   3. after Meta approval, set `WHATSAPP_TEMPLATE_RETURN_TODAY_PADLOCK` on DA.
 
+## 2026-11-26 — My rental: padlock terms folded until the return is near
+
+- **DA `a5fbe9b`:**
+  - the padlock return terms on My rental fold to one line, the title plus "ค่าใช้จ่ายสูงสุด ฿1,500 · แตะเพื่ออ่าน" / "Charges up to ฿1,500 · Tap to read";
+  - they open by themselves from the day before the return (Bangkok date), and the customer can open them any day;
+  - TH/EN; LINE and WhatsApp unchanged.
+
 ## 2026-11-26 — เช่าต่อ: returning-customer 10% switch
 
 - **DA `ad64bea`:**
