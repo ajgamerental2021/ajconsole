@@ -1,3 +1,18 @@
+## 2026-11-26 — Padlock return terms in the owner's words, LINE card and My rental (DA `6cb3a76`)
+
+- **Ask:** replace the padlock charges box on the return-day card with the owner's text "⚠️ เงื่อนไขการคืนแม่กุญแจ" (TH, and translated to EN), on LINE and WhatsApp.
+- **Done:**
+  - one text, `PADLOCK_RETURN_TERMS` in `services/padlocks.ts`;
+  - the return-day LINE card uses it;
+  - My rental shows it under the padlock code for running rentals. That is the page every WhatsApp message opens ("Details"); the WhatsApp template text itself is Meta-approved and unchanged.
+- **Checked:**
+  - `test:return-day-card` 63;
+  - `test:my-rental-link` (Playwright TH/EN, none on finished rentals);
+  - reminder and WhatsApp tests;
+  - tsc;
+  - the card was rendered in TH/EN and looked at.
+- **Deploy:** DA backend.
+
 ## 2026-11-26 — Special rate: several days conditions (exactly / at least / at most)
 
 - **Ask:** add "ไม่เกิน" (at most) to the campaign's number of days, and allow several conditions at once (e.g. at least 7 and at most 7), more than two if needed.
