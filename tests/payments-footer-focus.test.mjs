@@ -34,8 +34,10 @@ test('footer: "Payments powered by" Beam, then every payment logo in one row of 
   const ctx = vm.createContext({esc});
   vm.runInContext(constant('PAYMENT_METHOD_ROWS') + fn('paymentLogoStripHtml') + ';this.strip = paymentLogoStripHtml();', ctx);
   const alts = [...ctx.strip.matchAll(/alt="([^"]+)"|aria-label="([^"]+)"/g)].map((m) => m[1] || m[2]);
-  assert.deepEqual(alts, ['Thai QR PromptPay', 'Bank', 'Visa', 'Mastercard', 'TrueMoney', 'ShopeePay', 'LINE Pay', 'Alipay', 'WeChat Pay', 'Wise']);
-  assert.equal(ctx.strip.match(/<span class="pay-logo"/g).length, 10);
+  // Logos only: the bank emoji is on the FAQ's bank-transfer line, not in the rows (27/11/2026).
+  assert.deepEqual(JSON.parse(JSON.stringify(alts)), ['Thai QR PromptPay', 'Visa', 'Mastercard', 'TrueMoney', 'ShopeePay', 'LINE Pay', 'Alipay', 'WeChat Pay', 'Wise']);
+  assert.equal(ctx.strip.match(/<span class="pay-logo"/g).length, 9);
+  assert.doesNotMatch(ctx.strip, /🏦/);
   assert.match(fn('applyI18n'), /renderSitePaymentLogos\(\);/);
   // A clear gap under the social icons on a phone.
   assert.match(source, /\.site-payments\{margin-top:10px;margin-bottom:6px;gap:10px\}/);
@@ -125,4 +127,10 @@ test('the rental steps: "ทำรายการเช่า" step by step, and
   // The owner's identity and agreement lines stay as they were.
   assert.match(guide, /<span class="step-mark">ผู้เช่าครั้งแรกต้องยืนยันตัวตนก่อนนัดส่งเครื่อง<\/span>/);
   assert.match(source, /\.replace\("__PAYMENT_LOGOS__",`<span class="pay-logos step-pay-logos" role="img" aria-label="\$\{esc\(tr\("sitePaymentsAccepted"\)\)\}">\$\{paymentLogoStripHtml\(\)\}<\/span>`\)/);
+});
+
+test('the games pill reads "รวม 10 เกม" / "Incl. 10 games" and is never cut to "…"', () => {
+  assert.match(source, /beforeRentGamesIncluded:"รวม 10 เกม",/);
+  assert.match(source, /beforeRentGamesIncluded:"Incl\. 10 games",/);
+  assert.doesNotMatch(source, /\.before-rent-device-games-tag span\{[^}]*text-overflow:ellipsis/);
 });
