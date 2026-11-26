@@ -1228,6 +1228,9 @@ body.unified-flow-demo .demo-reward-row{border-color:#f2c94c;background:#fffdf5}
 .sp-lock-start .btn{white-space:nowrap}
 .sp-lock-days{display:grid;grid-template-columns:minmax(96px,auto) 1fr auto auto;gap:8px;align-items:center}
 .sp-day-rules{display:grid;gap:8px}
+.sp-expiry{display:grid;gap:8px}
+.sp-expiry-value{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.sp-expiry-value[hidden]{display:none}
 .sp-day-rules:empty{display:none}
 .sp-rule-add{margin-top:8px}
 .sp-lock-preview{font-weight:700;color:#1f3f9e;line-height:1.5}
@@ -2090,7 +2093,8 @@ body{background:#f7f8fa}
   function rememberSpecialToken(token, expiresAt){
     try{
       sessionStorage.setItem(SPECIAL_TOKEN_KEY, token);
-      const until = Date.parse(expiresAt || "") || (Date.now() + 48 * 60 * 60 * 1000);
+      // A link with no end (or not opened yet) is remembered for 30 days on this device.
+      const until = Date.parse(expiresAt || "") || (Date.now() + 30 * 24 * 60 * 60 * 1000);
       localStorage.setItem(SPECIAL_TOKEN_DEVICE_KEY, JSON.stringify({token, until}));
     }catch{}
   }
@@ -9190,7 +9194,9 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <div class="special-rate-rule">${esc(specialRuleText())}</div>
       ${lockText ? `<div class="special-rate-lock">📅 ${esc(lockText)}</div>` : ""}
       ${specialRate.full ? `<div class="special-rate-full">${esc(specialErrorText("special_full"))}</div>` : ""}
-      ${untilText ? `<div class="special-rate-until">${en ? `This link is yours and books once · valid until ${untilText}` : `ลิงก์นี้สำหรับคุณ ใช้จองได้ 1 ครั้ง · ใช้ได้ถึง ${untilText} น.`}</div>` : ""}
+      <div class="special-rate-until">${untilText
+        ? (en ? `This link is yours and books once · valid until ${untilText}` : `ลิงก์นี้สำหรับคุณ ใช้จองได้ 1 ครั้ง · ใช้ได้ถึง ${untilText} น.`)
+        : (en ? "This link is yours and books once" : "ลิงก์นี้สำหรับคุณ ใช้จองได้ 1 ครั้ง")}</div>
     </div>`;
   }
 
@@ -16491,7 +16497,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
         units: Number(field("units").value),
         mode: field("mode").value,
         amount: Number(field("amount").value),
-        linkHours: Number(field("linkHours").value),
+        // How long a link works (26/11/2026): hours from making it, a set day and time, minutes from the first open, or no end.
+        linkExpiry: adminSpecialReadLinkExpiry(field, campaign),
         lockStart: field("lockStart").value.trim(),
         // The day conditions (26/11/2026): every row with a number; all must hold.
         dayRules: adminSpecialRuleRows(index).filter(rule => rule.days !== "").map(rule => ({type:rule.type, days:Number(rule.days)})),
@@ -16500,6 +16507,68 @@ We apologize for the inconvenience and hope everyone stays safe.`
         usage: campaign.usage,
       };
     });
+  }
+  /** A campaign's link lifetime, whether saved as linkExpiry or (before 26/11/2026) linkHours. */
+  function adminSpecialLinkExpiryOf(campaign){
+    const expiry = campaign?.linkExpiry;
+    if(expiry && ["hours", "until", "after_open", "never"].includes(expiry.mode)) return expiry;
+    return {mode:"hours", hours:Number(campaign?.linkHours) || 48};
+  }
+  /** The link-lifetime field: what kind, then the one value that kind needs (26/11/2026). */
+  function adminSpecialLinkExpiryHtml(index, campaign){
+    const en = state.lang === "en";
+    const expiry = adminSpecialLinkExpiryOf(campaign);
+    const option = (value, th, eng) => `<option value="${value}" ${expiry.mode === value ? "selected" : ""}>${en ? eng : th}</option>`;
+    const hidden = mode => expiry.mode === mode ? "" : "hidden";
+    return `<div class="field sp-expiry" data-sp-expiry="${index}"><label class="label">${en ? "Link expiry" : "อายุลิงก์"}</label>
+      <select class="input" data-sp="${index}:linkMode">${option("hours", "นับจากเวลาสร้างลิงก์ (ชั่วโมง)", "Hours after the link is made")}${option("until", "หมดอายุวันและเวลาที่กำหนด", "On a set day and time")}${option("after_open", "นับจากลูกค้าเปิดลิงก์ (นาที)", "Minutes after the customer opens it")}${option("never", "ไม่หมดอายุ", "Never expires")}</select>
+      <div class="sp-expiry-value" data-sp-expiry-for="hours" ${hidden("hours")}><input class="input" type="number" min="1" max="8760" step="1" inputmode="numeric" data-sp="${index}:linkHours" value="${esc(String(expiry.hours || 48))}"><span>${en ? "hours" : "ชั่วโมง"}</span></div>
+      <div class="sp-expiry-value" data-sp-expiry-for="until" ${hidden("until")}><input class="input" type="datetime-local" data-sp="${index}:linkUntil" value="${esc(expiry.until || "")}"><span>${en ? "Bangkok time" : "เวลาไทย"}</span></div>
+      <div class="sp-expiry-value" data-sp-expiry-for="after_open" ${hidden("after_open")}><input class="input" type="number" min="1" max="525600" step="1" inputmode="numeric" data-sp="${index}:linkMinutes" value="${esc(String(expiry.minutes || 30))}"><span>${en ? "minutes after the customer first opens it" : "นาที หลังลูกค้ากดเปิดลิงก์ครั้งแรก"}</span></div>
+      <div class="hint" data-sp-expiry-hint>${esc(adminSpecialLinkExpiryHint(expiry))}</div>
+    </div>`;
+  }
+  /** What the lifetime means, in words, under the field. */
+  function adminSpecialLinkExpiryHint(expiry){
+    const en = state.lang === "en";
+    if(expiry.mode === "never") return en ? "Links keep working until they are used or cancelled." : "ลิงก์ใช้ได้จนกว่าจะจองแล้วหรือกดยกเลิก";
+    if(expiry.mode === "after_open") return en ? `The clock starts when the customer first opens the link: ${expiry.minutes || "?"} minutes from then. Before that it does not expire.` : `เริ่มนับเมื่อลูกค้ากดเปิดลิงก์ครั้งแรก ใช้ได้ ${expiry.minutes || "?"} นาทีจากนั้น ก่อนลูกค้าเปิดลิงก์จะยังไม่หมดอายุ`;
+    if(expiry.mode === "until"){
+      const at = Date.parse(`${expiry.until}:00+07:00`);
+      if(!Number.isFinite(at)) return en ? "Choose the day and time." : "เลือกวันและเวลา";
+      const text = new Date(at).toLocaleString(en ? "en-GB" : "th-TH-u-ca-gregory", {timeZone:"Asia/Bangkok", weekday:"short", day:"numeric", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit", hourCycle:"h23"});
+      return at <= Date.now()
+        ? (en ? `⚠️ ${text} has passed: new links cannot be made.` : `⚠️ ${text} ผ่านไปแล้ว: สร้างลิงก์ใหม่ไม่ได้`)
+        : (en ? `Every link from this campaign stops working at ${text}.` : `ทุกลิงก์ของ campaign นี้ใช้ได้ถึง ${text} น.`);
+    }
+    const hours = Number(expiry.hours) || 0;
+    const days = hours >= 24 ? (en ? ` (${+(hours / 24).toFixed(1)} days)` : ` (${+(hours / 24).toFixed(1)} วัน)`) : "";
+    return en ? `Each link works for ${hours} hours${days} after it is made.` : `แต่ละลิงก์ใช้ได้ ${hours} ชั่วโมง${days} นับจากเวลาสร้าง`;
+  }
+  function adminSpecialReadLinkExpiry(field, campaign){
+    const mode = field("linkMode")?.value || adminSpecialLinkExpiryOf(campaign).mode;
+    if(mode === "until") return {mode, until:String(field("linkUntil")?.value || "").trim().slice(0, 16)};
+    if(mode === "after_open") return {mode, minutes:Number(field("linkMinutes")?.value)};
+    if(mode === "never") return {mode};
+    return {mode:"hours", hours:Number(field("linkHours")?.value)};
+  }
+  /** The kind of lifetime changed, or its value: show that kind's field and say what it means. */
+  function refreshAdminSpecialLinkExpiry(target){
+    const box = target?.closest?.("[data-sp-expiry]");
+    if(!box) return;
+    const index = box.dataset.spExpiry;
+    const field = name => box.querySelector(`[data-sp="${index}:${name}"]`);
+    const expiry = adminSpecialReadLinkExpiry(field, null);
+    box.querySelectorAll("[data-sp-expiry-for]").forEach(el => { el.hidden = el.dataset.spExpiryFor !== expiry.mode; });
+    const hint = box.querySelector("[data-sp-expiry-hint]");
+    if(hint) hint.textContent = adminSpecialLinkExpiryHint(expiry);
+  }
+  /** When a made link stops working, in words: a time, "N minutes once opened", or no end. */
+  function adminSpecialLinkExpiryText(link, when){
+    const en = state.lang === "en";
+    if(link?.expiresAt) return when(link.expiresAt);
+    if(Number(link?.openMinutes) > 0) return en ? `${link.openMinutes} min after the customer opens it (not opened yet)` : `${link.openMinutes} นาทีหลังลูกค้าเปิดลิงก์ (ยังไม่เปิด)`;
+    return en ? "Never expires" : "ไม่หมดอายุ";
   }
   /** The day-condition rows of one campaign as typed: [{type, days}] (days "" when empty). */
   function adminSpecialRuleRows(index){
@@ -16638,7 +16707,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
           <div class="field"><label class="label">${en ? "Units open for rent" : "จำนวนเครื่องที่เปิดให้เช่า"}</label><input class="input" type="number" min="1" max="500" data-sp="${index}:units" value="${esc(String(campaign.units || 1))}"></div>
           <div class="field"><label class="label">${en ? "Surcharge" : "การบวกเพิ่ม"}</label><select class="input" data-sp="${index}:mode"><option value="per_day" ${campaign.mode !== "per_rental" ? "selected" : ""}>${en ? "Per day" : "บวกต่อวัน"}</option><option value="per_rental" ${campaign.mode === "per_rental" ? "selected" : ""}>${en ? "Once per rental" : "บวกครั้งเดียวต่อการเช่า"}</option></select></div>
           <div class="field"><label class="label">${en ? "Amount added (฿)" : "ยอดบวกเพิ่ม (บาท)"}</label><input class="input" type="number" min="0" max="100000" data-sp="${index}:amount" value="${esc(String(campaign.amount ?? 0))}"></div>
-          <div class="field"><label class="label">${en ? "Link valid for (hours)" : "ลิงก์ใช้ได้ (ชั่วโมง)"}</label><select class="input" data-sp="${index}:linkHours">${[24, 48, 72].map(hours => `<option value="${hours}" ${Number(campaign.linkHours || 48) === hours ? "selected" : ""}>${hours} ${en ? "hours" : "ชั่วโมง"} (${hours / 24} ${en ? "day" : "วัน"})</option>`).join("")}</select></div>
+          ${adminSpecialLinkExpiryHtml(index, campaign)}
         </div>
         <div class="sp-lock">
           <div class="sp-lock-title"><b>${en ? "Rental dates (optional)" : "ล็อควันเช่า (ไม่บังคับ)"}</b><span class="hint">${en ? "Leave empty to let the customer choose. Lock either one, or both. Days: add as many conditions as you need (exactly, at least, at most); all must hold, e.g. at least 7 and at most 10." : "เว้นว่างไว้ = ลูกค้าเลือกเอง ล็อคอย่างใดอย่างหนึ่ง หรือทั้งสองอย่างก็ได้ จำนวนวันเพิ่มเงื่อนไขได้หลายข้อ (พอดี / ขั้นต่ำ / ไม่เกิน) ต้องตรงทุกข้อ เช่น ขั้นต่ำ 7 และไม่เกิน 10 วัน"}</span></div>
@@ -16665,13 +16734,13 @@ We apologize for the inconvenience and hope everyone stays safe.`
     const shownLinks = adminSpecial.linksOpen ? sortedLinks.slice(0, 60) : sortedLinks.slice(0, 1);
     const links = shownLinks.map(link => {
       const campaign = adminSpecial.campaigns.find(item => item.id === link.campaignId);
-      return `<tr><td>${esc(link.note || "-")}</td><td>${esc(campaign?.titleTh || link.campaignId)}</td><td>${esc(adminSpecialStateLabel(link.state))}${link.holdUntil ? `<div class="hint">${en ? "Unit held until" : "กันเครื่องถึง"} ${esc(when(link.holdUntil))}</div>` : ""}${link.rentalCode ? `<div class="hint">${esc(link.rentalCode)}</div>` : ""}</td><td>${esc(when(link.expiresAt))}</td><td class="sp-link-actions">${["open", "held"].includes(link.state) ? `<button class="btn" type="button" data-sp-copy="${esc(link.url)}">${en ? "Copy" : "คัดลอก"}</button>${link.state === "held" ? `<button class="btn" type="button" data-sp-release="${esc(link.id)}">${en ? "Release unit" : "ปล่อยเครื่อง"}</button>` : ""}<button class="btn" type="button" data-sp-revoke="${esc(link.id)}">${en ? "Cancel" : "ยกเลิก"}</button>` : ""}</td></tr>`;
+      return `<tr><td>${esc(link.note || "-")}</td><td>${esc(campaign?.titleTh || link.campaignId)}</td><td>${esc(adminSpecialStateLabel(link.state))}${link.holdUntil ? `<div class="hint">${en ? "Unit held until" : "กันเครื่องถึง"} ${esc(when(link.holdUntil))}</div>` : ""}${link.rentalCode ? `<div class="hint">${esc(link.rentalCode)}</div>` : ""}</td><td>${esc(adminSpecialLinkExpiryText(link, when))}${link.openedAt ? `<div class="hint">${en ? "Opened" : "เปิดเมื่อ"} ${esc(when(link.openedAt))}</div>` : ""}</td><td class="sp-link-actions">${["open", "held"].includes(link.state) ? `<button class="btn" type="button" data-sp-copy="${esc(link.url)}">${en ? "Copy" : "คัดลอก"}</button>${link.state === "held" ? `<button class="btn" type="button" data-sp-release="${esc(link.id)}">${en ? "Release unit" : "ปล่อยเครื่อง"}</button>` : ""}<button class="btn" type="button" data-sp-revoke="${esc(link.id)}">${en ? "Cancel" : "ยกเลิก"}</button>` : ""}</td></tr>`;
     }).join("");
     return `<div class="card"><h3>${en ? "Special rates" : "ราคาพิเศษ"}</h3>
         <p class="hint">${en
           ? "A private booking page for one customer: the devices you choose, the normal rental plus your surcharge, no discounts, delivery quoted as usual. Each link books once and expires. Units are taken when paid; a customer paying holds one for 10 minutes."
           : "หน้าจองส่วนตัวสำหรับลูกค้า 1 คน: เฉพาะเครื่องที่เลือก ราคาเช่าปกติ + ยอดที่บวกเพิ่ม ไม่มีส่วนลด ค่าส่งคิดแบบหน้าหลัก ลิงก์ใช้จองได้ครั้งเดียวและหมดอายุตามที่ตั้ง เครื่องจะถูกนับเมื่อชำระเงิน ระหว่างลูกค้ากำลังชำระเงินจะกันเครื่องไว้ให้ 10 นาที"}</p>
-        ${last ? `<div class="special-rate-banner"><b>${en ? "New link — send it to the customer" : "ลิงก์ใหม่ — ส่งให้ลูกค้าได้เลย"}</b><code class="sp-url">${esc(last.url)}</code><div>${en ? "Valid until" : "ใช้ได้ถึง"} ${esc(when(last.expiresAt))}</div><div><button class="btn primary" type="button" data-sp-copy="${esc(last.url)}">${en ? "Copy link" : "คัดลอกลิงก์"}</button></div></div>` : ""}
+        ${last ? `<div class="special-rate-banner"><b>${en ? "New link — send it to the customer" : "ลิงก์ใหม่ — ส่งให้ลูกค้าได้เลย"}</b><code class="sp-url">${esc(last.url)}</code><div>${last.expiresAt ? `${en ? "Valid until" : "ใช้ได้ถึง"} ${esc(when(last.expiresAt))}` : esc(adminSpecialLinkExpiryText(last, when))}</div><div><button class="btn primary" type="button" data-sp-copy="${esc(last.url)}">${en ? "Copy link" : "คัดลอกลิงก์"}</button></div></div>` : ""}
         <div class="sp-actions"><button class="btn" type="button" data-sp-add>${en ? "+ Add campaign" : "+ เพิ่ม campaign"}</button><button class="btn primary" type="button" data-sp-save ${adminSpecial.saving ? "disabled" : ""}>${adminSpecial.saving ? (en ? "Saving…" : "กำลังบันทึก…") : (en ? "Save campaigns" : "บันทึก campaign")}</button><button class="btn" type="button" data-sp-reload>${en ? "Refresh" : "โหลดใหม่"}</button></div>
       </div>
       <div class="card sp-links"><h3>${en ? "Links" : "ลิงก์ที่สร้างแล้ว"}${sortedLinks.length ? ` <span class="hint">(${sortedLinks.length})</span>` : ""}</h3>
@@ -16734,7 +16803,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     if(target.closest("[data-sp-add]")){
       const id = `sp-${Date.now().toString(36)}`;
       adminSpecial.open.add(id);
-      adminSpecial.campaigns = [...readAdminSpecialCampaigns(), {id, titleTh:"", titleEn:"", consoleIds:[], units:1, mode:"per_day", amount:0, linkHours:48, lockStart:"", dayRules:[], startFrom:"", enabled:true}];
+      adminSpecial.campaigns = [...readAdminSpecialCampaigns(), {id, titleTh:"", titleEn:"", consoleIds:[], units:1, mode:"per_day", amount:0, linkExpiry:{mode:"hours", hours:48}, lockStart:"", dayRules:[], startFrom:"", enabled:true}];
       renderAdmin();
       byId("adminSpecial")?.querySelector(`[data-sp-campaign="${id}"]`)?.scrollIntoView({behavior:"smooth", block:"start"});
       return true;
@@ -16824,6 +16893,10 @@ We apologize for the inconvenience and hope everyone stays safe.`
       special_campaign_lock_start_invalid: en ? "Choose a valid start date, or leave it empty." : "เลือกวันเริ่มเช่าให้ถูกต้อง หรือเว้นว่างไว้",
       special_campaign_start_from_invalid: en ? "Choose a valid \"start from\" date, or leave it empty." : "เลือกวัน \"เริ่มได้ตั้งแต่\" ให้ถูกต้อง หรือเว้นว่างไว้",
       special_campaign_lock_days_invalid: en ? "Each days condition must be a whole number from 3 to 90 (up to 10 conditions)." : "จำนวนวันแต่ละเงื่อนไขต้องเป็นจำนวนเต็ม 3–90 วัน (ไม่เกิน 10 เงื่อนไข)",
+      special_campaign_link_expiry_invalid: en ? "Choose how long links work." : "เลือกอายุลิงก์",
+      special_campaign_link_until_invalid: en ? "Choose the day and time links stop working." : "เลือกวันและเวลาที่ลิงก์หมดอายุ",
+      special_campaign_link_minutes_invalid: en ? "Minutes after opening must be a whole number from 1 to 525,600 (one year)." : "จำนวนนาทีหลังเปิดลิงก์ต้องเป็นจำนวนเต็ม 1–525,600 (1 ปี)",
+      special_link_until_passed: en ? "This campaign's link expiry time has passed: set a later one, save, then make the link." : "เวลาหมดอายุลิงก์ของ campaign นี้ผ่านไปแล้ว ตั้งเวลาใหม่ บันทึก แล้วสร้างลิงก์อีกครั้ง",
       special_campaign_lock_days_conflict: en ? "The days conditions leave no length (e.g. at least 10 but at most 7). Change or remove one." : "เงื่อนไขจำนวนวันขัดกัน (เช่น ขั้นต่ำ 10 แต่ไม่เกิน 7) แก้หรือลบเงื่อนไขใดเงื่อนไขหนึ่ง",
       special_dates_passed: en ? "The locked start date has passed. Change it or clear it, save, then make the link." : "วันเริ่มที่ล็อคไว้ผ่านไปแล้ว แก้หรือลบวันแล้วกดบันทึกก่อนสร้างลิงก์",
     })[code] || code;
@@ -18100,7 +18173,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     });
     document.addEventListener("change", async event => {
       if(event.target.closest?.("[data-vip-row]")) vipDraftDirty = true;
-      if(event.target.closest?.("#adminSpecial [data-sp], #adminSpecial [data-sp-device]")){ specialDraftDirty = true; refreshAdminSpecialLockPreview(event.target); }
+      if(event.target.closest?.("#adminSpecial [data-sp], #adminSpecial [data-sp-device]")){ specialDraftDirty = true; refreshAdminSpecialLockPreview(event.target); refreshAdminSpecialLinkExpiry(event.target); }
       if(event.target.matches('[data-vip-field="name"],[data-vip-field="phone"]')){
         void lookupVipLineForRow(event.target.closest('[data-vip-row]'));
         return;
@@ -18232,7 +18305,7 @@ We apologize for the inconvenience and hope everyone stays safe.`
     });
     document.addEventListener("input", event => {
       if(event.target.closest?.("[data-vip-row]")) vipDraftDirty = true;
-      if(event.target.closest?.("#adminSpecial [data-sp], #adminSpecial [data-sp-device]")){ specialDraftDirty = true; refreshAdminSpecialLockPreview(event.target); }
+      if(event.target.closest?.("#adminSpecial [data-sp], #adminSpecial [data-sp-device]")){ specialDraftDirty = true; refreshAdminSpecialLockPreview(event.target); refreshAdminSpecialLinkExpiry(event.target); }
       if(event.target.matches?.("[data-faq]")) faqDraftDirty = true;
       if(event.target.id === "mapsInput"){ state.calc.maps = event.target.value.trim(); if(state.calc.maps.length > 8){ markGuideDone("maps"); setGuideStage("ret"); } saveLocal(); renderGuide(); }
       if(UNIFIED_FLOW_DEMO && event.target.id === "demoRefundAccount"){

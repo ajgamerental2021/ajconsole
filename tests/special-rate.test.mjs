@@ -52,7 +52,7 @@ test('every refusal is explained in Thai and English', () => {
 test('the admin page manages campaigns and one-time links', () => {
   assert.match(html, /special: en \? "Special rates" : "ราคาพิเศษ"/);
   for (const path of ['/api/admin/special-rates?_ts=', '/api/admin/special-rates/campaigns', '/api/admin/special-rates/links', '/revoke']) assert.ok(html.includes(path), path);
-  for (const field of ['titleTh', 'titleEn', 'units', 'mode', 'amount', 'linkHours', 'enabled']) assert.ok(html.includes(`data-sp="\${index}:${field}"`), field);
+  for (const field of ['titleTh', 'titleEn', 'units', 'mode', 'amount', 'linkMode', 'linkHours', 'linkUntil', 'linkMinutes', 'enabled']) assert.ok(html.includes(`data-sp="\${index}:${field}"`), field);
   assert.match(html, /<option value="per_day"[^>]*>\$\{en \? "Per day" : "บวกต่อวัน"\}<\/option><option value="per_rental"/);
 });
 
@@ -111,7 +111,7 @@ test('the admin page sets the lock and shows the return day it gives', () => {
   for (const field of ['lockStart', 'rule']) assert.ok(html.includes(`data-sp="\${index}:${field}"`), field);
   assert.match(html, /dayRules: adminSpecialRuleRows\(index\)\.filter\(rule => rule\.days !== ""\)\.map\(rule => \(\{type:rule\.type, days:Number\(rule\.days\)\}\)\),/, 'empty rows = no condition');
   assert.match(html, /`📅 ลูกค้าจะเช่า \$\{day\(start\)\} → คืน \$\{returnWindow\(start\)\} \(\$\{range\.exact\} วัน\) ปฏิทินเลือกให้อัตโนมัติ ลูกค้าเลือกวันอื่นไม่ได้`/);
-  assert.match(html, /\{ specialDraftDirty = true; refreshAdminSpecialLockPreview\(event\.target\); \}/, 'the sentence follows the typing');
+  assert.match(html, /\{ specialDraftDirty = true; refreshAdminSpecialLockPreview\(event\.target\); refreshAdminSpecialLinkExpiry\(event\.target\); \}/, 'the sentence follows the typing');
   for (const code of ['special_campaign_lock_start_invalid', 'special_campaign_lock_days_invalid', 'special_campaign_lock_days_conflict']) assert.match(html, new RegExp(`${code}: en \\? "[^"]+" : "[^"]+"`), code);
 });
 
@@ -208,4 +208,39 @@ test('the admin page adds and removes days conditions; conflicting ones are flag
   assert.match(html, /if\(list\.children\.length >= 10\)/);
   assert.match(html, /`เงื่อนไขขัดกัน: ต้องเช่าอย่างน้อย \$\{range\.min\} วัน แต่ไม่เกิน \$\{range\.max\} วัน แก้หรือลบเงื่อนไขใดเงื่อนไขหนึ่ง`/);
   assert.match(html, /#adminSpecial \[data-sp-revoke\],[^"]*#adminSpecial \[data-sp-rule-add\], #adminSpecial \[data-sp-rule-remove\], #adminSpecial \[data-sp-lock-clear\]"\)\)\{/, 'the clicks reach the handler');
+});
+
+test('link expiry (26/11/2026): hours, a set day and time, minutes after the customer opens it, or never', async () => {
+  const vm = await import('node:vm');
+  const context = { state: { lang: 'th' }, Date, Number, String };
+  vm.runInNewContext(['adminSpecialLinkExpiryOf', 'adminSpecialLinkExpiryHint', 'adminSpecialReadLinkExpiry', 'adminSpecialLinkExpiryText'].map(pageFunction).join('\n'), context);
+  const plain = (value) => JSON.parse(JSON.stringify(value));
+  // A campaign saved before then (linkHours) reads as hours.
+  assert.deepEqual(plain(context.adminSpecialLinkExpiryOf({ linkHours: 72 })), { mode: 'hours', hours: 72 });
+  assert.deepEqual(plain(context.adminSpecialLinkExpiryOf({ linkExpiry: { mode: 'never' } })), { mode: 'never' });
+  // The form, read for each kind.
+  const form = (values) => (name) => (name in values ? { value: values[name] } : null);
+  assert.deepEqual(plain(context.adminSpecialReadLinkExpiry(form({ linkMode: 'hours', linkHours: '500' }), {})), { mode: 'hours', hours: 500 });
+  assert.deepEqual(plain(context.adminSpecialReadLinkExpiry(form({ linkMode: 'until', linkUntil: '2026-12-01T18:30' }), {})), { mode: 'until', until: '2026-12-01T18:30' });
+  assert.deepEqual(plain(context.adminSpecialReadLinkExpiry(form({ linkMode: 'after_open', linkMinutes: '30' }), {})), { mode: 'after_open', minutes: 30 });
+  assert.deepEqual(plain(context.adminSpecialReadLinkExpiry(form({ linkMode: 'never' }), {})), { mode: 'never' });
+  // In words, TH and EN.
+  assert.equal(context.adminSpecialLinkExpiryHint({ mode: 'hours', hours: 72 }), 'แต่ละลิงก์ใช้ได้ 72 ชั่วโมง (3 วัน) นับจากเวลาสร้าง');
+  assert.match(context.adminSpecialLinkExpiryHint({ mode: 'after_open', minutes: 30 }), /^เริ่มนับเมื่อลูกค้ากดเปิดลิงก์ครั้งแรก ใช้ได้ 30 นาทีจากนั้น/);
+  assert.equal(context.adminSpecialLinkExpiryHint({ mode: 'never' }), 'ลิงก์ใช้ได้จนกว่าจะจองแล้วหรือกดยกเลิก');
+  assert.match(context.adminSpecialLinkExpiryHint({ mode: 'until', until: '2099-01-01T09:00' }), /^ทุกลิงก์ของ campaign นี้ใช้ได้ถึง .*2099.* น\.$/);
+  assert.match(context.adminSpecialLinkExpiryHint({ mode: 'until', until: '2020-01-01T09:00' }), /ผ่านไปแล้ว: สร้างลิงก์ใหม่ไม่ได้/);
+  const when = (iso) => `@${iso}`;
+  assert.equal(context.adminSpecialLinkExpiryText({ expiresAt: '2026-12-01T11:30:00.000Z' }, when), '@2026-12-01T11:30:00.000Z');
+  assert.equal(context.adminSpecialLinkExpiryText({ expiresAt: '', openMinutes: 30 }, when), '30 นาทีหลังลูกค้าเปิดลิงก์ (ยังไม่เปิด)');
+  assert.equal(context.adminSpecialLinkExpiryText({ expiresAt: '' }, when), 'ไม่หมดอายุ');
+  context.state.lang = 'en';
+  assert.equal(context.adminSpecialLinkExpiryHint({ mode: 'hours', hours: 72 }), 'Each link works for 72 hours (3 days) after it is made.');
+  assert.equal(context.adminSpecialLinkExpiryText({ expiresAt: '', openMinutes: 30 }, when), '30 min after the customer opens it (not opened yet)');
+  assert.equal(context.adminSpecialLinkExpiryText({ expiresAt: '' }, when), 'Never expires');
+  // The form and the customer page.
+  assert.match(html, /\$\{option\("hours", "นับจากเวลาสร้างลิงก์ \(ชั่วโมง\)", "Hours after the link is made"\)\}\$\{option\("until", "หมดอายุวันและเวลาที่กำหนด", "On a set day and time"\)\}\$\{option\("after_open", "นับจากลูกค้าเปิดลิงก์ \(นาที\)", "Minutes after the customer opens it"\)\}\$\{option\("never", "ไม่หมดอายุ", "Never expires"\)\}/);
+  assert.match(html, /type="datetime-local" data-sp="\$\{index\}:linkUntil"/);
+  assert.match(html, /: \(en \? "This link is yours and books once" : "ลิงก์นี้สำหรับคุณ ใช้จองได้ 1 ครั้ง"\)\}<\/div>/, 'no end: still says it is theirs');
+  for (const code of ['special_campaign_link_until_invalid', 'special_campaign_link_minutes_invalid', 'special_link_until_passed']) assert.match(html, new RegExp(`${code}: en \\? "[^"]+" : "[^"]+"`), code);
 });
