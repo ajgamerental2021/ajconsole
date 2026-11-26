@@ -18,6 +18,17 @@
   2. Bot, then the website (the website reads linkExpiry; the Bot accepts both shapes);
   3. after Meta approval, set `WHATSAPP_TEMPLATE_RETURN_TODAY_PADLOCK` on DA.
 
+## 2026-11-26 — Website: promotions, payment FAQ, QR PromptPay
+
+- **Website `a71560b`:**
+  - "โปรโมชั่น" is hidden when every promotion is off in admin;
+  - the FAQ lists every way to pay, one per line with its logos, then "รับชำระด้วยเงินสดไหม?": no cash, not even to the driver;
+  - the full-payment "Thai Bank Transfer" option is now "QR PromptPay" with the Thai QR logo, TH/EN.
+- **Open:**
+  - the Bot's English booking message still says "Cash or Thai QR scan" for the balance on delivery, which contradicts the no-cash FAQ;
+  - the Bot's labels for this option still say bank transfer.
+- **Checked:** website 489/489, plus the FAQ and the picker in a browser at phone width.
+
 ## 2026-11-26 — My rental: padlock terms folded until the return is near
 
 - **DA `a5fbe9b`:**
