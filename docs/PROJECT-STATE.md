@@ -1,3 +1,23 @@
+## 2026-11-26 — Padlock terms spaced, WhatsApp return-day template with them, special-rate link expiry
+
+- **Padlock terms (DA `00968b7`):** the charges are rows with the price on the right, with space between title, terms, charges and note. Applies to the LINE card and My rental, TH/EN.
+- **WhatsApp (DA `00968b7`, `a6a6ee4`):**
+  - new template `return_today_padlock`: the return-day message with the padlock terms;
+  - sent instead of `return_today` when the rental has a padlock code and `WHATSAPP_TEMPLATE_RETURN_TODAY_PADLOCK` is set;
+  - submit `docs/WHATSAPP-TEMPLATES-2026-11-26.md` to Meta first.
+- **Special-rate link expiry (Bot `84c11c2`, website `c9a25f5`):**
+  - four kinds: hours from making it (any number), a set Bangkok day and time, minutes from the customer's first open, or never;
+  - the admin list shows unopened / opened at / no end;
+  - campaigns with 24/48/72 hours keep working.
+- **Checked:**
+  - DA return-day card, My rental (Playwright), WhatsApp templates (now in the suite), WhatsApp consent (own DB), reminders, tsc;
+  - Bot 928/928; website 484/484;
+  - the expiry field driven in Chromium for all four kinds.
+- **Deploy:**
+  1. DA backend;
+  2. Bot, then the website (the website reads linkExpiry; the Bot accepts both shapes);
+  3. after Meta approval, set `WHATSAPP_TEMPLATE_RETURN_TODAY_PADLOCK` on DA.
+
 ## 2026-11-26 — Padlock return terms in the owner's words, LINE card and My rental (DA `6cb3a76`)
 
 - **Ask:** replace the padlock charges box on the return-day card with the owner's text "⚠️ เงื่อนไขการคืนแม่กุญแจ" (TH, and translated to EN), on LINE and WhatsApp.
