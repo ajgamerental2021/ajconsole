@@ -1,3 +1,18 @@
+## 2026-11-26 — Special rate: several days conditions (exactly / at least / at most)
+
+- **Ask:** add "ไม่เกิน" (at most) to the campaign's number of days, and allow several conditions at once (e.g. at least 7 and at most 7), more than two if needed.
+- **Bot `d84aba9`:**
+  - `dayRules` is a list, all of which must hold;
+  - `validateCampaign` refuses conditions that leave no length;
+  - `specialDatesProblem` holds rentals to the range;
+  - legacy `lockDays` / `lockDaysMode` still read as one rule.
+- **Website `ee562ae`:**
+  - admin rows with "+ เพิ่มเงื่อนไขจำนวนวัน" and a ✕ per row (up to 10), with a live sentence and a conflict warning;
+  - the calendar blocks return days past the maximum;
+  - the customer text is TH/EN.
+- **Checked:** Bot 927/927, website 483/483 (including VM tests of the page's own functions).
+- **Deploy:** Bot first (it accepts both shapes), then the website.
+
 ## 2026-11-25 — Override history, offline header-guard test, demo page shut, Bot server.js split
 
 - **Ask:** do four of the audit recommendations: shut index-demo.html, keep the owner's clash overrides and show them in the app, make header-guard run without credentials, split the Bot's server.js by flow.
