@@ -18,6 +18,38 @@
   2. Bot, then the website (the website reads linkExpiry; the Bot accepts both shapes);
   3. after Meta approval, set `WHATSAPP_TEMPLATE_RETURN_TODAY_PADLOCK` on DA.
 
+## 2026-11-27 — Games sent after hours: delivery moves to 13:00, with confirm or keep the old time
+
+- **Rule (all three repos):**
+  - games sent or updated from 18:00 the evening before delivery, or on the day before the shop opens, are installed from 10:00, which takes about 3 hours;
+  - a delivery booked before 13:00 moves to 13:00;
+  - dropping games alone moves nothing.
+- **Delivery App `50f41ae`:**
+  - moves the booking;
+  - the game card says why;
+  - a new card "🚚 เวลาจัดส่งใหม่ (อัปเดตเกม)" shows the customer, device, Rental ID, and the old and new date and time, with two buttons:
+    - ✅ confirm;
+    - "ไม่รับเกมที่อัปเดตและส่งเวลาเดิม xx:xx", which puts back the previous games and time, until 10:00 that day;
+  - the note under them says that without it the console comes at 13:00 with the updated games;
+  - the page behind the buttons also shows the customer's name and the console;
+  - My rental shows it;
+  - the shop is told every time.
+  - Kept in Postgres (`game_delivery_changes`, migration 034).
+  - WhatsApp uses the new template (6 parameters, with the customer's name and the console) once Meta approves it.
+- **Bot `bbc8f42`:**
+  - the game card's reason line;
+  - Rental Terms item 10 (version 2026-11-27), which appears in new agreement PDFs.
+- **Website `e457c3c + b066884`:**
+  - the picker popup;
+  - the FAQ "อัปเดตรายการเกมได้ไหม?".
+- **Deploy:** DA backend first (migration 034 runs on start), then the Bot, then the website.
+- **WhatsApp status (from the handover notes; the dashboards cannot be reached from here):**
+  - templates are still in Meta review, and Meta shows "Missing valid payment method";
+  - Gupshup KYC/invoicing is still pending;
+  - `WHATSAPP_BOOKING_NOTIFICATIONS` is off;
+  - so nothing goes out on WhatsApp yet.
+- **Submit:** `delivery-app/docs/WHATSAPP-TEMPLATES-2026-11-27.md`.
+
 ## 2026-11-27 — Games pill in full, logo rows without the bank emoji
 
 - **Website `e5cd493`:**
