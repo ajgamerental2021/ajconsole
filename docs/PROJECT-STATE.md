@@ -18,6 +18,12 @@
   2. Bot, then the website (the website reads linkExpiry; the Bot accepts both shapes);
   3. after Meta approval, set `WHATSAPP_TEMPLATE_RETURN_TODAY_PADLOCK` on DA.
 
+## 2026-11-27 — Refund account number up to 20 digits
+
+- **Change (website 8d80877, Bot bd6a4a4):** a 16-digit account could not be entered, so the limit went from 13 to 20 digits on the website and in the Bot's checks.
+- **My rental:** already had no limit.
+- **Deploy:** the Bot first, then the website.
+
 ## 2026-11-27 — Games delivery card easier to read (DA 71b945e)
 
 - On the card, the new time stays on one line.
