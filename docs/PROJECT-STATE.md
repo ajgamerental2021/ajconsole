@@ -18,6 +18,11 @@
   2. Bot, then the website (the website reads linkExpiry; the Bot accepts both shapes);
   3. after Meta approval, set `WHATSAPP_TEMPLATE_RETURN_TODAY_PADLOCK` on DA.
 
+## 2026-11-27 — How to rent: summary only (website 3b9c99a)
+
+- **Shown:** only the "ทำรายการเช่าผ่านเว็บไซต์" summary, with the booking button.
+- **Removed:** steps 1–7, the step label, and the back/next buttons (TH/EN).
+
 ## 2026-11-27 — LINE buttons never cut; refund account hint
 
 - **Delivery App `bb9b00d`, Bot `35cfbd4`:**
