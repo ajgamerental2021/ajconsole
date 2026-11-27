@@ -552,7 +552,6 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 .step-imgcol{display:flex;flex-direction:column;gap:6px;align-items:center}
 .step-subcap{font-size:13px;font-weight:700;color:var(--text2);text-align:center}
 .steps-body{display:flex;flex-direction:column;gap:14px}
-.step-indicator{align-self:center;font-weight:800;color:var(--danger);font-size:13px}
 .step-topic{text-align:center;max-width:760px;margin:0 auto}
 .step-topic h4{font-size:22px;margin:0 0 8px;font-weight:900}
 .step-topic ul{margin:0 auto;padding-left:20px;text-align:left;display:inline-block;line-height:1.55;color:var(--text2);font-weight:700}
@@ -592,8 +591,6 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
 #quoteModal iframe{flex:1;width:100%;border:0;background:#f4f6fa;border-radius:0 0 20px 20px}
 .step1-head-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 #stepsModal .calendar-body{flex:1;min-height:0;overflow:auto}
-#stepsNav{flex:0 0 auto;margin-top:0;padding:12px 18px 14px;background:linear-gradient(180deg,rgba(255,255,255,.68),#fff 34%);box-shadow:0 -12px 20px rgba(255,255,255,.94);border-top:1px solid rgba(0,0,0,.04)}
-#stepsNav .btn{min-height:46px}
 .viewer-wrap{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;background:#f6f7f9}
 .viewer-card{background:#fff;width:min(680px,100%);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow2);padding:20px}
 .viewer-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
@@ -909,9 +906,7 @@ body.unified-flow-demo .demo-deposit-note{margin:2px 0 0;color:#c00000;font-size
   .grid2,.cal-months{grid-template-columns:1fr}
   .step-text-grid,.step-images.split{grid-template-columns:1fr}
   #stepsModal .calendar-body{padding-bottom:12px}
-  #stepsNav{gap:8px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(255,255,255,.45),#fff 30%)}
-  #stepsNav .btn{min-height:48px;font-size:15px}
-  .calc-selection-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+      .calc-selection-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .cal-top-picks{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center}
   .cal-arrow-big{display:block;font-size:22px}
   .boardgame-tools{grid-template-columns:1fr}
@@ -2021,7 +2016,6 @@ body{background:#f7f8fa}
     <div class="modal-head"><h3 id="stepsTitle">ขั้นตอนการเช่า</h3><div class="modal-head-actions"><button class="btn primary faq-lang-btn" id="stepsLangBtn" type="button"></button><button class="xbtn" id="stepsClose" type="button">&times;</button></div></div>
     <div class="modal-copy-row"><button class="copy-section-url" id="stepsCopyUrl" type="button"></button></div>
     <div class="calendar-body"><div class="steps-body" id="stepsBody"></div></div>
-    <div class="step-nav" id="stepsNav"></div>
   </div>
 </div>
 
@@ -2697,8 +2691,7 @@ You may ask to access, correct, object to, restrict or delete your data, or with
       lineNoLaunch:"เมื่อเลือกข้อมูลและกดยืนยันจองผ่าน LINE แล้ว ลิงก์เปิดรายการจะแสดงในหน้าต่างนี้",
 lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE", lineHelpLink:"ดูขั้นตอน / เปิด LINE อีกครั้ง", linePreparingStatus:"กำลังเตรียมลิงก์ส่งข้อมูลจองผ่าน LINE กรุณารอสักครู่ สามารถกดดูขั้นตอนได้ด้านล่าง", lineReadyStatus:"ข้อมูลพร้อมแล้ว กดเปิด LINE และรอจนเห็นการ์ดในแชทร้าน AJ — ยังไม่ถือว่าส่งสำเร็จในขั้นตอนนี้", lineOpeningStatus:"กำลังเปิด LINE หากพบคำถาม Open this page in “LINE”? ให้กด Open แล้วรอการ์ดในแชทร้าน AJ ไม่ต้องวางข้อความเอง", lineHelpSteps:"<ol><li>กด <b>เปิด LINE เพื่อส่งข้อมูลจอง</b> ด้านล่าง</li><li>หากพบคำถาม <b>Open this page in “LINE”?</b> ให้กด <b>Open (เปิด)</b> ไม่ใช่ Cancel<img class='line-guide-example' src='assets/line-guide-open.png' width='365' height='133' alt='ตัวอย่างหน้าต่าง ให้กด Open เพื่อเปิด LINE'></li><li>เมื่อเห็นหน้า <b>กำลังส่งการ์ดข้อมูลจอง</b> ให้รอระบบยืนยันบัญชี LINE และส่งการ์ด อย่าปิดหน้าระหว่างรอ<img class='line-guide-example' src='assets/line-guide-sending.png' width='258' height='128' alt='ตัวอย่างหน้ากำลังส่งการ์ดข้อมูลจองและยืนยันบัญชี LINE'></li><li>ตรวจว่าแชทร้าน AJ มีการ์ด <b>ส่งข้อมูลจองแล้ว</b> จึงถือว่าส่งข้อมูลสำเร็จ จากนั้นยืนยันตัวตนหากระบบแจ้ง รอแอดมินยืนยันค่าส่งและยอดชำระ แล้วจึงชำระตามช่องทางที่เลือก</li></ol><p>การส่งข้อมูลยังไม่ใช่การยืนยันคิวหรือยืนยันการชำระเงิน หากเปิด LINE แล้วไม่มีการ์ด ให้กลับมากดเปิดรายการเดิมอีกครั้ง หากยังไม่ได้ให้แจ้งแอดมินพร้อมรหัสการเช่า</p>", lineOpenBooking:"เปิด LINE เพื่อส่งข้อมูลจอง", linePreparingLink:"กำลังเตรียมลิงก์ กรุณารอสักครู่", lineSuccessNext:"ได้รับการยืนยันจากระบบว่าส่งการ์ดแล้ว กรุณาตรวจแชทร้าน AJ ยืนยันตัวตนหากระบบแจ้ง และรอแอดมินยืนยันค่าส่งกับยอดชำระก่อนชำระเงิน", lineHandoffFailedHelp:"ส่งการ์ดไม่สำเร็จ หรือยังยืนยันผลไม่ได้ กรุณาเปิดรายการเดิมเพื่อลองอีกครั้ง หากยังไม่ได้ให้แจ้งแอดมินพร้อมรหัสการเช่า อย่าเริ่มรายการใหม่ซ้ำ", legalNameScriptHint:"กรอกด้วยตัวอักษรไทยเท่านั้น", legalNameScriptError:"กรุณากรอกชื่อ-นามสกุลด้วยตัวอักษรไทยเท่านั้น", phoneScriptHint:"ตัวเลขเท่านั้น", phoneScriptError:"กรอกเบอร์โทรศัพท์เป็นตัวเลขเท่านั้น (9–15 หลัก)", ocrReadError:"อ่านเลขบัตรประชาชนหรือเลข Passport และวันหมดอายุไม่ได้ ลูกค้าสามารถกรอกเองทางช่องด้านล่างครับ", idDocumentPhotoHint:"ถ่ายใกล้ให้บัตรหรือ Passport กินพื้นที่ส่วนใหญ่ของภาพ เห็นครบทั้ง 4 ขอบ เลขและวันหมดอายุคมชัด ไม่มีแสงสะท้อน", lineChatInbound:"ส่งข้อมูลการจอง {code} ให้ร้าน AJ แล้ว", lineChatVisible:"ร้านได้รับข้อความจากคุณในแชต LINE แล้ว", lineChatVisibleFailed:"ส่งการ์ดแล้ว แต่ยังไม่พบข้อความจากคุณในแชตของร้าน กรุณาเพิ่มเพื่อนร้าน AJ เปิดแชต แล้วกดส่งข้อความพร้อมรหัสการเช่าด้านล่าง",
       preparationDetail:"<summary>ระยะเวลาเตรียมเครื่องโดยประมาณ (กดเพื่ออ่าน)</summary><div><span>เริ่มนับหลังจากร้านยืนยันคิว ได้รับรายชื่อเกมครบถ้วน และได้รับยอดจองหรือยอดชำระตามช่องทางที่เลือก</span><ul><li>กรณีต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 2–3 ชั่วโมง</li><li>กรณีไม่ต้องดาวน์โหลดหรือติดตั้งเกมเพิ่มเติม: ประมาณ 30–60 นาที</li></ul><span>ระยะเวลาจริงอาจเปลี่ยนแปลงตามขนาดเกม ความเร็วในการดาวน์โหลด จำนวนเกม และคิวงานในขณะนั้น ทางร้านจะแจ้งเวลาที่เครื่องพร้อมจัดส่งให้ทราบอีกครั้ง</span></div>",
-      step1:"เลือกเครื่อง/วันที่", step2:"รายละเอียดการจอง", step3:"สรุปและส่ง", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"เลือกเกม", step2DetailsTitle:"การจัดส่ง การชำระเงิน และเอกสาร", step3Title:"สรุปและส่งข้อความ", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"📖 อ่านขั้นตอนการเช่าก่อนเริ่ม", quoteBtn:"คำนวณค่าเช่า/ค่าจัดส่ง", quoteBtnHint:"รู้ยอดรวมก่อนจอง", quoteTitle:"คำนวณค่าเช่า/ค่าส่ง", stepsTitle:"ขั้นตอนการเช่า", stepsNext:"ถัดไป", stepsPrev:"ย้อนกลับ", stepsDone:"เสร็จสิ้น",
-      nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
+      step1:"เลือกเครื่อง/วันที่", step2:"รายละเอียดการจอง", step3:"สรุปและส่ง", step4:"สรุปค่าเช่า", step1Title:"เลือกเครื่องและวันที่ต้องการเช่า", step2Title:"เลือกเกม", step2DetailsTitle:"การจัดส่ง การชำระเงิน และเอกสาร", step3Title:"สรุปและส่งข้อความ", step4Title:"สรุปและส่งข้อความ", rentalDuration:"จำนวนวันที่เช่า", stepsBtn:"📖 อ่านขั้นตอนการเช่าก่อนเริ่ม", quoteBtn:"คำนวณค่าเช่า/ค่าจัดส่ง", quoteBtnHint:"รู้ยอดรวมก่อนจอง", quoteTitle:"คำนวณค่าเช่า/ค่าส่ง", stepsTitle:"ขั้นตอนการเช่า", nextStep:"ไปขั้นตอนถัดไป", backStep:"ย้อนกลับ",
       deviceType:"ประเภทเครื่อง", device:"เครื่องเกม", chooseType:"-- ทั้งหมด --", chooseConsole:"-- เลือกเครื่องเกม --", chooseConsoleFirst:"เลือกเครื่องเกมก่อน แล้วปฏิทินจะแสดงวันว่างของเครื่องนั้น", chooseConsoleButton:"เลือกเครื่องเกม", startDate:"วันที่เริ่มเช่า", endDate:"วันคืนเครื่อง",
       gamePickerTitle:"เลือกเกม", gameStorageWarning:"⚠️ พื้นที่เครื่องมีจำกัด บางเกมอาจติดตั้งได้ไม่ครบ", gameChangeWarning:"⚠️ ไม่สามารถเพิ่มหรือเปลี่ยนเกมได้ระหว่างระยะเวลาเช่า", summaryHelp:"ตรวจสอบข้อมูล แล้วกดจองผ่านช่องทางที่สะดวก",
       personalRateWarning:"⚠️ ราคาเช่าเป็นเรทบุคคล ไม่สามารถออกใบกำกับภาษี/ใบเสร็จได้ หากต้องการเอกสาร กรุณาติดต่อ Line: <b>@ajgame</b> หรือ โทร. <b>081-624-4715</b> 🙏",
@@ -2889,8 +2882,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       lineNoLaunch:"After completing your details and confirming Book via LINE, the link for your booking will appear here.",
       lineHelpTitle:"Send booking via LINE", lineHelpLink:"View steps / reopen LINE", linePreparingStatus:"Preparing your LINE booking link. Please wait. You can view the steps below.", lineReadyStatus:"Your booking is ready to open in LINE. Wait for the card in AJ's chat — it has not been sent yet.", lineOpeningStatus:"Opening LINE. If asked Open this page in “LINE”?, tap Open and wait for the card in AJ's chat. You do not need to paste a message.", lineHelpSteps:"<ol><li>Tap <b>Open LINE to send booking</b> below.</li><li>Tap <b>Open</b> when prompted.<img class='line-guide-example' src='assets/line-guide-open.png' width='365' height='133' alt='Example: tap Open to continue in LINE'></li><li>Wait on <b>Sending your booking card</b>. Keep this screen open.<img class='line-guide-example' src='assets/line-guide-sending-en.png' width='365' height='139' alt='Example sending screen: verifying your LINE account'></li><li>Check for the card in <b>AJ’s chat</b>. Verify your identity if prompted. Wait for AJ to confirm the total before paying.</li></ol><p>No card? Reopen this booking or contact AJ with your rental code. Sending details does not confirm your reservation.</p>", lineOpenBooking:"Open LINE to send booking", linePreparingLink:"Preparing your link. Please wait.", lineSuccessNext:"The server confirmed card delivery. Check AJ's chat, verify your identity if prompted, and wait for AJ to confirm delivery fees and the amount due before paying.", lineHandoffFailedHelp:"The card could not be sent, or delivery could not be confirmed. Reopen the same booking to retry. If it still fails, contact AJ with your rental code. Do not create a duplicate booking.", legalNameScriptHint:"English letters only", legalNameScriptError:"Enter your legal name using English letters only.", phoneScriptHint:"No Thai phone number? Enter your WhatsApp or international number.", phoneScriptError:"Use digits only, with + allowed only at the start (9–15 digits).", ocrReadError:"Could not read the Thai ID or Passport number and expiry date. You can enter them in the fields below.", idDocumentPhotoHint:"Move close so the document fills most of the photo. Keep all four edges, number and expiry visible and sharp, without glare.", lineChatInbound:"I sent booking {code} to AJ.", lineChatVisible:"AJ received your message in LINE chat.", lineChatVisibleFailed:"Your card was sent, but AJ has not received a message from you in chat. Add AJ as a friend, open the chat, and send the message with your Rental ID below.",
       preparationDetail:"<summary>Estimated preparation time (tap to read)</summary><div><span>Preparation begins after AJ confirms availability, receives the complete game list, and receives the reservation deposit or payment through the selected payment method.</span><ul><li>If additional games need to be downloaded or installed: approximately 2–3 hours</li><li>If no additional downloads or installations are required: approximately 30–60 minutes</li></ul><span>Actual preparation time may vary depending on game size, download speed, the number of games, and the current service queue. AJ will confirm the expected delivery-ready time again.</span></div>",
-      step1:"Device / Dates", step2:"Booking details", step3:"Review and send", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Choose games", step2DetailsTitle:"Delivery, payment and documents", step3Title:"Summary and send", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"📖 Read rental steps first", quoteBtn:"Rental/delivery cost calculator", quoteBtnHint:"See the total before booking", quoteTitle:"Rental & delivery calculator", stepsTitle:"Rental steps", stepsNext:"Next", stepsPrev:"Back", stepsDone:"Done",
-      nextStep:"Next step", backStep:"Back",
+      step1:"Device / Dates", step2:"Booking details", step3:"Review and send", step4:"Rental summary", step1Title:"Choose the device and rental dates", step2Title:"Choose games", step2DetailsTitle:"Delivery, payment and documents", step3Title:"Summary and send", step4Title:"Summary and send", rentalDuration:"Rental duration", stepsBtn:"📖 Read rental steps first", quoteBtn:"Rental/delivery cost calculator", quoteBtnHint:"See the total before booking", quoteTitle:"Rental & delivery calculator", stepsTitle:"Rental steps", nextStep:"Next step", backStep:"Back",
       deviceType:"Device type", device:"Console", chooseType:"-- All --", chooseConsole:"-- Choose console --", chooseConsoleFirst:"Choose a console first. The calendar then shows its free dates.", chooseConsoleButton:"Choose a console", startDate:"Start date", endDate:"Return date",
       gamePickerTitle:"Select Games", gameStorageWarning:"⚠️ Limited device storage. Some games may not all fit.", gameChangeWarning:"⚠️ Games cannot be added or changed during the rental period.", summaryHelp:"Review the details, then book through your preferred channel.",
       personalRateWarning:"⚠️ Individual rental rates only. Tax invoice / receipt is not available. For documents, contact Line: <b>@ajgame</b> or call <b>081-624-4715</b> 🙏",
@@ -15779,8 +15771,9 @@ We apologize for the inconvenience and hope everyone stays safe.`
     byId("faqCopyUrl")?.addEventListener("click", () => copySectionUrl("faq"));
   }
 
-  // Rental step-by-step guide. Save screenshots into assets/steps/ with the
-  // filenames below; each step can show one or two captioned screenshots.
+  // How to rent. Since 27/11/2026 (owner) only the summary is shown: the
+  // screenshot steps 1–7, the "Step n / 7" line and the back / next buttons
+  // were removed.
   const STEP_GUIDE = [
     {
       stepNo:0,
@@ -15797,72 +15790,6 @@ We apologize for the inconvenience and hope everyone stays safe.`
         th:`<div class="step-detail-section"><h4>ทำรายการเช่า</h4><ul><li>เลือกเครื่อง อุปกรณ์เสริมหรือ Bundle (ถ้ามี) วันเช่า และเกมที่ต้องการ</li><li>เชื่อมต่อและเพิ่มเพื่อน LINE ของร้าน เพื่อรับข้อมูลการเช่า</li><li>กรอกข้อมูลผู้เช่า: ชื่อ-นามสกุล เบอร์โทร อีเมล ที่อยู่จัดส่ง และบัญชีสำหรับรับคืนค่าประกัน (ชาวต่างชาติใช้ Wise ได้)</li><li>เลือกว่าจะยืนยันตัวตนหรือไม่ หากยืนยันตัวตน จะถ่ายรูปบัตรและเซ็นสัญญาในขั้นตอนถัดไป</li><li><span class="step-mark">ผู้เช่าครั้งแรกต้องยืนยันตัวตนก่อนนัดส่งเครื่อง</span> <span class="step-mark">ผู้เช่าต้องมีอายุ 20 ปีบริบูรณ์ขึ้นไป</span> ยกเว้นการยืนยันตัวตนได้หากเลือกไม่ยืนยันตัวตนและยอมรับค่าประกันที่เพิ่มขึ้น</li><li>สัญญาหลักมีอายุ 1 ปี สามารถใช้ข้อมูลและลายมือชื่อเดิมสำหรับการเช่าครั้งถัดไปได้ โดยแต่ละครั้งต้องยืนยันรายละเอียดและเงื่อนไขการเช่าใหม่ เมื่อครบ 1 ปีหรือบัตรประชาชน/Passport หมดอายุ ต้องทำสัญญาหลักใหม่โดยยืนยันตัวตนใหม่อีกครั้ง</li><li>ชำระเงินตามช่องทางที่เลือก__PAYMENT_LOGOS__</li></ul></div><div class="step-detail-section"><h4>เตรียมเครื่องและจัดส่ง</h4><ul><li>เริ่มเตรียมหลังร้านยืนยันคิว ได้รับรายชื่อเกมครบ และได้รับยอดจองหรือยอดชำระแล้ว หากต้องดาวน์โหลดหรือติดตั้งเกมเพิ่ม ใช้เวลาประมาณ <span class="step-mark">2–3 ชั่วโมง</span>; หากไม่ต้องติดตั้งเพิ่ม ใช้เวลาประมาณ 30–60 นาที เวลาจริงขึ้นอยู่กับขนาดเกม ความเร็วดาวน์โหลด จำนวนเกม และคิวงาน โดยร้านจะแจ้งเวลาพร้อมส่งอีกครั้ง</li><li>จัดส่งด้วย Lalamove / Grab ประมาณ 1-2 ชั่วโมง ขึ้นอยู่กับระยะทาง การจราจร และสภาพอากาศ</li><li><strong>ทางร้านเป็นฝ่ายเรียกรถให้ทั้งขาส่งไปและขารับคืนเครื่อง ผู้เช่าเพียงรอรับและส่งคืนเครื่องให้กับคนขับ</strong></li><li>เมื่อของถึง สามารถเปิดกระเป๋าเช็คของกับคนส่งของก่อน แล้วชำระยอดที่เหลือพร้อมส่งสลิปให้ร้านทางแชท</li></ul>__PRICING_TIERS__</div><div class="step-detail-section"><h4>การคืนเครื่อง</h4><ul><li>ทางร้านเรียกรถเข้าไปรับเครื่อง และลูกค้ายืนยันอุปกรณ์ก่อนส่งคืน</li><li>ส่งของให้คนรับของ แล้วแจ้งยืนยันหรือส่งรูปให้ร้านทางแชท</li><li>ร้านเช็คเครื่องและอุปกรณ์ จากนั้นคืนค่าประกันเข้าบัญชีในสัญญา หรือบัญชีที่แจ้งทางแชท</li></ul><p><strong>*ทางร้านเรียกรถขนส่งให้ทั้งขาส่งและขารับกลับเท่านั้น</strong></p><p><strong>**ทางร้านให้บริการแบบออนไลน์เท่านั้น ไม่มีรับหรือคืนเครื่องที่หน้าร้าน</strong></p></div>`,
         en:`<div class="step-detail-section"><h4>Make a booking</h4><ul><li>Choose the device, any accessories or bundle, the rental dates and your games.</li><li>Send your booking to AJ on WhatsApp to receive your rental details (LINE works too).</li><li>Fill in your details: full name, phone number, email, delivery address, and a Thai bank account or Wise for the deposit refund.</li><li>Choose whether to verify your identity. If you verify, you take photos of your ID and sign the agreement in the next step.</li><li><span class="step-mark">First-time renters must verify their identity before delivery.</span> <span class="step-mark">Renters must be at least 20 years old.</span> Verification can be skipped only by choosing no identity verification and accepting the higher deposit.</li><li>The Master Agreement is valid for 1 year. The existing information and signature may be used for subsequent rentals, but the rental details and terms must be confirmed again for each rental. After 1 year or when the Thai ID card or passport expires, a new Master Agreement and renewed identity verification are required.</li><li>Pay with the method you chose.__PAYMENT_LOGOS__</li></ul></div><div class="step-detail-section"><h4>Preparation and delivery</h4><ul><li>Preparation begins after AJ confirms availability, receives the complete game list, and receives the reservation deposit or payment. Additional downloads or installations take approximately <span class="step-mark">2–3 hours</span>; without additional installation, preparation takes approximately 30–60 minutes. Actual time depends on game size, download speed, the number of games, and the current queue. AJ will confirm the delivery-ready time.</li><li>Delivery by Lalamove / Grab takes approximately 1-2 hours, depending on distance, traffic, and weather.</li><li><strong>AJ arranges the driver for both delivery and return. The renter only needs to receive the console and hand it back to the driver.</strong></li><li>On arrival, you can check the items with the delivery rider first, then pay the remaining balance and send the slip to the shop by chat.</li></ul>__PRICING_TIERS__</div><div class="step-detail-section"><h4>Returning the device</h4><ul><li>The shop calls a rider for pickup, and you can confirm the accessories before return.</li><li>Hand the items to the pickup rider, then confirm or send a photo to the shop by chat.</li><li>The shop checks the device and accessories, then refunds the deposit to the bank account in the contract or the account sent by chat.</li></ul><p><strong>*The shop arranges transport for both delivery and return pickup only.</strong></p><p><strong>**Online service only. Pickup or return at the shop is not available.</strong></p></div>`
       }
-    },
-    {
-      stepNo:1,
-      title:{th:"เลือกเครื่องเกมที่ต้องการ", en:"Choose the device you want"},
-      columns:[
-        {src:"assets/steps/step1a.png", th:"คลิกตามลูกศรเพื่อเข้าไปเลือกเครื่อง", en:"Click the arrow to choose a device"},
-        {src:"assets/steps/step1b.png", th:"คลิกเลือกเครื่องที่ต้องการ", en:"Click the device you want"}
-      ]
-    },
-    {
-      stepNo:2,
-      title:{th:"เลือกวันที่ต้องการเช่า", en:"Choose rental dates"},
-      columns:[
-        {src:"assets/steps/step2a.png", th:"คลิกตามลูกศรเพื่อเลือกวันเช่า", en:"Click the arrow to choose rental dates"},
-        {src:"assets/steps/step2b.png", th:"เลือกวันที่เริ่มเช่าตามเลข 1 และวันที่คืนตามเลข 2 และกดตกลงตามเลข 3", en:"Choose the start date as number 1, the return date as number 2, then press confirm as number 3"}
-      ]
-    },
-    {
-      stepNo:3,
-      title:{th:"เลือกอุปกรณ์เสริมที่ต้องการ", en:"Choose extra accessories"},
-      columns:[
-        {src:"assets/steps/step3a.png", th:"เลือก Bundle หรือ อุปกรณ์เสริม (ถ้ามี)", en:"Choose a bundle or accessory if available"},
-        {src:"assets/steps/step3b.png", th:"เมื่อเสร็จแล้ว คลิกที่ ไปขั้นตอนถัดไป", en:"When finished, click Next step"}
-      ]
-    },
-    {
-      stepNo:4,
-      title:{th:"วิธีเลือกเกม", en:"How to choose games"},
-      columns:[
-        {src:"assets/steps/step6a.png", th:"คลิก เลือก / แก้ไขรายชื่อเกม ตามลูกศรสีแดง", en:"Click Select / edit game list"},
-        {src:"assets/steps/step6b.png", th:"กดเพื่อดูรายการเกมแบบเต็มจอ", en:"Open the game catalog full screen"},
-        {src:"assets/steps/step6c.png", th:"เลือกได้สูงสุด 10 เกม หรือเลือกแจ้งรายชื่อเกมภายหลัง", en:"Choose up to 10 games, or send the game list later"},
-        {src:"assets/steps/step6d.png", th:"ตรวจรายชื่อเกม แล้วกดไปขั้นตอนถัดไป", en:"Review the game list, then click Next step"}
-      ]
-    },
-    {
-      stepNo:5,
-      title:{th:"ตัวเลือกเพิ่มเติม / ชำระเงิน / สัญญา / สถานที่จัดส่ง", en:"Extra options / payment / contract / delivery"},
-      columns:[
-        {src:"assets/steps/step4a.png", th:"เลือกบอร์ดเกมเพิ่มในการเช่าครั้งนี้ (ถ้ามี)", en:"Add board games to this rental if needed"},
-        {src:"assets/steps/step4b.png", th:"เลือกลูกค้าเก่าเพื่อรับส่วนลด หรือเลือกไม่ยืนยันตัวตน", en:"Choose a returning-customer discount or no identity verification"},
-        {src:"assets/steps/step4c.png", th:"เลือกช่องทางการชำระเงิน", en:"Choose a payment method"},
-        {src:"assets/steps/step4d.png", th:"ยืนยันตัวตน หรือเลือกยืนยันภายหลัง", en:"Verify your identity, or choose to verify later"},
-        {src:"assets/steps/step4e.png", th:"ใส่ลิงก์ Google Maps เพื่อให้ร้านเช็คค่าจัดส่ง", en:"Enter a Google Maps link for the delivery-cost check"}
-      ]
-    },
-    {
-      stepNo:6,
-      title:{th:"วิธีแชร์ลิงก์ Google Maps", en:"How to share a Google Maps link"},
-      columns:[
-        {src:"assets/steps/step5a.png", th:"ค้นหาสถานที่ใน Google Maps แล้วกด Share", en:"Find the location in Google Maps, then tap Share"},
-        {src:"assets/steps/step5b.png", th:"กด Copy Link", en:"Tap Copy Link"},
-        {src:"assets/steps/step5c.png", th:"นำลิงก์มาวางในช่อง Google Maps", en:"Paste the link into the Google Maps field"},
-        {src:"assets/steps/step5d.png", th:"ตรวจสอบรายละเอียดสถานที่ที่แสดง", en:"Check the location details shown"},
-        {src:"assets/steps/step5e.png", th:"เมื่อเสร็จแล้ว กดไปขั้นตอนถัดไป", en:"When finished, click Next step"}
-      ]
-    },
-    {
-      stepNo:7,
-      title:{th:"สรุปค่าเช่า", en:"Rental summary"},
-      columns:[
-        {src:"assets/steps/step7a.png", th:"เช็คความถูกต้องของการเช่าและยอดค่าเช่า", en:"Check the rental details and total cost"},
-        {src:"assets/steps/step7b.png", th:"เลือกจองผ่านช่องทางแชทที่ติดต่อกับทางร้าน", en:"Book through the chat channel you use with the shop"},
-        {src:"assets/steps/step7c.png", th:"ยืนยันส่งรายละเอียดการจอง แล้วส่งข้อความในแชท", en:"Confirm the booking details, then send the message in chat"},
-        {src:"assets/steps/step7d.png", th:"หากเลือกยืนยันตัวตน ให้ยืนยันตัวตนให้เสร็จก่อนนัดส่งเครื่อง", en:"If identity verification is selected, complete it before delivery"}
-      ]
     }
   ];
   function pricingTierHtml(lang=state.lang, compact=false, selectedOnly=false){
@@ -15898,51 +15825,27 @@ We apologize for the inconvenience and hope everyone stays safe.`
     rows.push(`<div class="pricing-tier pricing-tier-${tone(policy.bundleNoIdentityDeposit)}"><span class="pricing-tier-name">Bundle PS5</span><span class="pricing-tier-amount">${esc(money(policy.bundleNoIdentityDeposit))}</span></div>`);
     return `<div class="pricing-tiers${compact ? " pricing-tiers-compact" : ""}">${compact ? "" : `<div class="pricing-tiers-title">${lang === "en" ? "Without identity verification: deposits increase as shown below" : "ไม่ยืนยันตัวตน: ค่าประกันปรับขึ้นตามอัตราด้านล่าง"}</div>`}${rows.join("")}</div>`;
   }
-  let stepsIndex = 0;
   function renderStepsBody(){
     const en = state.lang === "en";
-    const step = STEP_GUIDE[stepsIndex] || STEP_GUIDE[0];
+    const step = STEP_GUIDE[0];
     byId("stepsTitle").textContent = tr("stepsTitle");
     byId("stepsLangBtn").textContent = en ? "🇹🇭 TH" : "🇬🇧 EN";
     refreshSectionCopyButtons();
-    const columns = step.columns || [];
     const titleText = step.title ? (en ? step.title.en : step.title.th) : "";
     const bulletList = step.bullets ? (en ? step.bullets.en : step.bullets.th) : [];
     const topic = titleText ? `<div class="step-topic">
       <h4>${esc(titleText)}</h4>
       ${bulletList.length ? `<ul>${bulletList.map(item => `<li>${esc(item)}</li>`).join("")}</ul>` : ""}
     </div>` : "";
-    const body = step.textColumns ? `
+    const body = `
       <div class="step-text-grid${step.textColumns.length === 1 ? " single" : ""}">${step.textColumns.map(item => `<div class="step-text-card">${en ? item.en : item.th}</div>`).join("")}</div>
-      <div class="step-detail">${(en ? step.detail.en : step.detail.th).replace("__PRICING_TIERS__",pricingTierHtml(state.lang)).replace("__PAYMENT_LOGOS__",`<span class="pay-logos step-pay-logos" role="img" aria-label="${esc(tr("sitePaymentsAccepted"))}">${paymentLogoStripHtml()}</span>`)}</div>` : `
-      <div class="step-images ${columns.length > 1 ? "split" : ""}">${columns.map(item => `
-        <figure class="step-imgcol">
-          <img class="step-img" src="${esc(item.src)}" alt="${esc(en ? item.en : item.th)}">
-          <figcaption class="step-subcap">${esc(en ? item.en : item.th)}</figcaption>
-        </figure>`).join("")}</div>`;
-    const last = stepsIndex === STEP_GUIDE.length - 1;
-    const maxStepNo = Math.max(...STEP_GUIDE.map(item => Number(item.stepNo || 0)));
-    const stepLabel = en ? `Step ${step.stepNo} / ${maxStepNo}` : `Step ${step.stepNo} / ${maxStepNo}`;
-    byId("stepsBody").innerHTML = `
-      <div class="step-indicator">${stepLabel}</div>
-      ${topic}
-      ${body}`;
-    byId("stepsNav").innerHTML = `
-      <button class="btn" id="stepsPrev" type="button" ${stepsIndex === 0 ? "disabled" : ""}>${tr("stepsPrev")}</button>
-      <button class="btn primary" id="stepsNext" type="button">${last ? tr("stepsDone") : tr("stepsNext")}</button>`;
-    byId("stepsPrev").addEventListener("click", () => { if(stepsIndex > 0){ stepsIndex--; renderStepsBody(); } });
+      <div class="step-detail">${(en ? step.detail.en : step.detail.th).replace("__PRICING_TIERS__",pricingTierHtml(state.lang)).replace("__PAYMENT_LOGOS__",`<span class="pay-logos step-pay-logos" role="img" aria-label="${esc(tr("sitePaymentsAccepted"))}">${paymentLogoStripHtml()}</span>`)}</div>`;
+    byId("stepsBody").innerHTML = `${topic}${body}`;
     byId("stepsBody").querySelectorAll("[data-step-book]").forEach(btn => btn.addEventListener("click", () => {
       trackAnalytics("site_menu_opened", {value:"book"});
       closeStepsPopup();
       setBeforeRent(false, {startGuide:true});
     }));
-    byId("stepsBody").querySelectorAll("[data-step-next]").forEach(btn => btn.addEventListener("click", () => {
-      if(stepsIndex < STEP_GUIDE.length - 1){ stepsIndex++; renderStepsBody(); }
-    }));
-    byId("stepsNext").addEventListener("click", () => {
-      if(stepsIndex < STEP_GUIDE.length - 1){ stepsIndex++; renderStepsBody(); }
-      else closeStepsPopup();
-    });
   }
   // The rough-quote page in a pop-up, in the site's language. The frame keeps
   // what was filled in: the language switch tells it, it is not reloaded.
@@ -15997,7 +15900,6 @@ We apologize for the inconvenience and hope everyone stays safe.`
     return true;
   }
   function openStepsPopup(){
-    stepsIndex = 0;
     byId("stepsModal").classList.add("open");
     renderStepsBody();
   }

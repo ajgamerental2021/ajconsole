@@ -118,7 +118,7 @@ test('a divider above "รีวิวจากลูกค้าจริง" a
 });
 
 test('the rental steps: "ทำรายการเช่า" step by step, and the payment line shows every way to pay (TH/EN)', () => {
-  const guide = source.slice(source.indexOf('  const STEP_GUIDE = ['), source.indexOf('    {\n      stepNo:1,'));
+  const guide = source.slice(source.indexOf('  const STEP_GUIDE = ['), source.indexOf('\n  ];\n', source.indexOf('  const STEP_GUIDE = [')));
   assert.match(guide, /<h4>ทำรายการเช่า<\/h4><ul><li>เลือกเครื่อง อุปกรณ์เสริมหรือ Bundle \(ถ้ามี\) วันเช่า และเกมที่ต้องการ<\/li><li>เชื่อมต่อและเพิ่มเพื่อน LINE ของร้าน เพื่อรับข้อมูลการเช่า<\/li><li>กรอกข้อมูลผู้เช่า: ชื่อ-นามสกุล เบอร์โทร อีเมล ที่อยู่จัดส่ง และบัญชีสำหรับรับคืนค่าประกัน \(ชาวต่างชาติใช้ Wise ได้\)<\/li><li>เลือกว่าจะยืนยันตัวตนหรือไม่ หากยืนยันตัวตน จะถ่ายรูปบัตรและเซ็นสัญญาในขั้นตอนถัดไป<\/li>/);
   assert.match(guide, /<h4>Make a booking<\/h4><ul><li>Choose the device, any accessories or bundle, the rental dates and your games\.<\/li><li>Send your booking to AJ on WhatsApp to receive your rental details \(LINE works too\)\.<\/li>/);
   assert.match(guide, /<li>ชำระเงินตามช่องทางที่เลือก__PAYMENT_LOGOS__<\/li>/);
@@ -164,4 +164,18 @@ test('FAQ "อัปเดตรายการเกมได้ไหม?": ye
   assert.match(faq.aEn, /after the shop closes \(from 18:00 the evening before delivery\) or on the delivery day before it opens \(00:00–09:59\)/);
   assert.match(faq.aEn, /A delivery booked before 13:00 \(e\.g\. 10:00, 11:00, 12:00\) moves to 13:00/);
   assert.ok(!/[฀-๿]/.test(faq.aEn + faq.qEn), 'English has no Thai');
+});
+
+// 27/11/2026, owner: only the summary is left; no screenshot steps 1–7, no
+// "Step n / 7", no back / next buttons (TH and EN).
+test('how to rent: only the summary, without step numbers or back / next', () => {
+  const guide = source.slice(source.indexOf('  const STEP_GUIDE = ['), source.indexOf('\n  ];\n', source.indexOf('  const STEP_GUIDE = [')));
+  assert.equal((guide.match(/stepNo:/g) || []).length, 1);
+  assert.doesNotMatch(source, /assets\/steps\//);
+  assert.doesNotMatch(source, /Step \$\{step\.stepNo\}/);
+  assert.doesNotMatch(source, /id="stepsNav"|id="stepsPrev"|id="stepsNext"|stepsIndex/);
+  assert.doesNotMatch(source, /stepsPrev:|stepsNext:|stepsDone:/);
+  const render = source.slice(source.indexOf('  function renderStepsBody(){'), source.indexOf('  // The rough-quote page in a pop-up'));
+  assert.match(render, /const step = STEP_GUIDE\[0\];/);
+  assert.match(render, /data-step-book/);
 });
