@@ -5586,8 +5586,8 @@ function confirmDeliveryChange(change) {
       : 'ร้านจะเริ่มเตรียมและติดตั้งเกมทันที ใช้เวลาประมาณ 2–3 ชั่วโมง');
   const move = change.beforeOpen
     ? (en
-      ? `So delivery${when} moves from ${change.from || '-'} to ${change.to}. We will send you a card to confirm the new time, or to keep ${change.from || 'the original time'} without the updated games (until 10:00 on the day).`
-      : `เวลาส่งเครื่อง${when}จึงเปลี่ยนจาก ${change.from || '-'} น. เป็น ${change.to} น. ร้านจะส่งการ์ดให้ยืนยันเวลาใหม่ หรือเลือกส่งเวลาเดิมโดยไม่รับเกมที่อัปเดต (ได้ถึง 10:00 น. ของวันส่ง)`)
+      ? `So delivery${when} moves from ${change.from || '-'} to ${change.to}. We will send you a card to confirm the new time, or to tap "Skip updated games" and keep ${change.from || 'the original time'} (until 10:00 on the day).`
+      : `เวลาส่งเครื่อง${when}จึงเปลี่ยนจาก ${change.from || '-'} น. เป็น ${change.to} น. ร้านจะส่งการ์ดให้กดยืนยันเวลาใหม่ หรือกด "ไม่รับเกมที่อัปเดตและส่งเวลาเดิม" (กดได้ถึง 10:00 น. ของวันส่ง)`)
     : (en
       ? `Today's delivery will move from ${change.from || '-'} to about ${change.to}, and the delivery time can no longer be changed.`
       : `เวลาส่งเครื่องวันนี้จะเปลี่ยนจาก ${change.from || '-'} เป็นประมาณ ${change.to} น. และแก้ไขเวลาส่งไม่ได้หลังยืนยัน`);

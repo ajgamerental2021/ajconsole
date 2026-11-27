@@ -19,8 +19,8 @@ test('the popup says when installing starts, how long it takes, the new time and
   // After hours (27/11/2026): installed from 10:00, about 3 hours; a card follows to confirm or keep the old time.
   assert.match(confirm, /ร้านจะติดตั้งเกมที่เลือกให้เมื่อร้านเปิด 10:00 น\. ใช้เวลาประมาณ 3 ชั่วโมง/);
   assert.match(confirm, /We install the games you chose when the shop opens at 10:00\. It takes about 3 hours\./);
-  assert.match(confirm, /เวลาส่งเครื่อง\$\{when\}จึงเปลี่ยนจาก \$\{change\.from \|\| '-'\} น\. เป็น \$\{change\.to\} น\. ร้านจะส่งการ์ดให้ยืนยันเวลาใหม่ หรือเลือกส่งเวลาเดิมโดยไม่รับเกมที่อัปเดต \(ได้ถึง 10:00 น\. ของวันส่ง\)/);
-  assert.match(confirm, /We will send you a card to confirm the new time, or to keep \$\{change\.from \|\| 'the original time'\} without the updated games \(until 10:00 on the day\)\./);
+  assert.match(confirm, /เวลาส่งเครื่อง\$\{when\}จึงเปลี่ยนจาก \$\{change\.from \|\| '-'\} น\. เป็น \$\{change\.to\} น\. ร้านจะส่งการ์ดให้กดยืนยันเวลาใหม่ หรือกด "ไม่รับเกมที่อัปเดตและส่งเวลาเดิม" \(กดได้ถึง 10:00 น\. ของวันส่ง\)/);
+  assert.match(confirm, /We will send you a card to confirm the new time, or to tap "Skip updated games" and keep \$\{change\.from \|\| 'the original time'\} \(until 10:00 on the day\)\./);
   // While the shop is open, as before.
   assert.match(confirm, /ร้านจะเริ่มเตรียมและติดตั้งเกมทันที ใช้เวลาประมาณ 2–3 ชั่วโมง/);
   assert.match(confirm, /เวลาส่งเครื่องวันนี้จะเปลี่ยนจาก \$\{change\.from \|\| '-'\} เป็นประมาณ \$\{change\.to\} น\. และแก้ไขเวลาส่งไม่ได้หลังยืนยัน/);
