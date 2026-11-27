@@ -155,6 +155,11 @@ test('FAQ "อัปเดตรายการเกมได้ไหม?": ye
   assert.match(faq.aTh, /• ร้านจะติดตั้งเกมได้เมื่อร้านเปิด 10:00 น\. ใช้เวลาประมาณ 3 ชั่วโมง/);
   assert.match(faq.aTh, /• เวลาส่งที่นัดไว้ก่อน 13:00 น\. \(เช่น 10:00, 11:00, 12:00 น\.\) จะเปลี่ยนเป็น 13:00 น\./);
   assert.match(faq.aTh, /เลือกไม่รับเกมที่อัปเดตแล้วส่งเวลาเดิมพร้อมรายการเกมเดิม \(เลือกได้ถึง 10:00 น\. ของวันส่ง\)/);
+  // 28/11/2026 (owner): not "no answer" but "did not say you skip the updated games".
+  assert.match(faq.aTh, /• ถ้าไม่ได้แจ้งว่าไม่รับเกมที่อัปเดต ร้านจะส่งเครื่องตามเวลาใหม่พร้อมเกมที่อัปเดต/);
+  assert.ok(!faq.aTh.includes('ไม่ตอบ'));
+  assert.match(faq.aEn, /• If you do not tell us you are skipping the updated games, we deliver at the new time with them/);
+  assert.ok(!/no answer/i.test(faq.aEn));
   assert.equal(faq.qEn, 'Can I update my game list?');
   assert.match(faq.aEn, /after the shop closes \(from 18:00 the evening before delivery\) or on the delivery day before it opens \(00:00–09:59\)/);
   assert.match(faq.aEn, /A delivery booked before 13:00 \(e\.g\. 10:00, 11:00, 12:00\) moves to 13:00/);
