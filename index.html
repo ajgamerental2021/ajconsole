@@ -6876,7 +6876,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       return (DEMO_WISE_REQUIRED[wise.payout] || DEMO_WISE_REQUIRED.bank).every(key => String(wise[key] || "").trim())
         && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(wise.wiseEmail || "").trim());
     }
-    return !!demoProfile.refundBankId && /^\d{6,13}$/.test(demoAgreement.account) && demoAccountNameValid(demoProfile.refundAccountName);
+    return !!demoProfile.refundBankId && /^\d{6,20}$/.test(demoAgreement.account) && demoAccountNameValid(demoProfile.refundAccountName);
   }
   function demoAgreementReady(){
     if(!demoAgreementNeeded()) return true;
@@ -6957,7 +6957,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       <label class="option-row" data-refund-wise-choice><input type="checkbox" id="demoNoThaiBank" ${demoProfile.noThaiBankAccount ? "checked" : ""}><div><b>${en ? "I do not have a Thai bank account and would like to receive the security deposit refund through Wise" : "ไม่มีบัญชีธนาคารไทย และต้องการรับเงินค่าประกันคืนผ่าน Wise"}</b></div></label>
       <div class="demo-profile-grid" data-refund-thai>
         <div class="field"><label class="label" for="demoRefundBank">${en ? "Bank" : "ธนาคาร"}<span class="req">*</span></label><select class="input" id="demoRefundBank">${demoBankOptionsHtml()}</select></div>
-        <div class="field"><label class="label" for="demoRefundAccount">${en ? "Bank account number" : "เลขที่บัญชี"}<span class="req">*</span></label><input class="input" id="demoRefundAccount" inputmode="numeric" autocomplete="off" maxlength="13" value="${esc(demoAgreement.account)}" placeholder="${en ? "Digits only" : "ตัวเลขเท่านั้น"}"></div>
+        <div class="field"><label class="label" for="demoRefundAccount">${en ? "Bank account number" : "เลขที่บัญชี"}<span class="req">*</span></label><input class="input" id="demoRefundAccount" inputmode="numeric" autocomplete="off" maxlength="20" value="${esc(demoAgreement.account)}" placeholder="${en ? "Digits only" : "ตัวเลขเท่านั้น"}"></div>
         <div class="field wide"><label class="label" for="demoRefundName">${en ? "Bank account name" : "ชื่อบัญชี"}<span class="req">*</span></label><input class="input" id="demoRefundName" value="${esc(demoProfile.refundAccountName || "")}"></div>
       </div>
       <div class="demo-wise-panel" data-refund-wise>
@@ -7462,7 +7462,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(String(wise.wiseEmail || "").trim()) need("demoWise_wiseEmail", /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(wise.wiseEmail.trim()), en ? "Enter a valid email." : "กรอกอีเมลให้ถูกต้อง");
     }else{
       need("demoRefundBank", !!demoProfile.refundBankId, en ? "Choose the bank for the deposit refund." : "เลือกธนาคารสำหรับคืนค่าประกัน");
-      need("demoRefundAccount", /^\d{6,13}$/.test(demoAgreement.account), en ? "Enter the account number, digits only." : "กรอกเลขที่บัญชี เป็นตัวเลขเท่านั้น");
+      need("demoRefundAccount", /^\d{6,20}$/.test(demoAgreement.account), en ? "Enter the account number, digits only." : "กรอกเลขที่บัญชี เป็นตัวเลขเท่านั้น");
       const accountName = String(demoProfile.refundAccountName || "").trim();
       need("demoRefundName", !!accountName, en ? "Enter the account name." : "กรอกชื่อบัญชี");
       if(accountName) need("demoRefundName", demoAccountNameValid(accountName), en ? "The account name must be letters only, as shown by the bank." : "ชื่อบัญชีต้องเป็นตัวอักษรเท่านั้น ตามที่ธนาคารแสดง");
@@ -18499,7 +18499,8 @@ We apologize for the inconvenience and hope everyone stays safe.`
       if(event.target.matches?.("[data-faq]")) faqDraftDirty = true;
       if(event.target.id === "mapsInput"){ state.calc.maps = event.target.value.trim(); if(state.calc.maps.length > 8){ markGuideDone("maps"); setGuideStage("ret"); } saveLocal(); renderGuide(); }
       if(UNIFIED_FLOW_DEMO && event.target.id === "demoRefundAccount"){
-        const digits = event.target.value.replace(/\D/g, "").slice(0, 13);
+        // Up to 20 digits (27/11/2026): some Thai accounts are longer than 13.
+        const digits = event.target.value.replace(/\D/g, "").slice(0, 20);
         if(event.target.value !== digits) event.target.value = digits;
         demoAgreement.account = digits;
         clearDemoFieldError("demoRefundAccount");
