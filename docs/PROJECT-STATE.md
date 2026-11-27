@@ -18,6 +18,18 @@
   2. Bot, then the website (the website reads linkExpiry; the Bot accepts both shapes);
   3. after Meta approval, set `WHATSAPP_TEMPLATE_RETURN_TODAY_PADLOCK` on DA.
 
+## 2026-11-27 — Staff button for the "new delivery time (games updated)" card
+
+- **DA `9d2d89f`:** under the chosen games in the Delivery App, "🚚 ส่งการ์ดเวลาจัดส่งใหม่ (อัปเดตเกม)" (delivery today or tomorrow).
+- **The staff:**
+  - picks the new time (13:00 by default);
+  - ticks the games the customer added.
+- **Then:**
+  - the Booking time moves;
+  - the card goes to the customer on LINE (or as text to send another way);
+  - if the customer keeps the old time, the ticked games come off and the time goes back.
+- After a deploy, it is how the shop sends the card for a list the system did not catch.
+
 ## 2026-11-27 — FAQ "อัปเดตรายการเกมได้ไหม?" wording
 
 - Website `ec18c97`: "ถ้าไม่ตอบ" became "ถ้าไม่ได้แจ้งว่าไม่รับเกมที่อัปเดต ร้านจะส่งเครื่องตามเวลาใหม่พร้อมเกมที่อัปเดต" (EN too).
