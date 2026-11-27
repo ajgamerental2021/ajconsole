@@ -18,6 +18,11 @@
   2. Bot, then the website (the website reads linkExpiry; the Bot accepts both shapes);
   3. after Meta approval, set `WHATSAPP_TEMPLATE_RETURN_TODAY_PADLOCK` on DA.
 
+## 2026-11-27 — FAQ "อัปเดตรายการเกมได้ไหม?" wording
+
+- Website `ec18c97`: "ถ้าไม่ตอบ" became "ถ้าไม่ได้แจ้งว่าไม่รับเกมที่อัปเดต ร้านจะส่งเครื่องตามเวลาใหม่พร้อมเกมที่อัปเดต" (EN too).
+- Customer PS5-2 (games added 08:23 on the delivery day): the owner asked for the new-time card now. It cannot be sent from the cloud session (no LINE/production access, and the card's page is not deployed yet). The owner changes the time to 13:00 in the app and sends the message by hand.
+
 ## 2026-11-27 — Games sent after hours: delivery moves to 13:00, with confirm or keep the old time
 
 - **Rule (all three repos):**
