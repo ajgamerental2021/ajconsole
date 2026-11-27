@@ -18,6 +18,12 @@
   2. Bot, then the website (the website reads linkExpiry; the Bot accepts both shapes);
   3. after Meta approval, set `WHATSAPP_TEMPLATE_RETURN_TODAY_PADLOCK` on DA.
 
+## 2026-11-27 — Games: "Rented" is not "delivered" (DA c42a0f0)
+
+- **What happened:** the staff card button refused today's booking ("ไม่พบ Booking ที่ยังรอส่งเครื่อง"). Status reads "Rented" from the first rental day, before delivery, and the game rules took it as delivered. Lists sent on the delivery morning never moved the time either.
+- **Fix:** now only the delivery-done tick, End, or a cancellation count as delivered.
+- **Deploy:** DA c42a0f0.
+
 ## 2026-11-27 — Staff button for the "new delivery time (games updated)" card
 
 - **DA `9d2d89f`:** under the chosen games in the Delivery App, "🚚 ส่งการ์ดเวลาจัดส่งใหม่ (อัปเดตเกม)" (delivery today or tomorrow).
