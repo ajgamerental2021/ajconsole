@@ -17,3 +17,7 @@ test('the refund account field takes up to 20 digits', () => {
   assert.ok(valid.test('1234567890'));
   assert.ok(!valid.test('1'.repeat(21)));
 });
+
+test('under the field: an account number, not the card number (TH/EN)', () => {
+  assert.match(html, /<p class="hint" id="demoRefundAccountHint">\$\{en \? "Your bank account number, not the number on your ATM or debit card\." : "กรอกเลขบัญชีธนาคาร ไม่ใช่เลขหน้าบัตร ATM หรือบัตรเดบิต"\}<\/p>/);
+});
