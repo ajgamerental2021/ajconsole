@@ -5559,10 +5559,11 @@ function pickSendsList() {
  * holds the booking; null when nothing changes or it cannot say (the list is
  * still sent: the server moves the time either way, and tells the renter).
  */
-async function deliveryChangeForGames() {
+async function deliveryChangeForGames(names) {
   try {
+    // The list goes too (27/11/2026): one that only drops games moves nothing.
     const res = await fetch(`${GAME_API_BASE}/api/game-selection/delivery-preview/${encodeURIComponent(selectionToken)}`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}),
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ games: Array.isArray(names) ? names : [] }),
     });
     const data = await res.json();
     return res.ok && data.ok && data.change && data.change.to ? data.change : null;
@@ -5574,14 +5575,22 @@ async function deliveryChangeForGames() {
 /** Ask before a list that moves today's delivery: confirm sends it, cancel keeps it here. */
 function confirmDeliveryChange(change) {
   const en = currentLang === 'en';
+  // Sent after the shop closed (from 18:00 the evening before) or before it
+  // opens on the day (27/11/2026): installed from 10:00, about 3 hours, so the
+  // delivery moves to 13:00. A card follows to confirm it or keep the old time.
+  const when = change.date ? (en ? ` on ${change.date}` : `วันที่ ${change.date} `) : (en ? ' today' : 'วันนี้');
   const start = change.beforeOpen
-    ? (en ? 'AJ starts preparing and installing your games when the shop opens at 10:00. It takes about 2–3 hours.'
-      : 'ร้านจะเริ่มเตรียมและติดตั้งเกมเมื่อร้านเปิด 10:00 น. ใช้เวลาประมาณ 2–3 ชั่วโมง')
+    ? (en ? 'We install the games you chose when the shop opens at 10:00. It takes about 3 hours.'
+      : 'ร้านจะติดตั้งเกมที่เลือกให้เมื่อร้านเปิด 10:00 น. ใช้เวลาประมาณ 3 ชั่วโมง')
     : (en ? 'AJ starts preparing and installing your games now. It takes about 2–3 hours.'
       : 'ร้านจะเริ่มเตรียมและติดตั้งเกมทันที ใช้เวลาประมาณ 2–3 ชั่วโมง');
-  const move = en
-    ? `Today's delivery will move from ${change.from || '-'} to about ${change.to}, and the delivery time can no longer be changed.`
-    : `เวลาส่งเครื่องวันนี้จะเปลี่ยนจาก ${change.from || '-'} เป็นประมาณ ${change.to} น. และแก้ไขเวลาส่งไม่ได้หลังยืนยัน`;
+  const move = change.beforeOpen
+    ? (en
+      ? `So delivery${when} moves from ${change.from || '-'} to ${change.to}. We will send you a card to confirm the new time, or to keep ${change.from || 'the original time'} without the updated games (until 10:00 on the day).`
+      : `เวลาส่งเครื่อง${when}จึงเปลี่ยนจาก ${change.from || '-'} น. เป็น ${change.to} น. ร้านจะส่งการ์ดให้ยืนยันเวลาใหม่ หรือเลือกส่งเวลาเดิมโดยไม่รับเกมที่อัปเดต (ได้ถึง 10:00 น. ของวันส่ง)`)
+    : (en
+      ? `Today's delivery will move from ${change.from || '-'} to about ${change.to}, and the delivery time can no longer be changed.`
+      : `เวลาส่งเครื่องวันนี้จะเปลี่ยนจาก ${change.from || '-'} เป็นประมาณ ${change.to} น. และแก้ไขเวลาส่งไม่ได้หลังยืนยัน`);
   return new Promise(resolve => {
     const overlay = document.createElement('div');
     overlay.id = 'delivery-change-confirm';
@@ -5864,7 +5873,7 @@ async function submitSelectionToken() {
   renderPickActions();
   // On the rental day a list moves today's delivery: the renter sees how, and
   // confirms or cancels, before anything is sent.
-  const change = await deliveryChangeForGames();
+  const change = await deliveryChangeForGames(names);
   if (change && !(await confirmDeliveryChange(change))) {
     pickSubmitState = pickBaselineIds.length && pickListChangedSinceSave() ? 'changed' : 'idle';
     renderPickActions();
@@ -5887,7 +5896,9 @@ async function submitSelectionToken() {
       return;
     }
     showToast(change
-      ? (currentLang === 'en' ? `✓ Games saved · today's delivery is now about ${change.to}` : `✓ บันทึกรายการเกมแล้ว · ส่งเครื่องวันนี้ประมาณ ${change.to} น.`)
+      ? (change.beforeOpen
+        ? (currentLang === 'en' ? `✓ Games saved · delivery is now ${change.to}` : `✓ บันทึกรายการเกมแล้ว · เวลาส่งเปลี่ยนเป็น ${change.to} น.`)
+        : (currentLang === 'en' ? `✓ Games saved · today's delivery is now about ${change.to}` : `✓ บันทึกรายการเกมแล้ว · ส่งเครื่องวันนี้ประมาณ ${change.to} น.`))
       : (currentLang === 'en' ? '✓ Your game selection has been saved' : '✓ บันทึกรายการเกมเรียบร้อยแล้ว'));
     // What is saved is now the baseline, so a further edit re-arms the button.
     pickBaselineIds = pickedGames.slice();

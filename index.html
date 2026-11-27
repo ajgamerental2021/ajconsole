@@ -2477,6 +2477,16 @@ You may ask to access, correct, object to, restrict or delete your data, or with
     qEn:"Do you accept cash?",
     aEn:"No. We don't accept cash, including cash handed to the driver. Please pay only by the methods listed under \"How do I pay the reservation or the rental?\", so every payment has a record that can be checked."
   };
+  // Updating the game list, and what a list sent after hours does to the
+  // delivery (27/11/2026, owner). The same rule as the Rental Terms item 10,
+  // the game picker's popup and the Delivery App's card.
+  const GAMES_UPDATE_FAQ = {
+    kind:"games-update",
+    qTh:"อัปเดตรายการเกมได้ไหม?",
+    aTh:"ได้ เปลี่ยนหรือเพิ่มเกมได้ก่อนเริ่มเช่า จากการ์ดเลือกเกมใน LINE หรือหน้าคิวเช่าของฉัน (ระหว่างเช่าเพิ่มหรือเปลี่ยนเกมไม่ได้)\n\nถ้าส่งหรืออัปเดตรายการเกมหลังร้านปิด (ตั้งแต่ 18:00 น. ของคืนก่อนวันส่ง) หรือในวันส่งก่อนร้านเปิด (00:00–09:59 น.)\n• ร้านจะติดตั้งเกมได้เมื่อร้านเปิด 10:00 น. ใช้เวลาประมาณ 3 ชั่วโมง\n• เวลาส่งที่นัดไว้ก่อน 13:00 น. (เช่น 10:00, 11:00, 12:00 น.) จะเปลี่ยนเป็น 13:00 น.\n• ระบบจะแจ้งก่อนกดส่งรายการเกม และส่งการ์ดให้ยืนยันเวลาใหม่ หรือเลือกไม่รับเกมที่อัปเดตแล้วส่งเวลาเดิมพร้อมรายการเกมเดิม (เลือกได้ถึง 10:00 น. ของวันส่ง)\n• ถ้าไม่ตอบ ร้านจะส่งตามเวลาใหม่\n\nถ้าอัปเดตในวันส่งระหว่างที่ร้านเปิด เวลาส่งจะเป็นประมาณ 3 ชั่วโมงหลังแจ้ง",
+    qEn:"Can I update my game list?",
+    aEn:"Yes. You can change or add games before the rental starts, from the game card on LINE or My rental (games cannot be added or changed during the rental).\n\nIf you send or update your games after the shop closes (from 18:00 the evening before delivery) or on the delivery day before it opens (00:00–09:59):\n• We install the games when the shop opens at 10:00, which takes about 3 hours\n• A delivery booked before 13:00 (e.g. 10:00, 11:00, 12:00) moves to 13:00\n• You are told before you send the list, and we send a card to confirm the new time, or skip the updated games and keep the original time with your previous games (until 10:00 on the delivery day)\n• With no answer, we deliver at the new time\n\nIf you update on the delivery day while the shop is open, delivery is about 3 hours after you send the list."
+  };
   const NO_CONTRACT_FAQ = {
     kind:"noContractTerms",
     qTh:"เช่าโดยไม่ยืนยันตัวตนได้ไหม?",
@@ -4560,6 +4570,7 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       if(faq.kind === BALANCE_PAYMENT_FAQ.kind || matches(faq, /^ชำระส่วนที่เหลืออย่างไร/, /^How do I pay the balance/i)) return {...BALANCE_PAYMENT_FAQ};
       if(faq.kind === PAYMENT_METHODS_FAQ.kind || matches(faq, /^ชำระค่าจองหรือค่าเช่าอย่างไร/, /^How (?:do|can) I pay (?:for )?(?:the )?(?:reservation|booking|rental)/i)) return {...PAYMENT_METHODS_FAQ};
       if(faq.kind === CASH_FAQ.kind || matches(faq, /^รับ(?:ชำระด้วย)?เงินสด/, /^Do you (?:accept|take) cash/i)) return {...CASH_FAQ};
+      if(faq.kind === GAMES_UPDATE_FAQ.kind || matches(faq, /^อัปเดตรายการเกมได้ไหม/, /^Can I update my game/i)) return {...GAMES_UPDATE_FAQ};
       // The answer says how as well as when (owner, 05/11/2026): only the
       // question is retitled; the saved answer stays as the shop wrote it.
       if(matches(faq, /^คืนค่าประกันเมื่อไ(?:หร่|ร)/, /^When (?:is|will) (?:the|my) deposit (?:be )?(?:returned|refunded)/i)) return {...faq, kind: faq.kind || "deposit-return", qTh: DEPOSIT_RETURN_QUESTION.th, qEn: DEPOSIT_RETURN_QUESTION.en};
@@ -4575,6 +4586,12 @@ lineHelpTitle:"วิธีส่งข้อมูลจองผ่าน LINE
       normalized.splice(methodsIndex, 0, {...PAYMENT_METHODS_FAQ});
     }
     normalized.splice(methodsIndex + 1, 0, {...CASH_FAQ});
+    // "Can I update my game list?" right after the questions about games
+    // (choosing them, games already installed), or at the end.
+    normalized = normalized.filter(faq => faq.kind !== GAMES_UPDATE_FAQ.kind);
+    let gamesAt = -1;
+    normalized.forEach((faq, index) => { if(matches(faq, /เกม/, /\bgames?\b/i)) gamesAt = index; });
+    normalized.splice(gamesAt >= 0 ? gamesAt + 1 : normalized.length, 0, {...GAMES_UPDATE_FAQ});
     // "How do I pay the balance?" right under "Do I need to pay to reserve?".
     normalized = normalized.filter(faq => faq.kind !== BALANCE_PAYMENT_FAQ.kind);
     const reservationIndex = normalized.findIndex(faq => faq.kind === RESERVATION_FAQ.kind);

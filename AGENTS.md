@@ -110,6 +110,29 @@ rules: `SHARED-WORKSPACE.md` in the delivery-app repo.
   5 minutes is a bug: log it in delivery-app `SHARED-WORKSPACE.md`. The rollback is
   `DATA_SOURCE_BOOKINGS=dual` on Render.
 
+## Games sent after hours move the delivery (27/11/2026)
+
+A rule shared with the Delivery App and the Bot. If games are sent or updated
+after the shop closes (from 18:00 the evening before delivery) or on the
+delivery day before it opens (until 09:59), AJ installs them from 10:00, which
+takes about 3 hours. A delivery booked before 13:00 then moves to 13:00.
+Removing games alone moves nothing.
+
+- **Here:**
+  - `game_index.html` asks before sending (`deliveryChangeForGames(names)` →
+    `confirmDeliveryChange`) and says a card will follow;
+  - `index.html` has the FAQ `GAMES_UPDATE_FAQ` ("อัปเดตรายการเกมได้ไหม?"), placed after
+    the other questions about games.
+- **Delivery App:**
+  - moves the booking;
+  - sends the card with **confirm** or **keep the old time** (the previous games
+    and time, until 10:00 that day);
+  - shows it on My rental (`/c/my`).
+- **Bot:** the game card says why, and the Rental Terms item 10 (version
+  `2026-11-27`) are in the agreement PDF.
+
+Keep the wording of the four places the same: the FAQ, the popup, the card, and the terms.
+
 ## Credentials
 
 Never put an API key, access token or password in a tracked file. They belong in

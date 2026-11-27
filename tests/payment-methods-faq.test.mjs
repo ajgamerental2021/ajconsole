@@ -24,7 +24,7 @@ const esc = (value) => String(value).replace(/[&<>"]/g, (c) => ({'&': '&amp;', '
 
 function faqContext() {
   const ctx = vm.createContext({});
-  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'PAYMENT_METHODS_FAQ', 'CASH_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'IDENTITY_HOW_FAQ', 'AGE_FAQ'].map(constant).join('\n')
+  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'PAYMENT_METHODS_FAQ', 'CASH_FAQ', 'GAMES_UPDATE_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'IDENTITY_HOW_FAQ', 'AGE_FAQ'].map(constant).join('\n')
     + constant('DEFAULT_FAQ') + fn('normalizeFaq') + ';this.normalizeFaq = normalizeFaq;', ctx);
   return ctx;
 }

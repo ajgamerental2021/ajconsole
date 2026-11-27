@@ -134,3 +134,29 @@ test('the games pill reads "รวม 10 เกม" / "Incl. 10 games" and is ne
   assert.match(source, /beforeRentGamesIncluded:"Incl\. 10 games",/);
   assert.doesNotMatch(source, /\.before-rent-device-games-tag span\{[^}]*text-overflow:ellipsis/);
 });
+
+test('FAQ "อัปเดตรายการเกมได้ไหม?": yes, and what a list sent after hours does to the delivery (TH/EN)', () => {
+  const ctx = vm.createContext({});
+  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'PAYMENT_METHODS_FAQ', 'CASH_FAQ', 'GAMES_UPDATE_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'IDENTITY_HOW_FAQ', 'AGE_FAQ'].map(constant).join('\n')
+    + constant('DEFAULT_FAQ') + fn('normalizeFaq') + ';this.normalizeFaq = normalizeFaq;', ctx);
+  const list = ctx.normalizeFaq([
+    {qTh: 'มีเกมติดตั้งมาในเครื่องเลยไหม', aTh: 'มี', qEn: 'Are games installed?', aEn: 'Yes'},
+    {qTh: 'เลือกเกมเองได้ไหม', aTh: 'ได้', qEn: 'Can I choose my own games?', aEn: 'Yes'},
+    {qTh: 'คืนค่าประกันเมื่อไหร่', aTh: 'x', qEn: 'When is the deposit returned?', aEn: 'x'},
+    {qTh: 'อัปเดตรายการเกมได้ไหม', aTh: 'เก่า', qEn: 'Can I update my games?', aEn: 'old'},
+  ]);
+  const at = list.findIndex((f) => f.kind === 'games-update');
+  assert.equal(list[at - 1].qTh, 'เลือกเกมเองได้ไหม', 'right after the last question about games');
+  assert.equal(list.filter((f) => f.kind === 'games-update').length, 1, 'the saved copy is replaced, not repeated');
+  const faq = list[at];
+  assert.equal(faq.qTh, 'อัปเดตรายการเกมได้ไหม?');
+  assert.match(faq.aTh, /^ได้ เปลี่ยนหรือเพิ่มเกมได้ก่อนเริ่มเช่า/);
+  assert.match(faq.aTh, /หลังร้านปิด \(ตั้งแต่ 18:00 น\. ของคืนก่อนวันส่ง\) หรือในวันส่งก่อนร้านเปิด \(00:00–09:59 น\.\)/);
+  assert.match(faq.aTh, /• ร้านจะติดตั้งเกมได้เมื่อร้านเปิด 10:00 น\. ใช้เวลาประมาณ 3 ชั่วโมง/);
+  assert.match(faq.aTh, /• เวลาส่งที่นัดไว้ก่อน 13:00 น\. \(เช่น 10:00, 11:00, 12:00 น\.\) จะเปลี่ยนเป็น 13:00 น\./);
+  assert.match(faq.aTh, /เลือกไม่รับเกมที่อัปเดตแล้วส่งเวลาเดิมพร้อมรายการเกมเดิม \(เลือกได้ถึง 10:00 น\. ของวันส่ง\)/);
+  assert.equal(faq.qEn, 'Can I update my game list?');
+  assert.match(faq.aEn, /after the shop closes \(from 18:00 the evening before delivery\) or on the delivery day before it opens \(00:00–09:59\)/);
+  assert.match(faq.aEn, /A delivery booked before 13:00 \(e\.g\. 10:00, 11:00, 12:00\) moves to 13:00/);
+  assert.ok(!/[฀-๿]/.test(faq.aEn + faq.qEn), 'English has no Thai');
+});

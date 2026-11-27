@@ -46,7 +46,7 @@ test('the panel redraw keeps drafts, and a sync does not overwrite them', () => 
 
 test('the travel question is always in the FAQ, in Thai and English, once', () => {
   const ctx = vm.createContext({});
-  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'PAYMENT_METHODS_FAQ', 'CASH_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'IDENTITY_HOW_FAQ', 'AGE_FAQ'].map(constant).join('\n')
+  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'PAYMENT_METHODS_FAQ', 'CASH_FAQ', 'GAMES_UPDATE_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'IDENTITY_HOW_FAQ', 'AGE_FAQ'].map(constant).join('\n')
     + source.slice(source.indexOf('  const DEFAULT_FAQ = ['), source.indexOf('\n  ];', source.indexOf('  const DEFAULT_FAQ = [')) + 5)
     + fn('normalizeFaq') + ';this.normalizeFaq = normalizeFaq; this.TRAVEL_FAQ = TRAVEL_FAQ;', ctx);
   const stored = [
@@ -65,7 +65,7 @@ test('the travel question is always in the FAQ, in Thai and English, once', () =
 
 test('"ต้องโอนจองไหม" is rewritten and "ชำระส่วนที่เหลืออย่างไร" sits right under it (TH/EN)', () => {
   const ctx = vm.createContext({});
-  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'PAYMENT_METHODS_FAQ', 'CASH_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'IDENTITY_HOW_FAQ', 'AGE_FAQ'].map(constant).join('\n')
+  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'PAYMENT_METHODS_FAQ', 'CASH_FAQ', 'GAMES_UPDATE_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'IDENTITY_HOW_FAQ', 'AGE_FAQ'].map(constant).join('\n')
     + source.slice(source.indexOf('  const DEFAULT_FAQ = ['), source.indexOf('\n  ];', source.indexOf('  const DEFAULT_FAQ = [')) + 5)
     + fn('normalizeFaq') + ';this.normalizeFaq = normalizeFaq;', ctx);
   const stored = [
@@ -88,7 +88,7 @@ test('"ต้องโอนจองไหม" is rewritten and "ชำระ�
 
 test('"คืนค่าประกันเมื่อไหร่" becomes "คืนค่าประกันเมื่อไหร่และอย่างไร?" / "When and how is the deposit returned?", answer kept', () => {
   const ctx = vm.createContext({});
-  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'PAYMENT_METHODS_FAQ', 'CASH_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'IDENTITY_HOW_FAQ', 'AGE_FAQ'].map(constant).join('\n')
+  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'PAYMENT_METHODS_FAQ', 'CASH_FAQ', 'GAMES_UPDATE_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'IDENTITY_HOW_FAQ', 'AGE_FAQ'].map(constant).join('\n')
     + source.slice(source.indexOf('  const DEFAULT_FAQ = ['), source.indexOf('\n  ];', source.indexOf('  const DEFAULT_FAQ = [')) + 5)
     + fn('normalizeFaq') + ';this.normalizeFaq = normalizeFaq;', ctx);
   const answerEn = 'Once all equipment is returned and inspected, the deposit will be refunded the same day via Thai bank transfer or Wise for international customers.';
@@ -109,7 +109,7 @@ test('"คืนค่าประกันเมื่อไหร่" becomes 
 // ID card on the Thai page, the passport on the English page.
 test('"ยืนยันตัวตนยังไง?" is right above the no-identity question, once, TH/EN with example photos', () => {
   const ctx = vm.createContext({});
-  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'PAYMENT_METHODS_FAQ', 'CASH_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'IDENTITY_HOW_FAQ', 'AGE_FAQ'].map(constant).join('\n')
+  vm.runInContext(['RENTAL_CHANGE_FAQ', 'TRAVEL_FAQ', 'DELIVERY_FAQS', 'DELIVERY_PROCESS_FAQ', 'RESERVATION_FAQ', 'BALANCE_PAYMENT_FAQ', 'PAYMENT_METHODS_FAQ', 'CASH_FAQ', 'GAMES_UPDATE_FAQ', 'DEPOSIT_RETURN_QUESTION', 'NO_CONTRACT_FAQ', 'IDENTITY_HOW_FAQ', 'AGE_FAQ'].map(constant).join('\n')
     + source.slice(source.indexOf('  const DEFAULT_FAQ = ['), source.indexOf('\n  ];', source.indexOf('  const DEFAULT_FAQ = [')) + 5)
     + fn('normalizeFaq') + ';this.normalizeFaq = normalizeFaq;', ctx);
   const list = ctx.normalizeFaq([
