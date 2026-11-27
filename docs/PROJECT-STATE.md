@@ -18,6 +18,13 @@
   2. Bot, then the website (the website reads linkExpiry; the Bot accepts both shapes);
   3. after Meta approval, set `WHATSAPP_TEMPLATE_RETURN_TODAY_PADLOCK` on DA.
 
+## 2026-11-27 — Games delivery card easier to read (DA 71b945e)
+
+- On the card, the new time stays on one line.
+- The "keep" button reads "ไม่รับเกมที่อัปเดตและส่งเวลาเดิม", without the time that LINE cut.
+- Shorter lines and more spacing, in Thai and English, on LINE, the page and My rental.
+- The WhatsApp template is in paragraphs (still to submit).
+
 ## 2026-11-27 — Games: "Rented" is not "delivered" (DA c42a0f0)
 
 - **What happened:** the staff card button refused today's booking ("ไม่พบ Booking ที่ยังรอส่งเครื่อง"). Status reads "Rented" from the first rental day, before delivery, and the game rules took it as delivered. Lists sent on the delivery morning never moved the time either.
