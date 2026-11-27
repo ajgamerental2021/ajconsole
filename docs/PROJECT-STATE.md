@@ -18,6 +18,14 @@
   2. Bot, then the website (the website reads linkExpiry; the Bot accepts both shapes);
   3. after Meta approval, set `WHATSAPP_TEMPLATE_RETURN_TODAY_PADLOCK` on DA.
 
+## 2026-11-27 — LINE buttons never cut; refund account hint
+
+- **Delivery App `bb9b00d`, Bot `35cfbd4`:**
+  - every button on every LINE card shrinks its text to fit instead of showing "…" (e.g. "Change delivery time / locat…");
+  - it is applied where each system sends to LINE, so new cards are covered too.
+- **Website `6551261` and My rental:** a hint under the account field says to enter the bank account number, not the ATM/debit card number (TH/EN).
+- **Deploy:** the Delivery App and the Bot, then the website.
+
 ## 2026-11-27 — Refund account number up to 20 digits
 
 - **Change (website 8d80877, Bot bd6a4a4):** a 16-digit account could not be entered, so the limit went from 13 to 20 digits on the website and in the Bot's checks.
