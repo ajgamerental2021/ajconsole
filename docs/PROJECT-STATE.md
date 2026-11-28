@@ -18,6 +18,20 @@
   2. Bot, then the website (the website reads linkExpiry; the Bot accepts both shapes);
   3. after Meta approval, set `WHATSAPP_TEMPLATE_RETURN_TODAY_PADLOCK` on DA.
 
+## 2026-11-28 — Refund waits for the account; PS5 placement picture; website when the domain is blocked
+
+- **Refund (DA `3d47a9e`):**
+  - a return closed without a refund account sends the shop "⏳ รอลูกค้าแจ้งเลขบัญชี";
+  - when the customer gives the account on My rental, the shop gets "อัปเดตเลขบัญชีแล้ว คืนค่าประกันได้" with the account and the copy / slip buttons.
+- **PS5 placement picture:**
+  - the new picture is on the LINE card (TH/EN) and My rental;
+  - the shop can change it in Profile (🧭 รูปวิธีวางเครื่อง PS5).
+  - **Deploy the website `66bd0c3` before the DA backend.**
+- **Website `4b8b7b2`, ERR_CONNECTION_RESET on ajgamerental.com:**
+  - **Cause:** the customer's network (it reached the Render address, which is the same server). The usual causes are office/school Wi-Fi blocking "games" sites or a carrier security filter.
+  - **Fix:** the Render address no longer forces the move when the domain does not answer.
+  - **Send such a customer:** `https://ajgamerental.onrender.com/?stay=1&allConsoles=1&lang=th`, and ask them to try mobile data or another Wi-Fi.
+
 ## 2026-11-28 — Web Notification never spins forever (DA a77c19a, frontend)
 
 - **Problem:** on an iPhone the Profile switch kept loading and never came on.
