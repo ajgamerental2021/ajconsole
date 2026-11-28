@@ -18,6 +18,19 @@
   2. Bot, then the website (the website reads linkExpiry; the Bot accepts both shapes);
   3. after Meta approval, set `WHATSAPP_TEMPLATE_RETURN_TODAY_PADLOCK` on DA.
 
+## 2026-11-28 — Web Notification never spins forever (DA a77c19a, frontend)
+
+- **Problem:** on an iPhone the Profile switch kept loading and never came on.
+- **Fix:** every step of turning it on now has a time limit:
+  - permission;
+  - the phone's service worker (no longer waits on `serviceWorker.ready`, which can hang on iOS);
+  - the push subscription;
+  - the server.
+- When a step fails, the app says which one and what to do.
+- A subscription made with an older key is replaced.
+- **Deploy:** the Delivery App web (frontend).
+- **Owner's next step:** if the message says to reopen the app, close it from the home screen and open it again.
+
 ## 2026-11-27 — How to rent: summary only (website 3b9c99a)
 
 - **Shown:** only the "ทำรายการเช่าผ่านเว็บไซต์" summary, with the booking button.
