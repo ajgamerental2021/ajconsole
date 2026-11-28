@@ -1,3 +1,12 @@
+## 2026-11-28 — Trip page: pay at the top when the rental is close (DA b9838d4)
+
+- **Customer trip page on a phone:**
+  - when the delivery is within 15 minutes or 2 km, or has arrived, and a balance is owed, the payment card (balance and pay button) sits right under the status;
+  - the customer sees it without scrolling, in TH and EN.
+- **Unchanged:** a return, nothing to pay, and large screens.
+- **Test:** `test:trip-pay-first` (15 checks).
+- **Deploy:** DA backend only.
+
 ## 2026-11-26 — Padlock terms spaced, WhatsApp return-day template with them, special-rate link expiry
 
 - **Padlock terms (DA `00968b7`):** the charges are rows with the price on the right, with space between title, terms, charges and note. Applies to the LINE card and My rental, TH/EN.
