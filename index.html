@@ -2087,10 +2087,28 @@ body{background:#f7f8fa}
   // in Render and serving this site; old Render links then forward to it with
   // their path and query intact. Leave it off until then, or the old links
   // would forward to a domain that is not answering yet.
+  //
+  // 28/11/2026: a customer's network reset every connection to
+  // ajgamerental.com (ERR_CONNECTION_RESET) while the Render address opened,
+  // and the forced move then took them to the page they could not open. So
+  // the move happens only once the domain is seen to answer from this device
+  // (assets/reach.gif, 42 bytes, 2.5 s at most); otherwise the page stays here and
+  // works as it is. `?stay=1` never moves: the link to send such a customer.
   const CANONICAL_HOST = "ajgamerental.com";
   const CANONICAL_REDIRECT = true;
-  if(CANONICAL_REDIRECT && /\.onrender\.com$/i.test(location.hostname)){
-    location.replace(`https://${CANONICAL_HOST}${location.pathname}${location.search}${location.hash}`);
+  if(CANONICAL_REDIRECT && /\.onrender\.com$/i.test(location.hostname) && new URLSearchParams(location.search).get("stay") !== "1"){
+    const target = `https://${CANONICAL_HOST}${location.pathname}${location.search}${location.hash}`;
+    const probe = new Image();
+    let settled = false;
+    const done = reachable => {
+      if(settled) return;
+      settled = true;
+      if(reachable) location.replace(target);
+    };
+    probe.onload = () => done(true);
+    probe.onerror = () => done(false);
+    window.setTimeout(() => done(false), 2500);
+    probe.src = `https://${CANONICAL_HOST}/assets/reach.gif?t=${Date.now()}`;
   }
   const PAGE_PARAMS = new URLSearchParams(location.search);
   // Special rental rate (14/11/2026): a private campaign link the shop sends
