@@ -1,3 +1,10 @@
+## 2026-11-28 — Trip page: amount to pay top right (DA 8909b5f)
+
+- **Payment card on the customer trip page:**
+  - the total box sits top right, beside the title and the method, so the card is shorter;
+  - phone and PC, TH and EN.
+- **Deploy:** DA backend only.
+
 ## 2026-11-28 — Trip page: pay at the top when the rental is close (DA b9838d4)
 
 - **Customer trip page on a phone:**
